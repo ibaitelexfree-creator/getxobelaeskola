@@ -1,0 +1,34 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL}
+        NEXT_PUBLIC_SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY}
+        SUPABASE_SERVICE_ROLE_KEY: ${SUPABASE_SERVICE_ROLE_KEY}
+        STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}
+        NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: ${NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY}
+        NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL}
+        GOOGLE_CALENDAR_ID: ${GOOGLE_CALENDAR_ID}
+        GOOGLE_CLIENT_EMAIL: ${GOOGLE_CLIENT_EMAIL}
+        GOOGLE_PRIVATE_KEY: ${GOOGLE_PRIVATE_KEY}
+    image: ${DOCKER_IMAGE:-getxo-web:latest}
+    container_name: getxo-web
+    restart: always
+    expose:
+      - "3000"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.getxo.rule=Host(`getxobelaeskola.cloud`) || Host(`www.getxobelaeskola.cloud`)"
+      - "traefik.http.routers.getxo.entrypoints=websecure"
+      - "traefik.http.routers.getxo.tls.certresolver=mytlschallenge"
+      - "traefik.http.services.getxo.loadbalancer.server.port=3000"
+    env_file:
+      - .env
+    networks:
+      - n8n_default
+
+networks:
+  n8n_default:
+    external: true

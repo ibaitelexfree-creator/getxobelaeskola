@@ -1,0 +1,6 @@
+--- INSPECCIÓN DE CURSOS ---
+Curso: Iniciación J80 | LevelID: null | Módulos: 0
+Curso: Perfeccionamiento Vela | LevelID: null | Módulos: 0
+Curso: Licencia de Navegación | LevelID: null | Módulos: 0
+Curso: Curso de Vela Ligera | LevelID: null | Módulos: 0
+Curso: Iniciación a la Vela | LevelID: 2432eb5b-e42f-4586-995a-cc54f0c8320d | Módulos: 4
