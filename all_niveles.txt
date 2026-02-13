@@ -1,0 +1,8 @@
+--- NIVELES ---
+763be2f7-ca79-4cbc-a2fb-2b392bb38b78 : Meteorología Náutica
+2432eb5b-e42f-4586-995a-cc54f0c8320d : Iniciación a la Vela
+78800f3a-220b-4d1a-846a-4effed8c4f87 : Perfeccionamiento
+cbf54ea9-0bf6-4cb8-8cb7-8e383b439b69 : Vela Ligera
+f541ce52-5fc9-4420-90a7-a831ac3485e8 : Crucero
+f6e99166-b0fb-4f20-899c-4f0bd64694e0 : Maniobras Avanzadas
+a7eab3e5-5b90-4ea8-8810-6b9d9630ae74 : Seguridad y Emergencias
