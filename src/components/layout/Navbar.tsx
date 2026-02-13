@@ -177,15 +177,18 @@ export default function Navbar({ locale: propLocale }: { locale?: string }) {
                     {/* Hamburger Button - Enhanced visibility */}
                     <button
                         onClick={() => setIsMenuOpen(!isMenuOpen)}
-                        className="xl:hidden group h-12 flex items-center gap-3 bg-accent/90 hover:bg-accent border border-accent/20 px-4 rounded-full text-nautical-black transition-all active:scale-95 shadow-lg shadow-accent/20"
+                        className="xl:hidden group w-12 h-12 flex flex-col items-center justify-center gap-1.5 bg-accent hover:bg-white border border-accent/20 rounded-sm text-nautical-black transition-all active:scale-95 shadow-lg shadow-accent/20 relative z-[150]"
                         aria-label={isMenuOpen ? t('close') : t('menu')}
                     >
-                        <span className="text-[10px] uppercase font-black tracking-[0.2em] pt-0.5">
-                            {isMenuOpen ? t('close') : t('menu')}
-                        </span>
-                        <div className="relative w-5 h-5 flex items-center justify-center">
-                            {isMenuOpen ? <X size={20} strokeWidth={3} /> : <Menu size={20} strokeWidth={3} />}
-                        </div>
+                        {isMenuOpen ? (
+                            <X size={28} strokeWidth={3} />
+                        ) : (
+                            <div className="flex flex-col gap-1.5 w-7">
+                                <span className="block w-full h-1 bg-nautical-black rounded-full" />
+                                <span className="block w-full h-1 bg-nautical-black rounded-full" />
+                                <span className="block w-full h-1 bg-nautical-black rounded-full" />
+                            </div>
+                        )}
                     </button>
                 </div>
             </nav>

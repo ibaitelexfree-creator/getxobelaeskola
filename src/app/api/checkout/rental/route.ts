@@ -6,7 +6,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
 export async function POST(request: Request) {
     try {
-        const { serviceId, optionIndex, locale, reservedDate, reservedTime } = await request.json();
+        const { serviceId, optionIndex, locale, reservedDate, reservedTime, legalName, legalDni } = await request.json();
         const { user, supabase, error: authError } = await requireAuth();
         if (authError) return authError;
 
@@ -79,6 +79,8 @@ export async function POST(request: Request) {
                 option_index: optionIndex !== undefined ? optionIndex.toString() : '',
                 reserved_date: reservedDate,
                 reserved_time: reservedTime,
+                legal_name: legalName || '',
+                legal_dni: legalDni || '',
                 mode: 'rental_test'
             },
         });

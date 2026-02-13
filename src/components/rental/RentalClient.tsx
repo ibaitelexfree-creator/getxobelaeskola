@@ -1,9 +1,9 @@
 'use client';
 
-
 import { useState, useRef } from 'react';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
+import LegalConsentModal from '../shared/LegalConsentModal';
 
 interface RentalService {
     id: string;
@@ -36,6 +36,8 @@ export default function RentalClient({
 
     const [selectedTime, setSelectedTime] = useState<string>('10:00');
     const [loading, setLoading] = useState(false);
+    const [isLegalModalOpen, setIsLegalModalOpen] = useState(false);
+    const [pendingBooking, setPendingBooking] = useState<{ serviceId: string; optionIndex?: number } | null>(null);
 
     const dayRef = useRef<HTMLInputElement>(null);
     const monthRef = useRef<HTMLInputElement>(null);
@@ -123,6 +125,18 @@ export default function RentalClient({
     };
 
     const handleBooking = async (serviceId: string, optionIndex?: number) => {
+        // Intercept for legal consent
+        setPendingBooking({ serviceId, optionIndex });
+        setIsLegalModalOpen(true);
+    };
+
+    const handleLegalConfirm = async (legalData: { fullName: string; email: string; dni: string }) => {
+        if (!pendingBooking) return;
+        setIsLegalModalOpen(false);
+        setLoading(true);
+
+        const { serviceId, optionIndex } = pendingBooking;
+
         let finalYear = parseInt(year);
         if (finalYear < currentYear) finalYear = currentYear;
         if (finalYear > currentYear + 1) finalYear = currentYear + 1;
@@ -130,13 +144,31 @@ export default function RentalClient({
         if (day.length === 0 || month.length === 0) {
             alert(t('booking.invalid_date'));
             dayRef.current?.focus();
+            setLoading(false);
             return;
         }
 
         const dateValue = `${finalYear}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
 
-        setLoading(true);
         try {
+            // Log consent
+            const consentResponse = await fetch('/api/legal/consent', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    fullName: legalData.fullName,
+                    email: legalData.email,
+                    dni: legalData.dni,
+                    legalText: "He leído y acepto expresamente las condiciones legales detalladas anteriormente. Entiendo que esta aceptación equivale a una firma digital vinculante.",
+                    consentType: 'rental',
+                    referenceId: serviceId
+                })
+            });
+
+            if (!consentResponse.ok) {
+                throw new Error('No se pudo registrar la firma legal. Inténtalo de nuevo.');
+            }
+
             const response = await fetch('/api/checkout/rental', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -145,7 +177,10 @@ export default function RentalClient({
                     optionIndex,
                     locale,
                     reservedDate: dateValue,
-                    reservedTime: selectedTime
+                    reservedTime: selectedTime,
+                    // Pass legal data to checkout for metadata
+                    legalName: legalData.fullName,
+                    legalDni: legalData.dni
                 })
             });
 
@@ -173,6 +208,7 @@ export default function RentalClient({
             alert(t('booking.booking_error'));
         } finally {
             setLoading(false);
+            setPendingBooking(null);
         }
     };
 
@@ -374,6 +410,25 @@ export default function RentalClient({
                     );
                 })}
             </div>
+            <LegalConsentModal
+                isOpen={isLegalModalOpen}
+                onClose={() => setIsLegalModalOpen(false)}
+                onConfirm={handleLegalConfirm}
+                consentType="rental"
+                legalText={`CONTRATO DE ARRENDAMIENTO DE MATERIAL NÁUTICO - GETXO BELA ESKOLA
+
+1. REQUISITOS DEL ARRENDATARIO: El cliente declara poseer los conocimientos técnicos necesarios para el manejo seguro del material alquilado. En caso de veleros de recreo, se requiere la titulación mínima correspondiente.
+
+2. ESTADO Y DEVOLUCIÓN: El material se entrega en perfecto estado de funcionamiento. El cliente se compromete a devolverlo en el mismo estado. Cualquier daño causado por negligencia será responsabilidad exclusiva del cliente.
+
+3. ZONAS DE NAVEGACIÓN: La navegación se limitará a las zonas autorizadas y tiempos acordados. El cliente se compromete a respetar las normas del Puerto Deportivo de Getxo y la normativa de Capitanía Marítima.
+
+4. SEGURIDAD: El uso del chaleco salvavidas es obligatorio y personal durante todo el tiempo que se permanezca en el agua.
+
+5. RESCATE Y ASISTENCIA: Si el cliente requiere asistencia o rescate por imprudencia o salida de las zonas permitidas, los costes derivados correrán a su cargo.
+
+6. FIRMA DIGITAL: Al marcar la casilla de aceptación, el cliente ratifica que ha comprendido todos los puntos anteriores y asume su responsabilidad legal.`}
+            />
         </div>
     );
 }

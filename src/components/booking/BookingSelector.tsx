@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
+import LegalConsentModal from '../shared/LegalConsentModal';
 
 
 interface Edition {
@@ -23,21 +24,43 @@ export default function BookingSelector({ editions, coursePrice, courseId }: Boo
     const [selectedEdition, setSelectedEdition] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const [mounted, setMounted] = useState(false);
-
-
+    const [isLegalModalOpen, setIsLegalModalOpen] = useState(false);
 
     useEffect(() => {
         setMounted(true);
     }, []);
 
-    const handleBooking = async () => {
-        // If price is 0, we don't need edition
+    const handleBookingClick = () => {
         if (coursePrice > 0 && !selectedEdition) return;
+        setIsLegalModalOpen(true);
+    };
+
+    const handleLegalConfirm = async (legalData: { fullName: string; email: string; dni: string }) => {
+        setIsLegalModalOpen(false);
         setLoading(true);
 
         try {
             const selectedEditionData = editions.find(e => e.id === selectedEdition);
 
+            // Log consent
+            const consentResponse = await fetch('/api/legal/consent', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    fullName: legalData.fullName,
+                    email: legalData.email,
+                    dni: legalData.dni,
+                    legalText: "He leído y acepto expresamente las condiciones legales detalladas anteriormente. Entiendo que esta aceptación equivale a una firma digital vinculante.",
+                    consentType: 'course',
+                    referenceId: courseId
+                })
+            });
+
+            if (!consentResponse.ok) {
+                throw new Error('No se pudo registrar la firma legal. Inténtalo de nuevo.');
+            }
+
+            // Original Checkout Logic
             const response = await fetch('/api/checkout', {
                 method: 'POST',
                 headers: {
@@ -45,11 +68,13 @@ export default function BookingSelector({ editions, coursePrice, courseId }: Boo
                 },
                 body: JSON.stringify({
                     editionId: selectedEdition,
-                    courseId: courseId, // Always pass courseId
+                    courseId: courseId,
                     locale: window.location.pathname.split('/')[1] || 'es',
-                    // Pass dates for metadata/test tracking
                     startDate: selectedEditionData?.fecha_inicio,
-                    endDate: selectedEditionData?.fecha_fin
+                    endDate: selectedEditionData?.fecha_fin,
+                    // Pass legal data to checkout for metadata
+                    legalName: legalData.fullName,
+                    legalDni: legalData.dni
                 }),
             });
 
@@ -154,7 +179,7 @@ export default function BookingSelector({ editions, coursePrice, courseId }: Boo
             </div>
 
             <button
-                onClick={handleBooking}
+                onClick={handleBookingClick}
                 disabled={coursePrice > 0 && !selectedEdition || loading}
                 aria-label={loading ? t('processing') : `${t('book_for')} ${coursePrice} euros`}
                 aria-busy={loading}
@@ -163,6 +188,26 @@ export default function BookingSelector({ editions, coursePrice, courseId }: Boo
             >
                 {loading ? t('processing') : `${t('book_for')} ${coursePrice}€`}
             </button>
+
+            <LegalConsentModal
+                isOpen={isLegalModalOpen}
+                onClose={() => setIsLegalModalOpen(false)}
+                onConfirm={handleLegalConfirm}
+                consentType="course"
+                legalText={`CONDICIONES GENERALES DE CONTRATACIÓN - GETXO BELA ESKOLA
+
+1. OBJETO Y ÁMBITO DE APLICACIÓN: El presente documento establece las condiciones legales para la inscripción en los cursos impartidos por Getxo Bela Eskola.
+
+2. APTITUD FÍSICA Y SEGURIDAD: El alumno declara estar en condiciones físicas adecuadas para la práctica de la navegación y no padecer enfermedades que lo impidan. Es obligatorio el uso de chaleco salvavidas y seguir las instrucciones del patrón o instructor en todo momento.
+
+3. RESPONSABILIDAD: Getxo Bela Eskola no se hace responsable de las pertenencias personales de los alumnos. La escuela cuenta con los seguros de responsabilidad civil y accidentes obligatorios por ley.
+
+4. CONDICIONES METEOROLÓGICAS: La escuela se reserva el derecho de cancelar o aplazar las sesiones si las condiciones del mar o el viento representan un riesgo para la seguridad de los alumnos y el material.
+
+5. POLÍTICA DE CANCELACIÓN: Las cancelaciones por parte del alumno deberán comunicarse con al menos 48 horas de antelación para tener derecho a reubicación en otra fecha (sujeto a disponibilidad).
+
+6. ACEPTACIÓN: El click en "Acepto" constituye una firma electrónica vinculante bajo la legislación vigente de servicios de la sociedad de la información.`}
+            />
         </div>
     );
 }
