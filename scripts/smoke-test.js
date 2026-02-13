@@ -1,7 +1,7 @@
 // @ts-check
 const fetch = globalThis.fetch;
 
-const BASE_URL = 'http://localhost:3011';
+const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://getxobelaeskola.cloud';
 
 async function checkUrl(path) {
     const url = `${BASE_URL}${path}`;

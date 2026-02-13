@@ -3,7 +3,7 @@ import UnitReaderMain from './UnitReaderMain';
 
 export async function generateMetadata({ params }: { params: { locale: string; id: string } }) {
     try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/academy/unit/${params.id}`);
+        const res = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || (process.env.NODE_ENV === 'production' ? 'https://getxobelaeskola.cloud' : 'http://localhost:3000')}/api/academy/unit/${params.id}`);
         const data = await res.json();
 
         if (data.error || !data.unidad) {

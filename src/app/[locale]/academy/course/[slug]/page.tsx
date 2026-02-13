@@ -3,7 +3,7 @@ import CourseDetailMain from './CourseDetailMain';
 
 export async function generateMetadata({ params }: { params: { locale: string; slug: string } }) {
     try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/academy/course/${params.slug}`);
+        const res = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || (process.env.NODE_ENV === 'production' ? 'https://getxobelaeskola.cloud' : 'http://localhost:3000')}/api/academy/course/${params.slug}`);
         const data = await res.json();
 
         if (data.error || !data.curso) {

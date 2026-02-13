@@ -10,7 +10,7 @@ export async function POST(request: Request) {
         const { user, supabase, error: authError } = await requireAuth();
         if (authError) return authError;
 
-        const origin = request.headers.get('origin') || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+        const origin = request.headers.get('origin') || process.env.NEXT_PUBLIC_APP_URL || (process.env.NODE_ENV === 'production' ? 'https://getxobelaeskola.cloud' : 'http://localhost:3000');
 
         let course: any = null;
         let edition: any = null;

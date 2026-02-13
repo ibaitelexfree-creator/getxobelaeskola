@@ -104,9 +104,9 @@ export default function Navbar({ locale: propLocale }: { locale?: string }) {
 
     return (
         <>
-            <nav className="fixed top-0 left-0 w-full z-[100] px-3 sm:px-4 md:px-6 py-4 md:py-6 xl:py-8 flex justify-between items-center bg-nautical-deep/80 backdrop-blur-md border-b border-white/5 transition-all duration-500">
-                <Link href={`/${locale}`} className="flex items-center gap-2 md:gap-3 group transition-transform hover:scale-105 relative z-[110]">
-                    <div className="relative w-12 h-12 md:w-14 md:h-14">
+            <nav className="fixed top-0 left-0 w-full z-[100] px-3 sm:px-4 md:px-6 py-2 md:py-6 xl:py-8 flex justify-between items-center bg-nautical-deep/80 backdrop-blur-md border-b border-white/5 transition-all duration-500">
+                <Link href={`/${locale}`} className="flex items-center gap-2 md:gap-4 group transition-transform hover:scale-105 relative z-[110]">
+                    <div className="relative w-16 h-16 md:w-14 md:h-14">
                         <Image
                             src="/images/LogoGetxoBelaEskola.png"
                             alt="Getxo Bela Eskola"
@@ -115,10 +115,10 @@ export default function Navbar({ locale: propLocale }: { locale?: string }) {
                         />
                     </div>
                     <div className="flex flex-col">
-                        <span className="font-display text-base md:text-xl tracking-tight text-white leading-none">
+                        <span className="font-display text-xl md:text-xl tracking-tight text-white leading-none">
                             GETXO <span className="italic font-light text-accent">BELA</span>
                         </span>
-                        <span className="text-[7px] md:text-2xs uppercase tracking-[0.4em] text-white/40 font-bold mt-1">Escuela Náutica</span>
+                        <span className="text-[10px] md:text-2xs uppercase tracking-[0.4em] text-white/40 font-bold mt-1">Escuela Náutica</span>
                     </div>
                 </Link>
 
