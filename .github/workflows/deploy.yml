@@ -32,6 +32,9 @@ jobs:
             type=ref,event=branch
             type=sha,format=short
             latest
+        # Add this to ensure lowercase
+        env:
+          DOCKER_METADATA_ANNOTATIONS_LEVELS: manifest,index
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
@@ -50,28 +53,48 @@ jobs:
             NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=${{ secrets.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY }}
             NEXT_PUBLIC_APP_URL=${{ secrets.NEXT_PUBLIC_APP_URL }}
             GOOGLE_CALENDAR_ID=${{ secrets.GOOGLE_CALENDAR_ID }}
-            GOOGLE_CLIENT_EMAIL=${{ secrets.GOOGLE_CLIENT_EMAIL }}
+            GOOGLE_SERVICE_ACCOUNT_EMAIL=${{ secrets.GOOGLE_SERVICE_ACCOUNT_EMAIL }}
             GOOGLE_PRIVATE_KEY=${{ secrets.GOOGLE_PRIVATE_KEY }}
+            STRIPE_WEBHOOK_SECRET=${{ secrets.STRIPE_WEBHOOK_SECRET }}
+            RESEND_API_KEY=${{ secrets.RESEND_API_KEY }}
 
-      - name: Deploy to VPS
-        uses: appleboy/ssh-action@v1.0.3
+      - name: Copy docker-compose.yml to VPS
+        uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.VPS_IP }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
+          source: "docker-compose.yml"
+          target: "/opt/getxo-sailing"
+
+      - name: Deploy to VPS
+        uses: appleboy/ssh-action@v1.0.3
+        env:
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_ACTOR: ${{ github.actor }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          host: ${{ secrets.VPS_IP }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          envs: GITHUB_REPOSITORY,GITHUB_ACTOR,GITHUB_TOKEN
           script: |
-            cd /opt/getxo-sailing
-            # Login to GHCR on the VPS
-            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+            # Set the remote path
+            REMOTE_PATH="/opt/getxo-sailing"
+            cd $REMOTE_PATH
             
-            # Export the image name for docker compose
-            export DOCKER_IMAGE=ghcr.io/${{ github.repository }}:latest
+            # Login to GHCR
+            echo "$GITHUB_TOKEN" | docker login ghcr.io -u $GITHUB_ACTOR --password-stdin
             
-            # Pull the latest image
-            docker compose pull
+            # Lowercase the repo name for docker (GHCR requires lowercase)
+            REPO_LOWER=$(echo "$GITHUB_REPOSITORY" | tr '[:upper:]' '[:lower:]')
+            export DOCKER_IMAGE=ghcr.io/$REPO_LOWER:latest
             
-            # Update the service
-            docker compose up -d --remove-orphans
+            echo "Pulling latest image: $DOCKER_IMAGE"
+            docker compose pull web
             
-            # Cleanup
+            echo "Deploying update..."
+            docker compose up -d --remove-orphans --force-recreate web
+            
+            # Cleanup old images to save space
             docker image prune -f

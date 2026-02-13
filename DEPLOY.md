@@ -1,60 +1,54 @@
-# Deploy to Production
+# Deploy to Production (VPS + Docker)
 
-Your Getxo Sailing School app is ready for deployment. We recommend **Vercel** as it is the native platform for Next.js.
+Your Getxo Sailing School app is configured for a robust VPS deployment using **GitHub Actions**, **Docker Compose**, and **Traefik**.
 
 ## Prerequisites
 
-1.  A GitHub repository with this code.
-2.  A [Vercel Account](https://vercel.com/signup).
-3.  A [Supabase Project](https://supabase.com).
+1.  A VPS with **Docker** and **Docker Compose** installed.
+2.  **Traefik** set up as a reverse proxy (configured for the `n8n_default` network in this setup).
+3.  A GitHub repository with this code.
 
-## Environment Variables
+## GitHub Actions Configuration
 
-You must configure the following environment variables in your Vercel Project Settings:
+You must configure the following **GitHub Secrets** in your repository (Settings -> Secrets and variables -> Actions):
 
-```bash
-NEXT_PUBLIC_SUPABASE_URL=your_project_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
-SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
-STRIPE_SECRET_KEY=your_stripe_secret_key
-NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=your_stripe_public_key
-NEXT_PUBLIC_APP_URL=https://your-domain.com
-```
+### Infrastructure Secrets
+- `VPS_IP`: The IP address of your VPS.
+- `VPS_USER`: The SSH username (e.g., `root`).
+- `VPS_SSH_KEY`: Your private SSH key.
+
+### App Secrets (Build-Time)
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `SUPABASE_SERVICE_ROLE_KEY` (Used for admin tasks)
+- `NEXT_PUBLIC_APP_URL` (e.g., `https://getxobelaeskola.cloud`)
+- `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`
+- `STRIPE_SECRET_KEY`
+- `STRIPE_WEBHOOK_SECRET`
+- `RESEND_API_KEY`
+- `GOOGLE_CALENDAR_ID`
+- `GOOGLE_SERVICE_ACCOUNT_EMAIL`
+- `GOOGLE_PRIVATE_KEY`
 
 ## Deployment Steps
 
-1.  **Push to GitHub**:
-    ```bash
-    git add .
-    git commit -m "Ready for deploy"
-    git push origin main
-    ```
+1.  **Configure GitHub Secrets**: Add all variables listed above to your GitHub repository.
+2.  **VPS Setup**:
+    - Create the directory `/opt/getxo-sailing`.
+    - Place your `docker-compose.yml` and `.env` (optional, for runtime overrides) in that directory.
+    - Ensure the `n8n_default` network exists: `docker network create n8n_default`.
+3.  **Push to GitHub**:
+    - Commit and push your changes to the `main` or `master` branch.
+    - GitHub Actions will automatically build the image, push it to GHCR, and trigger the update on your VPS.
 
-2.  **Connect to Vercel**:
-    *   Go to Vercel Dashboard -> "Add New..." -> "Project".
-    *   Import your GitHub repository.
-    *   Vercel will detect Next.js automatically.
+## Monitoring & Troubleshooting
 
-3.  **Configure Environment**:
-    *   Paste the variables from above into the "Environment Variables" section.
+*   **GitHub Actions**: Check the "Actions" tab in your repository for build/deploy status.
+*   **VPS Logs**: Check container logs using `docker logs getxo-web -f`.
+*   **Health Check**: Visit `https://getxobelaeskola.cloud/api/health` (if implemented) or check the dashboard.
 
-4.  **Deploy**:
-    *   Click "Deploy".
-    *   Wait for the build to complete.
+## Security
 
-## Post-Deployment
-
-*   **Custom Domain**: Go to Settings -> Domains and add `getxosailing.com` (or your domain).
-*   **Supabase Auth**: Update your "Site URL" and "Redirect URLs" in Supabase Auth settings to match your production domain.
-    *   Site URL: `https://your-domain.com`
-    *   Redirect URLs: `https://your-domain.com/auth/callback`, `https://your-domain.com/**`
-*   **Stripe Webhooks**: Update your webhook endpoint in Stripe Dashboard to `https://your-domain.com/api/webhook`.
-
-## Troubleshooting
-
-*   **Build Errors**: Check the "Build Logs" in Vercel. Common issues are TypeScript errors (we have `ignoreBuildErrors: true` so this should be fine) or missing env vars.
-*   **500 Errors**: Check the "Runtime Logs". Usually related to database connection or API keys.
-
-## Performance
-
-The app is configured with `vercel.json` to cache static assets (images) for 1 year. The sitemap and robots.txt are automatically generated.
+- All sensitive keys are injected at build time via GitHub Secrets.
+- The `SUPABASE_SERVICE_ROLE_KEY` is not exposed to the client.
+- SSH access is restricted via the `VPS_SSH_KEY`.
