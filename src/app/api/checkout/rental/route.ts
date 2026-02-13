@@ -52,7 +52,7 @@ export async function POST(request: Request) {
             optionLabel = service.opciones[optionIndex].label;
         }
 
-        const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+        const appUrl = process.env.NEXT_PUBLIC_APP_URL || (process.env.NODE_ENV === 'production' ? 'https://getxobelaeskola.cloud' : 'http://localhost:3000');
 
         // 4. Create Stripe Session
         const session = await stripe.checkout.sessions.create({

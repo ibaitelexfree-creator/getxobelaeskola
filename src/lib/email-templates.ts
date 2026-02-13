@@ -2,7 +2,7 @@
  * Plantillas de correo premium con diseño náutico.
  */
 
-const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://getxo-sailing-school.vercel.app';
+const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || (process.env.NODE_ENV === 'production' ? 'https://getxobelaeskola.cloud' : 'http://localhost:3000');
 const LOGO_URL = `${BASE_URL}/logo.png`; // Placeholder
 const BRAND_COLOR = '#0ea5e9'; // Accent color de la web
 const BG_COLOR = '#020617'; // Nautical black
