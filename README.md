@@ -1,4 +1,4 @@
-# Getxo Sailing School - Web Application ⚓
+# Getxo Bela Eskola - Web Application ⚓
 
 Modern Learning Management and Fleet Administration system for sailing schools.
 
