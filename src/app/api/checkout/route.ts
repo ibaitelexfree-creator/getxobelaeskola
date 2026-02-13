@@ -6,7 +6,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
 export async function POST(request: Request) {
     try {
-        const { editionId, courseId, locale, startDate, endDate } = await request.json();
+        const { editionId, courseId, locale, startDate, endDate, legalName, legalDni } = await request.json();
         const { user, supabase, error: authError } = await requireAuth();
         if (authError) return authError;
 
@@ -142,6 +142,10 @@ export async function POST(request: Request) {
                 edition_id: editionId || '', // Stripe metadata doesn't like null
                 user_id: user.id,
                 course_id: course.id,
+                start_date: startDate || '',
+                end_date: endDate || '',
+                legal_name: legalName || '',
+                legal_dni: legalDni || ''
             },
         });
 
