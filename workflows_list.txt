@@ -1,0 +1,8 @@
+T2NvCQHt6fuYsSRp | My workflow
+fo5YcBW1yw1abXmjbYWnm | Invoice Processing Drive + Financial Report
+CW7fBH9uCbLpDbuDVh3hw | RAG chatbot para email drafts (Drive + Gemini + Pinecone)
+iX0SE55OkNpKBr4FWjsVp | RAG chatbot for company documents using Google Drive and Gemini
+_2rJXZEX2Yl6axOi668n- | Email History RAG
+L17QR0fN54VXxJ9ubTnmM | Financial Gmail Document Extraction
+7vPjNAIa1VHlT32rwH2hY | Financial document extraction from Gmail to Google Sheets
+Cwz8fYVsPpxzrOm3 | My workflow 2

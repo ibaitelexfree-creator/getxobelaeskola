@@ -45,7 +45,9 @@ export default function Navbar({ locale: propLocale }: { locale?: string }) {
         const init = async () => {
             try {
                 const { data: { user }, error } = await supabase.auth.getUser();
-                if (error) console.error("Auth init error:", error.message);
+                if (error && !error.message.includes('Auth session missing')) {
+                    console.error("Auth init error:", error.message);
+                }
                 getUserData(user);
             } catch (err) {
                 console.error("Critical auth error:", err);
@@ -184,6 +186,7 @@ export default function Navbar({ locale: propLocale }: { locale?: string }) {
                             <X size={28} strokeWidth={3} />
                         ) : (
                             <div className="flex flex-col gap-1.5 w-7">
+                                <span className="sr-only">{t('menu')}</span>
                                 <span className="block w-full h-1 bg-nautical-black rounded-full" />
                                 <span className="block w-full h-1 bg-nautical-black rounded-full" />
                                 <span className="block w-full h-1 bg-nautical-black rounded-full" />

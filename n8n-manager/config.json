@@ -1,0 +1,9 @@
+{
+    "baseUrl": "https://n8n.srv1368175.hstgr.cloud",
+    "apiKey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlYmY3NGMyNS0yMTNjLTQ2YjktYTYzYi1lMzQ5ZGUwMjE5NWYiLCJpc3MiOiJuOG4iLCJhdWQiOiJwdWJsaWMtYXBpIiwianRpIjoiNjU5ODI0MjYtOTlmNi00YWY1LTg2MjgtZjBlMzZiMzRiNjQzIiwiaWF0IjoxNzcxMDA0MDc5fQ.Y-rwX5etRvPMA2Bk18t87JnATXzOsFrj-yqEiup9ha0",
+    "vps": {
+        "ip": "76.13.52.6",
+        "user": "root",
+        "sshKey": "C:/Users/User/.ssh/hostinger_getxo"
+    }
+}
