@@ -10,6 +10,8 @@ export async function POST(request: Request) {
         const { user, supabase, error: authError } = await requireAuth();
         if (authError) return authError;
 
+        const { data: profile } = await supabase.from('profiles').select('nombre, apellidos').eq('id', user.id).single();
+
         // 2. Get Service Details
         const { data: service, error } = await supabase
             .from('servicios_alquiler')
@@ -74,13 +76,16 @@ export async function POST(request: Request) {
             success_url: `${appUrl}/${locale}/student/dashboard?success=true`,
             cancel_url: `${appUrl}/${locale}/rental?canceled=true`,
             metadata: {
-                user_id: user.id,
-                service_id: serviceId,
+                user_id: user.id as string,
+                user_name: profile?.nombre ? `${profile.nombre} ${profile.apellidos || ''}` : (user.email as string),
+                service_id: serviceId as string,
+                stripe_product_id: service.stripe_product_id as string || '',
+                item_name: `Alquiler: ${service.nombre_es} ${optionLabel ? `(${optionLabel})` : ''}`,
                 option_index: optionIndex !== undefined ? optionIndex.toString() : '',
-                reserved_date: reservedDate,
-                reserved_time: reservedTime,
-                legal_name: legalName || '',
-                legal_dni: legalDni || '',
+                reserved_date: reservedDate as string,
+                reserved_time: reservedTime as string,
+                legal_name: (legalName as string) || '',
+                legal_dni: (legalDni as string) || '',
                 mode: 'rental_test'
             },
         });

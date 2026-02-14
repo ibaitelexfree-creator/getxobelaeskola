@@ -10,6 +10,8 @@ export async function POST(request: Request) {
         const { user, supabase, error: authError } = await requireAuth();
         if (authError) return authError;
 
+        const { data: profile } = await supabase.from('profiles').select('nombre, apellidos').eq('id', user.id).single();
+
         const origin = request.headers.get('origin') || process.env.NEXT_PUBLIC_APP_URL || (process.env.NODE_ENV === 'production' ? 'https://getxobelaeskola.cloud' : 'http://localhost:3000');
 
         let course: any = null;
@@ -139,13 +141,17 @@ export async function POST(request: Request) {
             cancel_url: `${origin}/${locale}/courses/${course.slug}?canceled=true`,
             customer_email: user.email,
             metadata: {
-                edition_id: editionId || '', // Stripe metadata doesn't like null
-                user_id: user.id,
-                course_id: course.id,
-                start_date: startDate || '',
-                end_date: endDate || '',
-                legal_name: legalName || '',
-                legal_dni: legalDni || ''
+                edition_id: (editionId as string) || '', // Stripe metadata doesn't like null
+                user_id: user.id as string,
+                course_id: course.id as string,
+                stripe_product_id: course.stripe_product_id as string || '',
+                item_name: itemName as string,
+                user_name: profile?.nombre ? `${profile.nombre} ${profile.apellidos || ''}` : (user.email as string),
+                start_date: (startDate as string) || '',
+                end_date: (endDate as string) || '',
+                legal_name: (legalName as string) || '',
+                legal_dni: (legalDni as string) || '',
+                mode: 'course'
             },
         });
 

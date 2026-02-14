@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import Link from 'next/link';
 import StudentProfileSidebar from '@/components/student/StudentProfileSidebar';
+import MembershipWidget from '@/components/student/MembershipWidget';
 import { redirect } from 'next/navigation';
 
 export default async function StudentDashboard({
@@ -110,6 +111,12 @@ export default async function StudentDashboard({
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
                     {/* Main Content */}
                     <div className="lg:col-span-2 space-y-16">
+                        {/* Membership Section */}
+                        <MembershipWidget
+                            status={profile?.status_socio || 'no_socio'}
+                            locale={locale}
+                        />
+
                         {/* Academy Digital Widget */}
                         <section>
                             <div className="flex justify-between items-end mb-8">

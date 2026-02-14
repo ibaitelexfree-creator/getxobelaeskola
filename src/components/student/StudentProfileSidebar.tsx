@@ -1,6 +1,8 @@
 'use client';
-import React, { useState, useEffect } from 'react';
+import { createClient } from '@/lib/supabase/client';
+import { useEffect, useState } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import EditProfileModal from './EditProfileModal';
 import LogoutButton from '@/components/auth/LogoutButton';
 
@@ -10,6 +12,7 @@ interface Profile {
     apellidos: string;
     telefono: string;
     rol: string;
+    status_socio?: string;
 }
 
 interface StudentProfileSidebarProps {
@@ -21,13 +24,36 @@ interface StudentProfileSidebarProps {
 export default function StudentProfileSidebar({ profile, email, locale }: StudentProfileSidebarProps) {
     const [isEditing, setIsEditing] = useState(false);
     const [currentProfile, setCurrentProfile] = useState<Profile>(profile);
+    const [portalLoading, setPortalLoading] = useState(false);
 
     // Scroll to top on mount
     useEffect(() => {
         window.scrollTo({ top: 0, behavior: 'instant' });
     }, []);
 
-    // Initial render might miss phone number if not fetched in server component (it was fetched with `*` so it should be fine).
+    const handleManageMembership = async () => {
+        try {
+            setPortalLoading(true);
+            const res = await fetch('/api/membership/portal', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ locale })
+            });
+            const data = await res.json();
+            if (data.url) {
+                window.location.href = data.url;
+            } else {
+                alert(data.error || 'Error al abrir el portal de pagos');
+            }
+        } catch (error) {
+            console.error('Portal error:', error);
+            alert('Error de conexión');
+        } finally {
+            setPortalLoading(false);
+        }
+    };
+
+    const isSocio = currentProfile?.status_socio === 'activo';
 
     return (
         <aside className="space-y-8">
@@ -42,7 +68,14 @@ export default function StudentProfileSidebar({ profile, email, locale }: Studen
                         />
                     </div>
                     <h3 className="text-xl font-display italic text-white">{currentProfile?.nombre} {currentProfile?.apellidos}</h3>
-                    <span className="text-[8px] uppercase tracking-[0.4em] text-accent font-black mt-2">Miembro verificado</span>
+                    <div className="flex flex-col items-center gap-1 mt-2">
+                        <span className="text-[8px] uppercase tracking-[0.4em] text-accent font-black">Miembro verificado</span>
+                        {isSocio && (
+                            <span className="text-[10px] font-bold text-brass-gold flex items-center gap-1">
+                                <span className="animate-pulse">⚓</span> SOCIO GETXO BELA
+                            </span>
+                        )}
+                    </div>
                 </div>
 
                 <h3 className="text-3xs uppercase tracking-widest text-white/40 mb-6 font-bold">Información de Cuenta</h3>
@@ -65,6 +98,24 @@ export default function StudentProfileSidebar({ profile, email, locale }: Studen
                         Editar Perfil
                     </button>
 
+                    {isSocio && (
+                        <div className="space-y-2">
+                            <button
+                                onClick={handleManageMembership}
+                                disabled={portalLoading}
+                                className="w-full py-3 bg-white/5 border border-accent/20 text-[9px] uppercase tracking-widest font-bold text-accent hover:bg-accent/10 transition-all flex items-center justify-center gap-2"
+                            >
+                                {portalLoading ? 'Cargando...' : '⚙️ Gestionar Suscripción'}
+                            </button>
+                            <Link
+                                href={`/${locale}/student/membership/card`}
+                                className="w-full py-3 bg-brass-gold/10 border border-brass-gold/30 text-[9px] uppercase tracking-widest font-bold text-brass-gold hover:bg-brass-gold/20 transition-all flex items-center justify-center gap-2"
+                            >
+                                🆔 Mi Carnet de Socio
+                            </Link>
+                        </div>
+                    )}
+
                     <div className="pt-4 border-t border-white/5">
                         <LogoutButton locale={locale} />
                     </div>
@@ -77,7 +128,7 @@ export default function StudentProfileSidebar({ profile, email, locale }: Studen
                 onClose={() => setIsEditing(false)}
                 profile={currentProfile}
                 onProfileUpdate={(updated) => {
-                    setCurrentProfile(updated); // Update local state immediately
+                    setCurrentProfile(updated);
                     setIsEditing(false);
                 }}
             />

@@ -13,7 +13,7 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-    // console.log('--- WEBHOOK HIT ---');
+    const supabase = createAdminClient();
     try {
         const body = await request.text();
         const signature = headers().get('stripe-signature') as string;
@@ -29,45 +29,55 @@ export async function POST(request: Request) {
         }
 
         if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
-            console.error('CRITICAL: SUPABASE_SERVICE_ROLE_KEY is missing in .env.local');
+            console.error('CRITICAL: SUPABASE_SERVICE_ROLE_KEY is missing');
             return NextResponse.json({ error: 'Server Config Error' }, { status: 500 });
         }
 
-        const supabase = createAdminClient();
-
         // Handle the event
-        if (event.type === 'checkout.session.completed') {
-            const session = event.data.object as Stripe.Checkout.Session;
-            const metadata = session.metadata;
+        switch (event.type) {
+            case 'checkout.session.completed': {
+                const session = event.data.object as Stripe.Checkout.Session;
+                const metadata = session.metadata;
 
-            if (!metadata) {
-                console.error('No metadata found in session');
-                return NextResponse.json({ error: 'No metadata found' }, { status: 400 });
-            }
+                if (!metadata) {
+                    console.error('No metadata found in session');
+                    return NextResponse.json({ error: 'No metadata found' }, { status: 400 });
+                }
 
-            const { user_id, edition_id, course_id, mode, start_date, end_date, service_id, option_index, reserved_date, reserved_time } = metadata;
+                const { mode, user_id } = metadata;
 
-            // Handle Rental or Course
-            if (mode === 'rental_test') {
+                if (mode === 'subscription') {
+                    // 1. Link Subscription to User
+                    const subscriptionId = session.subscription as string;
+                    const customerId = session.customer as string;
 
-                // 1. Get Service for option label
-                const { data: service } = await supabase
-                    .from('servicios_alquiler')
-                    .select('*')
-                    .eq('id', service_id)
-                    .single();
+                    console.log('--- MEMBERSHIP COMPLETED ---', { user_id, subscriptionId });
 
-                const optionLabel = (option_index && service?.opciones[parseInt(option_index)])
-                    ? service.opciones[parseInt(option_index)].label
-                    : 'Estándar';
+                    if (user_id) {
+                        const { error: upError } = await supabase
+                            .from('profiles')
+                            .update({
+                                stripe_customer_id: customerId,
+                                stripe_subscription_id: subscriptionId,
+                                status_socio: 'activo',
+                                updated_at: new Date().toISOString()
+                            })
+                            .eq('id', user_id);
 
-                // 2. Register the rental
-                const { error: rentError } = await supabase
-                    .from('reservas_alquiler')
-                    .insert({
+                        if (upError) console.error('Error updating profile with subscription:', upError);
+                    }
+                } else if (mode === 'rental_test') {
+                    // ... existing rental logic ...
+                    const { service_id, option_index, reserved_date, reserved_time } = metadata;
+                    const { data: service } = await supabase.from('servicios_alquiler').select('*').eq('id', service_id).single();
+                    const optionLabel = (option_index && service?.opciones[parseInt(option_index)])
+                        ? service.opciones[parseInt(option_index)].label
+                        : 'Estándar';
+
+                    const { error: rentError } = await supabase.from('reservas_alquiler').insert({
                         perfil_id: user_id,
                         servicio_id: service_id,
-                        fecha_reserva: reserved_date || new Date().toISOString().split('T')[0], // Simplified for test
+                        fecha_reserva: reserved_date || new Date().toISOString().split('T')[0],
                         hora_inicio: reserved_time || '10:00:00',
                         duracion_horas: 1,
                         opcion_seleccionada: optionLabel,
@@ -76,89 +86,119 @@ export async function POST(request: Request) {
                         stripe_session_id: session.id
                     });
 
-                if (rentError) {
-                    console.error('--- RENTAL DB ERROR ---', rentError);
-                    return NextResponse.json({ error: 'Rental DB Error' }, { status: 500 });
-                }
+                    if (rentError) console.error('Rental DB Error:', rentError);
 
-                // 3. Send Confirmation Email (Async)
-                if (resend) {
-                    const { data: profile } = await supabase.from('profiles').select('email, nombre').eq('id', user_id).single();
-                    if (profile?.email) {
-                        resend.emails.send({
-                            from: DEFAULT_FROM_EMAIL,
-                            to: profile.email,
-                            subject: `Confirmación: Alquiler de ${service?.nombre_es || 'Equipo'}`,
-                            html: rentalTemplate(service?.nombre_es || 'Equipo', reserved_date || 'Hoy', reserved_time || '10:00', profile.nombre || 'Navegante')
-                        }).catch(e => console.error('Error sending rental email:', e));
+                    if (resend && user_id) {
+                        const { data: profile } = await supabase.from('profiles').select('email, nombre').eq('id', user_id).single();
+                        if (profile?.email) {
+                            resend.emails.send({
+                                from: DEFAULT_FROM_EMAIL,
+                                to: profile.email,
+                                subject: `Confirmación: Alquiler de ${service?.nombre_es || 'Equipo'}`,
+                                html: rentalTemplate(service?.nombre_es || 'Equipo', reserved_date || 'Hoy', reserved_time || '10:00', profile.nombre || 'Navegante')
+                            }).catch(e => console.error('Error sending email:', e));
+                        }
                     }
-                }
-
-                return NextResponse.json({ received: true });
-            } else {
-                // Handling Inscriptions
-
-                // console.log('--- PAYMENT SUCCESSFUL ---', { user_id, edition_id, course_id });
-
-                // 1. Register the inscription
-                const { error: insError } = await supabase
-                    .from('inscripciones')
-                    .insert({
+                } else if (mode === 'article_sale') {
+                    // ... (existing article logic placeholder) ...
+                    console.log('--- ARTICLE SALE COMPLETED ---', metadata);
+                } else {
+                    // Handling Course Inscriptions
+                    const { course_id, edition_id, start_date, end_date } = metadata;
+                    const { error: insError } = await supabase.from('inscripciones').insert({
                         perfil_id: user_id,
                         curso_id: course_id,
                         edicion_id: (edition_id && (edition_id.startsWith('test-') || edition_id.startsWith('ext_'))) ? null : edition_id,
                         estado_pago: 'pagado',
                         monto_total: session.amount_total ? session.amount_total / 100 : 0,
                         stripe_session_id: session.id,
-                        metadata: {
-                            start_date: start_date,
-                            end_date: end_date
-                        }
+                        metadata: { start_date, end_date }
                     });
 
-                if (insError) {
-                    console.error('--- DB INSERT ERROR ---', insError);
-                    return NextResponse.json({ error: 'DB Error' }, { status: 500 });
-                }
+                    if (insError) console.error('Inscription DB Error:', insError);
 
-                // 2. Update occupancy (if it's a real edition)
-                if (edition_id && !edition_id.startsWith('test-')) {
-                    const { data: edData } = await supabase
-                        .from('ediciones_curso')
-                        .select('plazas_ocupadas')
-                        .eq('id', edition_id)
-                        .single();
+                    if (edition_id && !edition_id.startsWith('test-')) {
+                        const { data: edData } = await supabase.from('ediciones_curso').select('plazas_ocupadas').eq('id', edition_id).single();
+                        if (edData) {
+                            await supabase.from('ediciones_curso').update({ plazas_ocupadas: (edData.plazas_ocupadas || 0) + 1 }).eq('id', edition_id);
+                        }
+                    }
 
-                    if (edData) {
-                        await supabase
-                            .from('ediciones_curso')
-                            .update({ plazas_ocupadas: (edData.plazas_ocupadas || 0) + 1 })
-                            .eq('id', edition_id);
+                    if (resend && user_id) {
+                        const { data: profile } = await supabase.from('profiles').select('email, nombre').eq('id', user_id).single();
+                        const { data: course } = await supabase.from('cursos').select('nombre_es').eq('id', course_id).single();
+                        if (profile?.email) {
+                            resend.emails.send({
+                                from: DEFAULT_FROM_EMAIL,
+                                to: profile.email,
+                                subject: `Inscripción Confirmada: ${course?.nombre_es || 'Curso'}`,
+                                html: inscriptionTemplate(course?.nombre_es || 'Curso', profile.nombre || 'Alumno')
+                            }).catch(e => console.error('Error sending email:', e));
+                        }
                     }
                 }
-
-                // 3. Send Confirmation Email (Async)
-                if (resend) {
-                    const { data: profile } = await supabase.from('profiles').select('email, nombre').eq('id', user_id).single();
-                    const { data: course } = await supabase.from('cursos').select('nombre_es').eq('id', course_id).single();
-                    if (profile?.email) {
-                        resend.emails.send({
-                            from: DEFAULT_FROM_EMAIL,
-                            to: profile.email,
-                            subject: `Inscripción Confirmada: ${course?.nombre_es || 'Curso de Navegación'}`,
-                            html: inscriptionTemplate(course?.nombre_es || 'Curso', profile.nombre || 'Alumno')
-                        }).catch(e => console.error('Error sending inscription email:', e));
-                    }
-                }
-
-                return NextResponse.json({ received: true });
+                break;
             }
+
+            case 'invoice.paid': {
+                const invoice = event.data.object as any;
+                const subscriptionId = invoice.subscription as string;
+                const customerId = invoice.customer as string;
+
+                if (subscriptionId) {
+                    console.log(`--- SUBSCRIPTION PAID: ${subscriptionId} ---`);
+                    // Update validity date
+                    const { error } = await supabase
+                        .from('profiles')
+                        .update({
+                            status_socio: 'activo',
+                            fecha_fin_periodo: new Date(invoice.period_end * 1000).toISOString()
+                        })
+                        .eq('stripe_subscription_id', subscriptionId);
+
+                    if (error) console.error('Error updating profile on invoice.paid:', error);
+                }
+                break;
+            }
+
+            case 'customer.subscription.updated': {
+                const subscription = event.data.object as any;
+                console.log('--- SUBSCRIPTION UPDATED ---', subscription.id);
+
+                // Status could be 'active', 'past_due', 'unpaid', 'canceled'
+                const status = (subscription.status === 'active') ? 'activo' : (subscription.status === 'past_due' ? 'past_due' : 'no_socio');
+
+                await supabase
+                    .from('profiles')
+                    .update({
+                        status_socio: status,
+                        fecha_fin_periodo: new Date(subscription.current_period_end * 1000).toISOString()
+                    })
+                    .eq('stripe_subscription_id', subscription.id);
+                break;
+            }
+
+            case 'customer.subscription.deleted': {
+                const subscription = event.data.object as Stripe.Subscription;
+                console.log('--- SUBSCRIPTION CANCELED ---', subscription.id);
+
+                await supabase
+                    .from('profiles')
+                    .update({
+                        status_socio: 'no_socio',
+                        stripe_subscription_id: null
+                    })
+                    .eq('stripe_subscription_id', subscription.id);
+                break;
+            }
+
+            default:
+                console.log(`Unhandled event type ${event.type}`);
         }
 
         return NextResponse.json({ received: true });
     } catch (err: unknown) {
-        console.error('--- WEBHOOK UNHANDLED ERROR ---');
-        console.error(err);
+        console.error('--- WEBHOOK UNHANDLED ERROR ---', err);
         return NextResponse.json({ error: (err as Error).message }, { status: 500 });
     }
 }

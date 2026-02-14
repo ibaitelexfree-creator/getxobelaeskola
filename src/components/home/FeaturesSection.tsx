@@ -35,7 +35,7 @@ export default function FeaturesSection() {
                                     src={feature.icon}
                                     alt={feature.title}
                                     fill
-                                    sizes="(max-width: 768px) 100vw, 33vw"
+                                    sizes="192px"
                                     className="object-contain"
                                 />
                                 <div className="absolute inset-0 bg-accent/20 blur-[60px] rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
