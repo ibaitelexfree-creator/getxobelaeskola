@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import LegalConsentModal from '../shared/LegalConsentModal';
+import { createClient } from '@/lib/supabase/client';
 
 
 interface Edition {
@@ -28,8 +29,22 @@ export default function BookingSelector({ editions, coursePrice, courseId }: Boo
     const [mounted, setMounted] = useState(false);
     const [isLegalModalOpen, setIsLegalModalOpen] = useState(false);
 
+    // Auth state
+    const [user, setUser] = useState<any>(null);
+    const [profile, setProfile] = useState<any>(null);
+    const supabase = createClient();
+
     useEffect(() => {
         setMounted(true);
+        const checkUser = async () => {
+            const { data: { user } } = await supabase.auth.getUser();
+            setUser(user);
+            if (user) {
+                const { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).single();
+                setProfile(profile);
+            }
+        };
+        checkUser();
     }, []);
 
     const handleBookingClick = () => {
@@ -37,11 +52,46 @@ export default function BookingSelector({ editions, coursePrice, courseId }: Boo
         setIsLegalModalOpen(true);
     };
 
-    const handleLegalConfirm = async (legalData: { fullName: string; email: string; dni: string }) => {
+    const handleLegalConfirm = async (legalData: { fullName: string; email: string; dni: string; password?: string }) => {
         setIsLegalModalOpen(false);
         setLoading(true);
 
         try {
+            // 1. Handle Registration if Guest
+            if (!user && legalData.password) {
+                // Split name for potential profile update
+                const nameParts = legalData.fullName.split(' ');
+                const firstName = nameParts[0];
+                const lastName = nameParts.slice(1).join(' ');
+
+                // Attempt Sign Up
+                const { data: authData, error: authError } = await supabase.auth.signUp({
+                    email: legalData.email,
+                    password: legalData.password,
+                    options: {
+                        data: {
+                            full_name: legalData.fullName,
+                            nombre: firstName,
+                            apellidos: lastName,
+                            dni: legalData.dni
+                        }
+                    }
+                });
+
+                if (authError) {
+                    // Start: Fix logic for existing user
+                    if (authError.message.includes('registered') || authError.status === 422) {
+                        // Try logging in instead?
+                        // UX Decision: Alert user they have an account
+                        throw new Error("Ya existe una cuenta con este email. Por favor, inicia sesión.");
+                    }
+                    throw authError;
+                }
+
+                // If signUp successful but no session (email confirmation required)
+                // We proceed to payment as guest-like but with pending account
+            }
+
             const selectedEditionData = editions.find(e => e.id === selectedEdition);
 
             // Log consent
@@ -76,7 +126,8 @@ export default function BookingSelector({ editions, coursePrice, courseId }: Boo
                     endDate: selectedEditionData?.fecha_fin,
                     // Pass legal data to checkout for metadata
                     legalName: legalData.fullName,
-                    legalDni: legalData.dni
+                    legalDni: legalData.dni,
+                    legalEmail: legalData.email // Send email explicitly for guest checkout association
                 }),
             });
 
@@ -84,7 +135,10 @@ export default function BookingSelector({ editions, coursePrice, courseId }: Boo
 
             if (!response.ok) {
                 if (response.status === 401) {
-                    window.location.href = `/${window.location.pathname.split('/')[1] || 'es'}/auth/login`;
+                    // If 401, it means the API requires auth but we might be in guest mode or unconfirmed
+                    // If we just registered, we might need to rely on the passed legalEmail in the backend
+                    // But for now, let's redirect to login if strict
+                    window.location.href = `/${window.location.pathname.split('/')[1] || 'es'}/auth/login?msg=verify_email`;
                     return;
                 }
                 throw new Error(data.error || t('error_generic'));
@@ -200,6 +254,11 @@ export default function BookingSelector({ editions, coursePrice, courseId }: Boo
                 onClose={() => setIsLegalModalOpen(false)}
                 onConfirm={handleLegalConfirm}
                 consentType="course"
+                initialData={user ? {
+                    fullName: profile ? `${profile.nombre} ${profile.apellidos}` : undefined,
+                    email: user.email,
+                    dni: profile?.dni // Intentar pasar DNI si existe en el perfil (aunque no lo vi en el modal de edit, puede existir en la base de datos o ser añadido en el futuro)
+                } : undefined}
                 legalText={`CONDICIONES GENERALES DE CONTRATACIÓN - GETXO BELA ESKOLA
 
 1. OBJETO Y ÁMBITO DE APLICACIÓN: El presente documento establece las condiciones legales para la inscripción en los cursos impartidos por Getxo Bela Eskola.

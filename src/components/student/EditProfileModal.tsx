@@ -1,6 +1,7 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { createPortal } from 'react-dom';
 
 interface Profile {
     id: string;
@@ -24,7 +25,13 @@ export default function EditProfileModal({ isOpen, onClose, profile, onProfileUp
         telefono: ''
     });
     const [loading, setLoading] = useState(false);
+    const [mounted, setMounted] = useState(false);
     const router = useRouter();
+
+    useEffect(() => {
+        setMounted(true);
+        return () => setMounted(false);
+    }, []);
 
     // Sync form data whenever profile changes or modal opens
     useEffect(() => {
@@ -34,10 +41,16 @@ export default function EditProfileModal({ isOpen, onClose, profile, onProfileUp
                 apellidos: profile.apellidos || '',
                 telefono: profile.telefono || ''
             });
+            // Disable scroll when open
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'unset';
         }
-    }, [isOpen, profile]);
 
-    if (!isOpen) return null;
+        return () => {
+            document.body.style.overflow = 'unset';
+        };
+    }, [isOpen, profile]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -66,8 +79,10 @@ export default function EditProfileModal({ isOpen, onClose, profile, onProfileUp
         }
     };
 
-    return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-nautical-black/80 backdrop-blur-sm animate-in fade-in duration-200">
+    if (!isOpen || !mounted) return null;
+
+    const modalContent = (
+        <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-nautical-black/80 backdrop-blur-sm animate-fade-in">
             <div className="bg-card border border-white/10 p-8 rounded-sm w-full max-w-md shadow-2xl space-y-6 relative">
                 <button
                     onClick={onClose}
@@ -135,4 +150,6 @@ export default function EditProfileModal({ isOpen, onClose, profile, onProfileUp
             </div>
         </div>
     );
+
+    return createPortal(modalContent, document.body);
 }

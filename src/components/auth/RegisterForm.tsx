@@ -73,6 +73,9 @@ export default function RegisterForm() {
             if (msg.includes('email not confirmed') || (msg.includes('invalid') && msg.includes('address'))) {
                 setError(t('email_not_confirmed'));
                 setIsEmailNotConfirmed(true);
+            } else if (msg.includes('rate limit')) {
+                setError(t('rate_limit'));
+                setIsEmailNotConfirmed(false);
             } else {
                 setError(authError.message);
                 setIsEmailNotConfirmed(false);

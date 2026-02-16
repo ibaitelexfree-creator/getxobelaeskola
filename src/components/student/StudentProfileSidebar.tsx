@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/client';
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { Sparkles } from 'lucide-react';
 import EditProfileModal from './EditProfileModal';
 import LogoutButton from '@/components/auth/LogoutButton';
 
@@ -68,12 +69,15 @@ export default function StudentProfileSidebar({ profile, email, locale }: Studen
                         />
                     </div>
                     <h3 className="text-xl font-display italic text-white">{currentProfile?.nombre} {currentProfile?.apellidos}</h3>
-                    <div className="flex flex-col items-center gap-1 mt-2">
+                    <div className="flex flex-col items-center gap-2 mt-2">
                         <span className="text-[8px] uppercase tracking-[0.4em] text-accent font-black">Miembro verificado</span>
                         {isSocio && (
-                            <span className="text-[10px] font-bold text-brass-gold flex items-center gap-1">
-                                <span className="animate-pulse">⚓</span> SOCIO GETXO BELA
-                            </span>
+                            <div className="px-5 py-1.5 rounded-full bg-gradient-to-r from-amber-100 via-yellow-300 to-amber-500 border border-yellow-200 shadow-[0_0_15px_rgba(252,211,77,0.5)] flex items-center gap-2 animate-pulse mt-1">
+                                <Sparkles className="w-3 h-3 text-yellow-900" />
+                                <span className="text-yellow-900 text-[9px] font-black uppercase tracking-widest">
+                                    Socio Oficial
+                                </span>
+                            </div>
                         )}
                     </div>
                 </div>

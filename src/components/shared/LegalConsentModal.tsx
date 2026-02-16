@@ -1,13 +1,19 @@
 'use client';
 
 import React, { useState } from 'react';
+import { validateIdentityDocument, validateEmail } from '@/lib/utils/validators';
 
 interface LegalConsentModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onConfirm: (data: { fullName: string; email: string; dni: string }) => void;
+    onConfirm: (data: { fullName: string; email: string; dni: string; password?: string }) => void;
     consentType: 'course' | 'rental';
     legalText: string;
+    initialData?: {
+        fullName?: string;
+        email?: string;
+        dni?: string;
+    };
 }
 
 export default function LegalConsentModal({
@@ -15,14 +21,30 @@ export default function LegalConsentModal({
     onClose,
     onConfirm,
     consentType,
-    legalText
+    legalText,
+    initialData
 }: LegalConsentModalProps) {
     const [fullName, setFullName] = useState('');
     const [email, setEmail] = useState('');
     const [dni, setDni] = useState('');
+    const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
+    const [dniError, setDniError] = useState<string | null>(null);
+    const [emailError, setEmailError] = useState<string | null>(null);
     const [accepted, setAccepted] = useState(false);
     const [loading, setLoading] = useState(false);
     const [viewingDoc, setViewingDoc] = useState<string | null>(null);
+
+    // Initial data hydration
+    React.useEffect(() => {
+        if (isOpen && initialData) {
+            if (initialData.fullName) setFullName(initialData.fullName);
+            if (initialData.email) setEmail(initialData.email);
+            if (initialData.dni) setDni(initialData.dni);
+        }
+    }, [isOpen, initialData]);
+
+    const isGuest = !initialData?.email;
 
     // Documentos disponibles
     const documents = [
@@ -37,15 +59,47 @@ export default function LegalConsentModal({
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!accepted) return;
+
+        // Validate DNI/NIE/Passport
+        const validation = validateIdentityDocument(dni);
+        if (!validation.isValid) {
+            setDniError(validation.message || 'El documento no es válido');
+            return;
+        }
+
+        // Validate Email
+        const emailValidation = validateEmail(email);
+        if (!emailValidation.isValid) {
+            setEmailError(emailValidation.message || 'El correo electrónico no es válido');
+            return;
+        }
+
+        // Validate Password for Guests
+        if (isGuest) {
+            if (password.length < 6) {
+                alert('La contraseña debe tener al menos 6 caracteres');
+                return;
+            }
+            if (password !== confirmPassword) {
+                alert('Las contraseñas no coinciden');
+                return;
+            }
+        }
+
         setLoading(true);
-        onConfirm({ fullName, email, dni });
+        onConfirm({
+            fullName,
+            email,
+            dni: dni.toUpperCase().trim(),
+            password: isGuest ? password : undefined
+        });
     };
 
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-nautical-black/90 backdrop-blur-sm">
             <div className="bg-nautical-black border border-white/10 w-full max-w-4xl overflow-hidden flex flex-col max-h-[95vh] shadow-2xl">
                 {/* Header */}
-                <div className="p-6 border-b border-white/10 flex justify-between items-center">
+                <div className="p-6 border-b border-white/10 flex justify-between items-center bg-white/5">
                     <h2 className="text-xl font-display text-white uppercase tracking-widest">
                         {viewingDoc ? 'Visualizando Documento' : (consentType === 'course' ? 'Términos de Inscripción' : 'Condiciones de Alquiler')}
                     </h2>
@@ -58,10 +112,10 @@ export default function LegalConsentModal({
                 </div>
 
                 {/* Body */}
-                <form onSubmit={handleSubmit} className="flex flex-col overflow-hidden">
-                    <div className="p-8 overflow-y-auto space-y-8">
+                <form onSubmit={handleSubmit} className="flex flex-col overflow-hidden h-full">
+                    <div className="p-8 overflow-y-auto space-y-8 custom-scrollbar flex-1">
                         {viewingDoc ? (
-                            <div className="h-[60vh] border border-white/10">
+                            <div className="h-full min-h-[50vh] border border-white/10">
                                 <iframe
                                     src={viewingDoc}
                                     className="w-full h-full"
@@ -70,6 +124,13 @@ export default function LegalConsentModal({
                             </div>
                         ) : (
                             <>
+                                {isGuest && (
+                                    <div className="bg-accent/10 border border-accent/20 p-4 rounded-sm mb-6">
+                                        <p className="text-sm text-accent font-bold mb-1">¡Casi hemos terminado!</p>
+                                        <p className="text-content text-white/80 text-xs">Para completar tu reserva, necesitamos crear tu ficha de alumno. Rellena los siguientes datos y elige una contraseña.</p>
+                                    </div>
+                                )}
+
                                 <div className="space-y-4">
                                     <p className="text-xs uppercase tracking-widest text-accent font-bold">Documentos Legales Obligatorios</p>
                                     <div className="grid sm:grid-cols-2 gap-4">
@@ -88,11 +149,11 @@ export default function LegalConsentModal({
                                     <p className="text-[10px] text-white/40 italic">* Haz clic en cada documento para leerlo online desde aquí mismo.</p>
                                 </div>
 
-                                <div className="bg-white/5 p-6 rounded-sm text-sm text-white/70 font-light leading-relaxed max-h-40 overflow-y-auto border border-white/5 italic custom-scrollbar block whitespace-pre-line">
+                                <div className="bg-white/5 p-6 rounded-sm text-sm text-white/70 font-light leading-relaxed max-h-32 overflow-y-auto border border-white/5 italic custom-scrollbar block whitespace-pre-line">
                                     {legalText}
                                 </div>
 
-                                <div className="grid md:grid-cols-2 gap-6">
+                                <div className="grid md:grid-cols-2 gap-6 pt-4 border-t border-white/5">
                                     <div className="space-y-2">
                                         <label className="text-3xs uppercase tracking-widest text-accent font-bold">Nombre Completo</label>
                                         <input
@@ -102,6 +163,7 @@ export default function LegalConsentModal({
                                             onChange={(e) => setFullName(e.target.value)}
                                             className="w-full bg-white/5 border border-white/10 p-4 text-white focus:border-accent outline-none text-sm transition-all"
                                             placeholder="Juan Pérez"
+                                            readOnly={!!initialData?.fullName}
                                         />
                                     </div>
                                     <div className="space-y-2">
@@ -110,10 +172,27 @@ export default function LegalConsentModal({
                                             required
                                             type="text"
                                             value={dni}
-                                            onChange={(e) => setDni(e.target.value)}
-                                            className="w-full bg-white/5 border border-white/10 p-4 text-white focus:border-accent outline-none text-sm transition-all"
+                                            onChange={(e) => {
+                                                setDni(e.target.value);
+                                                if (dniError) setDniError(null);
+                                            }}
+                                            onBlur={() => {
+                                                if (dni) {
+                                                    const validation = validateIdentityDocument(dni);
+                                                    if (!validation.isValid) {
+                                                        setDniError(validation.message || 'El documento no es válido');
+                                                    }
+                                                }
+                                            }}
+                                            className={`w-full bg-white/5 border ${dniError ? 'border-red-500/50' : 'border-white/10'} p-4 text-white focus:border-accent outline-none text-sm transition-all`}
                                             placeholder="12345678Z"
+                                            readOnly={!!initialData?.dni}
                                         />
+                                        {dniError && (
+                                            <p className="text-red-400 text-xs mt-1 pl-1 flex items-center gap-1">
+                                                <span>⚠️</span> {dniError}
+                                            </p>
+                                        )}
                                     </div>
                                 </div>
 
@@ -123,11 +202,57 @@ export default function LegalConsentModal({
                                         required
                                         type="email"
                                         value={email}
-                                        onChange={(e) => setEmail(e.target.value)}
-                                        className="w-full bg-white/5 border border-white/10 p-4 text-white focus:border-accent outline-none text-sm transition-all"
+                                        onChange={(e) => {
+                                            setEmail(e.target.value);
+                                            if (emailError) setEmailError(null);
+                                        }}
+                                        onBlur={() => {
+                                            if (email) {
+                                                const validation = validateEmail(email);
+                                                if (!validation.isValid) {
+                                                    setEmailError(validation.message || 'El correo electrónico no es válido');
+                                                }
+                                            }
+                                        }}
+                                        className={`w-full bg-white/5 border ${emailError ? 'border-red-500/50' : 'border-white/10'} p-4 text-white focus:border-accent outline-none text-sm transition-all`}
                                         placeholder="juan@ejemplo.com"
+                                        readOnly={!!initialData?.email}
                                     />
+                                    {emailError && (
+                                        <p className="text-red-400 text-xs mt-1 pl-1 flex items-center gap-1">
+                                            <span>⚠️</span> {emailError}
+                                        </p>
+                                    )}
                                 </div>
+
+                                {isGuest && (
+                                    <div className="grid md:grid-cols-2 gap-6 animate-fade-in">
+                                        <div className="space-y-2">
+                                            <label className="text-3xs uppercase tracking-widest text-accent font-bold">Crear Contraseña</label>
+                                            <input
+                                                required
+                                                type="password"
+                                                value={password}
+                                                onChange={(e) => setPassword(e.target.value)}
+                                                className="w-full bg-white/5 border border-white/10 p-4 text-white focus:border-accent outline-none text-sm transition-all"
+                                                placeholder="Mínimo 6 caracteres"
+                                                minLength={6}
+                                            />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <label className="text-3xs uppercase tracking-widest text-accent font-bold">Confirmar Contraseña</label>
+                                            <input
+                                                required
+                                                type="password"
+                                                value={confirmPassword}
+                                                onChange={(e) => setConfirmPassword(e.target.value)}
+                                                className="w-full bg-white/5 border border-white/10 p-4 text-white focus:border-accent outline-none text-sm transition-all"
+                                                placeholder="Repite la contraseña"
+                                                minLength={6}
+                                            />
+                                        </div>
+                                    </div>
+                                )}
 
                                 <label className="flex items-start gap-4 cursor-pointer group p-4 border border-accent/20 bg-accent/5 rounded-sm transition-all hover:bg-accent/10">
                                     <input
