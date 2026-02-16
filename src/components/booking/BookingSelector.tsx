@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
+import { useRouter } from 'next/navigation';
 import LegalConsentModal from '../shared/LegalConsentModal';
 
 
@@ -21,6 +22,7 @@ interface BookingSelectorProps {
 
 export default function BookingSelector({ editions, coursePrice, courseId }: BookingSelectorProps) {
     const t = useTranslations('booking');
+    const router = useRouter();
     const [selectedEdition, setSelectedEdition] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const [mounted, setMounted] = useState(false);
@@ -93,7 +95,11 @@ export default function BookingSelector({ editions, coursePrice, courseId }: Boo
             }
         } catch (error: unknown) {
             console.error('Booking Error:', error);
-            alert((error as Error).message || t('payment_gateway_error'));
+            // We use the query param to trigger the global StatusToast even on same page errors for consistency
+            const errorMessage = (error as Error).message || t('payment_gateway_error');
+            const params = new URLSearchParams(window.location.search);
+            params.set('error', errorMessage);
+            router.replace(`${window.location.pathname}?${params.toString()}`, { scroll: false });
             setLoading(false);
         }
     };

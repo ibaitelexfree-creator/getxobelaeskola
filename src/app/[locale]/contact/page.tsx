@@ -15,7 +15,7 @@ export default function ContactPage() {
                     {/* Info Column */}
                     <div className="animate-fade-in" style={{ animationDelay: '0.2s' }}>
                         <header className="mb-20">
-                            <span className="text-accent uppercase tracking-[0.6em] text-[10px] font-bold mb-6 block">
+                            <span className="text-accent uppercase tracking-[0.6em] text-sm font-bold mb-6 block">
                                 {t('header_badge')}
                             </span>
                             <h1 className="text-4xl md:text-[8rem] font-display leading-[0.9] mb-12">
@@ -27,12 +27,12 @@ export default function ContactPage() {
 
                         <div className="space-y-16">
                             <div className="group space-y-4">
-                                <p className="text-[9px] uppercase tracking-[0.4em] text-foreground/20 font-bold group-hover:text-accent transition-colors duration-500">{t('location_label')}</p>
+                                <p className="text-xs uppercase tracking-[0.4em] text-foreground/20 font-bold group-hover:text-accent transition-colors duration-500">{t('location_label')}</p>
                                 <p className="text-3xl font-display italic leading-tight whitespace-pre-line text-white/80 group-hover:text-white transition-colors duration-500">{t('location_val')}</p>
                             </div>
 
                             <div className="group space-y-4">
-                                <p className="text-[9px] uppercase tracking-[0.4em] text-foreground/20 font-bold group-hover:text-accent transition-colors duration-500">{t('contact_label')}</p>
+                                <p className="text-xs uppercase tracking-[0.4em] text-foreground/20 font-bold group-hover:text-accent transition-colors duration-500">{t('contact_label')}</p>
                                 <div className="space-y-2">
                                     <p className="text-3xl font-display italic text-white/80 group-hover:text-white transition-colors duration-500 tracking-wide">info@getxobelaeskola.com</p>
                                     <p className="text-3xl font-display italic text-white/80 group-hover:text-white transition-colors duration-500 tracking-wider">(+34) 944 916 632</p>
@@ -40,13 +40,13 @@ export default function ContactPage() {
                             </div>
 
                             <div className="group space-y-4">
-                                <p className="text-[9px] uppercase tracking-[0.4em] text-foreground/20 font-bold group-hover:text-accent transition-colors duration-500">{t('hours_label')}</p>
+                                <p className="text-xs uppercase tracking-[0.4em] text-foreground/20 font-bold group-hover:text-accent transition-colors duration-500">{t('hours_label')}</p>
                                 <p className="text-3xl font-display italic leading-tight whitespace-pre-line text-white/80 group-hover:text-white transition-colors duration-500 tracking-wide">{t('hours_val')}</p>
                             </div>
                         </div>
 
                         {/* Social Links or Extra Decor */}
-                        <div className="mt-24 pt-24 border-t border-white/5 flex gap-12 text-[10px] uppercase tracking-[0.3em] text-foreground/20 font-light">
+                        <div className="mt-24 pt-24 border-t border-white/5 flex gap-12 text-xs uppercase tracking-[0.3em] text-foreground/20 font-light">
                             <a href="#" className="hover:text-white transition-colors">Instagram</a>
                             <a href="#" className="hover:text-white transition-colors">Facebook</a>
                             <a href="#" className="hover:text-white transition-colors">LinkedIn</a>

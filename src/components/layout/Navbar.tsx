@@ -106,21 +106,22 @@ export default function Navbar({ locale: propLocale }: { locale?: string }) {
 
     return (
         <>
-            <nav className="fixed top-0 left-0 w-full z-[100] px-3 sm:px-4 md:px-6 py-2 md:py-6 xl:py-8 flex justify-between items-center bg-nautical-deep/80 backdrop-blur-md border-b border-white/5 transition-all duration-500">
-                <Link href={`/${locale}`} className="flex items-center gap-2 md:gap-4 group transition-transform hover:scale-105 relative z-[110]">
-                    <div className="relative w-16 h-16 md:w-14 md:h-14">
+            <nav className="fixed top-0 left-0 w-full z-[9999] px-3 sm:px-4 md:px-6 py-3 md:py-6 xl:py-8 flex justify-between items-center bg-[#010409] backdrop-blur-md border-b border-white/5 min-h-[70px] md:min-h-[auto]">
+                <Link href={`/${locale}`} className="flex items-center gap-2 md:gap-4 group transition-transform hover:scale-105 relative z-[110] max-w-[75%] sm:max-w-none">
+                    <div className="relative w-10 h-10 sm:w-16 sm:h-16 md:w-14 md:h-14 flex-shrink-0">
                         <Image
                             src="/images/LogoGetxoBelaEskola.png"
                             alt="Getxo Bela Eskola"
                             fill
                             className="object-contain"
+                            priority
                         />
                     </div>
-                    <div className="flex flex-col">
-                        <span className="font-display text-xl md:text-xl tracking-tight text-white leading-none">
+                    <div className="flex flex-col min-w-0">
+                        <span className="font-display text-base sm:text-xl tracking-tight text-white leading-none truncate">
                             GETXO <span className="italic font-light text-accent">BELA</span>
                         </span>
-                        <span className="text-[10px] md:text-2xs uppercase tracking-[0.4em] text-white/40 font-bold mt-1">Escuela Náutica</span>
+                        <span className="text-[7px] sm:text-[10px] md:text-2xs uppercase tracking-[0.2em] sm:tracking-[0.4em] text-white/40 font-bold mt-1 truncate">Escuela Náutica</span>
                     </div>
                 </Link>
 
@@ -134,7 +135,7 @@ export default function Navbar({ locale: propLocale }: { locale?: string }) {
                 </div>
 
 
-                <div className="flex gap-3 md:gap-4 xl:gap-8 items-center relative z-[110]">
+                <div className="flex gap-2 sm:gap-4 items-center relative z-[110] flex-shrink-0 ml-auto sm:ml-0">
                     {/* Language Selector - Desktop only from xl */}
                     <div className="hidden xl:flex bg-white/5 border border-white/10 rounded-full p-1 group/lang relative">
                         <button
@@ -176,10 +177,13 @@ export default function Navbar({ locale: propLocale }: { locale?: string }) {
                         </Link>
                     )}
 
-                    {/* Hamburger Button - Enhanced visibility */}
+                    {/* Hamburger Button - Robustified */}
                     <button
-                        onClick={() => setIsMenuOpen(!isMenuOpen)}
-                        className="xl:hidden group w-12 h-12 flex flex-col items-center justify-center gap-1.5 bg-accent hover:bg-white border border-accent/20 rounded-sm text-nautical-black transition-all active:scale-95 shadow-lg shadow-accent/20 relative z-[150]"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            setIsMenuOpen(!isMenuOpen);
+                        }}
+                        className="xl:hidden flex-shrink-0 w-12 h-12 flex flex-col items-center justify-center gap-1.5 bg-accent border border-accent/20 rounded-sm text-nautical-black active:scale-90 shadow-2xl relative z-[10000] pointer-events-auto"
                         aria-label={isMenuOpen ? t('close') : t('menu')}
                     >
                         {isMenuOpen ? (

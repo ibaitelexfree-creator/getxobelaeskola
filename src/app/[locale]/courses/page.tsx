@@ -115,7 +115,7 @@ export default async function CoursesPage({
 
                 <div className="container mx-auto px-6 relative z-10 text-center md:text-left">
                     <header className="max-w-4xl">
-                        <span className="text-accent uppercase tracking-[0.6em] text-[10px] font-bold mb-8 block animate-fade-in-up">
+                        <span className="text-accent uppercase tracking-[0.6em] text-sm font-bold mb-8 block animate-fade-in-up">
                             {t('header_badge')}
                         </span>
                         <h1 className="text-5xl md:text-7xl lg:text-9xl font-display leading-[0.9] text-white mb-12 animate-reveal">

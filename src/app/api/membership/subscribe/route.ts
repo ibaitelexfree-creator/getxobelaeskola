@@ -12,14 +12,23 @@ export async function POST(request: Request) {
 
         const origin = request.headers.get('origin') || process.env.NEXT_PUBLIC_APP_URL || 'https://getxobelaeskola.cloud';
 
-        // 1. Get user profile to check if they already have a stripe_customer_id
+        // 1. Get user profile and check for active subscriptions
         const { data: profile } = await supabase
             .from('profiles')
             .select('nombre, apellidos, stripe_customer_id, status_socio')
             .eq('id', user.id)
             .single();
 
-        if (profile?.status_socio === 'activo') {
+        // Check truth in subscriptions table
+        const { data: activeSub } = await supabase
+            .from('subscriptions')
+            .select('id')
+            .eq('user_id', user.id)
+            .eq('status', 'active')
+            .limit(1)
+            .maybeSingle();
+
+        if (profile?.status_socio === 'activo' || activeSub) {
             return NextResponse.json({ error: 'Ya eres socio activo' }, { status: 400 });
         }
 

@@ -15,6 +15,14 @@
         "menu": "Menua",
         "close": "Itxi"
     },
+    "notifications": {
+        "payment_success": "Ordainketa ondo burutu da",
+        "payment_success_desc": "Eskerrik asko zure konfiantzagatik. Zure erreserba Nire Eremuan ikusgai duzu.",
+        "payment_canceled": "Ordainketa bertan behera utzi da",
+        "payment_canceled_desc": "Ordainketa prozesua eten egin da eta ez da kargurik egin.",
+        "payment_error": "Errorea ordaintzean",
+        "payment_error_desc": "Arazo bat gertatu da ordainketa prozesatzean. Mesedez, saiatu berriro."
+    },
     "hero": {
         "title": "Dotoretasuna itsasoan",
         "subtitle": "Premium nautika prestakuntza Getxon"

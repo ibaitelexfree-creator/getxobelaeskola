@@ -33,7 +33,7 @@ export default async function Home({ params: { locale } }: { params: { locale: s
 
         <div className="container mx-auto px-6 relative z-10 text-center">
           <header className="mb-32">
-            <span className="text-accent uppercase tracking-[0.6em] text-[10px] font-bold mb-8 block animate-fade-in-up">
+            <span className="text-accent uppercase tracking-[0.6em] text-sm font-bold mb-8 block animate-fade-in-up">
               {t('programs.badge')}
             </span>
             <h2 className="text-4xl md:text-7xl lg:text-9xl font-display text-white mb-12 italic leading-none animate-reveal">
@@ -120,7 +120,7 @@ export default async function Home({ params: { locale } }: { params: { locale: s
         <div className="absolute inset-0 flex items-center justify-center">
           <div className="container mx-auto px-6 text-center space-y-16">
             <header className="space-y-8">
-              <span className="text-accent uppercase tracking-[0.6em] text-[10px] font-bold block opacity-40 group-hover:opacity-100 transition-opacity">Nuestra Flota</span>
+              <span className="text-accent uppercase tracking-[0.6em] text-sm font-bold block opacity-40 group-hover:opacity-100 transition-opacity">Nuestra Flota</span>
               <h2 className="text-4xl md:text-8xl lg:text-[12rem] font-display text-white mb-12 italic leading-none animate-reveal">
                 {t('fleet_cta.title')} <br />
                 <span className="not-italic font-light text-brass-gold/80">{t('fleet_cta.highlight')}</span>

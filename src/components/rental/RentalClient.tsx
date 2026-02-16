@@ -3,6 +3,7 @@
 import { useState, useRef } from 'react';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
+import { useRouter } from 'next/navigation';
 import LegalConsentModal from '../shared/LegalConsentModal';
 
 interface RentalService {
@@ -24,14 +25,16 @@ export default function RentalClient({
     locale: string
 }) {
     const t = useTranslations('rental_page');
+    const router = useRouter();
     const [selectedCategory, setSelectedCategory] = useState<string>('all');
     const [bookingService, setBookingService] = useState<string | null>(null);
     const [bookingOption, setBookingOption] = useState<number | null>(null);
 
     // Day, Month, Year states
-    const currentYear = new Date().getFullYear();
-    const [day, setDay] = useState<string>('');
-    const [month, setMonth] = useState<string>('');
+    const today = new Date();
+    const currentYear = today.getFullYear();
+    const [day, setDay] = useState<string>(today.getDate().toString().padStart(2, '0'));
+    const [month, setMonth] = useState<string>((today.getMonth() + 1).toString().padStart(2, '0'));
     const [year, setYear] = useState<string>(currentYear.toString());
 
     const [selectedTime, setSelectedTime] = useState<string>('10:00');
@@ -142,7 +145,9 @@ export default function RentalClient({
         if (finalYear > currentYear + 1) finalYear = currentYear + 1;
 
         if (day.length === 0 || month.length === 0) {
-            alert(t('booking.invalid_date'));
+            const params = new URLSearchParams(window.location.search);
+            params.set('error', t('booking.invalid_date'));
+            router.replace(`${window.location.pathname}?${params.toString()}`, { scroll: false });
             dayRef.current?.focus();
             setLoading(false);
             return;
@@ -201,11 +206,15 @@ export default function RentalClient({
             if (data.url) {
                 window.location.href = data.url;
             } else if (data.error) {
-                alert(data.error);
+                const params = new URLSearchParams(window.location.search);
+                params.set('error', data.error);
+                router.replace(`${window.location.pathname}?${params.toString()}`, { scroll: false });
             }
         } catch (error) {
             console.error('Booking error:', error);
-            alert(t('booking.booking_error'));
+            const params = new URLSearchParams(window.location.search);
+            params.set('error', t('booking.booking_error'));
+            router.replace(`${window.location.pathname}?${params.toString()}`, { scroll: false });
         } finally {
             setLoading(false);
             setPendingBooking(null);
