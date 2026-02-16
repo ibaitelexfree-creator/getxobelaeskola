@@ -16,7 +16,8 @@ export async function POST(request: Request) {
             duracion_h,
             nivel,
             imagen_url,
-            slug
+            slug,
+            visible
         } = body;
 
         // 2. Validate Input
@@ -50,7 +51,8 @@ export async function POST(request: Request) {
                 nivel,
                 imagen_url: imagen_url || '',
                 slug: finalSlug,
-                activo: true
+                activo: true,
+                visible: visible !== undefined ? visible : true
             })
             .select()
             .single();

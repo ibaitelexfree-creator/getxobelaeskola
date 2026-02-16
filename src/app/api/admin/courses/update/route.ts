@@ -17,7 +17,8 @@ export async function POST(request: Request) {
             duracion_h,
             nivel,
             imagen_url,
-            activo
+            activo,
+            visible
         } = body;
 
         if (!id) {
@@ -35,6 +36,7 @@ export async function POST(request: Request) {
         if (nivel !== undefined) updateData.nivel = nivel;
         if (imagen_url !== undefined) updateData.imagen_url = imagen_url;
         if (activo !== undefined) updateData.activo = activo;
+        if (visible !== undefined) updateData.visible = visible;
 
         if (Object.keys(updateData).length === 0) {
             return NextResponse.json({ error: 'No se enviaron datos para actualizar' }, { status: 400 });

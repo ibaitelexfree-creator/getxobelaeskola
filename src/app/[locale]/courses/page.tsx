@@ -13,6 +13,7 @@ export default async function CoursesPage({
         .from('cursos')
         .select('*')
         .eq('activo', true)
+        .eq('visible', true)
         .order('created_at', { ascending: false });
 
     // Fallback data if DB is empty or connection fails during dev

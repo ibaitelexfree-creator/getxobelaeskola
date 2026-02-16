@@ -21,16 +21,35 @@ type RegisterValues = z.infer<typeof registerSchema>;
 export default function RegisterForm() {
     const t = useTranslations('auth_form');
     const [loading, setLoading] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [isEmailNotConfirmed, setIsEmailNotConfirmed] = useState(false);
+    const [resendStatus, setResendStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
     const router = useRouter();
     const supabase = createClient();
 
-    const { register, handleSubmit, formState: { errors } } = useForm<RegisterValues>({
+    const { register, handleSubmit, formState: { errors }, watch } = useForm<RegisterValues>({
         resolver: zodResolver(registerSchema),
         defaultValues: {
             subscribeNewsletter: true
         }
     });
+
+    const emailValue = watch('email');
+
+    const handleResendEmail = async () => {
+        if (!emailValue) return;
+        setResendStatus('loading');
+        const { error } = await supabase.auth.resend({
+            type: 'signup',
+            email: emailValue,
+        });
+        if (error) {
+            setResendStatus('error');
+        } else {
+            setResendStatus('success');
+        }
+    };
 
     const onSubmit = async (data: RegisterValues) => {
         setLoading(true);
@@ -50,7 +69,14 @@ export default function RegisterForm() {
         });
 
         if (authError) {
-            setError(authError.message);
+            const msg = authError.message.toLowerCase();
+            if (msg.includes('email not confirmed') || (msg.includes('invalid') && msg.includes('address'))) {
+                setError(t('email_not_confirmed'));
+                setIsEmailNotConfirmed(true);
+            } else {
+                setError(authError.message);
+                setIsEmailNotConfirmed(false);
+            }
             setLoading(false);
         } else {
             // Background newsletter subscription if checked
@@ -110,11 +136,27 @@ export default function RegisterForm() {
                 <label className="text-3xs uppercase tracking-[0.2em] text-accent font-bold ml-1">{t('password')}</label>
                 <input
                     {...register('password')}
-                    type="password"
+                    type={showPassword ? 'text' : 'password'}
                     className="w-full bg-transparent border-b border-white/10 p-4 outline-none focus:border-accent transition-colors font-light text-sea-foam"
                     placeholder="••••••••"
                 />
                 {errors.password && <p className="text-3xs text-red-500 uppercase mt-1">{errors.password.message}</p>}
+
+                <div className="flex items-center space-x-2 mt-2 ml-1">
+                    <input
+                        type="checkbox"
+                        id="show-password"
+                        checked={showPassword}
+                        onChange={(e) => setShowPassword(e.target.checked)}
+                        className="w-3 h-3 rounded border-white/10 bg-transparent text-accent focus:ring-accent accent-accent cursor-pointer"
+                    />
+                    <label
+                        htmlFor="show-password"
+                        className="text-[9px] uppercase tracking-widest text-foreground/40 cursor-pointer hover:text-accent transition-colors"
+                    >
+                        {t('show_password')}
+                    </label>
+                </div>
             </div>
 
             <div className="flex items-center gap-3 pt-2">
@@ -129,7 +171,28 @@ export default function RegisterForm() {
                 </label>
             </div>
 
-            {error && <p className="text-2xs text-red-500 text-center">{error}</p>}
+            {error && (
+                <div className="space-y-3">
+                    <p className="text-2xs text-red-500 text-center leading-relaxed">
+                        {error}
+                        {isEmailNotConfirmed && (
+                            <button
+                                type="button"
+                                onClick={handleResendEmail}
+                                disabled={resendStatus === 'loading'}
+                                className="ml-2 text-blue-500 underline hover:text-blue-400 transition-colors font-bold inline-block"
+                            >
+                                {resendStatus === 'loading' ? '...' : t('resend_email')}
+                            </button>
+                        )}
+                    </p>
+                    {resendStatus === 'success' && (
+                        <p className="text-[10px] text-green-500 text-center uppercase tracking-widest animate-fade-in">
+                            {t('resend_success')}
+                        </p>
+                    )}
+                </div>
+            )}
 
             <button
                 disabled={loading}

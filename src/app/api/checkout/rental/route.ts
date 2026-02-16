@@ -45,6 +45,24 @@ export async function POST(request: Request) {
         }
         // --- END AVAILABILITY CHECK ---
 
+        // --- NEW: DOUBLE-BOOKING CHECK (Gating) ---
+        const { data: userBooking } = await supabase
+            .from('reservas_alquiler')
+            .select('id')
+            .eq('perfil_id', user.id)
+            .eq('servicio_id', serviceId)
+            .eq('fecha_reserva', reservedDate)
+            .eq('hora_inicio', reservedTime)
+            .neq('estado_pago', 'cancelado')
+            .maybeSingle();
+
+        if (userBooking) {
+            return NextResponse.json({
+                error: 'Ya tienes una reserva para este horario. Por favor, revisa tu panel de control.'
+            }, { status: 400 });
+        }
+        // ------------------------------------------
+
         // 3. Calculate Price
         let finalPrice = service.precio_base;
         let optionLabel = '';

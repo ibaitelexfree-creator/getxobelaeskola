@@ -224,6 +224,8 @@
         "reset_password_desc": "Sortu pasahitz seguru bat zure konturako."
     },
     "auth_form": {
+        "name": "Izena",
+        "apellidos": "Abizenak",
         "email": "Emaila",
         "password": "Pasahitza",
         "login_btn": "Saioa Hasi",
@@ -241,7 +243,11 @@
         "recovery_sent": "Emaila bidalia. Begiratu zure sarrera-ontzia.",
         "update_password": "Pasahitza Eguneratu",
         "updating_password": "Eguneratzen...",
-        "password_updated": "Pasahitza ondo eguneratu da"
+        "password_updated": "Pasahitza ondo eguneratu da",
+        "show_password": "Pasahitza erakutsi",
+        "email_not_confirmed": "Emaila ez da berretsi. Mesedez, begiratu zure sarrera-ontzia.",
+        "resend_email": "Berriz bidali",
+        "resend_success": "Emaila ondo bidali da berriro."
     },
     "booking": {
         "select_date": "Hautatu data bat",

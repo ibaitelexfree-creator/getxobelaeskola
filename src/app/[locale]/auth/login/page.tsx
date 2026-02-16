@@ -27,7 +27,7 @@ export default function LoginPage({ params: { locale } }: { params: { locale: st
             </div>
 
             {/* Form Column */}
-            <div className="flex items-center justify-center p-8 md:p-24 relative">
+            <div className="flex items-center justify-center p-8 pt-48 md:p-24 md:pt-56 lg:pt-24 relative">
                 <div className="bg-mesh opacity-50 absolute inset-0 -z-10" />
 
                 <div className="w-full max-w-md">

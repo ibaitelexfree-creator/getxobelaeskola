@@ -8,7 +8,7 @@ export default function RegisterPage({ params: { locale } }: { params: { locale:
     return (
         <main className="min-h-screen grid grid-cols-1 lg:grid-cols-2">
             {/* Form Column - Left on Register for variety */}
-            <div className="flex items-center justify-center p-8 md:p-24 relative order-2 lg:order-1">
+            <div className="flex items-center justify-center p-8 pt-48 md:p-24 md:pt-56 lg:pt-24 relative order-2 lg:order-1">
                 <div className="bg-mesh opacity-50 absolute inset-0 -z-10" />
 
                 <div className="w-full max-w-md">

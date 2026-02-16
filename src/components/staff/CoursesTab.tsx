@@ -16,6 +16,7 @@ interface Course {
     nivel: string;
     imagen_url: string;
     activo: boolean;
+    visible?: boolean;
 }
 
 export default function CoursesTab() {
@@ -36,7 +37,8 @@ export default function CoursesTab() {
         nivel: 'iniciacion',
         imagen_url: '',
         slug: '',
-        activo: true
+        activo: true,
+        visible: true
     });
 
     const fetchCourses = async () => {
@@ -72,14 +74,18 @@ export default function CoursesTab() {
             nivel: 'iniciacion',
             imagen_url: '',
             slug: '',
-            activo: true
+            activo: true,
+            visible: true
         });
         setIsModalOpen(true);
     };
 
     const handleEdit = (course: Course) => {
         setEditingCourse(course);
-        setFormData({ ...course });
+        setFormData({
+            ...course,
+            visible: course.visible ?? true
+        });
         setIsModalOpen(true);
     };
 
@@ -169,6 +175,10 @@ export default function CoursesTab() {
                                     <span>{course.duracion_h}h</span>
                                     <span>•</span>
                                     <span className="uppercase tracking-wider text-accent">{course.nivel}</span>
+                                    <span>•</span>
+                                    <span className={course.visible ? 'text-green-500/60' : 'text-orange-500/60'}>
+                                        {course.visible ? 'VISIBLE' : 'OCULTO'}
+                                    </span>
                                 </div>
                             </div>
                         </div>
@@ -301,6 +311,19 @@ export default function CoursesTab() {
                                         onChange={e => setFormData({ ...formData, descripcion_eu: e.target.value })}
                                     />
                                 </div>
+                            </div>
+
+                            <div className="flex items-center gap-3 p-4 bg-white/5 border border-white/10 rounded-sm">
+                                <input
+                                    type="checkbox"
+                                    id="visible"
+                                    className="w-5 h-5 accent-accent"
+                                    checked={formData.visible}
+                                    onChange={e => setFormData({ ...formData, visible: e.target.checked })}
+                                />
+                                <label htmlFor="visible" className="text-xs text-white/80 cursor-pointer select-none">
+                                    Este curso está visible en el catálogo público para compra
+                                </label>
                             </div>
                         </div>
 
