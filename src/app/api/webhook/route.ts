@@ -85,6 +85,19 @@ export async function POST(request: Request) {
                     }
                 } else if (mode === 'rental_test') {
                     const { service_id, option_index, reserved_date, reserved_time } = metadata;
+
+                    // 1. Idempotency Check for specific record
+                    const { data: existingRental } = await supabase
+                        .from('reservas_alquiler')
+                        .select('id')
+                        .eq('stripe_session_id', session.id)
+                        .maybeSingle();
+
+                    if (existingRental) {
+                        console.log('--- RENTAL ALREADY PROCESSED ---', session.id);
+                        return NextResponse.json({ received: true });
+                    }
+
                     const { data: service } = await supabase.from('servicios_alquiler').select('*').eq('id', service_id).single();
                     const optionLabel = (option_index && service?.opciones[parseInt(option_index)])
                         ? service.opciones[parseInt(option_index)].label
@@ -102,6 +115,14 @@ export async function POST(request: Request) {
                         stripe_session_id: session.id
                     });
 
+                    await logToExternalWebhook('rental.completed', {
+                        user_id,
+                        service_name: service?.nombre_es,
+                        date: reserved_date,
+                        time: reserved_time,
+                        amount: session.amount_total ? session.amount_total / 100 : 0
+                    });
+
                     if (resend && user_id) {
                         const { data: profile } = await supabase.from('profiles').select('email, nombre').eq('id', user_id).single();
                         if (profile?.email) {
@@ -116,6 +137,34 @@ export async function POST(request: Request) {
                 } else {
                     // Handling Course Inscriptions
                     const { course_id, edition_id, start_date, end_date } = metadata;
+
+                    // 1. Idempotency Check for specific record
+                    const { data: existingIns } = await supabase
+                        .from('inscripciones')
+                        .select('id')
+                        .eq('stripe_session_id', session.id)
+                        .maybeSingle();
+
+                    if (existingIns) {
+                        console.log('--- INSCRIPTION ALREADY PROCESSED ---', session.id);
+                        return NextResponse.json({ received: true });
+                    }
+
+                    // 2. Anomaly Check: Is already enrolled?
+                    const { data: alreadyEnrolled } = await supabase
+                        .from('inscripciones')
+                        .select('id')
+                        .eq('perfil_id', user_id)
+                        .eq('curso_id', course_id)
+                        .eq('edicion_id', edition_id || null)
+                        .eq('estado_pago', 'pagado')
+                        .maybeSingle();
+
+                    if (alreadyEnrolled) {
+                        console.warn(`🚨 ANOMALY: User ${user_id} already enrolled in course ${course_id}. Session: ${session.id}`);
+                        await logToExternalWebhook('anomaly.duplicate_inscription', { user_id, course_id, session_id: session.id });
+                    }
+
                     await supabase.from('inscripciones').insert({
                         perfil_id: user_id,
                         curso_id: course_id,
@@ -132,6 +181,13 @@ export async function POST(request: Request) {
                             await supabase.from('ediciones_curso').update({ plazas_ocupadas: (edData.plazas_ocupadas || 0) + 1 }).eq('id', edition_id);
                         }
                     }
+
+                    const { data: course } = await supabase.from('cursos').select('nombre_es').eq('id', course_id).single();
+                    await logToExternalWebhook('course.inscription.completed', {
+                        user_id,
+                        course_name: course?.nombre_es,
+                        amount: session.amount_total ? session.amount_total / 100 : 0
+                    });
 
                     if (resend && user_id) {
                         const { data: profile } = await supabase.from('profiles').select('email, nombre').eq('id', user_id).single();

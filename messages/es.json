@@ -224,6 +224,8 @@
         "reset_password_desc": "Crea una contraseña segura para tu cuenta."
     },
     "auth_form": {
+        "name": "Nombre",
+        "apellidos": "Apellidos",
         "email": "Email",
         "password": "Contraseña",
         "login_btn": "Iniciar Sesión",
@@ -241,7 +243,11 @@
         "recovery_sent": "Email enviado. Revisa tu bandeja de entrada.",
         "update_password": "Actualizar Contraseña",
         "updating_password": "Actualizando...",
-        "password_updated": "Contraseña actualizada correctamente"
+        "password_updated": "Contraseña actualizada correctamente",
+        "show_password": "Mostrar contraseña",
+        "email_not_confirmed": "Email no confirmado. Por favor, revisa tu bandeja de entrada.",
+        "resend_email": "Reenviar",
+        "resend_success": "Email reenviado correctamente."
     },
     "booking": {
         "select_date": "Selecciona una fecha",

@@ -64,6 +64,7 @@ export default function Navbar({ locale: propLocale }: { locale?: string }) {
     }, [supabase.auth]);
 
     const handleLogout = async () => {
+        setIsMenuOpen(false);
         await fetch(`/api/auth/logout?locale=${locale}`, { method: 'POST' });
         router.push(`/${locale}/auth/login`);
         router.refresh();
@@ -107,7 +108,11 @@ export default function Navbar({ locale: propLocale }: { locale?: string }) {
     return (
         <>
             <nav className="fixed top-0 left-0 w-full z-[9999] px-3 sm:px-4 md:px-6 py-3 md:py-6 xl:py-8 flex justify-between items-center bg-[#010409] backdrop-blur-md border-b border-white/5 min-h-[70px] md:min-h-[auto]">
-                <Link href={`/${locale}`} className="flex items-center gap-2 md:gap-4 group transition-transform hover:scale-105 relative z-[110] max-w-[75%] sm:max-w-none">
+                <Link
+                    href={`/${locale}`}
+                    className="flex items-center gap-2 md:gap-4 group transition-transform hover:scale-105 relative z-[110] max-w-[75%] sm:max-w-none"
+                    onClick={() => setIsMenuOpen(false)}
+                >
                     <div className="relative w-10 h-10 sm:w-16 sm:h-16 md:w-14 md:h-14 flex-shrink-0">
                         <Image
                             src="/images/LogoGetxoBelaEskola.png"
@@ -220,6 +225,7 @@ export default function Navbar({ locale: propLocale }: { locale?: string }) {
                                 href={`/${locale}/${link.href}`}
                                 className="group flex items-center justify-between"
                                 style={{ transitionDelay: `${idx * 100}ms` }}
+                                onClick={() => setIsMenuOpen(false)}
                             >
                                 <span className={`text-4xl font-display italic transition-all duration-500 ${isMenuOpen ? 'translate-x-0 opacity-100' : '-translate-x-10 opacity-0'}`}>
                                     {t(link.label)}
@@ -237,6 +243,7 @@ export default function Navbar({ locale: propLocale }: { locale?: string }) {
                                 <Link
                                     href={user.rol === 'admin' || user.rol === 'instructor' ? `/${locale}/staff` : `/${locale}/student/dashboard`}
                                     className="w-full text-center py-5 bg-accent text-nautical-black font-display italic text-xl shadow-xl shadow-accent/20"
+                                    onClick={() => setIsMenuOpen(false)}
                                 >
                                     {user.rol === 'admin' || user.rol === 'instructor' ? t('admin_panel') : t('dashboard')}
                                 </Link>
@@ -251,6 +258,7 @@ export default function Navbar({ locale: propLocale }: { locale?: string }) {
                             <Link
                                 href={`/${locale}/auth/login`}
                                 className="w-full block text-center py-5 border border-white/20 text-white font-display italic text-xl bg-white/5 active:bg-white/10 transition-all"
+                                onClick={() => setIsMenuOpen(false)}
                             >
                                 {t('login')}
                             </Link>

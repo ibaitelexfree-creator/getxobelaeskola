@@ -41,41 +41,41 @@ export default function CourseCard({ course, locale }: CourseCardProps) {
                 <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-nautical-black via-nautical-black/50 to-transparent z-10" />
 
                 {/* Level Badge - Premium Minimalist */}
-                <div className="absolute top-8 left-8 p-0 z-20 overflow-hidden">
+                <div className="absolute top-8 left-8 p-0 z-20">
                     <div className="flex items-center gap-4 animate-fade-in group-hover:translate-x-2 transition-transform duration-700">
-                        <div className="w-8 h-px bg-accent" />
-                        <span className="text-2xs uppercase tracking-[0.4em] text-accent font-bold">
+                        <div className="w-8 h-px bg-accent flex-shrink-0" />
+                        <span className="text-[10px] uppercase tracking-[0.3em] text-accent font-black whitespace-nowrap pr-4">
                             {t(`levels.${course.nivel}`)}
                         </span>
                     </div>
                 </div>
 
                 {/* Vertical Text Accent */}
-                <div className="absolute right-8 top-1/2 -translate-y-1/2 opacity-10 group-hover:opacity-100 transition-opacity duration-1000 rotate-90 origin-right">
-                    <span className="text-2xs uppercase tracking-[0.5em] text-white whitespace-nowrap font-light">
+                <div className="absolute right-8 top-1/2 -translate-y-1/2 opacity-10 group-hover:opacity-100 transition-opacity duration-1000 rotate-90 origin-right pointer-events-none">
+                    <span className="text-[10px] uppercase tracking-[0.4em] text-white whitespace-nowrap font-light">
                         {course.duracion_h} HOURS TRAINING
                     </span>
                 </div>
             </div>
 
             {/* Content Area */}
-            <div className="p-12 relative z-10 space-y-8">
-                <div className="space-y-4">
-                    <div className="flex justify-between items-baseline border-b border-white/5 pb-4">
-                        <span className="text-2xs uppercase tracking-[0.3em] text-foreground/40 font-bold">
+            <div className="p-8 md:p-10 lg:p-12 relative z-10 space-y-6 sm:space-y-8">
+                <div className="space-y-3 sm:space-y-4">
+                    <div className="flex justify-between items-baseline border-b border-white/5 pb-4 gap-2">
+                        <span className="text-[10px] uppercase tracking-[0.2em] text-foreground/40 font-bold whitespace-nowrap">
                             Premium Course
                         </span>
-                        <span className="text-2xl font-display text-brass-gold italic">
+                        <span className="text-xl sm:text-2xl font-display text-brass-gold italic flex-shrink-0">
                             {course.precio}€
                         </span>
                     </div>
 
-                    <h3 className="text-4xl font-display text-white italic group-hover:text-accent transition-colors duration-500 leading-tight pt-4">
+                    <h3 className="text-3xl sm:text-4xl font-display text-white italic group-hover:text-accent transition-colors duration-500 leading-tight pt-2">
                         {name}
                     </h3>
                 </div>
 
-                <p className="text-foreground/40 font-light text-sm leading-relaxed h-12 line-clamp-2 group-hover:text-white/60 transition-colors duration-500">
+                <p className="text-foreground/40 font-light text-sm leading-relaxed min-h-[4.5rem] group-hover:text-white/60 transition-colors duration-500 line-clamp-3 md:line-clamp-2">
                     {description}
                 </p>
 

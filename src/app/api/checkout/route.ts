@@ -47,6 +47,20 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: 'Faltan datos (editionId o courseId)' }, { status: 400 });
         }
 
+        // --- ENROLLMENT CHECK (Gating) ---
+        const { data: alreadyEnrolled } = await supabase
+            .from('inscripciones')
+            .select('id')
+            .eq('perfil_id', user.id)
+            .eq('curso_id', course.id)
+            .eq('edicion_id', editionId || null)
+            .eq('estado_pago', 'pagado')
+            .maybeSingle();
+
+        if (alreadyEnrolled) {
+            return NextResponse.json({ error: 'Ya estás inscrito en este curso o edición' }, { status: 400 });
+        }
+
         const itemName = locale === 'es' ? course.nombre_es : course.nombre_eu;
         let imageUrl = course.imagen_url;
         if (imageUrl && imageUrl.startsWith('/')) imageUrl = `${origin}${imageUrl}`;
