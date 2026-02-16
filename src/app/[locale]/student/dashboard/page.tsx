@@ -93,6 +93,35 @@ export default async function StudentDashboard({
         return { label: 'PENDIENTE', color: 'text-green-500 border-green-500/30', paid: true };
     };
 
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    // Split Inscripciones
+    const upcomingInscripciones = inscripciones?.filter(ins => {
+        const dateStr = ins.ediciones_curso?.fecha_inicio || ins.metadata?.start_date;
+        if (!dateStr) return true; // Keep if no date assigned yet
+        return new Date(dateStr) >= today;
+    }) || [];
+
+    const pastInscripciones = inscripciones?.filter(ins => {
+        const dateStr = ins.ediciones_curso?.fecha_inicio || ins.metadata?.start_date;
+        if (!dateStr) return false;
+        return new Date(dateStr) < today;
+    }) || [];
+
+    // Split Rentals
+    const upcomingRentals = rentals?.filter(rent => {
+        if (!rent.fecha_reserva) return true;
+        const date = new Date(rent.fecha_reserva);
+        return date >= today;
+    }) || [];
+
+    const pastRentals = rentals?.filter(rent => {
+        if (!rent.fecha_reserva) return false;
+        const date = new Date(rent.fecha_reserva);
+        return date < today;
+    }) || [];
+
     return (
         <main className="min-h-screen pt-32 pb-24 px-6 relative">
             <div className="bg-mesh" />
@@ -164,9 +193,9 @@ export default async function StudentDashboard({
                         <section>
                             <h2 className="text-xs uppercase tracking-widest text-accent mb-8 font-bold">Tus Próximos Cursos Presenciales</h2>
 
-                            {inscripciones && inscripciones.length > 0 ? (
+                            {upcomingInscripciones && upcomingInscripciones.length > 0 ? (
                                 <div className="space-y-6">
-                                    {inscripciones.map((ins: DashboardItem) => {
+                                    {upcomingInscripciones.map((ins: DashboardItem) => {
                                         const edition = ins.ediciones_curso;
                                         const course = ins.cursos || edition?.cursos;
                                         const courseName = course
@@ -214,7 +243,7 @@ export default async function StudentDashboard({
                                 </div>
                             ) : (
                                 <div className="bg-card p-8 border border-card-border text-center rounded-sm">
-                                    <p className="text-foreground/40 text-xs font-light mb-6">Aún no te has inscrito en ningún curso.</p>
+                                    <p className="text-foreground/40 text-xs font-light mb-6">No tienes cursos próximos programados.</p>
                                     <Link href={`/${locale}/courses`} className="px-6 py-3 border border-accent text-accent text-[9px] uppercase tracking-widest hover:bg-accent hover:text-nautical-black transition-all">
                                         Explorar Catálogo
                                     </Link>
@@ -229,9 +258,9 @@ export default async function StudentDashboard({
                                 <Link href={`/${locale}/rental`} className="text-[10px] uppercase tracking-widest text-foreground/40 hover:text-accent transition-colors">Nuevo Alquiler +</Link>
                             </div>
 
-                            {rentals && rentals.length > 0 ? (
+                            {upcomingRentals && upcomingRentals.length > 0 ? (
                                 <div className="space-y-6">
-                                    {rentals.map((rent: DashboardItem) => {
+                                    {upcomingRentals.map((rent: DashboardItem) => {
                                         const service = rent.servicios_alquiler;
                                         const name = locale === 'es' ? service?.nombre_es : service?.nombre_eu;
                                         const status = getStatusInfo(rent);
@@ -267,30 +296,49 @@ export default async function StudentDashboard({
                                                             Pagar Reserva
                                                         </Link>
                                                     )}
-                                                    {rent.estado_entrega && status.paid && (
-                                                        <span
-                                                            className={`text-[8px] uppercase tracking-[0.2em] font-bold px-2 py-0.5 rounded-sm ${rent.estado_entrega === 'entregado' ? 'bg-sea-foam/10 text-sea-foam' :
-                                                                rent.estado_entrega === 'devuelto' ? 'bg-white/10 text-white/40' :
-                                                                    'bg-accent/10 text-accent'
-                                                                }`}
-                                                        >
-                                                            {rent.estado_entrega}
-                                                        </span>
-                                                    )}
                                                 </div>
                                             </div>
                                         );
                                     })}
                                 </div>
                             ) : (
-                                <div className="bg-card p-12 border border-card-border text-center rounded-sm">
-                                    <p className="text-foreground/40 font-light mb-8">No tienes alquileres activos.</p>
-                                    <Link href={`/${locale}/rental`} className="px-8 py-4 border border-accent text-accent text-[10px] uppercase tracking-widest hover:bg-accent hover:text-nautical-black transition-all">
+                                <div className="bg-card p-8 border border-card-border text-center rounded-sm">
+                                    <p className="text-foreground/40 font-light mb-6">No tienes alquileres próximos.</p>
+                                    <Link href={`/${locale}/rental`} className="px-8 py-4 border border-accent text-accent text-[9px] uppercase tracking-widest hover:bg-accent hover:text-nautical-black transition-all">
                                         Reservar Material
                                     </Link>
                                 </div>
                             )}
                         </section>
+
+                        {/* History Section */}
+                        {(pastInscripciones.length > 0 || pastRentals.length > 0) && (
+                            <section className="pt-8 border-t border-white/5">
+                                <h2 className="text-xs uppercase tracking-widest text-foreground/20 mb-8 font-bold">Historial Reciente</h2>
+                                <div className="space-y-4 opacity-50 hover:opacity-100 transition-opacity">
+                                    {[...pastInscripciones, ...pastRentals].map((item: DashboardItem) => {
+                                        const isRental = !!item.servicios_alquiler;
+                                        const name = isRental
+                                            ? (locale === 'es' ? item.servicios_alquiler?.nombre_es : item.servicios_alquiler?.nombre_eu)
+                                            : ((item.cursos || item.ediciones_curso?.cursos)
+                                                ? (locale === 'es' ? (item.cursos?.nombre_es || item.ediciones_curso?.cursos?.nombre_es) : (item.cursos?.nombre_eu || item.ediciones_curso?.cursos?.nombre_eu))
+                                                : 'Actividad pasada');
+
+                                        const dateStr = item.fecha_reserva || item.ediciones_curso?.fecha_inicio || item.metadata?.start_date;
+
+                                        return (
+                                            <div key={item.id} className="flex justify-between items-center py-3 px-6 bg-white/[0.02] border border-white/5 rounded-sm">
+                                                <div className="flex items-center gap-4 text-xs">
+                                                    <span className="text-foreground/40">{dateStr ? new Date(dateStr).toLocaleDateString() : '--/--/--'}</span>
+                                                    <span className="text-white font-medium">{name}</span>
+                                                </div>
+                                                <span className="text-[8px] uppercase tracking-widest text-foreground/40">Completado</span>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </section>
+                        )}
                     </div>
 
                     {/* Sidebar */}

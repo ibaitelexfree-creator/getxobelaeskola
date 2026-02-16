@@ -36,10 +36,12 @@ export default function RegisterForm() {
         setLoading(true);
         setError(null);
 
+        const locale = window.location.pathname.split('/')[1] || 'es';
         const { error: authError } = await supabase.auth.signUp({
             email: data.email,
             password: data.password,
             options: {
+                emailRedirectTo: `${window.location.origin}/api/auth/callback?next=/${locale}/student/dashboard`,
                 data: {
                     nombre: data.nombre,
                     apellidos: data.apellidos,

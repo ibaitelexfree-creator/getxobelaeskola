@@ -11,6 +11,8 @@ import AcademyFeedbackProvider from '@/components/academy/AcademyFeedbackProvide
 import ConditionalLayout from '@/components/layout/ConditionalLayout';
 import ScrollUpButton from '@/components/shared/ScrollToTop';
 import { Viewport } from 'next';
+import { Suspense } from 'react';
+import StatusToast from '@/components/shared/StatusToast';
 
 export const viewport: Viewport = {
   themeColor: '#001B3A', // Nautical Black
@@ -45,6 +47,9 @@ export default async function LocaleLayout({
             <RealtimeNotifications />
             <ActivityTracker />
             <ScrollUpButton />
+            <Suspense fallback={null}>
+              <StatusToast />
+            </Suspense>
           </AcademyFeedbackProvider>
         </NextIntlClientProvider>
       </body>

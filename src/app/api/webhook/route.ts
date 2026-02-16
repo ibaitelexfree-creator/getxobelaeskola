@@ -4,6 +4,7 @@ import Stripe from 'stripe';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { resend, DEFAULT_FROM_EMAIL } from '@/lib/resend';
 import { rentalTemplate, inscriptionTemplate } from '@/lib/email-templates';
+import { logToExternalWebhook } from '@/lib/external-logger';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
@@ -28,9 +29,16 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: `Webhook Error: ${errorMessage}` }, { status: 400 });
         }
 
-        if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
-            console.error('CRITICAL: SUPABASE_SERVICE_ROLE_KEY is missing');
-            return NextResponse.json({ error: 'Server Config Error' }, { status: 500 });
+        // 1. Idempotency Check
+        const { data: existingEvent } = await supabase
+            .from('processed_webhook_events')
+            .select('id')
+            .eq('stripe_event_id', event.id)
+            .single();
+
+        if (existingEvent) {
+            console.log(`--- WEBHOOK DUPLICATE DETECTED: ${event.id} ---`);
+            return NextResponse.json({ received: true, duplicate: true });
         }
 
         // Handle the event
@@ -47,14 +55,14 @@ export async function POST(request: Request) {
                 const { mode, user_id } = metadata;
 
                 if (mode === 'subscription') {
-                    // 1. Link Subscription to User
                     const subscriptionId = session.subscription as string;
                     const customerId = session.customer as string;
 
                     console.log('--- MEMBERSHIP COMPLETED ---', { user_id, subscriptionId });
 
                     if (user_id) {
-                        const { error: upError } = await supabase
+                        // Profile update (legacy sync)
+                        await supabase
                             .from('profiles')
                             .update({
                                 stripe_customer_id: customerId,
@@ -64,17 +72,25 @@ export async function POST(request: Request) {
                             })
                             .eq('id', user_id);
 
-                        if (upError) console.error('Error updating profile with subscription:', upError);
+                        // Subscription table record
+                        await supabase.from('subscriptions').upsert({
+                            user_id: user_id,
+                            stripe_subscription_id: subscriptionId,
+                            stripe_customer_id: customerId,
+                            status: 'active', // Will be confirmed by invoice.paid but here we init
+                            created_at: new Date().toISOString()
+                        }, { onConflict: 'stripe_subscription_id' });
+
+                        await logToExternalWebhook('subscription.completed', { user_id, subscriptionId, customerId });
                     }
                 } else if (mode === 'rental_test') {
-                    // ... existing rental logic ...
                     const { service_id, option_index, reserved_date, reserved_time } = metadata;
                     const { data: service } = await supabase.from('servicios_alquiler').select('*').eq('id', service_id).single();
                     const optionLabel = (option_index && service?.opciones[parseInt(option_index)])
                         ? service.opciones[parseInt(option_index)].label
                         : 'Estándar';
 
-                    const { error: rentError } = await supabase.from('reservas_alquiler').insert({
+                    await supabase.from('reservas_alquiler').insert({
                         perfil_id: user_id,
                         servicio_id: service_id,
                         fecha_reserva: reserved_date || new Date().toISOString().split('T')[0],
@@ -85,8 +101,6 @@ export async function POST(request: Request) {
                         estado_pago: 'pagado',
                         stripe_session_id: session.id
                     });
-
-                    if (rentError) console.error('Rental DB Error:', rentError);
 
                     if (resend && user_id) {
                         const { data: profile } = await supabase.from('profiles').select('email, nombre').eq('id', user_id).single();
@@ -99,13 +113,10 @@ export async function POST(request: Request) {
                             }).catch(e => console.error('Error sending email:', e));
                         }
                     }
-                } else if (mode === 'article_sale') {
-                    // ... (existing article logic placeholder) ...
-                    console.log('--- ARTICLE SALE COMPLETED ---', metadata);
                 } else {
                     // Handling Course Inscriptions
                     const { course_id, edition_id, start_date, end_date } = metadata;
-                    const { error: insError } = await supabase.from('inscripciones').insert({
+                    await supabase.from('inscripciones').insert({
                         perfil_id: user_id,
                         curso_id: course_id,
                         edicion_id: (edition_id && (edition_id.startsWith('test-') || edition_id.startsWith('ext_'))) ? null : edition_id,
@@ -114,8 +125,6 @@ export async function POST(request: Request) {
                         stripe_session_id: session.id,
                         metadata: { start_date, end_date }
                     });
-
-                    if (insError) console.error('Inscription DB Error:', insError);
 
                     if (edition_id && !edition_id.startsWith('test-')) {
                         const { data: edData } = await supabase.from('ediciones_curso').select('plazas_ocupadas').eq('id', edition_id).single();
@@ -140,23 +149,72 @@ export async function POST(request: Request) {
                 break;
             }
 
+            case 'customer.subscription.created': {
+                const subscription = event.data.object as any;
+                const userId = subscription.metadata?.user_id;
+
+                console.log('--- SUBSCRIPTION CREATED ---', { sub_id: subscription.id, user_id: userId });
+
+                if (userId) {
+                    // One Active Subscription Policy
+                    const { data: activeSubs } = await supabase
+                        .from('subscriptions')
+                        .select('id, stripe_subscription_id')
+                        .eq('user_id', userId)
+                        .eq('status', 'active');
+
+                    if (activeSubs && activeSubs.length > 0) {
+                        console.warn(`🚨 ANOMALY: User ${userId} already has active subscription(s). New sub created: ${subscription.id}`);
+                        await logToExternalWebhook('anomaly.duplicate_subscription', {
+                            user_id: userId,
+                            new_subscription_id: subscription.id,
+                            existing_subscriptions: activeSubs
+                        });
+                        // In a real production scenario, we might call stripe.subscriptions.cancel(subscription.id) here.
+                    }
+
+                    await supabase.from('subscriptions').upsert({
+                        user_id: userId,
+                        stripe_subscription_id: subscription.id,
+                        stripe_customer_id: subscription.customer as string,
+                        status: subscription.status,
+                        current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
+                        metadata: subscription.metadata
+                    }, { onConflict: 'stripe_subscription_id' });
+                }
+                break;
+            }
+
             case 'invoice.paid': {
                 const invoice = event.data.object as any;
                 const subscriptionId = invoice.subscription as string;
-                const customerId = invoice.customer as string;
 
                 if (subscriptionId) {
                     console.log(`--- SUBSCRIPTION PAID: ${subscriptionId} ---`);
-                    // Update validity date
-                    const { error } = await supabase
-                        .from('profiles')
-                        .update({
-                            status_socio: 'activo',
-                            fecha_fin_periodo: new Date(invoice.period_end * 1000).toISOString()
-                        })
-                        .eq('stripe_subscription_id', subscriptionId);
 
-                    if (error) console.error('Error updating profile on invoice.paid:', error);
+                    // Update subscriptions table
+                    const { data: subData } = await supabase
+                        .from('subscriptions')
+                        .update({
+                            status: 'active',
+                            current_period_end: new Date(invoice.period_end * 1000).toISOString()
+                        })
+                        .eq('stripe_subscription_id', subscriptionId)
+                        .select('user_id')
+                        .single();
+
+                    // Legacy profile update
+                    if (subData?.user_id) {
+                        await supabase
+                            .from('profiles')
+                            .update({
+                                status_socio: 'activo',
+                                fecha_fin_periodo: new Date(invoice.period_end * 1000).toISOString()
+                            })
+                            .eq('id', subData.user_id);
+
+                        await logToExternalWebhook('invoice.paid', { user_id: subData.user_id, subscriptionId });
+                    }
                 }
                 break;
             }
@@ -165,30 +223,63 @@ export async function POST(request: Request) {
                 const subscription = event.data.object as any;
                 console.log('--- SUBSCRIPTION UPDATED ---', subscription.id);
 
-                // Status could be 'active', 'past_due', 'unpaid', 'canceled'
-                const status = (subscription.status === 'active') ? 'activo' : (subscription.status === 'past_due' ? 'past_due' : 'no_socio');
+                const statusMap: Record<string, string> = {
+                    'active': 'active',
+                    'past_due': 'past_due',
+                    'unpaid': 'unpaid',
+                    'canceled': 'canceled',
+                    'incomplete': 'incomplete'
+                };
 
-                await supabase
-                    .from('profiles')
+                const dbStatus = statusMap[subscription.status] || 'active';
+
+                // Update subscriptions
+                const { data: subData } = await supabase
+                    .from('subscriptions')
                     .update({
-                        status_socio: status,
-                        fecha_fin_periodo: new Date(subscription.current_period_end * 1000).toISOString()
+                        status: dbStatus,
+                        current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
+                        cancel_at_period_end: subscription.cancel_at_period_end
                     })
-                    .eq('stripe_subscription_id', subscription.id);
+                    .eq('stripe_subscription_id', subscription.id)
+                    .select('user_id')
+                    .single();
+
+                // Legacy profile update
+                if (subData?.user_id) {
+                    await supabase
+                        .from('profiles')
+                        .update({
+                            status_socio: subscription.status === 'active' ? 'activo' : (subscription.status === 'past_due' ? 'past_due' : 'no_socio'),
+                            fecha_fin_periodo: new Date(subscription.current_period_end * 1000).toISOString()
+                        })
+                        .eq('id', subData.user_id);
+                }
                 break;
             }
 
             case 'customer.subscription.deleted': {
-                const subscription = event.data.object as Stripe.Subscription;
+                const subscription = event.data.object as any;
                 console.log('--- SUBSCRIPTION CANCELED ---', subscription.id);
 
-                await supabase
-                    .from('profiles')
-                    .update({
-                        status_socio: 'no_socio',
-                        stripe_subscription_id: null
-                    })
-                    .eq('stripe_subscription_id', subscription.id);
+                // Update subscriptions
+                const { data: subData } = await supabase
+                    .from('subscriptions')
+                    .update({ status: 'canceled' })
+                    .eq('stripe_subscription_id', subscription.id)
+                    .select('user_id')
+                    .single();
+
+                // Legacy profile update
+                if (subData?.user_id) {
+                    await supabase
+                        .from('profiles')
+                        .update({
+                            status_socio: 'no_socio',
+                            stripe_subscription_id: null
+                        })
+                        .eq('id', subData.user_id);
+                }
                 break;
             }
 
@@ -196,11 +287,18 @@ export async function POST(request: Request) {
                 console.log(`Unhandled event type ${event.type}`);
         }
 
+        // 2. Record Event as Processed
+        await supabase.from('processed_webhook_events').insert({
+            stripe_event_id: event.id,
+            event_type: event.type
+        });
+
         return NextResponse.json({ received: true });
     } catch (err: unknown) {
         console.error('--- WEBHOOK UNHANDLED ERROR ---', err);
         return NextResponse.json({ error: (err as Error).message }, { status: 500 });
     }
 }
+
 
 

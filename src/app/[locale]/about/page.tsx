@@ -24,7 +24,7 @@ export default async function AboutPage({ params: { locale } }: { params: { loca
 
                 <div className="container mx-auto px-6 relative z-10 text-center">
                     <div className="flex flex-col items-center">
-                        <span className="inline-block text-accent uppercase tracking-[1em] text-[10px] font-bold mb-12 opacity-80 animate-fade-in-up">
+                        <span className="inline-block text-accent uppercase tracking-[1em] text-sm font-bold mb-12 opacity-80 animate-fade-in-up">
                             {t('header_badge')}
                         </span>
                         <h1 className="text-4xl md:text-7xl lg:text-[10rem] font-display leading-[0.9] mb-12 drop-shadow-2xl animate-reveal">
@@ -35,7 +35,7 @@ export default async function AboutPage({ params: { locale } }: { params: { loca
                         </h1>
                         <div className="flex items-center gap-8 w-full max-w-4xl opacity-40 animate-fade-in" style={{ animationDelay: '1s' }}>
                             <div className="h-px flex-grow bg-gradient-to-l from-white to-transparent" />
-                            <p className="text-[10px] uppercase tracking-[0.4em] font-light whitespace-nowrap">
+                            <p className="text-sm uppercase tracking-[0.4em] font-light whitespace-nowrap">
                                 {t('header_suffix')}
                             </p>
                             <div className="h-px flex-grow bg-gradient-to-r from-white to-transparent" />
@@ -95,7 +95,7 @@ export default async function AboutPage({ params: { locale } }: { params: { loca
                                 </div>
                                 {/* Image Badge */}
                                 <div className="absolute top-12 left-0 -translate-x-1/2 bg-nautical-deep px-8 py-6 border border-white/5 shadow-2xl rotate-[-90deg]">
-                                    <span className="text-[10px] uppercase tracking-[0.5em] text-accent font-bold">
+                                    <span className="text-sm uppercase tracking-[0.5em] text-accent font-bold">
                                         EST. 1993
                                     </span>
                                 </div>
@@ -110,7 +110,7 @@ export default async function AboutPage({ params: { locale } }: { params: { loca
                 <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-5 pointer-events-none" />
                 <div className="container mx-auto px-6 relative">
                     <header className="mb-32 text-center max-w-4xl mx-auto space-y-8">
-                        <span className="text-accent uppercase tracking-[0.6em] text-[9px] font-bold">Nuestra Esencia</span>
+                        <span className="text-accent uppercase tracking-[0.6em] text-sm font-bold">Nuestra Esencia</span>
                         <h2 className="text-4xl md:text-6xl lg:text-8xl font-display">{t('define_title')}</h2>
                         <div className="w-32 h-px bg-gradient-to-r from-transparent via-accent to-transparent mx-auto" />
                     </header>

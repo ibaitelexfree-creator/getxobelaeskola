@@ -178,7 +178,7 @@ export default async function CourseDetailPage({
 
             <div className="relative z-10 pt-32 pb-24 px-6">
                 <div className="container mx-auto">
-                    <Link href={`/${locale}/courses`} className="text-[10px] uppercase tracking-[0.3em] text-accent mb-12 inline-block hover:pl-2 transition-all">
+                    <Link href={`/${locale}/courses`} className="text-sm uppercase tracking-[0.3em] text-accent mb-12 inline-block hover:pl-2 transition-all">
                         ← {t('back_to_catalog')}
                     </Link>
 
@@ -190,7 +190,7 @@ export default async function CourseDetailPage({
                                 {description}
                             </p>
 
-                            <div className="flex flex-wrap gap-10 text-[10px] uppercase tracking-widest font-bold text-sea-foam/50 border-t border-white/5 pt-10">
+                            <div className="flex flex-wrap gap-10 text-xs uppercase tracking-widest font-bold text-sea-foam/50 border-t border-white/5 pt-10">
                                 <div>
                                     <p className="text-accent mb-1">{t('duration')}</p>
                                     <p className="text-foreground">{displayCourse.duracion_h}h</p>
@@ -207,7 +207,7 @@ export default async function CourseDetailPage({
 
                             {displayCourse.detalles && (
                                 <div className="space-y-4 pt-12">
-                                    <h4 className="text-[10px] uppercase tracking-widest font-bold text-accent">Lo que aprenderás</h4>
+                                    <h4 className="text-xs uppercase tracking-widest font-bold text-accent">Lo que aprenderás</h4>
                                     <ul className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         {(locale === 'es' ? displayCourse.detalles.es : displayCourse.detalles.eu).map((detail: string, i: number) => (
                                             <li key={i} className="flex items-center gap-3 text-sm font-light text-foreground/70">

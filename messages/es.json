@@ -15,6 +15,14 @@
         "menu": "Menú",
         "close": "Cerrar"
     },
+    "notifications": {
+        "payment_success": "Pago realizado con éxito",
+        "payment_success_desc": "Gracias por tu confianza. Ya tienes acceso a tu reserva en Mi Área.",
+        "payment_canceled": "Pago cancelado",
+        "payment_canceled_desc": "El proceso de pago se ha interrumpido y no se ha realizado ningún cargo.",
+        "payment_error": "Error en el pago",
+        "payment_error_desc": "Ha ocurrido un problema al procesar tu pago. Por favor, inténtalo de nuevo."
+    },
     "hero": {
         "title": "Elegancia en el mar",
         "subtitle": "Formación náutica premium en Getxo"
