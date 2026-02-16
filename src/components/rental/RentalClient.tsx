@@ -1,10 +1,35 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import LegalConsentModal from '../shared/LegalConsentModal';
+import { createClient } from '@/lib/supabase/client';
+
+function getSpainTimeInfo() {
+    const now = new Date();
+    const formatter = new Intl.DateTimeFormat('en-GB', {
+        timeZone: 'Europe/Madrid',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false
+    });
+    const parts = formatter.formatToParts(now);
+    const getPart = (type: string) => parts.find(p => p.type === type)?.value || '';
+
+    return {
+        year: parseInt(getPart('year')),
+        month: parseInt(getPart('month')),
+        day: parseInt(getPart('day')),
+        hour: parseInt(getPart('hour')),
+        minute: parseInt(getPart('minute')),
+        dateStr: `${getPart('year')}-${getPart('month')}-${getPart('day')}`
+    };
+}
 
 interface RentalService {
     id: string;
@@ -30,17 +55,108 @@ export default function RentalClient({
     const [bookingService, setBookingService] = useState<string | null>(null);
     const [bookingOption, setBookingOption] = useState<number | null>(null);
 
-    // Day, Month, Year states
-    const today = new Date();
-    const currentYear = today.getFullYear();
-    const [day, setDay] = useState<string>(today.getDate().toString().padStart(2, '0'));
-    const [month, setMonth] = useState<string>((today.getMonth() + 1).toString().padStart(2, '0'));
-    const [year, setYear] = useState<string>(currentYear.toString());
+    // Day, Month, Year states based on Spain time
+    const [spainNow] = useState(() => getSpainTimeInfo());
+    const currentYear = spainNow.year;
 
-    const [selectedTime, setSelectedTime] = useState<string>('10:00');
+    const initialDate = useMemo(() => {
+        const lastPossibleHour = 17; // El último slot empieza a las 17:00
+        if (spainNow.hour >= lastPossibleHour) {
+            // Si ya es tarde para hoy, pasamos a mañana
+            const d = new Date(spainNow.year, spainNow.month - 1, spainNow.day + 1);
+            return {
+                day: d.getDate().toString().padStart(2, '0'),
+                month: (d.getMonth() + 1).toString().padStart(2, '0'),
+                year: d.getFullYear().toString()
+            };
+        }
+        return {
+            day: spainNow.day.toString().padStart(2, '0'),
+            month: spainNow.month.toString().padStart(2, '0'),
+            year: spainNow.year.toString()
+        };
+    }, [spainNow]);
+
+    const [day, setDay] = useState<string>(initialDate.day);
+    const [month, setMonth] = useState<string>(initialDate.month);
+    const [year, setYear] = useState<string>(initialDate.year);
+
+    const ALL_TIMES = ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00'];
+
+    const availableTimes = useMemo(() => {
+        const d = parseInt(day);
+        const m = parseInt(month);
+        const y = parseInt(year);
+        if (isNaN(d) || isNaN(m) || isNaN(y)) return ALL_TIMES;
+
+        const isToday = y === spainNow.year && m === spainNow.month && d === spainNow.day;
+        if (isToday) {
+            return ALL_TIMES.filter(t => {
+                const hour = parseInt(t.split(':')[0]);
+                // No permitir horas que ya hayan pasado
+                return hour > spainNow.hour;
+            });
+        }
+
+        // Si es una fecha pasada (aunque el useEffect debería evitarlo), retornamos vacío
+        const selectedDate = new Date(y, m - 1, d);
+        const todayDate = new Date(spainNow.year, spainNow.month - 1, spainNow.day);
+        if (selectedDate < todayDate) return [];
+
+        return ALL_TIMES;
+    }, [day, month, year, spainNow]);
+
+    const [selectedTime, setSelectedTime] = useState<string>('');
+
+    // Asegurar que la fecha seleccionada no sea pasada y que la hora sea válida
+    useEffect(() => {
+        const d = parseInt(day);
+        const m = parseInt(month);
+        const y = parseInt(year);
+
+        if (!isNaN(d) && !isNaN(m) && !isNaN(y)) {
+            // Solo validamos si tenemos longitudes razonables (para no molestar mientras se teclea)
+            if (day.length === 2 && month.length === 2 && year.length === 4) {
+                const selectedDate = new Date(y, m - 1, d);
+                const todayDate = new Date(spainNow.year, spainNow.month - 1, spainNow.day);
+                if (selectedDate < todayDate) {
+                    setDay(initialDate.day);
+                    setMonth(initialDate.month);
+                    setYear(initialDate.year);
+                }
+            }
+        }
+    }, [day, month, year, spainNow, initialDate]);
+
+    useEffect(() => {
+        if (availableTimes.length > 0) {
+            if (!availableTimes.includes(selectedTime)) {
+                setSelectedTime(availableTimes[0]);
+            }
+        } else {
+            setSelectedTime('');
+        }
+    }, [availableTimes, selectedTime]);
     const [loading, setLoading] = useState(false);
     const [isLegalModalOpen, setIsLegalModalOpen] = useState(false);
     const [pendingBooking, setPendingBooking] = useState<{ serviceId: string; optionIndex?: number } | null>(null);
+
+    // Auth state
+    const [user, setUser] = useState<any>(null);
+    const [profile, setProfile] = useState<any>(null);
+    const supabaseClient = useMemo(() => createClient(), []);
+
+    useEffect(() => {
+        const checkUser = async () => {
+            const { data: { user } } = await supabaseClient.auth.getUser();
+            setUser(user);
+            if (user) {
+                const { data: profile } = await supabaseClient.from('profiles').select('*').eq('id', user.id).single();
+                setProfile(profile);
+            }
+        };
+        checkUser();
+    }, [supabaseClient]);
 
     const dayRef = useRef<HTMLInputElement>(null);
     const monthRef = useRef<HTMLInputElement>(null);
@@ -63,9 +179,20 @@ export default function RentalClient({
     const handlePickerChange = (val: string) => {
         if (!val) return;
         const [y, m, d] = val.split('-');
-        setDay(d);
-        setMonth(m);
-        setYear(y);
+
+        // Validación final antes de aplicar desde el componente nativo
+        const selectedDate = new Date(parseInt(y), parseInt(m) - 1, parseInt(d));
+        const todayDate = new Date(spainNow.year, spainNow.month - 1, spainNow.day);
+
+        if (selectedDate < todayDate) {
+            setDay(initialDate.day);
+            setMonth(initialDate.month);
+            setYear(initialDate.year);
+        } else {
+            setDay(d);
+            setMonth(m);
+            setYear(y);
+        }
     };
 
     const handleDayChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -118,16 +245,20 @@ export default function RentalClient({
 
     // Wheel support for hour select
     const handleTimeWheel = (e: React.WheelEvent<HTMLSelectElement>) => {
-        const times = ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00'];
-        const currentIndex = times.indexOf(selectedTime);
+        if (availableTimes.length === 0) return;
+        const currentIndex = availableTimes.indexOf(selectedTime);
         const delta = e.deltaY > 0 ? 1 : -1;
         let nextIndex = currentIndex + delta;
-        if (nextIndex < 0) nextIndex = times.length - 1;
-        if (nextIndex >= times.length) nextIndex = 0;
-        setSelectedTime(times[nextIndex]);
+        if (nextIndex < 0) nextIndex = availableTimes.length - 1;
+        if (nextIndex >= availableTimes.length) nextIndex = 0;
+        setSelectedTime(availableTimes[nextIndex]);
     };
 
     const handleBooking = async (serviceId: string, optionIndex?: number) => {
+        if (!user) {
+            router.push(`/${locale}/auth/login?returnTo=${encodeURIComponent(window.location.pathname)}`);
+            return;
+        }
         // Intercept for legal consent
         setPendingBooking({ serviceId, optionIndex });
         setIsLegalModalOpen(true);
@@ -144,11 +275,16 @@ export default function RentalClient({
         if (finalYear < currentYear) finalYear = currentYear;
         if (finalYear > currentYear + 1) finalYear = currentYear + 1;
 
-        if (day.length === 0 || month.length === 0) {
+        if (day.length === 0 || month.length === 0 || selectedTime === '') {
             const params = new URLSearchParams(window.location.search);
-            params.set('error', t('booking.invalid_date'));
+            params.set('error', selectedTime === '' ? t('booking.no_times_selected_date') : t('booking.invalid_date'));
             router.replace(`${window.location.pathname}?${params.toString()}`, { scroll: false });
-            dayRef.current?.focus();
+            if (selectedTime === '') {
+                // Focus on day to let them pick another
+                dayRef.current?.focus();
+            } else {
+                dayRef.current?.focus();
+            }
             setLoading(false);
             return;
         }
@@ -338,12 +474,12 @@ export default function RentalClient({
                                                         <option value={currentYear + 1} className="bg-nautical-black">{currentYear + 1}</option>
                                                     </select>
 
-                                                    {/* Hidden picker restricted to current and next year */}
+                                                    {/* Hidden picker restricted to today and next year */}
                                                     <input
                                                         type="date"
                                                         ref={datePickerRef}
                                                         className="absolute w-0 h-0 opacity-0"
-                                                        min={`${currentYear}-01-01`}
+                                                        min={spainNow.dateStr}
                                                         max={`${currentYear + 1}-12-31`}
                                                         onChange={(e) => handlePickerChange(e.target.value)}
                                                     />
@@ -356,11 +492,16 @@ export default function RentalClient({
                                                     value={selectedTime}
                                                     onChange={(e) => setSelectedTime(e.target.value)}
                                                     onWheel={handleTimeWheel}
-                                                    className="w-full bg-nautical-black border border-white/10 text-white text-sm p-4 focus:border-accent outline-none cursor-ns-resize"
+                                                    disabled={availableTimes.length === 0}
+                                                    className="w-full bg-nautical-black border border-white/10 text-white text-sm p-4 focus:border-accent outline-none cursor-ns-resize disabled:opacity-50"
                                                 >
-                                                    {['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00'].map(t => (
-                                                        <option key={t} value={t} className="bg-nautical-black">{t}</option>
-                                                    ))}
+                                                    {availableTimes.length > 0 ? (
+                                                        availableTimes.map(t => (
+                                                            <option key={t} value={t} className="bg-nautical-black">{t}</option>
+                                                        ))
+                                                    ) : (
+                                                        <option value="" className="bg-nautical-black">{t('booking.no_times_available')}</option>
+                                                    )}
                                                 </select>
                                             </div>
                                         </div>
@@ -395,8 +536,8 @@ export default function RentalClient({
                                             <button
                                                 type="button"
                                                 onClick={() => handleBooking(service.id, bookingOption !== null ? bookingOption : undefined)}
-                                                disabled={loading}
-                                                className="flex-[2] py-4 bg-accent text-nautical-black text-3xs uppercase tracking-widest font-bold hover:scale-[1.02] transition-all"
+                                                disabled={loading || availableTimes.length === 0}
+                                                className="flex-[2] py-4 bg-accent text-nautical-black text-3xs uppercase tracking-widest font-bold hover:scale-[1.02] transition-all disabled:opacity-50 disabled:grayscale disabled:hover:scale-100"
                                             >
                                                 {loading ? '...' : t('booking.confirm')}
                                             </button>
@@ -424,6 +565,11 @@ export default function RentalClient({
                 onClose={() => setIsLegalModalOpen(false)}
                 onConfirm={handleLegalConfirm}
                 consentType="rental"
+                initialData={user ? {
+                    fullName: profile ? `${profile.nombre} ${profile.apellidos}` : undefined,
+                    email: user.email,
+                    dni: profile?.dni
+                } : undefined}
                 legalText={`CONTRATO DE ARRENDAMIENTO DE MATERIAL NÁUTICO - GETXO BELA ESKOLA
 
 1. REQUISITOS DEL ARRENDATARIO: El cliente declara poseer los conocimientos técnicos necesarios para el manejo seguro del material alquilado. En caso de veleros de recreo, se requiere la titulación mínima correspondiente.

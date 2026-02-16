@@ -2,8 +2,15 @@ import LoginForm from '@/components/auth/LoginForm';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 
-export default function LoginPage({ params: { locale } }: { params: { locale: string } }) {
+export default function LoginPage({
+    params: { locale },
+    searchParams
+}: {
+    params: { locale: string };
+    searchParams: { [key: string]: string | string[] | undefined }
+}) {
     const t = useTranslations('auth');
+    const returnTo = searchParams?.returnTo;
 
     return (
         <main className="min-h-screen grid grid-cols-1 lg:grid-cols-2">
@@ -41,7 +48,7 @@ export default function LoginPage({ params: { locale } }: { params: { locale: st
                     <footer className="mt-12 text-center text-[10px] uppercase tracking-widest">
                         <p className="text-foreground/40">
                             {t('no_account')}{' '}
-                            <Link href={`/${locale}/auth/register`} className="text-accent hover:text-sea-foam transition-colors font-bold">
+                            <Link href={`/${locale}/auth/register${returnTo ? `?returnTo=${encodeURIComponent(returnTo as string)}` : ''}`} className="text-accent hover:text-sea-foam transition-colors font-bold">
                                 {t('create_one')}
                             </Link>
                         </p>

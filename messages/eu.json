@@ -62,7 +62,9 @@
             "confirm": "Erreserba Berretsi",
             "book_now": "Erreserbatu Orain",
             "image_placeholder": "Irudia:",
-            "invalid_date": "Mesedez, bete data recte (EG/HI/URTE)",
+            "invalid_date": "Mesedez, bete data zuzen (EG/HI/URTE)",
+            "no_times_available": "Ez dago ordutegi erabilgarririk gaurko",
+            "no_times_selected_date": "Ez dago ordutegi erabilgarririk hautatutako datarako",
             "booking_error": "Errorea erreserba prozesatzean. Mesedez, saiatu berriro."
         }
     },

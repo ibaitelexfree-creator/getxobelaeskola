@@ -2,8 +2,15 @@ import RegisterForm from '@/components/auth/RegisterForm';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 
-export default function RegisterPage({ params: { locale } }: { params: { locale: string } }) {
+export default function RegisterPage({
+    params: { locale },
+    searchParams
+}: {
+    params: { locale: string };
+    searchParams: { [key: string]: string | string[] | undefined }
+}) {
     const t = useTranslations('auth');
+    const returnTo = searchParams?.returnTo;
 
     return (
         <main className="min-h-screen grid grid-cols-1 lg:grid-cols-2">
@@ -22,7 +29,7 @@ export default function RegisterPage({ params: { locale } }: { params: { locale:
                     <footer className="mt-12 text-center text-[10px] uppercase tracking-widest">
                         <p className="text-foreground/40">
                             {t('has_account')}{' '}
-                            <Link href={`/${locale}/auth/login`} className="text-accent hover:text-sea-foam transition-colors font-bold">
+                            <Link href={`/${locale}/auth/login${returnTo ? `?returnTo=${encodeURIComponent(returnTo as string)}` : ''}`} className="text-accent hover:text-sea-foam transition-colors font-bold">
                                 {t('login_here')}
                             </Link>
                         </p>

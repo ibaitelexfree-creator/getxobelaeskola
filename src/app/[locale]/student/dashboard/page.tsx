@@ -3,6 +3,7 @@ import Link from 'next/link';
 import StudentProfileSidebar from '@/components/student/StudentProfileSidebar';
 import MembershipWidget from '@/components/student/MembershipWidget';
 import { redirect } from 'next/navigation';
+import DashboardRefresh from '@/components/student/DashboardRefresh';
 
 export default async function StudentDashboard({
     params: { locale }
@@ -55,6 +56,8 @@ export default async function StudentDashboard({
         .select('*, servicios_alquiler(*)')
         .eq('perfil_id', user.id)
         .order('fecha_reserva', { ascending: true });
+
+    const hasAnyData = (inscripciones?.length || 0) > 0 || (rentals?.length || 0) > 0;
 
     // --- ACADEMY STATS INTEGRATION ---
     const { count: academyLevels } = await supabaseAdmin
@@ -136,6 +139,9 @@ export default async function StudentDashboard({
                     </h1>
                     <p className="text-foreground/40 font-light">Gestiona tus cursos y certificaciones.</p>
                 </header>
+
+                {/* Polling / Refresh logic for new purchases */}
+                <DashboardRefresh hasData={hasAnyData} />
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
                     {/* Main Content */}

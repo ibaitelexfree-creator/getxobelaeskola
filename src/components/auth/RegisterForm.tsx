@@ -97,7 +97,9 @@ export default function RegisterForm() {
             }
 
             const locale = window.location.pathname.split('/')[1] || 'es';
-            router.push(`/${locale}/auth/login?registered=true`);
+            const searchParams = new URLSearchParams(window.location.search);
+            const returnTo = searchParams.get('returnTo');
+            router.push(`/${locale}/auth/login?registered=true${returnTo ? `&returnTo=${encodeURIComponent(returnTo)}` : ''}`);
         }
     };
 

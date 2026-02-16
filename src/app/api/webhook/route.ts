@@ -29,16 +29,24 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: `Webhook Error: ${errorMessage}` }, { status: 400 });
         }
 
-        // 1. Idempotency Check
-        const { data: existingEvent } = await supabase
-            .from('processed_webhook_events')
-            .select('id')
-            .eq('stripe_event_id', event.id)
-            .single();
+        // 1. Idempotency Check (Robust: skip if table missing)
+        try {
+            const { data: existingEvent, error: checkError } = await supabase
+                .from('processed_webhook_events')
+                .select('id')
+                .eq('stripe_event_id', event.id)
+                .maybeSingle();
 
-        if (existingEvent) {
-            console.log(`--- WEBHOOK DUPLICATE DETECTED: ${event.id} ---`);
-            return NextResponse.json({ received: true, duplicate: true });
+            if (checkError && checkError.code !== 'PGRST204' && checkError.code !== 'PGRST205') {
+                console.warn(`⚠️ Warning: Idempotency check failed (possibly table missing): ${checkError.message}`);
+            }
+
+            if (existingEvent) {
+                console.log(`--- WEBHOOK DUPLICATE DETECTED: ${event.id} ---`);
+                return NextResponse.json({ received: true, duplicate: true });
+            }
+        } catch (e) {
+            console.warn('⚠️ Critical Error during idempotency check:', e);
         }
 
         // Handle the event
@@ -168,14 +176,14 @@ export async function POST(request: Request) {
                     await supabase.from('inscripciones').insert({
                         perfil_id: user_id,
                         curso_id: course_id,
-                        edicion_id: (edition_id && (edition_id.startsWith('test-') || edition_id.startsWith('ext_'))) ? null : edition_id,
+                        edicion_id: (edition_id && edition_id !== '' && !edition_id.startsWith('test-') && !edition_id.startsWith('ext_')) ? edition_id : null,
                         estado_pago: 'pagado',
                         monto_total: session.amount_total ? session.amount_total / 100 : 0,
                         stripe_session_id: session.id,
                         metadata: { start_date, end_date }
                     });
 
-                    if (edition_id && !edition_id.startsWith('test-')) {
+                    if (edition_id && edition_id !== '' && !edition_id.startsWith('test-') && !edition_id.startsWith('ext_')) {
                         const { data: edData } = await supabase.from('ediciones_curso').select('plazas_ocupadas').eq('id', edition_id).single();
                         if (edData) {
                             await supabase.from('ediciones_curso').update({ plazas_ocupadas: (edData.plazas_ocupadas || 0) + 1 }).eq('id', edition_id);
@@ -343,11 +351,15 @@ export async function POST(request: Request) {
                 console.log(`Unhandled event type ${event.type}`);
         }
 
-        // 2. Record Event as Processed
-        await supabase.from('processed_webhook_events').insert({
-            stripe_event_id: event.id,
-            event_type: event.type
-        });
+        // 2. Record Event as Processed (Robust: skip if table missing)
+        try {
+            await supabase.from('processed_webhook_events').insert({
+                stripe_event_id: event.id,
+                event_type: event.type
+            });
+        } catch (e) {
+            console.warn('⚠️ Warning: Could not record processed webhook event:', e);
+        }
 
         return NextResponse.json({ received: true });
     } catch (err: unknown) {
