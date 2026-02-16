@@ -247,7 +247,8 @@
         "show_password": "Mostrar contraseña",
         "email_not_confirmed": "Email no confirmado. Por favor, revisa tu bandeja de entrada.",
         "resend_email": "Reenviar",
-        "resend_success": "Email reenviado correctamente."
+        "resend_success": "Email reenviado correctamente.",
+        "rate_limit": "Has excedido el límite de intentos. Por favor, espera unos minutos antes de intentar de nuevo."
     },
     "booking": {
         "select_date": "Selecciona una fecha",

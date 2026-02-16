@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { useParams, useRouter, usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { Menu, X, ChevronRight } from 'lucide-react';
+import { Menu, X, ChevronRight, Sparkles } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 
 export default function Navbar({ locale: propLocale }: { locale?: string }) {
@@ -21,6 +21,7 @@ export default function Navbar({ locale: propLocale }: { locale?: string }) {
         id: string;
         email?: string;
         rol?: string;
+        status_socio?: string;
         [key: string]: unknown;
     }
     const [user, setUser] = useState<AuthUser | null>(null);
@@ -34,8 +35,8 @@ export default function Navbar({ locale: propLocale }: { locale?: string }) {
                 return;
             }
             try {
-                const { data: profile } = await supabase.from('profiles').select('rol').eq('id', authUser.id).single();
-                setUser({ ...authUser, rol: profile?.rol });
+                const { data: profile } = await supabase.from('profiles').select('rol, status_socio').eq('id', authUser.id).single();
+                setUser({ ...authUser, rol: profile?.rol, status_socio: profile?.status_socio });
             } catch (err) {
                 console.error("Error fetching user profile:", err);
                 setUser(authUser); // Set user even if profile fetch fails
@@ -163,6 +164,15 @@ export default function Navbar({ locale: propLocale }: { locale?: string }) {
 
                     {user ? (
                         <div className="hidden xl:flex gap-6 items-center">
+                            {/* Member Badge - Desktop */}
+                            {user.status_socio === 'activo' && (
+                                <div className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-amber-100 via-yellow-300 to-amber-500 border border-yellow-200 shadow-[0_0_20px_rgba(252,211,77,0.6)] animate-pulse">
+                                    <Sparkles className="w-3 h-3 text-yellow-800" />
+                                    <span className="text-yellow-900 text-[10px] font-black uppercase tracking-[0.2em]">
+                                        Miembro
+                                    </span>
+                                </div>
+                            )}
                             <Link
                                 href={user.rol === 'admin' || user.rol === 'instructor' ? `/${locale}/staff` : `/${locale}/student/dashboard`}
                                 className="text-2xs uppercase tracking-[0.2em] font-black text-accent bg-accent/5 px-4 py-2 rounded-sm border border-accent/20 hover:bg-accent hover:text-nautical-black transition-all"
@@ -240,6 +250,15 @@ export default function Navbar({ locale: propLocale }: { locale?: string }) {
                         {/* Auth Button Mobile */}
                         {user ? (
                             <div className="flex flex-col gap-4">
+                                {/* Member Badge - Mobile */}
+                                {user.status_socio === 'activo' && (
+                                    <div className="w-full flex items-center justify-center gap-2 px-6 py-3 rounded bg-gradient-to-r from-amber-100 via-yellow-300 to-amber-500 border border-yellow-200 shadow-[0_0_20px_rgba(252,211,77,0.4)] mb-2 animate-pulse">
+                                        <Sparkles className="w-4 h-4 text-yellow-900" />
+                                        <span className="text-yellow-900 text-xs font-black uppercase tracking-[0.3em]">
+                                            Miembro Oficial
+                                        </span>
+                                    </div>
+                                )}
                                 <Link
                                     href={user.rol === 'admin' || user.rol === 'instructor' ? `/${locale}/staff` : `/${locale}/student/dashboard`}
                                     className="w-full text-center py-5 bg-accent text-nautical-black font-display italic text-xl shadow-xl shadow-accent/20"

@@ -66,6 +66,10 @@ export default function LoginForm({ locale = 'es' }: { locale?: string }) {
                 setError(t('email_not_confirmed'));
                 setIsEmailNotConfirmed(true);
                 setIsCredsError(false);
+            } else if (msg.includes('rate limit')) {
+                setError(t('rate_limit'));
+                setIsEmailNotConfirmed(false);
+                setIsCredsError(false);
             } else if (msg.includes('invalid') || msg.includes('credentials') || msg.includes('incorrect')) {
                 setError(t('invalid_creds'));
                 setIsCredsError(true);

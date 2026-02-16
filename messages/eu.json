@@ -247,7 +247,8 @@
         "show_password": "Pasahitza erakutsi",
         "email_not_confirmed": "Emaila ez da berretsi. Mesedez, begiratu zure sarrera-ontzia.",
         "resend_email": "Berriz bidali",
-        "resend_success": "Emaila ondo bidali da berriro."
+        "resend_success": "Emaila ondo bidali da berriro.",
+        "rate_limit": "Saiakera muga gainditu duzu. Mesedez, itxaron minutu batzuk berriro saiatu aurretik."
     },
     "booking": {
         "select_date": "Hautatu data bat",
