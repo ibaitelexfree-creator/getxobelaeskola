@@ -27,8 +27,6 @@ export default function LegalConsentModal({
     const [fullName, setFullName] = useState('');
     const [email, setEmail] = useState('');
     const [dni, setDni] = useState('');
-    const [password, setPassword] = useState('');
-    const [confirmPassword, setConfirmPassword] = useState('');
     const [dniError, setDniError] = useState<string | null>(null);
     const [emailError, setEmailError] = useState<string | null>(null);
     const [accepted, setAccepted] = useState(false);
@@ -44,7 +42,7 @@ export default function LegalConsentModal({
         }
     }, [isOpen, initialData]);
 
-    const isGuest = !initialData?.email;
+
 
     // Documentos disponibles
     const documents = [
@@ -74,24 +72,11 @@ export default function LegalConsentModal({
             return;
         }
 
-        // Validate Password for Guests
-        if (isGuest) {
-            if (password.length < 6) {
-                alert('La contraseña debe tener al menos 6 caracteres');
-                return;
-            }
-            if (password !== confirmPassword) {
-                alert('Las contraseñas no coinciden');
-                return;
-            }
-        }
-
         setLoading(true);
         onConfirm({
             fullName,
             email,
-            dni: dni.toUpperCase().trim(),
-            password: isGuest ? password : undefined
+            dni: dni.toUpperCase().trim()
         });
     };
 
@@ -124,13 +109,6 @@ export default function LegalConsentModal({
                             </div>
                         ) : (
                             <>
-                                {isGuest && (
-                                    <div className="bg-accent/10 border border-accent/20 p-4 rounded-sm mb-6">
-                                        <p className="text-sm text-accent font-bold mb-1">¡Casi hemos terminado!</p>
-                                        <p className="text-content text-white/80 text-xs">Para completar tu reserva, necesitamos crear tu ficha de alumno. Rellena los siguientes datos y elige una contraseña.</p>
-                                    </div>
-                                )}
-
                                 <div className="space-y-4">
                                     <p className="text-xs uppercase tracking-widest text-accent font-bold">Documentos Legales Obligatorios</p>
                                     <div className="grid sm:grid-cols-2 gap-4">
@@ -224,35 +202,6 @@ export default function LegalConsentModal({
                                         </p>
                                     )}
                                 </div>
-
-                                {isGuest && (
-                                    <div className="grid md:grid-cols-2 gap-6 animate-fade-in">
-                                        <div className="space-y-2">
-                                            <label className="text-3xs uppercase tracking-widest text-accent font-bold">Crear Contraseña</label>
-                                            <input
-                                                required
-                                                type="password"
-                                                value={password}
-                                                onChange={(e) => setPassword(e.target.value)}
-                                                className="w-full bg-white/5 border border-white/10 p-4 text-white focus:border-accent outline-none text-sm transition-all"
-                                                placeholder="Mínimo 6 caracteres"
-                                                minLength={6}
-                                            />
-                                        </div>
-                                        <div className="space-y-2">
-                                            <label className="text-3xs uppercase tracking-widest text-accent font-bold">Confirmar Contraseña</label>
-                                            <input
-                                                required
-                                                type="password"
-                                                value={confirmPassword}
-                                                onChange={(e) => setConfirmPassword(e.target.value)}
-                                                className="w-full bg-white/5 border border-white/10 p-4 text-white focus:border-accent outline-none text-sm transition-all"
-                                                placeholder="Repite la contraseña"
-                                                minLength={6}
-                                            />
-                                        </div>
-                                    </div>
-                                )}
 
                                 <label className="flex items-start gap-4 cursor-pointer group p-4 border border-accent/20 bg-accent/5 rounded-sm transition-all hover:bg-accent/10">
                                     <input

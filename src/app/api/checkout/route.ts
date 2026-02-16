@@ -80,10 +80,10 @@ export async function POST(request: Request) {
                 }
             };
 
-            if (editionId) {
+            if (editionId && editionId !== '' && !editionId.startsWith('test-') && !editionId.startsWith('ext_')) {
                 inscriptionData.edicion_id = editionId;
             } else {
-                // Try to find ANY edition to link
+                // Try to find ANY edition to link (for internal tracking if possible)
                 const { data: latestEd } = await supabase.from('ediciones_curso')
                     .select('id')
                     .eq('curso_id', course.id)
@@ -93,6 +93,8 @@ export async function POST(request: Request) {
 
                 if (latestEd) {
                     inscriptionData.edicion_id = latestEd.id;
+                } else {
+                    inscriptionData.edicion_id = null;
                 }
             }
 

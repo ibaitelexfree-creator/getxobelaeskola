@@ -63,6 +63,8 @@
             "book_now": "Reservar Ahora",
             "image_placeholder": "Imagen de",
             "invalid_date": "Por favor, completa la fecha correctamente (DD/MM/AAAA)",
+            "no_times_available": "No hay horarios disponibles para hoy",
+            "no_times_selected_date": "No hay horarios disponibles para la fecha seleccionada",
             "booking_error": "Error al procesar la reserva. Por favor, inténtalo de nuevo."
         }
     },

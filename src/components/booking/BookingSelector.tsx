@@ -49,49 +49,19 @@ export default function BookingSelector({ editions, coursePrice, courseId }: Boo
 
     const handleBookingClick = () => {
         if (coursePrice > 0 && !selectedEdition) return;
+        if (!user) {
+            const locale = window.location.pathname.split('/')[1] || 'es';
+            router.push(`/${locale}/auth/login?returnTo=${encodeURIComponent(window.location.pathname)}`);
+            return;
+        }
         setIsLegalModalOpen(true);
     };
 
-    const handleLegalConfirm = async (legalData: { fullName: string; email: string; dni: string; password?: string }) => {
+    const handleLegalConfirm = async (legalData: { fullName: string; email: string; dni: string }) => {
         setIsLegalModalOpen(false);
         setLoading(true);
 
         try {
-            // 1. Handle Registration if Guest
-            if (!user && legalData.password) {
-                // Split name for potential profile update
-                const nameParts = legalData.fullName.split(' ');
-                const firstName = nameParts[0];
-                const lastName = nameParts.slice(1).join(' ');
-
-                // Attempt Sign Up
-                const { data: authData, error: authError } = await supabase.auth.signUp({
-                    email: legalData.email,
-                    password: legalData.password,
-                    options: {
-                        data: {
-                            full_name: legalData.fullName,
-                            nombre: firstName,
-                            apellidos: lastName,
-                            dni: legalData.dni
-                        }
-                    }
-                });
-
-                if (authError) {
-                    // Start: Fix logic for existing user
-                    if (authError.message.includes('registered') || authError.status === 422) {
-                        // Try logging in instead?
-                        // UX Decision: Alert user they have an account
-                        throw new Error("Ya existe una cuenta con este email. Por favor, inicia sesión.");
-                    }
-                    throw authError;
-                }
-
-                // If signUp successful but no session (email confirmation required)
-                // We proceed to payment as guest-like but with pending account
-            }
-
             const selectedEditionData = editions.find(e => e.id === selectedEdition);
 
             // Log consent
