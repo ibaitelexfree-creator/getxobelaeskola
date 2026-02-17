@@ -21,7 +21,11 @@
         "payment_canceled": "Payment canceled",
         "payment_canceled_desc": "The payment process has been interrupted and no charge has been made.",
         "payment_error": "Payment error",
-        "payment_error_desc": "A problem occurred while processing your payment. Please try again."
+        "payment_error_desc": "A problem occurred while processing your payment. Please try again.",
+        "enable_notifications_title": "Enable Notifications",
+        "enable_notifications_desc": "Stay updated with your booking status, course changes, and important weather alerts.",
+        "enable_btn": "ENABLE NOTIFICATIONS",
+        "later_btn": "LATER"
     },
     "hero": {
         "title": "Elegance at Sea",

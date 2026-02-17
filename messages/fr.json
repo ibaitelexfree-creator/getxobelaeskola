@@ -21,7 +21,11 @@
         "payment_canceled": "Paiement annulé",
         "payment_canceled_desc": "Le processus de paiement a été interrompu et aucun débit n'a été effectué.",
         "payment_error": "Erreur de paiement",
-        "payment_error_desc": "Un problème est survenu lors du traitement de votre paiement. Veuillez réessayer."
+        "payment_error_desc": "Un problème est survenu lors du traitement de votre paiement. Veuillez réessayer.",
+        "enable_notifications_title": "Activer les Notifications",
+        "enable_notifications_desc": "Restez informé de l'état de vos réservations, des changements de cours et des alertes météo importantes.",
+        "enable_btn": "ACTIVER LES ALERTE",
+        "later_btn": "PLUS TARD"
     },
     "hero": {
         "title": "Élégance en Mer",

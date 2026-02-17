@@ -43,6 +43,7 @@ export default async function LocaleLayout({
       <body suppressHydrationWarning>
         <NextIntlClientProvider messages={messages} locale={locale} timeZone="Europe/Madrid">
           <AcademyFeedbackProvider>
+            <PushNotificationInitializer />
             <div className="min-h-screen flex flex-col relative w-full overflow-x-hidden">
               <ConditionalLayout
                 navbar={<Navbar locale={locale} />}

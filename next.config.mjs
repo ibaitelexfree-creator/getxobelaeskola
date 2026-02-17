@@ -36,8 +36,10 @@ const nextConfig = {
     output: isCapacitor ? 'export' : 'standalone',
     staticPageGenerationTimeout: 300, // Increase timeout to 5 minutes
     experimental: {
-        workerThreads: false, // Turn off worker threads to see if it reduces overhead/hanging on some machines
-        cpus: 1, // Limit to 1 CPU to reduce parallel fetching load during build
+        // Allowing default worker threads and CPU usage for faster builds on CI
+        // only use these if you experience memory issues
+        // workerThreads: false,
+        // cpus: 1,
     }
 };
 
