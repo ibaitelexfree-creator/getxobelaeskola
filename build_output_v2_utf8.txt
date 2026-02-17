@@ -1,0 +1,6282 @@
+
+> getxo-web@0.1.0 build
+> next build
+
+node.exe :  ??? Specified 
+"headers" will not 
+automatically work with 
+"output: export". See more 
+info here: https://nextjs.or
+g/docs/messages/export-no-cu
+stom-routes
+At line:1 char:1
++ & "C:\Program 
+Files\nodejs/node.exe" 
+"C:\Program 
+Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~
+    + CategoryInfo          
+    : NotSpecified: ( ???   
+  Specified ...o-custom-r   
+ outes:String) [], Remot    
+eException
+    + FullyQualifiedErrorId 
+    : NativeCommandError
+ 
+ ??? Specified "headers" 
+will not automatically work 
+with "output: export". See 
+more info here: https://next
+js.org/docs/messages/export-
+no-custom-routes
+  ??? Next.js 14.2.35
+  - Environments: .env
+
+   Creating an optimized production build ...
+ ??? Compiled successfully
+   Skipping validation of types
+   Skipping linting
+   Collecting page data ...
+   Generating static pages (0/194) ...
+s [Error]: MISSING_MESSAGE: 
+home.programs.badge (fr)
+    at c (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3357)
+    at d (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3546)
+    at f (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:4032)
+    at m (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\page.
+js:1:12616) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'home.programs.badge (fr)'
+}
+s [Error]: MISSING_MESSAGE: 
+home.programs.title (fr)
+    at c (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3357)
+    at d (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3546)
+    at f (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:4032)
+    at m (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\page.
+js:1:12769) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'home.programs.title (fr)'
+}
+s [Error]: MISSING_MESSAGE: 
+home.programs.licencia_title
+ (fr)
+    at c (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3357)
+    at d (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3546)
+    at f (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:4032)
+    at m (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\page.
+js:1:12986) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 'home.pro
+grams.licencia_title (fr)'
+}
+s [Error]: MISSING_MESSAGE: 
+home.programs.licencia_price
+ (fr)
+    at c (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3357)
+    at d (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3546)
+    at f (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:4032)
+    at m (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\page.
+js:1:13021) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 'home.pro
+grams.licencia_price (fr)'
+}
+s [Error]: MISSING_MESSAGE: 
+home.programs.licencia_desc 
+(fr)
+    at c (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3357)
+    at d (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3546)
+    at f (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:4032)
+    at m (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\page.
+js:1:13055) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 'home.pro
+grams.licencia_desc (fr)'
+}
+s [Error]: MISSING_MESSAGE: 
+home.programs.j80_title (fr)
+    at c (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3357)
+    at d (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3546)
+    at f (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:4032)
+    at m (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\page.
+js:1:13173) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'home.programs.j80_title 
+(fr)'
+}
+s [Error]: MISSING_MESSAGE: 
+home.programs.j80_price (fr)
+    at c (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3357)
+    at d (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3546)
+    at f (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:4032)
+    at m (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\page.
+js:1:13203) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'home.programs.j80_price 
+(fr)'
+}
+s [Error]: MISSING_MESSAGE: 
+home.programs.j80_desc (fr)
+    at c (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3357)
+    at d (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3546)
+    at f (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:4032)
+    at m (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\page.
+js:1:13232) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'home.programs.j80_desc 
+(fr)'
+}
+s [Error]: MISSING_MESSAGE: 
+home.programs.rental_title 
+(fr)
+    at c (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3357)
+    at d (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3546)
+    at f (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:4032)
+    at m (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\page.
+js:1:13337) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'home.programs.rental_title 
+(fr)'
+}
+s [Error]: MISSING_MESSAGE: 
+home.programs.price_rental 
+(fr)
+    at c (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3357)
+    at d (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3546)
+    at f (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:4032)
+    at m (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\page.
+js:1:13370) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'home.programs.price_rental 
+(fr)'
+}
+s [Error]: MISSING_MESSAGE: 
+home.programs.rental_desc 
+(fr)
+    at c (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3357)
+    at d (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3546)
+    at f (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:4032)
+    at m (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\page.
+js:1:13402) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'home.programs.rental_desc 
+(fr)'
+}
+s [Error]: MISSING_MESSAGE: 
+home.programs.learn_more 
+(fr)
+    at c (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3357)
+    at d (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3546)
+    at f (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:4032)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\app\[locale]\page.js:
+1:14833
+    at Array.map 
+(<anonymous>)
+    at m (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\page.
+js:1:13486) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'home.programs.learn_more 
+(fr)'
+}
+s [Error]: MISSING_MESSAGE: 
+home.programs.learn_more 
+(fr)
+    at c (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3357)
+    at d (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3546)
+    at f (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:4032)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\app\[locale]\page.js:
+1:14833
+    at Array.map 
+(<anonymous>)
+    at m (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\page.
+js:1:13486) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'home.programs.learn_more 
+(fr)'
+}
+s [Error]: MISSING_MESSAGE: 
+home.programs.learn_more 
+(fr)
+    at c (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3357)
+    at d (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3546)
+    at f (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:4032)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\app\[locale]\page.js:
+1:14833
+    at Array.map 
+(<anonymous>)
+    at m (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\page.
+js:1:13486) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'home.programs.learn_more 
+(fr)'
+}
+s [Error]: MISSING_MESSAGE: 
+home.fleet_cta.title (fr)
+    at c (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3357)
+    at d (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3546)
+    at f (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:4032)
+    at m (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\page.
+js:1:16199) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'home.fleet_cta.title (fr)'
+}
+s [Error]: MISSING_MESSAGE: 
+home.fleet_cta.highlight 
+(fr)
+    at c (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3357)
+    at d (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3546)
+    at f (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:4032)
+    at m (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\page.
+js:1:16315) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'home.fleet_cta.highlight 
+(fr)'
+}
+s [Error]: MISSING_MESSAGE: 
+home.fleet_cta.action (fr)
+    at c (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3357)
+    at d (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3546)
+    at f (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:4032)
+    at m (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\page.
+js:1:16843) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'home.fleet_cta.action (fr)'
+}
+s [Error]: MISSING_MESSAGE: 
+home.programs.badge (fr)
+    at c (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3357)
+    at d (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3546)
+    at f (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:4032)
+    at m (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\page.
+js:1:12616)
+    at runNextTicks (node:in
+ternal/process/task_queues:6
+4:5)
+    at listOnTimeout 
+(node:internal/timers:567:9)
+    at 
+process.processTimers (node:
+internal/timers:541:7) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'home.programs.badge (fr)'
+}
+s [Error]: MISSING_MESSAGE: 
+home.programs.title (fr)
+    at c (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3357)
+    at d (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3546)
+    at f (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:4032)
+    at m (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\page.
+js:1:12769)
+    at runNextTicks (node:in
+ternal/process/task_queues:6
+4:5)
+    at listOnTimeout 
+(node:internal/timers:567:9)
+    at 
+process.processTimers (node:
+internal/timers:541:7) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'home.programs.title (fr)'
+}
+s [Error]: MISSING_MESSAGE: 
+home.programs.licencia_title
+ (fr)
+    at c (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3357)
+    at d (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3546)
+    at f (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:4032)
+    at m (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\page.
+js:1:12986)
+    at runNextTicks (node:in
+ternal/process/task_queues:6
+4:5)
+    at listOnTimeout 
+(node:internal/timers:567:9)
+    at 
+process.processTimers (node:
+internal/timers:541:7) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 'home.pro
+grams.licencia_title (fr)'
+}
+s [Error]: MISSING_MESSAGE: 
+home.programs.licencia_price
+ (fr)
+    at c (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3357)
+    at d (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3546)
+    at f (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:4032)
+    at m (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\page.
+js:1:13021)
+    at runNextTicks (node:in
+ternal/process/task_queues:6
+4:5)
+    at listOnTimeout 
+(node:internal/timers:567:9)
+    at 
+process.processTimers (node:
+internal/timers:541:7) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 'home.pro
+grams.licencia_price (fr)'
+}
+s [Error]: MISSING_MESSAGE: 
+home.programs.licencia_desc 
+(fr)
+    at c (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3357)
+    at d (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3546)
+    at f (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:4032)
+    at m (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\page.
+js:1:13055)
+    at runNextTicks (node:in
+ternal/process/task_queues:6
+4:5)
+    at listOnTimeout 
+(node:internal/timers:567:9)
+    at 
+process.processTimers (node:
+internal/timers:541:7) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 'home.pro
+grams.licencia_desc (fr)'
+}
+s [Error]: MISSING_MESSAGE: 
+home.programs.j80_title (fr)
+    at c (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3357)
+    at d (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3546)
+    at f (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:4032)
+    at m (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\page.
+js:1:13173)
+    at runNextTicks (node:in
+ternal/process/task_queues:6
+4:5)
+    at listOnTimeout 
+(node:internal/timers:567:9)
+    at 
+process.processTimers (node:
+internal/timers:541:7) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'home.programs.j80_title 
+(fr)'
+}
+s [Error]: MISSING_MESSAGE: 
+home.programs.j80_price (fr)
+    at c (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3357)
+    at d (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3546)
+    at f (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:4032)
+    at m (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\page.
+js:1:13203)
+    at runNextTicks (node:in
+ternal/process/task_queues:6
+4:5)
+    at listOnTimeout 
+(node:internal/timers:567:9)
+    at 
+process.processTimers (node:
+internal/timers:541:7) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'home.programs.j80_price 
+(fr)'
+}
+s [Error]: MISSING_MESSAGE: 
+home.programs.j80_desc (fr)
+    at c (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3357)
+    at d (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3546)
+    at f (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:4032)
+    at m (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\page.
+js:1:13232)
+    at runNextTicks (node:in
+ternal/process/task_queues:6
+4:5)
+    at listOnTimeout 
+(node:internal/timers:567:9)
+    at 
+process.processTimers (node:
+internal/timers:541:7) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'home.programs.j80_desc 
+(fr)'
+}
+s [Error]: MISSING_MESSAGE: 
+home.programs.rental_title 
+(fr)
+    at c (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3357)
+    at d (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3546)
+    at f (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:4032)
+    at m (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\page.
+js:1:13337)
+    at runNextTicks (node:in
+ternal/process/task_queues:6
+4:5)
+    at listOnTimeout 
+(node:internal/timers:567:9)
+    at 
+process.processTimers (node:
+internal/timers:541:7) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'home.programs.rental_title 
+(fr)'
+}
+s [Error]: MISSING_MESSAGE: 
+home.programs.price_rental 
+(fr)
+    at c (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3357)
+    at d (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3546)
+    at f (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:4032)
+    at m (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\page.
+js:1:13370)
+    at runNextTicks (node:in
+ternal/process/task_queues:6
+4:5)
+    at listOnTimeout 
+(node:internal/timers:567:9)
+    at 
+process.processTimers (node:
+internal/timers:541:7) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'home.programs.price_rental 
+(fr)'
+}
+s [Error]: MISSING_MESSAGE: 
+home.programs.rental_desc 
+(fr)
+    at c (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3357)
+    at d (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3546)
+    at f (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:4032)
+    at m (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\page.
+js:1:13402)
+    at runNextTicks (node:in
+ternal/process/task_queues:6
+4:5)
+    at listOnTimeout 
+(node:internal/timers:567:9)
+    at 
+process.processTimers (node:
+internal/timers:541:7) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'home.programs.rental_desc 
+(fr)'
+}
+s [Error]: MISSING_MESSAGE: 
+home.programs.learn_more 
+(fr)
+    at c (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3357)
+    at d (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3546)
+    at f (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:4032)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\app\[locale]\page.js:
+1:14833
+    at Array.map 
+(<anonymous>)
+    at m (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\page.
+js:1:13486)
+    at runNextTicks (node:in
+ternal/process/task_queues:6
+4:5)
+    at listOnTimeout 
+(node:internal/timers:567:9)
+    at 
+process.processTimers (node:
+internal/timers:541:7) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'home.programs.learn_more 
+(fr)'
+}
+s [Error]: MISSING_MESSAGE: 
+home.programs.learn_more 
+(fr)
+    at c (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3357)
+    at d (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3546)
+    at f (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:4032)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\app\[locale]\page.js:
+1:14833
+    at Array.map 
+(<anonymous>)
+    at m (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\page.
+js:1:13486)
+    at runNextTicks (node:in
+ternal/process/task_queues:6
+4:5)
+    at listOnTimeout 
+(node:internal/timers:567:9)
+    at 
+process.processTimers (node:
+internal/timers:541:7) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'home.programs.learn_more 
+(fr)'
+}
+s [Error]: MISSING_MESSAGE: 
+home.programs.learn_more 
+(fr)
+    at c (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3357)
+    at d (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3546)
+    at f (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:4032)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\app\[locale]\page.js:
+1:14833
+    at Array.map 
+(<anonymous>)
+    at m (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\page.
+js:1:13486)
+    at runNextTicks (node:in
+ternal/process/task_queues:6
+4:5)
+    at listOnTimeout 
+(node:internal/timers:567:9)
+    at 
+process.processTimers (node:
+internal/timers:541:7) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'home.programs.learn_more 
+(fr)'
+}
+s [Error]: MISSING_MESSAGE: 
+home.fleet_cta.title (fr)
+    at c (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3357)
+    at d (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3546)
+    at f (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:4032)
+    at m (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\page.
+js:1:16199)
+    at runNextTicks (node:in
+ternal/process/task_queues:6
+4:5)
+    at listOnTimeout 
+(node:internal/timers:567:9)
+    at 
+process.processTimers (node:
+internal/timers:541:7) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'home.fleet_cta.title (fr)'
+}
+s [Error]: MISSING_MESSAGE: 
+home.fleet_cta.highlight 
+(fr)
+    at c (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3357)
+    at d (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3546)
+    at f (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:4032)
+    at m (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\page.
+js:1:16315)
+    at runNextTicks (node:in
+ternal/process/task_queues:6
+4:5)
+    at listOnTimeout 
+(node:internal/timers:567:9)
+    at 
+process.processTimers (node:
+internal/timers:541:7) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'home.fleet_cta.highlight 
+(fr)'
+}
+s [Error]: MISSING_MESSAGE: 
+home.fleet_cta.action (fr)
+    at c (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3357)
+    at d (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3546)
+    at f (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:4032)
+    at m (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\page.
+js:1:16843)
+    at runNextTicks (node:in
+ternal/process/task_queues:6
+4:5)
+    at listOnTimeout 
+(node:internal/timers:567:9)
+    at 
+process.processTimers (node:
+internal/timers:541:7) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'home.fleet_cta.action (fr)'
+}
+c [Error]: MISSING_MESSAGE: 
+home.features (fr)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:441
+2
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:444
+8
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:567
+6
+    at Object.nr [as 
+useMemo] (C:\Users\User\Desk
+top\Saili8ng School Test\nod
+e_modules\next\dist\compiled
+\next-server\app-page.runtim
+e.prod.js:12:39131)
+    at t.useMemo (C:\Users\U
+ser\Desktop\Saili8ng School 
+Test\node_modules\next\dist\
+compiled\next-server\app-pag
+e.runtime.prod.js:12:109914)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:427
+6
+    at eb (C:\Users\User\Des
+ktop\Saili8ng School Test\.n
+ext\server\chunks\7052.js:91
+:5806)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:89:127
+850
+    at r (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\page.
+js:1:5223)
+    at nj (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:46252) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'home.features (fr)'
+}
+c [Error]: MISSING_MESSAGE: 
+home.features (fr)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:441
+2
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:444
+8
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:567
+6
+    at Object.nr [as 
+useMemo] (C:\Users\User\Desk
+top\Saili8ng School Test\nod
+e_modules\next\dist\compiled
+\next-server\app-page.runtim
+e.prod.js:12:39131)
+    at t.useMemo (C:\Users\U
+ser\Desktop\Saili8ng School 
+Test\node_modules\next\dist\
+compiled\next-server\app-pag
+e.runtime.prod.js:12:109914)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:427
+6
+    at eb (C:\Users\User\Des
+ktop\Saili8ng School Test\.n
+ext\server\chunks\7052.js:91
+:5806)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:89:127
+850
+    at r (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\page.
+js:1:5223)
+    at nj (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:46252) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'home.features (fr)'
+}
+c [Error]: MISSING_MESSAGE: 
+home.features (fr)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:441
+2
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:444
+8
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:567
+6
+    at Object.nr [as 
+useMemo] (C:\Users\User\Desk
+top\Saili8ng School Test\nod
+e_modules\next\dist\compiled
+\next-server\app-page.runtim
+e.prod.js:12:39131)
+    at t.useMemo (C:\Users\U
+ser\Desktop\Saili8ng School 
+Test\node_modules\next\dist\
+compiled\next-server\app-pag
+e.runtime.prod.js:12:109914)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:427
+6
+    at eb (C:\Users\User\Des
+ktop\Saili8ng School Test\.n
+ext\server\chunks\7052.js:91
+:5806)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:89:127
+850
+    at r (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\page.
+js:1:5223)
+    at nj (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:46252) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'home.features (fr)'
+}
+c [Error]: MISSING_MESSAGE: 
+home.features (fr)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:441
+2
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:444
+8
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:567
+6
+    at Object.nr [as 
+useMemo] (C:\Users\User\Desk
+top\Saili8ng School Test\nod
+e_modules\next\dist\compiled
+\next-server\app-page.runtim
+e.prod.js:12:39131)
+    at t.useMemo (C:\Users\U
+ser\Desktop\Saili8ng School 
+Test\node_modules\next\dist\
+compiled\next-server\app-pag
+e.runtime.prod.js:12:109914)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:427
+6
+    at eb (C:\Users\User\Des
+ktop\Saili8ng School Test\.n
+ext\server\chunks\7052.js:91
+:5806)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:89:127
+850
+    at r (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\page.
+js:1:5223)
+    at nj (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:46252) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'home.features (fr)'
+}
+c [Error]: MISSING_MESSAGE: 
+home.features (fr)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:441
+2
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:444
+8
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:567
+6
+    at Object.nr [as 
+useMemo] (C:\Users\User\Desk
+top\Saili8ng School Test\nod
+e_modules\next\dist\compiled
+\next-server\app-page.runtim
+e.prod.js:12:39131)
+    at t.useMemo (C:\Users\U
+ser\Desktop\Saili8ng School 
+Test\node_modules\next\dist\
+compiled\next-server\app-pag
+e.runtime.prod.js:12:109914)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:427
+6
+    at eb (C:\Users\User\Des
+ktop\Saili8ng School Test\.n
+ext\server\chunks\7052.js:91
+:5806)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:89:127
+850
+    at r (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\page.
+js:1:5223)
+    at nj (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:46252) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'home.features (fr)'
+}
+c [Error]: MISSING_MESSAGE: 
+home.features (fr)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:441
+2
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:444
+8
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:567
+6
+    at Object.nr [as 
+useMemo] (C:\Users\User\Desk
+top\Saili8ng School Test\nod
+e_modules\next\dist\compiled
+\next-server\app-page.runtim
+e.prod.js:12:39131)
+    at t.useMemo (C:\Users\U
+ser\Desktop\Saili8ng School 
+Test\node_modules\next\dist\
+compiled\next-server\app-pag
+e.runtime.prod.js:12:109914)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:427
+6
+    at eb (C:\Users\User\Des
+ktop\Saili8ng School Test\.n
+ext\server\chunks\7052.js:91
+:5806)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:89:127
+850
+    at r (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\page.
+js:1:5223)
+    at nj (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:46252) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'home.features (fr)'
+}
+c [Error]: MISSING_MESSAGE: 
+home.experience (fr)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:441
+2
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:444
+8
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:567
+6
+    at Object.nr [as 
+useMemo] (C:\Users\User\Desk
+top\Saili8ng School Test\nod
+e_modules\next\dist\compiled
+\next-server\app-page.runtim
+e.prod.js:12:39131)
+    at t.useMemo (C:\Users\U
+ser\Desktop\Saili8ng School 
+Test\node_modules\next\dist\
+compiled\next-server\app-pag
+e.runtime.prod.js:12:109914)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:427
+6
+    at eb (C:\Users\User\Des
+ktop\Saili8ng School Test\.n
+ext\server\chunks\7052.js:91
+:5806)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:89:127
+850
+    at o (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\page.
+js:1:2836)
+    at nj (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:46252) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'home.experience (fr)'
+}
+c [Error]: MISSING_MESSAGE: 
+home.experience (fr)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:441
+2
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:444
+8
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:567
+6
+    at Object.nr [as 
+useMemo] (C:\Users\User\Desk
+top\Saili8ng School Test\nod
+e_modules\next\dist\compiled
+\next-server\app-page.runtim
+e.prod.js:12:39131)
+    at t.useMemo (C:\Users\U
+ser\Desktop\Saili8ng School 
+Test\node_modules\next\dist\
+compiled\next-server\app-pag
+e.runtime.prod.js:12:109914)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:427
+6
+    at eb (C:\Users\User\Des
+ktop\Saili8ng School Test\.n
+ext\server\chunks\7052.js:91
+:5806)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:89:127
+850
+    at o (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\page.
+js:1:2836)
+    at nj (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:46252) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'home.experience (fr)'
+}
+c [Error]: MISSING_MESSAGE: 
+home.experience (fr)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:441
+2
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:444
+8
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:567
+6
+    at Object.nr [as 
+useMemo] (C:\Users\User\Desk
+top\Saili8ng School Test\nod
+e_modules\next\dist\compiled
+\next-server\app-page.runtim
+e.prod.js:12:39131)
+    at t.useMemo (C:\Users\U
+ser\Desktop\Saili8ng School 
+Test\node_modules\next\dist\
+compiled\next-server\app-pag
+e.runtime.prod.js:12:109914)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:427
+6
+    at eb (C:\Users\User\Des
+ktop\Saili8ng School Test\.n
+ext\server\chunks\7052.js:91
+:5806)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:89:127
+850
+    at o (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\page.
+js:1:2836)
+    at nj (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:46252) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'home.experience (fr)'
+}
+c [Error]: MISSING_MESSAGE: 
+home.experience (fr)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:441
+2
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:444
+8
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:567
+6
+    at Object.nr [as 
+useMemo] (C:\Users\User\Desk
+top\Saili8ng School Test\nod
+e_modules\next\dist\compiled
+\next-server\app-page.runtim
+e.prod.js:12:39131)
+    at t.useMemo (C:\Users\U
+ser\Desktop\Saili8ng School 
+Test\node_modules\next\dist\
+compiled\next-server\app-pag
+e.runtime.prod.js:12:109914)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:427
+6
+    at eb (C:\Users\User\Des
+ktop\Saili8ng School Test\.n
+ext\server\chunks\7052.js:91
+:5806)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:89:127
+850
+    at o (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\page.
+js:1:2836)
+    at nj (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:46252) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'home.experience (fr)'
+}
+c [Error]: MISSING_MESSAGE: 
+home.experience (fr)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:441
+2
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:444
+8
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:567
+6
+    at Object.nr [as 
+useMemo] (C:\Users\User\Desk
+top\Saili8ng School Test\nod
+e_modules\next\dist\compiled
+\next-server\app-page.runtim
+e.prod.js:12:39131)
+    at t.useMemo (C:\Users\U
+ser\Desktop\Saili8ng School 
+Test\node_modules\next\dist\
+compiled\next-server\app-pag
+e.runtime.prod.js:12:109914)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:427
+6
+    at eb (C:\Users\User\Des
+ktop\Saili8ng School Test\.n
+ext\server\chunks\7052.js:91
+:5806)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:89:127
+850
+    at o (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\page.
+js:1:2836)
+    at nj (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:46252) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'home.experience (fr)'
+}
+c [Error]: MISSING_MESSAGE: 
+home.experience (fr)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:441
+2
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:444
+8
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:567
+6
+    at Object.nr [as 
+useMemo] (C:\Users\User\Desk
+top\Saili8ng School Test\nod
+e_modules\next\dist\compiled
+\next-server\app-page.runtim
+e.prod.js:12:39131)
+    at t.useMemo (C:\Users\U
+ser\Desktop\Saili8ng School 
+Test\node_modules\next\dist\
+compiled\next-server\app-pag
+e.runtime.prod.js:12:109914)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:427
+6
+    at eb (C:\Users\User\Des
+ktop\Saili8ng School Test\.n
+ext\server\chunks\7052.js:91
+:5806)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:89:127
+850
+    at o (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\page.
+js:1:2836)
+    at nj (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:46252) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'home.experience (fr)'
+}
+c [Error]: MISSING_MESSAGE: 
+home.experience (fr)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:441
+2
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:444
+8
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:567
+6
+    at Object.nr [as 
+useMemo] (C:\Users\User\Desk
+top\Saili8ng School Test\nod
+e_modules\next\dist\compiled
+\next-server\app-page.runtim
+e.prod.js:12:39131)
+    at t.useMemo (C:\Users\U
+ser\Desktop\Saili8ng School 
+Test\node_modules\next\dist\
+compiled\next-server\app-pag
+e.runtime.prod.js:12:109914)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:427
+6
+    at eb (C:\Users\User\Des
+ktop\Saili8ng School Test\.n
+ext\server\chunks\7052.js:91
+:5806)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:89:127
+850
+    at o (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\page.
+js:1:2836)
+    at nj (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:46252) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'home.experience (fr)'
+}
+c [Error]: MISSING_MESSAGE: 
+home.experience (fr)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:441
+2
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:444
+8
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:567
+6
+    at Object.nr [as 
+useMemo] (C:\Users\User\Desk
+top\Saili8ng School Test\nod
+e_modules\next\dist\compiled
+\next-server\app-page.runtim
+e.prod.js:12:39131)
+    at t.useMemo (C:\Users\U
+ser\Desktop\Saili8ng School 
+Test\node_modules\next\dist\
+compiled\next-server\app-pag
+e.runtime.prod.js:12:109914)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:427
+6
+    at eb (C:\Users\User\Des
+ktop\Saili8ng School Test\.n
+ext\server\chunks\7052.js:91
+:5806)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:89:127
+850
+    at o (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\page.
+js:1:2836)
+    at nj (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:46252) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'home.experience (fr)'
+}
+c [Error]: MISSING_MESSAGE: 
+home.experience (fr)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:441
+2
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:444
+8
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:567
+6
+    at Object.nr [as 
+useMemo] (C:\Users\User\Desk
+top\Saili8ng School Test\nod
+e_modules\next\dist\compiled
+\next-server\app-page.runtim
+e.prod.js:12:39131)
+    at t.useMemo (C:\Users\U
+ser\Desktop\Saili8ng School 
+Test\node_modules\next\dist\
+compiled\next-server\app-pag
+e.runtime.prod.js:12:109914)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:427
+6
+    at eb (C:\Users\User\Des
+ktop\Saili8ng School Test\.n
+ext\server\chunks\7052.js:91
+:5806)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:89:127
+850
+    at o (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\page.
+js:1:2836)
+    at nj (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:46252) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'home.experience (fr)'
+}
+c [Error]: MISSING_MESSAGE: 
+wind_lab (fr)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:441
+2
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:444
+8
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:567
+6
+    at Object.nr [as 
+useMemo] (C:\Users\User\Desk
+top\Saili8ng School Test\nod
+e_modules\next\dist\compiled
+\next-server\app-page.runtim
+e.prod.js:12:39131)
+    at t.useMemo (C:\Users\U
+ser\Desktop\Saili8ng School 
+Test\node_modules\next\dist\
+compiled\next-server\app-pag
+e.runtime.prod.js:12:109914)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:427
+6
+    at eb (C:\Users\User\Des
+ktop\Saili8ng School Test\.n
+ext\server\chunks\7052.js:91
+:5806)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:89:127
+850
+    at g (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\acade
+my\wind-lab\page.js:15:472)
+    at nj (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:46252) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'wind_lab (fr)'
+}
+c [Error]: MISSING_MESSAGE: 
+wind_lab (fr)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:441
+2
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:444
+8
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:567
+6
+    at Object.nr [as 
+useMemo] (C:\Users\User\Desk
+top\Saili8ng School Test\nod
+e_modules\next\dist\compiled
+\next-server\app-page.runtim
+e.prod.js:12:39131)
+    at t.useMemo (C:\Users\U
+ser\Desktop\Saili8ng School 
+Test\node_modules\next\dist\
+compiled\next-server\app-pag
+e.runtime.prod.js:12:109914)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:427
+6
+    at eb (C:\Users\User\Des
+ktop\Saili8ng School Test\.n
+ext\server\chunks\7052.js:91
+:5806)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:89:127
+850
+    at g (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\acade
+my\wind-lab\page.js:15:472)
+    at nj (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:46252) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'wind_lab (fr)'
+}
+c [Error]: MISSING_MESSAGE: 
+wind_lab (fr)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:441
+2
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:444
+8
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:567
+6
+    at Object.nr [as 
+useMemo] (C:\Users\User\Desk
+top\Saili8ng School Test\nod
+e_modules\next\dist\compiled
+\next-server\app-page.runtim
+e.prod.js:12:39131)
+    at t.useMemo (C:\Users\U
+ser\Desktop\Saili8ng School 
+Test\node_modules\next\dist\
+compiled\next-server\app-pag
+e.runtime.prod.js:12:109914)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:427
+6
+    at eb (C:\Users\User\Des
+ktop\Saili8ng School Test\.n
+ext\server\chunks\7052.js:91
+:5806)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:89:127
+850
+    at g (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\acade
+my\wind-lab\page.js:15:472)
+    at nj (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:46252) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'wind_lab (fr)'
+}
+c [Error]: MISSING_MESSAGE: 
+wind_lab (fr)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:441
+2
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:444
+8
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:567
+6
+    at Object.nr [as 
+useMemo] (C:\Users\User\Desk
+top\Saili8ng School Test\nod
+e_modules\next\dist\compiled
+\next-server\app-page.runtim
+e.prod.js:12:39131)
+    at t.useMemo (C:\Users\U
+ser\Desktop\Saili8ng School 
+Test\node_modules\next\dist\
+compiled\next-server\app-pag
+e.runtime.prod.js:12:109914)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:427
+6
+    at eb (C:\Users\User\Des
+ktop\Saili8ng School Test\.n
+ext\server\chunks\7052.js:91
+:5806)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:89:127
+850
+    at g (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\acade
+my\wind-lab\page.js:15:472)
+    at nj (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:46252) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'wind_lab (fr)'
+}
+c [Error]: MISSING_MESSAGE: 
+wind_lab (fr)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:441
+2
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:444
+8
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:567
+6
+    at Object.nr [as 
+useMemo] (C:\Users\User\Desk
+top\Saili8ng School Test\nod
+e_modules\next\dist\compiled
+\next-server\app-page.runtim
+e.prod.js:12:39131)
+    at t.useMemo (C:\Users\U
+ser\Desktop\Saili8ng School 
+Test\node_modules\next\dist\
+compiled\next-server\app-pag
+e.runtime.prod.js:12:109914)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:427
+6
+    at eb (C:\Users\User\Des
+ktop\Saili8ng School Test\.n
+ext\server\chunks\7052.js:91
+:5806)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:89:127
+850
+    at g (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\acade
+my\wind-lab\page.js:15:472)
+    at nj (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:46252) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'wind_lab (fr)'
+}
+c [Error]: MISSING_MESSAGE: 
+wind_lab (fr)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:441
+2
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:444
+8
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:567
+6
+    at Object.nr [as 
+useMemo] (C:\Users\User\Desk
+top\Saili8ng School Test\nod
+e_modules\next\dist\compiled
+\next-server\app-page.runtim
+e.prod.js:12:39131)
+    at t.useMemo (C:\Users\U
+ser\Desktop\Saili8ng School 
+Test\node_modules\next\dist\
+compiled\next-server\app-pag
+e.runtime.prod.js:12:109914)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:427
+6
+    at eb (C:\Users\User\Des
+ktop\Saili8ng School Test\.n
+ext\server\chunks\7052.js:91
+:5806)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:89:127
+850
+    at g (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\acade
+my\wind-lab\page.js:15:472)
+    at nj (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:46252) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'wind_lab (fr)'
+}
+c [Error]: MISSING_MESSAGE: 
+wind_lab (fr)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:441
+2
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:444
+8
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:567
+6
+    at Object.nr [as 
+useMemo] (C:\Users\User\Desk
+top\Saili8ng School Test\nod
+e_modules\next\dist\compiled
+\next-server\app-page.runtim
+e.prod.js:12:39131)
+    at t.useMemo (C:\Users\U
+ser\Desktop\Saili8ng School 
+Test\node_modules\next\dist\
+compiled\next-server\app-pag
+e.runtime.prod.js:12:109914)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:427
+6
+    at eb (C:\Users\User\Des
+ktop\Saili8ng School Test\.n
+ext\server\chunks\7052.js:91
+:5806)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:89:127
+850
+    at g (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\acade
+my\wind-lab\page.js:15:472)
+    at nj (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:46252) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'wind_lab (fr)'
+}
+c [Error]: MISSING_MESSAGE: 
+wind_lab (fr)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:441
+2
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:444
+8
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:567
+6
+    at Object.nr [as 
+useMemo] (C:\Users\User\Desk
+top\Saili8ng School Test\nod
+e_modules\next\dist\compiled
+\next-server\app-page.runtim
+e.prod.js:12:39131)
+    at t.useMemo (C:\Users\U
+ser\Desktop\Saili8ng School 
+Test\node_modules\next\dist\
+compiled\next-server\app-pag
+e.runtime.prod.js:12:109914)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:427
+6
+    at eb (C:\Users\User\Des
+ktop\Saili8ng School Test\.n
+ext\server\chunks\7052.js:91
+:5806)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:89:127
+850
+    at g (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\acade
+my\wind-lab\page.js:15:472)
+    at nj (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:46252) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'wind_lab (fr)'
+}
+c [Error]: MISSING_MESSAGE: 
+wind_lab (fr)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:441
+2
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:444
+8
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:567
+6
+    at Object.nr [as 
+useMemo] (C:\Users\User\Desk
+top\Saili8ng School Test\nod
+e_modules\next\dist\compiled
+\next-server\app-page.runtim
+e.prod.js:12:39131)
+    at t.useMemo (C:\Users\U
+ser\Desktop\Saili8ng School 
+Test\node_modules\next\dist\
+compiled\next-server\app-pag
+e.runtime.prod.js:12:109914)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:427
+6
+    at eb (C:\Users\User\Des
+ktop\Saili8ng School Test\.n
+ext\server\chunks\7052.js:91
+:5806)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:89:127
+850
+    at g (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\acade
+my\wind-lab\page.js:15:472)
+    at nj (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:46252) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'wind_lab (fr)'
+}
+c [Error]: MISSING_MESSAGE: 
+wind_lab (fr)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:441
+2
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:444
+8
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:567
+6
+    at Object.nr [as 
+useMemo] (C:\Users\User\Desk
+top\Saili8ng School Test\nod
+e_modules\next\dist\compiled
+\next-server\app-page.runtim
+e.prod.js:12:39131)
+    at t.useMemo (C:\Users\U
+ser\Desktop\Saili8ng School 
+Test\node_modules\next\dist\
+compiled\next-server\app-pag
+e.runtime.prod.js:12:109914)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:427
+6
+    at eb (C:\Users\User\Des
+ktop\Saili8ng School Test\.n
+ext\server\chunks\7052.js:91
+:5806)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:89:127
+850
+    at g (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\acade
+my\wind-lab\page.js:15:472)
+    at nj (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:46252) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'wind_lab (fr)'
+}
+c [Error]: MISSING_MESSAGE: 
+wind_lab (fr)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:441
+2
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:444
+8
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:567
+6
+    at Object.nr [as 
+useMemo] (C:\Users\User\Desk
+top\Saili8ng School Test\nod
+e_modules\next\dist\compiled
+\next-server\app-page.runtim
+e.prod.js:12:39131)
+    at t.useMemo (C:\Users\U
+ser\Desktop\Saili8ng School 
+Test\node_modules\next\dist\
+compiled\next-server\app-pag
+e.runtime.prod.js:12:109914)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:427
+6
+    at eb (C:\Users\User\Des
+ktop\Saili8ng School Test\.n
+ext\server\chunks\7052.js:91
+:5806)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:89:127
+850
+    at g (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\acade
+my\wind-lab\page.js:15:472)
+    at nj (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:46252) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'wind_lab (fr)'
+}
+c [Error]: MISSING_MESSAGE: 
+wind_lab (fr)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:441
+2
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:444
+8
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:567
+6
+    at Object.nr [as 
+useMemo] (C:\Users\User\Desk
+top\Saili8ng School Test\nod
+e_modules\next\dist\compiled
+\next-server\app-page.runtim
+e.prod.js:12:39131)
+    at t.useMemo (C:\Users\U
+ser\Desktop\Saili8ng School 
+Test\node_modules\next\dist\
+compiled\next-server\app-pag
+e.runtime.prod.js:12:109914)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:427
+6
+    at eb (C:\Users\User\Des
+ktop\Saili8ng School Test\.n
+ext\server\chunks\7052.js:91
+:5806)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:89:127
+850
+    at f (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\acade
+my\wind-lab\page.js:1:24506)
+    at nj (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:46252) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'wind_lab (fr)'
+}
+c [Error]: MISSING_MESSAGE: 
+wind_lab (fr)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:441
+2
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:444
+8
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:567
+6
+    at Object.nr [as 
+useMemo] (C:\Users\User\Desk
+top\Saili8ng School Test\nod
+e_modules\next\dist\compiled
+\next-server\app-page.runtim
+e.prod.js:12:39131)
+    at t.useMemo (C:\Users\U
+ser\Desktop\Saili8ng School 
+Test\node_modules\next\dist\
+compiled\next-server\app-pag
+e.runtime.prod.js:12:109914)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:427
+6
+    at eb (C:\Users\User\Des
+ktop\Saili8ng School Test\.n
+ext\server\chunks\7052.js:91
+:5806)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:89:127
+850
+    at f (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\acade
+my\wind-lab\page.js:1:24506)
+    at nj (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:46252) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'wind_lab (fr)'
+}
+c [Error]: MISSING_MESSAGE: 
+wind_lab (fr)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:441
+2
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:444
+8
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:567
+6
+    at Object.nr [as 
+useMemo] (C:\Users\User\Desk
+top\Saili8ng School Test\nod
+e_modules\next\dist\compiled
+\next-server\app-page.runtim
+e.prod.js:12:39131)
+    at t.useMemo (C:\Users\U
+ser\Desktop\Saili8ng School 
+Test\node_modules\next\dist\
+compiled\next-server\app-pag
+e.runtime.prod.js:12:109914)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:427
+6
+    at eb (C:\Users\User\Des
+ktop\Saili8ng School Test\.n
+ext\server\chunks\7052.js:91
+:5806)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:89:127
+850
+    at f (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\acade
+my\wind-lab\page.js:1:24506)
+    at nj (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:46252) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'wind_lab (fr)'
+}
+c [Error]: MISSING_MESSAGE: 
+wind_lab (fr)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:441
+2
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:444
+8
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:567
+6
+    at Object.nr [as 
+useMemo] (C:\Users\User\Desk
+top\Saili8ng School Test\nod
+e_modules\next\dist\compiled
+\next-server\app-page.runtim
+e.prod.js:12:39131)
+    at t.useMemo (C:\Users\U
+ser\Desktop\Saili8ng School 
+Test\node_modules\next\dist\
+compiled\next-server\app-pag
+e.runtime.prod.js:12:109914)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:427
+6
+    at eb (C:\Users\User\Des
+ktop\Saili8ng School Test\.n
+ext\server\chunks\7052.js:91
+:5806)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:89:127
+850
+    at c (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\acade
+my\wind-lab\page.js:1:14455)
+    at nj (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:46252) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'wind_lab (fr)'
+}
+c [Error]: MISSING_MESSAGE: 
+wind_lab (fr)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:441
+2
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:444
+8
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:567
+6
+    at Object.nr [as 
+useMemo] (C:\Users\User\Desk
+top\Saili8ng School Test\nod
+e_modules\next\dist\compiled
+\next-server\app-page.runtim
+e.prod.js:12:39131)
+    at t.useMemo (C:\Users\U
+ser\Desktop\Saili8ng School 
+Test\node_modules\next\dist\
+compiled\next-server\app-pag
+e.runtime.prod.js:12:109914)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:427
+6
+    at eb (C:\Users\User\Des
+ktop\Saili8ng School Test\.n
+ext\server\chunks\7052.js:91
+:5806)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:89:127
+850
+    at c (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\acade
+my\wind-lab\page.js:1:14455)
+    at nj (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:46252) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'wind_lab (fr)'
+}
+c [Error]: MISSING_MESSAGE: 
+wind_lab (fr)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:441
+2
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:444
+8
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:567
+6
+    at Object.nr [as 
+useMemo] (C:\Users\User\Desk
+top\Saili8ng School Test\nod
+e_modules\next\dist\compiled
+\next-server\app-page.runtim
+e.prod.js:12:39131)
+    at t.useMemo (C:\Users\U
+ser\Desktop\Saili8ng School 
+Test\node_modules\next\dist\
+compiled\next-server\app-pag
+e.runtime.prod.js:12:109914)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:427
+6
+    at eb (C:\Users\User\Des
+ktop\Saili8ng School Test\.n
+ext\server\chunks\7052.js:91
+:5806)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:89:127
+850
+    at c (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\acade
+my\wind-lab\page.js:1:14455)
+    at nj (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:46252) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'wind_lab (fr)'
+}
+c [Error]: MISSING_MESSAGE: 
+wind_lab (fr)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:441
+2
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:444
+8
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:567
+6
+    at Object.nr [as 
+useMemo] (C:\Users\User\Desk
+top\Saili8ng School Test\nod
+e_modules\next\dist\compiled
+\next-server\app-page.runtim
+e.prod.js:12:39131)
+    at t.useMemo (C:\Users\U
+ser\Desktop\Saili8ng School 
+Test\node_modules\next\dist\
+compiled\next-server\app-pag
+e.runtime.prod.js:12:109914)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:427
+6
+    at eb (C:\Users\User\Des
+ktop\Saili8ng School Test\.n
+ext\server\chunks\7052.js:91
+:5806)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:89:127
+850
+    at c (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\acade
+my\wind-lab\page.js:1:14455)
+    at nj (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:46252) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'wind_lab (fr)'
+}
+c [Error]: MISSING_MESSAGE: 
+wind_lab (fr)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:441
+2
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:444
+8
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:567
+6
+    at Object.nr [as 
+useMemo] (C:\Users\User\Desk
+top\Saili8ng School Test\nod
+e_modules\next\dist\compiled
+\next-server\app-page.runtim
+e.prod.js:12:39131)
+    at t.useMemo (C:\Users\U
+ser\Desktop\Saili8ng School 
+Test\node_modules\next\dist\
+compiled\next-server\app-pag
+e.runtime.prod.js:12:109914)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:427
+6
+    at eb (C:\Users\User\Des
+ktop\Saili8ng School Test\.n
+ext\server\chunks\7052.js:91
+:5806)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:89:127
+850
+    at c (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\acade
+my\wind-lab\page.js:1:14455)
+    at nj (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:46252) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'wind_lab (fr)'
+}
+c [Error]: MISSING_MESSAGE: 
+wind_lab (fr)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:441
+2
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:444
+8
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:567
+6
+    at Object.nr [as 
+useMemo] (C:\Users\User\Desk
+top\Saili8ng School Test\nod
+e_modules\next\dist\compiled
+\next-server\app-page.runtim
+e.prod.js:12:39131)
+    at t.useMemo (C:\Users\U
+ser\Desktop\Saili8ng School 
+Test\node_modules\next\dist\
+compiled\next-server\app-pag
+e.runtime.prod.js:12:109914)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:427
+6
+    at eb (C:\Users\User\Des
+ktop\Saili8ng School Test\.n
+ext\server\chunks\7052.js:91
+:5806)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:89:127
+850
+    at c (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\acade
+my\wind-lab\page.js:1:14455)
+    at nj (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:46252) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'wind_lab (fr)'
+}
+TypeError: Cannot read 
+properties of undefined 
+(reading 'locale')
+    at h (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\auth\
+register\page.js:1:9918)
+    at nj (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:46252)
+    at nM (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:47572)
+    at nM (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:61547)
+    at nL (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:64547)
+    at nB (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:67539)
+    at nD (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:66681)
+    at nL (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:64854)
+    at nB (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:67539)
+    at nD (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:66681) {
+  digest: '1530310068'
+}
+
+Error occurred prerendering 
+page "/en/auth/register". 
+Read more: https://nextjs.or
+g/docs/messages/prerender-er
+ror
+
+TypeError: Cannot read 
+properties of undefined 
+(reading 'locale')
+    at h (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\auth\
+register\page.js:1:9918)
+    at nj (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:46252)
+    at nM (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:47572)
+    at nM (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:61547)
+    at nL (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:64547)
+    at nB (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:67539)
+    at nD (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:66681)
+    at nL (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:64854)
+    at nB (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:67539)
+    at nD (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:66681)
+TypeError: Cannot read 
+properties of undefined 
+(reading 'locale')
+    at h (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\auth\
+register\page.js:1:9918)
+    at nj (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:46252)
+    at nM (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:47572)
+    at nM (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:61547)
+    at nL (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:64547)
+    at nB (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:67539)
+    at nD (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:66681)
+    at nL (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:64854)
+    at nB (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:67539)
+    at nD (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:66681) {
+  digest: '1530310068'
+}
+
+Error occurred prerendering 
+page "/es/auth/register". 
+Read more: https://nextjs.or
+g/docs/messages/prerender-er
+ror
+
+TypeError: Cannot read 
+properties of undefined 
+(reading 'locale')
+    at h (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\auth\
+register\page.js:1:9918)
+    at nj (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:46252)
+    at nM (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:47572)
+    at nM (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:61547)
+    at nL (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:64547)
+    at nB (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:67539)
+    at nD (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:66681)
+    at nL (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:64854)
+    at nB (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:67539)
+    at nD (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:66681)
+TypeError: Cannot read 
+properties of undefined 
+(reading 'locale')
+    at h (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\auth\
+register\page.js:1:9918)
+    at nj (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:46252)
+    at nM (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:47572)
+    at nM (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:61547)
+    at nL (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:64547)
+    at nB (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:67539)
+    at nD (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:66681)
+    at nL (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:64854)
+    at nB (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:67539)
+    at nD (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:66681) {
+  digest: '1530310068'
+}
+
+Error occurred prerendering 
+page "/eu/auth/register". 
+Read more: https://nextjs.or
+g/docs/messages/prerender-er
+ror
+
+TypeError: Cannot read 
+properties of undefined 
+(reading 'locale')
+    at h (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\auth\
+register\page.js:1:9918)
+    at nj (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:46252)
+    at nM (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:47572)
+    at nM (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:61547)
+    at nL (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:64547)
+    at nB (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:67539)
+    at nD (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:66681)
+    at nL (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:64854)
+    at nB (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:67539)
+    at nD (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:66681)
+TypeError: Cannot read 
+properties of undefined 
+(reading 'locale')
+    at h (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\auth\
+register\page.js:1:9918)
+    at nj (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:46252)
+    at nM (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:47572)
+    at nM (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:61547)
+    at nL (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:64547)
+    at nB (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:67539)
+    at nD (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:66681)
+    at nL (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:64854)
+    at nB (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:67539)
+    at nD (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:66681) {
+  digest: '1530310068'
+}
+
+Error occurred prerendering 
+page "/fr/auth/register". 
+Read more: https://nextjs.or
+g/docs/messages/prerender-er
+ror
+
+TypeError: Cannot read 
+properties of undefined 
+(reading 'locale')
+    at h (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\auth\
+register\page.js:1:9918)
+    at nj (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:46252)
+    at nM (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:47572)
+    at nM (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:61547)
+    at nL (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:64547)
+    at nB (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:67539)
+    at nD (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:66681)
+    at nL (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:64854)
+    at nB (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:67539)
+    at nD (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:66681)
+   Generating static pages (48/194) 
+s [Error]: MISSING_MESSAGE: 
+about_page.commitment_title 
+(fr)
+    at c (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3357)
+    at d (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3546)
+    at f (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:4032)
+    at o (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\about
+\page.js:1:5931)
+    at runNextTicks (node:in
+ternal/process/task_queues:6
+4:5)
+    at listOnTimeout 
+(node:internal/timers:567:9)
+    at 
+process.processTimers (node:
+internal/timers:541:7) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 'about_pa
+ge.commitment_title (fr)'
+}
+s [Error]: MISSING_MESSAGE: 
+about_page.commitment_highli
+ght (fr)
+    at c (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3357)
+    at d (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3546)
+    at f (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:4032)
+    at o (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\about
+\page.js:1:6093)
+    at runNextTicks (node:in
+ternal/process/task_queues:6
+4:5)
+    at listOnTimeout 
+(node:internal/timers:567:9)
+    at 
+process.processTimers (node:
+internal/timers:541:7) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 'about_pa
+ge.commitment_highlight 
+(fr)'
+}
+s [Error]: MISSING_MESSAGE: 
+about_page.desc1 (fr)
+    at c (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3357)
+    at d (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3546)
+    at f (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:4032)
+    at o (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\about
+\page.js:1:6397)
+    at runNextTicks (node:in
+ternal/process/task_queues:6
+4:5)
+    at listOnTimeout 
+(node:internal/timers:567:9)
+    at 
+process.processTimers (node:
+internal/timers:541:7) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'about_page.desc1 (fr)'
+}
+s [Error]: MISSING_MESSAGE: 
+about_page.desc2 (fr)
+    at c (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3357)
+    at d (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3546)
+    at f (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:4032)
+    at o (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\about
+\page.js:1:6606)
+    at runNextTicks (node:in
+ternal/process/task_queues:6
+4:5)
+    at listOnTimeout 
+(node:internal/timers:567:9)
+    at 
+process.processTimers (node:
+internal/timers:541:7) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'about_page.desc2 (fr)'
+}
+s [Error]: MISSING_MESSAGE: 
+about_page.define_title (fr)
+    at c (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3357)
+    at d (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3546)
+    at f (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:4032)
+    at o (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\about
+\page.js:1:8200)
+    at runNextTicks (node:in
+ternal/process/task_queues:6
+4:5)
+    at listOnTimeout 
+(node:internal/timers:567:9)
+    at 
+process.processTimers (node:
+internal/timers:541:7) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'about_page.define_title 
+(fr)'
+}
+s [Error]: MISSING_MESSAGE: 
+about_page.values.v1_title 
+(fr)
+    at c (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3357)
+    at d (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3546)
+    at f (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:4032)
+    at o (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\about
+\page.js:1:8418)
+    at runNextTicks (node:in
+ternal/process/task_queues:6
+4:5)
+    at listOnTimeout 
+(node:internal/timers:567:9)
+    at 
+process.processTimers (node:
+internal/timers:541:7) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'about_page.values.v1_title 
+(fr)'
+}
+s [Error]: MISSING_MESSAGE: 
+about_page.values.v1_desc 
+(fr)
+    at c (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3357)
+    at d (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3546)
+    at f (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:4032)
+    at o (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\about
+\page.js:1:8444)
+    at runNextTicks (node:in
+ternal/process/task_queues:6
+4:5)
+    at listOnTimeout 
+(node:internal/timers:567:9)
+    at 
+process.processTimers (node:
+internal/timers:541:7) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'about_page.values.v1_desc 
+(fr)'
+}
+s [Error]: MISSING_MESSAGE: 
+about_page.values.v2_title 
+(fr)
+    at c (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3357)
+    at d (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3546)
+    at f (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:4032)
+    at o (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\about
+\page.js:1:8521)
+    at runNextTicks (node:in
+ternal/process/task_queues:6
+4:5)
+    at listOnTimeout 
+(node:internal/timers:567:9)
+    at 
+process.processTimers (node:
+internal/timers:541:7) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'about_page.values.v2_title 
+(fr)'
+}
+s [Error]: MISSING_MESSAGE: 
+about_page.values.v2_desc 
+(fr)
+    at c (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3357)
+    at d (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3546)
+    at f (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:4032)
+    at o (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\about
+\page.js:1:8547)
+    at runNextTicks (node:in
+ternal/process/task_queues:6
+4:5)
+    at listOnTimeout 
+(node:internal/timers:567:9)
+    at 
+process.processTimers (node:
+internal/timers:541:7) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'about_page.values.v2_desc 
+(fr)'
+}
+s [Error]: MISSING_MESSAGE: 
+about_page.values.v3_title 
+(fr)
+    at c (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3357)
+    at d (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3546)
+    at f (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:4032)
+    at o (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\about
+\page.js:1:8627)
+    at runNextTicks (node:in
+ternal/process/task_queues:6
+4:5)
+    at listOnTimeout 
+(node:internal/timers:567:9)
+    at 
+process.processTimers (node:
+internal/timers:541:7) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'about_page.values.v3_title 
+(fr)'
+}
+s [Error]: MISSING_MESSAGE: 
+about_page.values.v3_desc 
+(fr)
+    at c (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3357)
+    at d (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3546)
+    at f (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:4032)
+    at o (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\about
+\page.js:1:8653)
+    at runNextTicks (node:in
+ternal/process/task_queues:6
+4:5)
+    at listOnTimeout 
+(node:internal/timers:567:9)
+    at 
+process.processTimers (node:
+internal/timers:541:7) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'about_page.values.v3_desc 
+(fr)'
+}
+s [Error]: MISSING_MESSAGE: 
+about_page.cta_title (fr)
+    at c (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3357)
+    at d (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3546)
+    at f (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:4032)
+    at o (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\about
+\page.js:1:10609)
+    at runNextTicks (node:in
+ternal/process/task_queues:6
+4:5)
+    at listOnTimeout 
+(node:internal/timers:567:9)
+    at 
+process.processTimers (node:
+internal/timers:541:7) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'about_page.cta_title (fr)'
+}
+s [Error]: MISSING_MESSAGE: 
+about_page.cta_desc (fr)
+    at c (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3357)
+    at d (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3546)
+    at f (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:4032)
+    at o (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\about
+\page.js:1:10795)
+    at runNextTicks (node:in
+ternal/process/task_queues:6
+4:5)
+    at listOnTimeout 
+(node:internal/timers:567:9)
+    at 
+process.processTimers (node:
+internal/timers:541:7) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'about_page.cta_desc (fr)'
+}
+s [Error]: MISSING_MESSAGE: 
+about_page.cta_button (fr)
+    at c (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3357)
+    at d (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3546)
+    at f (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:4032)
+    at o (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\about
+\page.js:1:11311)
+    at runNextTicks (node:in
+ternal/process/task_queues:6
+4:5)
+    at listOnTimeout 
+(node:internal/timers:567:9)
+    at 
+process.processTimers (node:
+internal/timers:541:7) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'about_page.cta_button (fr)'
+}
+s [Error]: MISSING_MESSAGE: 
+about_page.commitment_title 
+(fr)
+    at c (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3357)
+    at d (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3546)
+    at f (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:4032)
+    at o (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\about
+\page.js:1:5931) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 'about_pa
+ge.commitment_title (fr)'
+}
+s [Error]: MISSING_MESSAGE: 
+about_page.commitment_highli
+ght (fr)
+    at c (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3357)
+    at d (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3546)
+    at f (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:4032)
+    at o (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\about
+\page.js:1:6093) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 'about_pa
+ge.commitment_highlight 
+(fr)'
+}
+s [Error]: MISSING_MESSAGE: 
+about_page.desc1 (fr)
+    at c (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3357)
+    at d (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3546)
+    at f (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:4032)
+    at o (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\about
+\page.js:1:6397) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'about_page.desc1 (fr)'
+}
+s [Error]: MISSING_MESSAGE: 
+about_page.desc2 (fr)
+    at c (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3357)
+    at d (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3546)
+    at f (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:4032)
+    at o (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\about
+\page.js:1:6606) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'about_page.desc2 (fr)'
+}
+s [Error]: MISSING_MESSAGE: 
+about_page.define_title (fr)
+    at c (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3357)
+    at d (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3546)
+    at f (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:4032)
+    at o (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\about
+\page.js:1:8200) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'about_page.define_title 
+(fr)'
+}
+s [Error]: MISSING_MESSAGE: 
+about_page.values.v1_title 
+(fr)
+    at c (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3357)
+    at d (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3546)
+    at f (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:4032)
+    at o (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\about
+\page.js:1:8418) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'about_page.values.v1_title 
+(fr)'
+}
+s [Error]: MISSING_MESSAGE: 
+about_page.values.v1_desc 
+(fr)
+    at c (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3357)
+    at d (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3546)
+    at f (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:4032)
+    at o (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\about
+\page.js:1:8444) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'about_page.values.v1_desc 
+(fr)'
+}
+s [Error]: MISSING_MESSAGE: 
+about_page.values.v2_title 
+(fr)
+    at c (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3357)
+    at d (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3546)
+    at f (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:4032)
+    at o (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\about
+\page.js:1:8521) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'about_page.values.v2_title 
+(fr)'
+}
+s [Error]: MISSING_MESSAGE: 
+about_page.values.v2_desc 
+(fr)
+    at c (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3357)
+    at d (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3546)
+    at f (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:4032)
+    at o (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\about
+\page.js:1:8547) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'about_page.values.v2_desc 
+(fr)'
+}
+s [Error]: MISSING_MESSAGE: 
+about_page.values.v3_title 
+(fr)
+    at c (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3357)
+    at d (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3546)
+    at f (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:4032)
+    at o (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\about
+\page.js:1:8627) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'about_page.values.v3_title 
+(fr)'
+}
+s [Error]: MISSING_MESSAGE: 
+about_page.values.v3_desc 
+(fr)
+    at c (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3357)
+    at d (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3546)
+    at f (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:4032)
+    at o (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\about
+\page.js:1:8653) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'about_page.values.v3_desc 
+(fr)'
+}
+s [Error]: MISSING_MESSAGE: 
+about_page.cta_title (fr)
+    at c (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3357)
+    at d (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3546)
+    at f (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:4032)
+    at o (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\about
+\page.js:1:10609) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'about_page.cta_title (fr)'
+}
+s [Error]: MISSING_MESSAGE: 
+about_page.cta_desc (fr)
+    at c (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3357)
+    at d (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3546)
+    at f (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:4032)
+    at o (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\about
+\page.js:1:10795) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'about_page.cta_desc (fr)'
+}
+s [Error]: MISSING_MESSAGE: 
+about_page.cta_button (fr)
+    at c (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3357)
+    at d (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:3546)
+    at f (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:129
+:4032)
+    at o (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\about
+\page.js:1:11311) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'about_page.cta_button (fr)'
+}
+c [Error]: MISSING_MESSAGE: 
+rental_page.booking.from 
+(fr)
+    at f (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:91:
+4663)
+    at p (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:91:
+4850)
+    at m (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:91:
+5332)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\app\[locale]\rental\p
+age.js:1:9518
+    at Array.map 
+(<anonymous>)
+    at d (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\renta
+l\page.js:1:7799)
+    at nj (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:46252)
+    at nM (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:47572)
+    at nM (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:61547)
+    at nL (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:64547) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'rental_page.booking.from 
+(fr)'
+}
+c [Error]: MISSING_MESSAGE: 
+rental_page.booking.book_now
+ (fr)
+    at f (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:91:
+4663)
+    at p (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:91:
+4850)
+    at m (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:91:
+5332)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\app\[locale]\rental\p
+age.js:1:13328
+    at Array.map 
+(<anonymous>)
+    at d (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\renta
+l\page.js:1:7799)
+    at nj (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:46252)
+    at nM (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:47572)
+    at nM (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:61547)
+    at nL (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:64547) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 'rental_p
+age.booking.book_now (fr)'
+}
+c [Error]: MISSING_MESSAGE: 
+rental_page.booking.from 
+(fr)
+    at f (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:91:
+4663)
+    at p (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:91:
+4850)
+    at m (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:91:
+5332)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\app\[locale]\rental\p
+age.js:1:9518
+    at Array.map 
+(<anonymous>)
+    at d (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\renta
+l\page.js:1:7799)
+    at nj (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:46252)
+    at nM (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:47572)
+    at nM (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:61547)
+    at nL (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:64547) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'rental_page.booking.from 
+(fr)'
+}
+c [Error]: MISSING_MESSAGE: 
+rental_page.booking.book_now
+ (fr)
+    at f (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:91:
+4663)
+    at p (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:91:
+4850)
+    at m (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:91:
+5332)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\app\[locale]\rental\p
+age.js:1:13328
+    at Array.map 
+(<anonymous>)
+    at d (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\renta
+l\page.js:1:7799)
+    at nj (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:46252)
+    at nM (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:47572)
+    at nM (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:61547)
+    at nL (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:64547) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 'rental_p
+age.booking.book_now (fr)'
+}
+c [Error]: MISSING_MESSAGE: 
+rental_page.booking.from 
+(fr)
+    at f (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:91:
+4663)
+    at p (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:91:
+4850)
+    at m (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:91:
+5332)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\app\[locale]\rental\p
+age.js:1:9518
+    at Array.map 
+(<anonymous>)
+    at d (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\renta
+l\page.js:1:7799)
+    at nj (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:46252)
+    at nM (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:47572)
+    at nM (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:61547)
+    at nL (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:64547) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'rental_page.booking.from 
+(fr)'
+}
+c [Error]: MISSING_MESSAGE: 
+rental_page.booking.book_now
+ (fr)
+    at f (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:91:
+4663)
+    at p (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:91:
+4850)
+    at m (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:91:
+5332)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\app\[locale]\rental\p
+age.js:1:13328
+    at Array.map 
+(<anonymous>)
+    at d (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\renta
+l\page.js:1:7799)
+    at nj (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:46252)
+    at nM (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:47572)
+    at nM (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:61547)
+    at nL (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:64547) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 'rental_p
+age.booking.book_now (fr)'
+}
+c [Error]: MISSING_MESSAGE: 
+rental_page.booking.from 
+(fr)
+    at f (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:91:
+4663)
+    at p (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:91:
+4850)
+    at m (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:91:
+5332)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\app\[locale]\rental\p
+age.js:1:9518
+    at Array.map 
+(<anonymous>)
+    at d (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\renta
+l\page.js:1:7799)
+    at nj (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:46252)
+    at nM (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:47572)
+    at nM (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:61547)
+    at nL (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:64547) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'rental_page.booking.from 
+(fr)'
+}
+c [Error]: MISSING_MESSAGE: 
+rental_page.booking.book_now
+ (fr)
+    at f (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:91:
+4663)
+    at p (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:91:
+4850)
+    at m (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:91:
+5332)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\app\[locale]\rental\p
+age.js:1:13328
+    at Array.map 
+(<anonymous>)
+    at d (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\renta
+l\page.js:1:7799)
+    at nj (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:46252)
+    at nM (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:47572)
+    at nM (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:61547)
+    at nL (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:64547) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 'rental_p
+age.booking.book_now (fr)'
+}
+c [Error]: MISSING_MESSAGE: 
+rental_page.booking.from 
+(fr)
+    at f (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:91:
+4663)
+    at p (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:91:
+4850)
+    at m (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:91:
+5332)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\app\[locale]\rental\p
+age.js:1:9518
+    at Array.map 
+(<anonymous>)
+    at d (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\renta
+l\page.js:1:7799)
+    at nj (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:46252)
+    at nM (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:47572)
+    at nM (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:61547)
+    at nL (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:64547) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'rental_page.booking.from 
+(fr)'
+}
+c [Error]: MISSING_MESSAGE: 
+rental_page.booking.book_now
+ (fr)
+    at f (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:91:
+4663)
+    at p (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:91:
+4850)
+    at m (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:91:
+5332)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\app\[locale]\rental\p
+age.js:1:13328
+    at Array.map 
+(<anonymous>)
+    at d (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\renta
+l\page.js:1:7799)
+    at nj (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:46252)
+    at nM (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:47572)
+    at nM (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:61547)
+    at nL (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:64547) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 'rental_p
+age.booking.book_now (fr)'
+}
+c [Error]: MISSING_MESSAGE: 
+rental_page.booking.from 
+(fr)
+    at f (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:91:
+4663)
+    at p (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:91:
+4850)
+    at m (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:91:
+5332)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\app\[locale]\rental\p
+age.js:1:9518
+    at Array.map 
+(<anonymous>)
+    at d (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\renta
+l\page.js:1:7799)
+    at nj (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:46252)
+    at nM (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:47572)
+    at nM (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:61547)
+    at nL (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:64547) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'rental_page.booking.from 
+(fr)'
+}
+c [Error]: MISSING_MESSAGE: 
+rental_page.booking.book_now
+ (fr)
+    at f (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:91:
+4663)
+    at p (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:91:
+4850)
+    at m (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:91:
+5332)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\app\[locale]\rental\p
+age.js:1:13328
+    at Array.map 
+(<anonymous>)
+    at d (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\renta
+l\page.js:1:7799)
+    at nj (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:46252)
+    at nM (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:47572)
+    at nM (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:61547)
+    at nL (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:64547) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 'rental_p
+age.booking.book_now (fr)'
+}
+c [Error]: MISSING_MESSAGE: 
+rental_page.booking.from 
+(fr)
+    at f (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:91:
+4663)
+    at p (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:91:
+4850)
+    at m (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:91:
+5332)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\app\[locale]\rental\p
+age.js:1:9518
+    at Array.map 
+(<anonymous>)
+    at d (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\renta
+l\page.js:1:7799)
+    at nj (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:46252)
+    at nM (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:47572)
+    at nM (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:61547)
+    at nL (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:64547) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'rental_page.booking.from 
+(fr)'
+}
+c [Error]: MISSING_MESSAGE: 
+rental_page.booking.book_now
+ (fr)
+    at f (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:91:
+4663)
+    at p (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:91:
+4850)
+    at m (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:91:
+5332)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\app\[locale]\rental\p
+age.js:1:13328
+    at Array.map 
+(<anonymous>)
+    at d (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\renta
+l\page.js:1:7799)
+    at nj (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:46252)
+    at nM (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:47572)
+    at nM (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:61547)
+    at nL (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:64547) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 'rental_p
+age.booking.book_now (fr)'
+}
+c [Error]: MISSING_MESSAGE: 
+rental_page.booking.from 
+(fr)
+    at f (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:91:
+4663)
+    at p (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:91:
+4850)
+    at m (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:91:
+5332)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\app\[locale]\rental\p
+age.js:1:9518
+    at Array.map 
+(<anonymous>)
+    at d (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\renta
+l\page.js:1:7799)
+    at nj (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:46252)
+    at nM (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:47572)
+    at nM (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:61547)
+    at nL (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:64547) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'rental_page.booking.from 
+(fr)'
+}
+c [Error]: MISSING_MESSAGE: 
+rental_page.booking.book_now
+ (fr)
+    at f (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:91:
+4663)
+    at p (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:91:
+4850)
+    at m (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:91:
+5332)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\app\[locale]\rental\p
+age.js:1:13328
+    at Array.map 
+(<anonymous>)
+    at d (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\renta
+l\page.js:1:7799)
+    at nj (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:46252)
+    at nM (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:47572)
+    at nM (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:61547)
+    at nL (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:64547) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 'rental_p
+age.booking.book_now (fr)'
+}
+c [Error]: MISSING_MESSAGE: 
+rental_page.booking.from 
+(fr)
+    at f (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:91:
+4663)
+    at p (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:91:
+4850)
+    at m (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:91:
+5332)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\app\[locale]\rental\p
+age.js:1:9518
+    at Array.map 
+(<anonymous>)
+    at d (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\renta
+l\page.js:1:7799)
+    at nj (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:46252)
+    at nM (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:47572)
+    at nM (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:61547)
+    at nL (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:64547) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'rental_page.booking.from 
+(fr)'
+}
+c [Error]: MISSING_MESSAGE: 
+rental_page.booking.book_now
+ (fr)
+    at f (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:91:
+4663)
+    at p (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:91:
+4850)
+    at m (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:91:
+5332)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\app\[locale]\rental\p
+age.js:1:13328
+    at Array.map 
+(<anonymous>)
+    at d (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\renta
+l\page.js:1:7799)
+    at nj (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:46252)
+    at nM (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:47572)
+    at nM (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:61547)
+    at nL (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:64547) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 'rental_p
+age.booking.book_now (fr)'
+}
+c [Error]: MISSING_MESSAGE: 
+rental_page.booking.from 
+(fr)
+    at f (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:91:
+4663)
+    at p (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:91:
+4850)
+    at m (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:91:
+5332)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\app\[locale]\rental\p
+age.js:1:9518
+    at Array.map 
+(<anonymous>)
+    at d (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\renta
+l\page.js:1:7799)
+    at nj (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:46252)
+    at nM (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:47572)
+    at nM (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:61547)
+    at nL (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:64547) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'rental_page.booking.from 
+(fr)'
+}
+c [Error]: MISSING_MESSAGE: 
+rental_page.booking.book_now
+ (fr)
+    at f (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:91:
+4663)
+    at p (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:91:
+4850)
+    at m (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:91:
+5332)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\app\[locale]\rental\p
+age.js:1:13328
+    at Array.map 
+(<anonymous>)
+    at d (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\renta
+l\page.js:1:7799)
+    at nj (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:46252)
+   Generating static pages (96/194) 
+    at nM (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:47572)
+    at nM (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:61547)
+    at nL (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:64547) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 'rental_p
+age.booking.book_now (fr)'
+}
+s [Error]: MISSING_MESSAGE: 
+courses_page (fr)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:129:31
+01
+    at et (C:\Users\User\Des
+ktop\Saili8ng School Test\.n
+ext\server\chunks\7052.js:12
+9:3141)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:127:55
+506
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:127:55
+538
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:127:55
+643
+    at C:\Users\User\Desktop
+\Saili8ng School Test\node_m
+odules\next\dist\compiled\ne
+xt-server\app-page.runtime.p
+rod.js:12:186465
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:127:55
+879
+    at async l (C:\Users\Use
+r\Desktop\Saili8ng School Te
+st\.next\server\app\[locale]
+\courses\page.js:1:7403) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'courses_page (fr)'
+}
+s [Error]: MISSING_MESSAGE: 
+courses_page (fr)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:129:31
+01
+    at et (C:\Users\User\Des
+ktop\Saili8ng School Test\.n
+ext\server\chunks\7052.js:12
+9:3141)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:127:55
+506
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:127:55
+538
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:127:55
+643
+    at C:\Users\User\Desktop
+\Saili8ng School Test\node_m
+odules\next\dist\compiled\ne
+xt-server\app-page.runtime.p
+rod.js:12:186465
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:127:55
+879
+    at async l (C:\Users\Use
+r\Desktop\Saili8ng School Te
+st\.next\server\app\[locale]
+\courses\page.js:1:7403) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'courses_page (fr)'
+}
+s [Error]: MISSING_MESSAGE: 
+courses_page (fr)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:129:31
+01
+    at et (C:\Users\User\Des
+ktop\Saili8ng School Test\.n
+ext\server\chunks\7052.js:12
+9:3141)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:127:55
+506
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:127:55
+538
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:127:55
+643
+    at C:\Users\User\Desktop
+\Saili8ng School Test\node_m
+odules\next\dist\compiled\ne
+xt-server\app-page.runtime.p
+rod.js:12:186465
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:127:55
+879
+    at async l (C:\Users\Use
+r\Desktop\Saili8ng School Te
+st\.next\server\app\[locale]
+\courses\page.js:1:7403) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'courses_page (fr)'
+}
+s [Error]: MISSING_MESSAGE: 
+courses_page (fr)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:129:31
+01
+    at et (C:\Users\User\Des
+ktop\Saili8ng School Test\.n
+ext\server\chunks\7052.js:12
+9:3141)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:127:55
+506
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:127:55
+538
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:127:55
+643
+    at C:\Users\User\Desktop
+\Saili8ng School Test\node_m
+odules\next\dist\compiled\ne
+xt-server\app-page.runtime.p
+rod.js:12:186465
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:127:55
+879
+    at async l (C:\Users\Use
+r\Desktop\Saili8ng School Te
+st\.next\server\app\[locale]
+\courses\page.js:1:7403) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'courses_page (fr)'
+}
+s [Error]: MISSING_MESSAGE: 
+courses_page (fr)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:129:31
+01
+    at et (C:\Users\User\Des
+ktop\Saili8ng School Test\.n
+ext\server\chunks\7052.js:12
+9:3141)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:127:55
+506
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:127:55
+538
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:127:55
+643
+    at C:\Users\User\Desktop
+\Saili8ng School Test\node_m
+odules\next\dist\compiled\ne
+xt-server\app-page.runtime.p
+rod.js:12:186465
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:127:55
+879
+    at runNextTicks (node:in
+ternal/process/task_queues:6
+4:5)
+    at listOnTimeout 
+(node:internal/timers:567:9)
+    at 
+process.processTimers (node:
+internal/timers:541:7) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'courses_page (fr)'
+}
+s [Error]: MISSING_MESSAGE: 
+courses_page (fr)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:129:31
+01
+    at et (C:\Users\User\Des
+ktop\Saili8ng School Test\.n
+ext\server\chunks\7052.js:12
+9:3141)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:127:55
+506
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:127:55
+538
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:127:55
+643
+    at C:\Users\User\Desktop
+\Saili8ng School Test\node_m
+odules\next\dist\compiled\ne
+xt-server\app-page.runtime.p
+rod.js:12:186465
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:127:55
+879
+    at runNextTicks (node:in
+ternal/process/task_queues:6
+4:5)
+    at listOnTimeout 
+(node:internal/timers:567:9)
+    at 
+process.processTimers (node:
+internal/timers:541:7) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'courses_page (fr)'
+}
+s [Error]: MISSING_MESSAGE: 
+courses_page (fr)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:129:31
+01
+    at et (C:\Users\User\Des
+ktop\Saili8ng School Test\.n
+ext\server\chunks\7052.js:12
+9:3141)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:127:55
+506
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:127:55
+538
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:127:55
+643
+    at C:\Users\User\Desktop
+\Saili8ng School Test\node_m
+odules\next\dist\compiled\ne
+xt-server\app-page.runtime.p
+rod.js:12:186465
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:127:55
+879
+    at runNextTicks (node:in
+ternal/process/task_queues:6
+4:5)
+    at listOnTimeout 
+(node:internal/timers:567:9)
+    at 
+process.processTimers (node:
+internal/timers:541:7) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'courses_page (fr)'
+}
+s [Error]: MISSING_MESSAGE: 
+courses_page (fr)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:129:31
+01
+    at et (C:\Users\User\Des
+ktop\Saili8ng School Test\.n
+ext\server\chunks\7052.js:12
+9:3141)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:127:55
+506
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:127:55
+538
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:127:55
+643
+    at C:\Users\User\Desktop
+\Saili8ng School Test\node_m
+odules\next\dist\compiled\ne
+xt-server\app-page.runtime.p
+rod.js:12:186465
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:127:55
+879
+    at runNextTicks (node:in
+ternal/process/task_queues:6
+4:5)
+    at listOnTimeout 
+(node:internal/timers:567:9)
+    at 
+process.processTimers (node:
+internal/timers:541:7) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'courses_page (fr)'
+}
+c [Error]: MISSING_MESSAGE: 
+auth.reset_password_title 
+(fr)
+    at f (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:91:
+4663)
+    at p (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:91:
+4850)
+    at m (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:91:
+5332)
+    at m (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\auth\
+reset-password\page.js:1:469
+3)
+    at nj (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:46252)
+    at nM (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:47572)
+    at nL (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:64547)
+    at nI (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:47011)
+    at nM (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:47718)
+    at nM (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:61547) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'auth.reset_password_title 
+(fr)'
+}
+c [Error]: MISSING_MESSAGE: 
+auth.reset_password_desc 
+(fr)
+    at f (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:91:
+4663)
+    at p (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:91:
+4850)
+    at m (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:91:
+5332)
+    at m (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\auth\
+reset-password\page.js:1:478
+3)
+    at nj (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:46252)
+    at nM (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:47572)
+    at nL (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:64547)
+    at nI (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:47011)
+    at nM (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:47718)
+    at nM (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:61547) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'auth.reset_password_desc 
+(fr)'
+}
+c [Error]: MISSING_MESSAGE: 
+auth_form.confirm_password 
+(fr)
+    at f (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:91:
+4663)
+    at p (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:91:
+4850)
+    at m (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:91:
+5332)
+    at m (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\auth\
+reset-password\page.js:1:583
+8)
+    at nj (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:46252)
+    at nM (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:47572)
+    at nL (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:64547)
+    at nI (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:47011)
+    at nM (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:47718)
+    at nM (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:61547) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'auth_form.confirm_password 
+(fr)'
+}
+c [Error]: MISSING_MESSAGE: 
+auth_form.update_password 
+(fr)
+    at f (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:91:
+4663)
+    at p (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:91:
+4850)
+    at m (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:91:
+5332)
+    at m (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\auth\
+reset-password\page.js:1:637
+6)
+    at nj (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:46252)
+    at nM (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:47572)
+    at nL (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:64547)
+    at nI (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:47011)
+    at nM (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:47718)
+    at nM (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:61547) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'auth_form.update_password 
+(fr)'
+}
+   Generating static pages (145/194) 
+c [Error]: MISSING_MESSAGE: 
+contact_form (fr)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:441
+2
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:444
+8
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:567
+6
+    at Object.nr [as 
+useMemo] (C:\Users\User\Desk
+top\Saili8ng School Test\nod
+e_modules\next\dist\compiled
+\next-server\app-page.runtim
+e.prod.js:12:39131)
+    at t.useMemo (C:\Users\U
+ser\Desktop\Saili8ng School 
+Test\node_modules\next\dist\
+compiled\next-server\app-pag
+e.runtime.prod.js:12:109914)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:427
+6
+    at eb (C:\Users\User\Des
+ktop\Saili8ng School Test\.n
+ext\server\chunks\7052.js:91
+:5806)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:89:127
+850
+    at c (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\conta
+ct\page.js:1:2734)
+    at nj (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:46252) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'contact_form (fr)'
+}
+c [Error]: MISSING_MESSAGE: 
+contact_form (fr)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:441
+2
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:444
+8
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:567
+6
+    at Object.nr [as 
+useMemo] (C:\Users\User\Desk
+top\Saili8ng School Test\nod
+e_modules\next\dist\compiled
+\next-server\app-page.runtim
+e.prod.js:12:39131)
+    at t.useMemo (C:\Users\U
+ser\Desktop\Saili8ng School 
+Test\node_modules\next\dist\
+compiled\next-server\app-pag
+e.runtime.prod.js:12:109914)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:427
+6
+    at eb (C:\Users\User\Des
+ktop\Saili8ng School Test\.n
+ext\server\chunks\7052.js:91
+:5806)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:89:127
+850
+    at c (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\conta
+ct\page.js:1:2734)
+    at nj (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:46252) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'contact_form (fr)'
+}
+c [Error]: MISSING_MESSAGE: 
+contact_form (fr)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:441
+2
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:444
+8
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:567
+6
+    at Object.nr [as 
+useMemo] (C:\Users\User\Desk
+top\Saili8ng School Test\nod
+e_modules\next\dist\compiled
+\next-server\app-page.runtim
+e.prod.js:12:39131)
+    at t.useMemo (C:\Users\U
+ser\Desktop\Saili8ng School 
+Test\node_modules\next\dist\
+compiled\next-server\app-pag
+e.runtime.prod.js:12:109914)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:427
+6
+    at eb (C:\Users\User\Des
+ktop\Saili8ng School Test\.n
+ext\server\chunks\7052.js:91
+:5806)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:89:127
+850
+    at c (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\conta
+ct\page.js:1:2734)
+    at nj (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:46252) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'contact_form (fr)'
+}
+c [Error]: MISSING_MESSAGE: 
+contact_form (fr)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:441
+2
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:444
+8
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:567
+6
+    at Object.nr [as 
+useMemo] (C:\Users\User\Desk
+top\Saili8ng School Test\nod
+e_modules\next\dist\compiled
+\next-server\app-page.runtim
+e.prod.js:12:39131)
+    at t.useMemo (C:\Users\U
+ser\Desktop\Saili8ng School 
+Test\node_modules\next\dist\
+compiled\next-server\app-pag
+e.runtime.prod.js:12:109914)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:427
+6
+    at eb (C:\Users\User\Des
+ktop\Saili8ng School Test\.n
+ext\server\chunks\7052.js:91
+:5806)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:89:127
+850
+    at c (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\conta
+ct\page.js:1:2734)
+    at nj (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:46252) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'contact_form (fr)'
+}
+c [Error]: MISSING_MESSAGE: 
+contact_form (fr)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:441
+2
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:444
+8
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:567
+6
+    at Object.nr [as 
+useMemo] (C:\Users\User\Desk
+top\Saili8ng School Test\nod
+e_modules\next\dist\compiled
+\next-server\app-page.runtim
+e.prod.js:12:39131)
+    at t.useMemo (C:\Users\U
+ser\Desktop\Saili8ng School 
+Test\node_modules\next\dist\
+compiled\next-server\app-pag
+e.runtime.prod.js:12:109914)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:427
+6
+    at eb (C:\Users\User\Des
+ktop\Saili8ng School Test\.n
+ext\server\chunks\7052.js:91
+:5806)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:89:127
+850
+    at c (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\conta
+ct\page.js:1:2734)
+    at nj (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:46252) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'contact_form (fr)'
+}
+c [Error]: MISSING_MESSAGE: 
+contact_form (fr)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:441
+2
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:444
+8
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:567
+6
+    at Object.nr [as 
+useMemo] (C:\Users\User\Desk
+top\Saili8ng School Test\nod
+e_modules\next\dist\compiled
+\next-server\app-page.runtim
+e.prod.js:12:39131)
+    at t.useMemo (C:\Users\U
+ser\Desktop\Saili8ng School 
+Test\node_modules\next\dist\
+compiled\next-server\app-pag
+e.runtime.prod.js:12:109914)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:427
+6
+    at eb (C:\Users\User\Des
+ktop\Saili8ng School Test\.n
+ext\server\chunks\7052.js:91
+:5806)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:89:127
+850
+    at c (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\conta
+ct\page.js:1:2734)
+    at nj (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:46252) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'contact_form (fr)'
+}
+c [Error]: MISSING_MESSAGE: 
+contact_form (fr)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:441
+2
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:444
+8
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:567
+6
+    at Object.nr [as 
+useMemo] (C:\Users\User\Desk
+top\Saili8ng School Test\nod
+e_modules\next\dist\compiled
+\next-server\app-page.runtim
+e.prod.js:12:39131)
+    at t.useMemo (C:\Users\U
+ser\Desktop\Saili8ng School 
+Test\node_modules\next\dist\
+compiled\next-server\app-pag
+e.runtime.prod.js:12:109914)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:427
+6
+    at eb (C:\Users\User\Des
+ktop\Saili8ng School Test\.n
+ext\server\chunks\7052.js:91
+:5806)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:89:127
+850
+    at c (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\conta
+ct\page.js:1:2734)
+    at nj (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:46252) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'contact_form (fr)'
+}
+c [Error]: MISSING_MESSAGE: 
+contact_form (fr)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:441
+2
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:444
+8
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:567
+6
+    at Object.nr [as 
+useMemo] (C:\Users\User\Desk
+top\Saili8ng School Test\nod
+e_modules\next\dist\compiled
+\next-server\app-page.runtim
+e.prod.js:12:39131)
+    at t.useMemo (C:\Users\U
+ser\Desktop\Saili8ng School 
+Test\node_modules\next\dist\
+compiled\next-server\app-pag
+e.runtime.prod.js:12:109914)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:427
+6
+    at eb (C:\Users\User\Des
+ktop\Saili8ng School Test\.n
+ext\server\chunks\7052.js:91
+:5806)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:89:127
+850
+    at c (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\conta
+ct\page.js:1:2734)
+    at nj (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:46252) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'contact_form (fr)'
+}
+c [Error]: MISSING_MESSAGE: 
+contact_form (fr)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:441
+2
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:444
+8
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:567
+6
+    at Object.nr [as 
+useMemo] (C:\Users\User\Desk
+top\Saili8ng School Test\nod
+e_modules\next\dist\compiled
+\next-server\app-page.runtim
+e.prod.js:12:39131)
+    at t.useMemo (C:\Users\U
+ser\Desktop\Saili8ng School 
+Test\node_modules\next\dist\
+compiled\next-server\app-pag
+e.runtime.prod.js:12:109914)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:427
+6
+    at eb (C:\Users\User\Des
+ktop\Saili8ng School Test\.n
+ext\server\chunks\7052.js:91
+:5806)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:89:127
+850
+    at c (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\conta
+ct\page.js:1:2734)
+    at nj (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:46252) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'contact_form (fr)'
+}
+c [Error]: MISSING_MESSAGE: 
+contact_form (fr)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:441
+2
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:444
+8
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:567
+6
+    at Object.nr [as 
+useMemo] (C:\Users\User\Desk
+top\Saili8ng School Test\nod
+e_modules\next\dist\compiled
+\next-server\app-page.runtim
+e.prod.js:12:39131)
+    at t.useMemo (C:\Users\U
+ser\Desktop\Saili8ng School 
+Test\node_modules\next\dist\
+compiled\next-server\app-pag
+e.runtime.prod.js:12:109914)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:427
+6
+    at eb (C:\Users\User\Des
+ktop\Saili8ng School Test\.n
+ext\server\chunks\7052.js:91
+:5806)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:89:127
+850
+    at c (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\conta
+ct\page.js:1:2734)
+    at nj (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:46252) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'contact_form (fr)'
+}
+c [Error]: MISSING_MESSAGE: 
+contact_form (fr)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:441
+2
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:444
+8
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:567
+6
+    at Object.nr [as 
+useMemo] (C:\Users\User\Desk
+top\Saili8ng School Test\nod
+e_modules\next\dist\compiled
+\next-server\app-page.runtim
+e.prod.js:12:39131)
+    at t.useMemo (C:\Users\U
+ser\Desktop\Saili8ng School 
+Test\node_modules\next\dist\
+compiled\next-server\app-pag
+e.runtime.prod.js:12:109914)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:427
+6
+    at eb (C:\Users\User\Des
+ktop\Saili8ng School Test\.n
+ext\server\chunks\7052.js:91
+:5806)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:89:127
+850
+    at c (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\conta
+ct\page.js:1:2734)
+    at nj (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:46252) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'contact_form (fr)'
+}
+c [Error]: MISSING_MESSAGE: 
+auth.forgot_password_title 
+(fr)
+    at f (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:91:
+4663)
+    at p (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:91:
+4850)
+    at m (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:91:
+5332)
+    at m (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\auth\
+forgot-password\page.js:1:47
+73)
+    at nj (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:46252)
+    at nM (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:47572)
+    at nL (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:64547)
+    at nI (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:47011)
+    at nM (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:47718)
+    at nM (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:61547) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'auth.forgot_password_title 
+(fr)'
+}
+c [Error]: MISSING_MESSAGE: 
+auth.forgot_password_desc 
+(fr)
+    at f (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:91:
+4663)
+    at p (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:91:
+4850)
+    at m (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:91:
+5332)
+    at m (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\auth\
+forgot-password\page.js:1:48
+64)
+    at nj (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:46252)
+    at nM (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:47572)
+    at nL (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:64547)
+    at nI (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:47011)
+    at nM (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:47718)
+    at nM (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:61547) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'auth.forgot_password_desc 
+(fr)'
+}
+c [Error]: MISSING_MESSAGE: 
+auth_form.send_recovery (fr)
+    at f (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:91:
+4663)
+    at p (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:91:
+4850)
+    at m (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\chunks\7052.js:91:
+5332)
+    at m (C:\Users\User\Desk
+top\Saili8ng School Test\.ne
+xt\server\app\[locale]\auth\
+forgot-password\page.js:1:58
+09)
+    at nj (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:46252)
+    at nM (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:47572)
+    at nL (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:64547)
+    at nI (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:47011)
+    at nM (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:47718)
+    at nM (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:61547) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 
+'auth_form.send_recovery 
+(fr)'
+}
+c [Error]: MISSING_MESSAGE: 
+academy (fr)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:441
+2
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:444
+8
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:567
+6
+    at Object.nr [as 
+useMemo] (C:\Users\User\Desk
+top\Saili8ng School Test\nod
+e_modules\next\dist\compiled
+\next-server\app-page.runtim
+e.prod.js:12:39131)
+    at t.useMemo (C:\Users\U
+ser\Desktop\Saili8ng School 
+Test\node_modules\next\dist\
+compiled\next-server\app-pag
+e.runtime.prod.js:12:109914)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:91:427
+6
+    at eb (C:\Users\User\Des
+ktop\Saili8ng School Test\.n
+ext\server\chunks\7052.js:91
+:5806)
+    at C:\Users\User\Desktop
+\Saili8ng School Test\.next\
+server\chunks\7052.js:89:127
+850
+    at rt (C:\Users\User\Des
+ktop\Saili8ng School Test\.n
+ext\server\app\[locale]\acad
+emy\dashboard\page.js:5:1581
+9)
+    at nj (C:\Users\User\Des
+ktop\Saili8ng School Test\no
+de_modules\next\dist\compile
+d\next-server\app-page.runti
+me.prod.js:12:46252) {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 'academy 
+(fr)'
+}
+ ??? Generating static pages (194/194)
+
+> Export encountered errors 
+on following paths:
+	/[locale]/auth/register/pag
+e: /en/auth/register
+	/[locale]/auth/register/pag
+e: /es/auth/register
+	/[locale]/auth/register/pag
+e: /eu/auth/register
+	/[locale]/auth/register/pag
+e: /fr/auth/register

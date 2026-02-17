@@ -2,6 +2,7 @@ import { useState, useCallback, useRef, useEffect } from 'react';
 import { EvaluationState, BlockReason, Question, DetailedResult } from './types';
 import { useNotificationStore } from '@/lib/store/useNotificationStore';
 import { getMotivationalMessage } from '@/lib/academy/motivational-messages';
+import { apiUrl } from '@/lib/api';
 
 interface UseEvaluationOptions {
     evaluacionId: string;
@@ -87,7 +88,7 @@ export function useEvaluation({ evaluacionId, onComplete, onError }: UseEvaluati
         pendingAnswersRef.current = {};
 
         try {
-            const response = await fetch('/api/academy/evaluation/autosave', {
+            const response = await fetch(apiUrl('/api/academy/evaluation/autosave'), {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
@@ -130,7 +131,7 @@ export function useEvaluation({ evaluacionId, onComplete, onError }: UseEvaluati
         setState(prev => ({ ...prev, status: 'submitting' }));
 
         try {
-            const response = await fetch('/api/academy/evaluation/submit', {
+            const response = await fetch(apiUrl('/api/academy/evaluation/submit'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
@@ -283,7 +284,7 @@ export function useEvaluation({ evaluacionId, onComplete, onError }: UseEvaluati
                     intento_id: attemptIdRef.current,
                     respuestas: pendingAnswersRef.current
                 });
-                navigator.sendBeacon('/api/academy/evaluation/autosave',
+                navigator.sendBeacon(apiUrl('/api/academy/evaluation/autosave'),
                     new Blob([payload], { type: 'application/json' })
                 );
             }
@@ -306,7 +307,7 @@ export function useEvaluation({ evaluacionId, onComplete, onError }: UseEvaluati
         setIsResumed(false);
 
         try {
-            const response = await fetch('/api/academy/evaluation/start', {
+            const response = await fetch(apiUrl('/api/academy/evaluation/start'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',

@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import { WeatherService, WeatherData, ConditionAlert } from '@/lib/academy/weather-service';
 import { Wind, Waves, Thermometer, ChevronUp, ChevronDown, Minus, CheckCircle2, AlertTriangle, AlertOctagon, Anchor, BarChart3, X, ArrowDown } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
+import { apiUrl } from '@/lib/api';
 
 interface NauticalRadarProps {
     userRankSlug: string;
@@ -75,7 +76,7 @@ export default function NauticalRadar({ userRankSlug, locale }: NauticalRadarPro
         if (showHistory) {
             const fetchHistory = async () => {
                 try {
-                    const res = await fetch('/api/academy/weather?history=true');
+                    const res = await fetch(apiUrl('/api/academy/weather?history=true'));
                     if (res.ok) {
                         const data = await res.json();
                         if (data.history && data.history.length > 0) {

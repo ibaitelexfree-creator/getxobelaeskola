@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { UnlockStatusBadge, UnlockStatusResponse, LockedContentOverlay } from '@/components/academy/UnlockStatusBadge';
 import { SimpleEvaluation } from '@/components/academy/evaluation';
+import { apiUrl } from '@/lib/api';
 
 interface Modulo {
     id: string;
@@ -64,7 +65,7 @@ export default function CourseDetailMain({
     useEffect(() => {
         async function fetchData() {
             try {
-                const res = await fetch(`/api/academy/course/${params.slug}`);
+                const res = await fetch(apiUrl(`/api/academy/course/${params.slug}`));
                 const data = await res.json();
 
                 if (data.error) {
@@ -75,7 +76,7 @@ export default function CourseDetailMain({
                     setProgreso(data.progreso);
 
                     try {
-                        const resStatus = await fetch('/api/academy/unlock-status');
+                        const resStatus = await fetch(apiUrl('/api/academy/unlock-status'));
                         const dataStatus = await resStatus.json();
                         setUnlockStatus(dataStatus || null);
                     } catch (e) {

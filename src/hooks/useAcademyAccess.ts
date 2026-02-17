@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { apiUrl } from '@/lib/api';
 
 export type UnlockStatus = 'locked' | 'available' | 'en_progreso' | 'completado' | 'distincion';
 
@@ -17,7 +18,7 @@ export function useAcademyAccess() {
 
     const fetchStatus = useCallback(async () => {
         try {
-            const res = await fetch('/api/academy/unlock-status');
+            const res = await fetch(apiUrl('/api/academy/unlock-status'));
             const data = await res.json();
             setStatusMap(data);
         } catch (err) {
