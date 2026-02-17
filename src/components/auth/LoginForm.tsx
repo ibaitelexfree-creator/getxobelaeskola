@@ -98,24 +98,26 @@ export default function LoginForm({ locale = 'es' }: { locale?: string }) {
     };
 
     return (
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 animate-fade-in">
-            <div className="space-y-1">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5 animate-fade-in">
+            <div className="space-y-1.5">
                 <label className="text-[10px] uppercase tracking-[0.2em] text-accent font-bold ml-1">{t('email')}</label>
                 <input
                     {...register('email')}
                     type="email"
-                    className="w-full bg-transparent border-b border-white/10 p-4 outline-none focus:border-accent transition-colors font-light text-sea-foam"
+                    autoComplete="email"
+                    className="w-full h-12 bg-white/5 border border-white/10 rounded-xl px-4 outline-none focus:border-accent focus:bg-white/[0.08] transition-all font-light text-white placeholder:text-white/20"
                     placeholder="tu@email.com"
                 />
                 {errors.email && <p className="text-[10px] text-red-500 uppercase tracking-widest mt-1">{errors.email.message}</p>}
             </div>
 
-            <div className="space-y-1">
+            <div className="space-y-1.5">
                 <label className="text-[10px] uppercase tracking-[0.2em] text-accent font-bold ml-1">{t('password')}</label>
                 <input
                     {...register('password')}
                     type={showPassword ? 'text' : 'password'}
-                    className="w-full bg-transparent border-b border-white/10 p-4 outline-none focus:border-accent transition-colors font-light text-sea-foam"
+                    autoComplete="current-password"
+                    className="w-full h-12 bg-white/5 border border-white/10 rounded-xl px-4 outline-none focus:border-accent focus:bg-white/[0.08] transition-all font-light text-white placeholder:text-white/20"
                     placeholder="••••••••"
                 />
                 {errors.password && <p className="text-[10px] text-red-500 uppercase tracking-widest mt-1">{errors.password.message}</p>}
@@ -183,7 +185,7 @@ export default function LoginForm({ locale = 'es' }: { locale?: string }) {
 
             <button
                 disabled={loading}
-                className="w-full btn mt-4 disabled:opacity-50"
+                className="w-full h-12 rounded-xl bg-gradient-to-r from-accent to-accent/80 text-nautical-black font-black uppercase tracking-widest text-xs mt-4 disabled:opacity-50 hover:shadow-[0_0_30px_rgba(184,134,11,0.3)] transition-all active:scale-[0.98]"
             >
                 {loading ? t('logging_in') : t('login_btn')}
             </button>
