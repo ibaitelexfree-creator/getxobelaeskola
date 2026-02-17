@@ -3,6 +3,29 @@ import { createClient } from '@/lib/supabase/server';
 import RentalClient from '@/components/rental/RentalClient';
 import { getTranslations } from 'next-intl/server';
 
+import { Metadata } from 'next';
+
+export async function generateMetadata({ params: { locale } }: { params: { locale: string } }): Promise<Metadata> {
+    const isEu = locale === 'eu';
+
+    const title = isEu
+        ? 'Alokairua | Getxo Bela Eskola'
+        : 'Alquiler de Embarcaciones | Getxo Sailing School';
+    const description = isEu
+        ? 'Alokatu kayakak, paddle surfa, windsurfa eta belaontziak Getxon. Gozatu itsasoaz gurekin.'
+        : 'Alquila kayaks, paddle surf, windsurf y veleros en Getxo. Disfruta del mar con nuestra flota profesional.';
+
+    return {
+        title,
+        description,
+        openGraph: {
+            title,
+            description,
+            images: ['/images/home-fleet-preview.jpg']
+        }
+    };
+}
+
 export default async function RentalPage({ params: { locale } }: { params: { locale: string } }) {
     const t = await getTranslations({ locale, namespace: 'rental_page' });
     const supabase = createClient();

@@ -104,6 +104,7 @@ export async function POST(request: Request) {
                 reserved_time: reservedTime as string,
                 legal_name: (legalName as string) || '',
                 legal_dni: (legalDni as string) || '',
+                locale: (locale as string) || 'es',
                 mode: 'rental_test'
             },
         });

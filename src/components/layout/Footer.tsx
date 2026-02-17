@@ -38,6 +38,7 @@ export default async function Footer({ locale }: { locale: string }) {
                             src="/images/LogoGetxoBelaEskola.png"
                             alt="Getxo Bela Eskola"
                             fill
+                            sizes="128px"
                             className="object-contain"
                         />
                     </div>

@@ -167,6 +167,7 @@ export async function POST(request: Request) {
                 end_date: (endDate as string) || '',
                 legal_name: (legalName as string) || '',
                 legal_dni: (legalDni as string) || '',
+                locale: (locale as string) || 'es',
                 mode: 'course'
             },
         });

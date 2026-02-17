@@ -17,32 +17,12 @@ export async function generateMetadata({ params }: { params: { locale: string; i
 
 
 
-import { requireAuth } from '@/lib/auth-guard';
-import { verifyModuleAccess } from '@/lib/academy/enrollment';
-import { redirect, notFound } from 'next/navigation';
-import { createClient } from '@/lib/supabase/server';
+export function generateStaticParams() {
+    return ['es', 'eu', 'en', 'fr'].map(locale => ({ locale, id: 'placeholder' }));
+}
 
-export default async function ModuleDetailPage({ params }: { params: { locale: string; id: string } }) {
-    // 1. Auth Check
-    const { user, error } = await requireAuth();
-    if (error || !user) redirect(`/${params.locale}/auth/login`);
-
-    // 2. Existence Check (404)
-    // We check this separately because verifyModuleAccess returns false for both "missing" and "denied"
-    const supabase = createClient();
-    const { data: moduleData } = await supabase.from('modulos').select('id').eq('id', params.id).single();
-
-    if (!moduleData) {
-        notFound();
-    }
-
-    // 3. Access Check (Redirect)
-    const hasAccess = await verifyModuleAccess(user.id, params.id);
-
-    if (!hasAccess) {
-        // Redirect back to Academy dashboard if trying to access locked content
-        redirect(`/${params.locale}/academy`);
-    }
-
+export default function ModuleDetailPage({ params }: { params: { locale: string; id: string } }) {
+    // Note: Auth and existence checks are moved to the Client Component (ModuleDetailMain)
+    // to allow for output: export.
     return <ModuleDetailMain params={params} />;
 }

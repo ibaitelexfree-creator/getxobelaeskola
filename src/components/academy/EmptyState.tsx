@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -20,35 +22,48 @@ export default function EmptyState({
     actionHref
 }: EmptyStateProps) {
     return (
-        <div className="p-12 rounded-xl border border-dashed border-white/10 bg-white/[0.02] flex flex-col items-center justify-center text-center col-span-full group hover:bg-white/[0.04] transition-colors">
-            {imageUrl ? (
-                <div className="relative w-40 h-40 mb-6 opacity-40 group-hover:opacity-60 transition-opacity">
-                    <Image
-                        src={imageUrl}
-                        alt={title}
-                        fill
-                        className="object-contain"
-                    />
-                </div>
-            ) : icon ? (
-                <div className="text-6xl mb-6 opacity-40 group-hover:opacity-60 transition-opacity filter grayscale group-hover:grayscale-0">
-                    {icon}
-                </div>
-            ) : null}
+        <div className="group bg-card/50 border border-card-border p-12 text-center rounded-xl relative overflow-hidden backdrop-blur-sm col-span-full">
+            {/* Background elements */}
+            <div className="absolute inset-0 bg-mesh opacity-[0.03]" />
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-40 h-40 bg-accent/5 rounded-full blur-[60px] pointer-events-none" />
 
-            <h3 className="text-xl font-display italic text-white mb-2">{title}</h3>
-            <p className="text-white/40 text-sm max-w-xs mx-auto mb-6">
-                {description}
-            </p>
+            <div className="relative z-10 space-y-6">
+                {imageUrl ? (
+                    <div className="relative w-32 h-32 mx-auto filter grayscale group-hover:grayscale-0 transition-all duration-700 opacity-40 group-hover:opacity-100">
+                        <Image
+                            src={imageUrl}
+                            alt={title}
+                            fill
+                            className="object-contain"
+                        />
+                    </div>
+                ) : (
+                    <div className="w-20 h-20 bg-white/5 border border-white/10 rounded-full flex items-center justify-center text-4xl mx-auto shadow-2xl group-hover:scale-110 transition-transform duration-700">
+                        {icon || '⚓'}
+                    </div>
+                )}
 
-            {actionLabel && actionHref && (
-                <Link
-                    href={actionHref}
-                    className="px-6 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-sm text-2xs font-bold uppercase tracking-widest text-accent transition-colors"
-                >
-                    {actionLabel}
-                </Link>
-            )}
+                <div className="space-y-2">
+                    <h3 className="text-2xl font-display text-white italic">
+                        {title}
+                    </h3>
+                    <p className="text-foreground/40 font-light text-sm max-w-sm mx-auto">
+                        {description}
+                    </p>
+                </div>
+
+                {actionLabel && actionHref && (
+                    <div className="pt-4">
+                        <Link
+                            href={actionHref}
+                            className="inline-flex items-center px-8 py-3 bg-accent text-nautical-black font-bold uppercase tracking-widest text-[10px] hover:bg-white transition-all shadow-[0_0_20px_rgba(var(--accent-rgb),0.2)]"
+                        >
+                            {actionLabel}
+                            <span className="ml-3 group-hover:translate-x-1 transition-transform">→</span>
+                        </Link>
+                    </div>
+                )}
+            </div>
         </div>
     );
 }

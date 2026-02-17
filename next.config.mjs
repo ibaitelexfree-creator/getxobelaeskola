@@ -5,6 +5,7 @@ const withNextIntl = createNextIntlPlugin('./i18n.ts');
 /** @type {import('next').NextConfig} */
 const nextConfig = {
     images: {
+        unoptimized: true,
         formats: ['image/avif', 'image/webp'],
         remotePatterns: [
             {
@@ -29,7 +30,7 @@ const nextConfig = {
     },
     compress: true,
     poweredByHeader: false,
-    output: 'standalone',
+    output: 'export',
     async headers() {
         return [
             {

@@ -12,6 +12,14 @@ import RankProgress from '@/components/academy/gamification/RankProgress';
 import { getRank, calculateEstimatedXP } from '@/lib/gamification/ranks';
 import ActivityHeatmap from '@/components/academy/dashboard/ActivityHeatmap';
 import SkillRadar from '@/components/academy/dashboard/SkillRadar';
+import BoatMastery from '@/components/academy/dashboard/BoatMastery';
+import NotificationContainer from '@/components/academy/notifications/NotificationContainer';
+import AchievementToast from '@/components/academy/notifications/AchievementToast';
+import SkillUnlockedModal from '@/components/academy/notifications/SkillUnlockedModal';
+import NauticalRadar from '@/components/academy/dashboard/NauticalRadar';
+import CareerAdvisor from '@/components/academy/dashboard/CareerAdvisor';
+import NavigationExperienceMap from '@/components/academy/dashboard/NavigationExperienceMap';
+import DailyChallengeWidget from '@/components/academy/dashboard/DailyChallengeWidget';
 
 // --- Interfaces ---
 
@@ -59,28 +67,62 @@ interface ProgresoItem {
     secciones_vistas?: any;
 }
 
-interface DashboardData {
-    user?: { full_name: string; avatar_url?: string };
-    progreso: ProgresoItem[];
-    habilidades: { habilidad: Habilidad; fecha_obtencion: string }[];
-    logros: { logro: Logro; fecha_obtencion: string }[];
-    estadisticas: {
-        horas_totales: number;
-        puntos_totales: number;
-        niveles_completados: number;
-        progreso_global: number;
-        habilidades_desbloqueadas: number;
-        logros_obtenidos: number;
-        racha_dias: number;
-        posicion_ranking: number;
-        proximo_logro: Logro | null;
-        activity_heatmap?: { date: string; count: number }[];
-        skill_radar?: { subject: string; A: number; fullMark: number }[];
+interface Stats {
+    horas_totales: number;
+    puntos_totales: number;
+    niveles_completados: number;
+    progreso_global: number;
+    habilidades_desbloqueadas: number;
+    logros_obtenidos: number;
+    racha_dias: number;
+    posicion_ranking: number;
+    proximo_logro: any;
+    activity_heatmap: any[];
+    skill_radar: any[];
+    boat_mastery: any[];
+}
+
+interface LogroItem {
+    logro: {
+        id: string;
+        nombre_es: string;
+        nombre_eu: string;
+        descripcion_es: string;
+        descripcion_eu: string;
+        icono: string;
+        puntos: number;
+        rareza: string;
     };
+    fecha_obtencion: string;
+}
+
+interface HabilidadItem {
+    habilidad: {
+        id: string;
+        nombre_es: string;
+        nombre_eu: string;
+        descripcion_es: string;
+        descripcion_eu: string;
+        icono: string;
+        categoria: string;
+    };
+    fecha_obtencion: string;
+}
+
+interface DashboardData {
+    user: {
+        full_name: string;
+        avatar_url: string;
+    };
+    progreso: any[];
+    habilidades: HabilidadItem[];
+    logros: LogroItem[];
+    estadisticas: Stats;
     horas: any[];
     certificados: any[];
     is_staff: boolean;
     enrolledCourseIds: string[];
+    recommendations?: any[];
 }
 
 export default function DashboardPage({ params }: { params: { locale: string } }) {
@@ -138,6 +180,49 @@ export default function DashboardPage({ params }: { params: { locale: string } }
         fetchData();
     }, []);
 
+    // Detect new achievements/skills to notify
+    useEffect(() => {
+        if (!data) return;
+
+        // Check for new achievements
+        const lastSeenLogros = JSON.parse(localStorage.getItem('seen_logros') || '[]');
+        const currentLogros = data.logros.map(l => l.logro.id);
+        const newLogros = data.logros.filter(l => !lastSeenLogros.includes(l.logro.id));
+
+        newLogros.forEach(l => {
+            addNotification({
+                type: 'achievement',
+                title: l.logro.nombre_es,
+                message: l.logro.descripcion_es,
+                icon: l.logro.icono,
+                data: { rareza: l.logro.rareza, puntos: l.logro.puntos }
+            });
+        });
+
+        if (newLogros.length > 0) {
+            localStorage.setItem('seen_logros', JSON.stringify(currentLogros));
+        }
+
+        // Check for new skills
+        const lastSeenSkills = JSON.parse(localStorage.getItem('seen_skills') || '[]');
+        const currentSkills = data.habilidades.map(s => s.habilidad.id);
+        const newSkills = data.habilidades.filter(s => !lastSeenSkills.includes(s.habilidad.id));
+
+        newSkills.forEach(s => {
+            addNotification({
+                type: 'skill',
+                title: s.habilidad.nombre_es,
+                message: s.habilidad.descripcion_es,
+                icon: s.habilidad.icono,
+                data: { category: s.habilidad.categoria }
+            });
+        });
+
+        if (newSkills.length > 0) {
+            localStorage.setItem('seen_skills', JSON.stringify(currentSkills));
+        }
+    }, [data, addNotification]);
+
 
 
     if (loading) {
@@ -180,10 +265,25 @@ export default function DashboardPage({ params }: { params: { locale: string } }
     const proximaUnidadProgreso = todasUnidades.find(p => p.estado === 'disponible' || p.estado === 'en_progreso');
 
     // Percentaje skills para "Camino a Capitán"
-    const skillsPercent = (data.estadisticas.habilidades_desbloqueadas / 12) * 100;
+    const skillsCount = data.estadisticas.habilidades_desbloqueadas;
+    const skillsPercent = (skillsCount / 12) * 100;
+    const totalMiles = (data.estadisticas.horas_totales * 5.2).toFixed(1);
+
+    const getNextMilestone = (count: number) => {
+        if (count < 1) return { name: 'Marinero', target: 1 };
+        if (count < 4) return { name: 'Timonel', target: 4 };
+        if (count < 7) return { name: 'Patrón', target: 7 };
+        if (count < 10) return { name: 'Capitán', target: 10 };
+        return null;
+    };
+
+    const nextMilestone = getNextMilestone(skillsCount);
 
     return (
         <div className="min-h-screen bg-gradient-to-b from-nautical-black via-nautical-black to-[#0a1628] text-white pb-20">
+            <NotificationContainer />
+            <AchievementToast />
+            <SkillUnlockedModal />
 
             {/* Header / Resumen General */}
             <div className="relative overflow-hidden border-b border-white/10 bg-white/5 backdrop-blur-sm">
@@ -201,12 +301,21 @@ export default function DashboardPage({ params }: { params: { locale: string } }
                             <h1 className="text-4xl font-display italic text-white mb-2 leading-none">
                                 Hola, <span className="text-accent">{data.user?.full_name?.split(' ')[0] || 'Navegante'}</span>
                             </h1>
-                            <div className="flex items-center gap-3 mb-6">
-                                <div className="text-[10px] font-black uppercase tracking-widest text-white/40">Camino a Capitán</div>
-                                <div className="h-1.5 w-32 bg-white/10 rounded-full overflow-hidden">
-                                    <div className="h-full bg-accent" style={{ width: `${skillsPercent}%` }} />
+
+                            <div className="flex flex-col gap-2 mb-6">
+                                <div className="flex items-center gap-3">
+                                    <div className="text-[10px] font-black uppercase tracking-widest text-white/40">Camino a Capitán</div>
+                                    <div className="h-1.5 w-32 bg-white/10 rounded-full overflow-hidden">
+                                        <div className="h-full bg-accent" style={{ width: `${skillsPercent}%` }} />
+                                    </div>
+                                    <div className="text-[10px] font-bold text-accent">{skillsCount}/12 SKILLS</div>
                                 </div>
-                                <div className="text-[10px] font-bold text-accent">{data.estadisticas.habilidades_desbloqueadas}/12</div>
+                                {nextMilestone && (
+                                    <div className="text-[10px] text-white/40 italic">
+                                        🎯 Próximo Rango: <span className="text-white font-bold">{nextMilestone.name}</span>
+                                        {` (faltan ${nextMilestone.target - skillsCount} habilidades)`}
+                                    </div>
+                                )}
                             </div>
 
                             {/* Estadísticas rápidas */}
@@ -222,8 +331,8 @@ export default function DashboardPage({ params }: { params: { locale: string } }
                                     <div className="text-xs uppercase tracking-wider text-white/40">Días de Racha</div>
                                 </div>
                                 <div className="p-4 rounded-lg bg-white/5 border border-white/10 animate-fade-in" style={{ animationDelay: '0.3s' }}>
-                                    <div className="text-2xl font-bold text-white mb-1">{data.estadisticas.horas_totales.toFixed(1)}h</div>
-                                    <div className="text-xs uppercase tracking-wider text-white/40">Navegación</div>
+                                    <div className="text-2xl font-bold text-white mb-1">{(data.estadisticas.horas_totales * 5.2).toFixed(0)} <span className="text-xs text-accent">nm</span></div>
+                                    <div className="text-xs uppercase tracking-wider text-white/40">Millas Navegadas</div>
                                 </div>
                                 <div className="p-4 rounded-lg bg-white/5 border border-white/10 animate-fade-in" style={{ animationDelay: '0.4s' }}>
                                     <div className="text-2xl font-bold text-white mb-1">#{data.estadisticas.posicion_ranking}</div>
@@ -240,8 +349,17 @@ export default function DashboardPage({ params }: { params: { locale: string } }
                 {/* Columna Izquierda: Actividad Principal (2/3) */}
                 <div className="lg:col-span-2 space-y-12">
 
+                    {/* 🧠 SMART CAREER ADVISOR */}
+                    <CareerAdvisor recommendations={data.recommendations || []} />
+
                     {/* 📊 ACTIVITY HEATMAP */}
                     <ActivityHeatmap data={data.estadisticas.activity_heatmap || []} />
+
+                    {/* 🧭 MAPA DE EXPERIENCIA NÁUTICA */}
+                    <NavigationExperienceMap
+                        sessions={data.horas || []}
+                        locale={params.locale}
+                    />
 
                     {/* 2️⃣ CURSO ACTIVO */}
                     <section>
@@ -328,9 +446,14 @@ export default function DashboardPage({ params }: { params: { locale: string } }
 
                     {/* 2.1 BITÁCORA DE NAVEGACIÓN (CHART) */}
                     <section>
-                        <h2 className="text-xl font-display italic mb-6 flex items-center gap-3">
-                            <span className="text-accent">📊</span> Bitácora de Navegación
-                        </h2>
+                        <div className="flex items-center justify-between mb-6">
+                            <h2 className="text-xl font-display italic flex items-center gap-3">
+                                <span className="text-accent">📊</span> Bitácora de {totalMiles} Millas
+                            </h2>
+                            <Link href={`/${params.locale}/academy/logbook`} className="text-[10px] uppercase tracking-widest font-black text-accent hover:underline">
+                                Ver Detalle Completo →
+                            </Link>
+                        </div>
 
                         <div className="p-8 rounded-xl border border-white/10 bg-white/5">
                             <div className="flex items-end justify-between h-40 gap-2">
@@ -359,6 +482,7 @@ export default function DashboardPage({ params }: { params: { locale: string } }
                             </div>
                         </div>
                     </section>
+
                     <section>
                         <div className="flex items-center justify-between mb-6">
                             <h2 className="text-xl font-display italic flex items-center gap-3">
@@ -395,6 +519,15 @@ export default function DashboardPage({ params }: { params: { locale: string } }
 
                 {/* Columna Derecha: Logros y Habilidades (1/3) */}
                 <div className="space-y-12">
+
+                    {/* 🌦️ NAUTICAL RADAR (PUENTE DE MANDO) */}
+                    <NauticalRadar
+                        userRankSlug={currentRank.id}
+                        locale={params.locale}
+                    />
+
+                    {/* 🧠 RETO DIARIO (MICRO-LEARNING) */}
+                    <DailyChallengeWidget locale={params.locale} />
 
                     {/* 📊 SKILL RADAR */}
                     <SkillRadar skills={data.estadisticas.skill_radar || []} />
@@ -464,6 +597,9 @@ export default function DashboardPage({ params }: { params: { locale: string } }
                             ))}
                         </div>
                     </section>
+
+                    {/* 🛥️ TU FLOTA */}
+                    <BoatMastery data={data.estadisticas.boat_mastery || []} />
 
                     {/* 🏆 ZONA DE INSIGNIAS (BADGES) */}
                     <section className="relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.02] p-8">

@@ -3,11 +3,13 @@ import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { resend, DEFAULT_FROM_EMAIL } from '@/lib/resend';
-import { rentalTemplate, inscriptionTemplate } from '@/lib/email-templates';
+import { rentalTemplate, inscriptionTemplate, membershipTemplate, internalOrderNotificationTemplate } from '@/lib/email-templates';
 import { logToExternalWebhook } from '@/lib/external-logger';
+import { createRentalGoogleEvent } from '@/lib/google-calendar';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
+const STAFF_EMAIL = 'getxobelaeskola@gmail.com'; // Default staff contact
 
 export async function GET() {
     return NextResponse.json({ message: 'Webhook endpoint is active' });
@@ -90,6 +92,31 @@ export async function POST(request: Request) {
                         }, { onConflict: 'stripe_subscription_id' });
 
                         await logToExternalWebhook('subscription.completed', { user_id, subscriptionId, customerId });
+
+                        if (resend && user_id) {
+                            const { data: profile } = await supabase.from('profiles').select('email, nombre').eq('id', user_id).single();
+                            if (profile?.email) {
+                                resend.emails.send({
+                                    from: DEFAULT_FROM_EMAIL,
+                                    to: profile.email,
+                                    subject: (metadata.locale === 'fr' ? 'Vous êtes maintenant membre !' : (metadata.locale === 'en' ? 'You are now a Member!' : (metadata.locale === 'eu' ? 'Dagoeneko Bazkide zara!' : '¡Ya eres Socio!'))) + ' - Getxo Sailing School',
+                                    html: membershipTemplate(profile.nombre || 'Navegante', (metadata.locale || 'es') as any)
+                                }).catch(e => console.error('Error sending membership email:', e));
+
+                                // Notify Staff
+                                resend.emails.send({
+                                    from: DEFAULT_FROM_EMAIL,
+                                    to: STAFF_EMAIL,
+                                    subject: `🛎️ NUEVA MEMBRESÍA: ${profile.nombre || 'Cliente'}`,
+                                    html: internalOrderNotificationTemplate('membership', {
+                                        userName: profile.nombre,
+                                        itemName: 'Socio Mensual',
+                                        amount: 20,
+                                        sessionId: session.id
+                                    })
+                                }).catch(e => console.error('Staff notification error:', e));
+                            }
+                        }
                     }
                 } else if (mode === 'rental_test') {
                     const { service_id, option_index, reserved_date, reserved_time } = metadata;
@@ -111,6 +138,10 @@ export async function POST(request: Request) {
                         ? service.opciones[parseInt(option_index)].label
                         : 'Estándar';
 
+                    // Extract coupon/promotion code
+                    const discounts = (session as any).total_details?.breakdown?.discounts;
+                    const usedCoupon = discounts?.[0]?.discount?.promotion_code?.code || discounts?.[0]?.discount?.coupon?.id;
+
                     await supabase.from('reservas_alquiler').insert({
                         perfil_id: user_id,
                         servicio_id: service_id,
@@ -120,7 +151,8 @@ export async function POST(request: Request) {
                         opcion_seleccionada: optionLabel,
                         monto_total: session.amount_total ? session.amount_total / 100 : 0,
                         estado_pago: 'pagado',
-                        stripe_session_id: session.id
+                        stripe_session_id: session.id,
+                        cupon_usado: usedCoupon || null
                     });
 
                     await logToExternalWebhook('rental.completed', {
@@ -134,12 +166,50 @@ export async function POST(request: Request) {
                     if (resend && user_id) {
                         const { data: profile } = await supabase.from('profiles').select('email, nombre').eq('id', user_id).single();
                         if (profile?.email) {
+                            const rentalSubject = metadata.locale === 'fr' ? `Confirmation : Location de ${service?.nombre_es || 'Équipement'}` :
+                                metadata.locale === 'en' ? `Confirmation: Rental of ${service?.nombre_es || 'Equipment'}` :
+                                    metadata.locale === 'eu' ? `Baieztapena: ${service?.nombre_es || 'Ekipoa'} alokairua` :
+                                        `Confirmación: Alquiler de ${service?.nombre_es || 'Equipo'}`;
+
                             resend.emails.send({
                                 from: DEFAULT_FROM_EMAIL,
                                 to: profile.email,
-                                subject: `Confirmación: Alquiler de ${service?.nombre_es || 'Equipo'}`,
-                                html: rentalTemplate(service?.nombre_es || 'Equipo', reserved_date || 'Hoy', reserved_time || '10:00', profile.nombre || 'Navegante')
+                                subject: rentalSubject,
+                                html: rentalTemplate(service?.nombre_es || 'Equipo', reserved_date || 'Hoy', reserved_time || '10:00', profile.nombre || 'Navegante', (metadata.locale || 'es') as any)
                             }).catch(e => console.error('Error sending email:', e));
+
+                            // Notify Staff
+                            resend.emails.send({
+                                from: DEFAULT_FROM_EMAIL,
+                                to: STAFF_EMAIL,
+                                subject: `🛶 NUEVO ALQUILER: ${service?.nombre_es || 'Equipo'} - ${profile?.nombre || 'Cliente'}`,
+                                html: internalOrderNotificationTemplate('rental', {
+                                    userName: profile?.nombre,
+                                    itemName: service?.nombre_es,
+                                    amount: session.amount_total ? session.amount_total / 100 : 0,
+                                    date: reserved_date,
+                                    time: reserved_time,
+                                    sessionId: session.id
+                                })
+                            }).catch(e => console.error('Staff notification error:', e));
+                        }
+
+                        // NEW: Google Calendar Sync for Staff
+                        try {
+                            const rentalData = {
+                                fecha_reserva: reserved_date,
+                                hora_inicio: reserved_time,
+                                duracion_horas: 1, // Default duration, could be extracted from option if needed
+                                opcion_seleccionada: optionLabel,
+                                monto_total: session.amount_total ? session.amount_total / 100 : 0
+                            };
+                            await createRentalGoogleEvent(
+                                rentalData,
+                                service?.nombre_es || 'Equipo',
+                                profile?.nombre || 'Cliente'
+                            );
+                        } catch (calErr) {
+                            console.error('Error syncing rental to Google Calendar:', calErr);
                         }
                     }
                 } else {
@@ -173,6 +243,10 @@ export async function POST(request: Request) {
                         await logToExternalWebhook('anomaly.duplicate_inscription', { user_id, course_id, session_id: session.id });
                     }
 
+                    // Extract coupon/promotion code
+                    const discounts = (session as any).total_details?.breakdown?.discounts;
+                    const usedCoupon = discounts?.[0]?.discount?.promotion_code?.code || discounts?.[0]?.discount?.coupon?.id;
+
                     await supabase.from('inscripciones').insert({
                         perfil_id: user_id,
                         curso_id: course_id,
@@ -180,7 +254,8 @@ export async function POST(request: Request) {
                         estado_pago: 'pagado',
                         monto_total: session.amount_total ? session.amount_total / 100 : 0,
                         stripe_session_id: session.id,
-                        metadata: { start_date, end_date }
+                        metadata: { start_date, end_date },
+                        cupon_usado: usedCoupon || null
                     });
 
                     if (edition_id && edition_id !== '' && !edition_id.startsWith('test-') && !edition_id.startsWith('ext_')) {
@@ -201,12 +276,30 @@ export async function POST(request: Request) {
                         const { data: profile } = await supabase.from('profiles').select('email, nombre').eq('id', user_id).single();
                         const { data: course } = await supabase.from('cursos').select('nombre_es').eq('id', course_id).single();
                         if (profile?.email) {
+                            const insSubject = metadata.locale === 'fr' ? `Inscription confirmée : ${course?.nombre_es || 'Cours'}` :
+                                metadata.locale === 'en' ? `Enrollment Confirmed: ${course?.nombre_es || 'Course'}` :
+                                    metadata.locale === 'eu' ? `Izen-ematea baieztatuta: ${course?.nombre_es || 'Ikastaroa'}` :
+                                        `Inscripción Confirmada: ${course?.nombre_es || 'Curso'}`;
+
                             resend.emails.send({
                                 from: DEFAULT_FROM_EMAIL,
                                 to: profile.email,
-                                subject: `Inscripción Confirmada: ${course?.nombre_es || 'Curso'}`,
-                                html: inscriptionTemplate(course?.nombre_es || 'Curso', profile.nombre || 'Alumno')
+                                subject: insSubject,
+                                html: inscriptionTemplate(course?.nombre_es || 'Curso', profile.nombre || 'Alumno', (metadata.locale || 'es') as any)
                             }).catch(e => console.error('Error sending email:', e));
+
+                            // Notify Staff
+                            resend.emails.send({
+                                from: DEFAULT_FROM_EMAIL,
+                                to: STAFF_EMAIL,
+                                subject: `🎓 NUEVA INSCRIPCIÓN: ${course?.nombre_es || 'Curso'} - ${profile?.nombre || 'Alumno'}`,
+                                html: internalOrderNotificationTemplate('course', {
+                                    userName: profile?.nombre,
+                                    itemName: course?.nombre_es,
+                                    amount: session.amount_total ? session.amount_total / 100 : 0,
+                                    sessionId: session.id
+                                })
+                            }).catch(e => console.error('Staff notification error:', e));
                         }
                     }
                 }

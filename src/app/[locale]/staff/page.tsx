@@ -4,7 +4,9 @@ import { redirect } from 'next/navigation';
 import StaffClient from '@/components/staff/StaffClient';
 import Link from 'next/link';
 
-export const dynamic = 'force-dynamic';
+export function generateStaticParams() {
+    return ['es', 'eu', 'en', 'fr'].map(locale => ({ locale }));
+}
 
 interface Rental {
     fecha_reserva: string;

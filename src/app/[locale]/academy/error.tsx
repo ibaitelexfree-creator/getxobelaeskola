@@ -1,7 +1,7 @@
 'use client';
 
-import React from 'react';
-import { useTranslations } from 'next-intl';
+import { useEffect } from 'react';
+import { useTranslations, useLocale } from 'next-intl';
 import Link from 'next/link';
 
 export default function AcademyError({
@@ -11,49 +11,68 @@ export default function AcademyError({
     error: Error & { digest?: string };
     reset: () => void;
 }) {
-    // We try to log the error for tracking
-    React.useEffect(() => {
+    const t = useTranslations('errors.500');
+    const locale = useLocale();
+
+    useEffect(() => {
+        // Log the error to an error reporting service
         console.error('Academy Error Boundary:', error);
     }, [error]);
 
     return (
-        <div className="min-h-screen bg-nautical-black flex flex-col items-center justify-center p-6 text-center" role="alert" aria-live="assertive">
-            <div className="relative w-64 h-64 mb-8">
-                <div className="absolute inset-0 bg-red-500/10 rounded-full blur-[60px]" />
-                <div className="text-9xl relative z-10 animate-float opacity-50 grayscale">
-                    ⚓
+        <div className="min-h-screen bg-nautical-black flex items-center justify-center p-6 text-center relative overflow-hidden">
+            {/* Background effects */}
+            <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-red-600/10 rounded-full blur-[120px] animate-pulse" />
+            <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-accent/5 rounded-full blur-[120px] animate-pulse" style={{ animationDelay: '2s' }} />
+            <div className="bg-mesh" />
+
+            <div className="max-w-xl w-full space-y-8 relative z-10 animate-in fade-in zoom-in-95 duration-700">
+                <div className="relative inline-block">
+                    <div className="absolute inset-0 bg-red-600/20 blur-3xl rounded-full" />
+                    <div className="relative w-32 h-32 md:w-40 md:h-40 bg-white/5 border border-white/10 rounded-full flex items-center justify-center text-6xl md:text-7xl shadow-2xl backdrop-blur-sm mx-auto animate-bounce-slow text-red-500">
+                        ⚓
+                    </div>
                 </div>
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-red-500 text-6xl font-black">
-                    ✕
+
+                <div className="space-y-4">
+                    <p className="text-red-500 uppercase tracking-[0.4em] text-[10px] font-black opacity-60">
+                        ACADEMY ERROR
+                    </p>
+                    <h1 className="text-5xl md:text-7xl font-display italic text-white tracking-tighter">
+                        Tempestad Digital
+                    </h1>
+                    <p className="text-xl md:text-2xl text-white/80 font-medium font-display italic">
+                        La sala de máquinas ha reportado un fallo.
+                    </p>
+                    <p className="text-white/40 text-sm md:text-base max-w-md mx-auto leading-relaxed font-light">
+                        Hubo un problema al cargar el contenido académico. No te preocupes, tu progreso está a salvo.
+                    </p>
+                </div>
+
+                <div className="pt-8 flex flex-col md:flex-row gap-4 justify-center">
+                    <button
+                        onClick={() => reset()}
+                        className="inline-flex items-center justify-center px-10 py-5 bg-accent text-nautical-black border border-accent rounded-sm font-bold text-xs uppercase tracking-widest hover:bg-white hover:border-white transition-all shadow-2xl shadow-accent/20"
+                    >
+                        INTENTAR DE NUEVO ⟳
+                    </button>
+                    <Link
+                        href={`/${locale}/academy/dashboard`}
+                        className="inline-flex items-center justify-center px-10 py-5 bg-white/5 border border-white/10 text-white rounded-sm font-bold text-xs uppercase tracking-widest hover:bg-white/10 transition-all backdrop-blur-sm"
+                    >
+                        VOLVER AL PANEL
+                    </Link>
+                </div>
+
+                {/* Aesthetic Nautical Coordinates */}
+                <div className="pt-12 flex items-center justify-center gap-6 opacity-20">
+                    <div className="h-px flex-1 bg-gradient-to-r from-transparent to-white/30" />
+                    <span className="text-[10px] font-mono whitespace-nowrap tracking-widest uppercase">
+                        FALLO EN BITÁCORA • GETXO RADAR
+                    </span>
+                    <div className="h-px flex-1 bg-gradient-to-l from-transparent to-white/30" />
                 </div>
             </div>
-
-            <h1 className="text-4xl font-display italic text-white mb-4">
-                Tormenta inesperada
-            </h1>
-            <p className="text-white/60 max-w-md mb-8 leading-relaxed">
-                Parece que hemos encontrado una anomalía en nuestra carta náutica.
-                Nuestros ingenieros han sido notificados.
-            </p>
-
-            <div className="flex flex-col sm:flex-row gap-4">
-                <button
-                    onClick={() => reset()}
-                    className="px-8 py-4 bg-accent text-nautical-black font-bold uppercase tracking-widest text-sm rounded hover:bg-white transition-colors"
-                >
-                    Intentar de nuevo
-                </button>
-                <Link
-                    href="/academy"
-                    className="px-8 py-4 bg-white/5 border border-white/10 text-white font-bold uppercase tracking-widest text-sm rounded hover:bg-white/10 transition-colors"
-                >
-                    Volver a la Academia
-                </Link>
-            </div>
-
-            <p className="mt-12 text-[10px] uppercase tracking-[0.4em] text-white/20">
-                Error ID: {error.digest || 'unknown_nautical_glitch'}
-            </p>
         </div>
     );
 }

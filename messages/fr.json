@@ -1,0 +1,186 @@
+{
+    "nav": {
+        "home": "Accueil",
+        "courses": "Cours",
+        "academy": "Académie",
+        "rental": "Location",
+        "teams": "Équipes",
+        "about": "L'École",
+        "contact": "Contact",
+        "login": "Connexion",
+        "dashboard": "Mon Espace",
+        "admin_panel": "Panneau Admin",
+        "logout": "Déconnexion",
+        "language_selector": "Changer de langue",
+        "menu": "Menu",
+        "close": "Fermer"
+    },
+    "notifications": {
+        "payment_success": "Paiement réussi",
+        "payment_success_desc": "Merci de votre confiance. Vous avez maintenant accès à votre réservation dans Mon Espace.",
+        "payment_canceled": "Paiement annulé",
+        "payment_canceled_desc": "Le processus de paiement a été interrompu et aucun débit n'a été effectué.",
+        "payment_error": "Erreur de paiement",
+        "payment_error_desc": "Un problème est survenu lors du traitement de votre paiement. Veuillez réessayer."
+    },
+    "hero": {
+        "title": "Élégance en Mer",
+        "subtitle": "Formation nautique premium à Getxo"
+    },
+    "courses": {
+        "title": "Cours de Voile",
+        "duration": "Durée",
+        "view_more": "Voir les détails",
+        "levels": {
+            "iniciacion": "Débutant",
+            "intermedio": "Intermédiaire",
+            "avanzado": "Avancé",
+            "profesional": "Professionnel"
+        },
+        "back_to_catalog": "Retour au catalogue"
+    },
+    "rental_page": {
+        "header_eyebrow": "Équipement & Flotte",
+        "title_prefix": "Louer",
+        "title_highlight": "Matériel",
+        "description": "Optimist, Laser, J80, Paddle Surf avec turbine, Windsurf et plus encore. Tout le matériel dont vous avez besoin pour votre aventure en mer.",
+        "footer_note": "* La location de voiliers nécessite une qualification minimale. Une formation de base au maniement est incluse pour le Paddle Surf avec turbine.",
+        "categories": {
+            "all": "Tous",
+            "veleros": "Voiliers",
+            "windsurf": "Windsurf",
+            "paddlesurf": "Paddle Surf",
+            "kayak": "Kayak",
+            "piragua": "Canoë"
+        }
+    },
+    "home": {
+        "hero": {
+            "slide1_title": "Élégance en Mer",
+            "slide1_subtitle": "Formation nautique d'élite dans la baie de Getxo avec notre flotte J80.",
+            "slide1_action": "Explorer les cours",
+            "slide2_title": "Liberté sur les Vagues",
+            "slide2_subtitle": "Améliorez votre technique et vos tactiques de navigation avec des instructeurs professionnels.",
+            "slide2_action": "Voir la flotte",
+            "slide3_title": "Votre Propre Cours",
+            "slide3_subtitle": "Obtenez votre permis de navigation en une seule journée et commencez à naviguer.",
+            "slide3_action": "En savoir plus",
+            "slide4_title": "Futurs Marins",
+            "slide4_subtitle": "Cours de voile légère pour tous les âges. Le début d'une passion.",
+            "slide4_action": "Voir la voile légère"
+        },
+        "stats": {
+            "pasion": "Années de Passion",
+            "alumnos": "Élèves Formés",
+            "flota": "Bateaux en Flotte",
+            "clases": "Cours Hebdomadaires"
+        }
+    },
+    "about_page": {
+        "header_badge": "Getxo Bela Eskola",
+        "header_title": "Notre Passion est la",
+        "header_highlight": "Mer",
+        "header_suffix": "Excellence Nautique à Arriluze",
+        "since": "Fondée à Getxo"
+    },
+    "contact_page": {
+        "header_badge": "Contact",
+        "header_title": "Parlons de",
+        "header_highlight": "Navigation",
+        "location_label": "Emplacement",
+        "location_val": "Quai Arriluzea, s/n\n48990 Getxo, Biscaye",
+        "contact_label": "Email & Téléphone",
+        "hours_label": "Horaires",
+        "hours_val": "Lundi au Dimanche\n09:00 — 20:00"
+    },
+    "auth": {
+        "login_title": "Bienvenue",
+        "login_desc": "Accédez à votre espace étudiant pour gérer vos cours.",
+        "hero_text": "La mer vous attend.",
+        "no_account": "Vous n'avez pas de compte ?",
+        "create_one": "Créez-en un ici",
+        "register_title": "Rejoignez l'École",
+        "register_desc": "Créez votre compte pour commencer votre formation nautique.",
+        "has_account": "Vous avez déjà un compte ?",
+        "login_here": "Connectez-vous ici"
+    },
+    "auth_form": {
+        "name": "Prénom",
+        "apellidos": "Noms",
+        "email": "Email",
+        "password": "Mot de passe",
+        "login_btn": "Se connecter",
+        "register_btn": "S'inscrire",
+        "newsletter_checkbox": "Restez informé des événements et des nouvelles de l'école"
+    },
+    "legal": {
+        "rental_contract": "CONTRAT DE LOCATION DE MATÉRIEL NAUTIQUE - GETXO BELA ESKOLA\n\n1. EXIGENCES DU LOCATAIRE : Le client déclare posséder les connaissances techniques nécessaires à la manipulation en toute sécurité du matériel loué. Dans le cas des voiliers de plaisance, la qualification minimale correspondante est requise.\n\n2. ÉTAT ET RETOUR : Le matériel est livré en parfait état de fonctionnement. Le client s'engage à le restituer dans le même état. Tout dommage causé par négligence sera de la responsabilité exclusive du client.\n\n3. ZONES DE NAVIGATION : La navigation sera limitée aux zones autorisées et aux horaires convenus. Le client s'engage à respecter les règles de la Marina de Getxo et les règlements de la Capitainerie Maritime.\n\n4. SÉCURITÉ : L'utilisation d'un gilet de sauvetage est obligatoire et personnelle à tout moment dans l'eau.\n\n5. SAUVETAGE ET ASSISTANCE : Si le client nécessite une assistance ou un sauvetage en raison d'une imprudence ou d'une sortie des zones autorisées, les frais en résultant seront à sa charge.\n\n6. SIGNATURE NUMÉRIQUE : En cochant la case d'acceptation, le client ratifie qu'il a compris tous les points précédents et assume sa responsabilité légale.",
+        "consent_acceptance": "J'ai lu et j'accepte expressément les conditions légales détaillées ci-dessus. Je comprends que cette acceptation équivaut à une signature numérique contraignante.",
+        "error_log_consent": "Impossible d'enregistrer la signature légale. Veuillez réessayer."
+    },
+    "legal_modal": {
+        "viewing_doc": "Visualisation du Document",
+        "terms_title": "Conditions d'Inscription",
+        "rental_title": "Conditions de Location",
+        "back": "Retour",
+        "mandatory_docs": "Documents Légaux Obligatoires",
+        "click_to_read": "* Cliquez sur chaque document pour le lire en ligne ici même.",
+        "full_name": "Nom Complet",
+        "identity_doc": "Document d'Identité",
+        "email_label": "Email d'Inscription",
+        "confirmation_checkbox": "Je confirme avoir lu et accepté expressément les documents PDF indiqués ci-dessus, ainsi que les conditions détaillées dans ce formulaire. Je comprends que cette acceptation équivaut à une signature numérique contraignante.",
+        "sign_and_continue": "Signer et passer au paiement",
+        "cancel": "Annuler",
+        "processing": "Traitement..."
+    },
+    "validation": {
+        "name_short": "Nom trop court",
+        "last_name_short": "Noms trop courts",
+        "email_invalid": "Email invalide",
+        "password_short": "Minimum 6 caractères",
+        "subject_short": "Sujet trop court",
+        "message_short": "Le message est trop court"
+    },
+    "footer": {
+        "courses": "Cours",
+        "rental": "Location",
+        "school": "L'École",
+        "contact": "Contact",
+        "copyright": "© 2026 Getxo Bela Eskola · Expérience Nautique Premium",
+        "slogan": "Getxo Bela Eskola · L'expérience nautique par excellence dans la Marina de Getxo."
+    },
+    "nautical_radar": {
+        "title": "Radar de Navigation \"Pont de Commandement\"",
+        "location": "Arriluze Kaia — Getxo",
+        "loading": "Chargement des Instruments...",
+        "wind": "Vent Réel",
+        "knots": "Noeuds",
+        "aws": "Vitesse du Vent",
+        "gust": "Rafale",
+        "twa": "Angle du Vent",
+        "tide": "Marée Getxo",
+        "depth": "Profondeur",
+        "rising": "Montante",
+        "falling": "Descendante",
+        "stable": "Stable",
+        "next_tide": "Prochaine: {time} ({type})",
+        "temp": "Temp. Air",
+        "pressure": "Pression",
+        "visibility": "Visibilité",
+        "advisory": "Analyse des Conditions",
+        "action_history": "Voir l'Historique →",
+        "history_title": "Historique Météo — Getxo",
+        "wind_chart_title": "Évolution du Vent (Noeuds)",
+        "wind_chart_wind_label": "Vent Réel",
+        "wind_chart_gust_label": "Rafales",
+        "tide_chart_title": "Cycle des Marées (Mètres)",
+        "tide_chart_tide_label": "Niveau Marée",
+        "history_footer": "Données enregistrées chaque heure — Arriluze Kaia",
+        "history_time": "Heure",
+        "history_wind": "Vent (kn)",
+        "history_gusts": "Rafales",
+        "history_direction": "Direction",
+        "history_temp": "Temp (ºC)",
+        "history_tide": "Marée (m)"
+    }
+}

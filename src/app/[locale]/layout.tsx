@@ -20,6 +20,10 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 
+export function generateStaticParams() {
+  return [{ locale: 'es' }, { locale: 'eu' }, { locale: 'en' }, { locale: 'fr' }];
+}
+
 export default async function LocaleLayout({
   children,
   params: { locale }
@@ -60,6 +64,7 @@ export default async function LocaleLayout({
 export async function generateMetadata({ params: { locale } }: { params: { locale: string } }) {
   const isEu = locale === 'eu';
   const isEn = locale === 'en';
+  const isFr = locale === 'fr';
 
   let title = 'Getxo Sailing School | Escuela de Navegación';
   let description = 'Descubre el mundo de la navegación en Getxo. Cursos de vela, academia online y alquiler de embarcaciones.';
@@ -70,9 +75,12 @@ export async function generateMetadata({ params: { locale } }: { params: { local
   } else if (isEn) {
     title = 'Getxo Sailing School | Nautical Academy';
     description = 'Discover the world of sailing in Getxo. Sailing courses, online academy, and boat rentals.';
+  } else if (isFr) {
+    title = 'Getxo Sailing School | École Nautique';
+    description = 'Découvrez le monde de la navigation à Getxo. Cours de voile, académie en ligne et location de bateaux.';
   }
 
-  const ogLocale = isEu ? 'eu_ES' : isEn ? 'en_US' : 'es_ES';
+  const ogLocale = isEu ? 'eu_ES' : isEn ? 'en_US' : isFr ? 'fr_FR' : 'es_ES';
 
   return {
     title: {
@@ -80,7 +88,7 @@ export async function generateMetadata({ params: { locale } }: { params: { local
       template: `%s | Getxo Sailing School`
     },
     description,
-    keywords: ['vela', 'sailing', 'getxo', 'academia náutica', 'bela eskola', 'alquiler barcos'],
+    keywords: ['vela', 'sailing', 'getxo', 'academia náutica', 'bela eskola', 'alquiler barcos', 'voile', 'école nautique'],
     authors: [{ name: 'Getxo Sailing School' }],
     creator: 'Getxo Sailing School',
     publisher: 'Getxo Sailing School',
@@ -89,13 +97,14 @@ export async function generateMetadata({ params: { locale } }: { params: { local
       address: false,
       telephone: false,
     },
-    metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://getxo-sailing-school.vercel.app'), // Cambiar a dominio real
+    metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://getxobelaeskola.cloud'), // Cambiar a dominio real
     alternates: {
       canonical: '/',
       languages: {
         'es-ES': '/es',
         'eu-ES': '/eu',
         'en-US': '/en',
+        'fr-FR': '/fr',
       },
     },
     openGraph: {

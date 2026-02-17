@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import Image from 'next/image';
+import NauticalImage from '@/components/ui/NauticalImage';
 import { useTranslations } from 'next-intl';
 
 interface CourseCardProps {
@@ -31,10 +31,12 @@ export default function CourseCard({ course, locale }: CourseCardProps) {
 
             {/* Image Container with Cinematic Zoom */}
             <div className="relative h-[350px] w-full overflow-hidden">
-                <Image
-                    src={course.imagen_url || 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5997?q=80&w=2074'}
+                <NauticalImage
+                    src={course.imagen_url}
+                    category="veleros"
                     alt={name}
                     fill
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                     className="object-cover transition-transform duration-[1.5s] ease-out group-hover:scale-110 grayscale-[0.5] group-hover:grayscale-0"
                 />
                 {/* Overlays */}

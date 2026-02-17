@@ -1,6 +1,15 @@
 import React from 'react';
 import LevelDetailMain from './LevelDetailMain';
 
+export async function generateStaticParams() {
+    const slugs = ['licencia-navegacion', 'iniciacion-j80', 'perfeccionamiento-vela'];
+    const locales = ['es', 'eu', 'en', 'fr'];
+
+    return locales.flatMap(locale =>
+        slugs.map(slug => ({ locale, slug }))
+    );
+}
+
 export async function generateMetadata({ params }: { params: { locale: string; slug: string } }) {
     try {
         const resNiveles = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || (process.env.NODE_ENV === 'production' ? 'https://getxobelaeskola.cloud' : 'http://localhost:3000')}/api/academy/levels`);

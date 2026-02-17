@@ -4,7 +4,9 @@ import { redirect } from 'next/navigation';
 import FinancialReportsClient from '@/components/staff/FinancialReportsClient';
 import Link from 'next/link';
 
-export const dynamic = 'force-dynamic';
+export function generateStaticParams() {
+    return ['es', 'eu', 'en', 'fr'].map(locale => ({ locale }));
+}
 
 export default async function FinancialReportsPage({
     params: { locale }

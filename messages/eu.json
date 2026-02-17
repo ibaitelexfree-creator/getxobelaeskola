@@ -677,6 +677,50 @@
             "home_button": "ETXERA ITZULI ⚓"
         }
     },
+    "student_dashboard": {
+        "eyebrow": "Ikasle Eremua",
+        "welcome": "Kaixo, {name}",
+        "subtitle": "Kudeatu zure ikastaroak eta ziurtagiriak.",
+        "academy_widget": {
+            "title": "Campus Birtuala",
+            "go_to_panel": "Joan Panel Akademikora +",
+            "card_title": "Akademia Digitala",
+            "card_desc_active": "Jarraitu zure online prestakuntzarekin, osatu unitateak eta lortu ziurtagiri ofizialak.",
+            "card_desc_inactive": "Sar zaitez online ikastaro teorikoetara, azterketa ofizialetara eta nabigazio simulazioetara.",
+            "stats_levels": "Mailak",
+            "stats_certs": "Ziurtagiriak",
+            "btn_continue": "Ikasten Jarraitu",
+            "btn_start": "Hasi Orain"
+        },
+        "courses_section": {
+            "title": "Zure Hurrengo Ikastaro Presentzialak",
+            "empty_title": "Oraindik ez duzu ikastarorik,",
+            "empty_subtitle": "hasi zure abentura hemen!",
+            "btn_explore": "Katalogoa Esploratu"
+        },
+        "rentals_section": {
+            "title": "Hurrengo Alokairuak",
+            "new_rental": "Alokairu Berria +",
+            "empty_title": "Ez duzu hurrengo alokairurik,",
+            "empty_subtitle": "badia zure zain dago.",
+            "btn_reserve": "Materiala Erreserbatu"
+        },
+        "history_section": {
+            "title": "Azken Historiala",
+            "completed": "Osatua"
+        },
+        "daily_challenge": {
+            "title": "Eguneko Erronka",
+            "subtitle": "Ikasi zerbait berria gaur",
+            "reward": "+{xp} XP",
+            "submit": "Erantzuna Egiaztatu",
+            "correct": "Bikain! {xp} XP irabazi duzu.",
+            "wrong": "Ez da zuzena. Erantzuna hauxe zen: {answer}",
+            "already_done": "Dagoeneko osatu duzu gaurko erronka.",
+            "come_back": "Itzuli bihar puntuak batzen jarraitzeko.",
+            "explanation": "Bazekien..."
+        }
+    },
     "wind_lab": {
         "title": "Haizearen Laborategia",
         "subtitle": "Fluidoen Dinamika",
@@ -778,5 +822,39 @@
         "membership_card": "Nire Bazkide Txartela",
         "loading": "Kargatzen...",
         "portal_error": "Errorea ordainketa-ataria irekitzean"
+    },
+    "nautical_radar": {
+        "title": "Nabigazio Radarra \"Puente de Mando\"",
+        "location": "Arriluze Kaia — Getxo",
+        "loading": "Tresnak Kargatzen...",
+        "wind": "Benetako Haizea",
+        "knots": "Korapiloak",
+        "aws": "Haize abiadura",
+        "gust": "Haize-bolada",
+        "twa": "Haize angelua",
+        "tide": "Getxoko Marea",
+        "depth": "Sakonera",
+        "rising": "Igotzen",
+        "falling": "Jaisten",
+        "stable": "Egonkorra",
+        "next_tide": "Hurrengoa: {time} ({type})",
+        "temp": "Aire Tenp.",
+        "pressure": "Presioa",
+        "visibility": "Ikusgarritasuna",
+        "advisory": "Baldintzen Analisia",
+        "action_history": "Ikusi Historikoa →",
+        "history_title": "Eguraldiaren Historikoa — Getxo",
+        "wind_chart_title": "Haizearen Bilakaera (Korapiloak)",
+        "wind_chart_wind_label": "Benetako Haizea",
+        "wind_chart_gust_label": "Haize-boladak",
+        "tide_chart_title": "Mareen Zikloa (Metroak)",
+        "tide_chart_tide_label": "Marea Maila",
+        "history_footer": "Orduro erregistratutako datuak — Arriluze Kaia",
+        "history_time": "Ordua",
+        "history_wind": "Haizea (kn)",
+        "history_gusts": "Boladak",
+        "history_direction": "Norabidea",
+        "history_temp": "Tenp (ºC)",
+        "history_tide": "Marea (m)"
     }
 }

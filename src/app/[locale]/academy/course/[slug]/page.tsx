@@ -31,25 +31,14 @@ export async function generateMetadata({ params }: { params: { locale: string; s
 }
 
 
-import { requireAuth } from '@/lib/auth-guard';
-import { verifyCourseAccess } from '@/lib/academy/enrollment';
-import { redirect } from 'next/navigation';
+export async function generateStaticParams() {
+    const slugs = ['iniciacion-j80', 'perfeccionamiento-vela', 'licencia-navegacion', 'vela-ligera'];
+    const locales = ['es', 'eu', 'en', 'fr'];
+    return locales.flatMap(locale => slugs.map(slug => ({ locale, slug })));
+}
 
 export default async function CourseDetailPage({ params }: { params: { locale: string; slug: string } }) {
-    // 1. Auth Check (Redundant if layout covers it, but safe)
-    const { user, error } = await requireAuth();
-    if (error || !user) {
-        redirect(`/${params.locale}/auth/login`);
-    }
-
-    // 2. Access Check (Enrollment)
-    const hasAccess = await verifyCourseAccess(user.id, params.slug);
-
-    if (!hasAccess) {
-        // Redirect to Sales Page if not enrolled
-        redirect(`/${params.locale}/courses/${params.slug}`);
-    }
-
-    // 3. Render content only if authorized
+    // Note: We remove server-side redirects here because they require a server (cookies).
+    // The Client Component (CourseDetailMain) will handle fetching and auth via API.
     return <CourseDetailMain params={params} />;
 }
