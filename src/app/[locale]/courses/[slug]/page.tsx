@@ -8,6 +8,76 @@ import { listGoogleEvents } from '@/lib/google-calendar';
 
 const BookingSelector = dynamic(() => import('@/components/booking/BookingSelector'), { ssr: false });
 
+import { Metadata } from 'next';
+
+export async function generateMetadata({
+    params: { locale, slug }
+}: {
+    params: { locale: string; slug: string }
+}): Promise<Metadata> {
+    const supabase = createClient();
+    const { data: course } = await supabase
+        .from('cursos')
+        .select('*')
+        .eq('slug', slug)
+        .single();
+
+    // Re-use fallback logic for metadata
+    const fallbacks: Record<string, any> = {
+        'iniciacion-j80': {
+            nombre_es: 'Iniciación J80',
+            nombre_eu: 'J80 Hastapena',
+            descripcion_es: 'Iníciate en el mundo de la navegación a vela en veleros J80. Aprende maniobras básicas en Getxo.',
+            descripcion_eu: 'Hasi nabigazio munduan J80 belaontzietan. Ikasi oinarrizko maniobrak Getxon.'
+        },
+        'perfeccionamiento-vela': {
+            nombre_es: 'Perfeccionamiento Vela',
+            nombre_eu: 'Bela Hobetzea',
+            descripcion_es: 'Mejora tu técnica, táctica y seguridad a bordo. Navegación competitiva y autónoma.',
+            descripcion_eu: 'Hobetu zure teknika, taktika eta segurtasuna ontzian. Nabigazio lehiakorra.'
+        },
+        'licencia-navegacion': {
+            nombre_es: 'Licencia de Navegación',
+            nombre_eu: 'Nabigazio Lizentzia',
+            descripcion_es: 'Obtén tu titulación oficial en un solo día, sin examen. Válida para barcos de hasta 6m.',
+            descripcion_eu: 'Lortu zure titulu ofiziala egun bakar batean, azterketarik gabe. 6 metrorainoko ontziak.'
+        },
+        'vela-ligera': {
+            nombre_es: 'Curso de Vela Ligera',
+            nombre_eu: 'Bela Arina Ikastaroa',
+            descripcion_es: 'Entrenamientos en Optimist, Laser y 420. Ideal para formación continua escolar.',
+            descripcion_eu: 'Optimist, Laser eta 420 ontzietan entrenamenduak. Eskola urtean zehar.'
+        }
+    };
+
+    const displayCourse = course || fallbacks[slug];
+    if (!displayCourse) return { title: 'Curso no encontrado' };
+
+    const name = locale === 'es' ? displayCourse.nombre_es : displayCourse.nombre_eu;
+    const description = locale === 'es' ? displayCourse.descripcion_es : displayCourse.descripcion_eu;
+
+    return {
+        title: name,
+        description: description,
+        openGraph: {
+            title: `${name} | Getxo Sailing School`,
+            description: description,
+            images: [displayCourse.imagen_url].filter(Boolean)
+        },
+        twitter: {
+            card: 'summary_large_image',
+            title: name,
+            description: description,
+        }
+    };
+}
+
+export async function generateStaticParams() {
+    const slugs = ['iniciacion-j80', 'perfeccionamiento-vela', 'licencia-navegacion', 'vela-ligera'];
+    const locales = ['es', 'eu', 'en', 'fr'];
+    return locales.flatMap(locale => slugs.map(slug => ({ locale, slug })));
+}
+
 export default async function CourseDetailPage({
     params: { locale, slug }
 }: {
@@ -224,9 +294,10 @@ export default async function CourseDetailPage({
                             <div className="relative h-[450px] rounded-sm overflow-hidden border border-white/10 shadow-2xl">
                                 <Image
                                     src={displayCourse.imagen_url || 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5997?auto=format&fit=crop&q=80&w=2074'}
-                                    alt=""
+                                    alt={name}
                                     fill
                                     priority
+                                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 800px"
                                     className="object-cover"
                                 />
                             </div>

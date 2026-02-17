@@ -686,6 +686,50 @@
             "home_button": "VOLVER A CASA ⚓"
         }
     },
+    "student_dashboard": {
+        "eyebrow": "Área de Alumno",
+        "welcome": "Hola, {name}",
+        "subtitle": "Gestiona tus cursos y certificaciones.",
+        "academy_widget": {
+            "title": "Campus Virtual",
+            "go_to_panel": "Ir al Panel Académico +",
+            "card_title": "Academia Digital",
+            "card_desc_active": "Continúa tu formación online, completa unidades y obtén certificaciones oficiales.",
+            "card_desc_inactive": "Accede a cursos teóricos online, exámenes oficiales y simulacros de navegación.",
+            "stats_levels": "Niveles",
+            "stats_certs": "Certificados",
+            "btn_continue": "Continuar Aprendiendo",
+            "btn_start": "Empezar Ahora"
+        },
+        "courses_section": {
+            "title": "Tus Próximos Cursos Presenciales",
+            "empty_title": "Aún no tienes cursos,",
+            "empty_subtitle": "¡empieza tu aventura aquí!",
+            "btn_explore": "Explorar Catálogo"
+        },
+        "rentals_section": {
+            "title": "Próximos Alquileres",
+            "new_rental": "Nuevo Alquiler +",
+            "empty_title": "No tienes alquileres próximos,",
+            "empty_subtitle": "la bahía te está esperando.",
+            "btn_reserve": "Reservar Material"
+        },
+        "history_section": {
+            "title": "Historial Reciente",
+            "completed": "Completado"
+        },
+        "daily_challenge": {
+            "title": "Desafío del Día",
+            "subtitle": "Micro-Aprende algo nuevo hoy",
+            "reward": "+{xp} XP",
+            "submit": "Verificar Respuesta",
+            "correct": "¡Excelente! Has ganado {xp} XP.",
+            "wrong": "No es correcto. La respuesta era: {answer}",
+            "already_done": "Ya has completado tu desafío diario.",
+            "come_back": "Vuelve mañana para seguir sumando.",
+            "explanation": "Sabías que..."
+        }
+    },
     "wind_lab": {
         "title": "Laboratorio de Viento",
         "subtitle": "Dinámica de Fluidos",
@@ -787,5 +831,39 @@
         "membership_card": "Mi Carnet de Socio",
         "loading": "Cargando...",
         "portal_error": "Error al abrir el portal de pagos"
+    },
+    "nautical_radar": {
+        "title": "Radar de Navegación \"Puente de Mando\"",
+        "location": "Arriluze Kaia — Getxo",
+        "loading": "Cargando Instrumentos...",
+        "wind": "Viento Real",
+        "knots": "Nudos",
+        "aws": "Vel. Viento",
+        "gust": "Racha",
+        "twa": "Ángulo Viento",
+        "tide": "Marea Getxo",
+        "depth": "Profundidad",
+        "rising": "Subiendo",
+        "falling": "Bajando",
+        "stable": "Estable",
+        "next_tide": "Próxima: {time} ({type})",
+        "temp": "Temp. Aire",
+        "pressure": "Presión",
+        "visibility": "Visibilidad",
+        "advisory": "Análisis de Condiciones",
+        "action_history": "Ver Histórico →",
+        "history_title": "Historial Meteorológico — Getxo",
+        "wind_chart_title": "Evolución del Viento (Nudos)",
+        "wind_chart_wind_label": "Viento Real",
+        "wind_chart_gust_label": "Rachas",
+        "tide_chart_title": "Ciclo de Mareas (Metros)",
+        "tide_chart_tide_label": "Nivel Marea",
+        "history_footer": "Datos registrados cada hora — Arriluze Kaia",
+        "history_time": "Hora",
+        "history_wind": "Viento (kn)",
+        "history_gusts": "Rachas",
+        "history_direction": "Dirección",
+        "history_temp": "Temp (ºC)",
+        "history_tide": "Marea (m)"
     }
 }

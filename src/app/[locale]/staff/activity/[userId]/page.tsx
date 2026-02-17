@@ -4,8 +4,9 @@ import { notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import ActivityListClient from '@/components/staff/ActivityListClient';
 
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
+export function generateStaticParams() {
+    return ['es', 'eu', 'en', 'fr'].map(locale => ({ locale, userId: 'placeholder' }));
+}
 
 export default async function StaffActivityPage({
     params: { locale, userId }

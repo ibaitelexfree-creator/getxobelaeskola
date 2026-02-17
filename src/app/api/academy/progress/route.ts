@@ -79,14 +79,27 @@ export async function GET() {
             ? Math.round(cursosProgreso.reduce((acc: number, c: any) => acc + (c.porcentaje || 0), 0) / cursosProgreso.length)
             : 0;
 
-        // Skill radar dummy data (should be calculated from actual skills/progress)
-        const skillRadar = [
-            { subject: 'Navegación', A: 80, fullMark: 100 },
-            { subject: 'Seguridad', A: 65, fullMark: 100 },
-            { subject: 'Meteorología', A: 40, fullMark: 100 },
-            { subject: 'Reglamento', A: 90, fullMark: 100 },
-            { subject: 'Maniobra', A: 70, fullMark: 100 },
-        ];
+        // Skill radar calculation
+        const categoriesMap: Record<string, string> = {
+            'tecnica': 'Maniobra',
+            'seguridad': 'Seguridad',
+            'meteorologia': 'Meteorología',
+            'tactica': 'Táctica',
+            'excelencia': 'Liderazgo'
+        };
+
+        const skillRadar = Object.entries(categoriesMap).map(([dbCat, uiLabel]) => {
+            const userSkillsInCategory = (skills || []).filter((s: any) => s.habilidad?.categoria === dbCat).length;
+            // Max skills per category for 100% calculation (estimate)
+            const maxEstimate = dbCat === 'tecnica' ? 6 : dbCat === 'excelencia' ? 1 : 2;
+            const score = Math.min(100, Math.round((userSkillsInCategory / maxEstimate) * 100));
+
+            return {
+                subject: uiLabel,
+                A: score,
+                fullMark: 100
+            };
+        });
 
         // Activity heatmap (last 30 days)
         const activityHeatmap = (horas || []).map((h: any) => ({
@@ -94,9 +107,133 @@ export async function GET() {
             count: Math.ceil(Number(h.duracion_h))
         }));
 
+        // Boat Mastery Calculation
+        const boatStats: Record<string, { hours: number, sessions: number, lastUsed: string }> = {};
+        (horas || []).forEach((h: any) => {
+            const boatName = h.embarcacion || 'Barco Genérico';
+            if (!boatStats[boatName]) {
+                boatStats[boatName] = { hours: 0, sessions: 0, lastUsed: h.fecha };
+            }
+            boatStats[boatName].hours += Number(h.duracion_h);
+            boatStats[boatName].sessions += 1;
+            if (new Date(h.fecha) > new Date(boatStats[boatName].lastUsed)) {
+                boatStats[boatName].lastUsed = h.fecha;
+            }
+        });
+
+        const boatMastery = Object.entries(boatStats).map(([name, stats]) => {
+            let level = 'Iniciado';
+            let progress = (stats.hours / 5) * 100;
+
+            if (stats.hours >= 20) {
+                level = 'Maestro';
+                progress = 100;
+            } else if (stats.hours >= 5) {
+                level = 'Avanzado';
+                progress = ((stats.hours - 5) / 15) * 100;
+            }
+
+            return {
+                name,
+                hours: stats.hours.toFixed(1),
+                sessions: stats.sessions,
+                level,
+                progress: Math.min(100, Math.round(progress)),
+                lastUsed: stats.lastUsed
+            };
+        });
+
+        // 6. ADVANCED CAREER ADVISOR ENGINE (V2)
+        const recommendations = [];
+        const userHabilidades = (skills || []).map((s: any) =>
+            Array.isArray(s.habilidad) ? s.habilidad[0]?.slug : s.habilidad?.slug
+        );
+
+        // Advanced Analytics
+        const totalSessions = (horas || []).length;
+        const distinctBoats = new Set((horas || []).map((h: any) => h.embarcacion).filter(Boolean)).size;
+        const totalMilesNum = (horasTotales * 5.2);
+        const totalHours = horasTotales;
+
+        // Consistency Analysis (sessions per week in last month)
+        const thirtyDaysAgo = new Date();
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+        const recentSessions = (horas || []).filter((h: any) => new Date(h.fecha) > thirtyDaysAgo).length;
+        const consistencyScore = Math.min(100, (recentSessions / 4) * 100);
+
+        // Intelligence: Find the real gap
+        const hasTrimado = userHabilidades.includes('trimador');
+        const hasLoboMar = userHabilidades.includes('lobo-mar');
+
+        // High Wind Detection
+        const highWindSessions = (horas || []).filter((h: any) => {
+            const meteo = (h.condiciones_meteo || '').toLowerCase();
+            const windMatch = meteo.match(/(\d+)\s*(kt|knots|nudos)/);
+            return windMatch && parseInt(windMatch[1]) > 15;
+        });
+
+        const analysis = {
+            consistency: consistencyScore,
+            variety: Math.min(100, (distinctBoats / 3) * 100),
+            experience: Math.min(100, (totalHours / 100) * 100),
+            specialization: hasTrimado ? 80 : 20
+        };
+
+        // Decision Tree for "Smart Next Step"
+        if (nivelesCompletados === 0 && totalSessions === 0) {
+            recommendations.push({
+                id: 'path-initiation',
+                type: 'path',
+                title: 'Ruta de Iniciación: De Cero a Navegante',
+                message: 'Tu perfil está listo para la transformación. El análisis sugiere comenzar con la base teórica de Vela Ligera para desbloquear tu primer rango oficial.',
+                analysis: 'Potencial detectado. Falta registro de horas base.',
+                actionLabel: 'Ver Plan de Carrera',
+                actionHref: '/es/academy/course/iniciacion-vela-ligera',
+                stats: analysis,
+                priority: 'high'
+            });
+        } else if (highWindSessions.length === 0 && totalHours > 10 && !hasTrimado) {
+            recommendations.push({
+                id: 'path-heavy-weather',
+                type: 'specialization',
+                title: 'Especialización: Dominio del Temporal',
+                message: 'Tu técnica es sólida en vientos medios, pero el análisis de bitácora muestra una brecha en condiciones >15kt. El siguiente paso lógico es el perfeccionamiento de trimado.',
+                analysis: 'Base técnica completada. Falta experiencia en viento fuerte.',
+                actionLabel: 'Masterclass de Trimado',
+                actionHref: '/es/courses/masterclass-trimado',
+                stats: analysis,
+                priority: 'critical'
+            });
+        } else if (distinctBoats < 2 && totalSessions > 5) {
+            recommendations.push({
+                id: 'path-versatility',
+                type: 'versatility',
+                title: 'Reto de Versatilidad: Cambio de Eslora',
+                message: 'Has dominado tu embarcación habitual. Para alcanzar el rango de Timonel, el sistema recomienda probar un monotipo diferente o participar en una travesía de crucero.',
+                analysis: 'Consistencia alta. Poca variedad de embarcación.',
+                actionLabel: 'Explorar Flota',
+                actionHref: '/es/rental',
+                stats: analysis,
+                priority: 'medium'
+            });
+        } else if (nivelesCompletados < 7) {
+            const nextLevel = (nivelesCompletados + 1);
+            recommendations.push({
+                id: 'path-next-level',
+                type: 'ascension',
+                title: `Ascensión a Rango Nivel ${nextLevel}`,
+                message: 'Mantienes un rumbo excelente. Tu consistencia es superior al 80% de los alumnos de tu nivel. Sigue acumulando millas para desbloquear el siguiente certificado.',
+                analysis: 'Progreso lineal estable. El objetivo es la persistencia.',
+                actionLabel: 'Continuar Bitácora',
+                actionHref: '/es/academy',
+                stats: analysis,
+                priority: 'high'
+            });
+        }
+
         return NextResponse.json({
             user: {
-                full_name: profile?.full_name || user.email,
+                full_name: profile?.nombre ? `${profile.nombre} ${profile.apellidos || ''}`.trim() : user.email,
                 avatar_url: profile?.avatar_url
             },
             progreso: filteredProgress,
@@ -108,6 +245,12 @@ export async function GET() {
                 logro: l.logro,
                 fecha_obtencion: l.fecha_obtenido
             })) || [],
+            certificados: certificados || [],
+            horas: (horas || []).map((h: any) => ({
+                ...h,
+                ubicacion: h.ubicacion || null,
+                zona_nombre: h.zona_nombre || 'Zona Desconocida'
+            })),
             estadisticas: {
                 horas_totales: horasTotales,
                 puntos_totales: puntosTotales,
@@ -115,16 +258,16 @@ export async function GET() {
                 progreso_global: progresoGlobal,
                 habilidades_desbloqueadas: skills?.length || 0,
                 logros_obtenidos: logros?.length || 0,
-                racha_dias: 0, // Simplified for now
-                posicion_ranking: 1, // Simplified for now
+                racha_dias: 0,
+                posicion_ranking: 1,
                 proximo_logro: null,
                 activity_heatmap: activityHeatmap,
-                skill_radar: skillRadar
+                skill_radar: skillRadar,
+                boat_mastery: boatMastery
             },
-            horas: horas || [],
-            certificados: certificados || [],
-            is_staff,
-            enrolledCourseIds
+            is_staff: profile?.rol === 'admin' || profile?.rol === 'instructor',
+            enrolledCourseIds,
+            recommendations
         });
 
     } catch (err) {

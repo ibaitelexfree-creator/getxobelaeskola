@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import LegalConsentModal from '../shared/LegalConsentModal';
 import { createClient } from '@/lib/supabase/client';
+import NauticalImage from '@/components/ui/NauticalImage';
 
 function getSpainTimeInfo() {
     const now = new Date();
@@ -408,10 +409,12 @@ export default function RentalClient({
                                     }
 
                                     return (
-                                        <Image
+                                        <NauticalImage
                                             src={imgSrc}
+                                            category={service.categoria as any}
                                             alt={locale === 'eu' ? (service.nombre_eu || service.nombre_es) : service.nombre_es}
                                             fill
+                                            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                                             className="object-cover grayscale-[0.3] group-hover:grayscale-0 group-hover:scale-110 transition-all duration-700"
                                         />
                                     );

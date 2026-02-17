@@ -1,6 +1,28 @@
+import { Metadata } from 'next';
 import { createClient } from '@/lib/supabase/server';
 import CourseCard from '@/components/courses/CourseCard';
 import { getTranslations } from 'next-intl/server';
+
+export async function generateMetadata({ params: { locale } }: { params: { locale: string } }): Promise<Metadata> {
+    const isEu = locale === 'eu';
+
+    const title = isEu
+        ? 'Ikastaroen Katalogoa | Getxo Bela Eskola'
+        : 'Catálogo de Cursos | Getxo Sailing School';
+    const description = isEu
+        ? 'Ezagutu gure bela, kayak eta nabigazio lizentzia ikastaroak. Ikasi nabigatzen Getxon.'
+        : 'Descubre nuestros cursos de vela, kayak y licencia de navegación. Aprende a navegar en Getxo con profesionales.';
+
+    return {
+        title,
+        description,
+        openGraph: {
+            title,
+            description,
+            images: ['/images/course-raquero-students.webp']
+        }
+    };
+}
 
 export default async function CoursesPage({
     params: { locale }
@@ -40,7 +62,7 @@ export default async function CoursesPage({
             precio: 100,
             duracion_h: 12,
             nivel: 'iniciacion',
-            imagen_url: '/images/course-raquero-students.jpg'
+            imagen_url: '/images/course-raquero-students.webp'
         },
         {
             id: '5',

@@ -6,34 +6,48 @@ import { createClient } from '@/lib/supabase/server';
  * API interna para envío de correos.
  * Protegida: requiere ser Staff o tener un API_SECRET_KEY (opcional para webhooks externos si se desea)
  */
+/**
+ * API interna para envío de correos.
+ * Protegida: requiere ser Staff/Admin O tener un X-API-KEY válido.
+ */
 export async function POST(request: Request) {
     try {
-        const supabase = await createClient();
+        const apiKey = request.headers.get('x-api-key');
+        const systemSecret = process.env.INTERNAL_API_SECRET || 'getxo-secret-2024'; // Fallback for dev
 
-        // 1. Verificación básica: ¿Es Staff o Admin?
-        const { data: { user } } = await supabase.auth.getUser();
+        let authorized = false;
 
-        // Si no hay usuario, podríamos verificar un Header secreto para llamadas servidor-a-servidor internas
-        // Por ahora, permitimos si hay sesión de staff
-        if (user) {
-            const { data: profile } = await supabase
-                .from('profiles')
-                .select('rol')
-                .eq('id', user.id)
-                .single();
+        // 1. Check if it's a server-to-server call with valid API Key
+        if (apiKey === systemSecret) {
+            authorized = true;
+        }
 
-            const isStaff = profile?.rol === 'admin' || profile?.rol === 'instructor';
-            if (!isStaff) {
-                // Si no es staff, verificamos si es una llamada interna (esto es un poco básico, 
-                // pero útil si se llama desde otros routes.ts del mismo server)
-                // En Next.js App Router, las llamadas de servidor a servidor suelen ser vía funciones directas,
-                // pero si usamos fetch, necesitamos un token.
+        // 2. If not authorized by key, check for Staff/Admin session
+        if (!authorized) {
+            const supabase = await createClient();
+            const { data: { user } } = await supabase.auth.getUser();
+
+            if (user) {
+                const { data: profile } = await supabase
+                    .from('profiles')
+                    .select('rol')
+                    .eq('id', user.id)
+                    .single();
+
+                if (profile?.rol === 'admin' || profile?.rol === 'instructor') {
+                    authorized = true;
+                }
             }
         }
 
-        const body = await request.json();
-        const { to, subject, html, text } = body;
+        if (!authorized) {
+            return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+        }
 
+        const body = await request.json();
+        const { to, subject, html, text, fromName } = body;
+
+        // Basic Validation
         if (!to || !subject || (!html && !text)) {
             return NextResponse.json({ error: 'Faltan campos requeridos (to, subject, content)' }, { status: 400 });
         }
@@ -50,8 +64,10 @@ export async function POST(request: Request) {
             });
         }
 
+        const fromString = fromName ? `${fromName} <${DEFAULT_FROM_EMAIL}>` : DEFAULT_FROM_EMAIL;
+
         const { data, error } = await resend.emails.send({
-            from: DEFAULT_FROM_EMAIL,
+            from: fromString,
             to,
             subject,
             html: html || text,

@@ -63,6 +63,7 @@ export async function POST(request: Request) {
                 user_name: profile?.nombre ? `${profile.nombre} ${profile.apellidos || ''}` : (user.email as string),
                 item_name: itemName,
                 stripe_product_id: 'prod_TyXb9W8QGiDJPw',
+                locale: (locale as string) || 'es',
                 mode: 'subscription'
             },
         });

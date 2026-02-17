@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import { getRequestConfig } from 'next-intl/server';
 
-const locales = ['es', 'eu', 'en'];
+const locales = ['es', 'eu', 'en', 'fr'];
 
 export default getRequestConfig(async ({ locale }) => {
     console.log('!!! ROOT I18N EXECUTING !!! Locale:', locale);

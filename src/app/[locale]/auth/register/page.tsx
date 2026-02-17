@@ -1,5 +1,6 @@
 import RegisterForm from '@/components/auth/RegisterForm';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 
 export default function RegisterPage({
@@ -39,7 +40,13 @@ export default function RegisterPage({
 
             {/* Decorative Column */}
             <div className="hidden lg:block relative overflow-hidden bg-nautical-black order-1 lg:order-2">
-                <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=1976&auto=format&fit=crop')] bg-cover bg-center grayscale opacity-40 scale-110" />
+                <Image
+                    src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=1200"
+                    alt="Sailing Experience"
+                    fill
+                    sizes="50vw"
+                    className="object-cover grayscale opacity-40 scale-110"
+                />
                 <div className="absolute inset-0 bg-gradient-to-l from-nautical-black via-transparent to-transparent" />
 
                 <div className="absolute bottom-20 right-20 z-10 text-right">

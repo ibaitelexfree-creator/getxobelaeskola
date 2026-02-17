@@ -1,34 +1,61 @@
+'use client';
+
 import Link from 'next/link';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 
 export default function NotFound() {
-    // We might not have access to messages here depending on how next-intl is set up for not-found pages
-    // But typically in app directory, it can work if layouts preserve it. 
-    // If not, we fall back to hardcoded strings with a nautical theme.
+    const t = useTranslations('errors.404');
+    const locale = useLocale();
 
     return (
-        <div className="min-h-screen bg-nautical-black flex flex-col items-center justify-center p-6 text-center">
-            <div className="relative w-64 h-64 mb-8">
-                <div className="absolute inset-0 bg-accent/5 rounded-full blur-[50px] animate-pulse" />
-                <div className="text-9xl relative z-10 animate-float opacity-50">
-                    🧭
+        <div className="min-h-screen bg-nautical-black flex items-center justify-center p-6 text-center relative overflow-hidden">
+            {/* Background effects */}
+            <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-accent/10 rounded-full blur-[120px] animate-pulse" />
+            <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-brass-gold/5 rounded-full blur-[120px] animate-pulse" style={{ animationDelay: '2s' }} />
+            <div className="bg-mesh" />
+
+            <div className="max-w-xl w-full space-y-8 relative z-10 animate-in fade-in zoom-in-95 duration-700">
+                <div className="relative inline-block">
+                    <div className="absolute inset-0 bg-accent/20 blur-3xl rounded-full" />
+                    <div className="relative w-32 h-32 md:w-40 md:h-40 bg-white/5 border border-white/10 rounded-full flex items-center justify-center text-6xl md:text-7xl shadow-2xl backdrop-blur-sm mx-auto animate-bounce-slow">
+                        🧭
+                    </div>
+                </div>
+
+                <div className="space-y-4">
+                    <p className="text-accent uppercase tracking-[0.4em] text-[10px] font-black opacity-60">
+                        ACADEMY 404
+                    </p>
+                    <h1 className="text-5xl md:text-7xl font-display italic text-white tracking-tighter">
+                        Hombre al Agua
+                    </h1>
+                    <p className="text-xl md:text-2xl text-white/80 font-medium font-display italic">
+                        Has navegado fuera de las cartas.
+                    </p>
+                    <p className="text-white/40 text-sm md:text-base max-w-md mx-auto leading-relaxed font-light">
+                        Parece que el curso o recurso que buscas no se encuentra en esta latitud.
+                    </p>
+                </div>
+
+                <div className="pt-8">
+                    <Link
+                        href={`/${locale}/academy/dashboard`}
+                        className="inline-flex items-center justify-center px-10 py-5 bg-accent hover:bg-white text-nautical-black rounded-sm font-bold text-xs uppercase tracking-widest shadow-2xl shadow-accent/20 transition-all active:scale-95 group"
+                    >
+                        <span className="mr-3 group-hover:-translate-x-1 transition-transform">←</span>
+                        VOLVER AL PANEL ACADÉMICO
+                    </Link>
+                </div>
+
+                {/* Aesthetic Nautical Coordinates */}
+                <div className="pt-12 flex items-center justify-center gap-6 opacity-20">
+                    <div className="h-px flex-1 bg-gradient-to-r from-transparent to-white/30" />
+                    <span className="text-[10px] font-mono whitespace-nowrap tracking-widest uppercase">
+                        SALA DE ESTUDIO • GETXO BELA ESKOLA
+                    </span>
+                    <div className="h-px flex-1 bg-gradient-to-l from-transparent to-white/30" />
                 </div>
             </div>
-
-            <h1 className="text-8xl font-black text-white/10 mb-2 font-display">404</h1>
-            <h2 className="text-3xl font-display italic text-white mb-4">
-                ¡Hombre al agua!
-            </h2>
-            <p className="text-white/60 max-w-md mb-8 leading-relaxed">
-                Parece que has navegado hacia aguas desconocidas. La página que buscas no se encuentra en nuestra carta de navegación.
-            </p>
-
-            <Link
-                href="/academy"
-                className="px-8 py-4 bg-accent text-nautical-black font-bold uppercase tracking-widest text-sm rounded hover:bg-white transition-colors shadow-[0_0_20px_rgba(250,204,21,0.2)] hover:shadow-[0_0_30px_rgba(250,204,21,0.4)]"
-            >
-                Volver a Puerto Seguro
-            </Link>
         </div>
     );
 }

@@ -12,6 +12,7 @@ import BoatsTab from './BoatsTab';
 import SessionsTab from './SessionsTab';
 import AcademyStaffTab from './AcademyStaffTab';
 import FinancialReportsClient from './FinancialReportsClient';
+import BITab from './BITab';
 import AccessibleModal from '../shared/AccessibleModal';
 
 import { ClientDate, StaffProfile } from './StaffShared';
@@ -109,7 +110,7 @@ export default function StaffClient({
     userProfile, initialRentals = [], allRentals = [], initialStaff = [], locale, stats: initialStats, initialAuditLogs = [], chartData = []
 }: StaffClientProps) {
     const t = useTranslations('staff_panel');
-    const [activeTab, setActiveTab] = useState<'overview' | 'rentals' | 'courses' | 'academia' | 'catalog' | 'fleet' | 'sessions' | 'communication' | 'staff_mgmt' | 'financials'>('overview');
+    const [activeTab, setActiveTab] = useState<'overview' | 'rentals' | 'courses' | 'academia' | 'catalog' | 'fleet' | 'sessions' | 'communication' | 'staff_mgmt' | 'financials' | 'bi'>('overview');
     const [financialsViewMode, setFinancialsViewMode] = useState<'today' | 'month' | 'year' | undefined>('year');
 
     // Scroll to top when tab changes
@@ -767,11 +768,12 @@ export default function StaffClient({
                             { id: 'fleet', label: 'FLOTA' },
                             { id: 'sessions', label: 'SESIONES' },
                             { id: 'communication', label: t('tabs.communication') },
-                            { id: 'staff_mgmt', label: t('tabs.staff_mgmt') }
+                            { id: 'staff_mgmt', label: t('tabs.staff_mgmt') },
+                            ...(isAdmin ? [{ id: 'bi', label: 'BUSINESS INTEL' }] : [])
                         ].map(tab => (
                             <button
                                 key={tab.id}
-                                onClick={() => setActiveTab(tab.id as 'overview' | 'rentals' | 'courses' | 'academia' | 'catalog' | 'fleet' | 'sessions' | 'communication' | 'staff_mgmt')}
+                                onClick={() => setActiveTab(tab.id as 'overview' | 'rentals' | 'courses' | 'academia' | 'catalog' | 'fleet' | 'sessions' | 'communication' | 'staff_mgmt' | 'bi')}
                                 className={`text-sm uppercase tracking-[0.15em] font-black transition-all pb-2 border-b-2 whitespace-nowrap ${activeTab === tab.id ? 'text-accent border-accent text-shadow-glow' : 'text-white/20 border-transparent hover:text-white/40'}`}
                             >
                                 {tab.label}
@@ -973,6 +975,10 @@ export default function StaffClient({
                             />
                         )}
                     </div>
+                )}
+
+                {activeTab === 'bi' && (
+                    <BITab />
                 )}
 
                 {/* TAB CONTENT: RENTALS */}

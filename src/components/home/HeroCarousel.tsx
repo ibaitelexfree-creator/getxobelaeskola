@@ -13,7 +13,7 @@ export default function HeroCarousel() {
     const slides = [
         {
             id: 1,
-            image: '/images/home-hero-sailing-action.jpg',
+            image: '/images/home-hero-sailing-action.webp',
             title: t('slide1_title'),
             subtitle: t('slide1_subtitle'),
             action: t('slide1_action'),
@@ -21,7 +21,7 @@ export default function HeroCarousel() {
         },
         {
             id: 2,
-            image: '/images/course-detail-header-sailing.jpg',
+            image: '/images/course-detail-header-sailing.webp',
             title: t('slide2_title'),
             subtitle: t('slide2_subtitle'),
             action: t('slide2_action'),
@@ -37,7 +37,7 @@ export default function HeroCarousel() {
         },
         {
             id: 4,
-            image: '/images/course-raquero-students.jpg',
+            image: '/images/course-raquero-students.webp',
             title: t('slide4_title'),
             subtitle: t('slide4_subtitle'),
             action: t('slide4_action'),

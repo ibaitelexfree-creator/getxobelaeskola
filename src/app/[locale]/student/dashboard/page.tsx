@@ -4,12 +4,20 @@ import StudentProfileSidebar from '@/components/student/StudentProfileSidebar';
 import MembershipWidget from '@/components/student/MembershipWidget';
 import { redirect } from 'next/navigation';
 import DashboardRefresh from '@/components/student/DashboardRefresh';
+import EmptyState from '@/components/ui/EmptyState';
+import { getTranslations } from 'next-intl/server';
+import DailyChallengeWidget from '@/components/student/DailyChallengeWidget';
+
+export function generateStaticParams() {
+    return ['es', 'eu', 'en', 'fr'].map(locale => ({ locale }));
+}
 
 export default async function StudentDashboard({
     params: { locale }
 }: {
     params: { locale: string };
 }) {
+    const t = await getTranslations('student_dashboard');
     const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
 
@@ -71,6 +79,15 @@ export default async function StudentDashboard({
         .from('certificados')
         .select('*', { count: 'exact', head: true })
         .eq('alumno_id', user.id);
+
+    // Fetch navigation hours
+    const { data: horasData } = await supabaseAdmin
+        .from('horas_navegacion')
+        .select('duracion_h')
+        .eq('alumno_id', user.id);
+
+    const totalHours = horasData?.reduce((acc: number, h: any) => acc + Number(h.duracion_h || 0), 0) || 0;
+    const totalMiles = (totalHours * 5.2).toFixed(0);
 
     // Check if user has started anything in academy
     const { count: academyProgress } = await supabaseAdmin
@@ -148,12 +165,12 @@ export default async function StudentDashboard({
             <div className="container mx-auto">
                 <header className="mb-16">
                     <span className="text-accent uppercase tracking-widest text-xs font-semibold mb-4 block">
-                        Área de Alumno
+                        {t('eyebrow')}
                     </span>
                     <h1 className="text-4xl md:text-7xl font-display mb-4">
-                        Hola, <span className="italic">{profile?.nombre || 'Navegante'}</span>
+                        {t('welcome', { name: profile?.nombre || 'Navegante' })}
                     </h1>
-                    <p className="text-foreground/40 font-light">Gestiona tus cursos y certificaciones.</p>
+                    <p className="text-foreground/40 font-light">{t('subtitle')}</p>
                 </header>
 
                 {/* Polling / Refresh logic for new purchases */}
@@ -171,9 +188,9 @@ export default async function StudentDashboard({
                         {/* Academy Digital Widget */}
                         <section>
                             <div className="flex justify-between items-end mb-8">
-                                <h2 className="text-xs uppercase tracking-widest text-accent font-bold">Campus Virtual</h2>
+                                <h2 className="text-xs uppercase tracking-widest text-accent font-bold">{t('academy_widget.title')}</h2>
                                 <Link href={`/${locale}/academy/dashboard`} className="text-[10px] uppercase tracking-widest text-foreground/40 hover:text-accent transition-colors">
-                                    Ir al Panel Académico +
+                                    {t('academy_widget.go_to_panel')}
                                 </Link>
                             </div>
 
@@ -182,21 +199,25 @@ export default async function StudentDashboard({
 
                                 <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
                                     <div>
-                                        <h3 className="text-2xl font-display italic text-white mb-2">Academia Digital</h3>
+                                        <h3 className="text-2xl font-display italic text-white mb-2">{t('academy_widget.card_title')}</h3>
                                         <p className="text-white/60 text-sm max-w-md mb-6">
                                             {hasAcademyActivity
-                                                ? 'Continúa tu formación online, completa unidades y obtén certificaciones oficiales.'
-                                                : 'Accede a cursos teóricos online, exámenes oficiales y simulacros de navegación.'}
+                                                ? t('academy_widget.card_desc_active')
+                                                : t('academy_widget.card_desc_inactive')}
                                         </p>
 
                                         <div className="flex gap-6 mb-8 md:mb-0">
                                             <div>
+                                                <div className="text-2xl font-bold text-accent">{totalMiles}</div>
+                                                <div className="text-[9px] uppercase tracking-widest text-white/40">Millas Navegadas</div>
+                                            </div>
+                                            <div>
                                                 <div className="text-2xl font-bold text-accent">{academyLevels || 0}</div>
-                                                <div className="text-[9px] uppercase tracking-widest text-white/40">Niveles</div>
+                                                <div className="text-[9px] uppercase tracking-widest text-white/40">{t('academy_widget.stats_levels')}</div>
                                             </div>
                                             <div>
                                                 <div className="text-2xl font-bold text-accent">{academyCerts || 0}</div>
-                                                <div className="text-[9px] uppercase tracking-widest text-white/40">Certificados</div>
+                                                <div className="text-[9px] uppercase tracking-widest text-white/40">{t('academy_widget.stats_certs')}</div>
                                             </div>
                                         </div>
                                     </div>
@@ -205,15 +226,16 @@ export default async function StudentDashboard({
                                         href={`/${locale}/academy/dashboard`}
                                         className="px-8 py-3 bg-accent text-nautical-black font-bold uppercase tracking-widest text-xs rounded hover:bg-white transition-all shadow-[0_0_20px_rgba(var(--accent-rgb),0.2)]"
                                     >
-                                        {hasAcademyActivity ? 'Continuar Aprendiendo' : 'Empezar Ahora'}
+                                        {hasAcademyActivity ? t('academy_widget.btn_continue') : t('academy_widget.btn_start')}
                                     </Link>
                                 </div>
                             </div>
                         </section>
 
+
                         {/* Courses Section */}
                         <section>
-                            <h2 className="text-xs uppercase tracking-widest text-accent mb-8 font-bold">Tus Próximos Cursos Presenciales</h2>
+                            <h2 className="text-xs uppercase tracking-widest text-accent mb-8 font-bold">{t('courses_section.title')}</h2>
 
                             {upcomingInscripciones && upcomingInscripciones.length > 0 ? (
                                 <div className="space-y-6">
@@ -268,20 +290,21 @@ export default async function StudentDashboard({
                                     })}
                                 </div>
                             ) : (
-                                <div className="bg-card p-8 border border-card-border text-center rounded-sm">
-                                    <p className="text-foreground/40 text-xs font-light mb-6">No tienes cursos próximos programados.</p>
-                                    <Link href={`/${locale}/courses`} className="px-6 py-3 border border-accent text-accent text-[9px] uppercase tracking-widest hover:bg-accent hover:text-nautical-black transition-all">
-                                        Explorar Catálogo
-                                    </Link>
-                                </div>
+                                <EmptyState
+                                    icon="⛵"
+                                    title={t('courses_section.empty_title')}
+                                    subtitle={t('courses_section.empty_subtitle')}
+                                    actionLabel={t('courses_section.btn_explore')}
+                                    actionHref={`/${locale}/courses`}
+                                />
                             )}
                         </section>
 
                         {/* Rentals Section */}
                         <section>
                             <div className="flex justify-between items-end mb-8">
-                                <h2 className="text-xs uppercase tracking-widest text-accent font-bold">Próximos Alquileres</h2>
-                                <Link href={`/${locale}/rental`} className="text-[10px] uppercase tracking-widest text-foreground/40 hover:text-accent transition-colors">Nuevo Alquiler +</Link>
+                                <h2 className="text-xs uppercase tracking-widest text-accent font-bold">{t('rentals_section.title')}</h2>
+                                <Link href={`/${locale}/rental`} className="text-[10px] uppercase tracking-widest text-foreground/40 hover:text-accent transition-colors">{t('rentals_section.new_rental')}</Link>
                             </div>
 
                             {upcomingRentals && upcomingRentals.length > 0 ? (
@@ -328,19 +351,20 @@ export default async function StudentDashboard({
                                     })}
                                 </div>
                             ) : (
-                                <div className="bg-card p-8 border border-card-border text-center rounded-sm">
-                                    <p className="text-foreground/40 font-light mb-6">No tienes alquileres próximos.</p>
-                                    <Link href={`/${locale}/rental`} className="px-8 py-4 border border-accent text-accent text-[9px] uppercase tracking-widest hover:bg-accent hover:text-nautical-black transition-all">
-                                        Reservar Material
-                                    </Link>
-                                </div>
+                                <EmptyState
+                                    icon="🏄‍♂️"
+                                    title={t('rentals_section.empty_title')}
+                                    subtitle={t('rentals_section.empty_subtitle')}
+                                    actionLabel={t('rentals_section.btn_reserve')}
+                                    actionHref={`/${locale}/rental`}
+                                />
                             )}
                         </section>
 
                         {/* History Section */}
                         {(pastInscripciones.length > 0 || pastRentals.length > 0) && (
                             <section className="pt-8 border-t border-white/5">
-                                <h2 className="text-xs uppercase tracking-widest text-foreground/20 mb-8 font-bold">Historial Reciente</h2>
+                                <h2 className="text-xs uppercase tracking-widest text-foreground/20 mb-8 font-bold">{t('history_section.title')}</h2>
                                 <div className="space-y-4 opacity-50 hover:opacity-100 transition-opacity">
                                     {[...pastInscripciones, ...pastRentals].map((item: DashboardItem) => {
                                         const isRental = !!item.servicios_alquiler;
@@ -358,7 +382,7 @@ export default async function StudentDashboard({
                                                     <span className="text-foreground/40">{formatDateTime(dateStr, (item as any).hora_inicio)}</span>
                                                     <span className="text-white font-medium">{name}</span>
                                                 </div>
-                                                <span className="text-[8px] uppercase tracking-widest text-foreground/40">Completado</span>
+                                                <span className="text-[8px] uppercase tracking-widest text-foreground/40">{t('history_section.completed')}</span>
                                             </div>
                                         );
                                     })}
@@ -368,7 +392,9 @@ export default async function StudentDashboard({
                     </div>
 
                     {/* Sidebar */}
-                    <div className="lg:col-span-1">
+                    <div className="lg:col-span-1 space-y-8">
+                        <DailyChallengeWidget locale={locale} />
+
                         <StudentProfileSidebar
                             profile={profile}
                             email={user?.email || ''}

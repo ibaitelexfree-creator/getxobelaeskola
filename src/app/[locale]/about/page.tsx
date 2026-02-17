@@ -2,6 +2,25 @@ import React from 'react';
 import { getTranslations } from 'next-intl/server';
 import Link from 'next/link';
 import Image from 'next/image';
+import { Metadata } from 'next';
+
+export async function generateMetadata({ params: { locale } }: { params: { locale: string } }): Promise<Metadata> {
+    const isEu = locale === 'eu';
+    const title = isEu ? 'Gure Eskola | Getxo Bela Eskola' : 'Nuestra Escuela | Getxo Sailing School';
+    const description = isEu
+        ? 'Ezagutu Getxo Bela Eskolako historia eta balioak. 1993tik nabigazioaren pasioa partekatzen.'
+        : 'Descubre la historia y valores de Getxo Bela Eskola. Compartiendo la pasión por la navegación desde 1993.';
+
+    return {
+        title,
+        description,
+        openGraph: {
+            title,
+            description,
+            images: ['/images/about-hero-heritage.webp']
+        }
+    };
+}
 
 export default async function AboutPage({ params: { locale } }: { params: { locale: string } }) {
     const t = await getTranslations({ locale, namespace: 'about_page' });
@@ -12,11 +31,12 @@ export default async function AboutPage({ params: { locale } }: { params: { loca
             <section className="relative h-screen flex items-center justify-center overflow-hidden">
                 <div className="absolute inset-0 z-0">
                     <Image
-                        src="/images/about-hero-heritage.jpg"
+                        src="/images/about-hero-heritage.webp"
                         alt="Maritime Heritage"
                         fill
                         priority
                         className="object-cover opacity-30 scale-100 animate-slow-zoom"
+                        sizes="100vw"
                     />
                     <div className="absolute inset-0 bg-gradient-to-b from-nautical-black via-transparent to-nautical-black" />
                     <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(0,0,0,0.4)_100%)]" />
@@ -89,6 +109,7 @@ export default async function AboutPage({ params: { locale } }: { params: { loca
                                         src="/images/about-value-passion.jpg"
                                         alt="Sea Experience"
                                         fill
+                                        sizes="(max-width: 1024px) 100vw, 50vw"
                                         className="object-cover scale-110 group-hover:scale-100 transition-transform duration-[2s]"
                                     />
                                     <div className="absolute inset-0 bg-nautical-black/20 group-hover:bg-transparent transition-colors duration-1000" />
@@ -127,7 +148,7 @@ export default async function AboutPage({ params: { locale } }: { params: { loca
                                 title: t('values.v2_title'),
                                 desc: t('values.v2_desc'),
                                 icon: "⛵",
-                                bg: "/images/home-hero-sailing-action.jpg"
+                                bg: "/images/home-hero-sailing-action.webp"
                             },
                             {
                                 title: t('values.v3_title'),
@@ -139,7 +160,13 @@ export default async function AboutPage({ params: { locale } }: { params: { loca
                             <div key={i} className="group relative h-[600px] p-20 flex flex-col justify-end overflow-hidden border-r last:border-r-0 border-white/5">
                                 {/* Hover background image */}
                                 <div className="absolute inset-0 z-0 scale-110 group-hover:scale-100 opacity-0 group-hover:opacity-40 transition-all duration-[1.5s]">
-                                    <Image src={item.bg as string} alt={item.title as string} fill className="object-cover grayscale" />
+                                    <Image
+                                        src={item.bg as string}
+                                        alt={item.title as string}
+                                        fill
+                                        sizes="(max-width: 768px) 100vw, 33vw"
+                                        className="object-cover grayscale"
+                                    />
                                 </div>
                                 <div className="absolute inset-0 bg-gradient-to-t from-nautical-black via-nautical-black/80 to-transparent z-1" />
 
@@ -164,9 +191,10 @@ export default async function AboutPage({ params: { locale } }: { params: { loca
             <section className="relative h-[80vh] flex items-center justify-center overflow-hidden">
                 <div className="absolute inset-0">
                     <Image
-                        src="/images/home-cta-join.jpg"
+                        src="/images/home-cta-join.webp"
                         alt="Join us"
                         fill
+                        sizes="100vw"
                         className="object-cover opacity-20"
                     />
                     <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(0,0,0,0.8)_100%)]" />

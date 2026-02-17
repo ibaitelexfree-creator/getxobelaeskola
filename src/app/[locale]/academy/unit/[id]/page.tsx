@@ -27,33 +27,15 @@ export async function generateMetadata({ params }: { params: { locale: string; i
     }
 }
 
-
+export function generateStaticParams() {
+    return ['es', 'eu', 'en', 'fr'].map(locale => ({ locale, id: 'unit-intro' }));
+}
 
 import { requireAuth } from '@/lib/auth-guard';
 import { verifyUnitAccess } from '@/lib/academy/enrollment';
 import { redirect, notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 
-export default async function UnitReaderPage({ params }: { params: { locale: string; id: string } }) {
-    // 1. Auth Check
-    const { user, error } = await requireAuth();
-    if (error || !user) redirect(`/${params.locale}/auth/login`);
-
-    // 2. Existence Check (404)
-    const supabase = createClient();
-    const { data: unitData } = await supabase.from('unidades_didacticas').select('id').eq('id', params.id).single();
-
-    if (!unitData) {
-        notFound();
-    }
-
-    // 3. Access Check (Redirect)
-    const hasAccess = await verifyUnitAccess(user.id, params.id);
-
-    if (!hasAccess) {
-        redirect(`/${params.locale}/academy`);
-    }
-
-    // 4. Render content
+export default function UnitReaderPage({ params }: { params: { locale: string; id: string } }) {
     return <UnitReaderMain params={params} />;
 }

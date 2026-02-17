@@ -698,6 +698,7 @@ export default function FinancialReportsClient({ initialData, initialView, total
                                 <th className="py-6 text-3xs uppercase tracking-widest text-white/40 font-black">{t('date')}</th>
                                 <th className="py-6 text-3xs uppercase tracking-widest text-white/40 font-black">{t('client')}</th>
                                 <th className="py-6 text-3xs uppercase tracking-widest text-white/40 font-black">{t('service')}</th>
+                                <th className="py-6 text-3xs uppercase tracking-widest text-white/40 font-black">Cupón</th>
                                 <th className="py-6 text-3xs uppercase tracking-widest text-white/40 font-black">{t('status_payment')}</th>
                                 <th className="py-6 text-right text-3xs uppercase tracking-widest text-white/40 font-black">{t('amount')}</th>
                             </tr>
@@ -779,6 +780,13 @@ export default function FinancialReportsClient({ initialData, initialView, total
                                             )}
                                         </div>
                                     </td>
+                                    <td className="py-6 text-3xs font-mono text-white/40">
+                                        {item.cupon_usado ? (
+                                            <span className="bg-accent/10 text-accent px-2 py-1 rounded-sm border border-accent/20">
+                                                {item.cupon_usado}
+                                            </span>
+                                        ) : '--'}
+                                    </td>
                                     <td className="py-6">
                                         <div className="flex items-center gap-2 group/cell">
                                             <span className={`text-3xs uppercase tracking-tighter px-3 py-1 border rounded-full ${item.estado_pago === 'pagado' ? 'border-green-500/30 text-green-500' : 'border-accent/30 text-accent'}`}>
@@ -846,7 +854,7 @@ export default function FinancialReportsClient({ initialData, initialView, total
                                 </tr>
                             )) : (
                                 <tr>
-                                    <td colSpan={5} className="py-20 text-center text-white/10 italic">
+                                    <td colSpan={6} className="py-20 text-center text-white/10 italic">
                                         <div className="flex flex-col items-center gap-4">
                                             <span className="text-lg">{t('no_records')}</span>
 
@@ -880,7 +888,7 @@ export default function FinancialReportsClient({ initialData, initialView, total
                         </tbody>
                         <tfoot>
                             <tr className="border-t border-white/10 bg-white/[0.01]">
-                                <td colSpan={4} className="py-8 text-right pr-6">
+                                <td colSpan={5} className="py-8 text-right pr-6">
                                     <span className="text-3xs uppercase tracking-[0.3em] font-black text-white/20">{t('total_sum')}</span>
                                 </td>
                                 <td className="py-8 text-right">

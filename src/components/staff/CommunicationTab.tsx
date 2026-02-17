@@ -2,6 +2,7 @@
 import React from 'react';
 import { useTranslations } from 'next-intl';
 import { ClientDate } from './StaffShared';
+import CampaignManager from './marketing/CampaignManager';
 
 interface Newsletter {
     id: string;
@@ -26,6 +27,10 @@ export default function CommunicationTab({ newsletters, onSendMessage, isSending
     const [content, setContent] = React.useState('');
     const [scheduledFor, setScheduledFor] = React.useState('');
 
+    // Marketing Automation State
+    const [isProcessingMarketing, setIsProcessingMarketing] = React.useState(false);
+    const [marketingResult, setMarketingResult] = React.useState<{ success: boolean, totalSent?: number, error?: string } | null>(null);
+
     const handleSubmit = async () => {
         if (!title || !content) {
             alert('Por favor rellena el título y contenido');
@@ -41,6 +46,26 @@ export default function CommunicationTab({ newsletters, onSendMessage, isSending
         setScheduledFor('');
     };
 
+    const handleRunMarketing = async () => {
+        if (!confirm('¿Deseas ejecutar las automatizaciones de marketing ahora? Esto enviará correos a los alumnos que cumplan los criterios.')) return;
+
+        setIsProcessingMarketing(true);
+        setMarketingResult(null);
+        try {
+            const res = await fetch('/api/admin/marketing/process', { method: 'POST' });
+            const data = await res.json();
+            setMarketingResult({
+                success: data.success,
+                totalSent: data.totalSent,
+                error: data.error
+            });
+        } catch (err) {
+            setMarketingResult({ success: false, error: 'Error de red' });
+        } finally {
+            setIsProcessingMarketing(false);
+        }
+    };
+
     return (
         <div className="space-y-12 animate-premium-in">
             <header className="flex justify-between items-end border-b border-white/10 pb-12">
@@ -50,6 +75,49 @@ export default function CommunicationTab({ newsletters, onSendMessage, isSending
                     <p className="text-technical text-white/40 tracking-[0.2em] uppercase">{t('communication.subtitle')}</p>
                 </div>
             </header>
+
+            {/* MARKETING AUTOMATION PANEL */}
+            <div className="glass-panel p-12 border-l-4 border-accent relative overflow-hidden">
+                <div className="absolute top-0 right-0 p-8 opacity-10">
+                    <svg className="w-24 h-24 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                </div>
+                <div className="relative z-10 space-y-6">
+                    <div className="flex justify-between items-start">
+                        <div className="space-y-2">
+                            <h3 className="text-2xl font-display text-white italic">Estrategia de Marketing Automatizado</h3>
+                            <p className="text-sm text-white/40 max-w-2xl font-mono">
+                                El sistema revisa automáticamente qué alumnos no han vuelto en 3 meses desde su último curso de "Iniciación"
+                                y les envía un cupón de descuento personalizado para el curso de "Perfeccionamiento".
+                            </p>
+                        </div>
+                        <button
+                            onClick={handleRunMarketing}
+                            disabled={isProcessingMarketing}
+                            className="px-8 py-4 bg-white/5 border border-accent/30 text-accent text-[10px] uppercase tracking-[0.3em] font-black hover:bg-accent hover:text-nautical-black transition-all disabled:opacity-50"
+                        >
+                            {isProcessingMarketing ? 'PROCESANDO...' : 'EJECUTAR MANUALMENTE'}
+                        </button>
+                    </div>
+
+                    {marketingResult && (
+                        <div className={`p-6 border ${marketingResult.success ? 'border-green-500/20 bg-green-500/5' : 'border-red-500/20 bg-red-500/5'} rounded-sm animate-premium-in`}>
+                            <div className="flex items-center gap-4">
+                                <span className={`w-2 h-2 rounded-full ${marketingResult.success ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`} />
+                                <span className="text-2xs uppercase tracking-widest font-bold text-white/80">
+                                    {marketingResult.success
+                                        ? `Automatización completada con éxito. Se han enviado ${marketingResult.totalSent} correos.`
+                                        : `Error en el proceso: ${marketingResult.error || 'Desconocido'}`}
+                                </span>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            </div>
+
+            {/* CAMPAIGN MANAGEMENT UI */}
+            <CampaignManager />
 
             <div className="grid lg:grid-cols-2 gap-16">
                 <div className="space-y-8 glass-panel p-12 relative overflow-hidden">
