@@ -690,6 +690,50 @@
             "home_button": "GO HOME ⚓"
         }
     },
+    "student_dashboard": {
+        "eyebrow": "Student Area",
+        "welcome": "Hello, {name}",
+        "subtitle": "Manage your courses and certifications.",
+        "academy_widget": {
+            "title": "Virtual Campus",
+            "go_to_panel": "Go to Academic Panel +",
+            "card_title": "Digital Academy",
+            "card_desc_active": "Continue your online training, complete units and get official certifications.",
+            "card_desc_inactive": "Access theoretical courses online, official exams and navigation simulations.",
+            "stats_levels": "Levels",
+            "stats_certs": "Certificates",
+            "btn_continue": "Continue Learning",
+            "btn_start": "Start Now"
+        },
+        "courses_section": {
+            "title": "Your Next Face-to-Face Courses",
+            "empty_title": "You don't have courses yet,",
+            "empty_subtitle": "start your adventure here!",
+            "btn_explore": "Explore Catalog"
+        },
+        "rentals_section": {
+            "title": "Upcoming Rentals",
+            "new_rental": "New Rental +",
+            "empty_title": "You don't have upcoming rentals,",
+            "empty_subtitle": "the bay is waiting for you.",
+            "btn_reserve": "Book Gear"
+        },
+        "history_section": {
+            "title": "Recent History",
+            "completed": "Completed"
+        },
+        "daily_challenge": {
+            "title": "Daily Challenge",
+            "subtitle": "Learn something new today",
+            "reward": "+{xp} XP",
+            "submit": "Verify Answer",
+            "correct": "Excellent! You have earned {xp} XP.",
+            "wrong": "That's not correct. The answer was: {answer}",
+            "already_done": "You have already completed your daily challenge.",
+            "come_back": "Come back tomorrow to keep adding points.",
+            "explanation": "Did you know..."
+        }
+    },
     "wind_lab": {
         "title": "Wind Lab",
         "subtitle": "Fluid Dynamics",

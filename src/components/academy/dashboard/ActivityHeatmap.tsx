@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import CalendarHeatmap from 'react-calendar-heatmap';
 import 'react-calendar-heatmap/dist/styles.css';
 import { format, subDays } from 'date-fns';
@@ -10,8 +10,18 @@ interface ActivityHeatmapProps {
 }
 
 export default function ActivityHeatmap({ data }: ActivityHeatmapProps) {
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+
     const today = new Date();
     const startDate = subDays(today, 365);
+
+    if (!mounted) return (
+        <div className="bg-white/5 border border-white/10 rounded-xl p-6 h-32 animate-pulse" />
+    );
 
     return (
         <div className="bg-white/5 border border-white/10 rounded-xl p-6">
@@ -31,9 +41,13 @@ export default function ActivityHeatmap({ data }: ActivityHeatmapProps) {
                         }}
                         tooltipDataAttrs={(value: any) => {
                             if (!value || !value.date) return { 'data-tip': 'Sin actividad' };
-                            return {
-                                'data-tip': `${format(new Date(value.date), 'dd/MM/yyyy')}: ${value.count} actividades`
-                            };
+                            try {
+                                return {
+                                    'data-tip': `${format(new Date(value.date), 'dd/MM/yyyy')}: ${value.count} actividades`
+                                };
+                            } catch (e) {
+                                return { 'data-tip': 'Error en fecha' };
+                            }
                         }}
                     />
                 </div>
