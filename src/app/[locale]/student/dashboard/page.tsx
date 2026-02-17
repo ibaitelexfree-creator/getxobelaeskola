@@ -15,7 +15,7 @@ export default async function StudentDashboard({
     // Pass raw translations as a plain object to avoid serialization issues
     const translations = {
         eyebrow: t('eyebrow'),
-        welcome: t('welcome'),
+        welcome: t.raw('welcome'),
         subtitle: t('subtitle'),
         academy_widget: {
             title: t('academy_widget.title'),
