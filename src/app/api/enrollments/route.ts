@@ -1,21 +1,24 @@
-
 import { NextResponse } from 'next/server';
 import { requireAuth } from '@/lib/auth-guard';
 import { getUserEnrollments } from '@/lib/academy/enrollment';
+import { withCors, corsHeaders } from '@/lib/api-headers';
 
 export const dynamic = 'force-dynamic';
 
+
 /**
- * GET /api/academy/enrollments
+ * GET /api/enrollments
  * 
  * Returns the list of course IDs that the currently authenticated user
  * has successfully purchased.
- * 
- * Security:
- * - Requires authentication via session cookies.
- * - Extracts User ID strictly from the validated session.
- * - Returns only a list of IDs, no personal or payment data.
  */
+
+export async function OPTIONS(request: Request) {
+    return new NextResponse(null, {
+        status: 204,
+        headers: corsHeaders(request)
+    });
+}
 export async function GET(request: Request) {
     try {
         // 1. Authentication & Identity Verification
@@ -23,10 +26,10 @@ export async function GET(request: Request) {
         const { user, error } = await requireAuth();
 
         if (error || !user) {
-            return NextResponse.json(
+            return withCors(NextResponse.json(
                 { error: 'Unauthorized' },
                 { status: 401 }
-            );
+            ), request);
         }
 
         // 2. Data Retrieval
@@ -35,17 +38,17 @@ export async function GET(request: Request) {
 
         // 3. Secure Response
         // Minimal data exposure: Only IDs
-        return NextResponse.json({
+        return withCors(NextResponse.json({
             enrollments: courseIds
-        });
+        }), request);
 
     } catch (err) {
         // 4. Fail Closed / Error Handling
         console.error('Error in /api/academy/enrollments:', err);
 
-        return NextResponse.json(
+        return withCors(NextResponse.json(
             { error: 'Internal Server Error' },
             { status: 500 }
-        );
+        ), request);
     }
 }

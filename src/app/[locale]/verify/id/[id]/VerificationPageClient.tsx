@@ -4,6 +4,8 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
+import { apiUrl } from '@/lib/api';
+
 
 interface VerificationData {
     numero: string;
@@ -30,7 +32,7 @@ export default function VerificationPageClient({
     useEffect(() => {
         async function verify() {
             try {
-                const res = await fetch(`/api/verify/${params.id}`);
+                const res = await fetch(apiUrl(`/api/verify/${params.id}`));
                 const result = await res.json();
 
                 if (result.valid) {

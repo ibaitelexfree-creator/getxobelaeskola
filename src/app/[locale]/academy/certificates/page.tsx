@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import CertificateCard from '@/components/academy/CertificateCard';
+import { apiUrl } from '@/lib/api';
 
 interface Certificado {
     id: string;
@@ -29,7 +30,7 @@ export default function CertificatesPage({ params }: { params: { locale: string 
     useEffect(() => {
         async function fetchCerts() {
             try {
-                const res = await fetch('/api/academy/certificates');
+                const res = await fetch(apiUrl('/api/academy/certificates'));
                 const data = await res.json();
                 if (data.certificados) {
                     setCertificados(data.certificados);

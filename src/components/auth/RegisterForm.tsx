@@ -7,6 +7,8 @@ import * as z from 'zod';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
+import { apiUrl } from '@/lib/api';
+
 
 export default function RegisterForm() {
     const t = useTranslations('auth_form');
@@ -89,7 +91,7 @@ export default function RegisterForm() {
             if (data.subscribeNewsletter) {
                 try {
                     const locale = window.location.pathname.split('/')[1] || 'es';
-                    await fetch('/api/newsletter/subscribe', {
+                    await fetch(apiUrl('/api/newsletter/subscribe'), {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ email: data.email, locale })

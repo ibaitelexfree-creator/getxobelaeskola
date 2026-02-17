@@ -3,6 +3,8 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { createPortal } from 'react-dom';
 import { useTranslations } from 'next-intl';
+import { apiUrl } from '@/lib/api';
+
 
 interface Profile {
     id: string;
@@ -58,7 +60,7 @@ export default function EditProfileModal({ isOpen, onClose, profile, onProfileUp
         e.preventDefault();
         setLoading(true);
         try {
-            const res = await fetch('/api/student/update-profile', {
+            const res = await fetch(apiUrl('/api/student/update-profile'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(formData)

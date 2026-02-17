@@ -1,5 +1,13 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
+import { withCors, corsHeaders } from '@/lib/api-headers';
+
+export async function OPTIONS(request: Request) {
+    return new NextResponse(null, {
+        status: 204,
+        headers: corsHeaders(request)
+    });
+}
 
 export async function POST(request: Request) {
     try {
@@ -9,7 +17,7 @@ export async function POST(request: Request) {
         const { data: { user }, error: authError } = await supabase.auth.getUser();
 
         if (authError || !user) {
-            return NextResponse.json({ error: 'No autenticado' }, { status: 401 });
+            return withCors(NextResponse.json({ error: 'No autenticado' }, { status: 401 }), request);
         }
 
         const body = await request.json();
@@ -17,10 +25,10 @@ export async function POST(request: Request) {
 
         // Validar datos
         if (!tipo_entidad || !entidad_id) {
-            return NextResponse.json(
+            return withCors(NextResponse.json(
                 { error: 'Faltan datos requeridos' },
                 { status: 400 }
-            );
+            ), request);
         }
 
         // --- HARDENING: VALIDAR ACCESO (Fase 15) ---
@@ -32,10 +40,10 @@ export async function POST(request: Request) {
         });
 
         if (accessError || !tieneAcceso) {
-            return NextResponse.json({
+            return withCors(NextResponse.json({
                 error: 'Acceso denegado: El contenido está bloqueado.',
                 reason: 'locked_content'
-            }, { status: 403 });
+            }, { status: 403 }), request);
         }
 
         // Prevenir completado manual si hay quiz
@@ -49,10 +57,10 @@ export async function POST(request: Request) {
                 .maybeSingle();
 
             if (quiz) {
-                return NextResponse.json({
+                return withCors(NextResponse.json({
                     error: 'Esta unidad requiere aprobar el quiz para completarse.',
                     requires_quiz: true
-                }, { status: 403 });
+                }, { status: 403 }), request);
             }
         }
         // -------------------------------------------
@@ -71,7 +79,7 @@ export async function POST(request: Request) {
 
         if (rpcError) {
             console.error('Error en recalcular_progreso_alumno:', rpcError);
-            return NextResponse.json({ error: rpcError.message }, { status: 500 });
+            return withCors(NextResponse.json({ error: rpcError.message }, { status: 500 }), request);
         }
 
         // BUSCAR LOGROS Y HABILIDADES RECIENTES (Fase 13 - Integración)
@@ -93,18 +101,18 @@ export async function POST(request: Request) {
             .eq('student_id', user.id)
             .gte('unlocked_at', bufferTime);
 
-        return NextResponse.json({
+        return withCors(NextResponse.json({
             progreso: resultado,
             feedback: {
                 logros: nuevosLogros?.map((l: any) => l.logro) || [],
                 habilidades: nuevasHabilidades?.map((h: any) => h.habilidad) || []
             }
-        });
+        }), request);
     } catch (error) {
         console.error('Error crítico en progress update:', error);
-        return NextResponse.json(
+        return withCors(NextResponse.json(
             { error: 'Error interno al actualizar progreso' },
             { status: 500 }
-        );
+        ), request);
     }
 }

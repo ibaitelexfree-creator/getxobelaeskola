@@ -3,6 +3,8 @@ import { useEvaluation } from './useEvaluation';
 import CooldownScreen from './CooldownScreen';
 import QuizView from './QuizView';
 import ResultScreen from './ResultScreen';
+import { apiUrl } from '@/lib/api';
+
 
 interface SimpleEvaluationProps {
     evaluacionId?: string; // ID directo de la evaluación (opcional)
@@ -42,7 +44,7 @@ export default function SimpleEvaluation({ evaluacionId, entidadTipo, entidadId,
             }
 
             try {
-                const res = await fetch(`/api/academy/evaluaciones?entidad_tipo=${entidadTipo}&entidad_id=${entidadId}`);
+                const res = await fetch(apiUrl(`/api/academy/evaluaciones?entidad_tipo=${entidadTipo}&entidad_id=${entidadId}`));
                 const data = await res.json();
 
                 if (data.error || !data.id) {

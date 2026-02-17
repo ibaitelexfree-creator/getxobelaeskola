@@ -78,7 +78,7 @@ export default function HeroCarousel() {
                                 <span className="text-accent uppercase tracking-[0.4em] text-2xs font-bold mb-6 block">
                                     Getxo <span className="italic">Bela</span> Eskola
                                 </span>
-                                <h1 className="text-4xl md:text-8xl lg:text-9xl font-display text-white mb-8 leading-tight">
+                                <h1 className="text-3xl sm:text-4xl md:text-8xl lg:text-9xl font-display text-white mb-8 leading-tight">
                                     {slide.title.split(' ').map((word, i) => (
                                         <span key={i} className={i % 2 !== 0 ? 'italic font-light' : ''}>
                                             {word}{' '}

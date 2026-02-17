@@ -36,7 +36,7 @@ export default async function Home({ params: { locale } }: { params: { locale: s
             <span className="text-accent uppercase tracking-[0.6em] text-sm font-bold mb-8 block animate-fade-in-up">
               {t('programs.badge')}
             </span>
-            <h2 className="text-4xl md:text-7xl lg:text-9xl font-display text-white mb-12 italic leading-none animate-reveal">
+            <h2 className="text-3xl sm:text-4xl md:text-7xl lg:text-9xl font-display text-white mb-12 italic leading-none animate-reveal">
               {t('programs.title')}
             </h2>
             <div className="w-32 h-px bg-gradient-to-r from-transparent via-brass-gold to-transparent mx-auto" />
@@ -121,7 +121,7 @@ export default async function Home({ params: { locale } }: { params: { locale: s
           <div className="container mx-auto px-6 text-center space-y-16">
             <header className="space-y-8">
               <span className="text-accent uppercase tracking-[0.6em] text-sm font-bold block opacity-40 group-hover:opacity-100 transition-opacity">Nuestra Flota</span>
-              <h2 className="text-4xl md:text-8xl lg:text-[12rem] font-display text-white mb-12 italic leading-none animate-reveal">
+              <h2 className="text-3xl sm:text-4xl md:text-8xl lg:text-[12rem] font-display text-white mb-12 italic leading-none animate-reveal">
                 {t('fleet_cta.title')} <br />
                 <span className="not-italic font-light text-brass-gold/80">{t('fleet_cta.highlight')}</span>
               </h2>

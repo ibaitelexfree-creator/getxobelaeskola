@@ -1,8 +1,15 @@
-
 import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
+import { withCors, corsHeaders } from '@/lib/api-headers';
 
 export const dynamic = 'force-dynamic';
+
+export async function OPTIONS(request: Request) {
+    return new NextResponse(null, {
+        status: 204,
+        headers: corsHeaders(request)
+    });
+}
 
 export async function GET(request: Request) {
     try {
@@ -43,16 +50,16 @@ export async function GET(request: Request) {
 
         if (error) {
             console.error('Error fetching courses:', error);
-            return NextResponse.json({ cursos: [] });
+            return withCors(NextResponse.json({ cursos: [] }), request);
         }
 
-        return NextResponse.json({ cursos });
+        return withCors(NextResponse.json({ cursos }), request);
 
     } catch (err) {
         console.error('Error in academy courses API:', err);
-        return NextResponse.json(
+        return withCors(NextResponse.json(
             { error: 'Internal Server Error' },
             { status: 500 }
-        );
+        ), request);
     }
 }

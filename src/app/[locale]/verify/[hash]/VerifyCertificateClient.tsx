@@ -3,6 +3,8 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
+import { apiUrl } from '@/lib/api';
+
 
 interface CheckResult {
     valid: boolean;
@@ -27,7 +29,7 @@ export default function VerifyCertificateClient({ params }: { params: { locale: 
         async function verify() {
             try {
                 // Usar hash de la URL
-                const res = await fetch(`/api/academy/certificates/verify/${params.hash}`);
+                const res = await fetch(apiUrl(`/api/academy/certificates/verify/${params.hash}`));
                 const data = await res.json();
 
                 if (res.ok) {

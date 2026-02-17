@@ -40,7 +40,7 @@ export default function ExperienceSection() {
                             <span className="text-brass-gold uppercase tracking-[0.4em] text-2xs font-bold mb-6 block">
                                 {t('filosofia')}
                             </span>
-                            <h2 className="text-5xl lg:text-7xl font-display text-white mb-8 leading-[1.1]">
+                            <h2 className="text-3xl sm:text-5xl lg:text-7xl font-display text-white mb-8 leading-[1.1]">
                                 {t('lifestyle_title')} <br />
                                 <span className="italic font-light">{t('lifestyle_subtitle')}</span>
                             </h2>

@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
+import { apiUrl } from '@/lib/api';
 
 interface Logro {
     id: string;
@@ -33,7 +34,7 @@ export default function AchievementsPage({ params }: { params: { locale: string 
     useEffect(() => {
         async function fetchData() {
             try {
-                const res = await fetch('/api/academy/achievements');
+                const res = await fetch(apiUrl('/api/academy/achievements'));
                 const data = await res.json();
 
                 if (data.catálogo) {
@@ -101,8 +102,8 @@ export default function AchievementsPage({ params }: { params: { locale: string 
                             key={cat}
                             onClick={() => setFilter(cat)}
                             className={`px-4 py-2 rounded-full text-xs font-bold uppercase tracking-widest transition-all ${filter === cat
-                                    ? 'bg-accent text-nautical-black'
-                                    : 'bg-white/5 text-white/40 hover:bg-white/10 hover:text-white border border-white/10'
+                                ? 'bg-accent text-nautical-black'
+                                : 'bg-white/5 text-white/40 hover:bg-white/10 hover:text-white border border-white/10'
                                 }`}
                         >
                             {cat}
@@ -118,8 +119,8 @@ export default function AchievementsPage({ params }: { params: { locale: string 
                             <div
                                 key={logro.id}
                                 className={`relative p-6 rounded-2xl border transition-all duration-500 overflow-hidden group ${obtenido
-                                        ? 'bg-white/5 border-white/20'
-                                        : 'bg-black/40 border-white/5 grayscale opacity-60'
+                                    ? 'bg-white/5 border-white/20'
+                                    : 'bg-black/40 border-white/5 grayscale opacity-60'
                                     }`}
                             >
                                 {/* Decoración de fondo si obtenido */}
@@ -129,8 +130,8 @@ export default function AchievementsPage({ params }: { params: { locale: string 
 
                                 <div className="flex flex-col items-center text-center space-y-4 relative z-10">
                                     <div className={`w-20 h-20 rounded-full flex items-center justify-center text-4xl shadow-xl transition-transform duration-500 group-hover:scale-110 ${obtenido
-                                            ? 'bg-yellow-500/20 border-2 border-yellow-500/50 text-yellow-500 ring-4 ring-yellow-500/10'
-                                            : 'bg-white/5 border-2 border-white/10 text-white/20'
+                                        ? 'bg-yellow-500/20 border-2 border-yellow-500/50 text-yellow-500 ring-4 ring-yellow-500/10'
+                                        : 'bg-white/5 border-2 border-white/10 text-white/20'
                                         }`}>
                                         {obtenido ? logro.icono : '🔒'}
                                     </div>
@@ -146,9 +147,9 @@ export default function AchievementsPage({ params }: { params: { locale: string 
 
                                     <div className="pt-2 flex flex-col items-center gap-2">
                                         <span className={`text-[10px] font-black uppercase tracking-[0.2em] px-3 py-1 rounded-full border ${logro.rareza === 'legendario' ? 'border-yellow-500/50 text-yellow-500 bg-yellow-500/5' :
-                                                logro.rareza === 'epico' ? 'border-purple-500/50 text-purple-500 bg-purple-500/5' :
-                                                    logro.rareza === 'raro' ? 'border-blue-500/50 text-blue-500 bg-blue-500/5' :
-                                                        'border-white/10 text-white/40'
+                                            logro.rareza === 'epico' ? 'border-purple-500/50 text-purple-500 bg-purple-500/5' :
+                                                logro.rareza === 'raro' ? 'border-blue-500/50 text-blue-500 bg-blue-500/5' :
+                                                    'border-white/10 text-white/40'
                                             }`}>
                                             {logro.rareza}
                                         </span>

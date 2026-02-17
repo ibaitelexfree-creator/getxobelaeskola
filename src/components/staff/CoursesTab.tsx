@@ -2,6 +2,8 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { apiUrl } from '@/lib/api';
+
 
 
 interface Course {
@@ -44,7 +46,7 @@ export default function CoursesTab() {
     const fetchCourses = async () => {
         setLoading(true);
         try {
-            const res = await fetch('/api/admin/courses/list');
+            const res = await fetch(apiUrl('/api/admin/courses/list'));
             const data = await res.json();
             if (res.ok) {
                 setCourses(data.courses || []);
@@ -100,7 +102,7 @@ export default function CoursesTab() {
                 ? { ...formData, id: editingCourse.id }
                 : formData;
 
-            const res = await fetch(endpoint, {
+            const res = await fetch(apiUrl(endpoint), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
@@ -125,7 +127,7 @@ export default function CoursesTab() {
         if (!confirm(`¿Estás seguro de que quieres ${currentStatus ? 'archivar' : 'activar'} este curso?`)) return;
 
         try {
-            const res = await fetch('/api/admin/courses/archive', {
+            const res = await fetch(apiUrl('/api/admin/courses/archive'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ id, activo: !currentStatus })

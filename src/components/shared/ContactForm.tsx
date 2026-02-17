@@ -6,6 +6,8 @@ import * as z from 'zod';
 import { useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useTranslations } from 'next-intl';
+import { apiUrl } from '@/lib/api';
+
 
 export default function ContactForm() {
     const t = useTranslations('contact_form');
@@ -39,7 +41,7 @@ export default function ContactForm() {
         setError(null);
 
         try {
-            const response = await fetch('/api/contact', {
+            const response = await fetch(apiUrl('/api/contact'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data),

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import { getApiUrl } from '@/lib/platform';
 import StudentProfileSidebar from '@/components/student/StudentProfileSidebar';
 import MembershipWidget from '@/components/student/MembershipWidget';
 import DashboardRefresh from '@/components/student/DashboardRefresh';
@@ -34,7 +35,7 @@ export default function StudentDashboardClient({
     useEffect(() => {
         async function fetchDashboardData() {
             try {
-                const res = await fetch('/api/student/dashboard-stats');
+                const res = await fetch(getApiUrl('/api/student/dashboard-stats'));
                 const json = await res.json();
                 setData(json);
             } catch (e) {

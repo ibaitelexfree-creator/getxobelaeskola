@@ -1,6 +1,8 @@
 'use client';
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { apiUrl } from '@/lib/api';
+
 
 interface MembershipWidgetProps {
     status: string;
@@ -13,7 +15,7 @@ export default function MembershipWidget({ status, locale }: MembershipWidgetPro
     const handleSubscribe = async () => {
         try {
             setLoading(true);
-            const res = await fetch('/api/membership/subscribe', {
+            const res = await fetch(apiUrl('/api/membership/subscribe'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ locale })

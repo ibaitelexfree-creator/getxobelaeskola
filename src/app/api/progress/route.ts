@@ -1,20 +1,27 @@
-
 import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
 import { requireAuth } from '@/lib/auth-guard';
 import { getUserEnrollments } from '@/lib/academy/enrollment';
+import { withCors, corsHeaders } from '@/lib/api-headers';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET() {
+export async function OPTIONS(request: Request) {
+    return new NextResponse(null, {
+        status: 204,
+        headers: corsHeaders(request)
+    });
+}
+
+export async function GET(request: Request) {
     try {
         // 1. AUTHENTICATION
         const { user, profile, error } = await requireAuth();
         if (error || !user) {
-            return NextResponse.json(
+            return withCors(NextResponse.json(
                 { error: 'Unauthorized' },
                 { status: 401 }
-            );
+            ), request);
         }
 
         const is_staff = profile?.rol === 'admin' || profile?.rol === 'instructor';
@@ -231,7 +238,7 @@ export async function GET() {
             });
         }
 
-        return NextResponse.json({
+        return withCors(NextResponse.json({
             user: {
                 full_name: profile?.nombre ? `${profile.nombre} ${profile.apellidos || ''}`.trim() : user.email,
                 avatar_url: profile?.avatar_url
@@ -268,13 +275,13 @@ export async function GET() {
             is_staff: profile?.rol === 'admin' || profile?.rol === 'instructor',
             enrolledCourseIds,
             recommendations
-        });
+        }), request);
 
     } catch (err) {
         console.error('Error fetching progress:', err);
-        return NextResponse.json(
+        return withCors(NextResponse.json(
             { error: 'Internal Server Error' },
             { status: 500 }
-        );
+        ), request);
     }
 }

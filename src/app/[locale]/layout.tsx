@@ -18,6 +18,9 @@ export const viewport: Viewport = {
   themeColor: '#001B3A', // Nautical Black
   width: 'device-width',
   initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  viewportFit: 'cover',
 };
 
 export function generateStaticParams() {
@@ -39,7 +42,7 @@ export default async function LocaleLayout({
       <body suppressHydrationWarning>
         <NextIntlClientProvider messages={messages} locale={locale} timeZone="Europe/Madrid">
           <AcademyFeedbackProvider>
-            <div className="min-h-screen flex flex-col relative">
+            <div className="min-h-screen flex flex-col relative w-full overflow-x-hidden">
               <ConditionalLayout
                 navbar={<Navbar locale={locale} />}
                 footer={<Footer locale={locale} />}

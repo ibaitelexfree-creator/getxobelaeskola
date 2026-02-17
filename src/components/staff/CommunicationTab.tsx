@@ -3,6 +3,8 @@ import React from 'react';
 import { useTranslations } from 'next-intl';
 import { ClientDate } from './StaffShared';
 import CampaignManager from './marketing/CampaignManager';
+import { apiUrl } from '@/lib/api';
+
 
 interface Newsletter {
     id: string;
@@ -52,7 +54,7 @@ export default function CommunicationTab({ newsletters, onSendMessage, isSending
         setIsProcessingMarketing(true);
         setMarketingResult(null);
         try {
-            const res = await fetch('/api/admin/marketing/process', { method: 'POST' });
+            const res = await fetch(apiUrl('/api/admin/marketing/process'), { method: 'POST' });
             const data = await res.json();
             setMarketingResult({
                 success: data.success,

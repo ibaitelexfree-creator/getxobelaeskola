@@ -209,7 +209,7 @@
         "register_title": "Rejoignez l'École",
         "register_desc": "Créez votre compte pour commencer votre formation nautique.",
         "has_account": "Vous avez déjà un compte ?",
-        "login_here": "Inicia sesión ici",
+        "login_here": "Connectez-vous ici",
         "forgot_password_title": "Récupérer l'accès",
         "forgot_password_desc": "Entrez votre email pour recevoir un lien de récupération.",
         "reset_password_title": "Nouveau mot de passe",
@@ -322,7 +322,12 @@
         "school": "L'École",
         "contact": "Contact",
         "copyright": "© 2026 Getxo Bela Eskola · Expérience Nautique Premium",
-        "slogan": "Getxo Bela Eskola · L'expérience nautique par excellence dans la Marina de Getxo."
+        "slogan": "Getxo Bela Eskola · L'expérience nautique par excellence dans la Marina de Getxo.",
+        "links": {
+            "privacy": "Confidentialité",
+            "terms": "Conditions",
+            "cookies": "Cookies"
+        }
     },
     "nautical_radar": {
         "title": "Radar de Navigation \"Pont de Commandement\"",
