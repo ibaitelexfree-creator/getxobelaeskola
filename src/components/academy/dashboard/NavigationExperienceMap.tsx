@@ -207,11 +207,42 @@ export default function NavigationExperienceMap({ sessions, locale }: Navigation
 
                 {/* Stats & Actions */}
                 <div className="lg:col-span-2 space-y-6">
+                    {/* Manual Control Panel (High Priority for APK) */}
+                    <div className="p-6 bg-blue-600/10 border border-blue-500/20 rounded-2xl shadow-xl backdrop-blur-sm">
+                        <div className="flex items-center gap-3 mb-6 font-display italic text-lg text-white">
+                            <Compass className={`text-accent ${isTracking ? 'animate-spin-slow' : ''}`} size={24} />
+                            Control de Travesía
+                        </div>
+
+                        {!isTracking ? (
+                            <button
+                                onClick={() => startTracking(false)}
+                                className="w-full py-5 bg-accent text-nautical-black rounded-xl font-black uppercase tracking-[0.2em] text-sm shadow-[0_0_20px_rgba(255,191,0,0.3)] hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3"
+                            >
+                                <Play fill="currentColor" size={20} />
+                                Comenzar Navegación
+                            </button>
+                        ) : (
+                            <button
+                                onClick={() => stopTracking()}
+                                className="w-full py-5 bg-red-600 text-white rounded-xl font-black uppercase tracking-[0.2em] text-sm shadow-[0_0_20px_rgba(220,38,38,0.3)] hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3"
+                            >
+                                <Square fill="currentColor" size={20} />
+                                Finalizar Navegación
+                            </button>
+                        )}
+
+                        <div className="mt-4 flex items-center justify-center gap-2 text-[9px] uppercase tracking-widest text-white/40 font-bold">
+                            <span className={`w-1.5 h-1.5 rounded-full ${isTracking ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`} />
+                            {isTracking ? 'Sensor Activo - Grabando' : 'Sistema en Reposo'}
+                        </div>
+                    </div>
+
                     {livePoints.length > 0 && !isTracking && (
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
-                            className="p-6 bg-accent/10 border border-accent/30 rounded-2xl"
+                            className="p-6 bg-accent/10 border border-accent/30 rounded-2xl border-dashed"
                         >
                             <div className="flex items-center justify-between mb-4">
                                 <h4 className="text-accent font-black text-xs uppercase tracking-[0.2em] flex items-center gap-2">
@@ -223,7 +254,7 @@ export default function NavigationExperienceMap({ sessions, locale }: Navigation
                                 <button
                                     onClick={saveLiveTrack}
                                     disabled={isSaving}
-                                    className="flex-1 py-3 bg-accent text-nautical-black text-xs font-black uppercase tracking-widest rounded-xl flex items-center justify-center gap-2 disabled:opacity-50 hover:bg-white transition-colors"
+                                    className="flex-1 py-3 bg-accent text-nautical-black text-xs font-black uppercase tracking-widest rounded-xl flex items-center justify-center gap-2 disabled:opacity-50 hover:bg-white transition-colors shadow-lg"
                                 >
                                     {isSaving ? <span className="animate-spin text-lg">🌀</span> : <Save size={14} />}
                                     Sincronizar Bitácora

@@ -8,6 +8,7 @@ import NotificationContainer from '@/components/academy/notifications/Notificati
 import RealtimeNotifications from '@/components/academy/notifications/RealtimeNotifications';
 import ActivityTracker from '@/components/academy/ActivityTracker';
 import AcademyFeedbackProvider from '@/components/academy/AcademyFeedbackProvider';
+import PushNotificationInitializer from '@/components/academy/notifications/PushNotificationInitializer';
 import ConditionalLayout from '@/components/layout/ConditionalLayout';
 import ScrollUpButton from '@/components/shared/ScrollToTop';
 import { Viewport } from 'next';
