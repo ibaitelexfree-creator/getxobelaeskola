@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles, CheckCircle2, XCircle, Brain, Target, ChevronRight } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { apiUrl } from '@/lib/api';
 
 interface DailyChallengeWidgetProps {
     locale: string;
@@ -22,7 +23,7 @@ export default function DailyChallengeWidget({ locale }: DailyChallengeWidgetPro
 
     const fetchChallenge = async () => {
         try {
-            const res = await fetch('/api/academy/daily-challenge');
+            const res = await fetch(apiUrl('/api/academy/daily-challenge'));
             const json = await res.json();
             if (res.ok) {
                 setData(json);
@@ -38,7 +39,7 @@ export default function DailyChallengeWidget({ locale }: DailyChallengeWidgetPro
         if (selectedOption === null || submitting) return;
         setSubmitting(true);
         try {
-            const res = await fetch('/api/academy/daily-challenge', {
+            const res = await fetch(apiUrl('/api/academy/daily-challenge'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({

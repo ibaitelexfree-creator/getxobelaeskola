@@ -1,3 +1,4 @@
+import { apiUrl } from '../api';
 
 export interface TideEvent {
     time: string;
@@ -31,7 +32,7 @@ export const WeatherService = {
      */
     async getGetxoWeather(): Promise<WeatherData> {
         try {
-            const res = await fetch('/api/academy/weather');
+            const res = await fetch(apiUrl('/api/academy/weather'));
             if (!res.ok) throw new Error('Failed to fetch weather');
             return await res.json();
         } catch (error) {

@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { apiUrl } from '@/lib/api';
 
 interface UseUnitProgressProps {
     unidadId: string | undefined;
@@ -31,7 +32,7 @@ export function useUnitProgress({ unidadId, isCompletado, erroresComunes }: UseU
         );
 
         try {
-            const res = await fetch('/api/academy/progress/unit-read', {
+            const res = await fetch(apiUrl('/api/academy/progress/unit-read'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({

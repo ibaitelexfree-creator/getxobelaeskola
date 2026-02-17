@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { UnlockStatusBadge, UnlockStatusResponse, LockedContentOverlay } from '@/components/academy/UnlockStatusBadge';
 import { SimpleEvaluation } from '@/components/academy/evaluation';
+import { apiUrl } from '@/lib/api';
 
 interface Unidad {
     id: string;
@@ -57,7 +58,7 @@ export default function ModuleDetailMain({
     useEffect(() => {
         async function fetchData() {
             try {
-                const res = await fetch(`/api/academy/module/${params.id}`);
+                const res = await fetch(apiUrl(`/api/academy/module/${params.id}`));
                 const data = await res.json();
                 if (!data.error) {
                     setModulo(data.modulo);
@@ -65,7 +66,7 @@ export default function ModuleDetailMain({
                     setProgreso(data.progreso);
                     setProgresoUnidades(data.progreso_unidades || []);
                     try {
-                        const resStatus = await fetch('/api/academy/unlock-status');
+                        const resStatus = await fetch(apiUrl('/api/academy/unlock-status'));
                         const dataStatus = await resStatus.json();
                         setUnlockStatus(dataStatus || null);
                     } catch (e) { console.error(e); }

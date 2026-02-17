@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
+import { apiUrl } from '@/lib/api';
 
 export interface Nivel {
     id: string;
@@ -41,10 +42,10 @@ export function useAcademyData() {
             try {
                 // Fetch in parallel
                 const [resNiveles, resProgreso, resCursos, resEnrollments] = await Promise.all([
-                    fetch('/api/academy/levels'),
-                    fetch('/api/academy/progress'),
-                    fetch('/api/academy/courses'),
-                    fetch('/api/academy/enrollments')
+                    fetch(apiUrl('/api/academy/levels')),
+                    fetch(apiUrl('/api/academy/progress')),
+                    fetch(apiUrl('/api/academy/courses')),
+                    fetch(apiUrl('/api/academy/enrollments'))
                 ]);
 
                 if (!isMounted) return;

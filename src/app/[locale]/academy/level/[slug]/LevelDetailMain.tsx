@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { UnlockStatusBadge, UnlockStatusResponse, LockedContentOverlay } from '@/components/academy/UnlockStatusBadge';
+import { apiUrl } from '@/lib/api';
 
 interface Curso {
     id: string;
@@ -47,18 +48,18 @@ export default function LevelDetailMain({
     useEffect(() => {
         async function fetchData() {
             try {
-                const resNiveles = await fetch('/api/academy/levels');
+                const resNiveles = await fetch(apiUrl('/api/academy/levels'));
                 const dataNiveles = await resNiveles.json();
                 const nivelActual = dataNiveles.niveles?.find((n: Nivel) => n.slug === params.slug);
 
                 if (nivelActual) {
                     setNivel(nivelActual);
-                    const resCursos = await fetch(`/api/academy/courses?level_id=${nivelActual.id}`);
+                    const resCursos = await fetch(apiUrl(`/api/academy/courses?level_id=${nivelActual.id}`));
                     const dataCursos = await resCursos.json();
                     setCursos(dataCursos.cursos || []);
 
                     try {
-                        const resStatus = await fetch('/api/academy/unlock-status');
+                        const resStatus = await fetch(apiUrl('/api/academy/unlock-status'));
                         const dataStatus = await resStatus.json();
                         setUnlockStatus(dataStatus || null);
                     } catch (e) { console.error(e); }

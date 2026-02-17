@@ -14,6 +14,7 @@ import { useUnitProgress } from '@/hooks/useUnitProgress';
 import { checkAchievements } from '@/lib/gamification/AchievementEngine';
 import { useAcademyMode } from '@/lib/store/useAcademyMode';
 import { InteractiveMission, useMissionStore } from '@/components/academy/interactive-engine';
+import { apiUrl } from '@/lib/api';
 
 interface Unidad {
     id: string;
@@ -85,7 +86,7 @@ export default function UnitReaderMain({
     useEffect(() => {
         async function fetchData() {
             try {
-                const res = await fetch(`/api/academy/unit/${params.id}`);
+                const res = await fetch(apiUrl(`/api/academy/unit/${params.id}`));
                 const data = await res.json();
 
                 if (data.error) {
@@ -96,7 +97,7 @@ export default function UnitReaderMain({
                     setProgreso(data.progreso);
 
                     try {
-                        const resStatus = await fetch('/api/academy/unlock-status');
+                        const resStatus = await fetch(apiUrl('/api/academy/unlock-status'));
                         const dataStatus = await resStatus.json();
                         setUnlockStatus(dataStatus || {});
                     } catch (e) {
@@ -173,7 +174,7 @@ export default function UnitReaderMain({
         setProgreso({ estado: 'completado', porcentaje: 100 });
 
         try {
-            const res = await fetch('/api/academy/progress/update', {
+            const res = await fetch(apiUrl('/api/academy/progress/update'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({

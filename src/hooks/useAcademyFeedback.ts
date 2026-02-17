@@ -2,6 +2,7 @@
 
 import { useRef, useState, useEffect } from 'react';
 import { useNotificationStore } from '@/lib/store/useNotificationStore';
+import { apiUrl } from '@/lib/api';
 
 interface AchievementData {
     id: string;
@@ -78,7 +79,7 @@ export function useAcademyFeedback() {
     // Check for new achievements (called after unit completion, quiz submission, etc.)
     const checkForNewAchievements = async () => {
         try {
-            const response = await fetch('/api/academy/achievements');
+            const response = await fetch(apiUrl('/api/academy/achievements'));
             const newAchievements: AchievementData[] = await response.json();
 
             // Get previous achievements from localStorage
@@ -126,7 +127,7 @@ export function useAnimationPreferences() {
         localStorage.setItem('animations_enabled', String(newState));
 
         try {
-            await fetch('/api/user/settings', {
+            await fetch(apiUrl('/api/user/settings'), {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ animations_enabled: newState })

@@ -1,0 +1,507 @@
+
+> getxo-web@0.1.0 build
+> next build
+
+  ??? Next.js 14.2.35
+  - Environments: .env.local
+
+   Creating an optimized production build ...
+node.exe : <w> [webpack.cache.PackFileCa
+cheStrategy/webpack.FileSystemInfo] 
+Parsing of 
+C:\Users\User\Desktop\Saili8ng School Te
+st\node_modules\next-intl\dist\esm\produ
+ction\extractor\format\index.js for 
+build dependencies failed at 
+'import(t)'.
+At line:1 char:1
++ & "C:\Program Files\nodejs/node.exe" 
+"C:\Program Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecif 
+   ied: (<w> [webpack.ca...at 'import(  
+  t)'.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCom 
+   mandError
+ 
+<w> Build dependencies behind this 
+expression are ignored and might cause 
+incorrect cache invalidation.
+<w> [webpack.cache.PackFileCacheStrategy
+/webpack.FileSystemInfo] Parsing of 
+C:\Users\User\Desktop\Saili8ng School Te
+st\node_modules\next-intl\dist\esm\produ
+ction\extractor\format\index.js for 
+build dependencies failed at 
+'import(t)'.
+<w> Build dependencies behind this 
+expression are ignored and might cause 
+incorrect cache invalidation.
+<w> 
+[webpack.cache.PackFileCacheStrategy] 
+Serializing big strings (133kiB) 
+impacts deserialization performance 
+(consider using Buffer instead and 
+decode when needed)
+<w> [webpack.cache.PackFileCacheStrategy
+/webpack.FileSystemInfo] Parsing of 
+C:\Users\User\Desktop\Saili8ng School Te
+st\node_modules\next-intl\dist\esm\produ
+ction\extractor\format\index.js for 
+build dependencies failed at 
+'import(t)'.
+<w> Build dependencies behind this 
+expression are ignored and might cause 
+incorrect cache invalidation.
+ ??? Compiled successfully
+   Skipping validation of types
+   Skipping linting
+   Collecting page data ...
+?????? RESEND_API_KEY no configurada. 
+Los correos no se enviar??n en 
+producci??n.
+?????? RESEND_API_KEY no configurada. 
+Los correos no se enviar??n en 
+producci??n.
+?????? RESEND_API_KEY no configurada. 
+Los correos no se enviar??n en 
+producci??n.
+   Generating static pages (0/63) ...
+API Error: n [Error]: Dynamic server 
+usage: Route /api/admin/courses/list 
+couldn't be rendered statically because 
+it used `cookies`. See more info here: h
+ttps://nextjs.org/docs/messages/dynamic-
+server-error
+    at l 
+(C:\Users\User\Desktop\Saili8ng School T
+est\.next\server\chunks\8948.js:1:37220)
+    at f 
+(C:\Users\User\Desktop\Saili8ng School T
+est\.next\server\chunks\9702.js:23:4189)
+    at s 
+(C:\Users\User\Desktop\Saili8ng School T
+est\.next\server\app\api\academy\evaluat
+ion\history\route.js:9:992)
+    at a 
+(C:\Users\User\Desktop\Saili8ng School T
+est\.next\server\app\api\admin\courses\l
+ist\route.js:1:2022)
+    at c 
+(C:\Users\User\Desktop\Saili8ng School T
+est\.next\server\app\api\admin\courses\l
+ist\route.js:1:2713)
+    at c 
+(C:\Users\User\Desktop\Saili8ng School T
+est\.next\server\app\api\admin\courses\l
+ist\route.js:1:864)
+    at C:\Users\User\Desktop\Saili8ng 
+School Test\node_modules\next\dist\compi
+led\next-server\app-route.runtime.prod.j
+s:6:38417
+    at C:\Users\User\Desktop\Saili8ng 
+School Test\node_modules\next\dist\serve
+r\lib\trace\tracer.js:140:36
+    at NoopContextManager.with 
+(C:\Users\User\Desktop\Saili8ng School T
+est\node_modules\next\dist\compiled\@ope
+ntelemetry\api\index.js:1:7062)
+    at ContextAPI.with 
+(C:\Users\User\Desktop\Saili8ng School T
+est\node_modules\next\dist\compiled\@ope
+ntelemetry\api\index.js:1:518) {
+  description: "Route 
+/api/admin/courses/list couldn't be 
+rendered statically because it used 
+`cookies`. See more info here: https://n
+extjs.org/docs/messages/dynamic-server-e
+rror",
+  digest: 'DYNAMIC_SERVER_USAGE'
+}
+Error achievements API: n [Error]: 
+Dynamic server usage: Route 
+/api/academy/achievements couldn't be 
+rendered statically because it used 
+`cookies`. See more info here: https://n
+extjs.org/docs/messages/dynamic-server-e
+rror
+    at l 
+(C:\Users\User\Desktop\Saili8ng School T
+est\.next\server\chunks\8948.js:1:37220)
+    at f 
+(C:\Users\User\Desktop\Saili8ng School T
+est\.next\server\chunks\9702.js:23:4189)
+    at a 
+(C:\Users\User\Desktop\Saili8ng School T
+est\.next\server\app\api\academy\course\
+[slug]\route.js:18:1469)
+    at l 
+(C:\Users\User\Desktop\Saili8ng School T
+est\.next\server\app\api\academy\achieve
+ments\route.js:1:836)
+    at C:\Users\User\Desktop\Saili8ng 
+School Test\node_modules\next\dist\compi
+led\next-server\app-route.runtime.prod.j
+s:6:38417
+    at C:\Users\User\Desktop\Saili8ng 
+School Test\node_modules\next\dist\serve
+r\lib\trace\tracer.js:140:36
+    at NoopContextManager.with 
+(C:\Users\User\Desktop\Saili8ng School T
+est\node_modules\next\dist\compiled\@ope
+ntelemetry\api\index.js:1:7062)
+    at ContextAPI.with 
+(C:\Users\User\Desktop\Saili8ng School T
+est\node_modules\next\dist\compiled\@ope
+ntelemetry\api\index.js:1:518)
+    at NoopTracer.startActiveSpan 
+(C:\Users\User\Desktop\Saili8ng School T
+est\node_modules\next\dist\compiled\@ope
+ntelemetry\api\index.js:1:18093)
+    at ProxyTracer.startActiveSpan 
+(C:\Users\User\Desktop\Saili8ng School T
+est\node_modules\next\dist\compiled\@ope
+ntelemetry\api\index.js:1:18854) {
+  description: "Route 
+/api/academy/achievements couldn't be 
+rendered statically because it used 
+`cookies`. See more info here: https://n
+extjs.org/docs/messages/dynamic-server-e
+rror",
+  digest: 'DYNAMIC_SERVER_USAGE'
+}
+   Generating static pages (15/63) 
+Unexpected error in GET skills: n 
+[Error]: Dynamic server usage: Route 
+/api/students/me/skills couldn't be 
+rendered statically because it used 
+`cookies`. See more info here: https://n
+extjs.org/docs/messages/dynamic-server-e
+rror
+    at l 
+(C:\Users\User\Desktop\Saili8ng School T
+est\.next\server\chunks\8948.js:1:37220)
+    at f 
+(C:\Users\User\Desktop\Saili8ng School T
+est\.next\server\chunks\9702.js:23:4189)
+    at n 
+(C:\Users\User\Desktop\Saili8ng School T
+est\.next\server\app\api\admin\update-st
+aff\route.js:1:3157)
+    at u 
+(C:\Users\User\Desktop\Saili8ng School T
+est\.next\server\app\api\students\me\ski
+lls\route.js:1:837)
+    at C:\Users\User\Desktop\Saili8ng 
+School Test\node_modules\next\dist\compi
+led\next-server\app-route.runtime.prod.j
+s:6:38417
+    at C:\Users\User\Desktop\Saili8ng 
+School Test\node_modules\next\dist\serve
+r\lib\trace\tracer.js:140:36
+    at NoopContextManager.with 
+(C:\Users\User\Desktop\Saili8ng School T
+est\node_modules\next\dist\compiled\@ope
+ntelemetry\api\index.js:1:7062)
+    at ContextAPI.with 
+(C:\Users\User\Desktop\Saili8ng School T
+est\node_modules\next\dist\compiled\@ope
+ntelemetry\api\index.js:1:518)
+    at NoopTracer.startActiveSpan 
+(C:\Users\User\Desktop\Saili8ng School T
+est\node_modules\next\dist\compiled\@ope
+ntelemetry\api\index.js:1:18093)
+    at ProxyTracer.startActiveSpan 
+(C:\Users\User\Desktop\Saili8ng School T
+est\node_modules\next\dist\compiled\@ope
+ntelemetry\api\index.js:1:18854) {
+  description: "Route 
+/api/students/me/skills couldn't be 
+rendered statically because it used 
+`cookies`. See more info here: https://n
+extjs.org/docs/messages/dynamic-server-e
+rror",
+  digest: 'DYNAMIC_SERVER_USAGE'
+}
+   Generating static pages (31/63) 
+Error stats dashboard: n [Error]: 
+Dynamic server usage: Route 
+/api/academy/dashboard/stats couldn't 
+be rendered statically because it used 
+`cookies`. See more info here: https://n
+extjs.org/docs/messages/dynamic-server-e
+rror
+    at l 
+(C:\Users\User\Desktop\Saili8ng School T
+est\.next\server\chunks\8948.js:1:37220)
+    at f 
+(C:\Users\User\Desktop\Saili8ng School T
+est\.next\server\chunks\9702.js:23:4189)
+    at a 
+(C:\Users\User\Desktop\Saili8ng School T
+est\.next\server\app\api\admin\boats\mai
+ntenance\update\route.js:1:3247)
+    at l 
+(C:\Users\User\Desktop\Saili8ng School T
+est\.next\server\app\api\academy\dashboa
+rd\stats\route.js:1:836)
+    at C:\Users\User\Desktop\Saili8ng 
+School Test\node_modules\next\dist\compi
+led\next-server\app-route.runtime.prod.j
+s:6:38417
+    at C:\Users\User\Desktop\Saili8ng 
+School Test\node_modules\next\dist\serve
+r\lib\trace\tracer.js:140:36
+    at NoopContextManager.with 
+(C:\Users\User\Desktop\Saili8ng School T
+est\node_modules\next\dist\compiled\@ope
+ntelemetry\api\index.js:1:7062)
+    at ContextAPI.with 
+(C:\Users\User\Desktop\Saili8ng School T
+est\node_modules\next\dist\compiled\@ope
+ntelemetry\api\index.js:1:518)
+    at NoopTracer.startActiveSpan 
+(C:\Users\User\Desktop\Saili8ng School T
+est\node_modules\next\dist\compiled\@ope
+ntelemetry\api\index.js:1:18093)
+    at ProxyTracer.startActiveSpan 
+(C:\Users\User\Desktop\Saili8ng School T
+est\node_modules\next\dist\compiled\@ope
+ntelemetry\api\index.js:1:18854) {
+  description: "Route 
+/api/academy/dashboard/stats couldn't 
+be rendered statically because it used 
+`cookies`. See more info here: https://n
+extjs.org/docs/messages/dynamic-server-e
+rror",
+  digest: 'DYNAMIC_SERVER_USAGE'
+}
+Internal error: n [Error]: Dynamic 
+server usage: Route 
+/api/academy/unlock-status couldn't be 
+rendered statically because it used 
+`cookies`. See more info here: https://n
+extjs.org/docs/messages/dynamic-server-e
+rror
+    at l 
+(C:\Users\User\Desktop\Saili8ng School T
+est\.next\server\chunks\8948.js:1:37220)
+    at f 
+(C:\Users\User\Desktop\Saili8ng School T
+est\.next\server\chunks\9702.js:23:4189)
+    at s 
+(C:\Users\User\Desktop\Saili8ng School T
+est\.next\server\app\api\academy\achieve
+ments\route.js:1:2085)
+    at c 
+(C:\Users\User\Desktop\Saili8ng School T
+est\.next\server\app\api\academy\unlock-
+status\route.js:1:836)
+    at C:\Users\User\Desktop\Saili8ng 
+School Test\node_modules\next\dist\compi
+led\next-server\app-route.runtime.prod.j
+s:6:38417
+    at C:\Users\User\Desktop\Saili8ng 
+School Test\node_modules\next\dist\serve
+r\lib\trace\tracer.js:140:36
+    at NoopContextManager.with 
+(C:\Users\User\Desktop\Saili8ng School T
+est\node_modules\next\dist\compiled\@ope
+ntelemetry\api\index.js:1:7062)
+    at ContextAPI.with 
+(C:\Users\User\Desktop\Saili8ng School T
+est\node_modules\next\dist\compiled\@ope
+ntelemetry\api\index.js:1:518)
+    at NoopTracer.startActiveSpan 
+(C:\Users\User\Desktop\Saili8ng School T
+est\node_modules\next\dist\compiled\@ope
+ntelemetry\api\index.js:1:18093)
+    at ProxyTracer.startActiveSpan 
+(C:\Users\User\Desktop\Saili8ng School T
+est\node_modules\next\dist\compiled\@ope
+ntelemetry\api\index.js:1:18854) {
+  description: "Route 
+/api/academy/unlock-status couldn't be 
+rendered statically because it used 
+`cookies`. See more info here: https://n
+extjs.org/docs/messages/dynamic-server-e
+rror",
+  digest: 'DYNAMIC_SERVER_USAGE'
+}
+Error en GET /api/academy/evaluaciones: 
+n [Error]: Dynamic server usage: Route 
+/api/academy/evaluaciones couldn't be 
+rendered statically because it used 
+`cookies`. See more info here: https://n
+extjs.org/docs/messages/dynamic-server-e
+rror
+    at l 
+(C:\Users\User\Desktop\Saili8ng School T
+est\.next\server\chunks\8948.js:1:37220)
+    at f 
+(C:\Users\User\Desktop\Saili8ng School T
+est\.next\server\chunks\9702.js:23:4189)
+    at n 
+(C:\Users\User\Desktop\Saili8ng School T
+est\.next\server\app\api\admin\update-st
+aff\route.js:1:3157)
+    at c 
+(C:\Users\User\Desktop\Saili8ng School T
+est\.next\server\app\api\academy\evaluac
+iones\route.js:1:837)
+    at C:\Users\User\Desktop\Saili8ng 
+School Test\node_modules\next\dist\compi
+led\next-server\app-route.runtime.prod.j
+s:6:38417
+    at C:\Users\User\Desktop\Saili8ng 
+School Test\node_modules\next\dist\serve
+r\lib\trace\tracer.js:140:36
+    at NoopContextManager.with 
+(C:\Users\User\Desktop\Saili8ng School T
+est\node_modules\next\dist\compiled\@ope
+ntelemetry\api\index.js:1:7062)
+    at ContextAPI.with 
+(C:\Users\User\Desktop\Saili8ng School T
+est\node_modules\next\dist\compiled\@ope
+ntelemetry\api\index.js:1:518)
+    at NoopTracer.startActiveSpan 
+(C:\Users\User\Desktop\Saili8ng School T
+est\node_modules\next\dist\compiled\@ope
+ntelemetry\api\index.js:1:18093)
+    at ProxyTracer.startActiveSpan 
+(C:\Users\User\Desktop\Saili8ng School T
+est\node_modules\next\dist\compiled\@ope
+ntelemetry\api\index.js:1:18854) {
+  description: "Route 
+/api/academy/evaluaciones couldn't be 
+rendered statically because it used 
+`cookies`. See more info here: https://n
+extjs.org/docs/messages/dynamic-server-e
+rror",
+  digest: 'DYNAMIC_SERVER_USAGE'
+}
+   Generating static pages (47/63) 
+?????? RESEND_API_KEY no configurada. 
+Los correos no se enviar??n en 
+producci??n.
+?????? RESEND_API_KEY no configurada. 
+Los correos no se enviar??n en 
+producci??n.
+?????? RESEND_API_KEY no configurada. 
+Los correos no se enviar??n en 
+producci??n.
+ ??? Generating static pages (63/63)
+   Finalizing page optimization ...
+   Collecting build traces ...
+
+Route (app)                                  Size     First Load JS
+??? ??? /_not-found                              880 B          88.6 kB
+??? ?? /[locale]                                2.91 kB         117 kB
+??? ?? /[locale]/[...rest]                      148 B          87.8 kB
+??? ?? /[locale]/about                          189 B           102 kB
+??? ?? /[locale]/academy                        3.72 kB         112 kB
+??? ?? /[locale]/academy/achievements           1.89 kB         111 kB
+??? ?? /[locale]/academy/certificates           3.27 kB         250 kB
+??? ?? /[locale]/academy/course/[slug]          4.61 kB         130 kB
+??? ?? /[locale]/academy/dashboard              104 kB          363 kB
+??? ?? /[locale]/academy/exploration            2.99 kB         103 kB
+??? ?? /[locale]/academy/level/[slug]           3.9 kB          113 kB
+??? ?? /[locale]/academy/logbook                4.71 kB         132 kB
+??? ?? /[locale]/academy/module/[id]            4.19 kB         130 kB
+??? ?? /[locale]/academy/skills                 2.03 kB         111 kB
+??? ?? /[locale]/academy/tools/chart-plotter    3.77 kB         144 kB
+??? ?? /[locale]/academy/tools/flashcards       7.62 kB         104 kB
+??? ?? /[locale]/academy/tools/knots            3.59 kB         100 kB
+??? ?? /[locale]/academy/tools/nomenclature     4.89 kB         133 kB
+??? ?? /[locale]/academy/tools/wind-lab         3.1 kB         90.8 kB
+??? ?? /[locale]/academy/unit/[id]              7.31 kB         133 kB
+??? ?? /[locale]/auth/login                     1.38 kB         204 kB
+??? ?? /[locale]/auth/register                  1.75 kB         205 kB
+??? ?? /[locale]/contact                        1.37 kB         140 kB
+??? ?? /[locale]/courses                        1.71 kB         116 kB
+??? ?? /[locale]/courses/[slug]                 2.02 kB         116 kB
+??? ?? /[locale]/instructor                     3.95 kB         108 kB
+??? ?? /[locale]/rental                         3.22 kB         108 kB
+??? ?? /[locale]/staff                          23.7 kB         191 kB
+??? ?? /[locale]/staff/activity/[userId]        2.98 kB         112 kB
+??? ?? /[locale]/staff/reports                  3.93 kB         113 kB
+??? ?? /[locale]/student/dashboard              2.46 kB         104 kB
+??? ?? /[locale]/verify/[hash]                  2.19 kB         111 kB
+??? ?? /[locale]/verify/id/[id]                 2.72 kB         117 kB
+??? ?? /api/academy/achievements                0 B                0 B
+??? ?? /api/academy/certificates                0 B                0 B
+??? ?? /api/academy/certificates/[id]           0 B                0 B
+??? ?? /api/academy/certificates/verify/[hash]  0 B                0 B
+??? ?? /api/academy/course/[slug]               0 B                0 B
+??? ?? /api/academy/courses                     0 B                0 B
+??? ?? /api/academy/dashboard/stats             0 B                0 B
+??? ?? /api/academy/evaluaciones                0 B                0 B
+??? ?? /api/academy/evaluation/autosave         0 B                0 B
+??? ?? /api/academy/evaluation/history          0 B                0 B
+??? ?? /api/academy/evaluation/start            0 B                0 B
+??? ?? /api/academy/evaluation/submit           0 B                0 B
+??? ?? /api/academy/levels                      0 B                0 B
+??? ?? /api/academy/module/[id]                 0 B                0 B
+??? ?? /api/academy/progress                    0 B                0 B
+??? ?? /api/academy/progress/unit-read          0 B                0 B
+??? ?? /api/academy/progress/update             0 B                0 B
+??? ?? /api/academy/skills                      0 B                0 B
+??? ?? /api/academy/student/skills              0 B                0 B
+??? ?? /api/academy/unit/[id]                   0 B                0 B
+??? ?? /api/academy/unlock-status               0 B                0 B
+??? ?? /api/admin/academy/student-progress      0 B                0 B
+??? ?? /api/admin/audit-logs/list               0 B                0 B
+??? ?? /api/admin/boats/create                  0 B                0 B
+??? ?? /api/admin/boats/delete                  0 B                0 B
+??? ?? /api/admin/boats/list                    0 B                0 B
+??? ?? /api/admin/boats/maintenance             0 B                0 B
+??? ?? /api/admin/boats/maintenance/update      0 B                0 B
+??? ?? /api/admin/boats/update                  0 B                0 B
+??? ?? /api/admin/courses/archive               0 B                0 B
+??? ?? /api/admin/courses/create                0 B                0 B
+??? ?? /api/admin/courses/list                  0 B                0 B
+??? ?? /api/admin/courses/update                0 B                0 B
+??? ?? /api/admin/create-staff                  0 B                0 B
+??? ?? /api/admin/delete-inscription            0 B                0 B
+??? ?? /api/admin/list-inscriptions             0 B                0 B
+??? ?? /api/admin/list-staff                    0 B                0 B
+??? ?? /api/admin/log-activity                  0 B                0 B
+??? ?? /api/admin/newsletters/create            0 B                0 B
+??? ?? /api/admin/remove-staff                  0 B                0 B
+??? ?? /api/admin/rentals/list                  0 B                0 B
+??? ?? /api/admin/search-students               0 B                0 B
+??? ?? /api/admin/sessions/attendance           0 B                0 B
+??? ?? /api/admin/sessions/create               0 B                0 B
+??? ?? /api/admin/sessions/delete               0 B                0 B
+??? ?? /api/admin/sessions/list                 0 B                0 B
+??? ?? /api/admin/sessions/update               0 B                0 B
+??? ?? /api/admin/update-inscription            0 B                0 B
+??? ?? /api/admin/update-log                    0 B                0 B
+??? ?? /api/admin/update-profile                0 B                0 B
+??? ?? /api/admin/update-rental                 0 B                0 B
+??? ?? /api/admin/update-staff                  0 B                0 B
+??? ?? /api/auth/logout                         0 B                0 B
+??? ?? /api/checkout                            0 B                0 B
+??? ?? /api/checkout/rental                     0 B                0 B
+??? ?? /api/contact                             0 B                0 B
+??? ?? /api/email/send                          0 B                0 B
+??? ?? /api/newsletter/subscribe                0 B                0 B
+??? ?? /api/student/update-profile              0 B                0 B
+??? ?? /api/students/me/skills                  0 B                0 B
+??? ?? /api/user/settings                       0 B                0 B
+??? ?? /api/verify/[certificate_number]         0 B                0 B
+??? ?? /api/webhook                             0 B                0 B
+??? ??? /robots.txt                              0 B                0 B
+??? ??? /sitemap.xml                             0 B                0 B
++ First Load JS shared by all                87.7 kB
+  ??? chunks/2117-7e22f54a93f27f5a.js          31.9 kB
+  ??? chunks/fd9d1056-e10a1d15802c1fd7.js      53.6 kB
+  ??? other shared chunks (total)              2.14 kB
+
+
+?? Middleware                                 85.3 kB
+
+???  (Static)   prerendered as static content
+??  (Dynamic)  server-rendered on demand
+

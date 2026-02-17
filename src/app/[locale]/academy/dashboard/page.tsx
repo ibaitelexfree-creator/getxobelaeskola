@@ -20,6 +20,7 @@ import NauticalRadar from '@/components/academy/dashboard/NauticalRadar';
 import CareerAdvisor from '@/components/academy/dashboard/CareerAdvisor';
 import NavigationExperienceMap from '@/components/academy/dashboard/NavigationExperienceMap';
 import DailyChallengeWidget from '@/components/academy/dashboard/DailyChallengeWidget';
+import { apiUrl } from '@/lib/api';
 
 // --- Interfaces ---
 
@@ -150,14 +151,14 @@ export default function DashboardPage({ params }: { params: { locale: string } }
         async function fetchData() {
             try {
                 // 1. Obtener progreso
-                const resProgreso = await fetch('/api/academy/progress');
+                const resProgreso = await fetch(apiUrl('/api/academy/progress'));
                 const progressData = await resProgreso.json();
 
                 if (progressData.error) throw new Error(progressData.error);
                 setData(progressData);
 
                 // 2. Obtener cursos para mostrar nombres
-                const resCursos = await fetch('/api/academy/courses');
+                const resCursos = await fetch(apiUrl('/api/academy/courses'));
                 const coursesData = await resCursos.json();
                 setCursos(coursesData.cursos || []);
 

@@ -3,7 +3,7 @@ import { createServerClient } from '@supabase/ssr';
 import { type NextRequest } from 'next/server';
 
 const intlMiddleware = createMiddleware({
-    locales: ['es', 'eu', 'en'],
+    locales: ['es', 'eu', 'en', 'fr'],
     defaultLocale: 'es',
     localePrefix: 'always'
 });
