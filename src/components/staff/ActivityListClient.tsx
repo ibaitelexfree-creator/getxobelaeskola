@@ -2,6 +2,8 @@
 
 import { useState, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
+import { apiUrl } from '@/lib/api';
+
 
 interface Log {
     id: string;
@@ -140,7 +142,7 @@ export default function ActivityListClient({
         if (!editingLog) return;
         setIsSaving(true);
         try {
-            const res = await fetch('/api/admin/update-log', {
+            const res = await fetch(apiUrl('/api/admin/update-log'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({

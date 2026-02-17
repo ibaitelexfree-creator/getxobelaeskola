@@ -33,7 +33,7 @@ const nextConfig = {
     },
     compress: true,
     poweredByHeader: false,
-    output: isCapacitor ? 'export' : undefined,
+    output: isCapacitor ? 'export' : 'standalone',
 };
 
 export default withNextIntl(nextConfig);

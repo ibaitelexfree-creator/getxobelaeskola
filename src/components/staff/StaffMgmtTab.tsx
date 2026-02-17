@@ -3,6 +3,8 @@ import React from 'react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { ClientDate, StaffProfile } from './StaffShared';
+import { apiUrl } from '@/lib/api';
+
 
 interface StaffMgmtTabProps {
     isAdmin: boolean;
@@ -47,7 +49,7 @@ export default function StaffMgmtTab({
                                 telefono: formData.get('telefono')
                             };
                             try {
-                                const res = await fetch('/api/admin/create-staff', {
+                                const res = await fetch(apiUrl('/api/admin/create-staff'), {
                                     method: 'POST',
                                     body: JSON.stringify(data)
                                 });
@@ -122,7 +124,7 @@ export default function StaffMgmtTab({
                                         <button
                                             onClick={async () => {
                                                 if (confirm(t('staff_mgmt.confirm_remove', { name: p.nombre }))) {
-                                                    await fetch('/api/admin/remove-staff', { method: 'POST', body: JSON.stringify({ userId: p.id }) });
+                                                    await fetch(apiUrl('/api/admin/remove-staff'), { method: 'POST', body: JSON.stringify({ userId: p.id }) });
                                                     window.location.reload();
                                                 }
                                             }}

@@ -7,6 +7,8 @@ import CalendarView from './CalendarView';
 import SessionsSkeleton from './SessionsSkeleton';
 import { useNotificationStore } from '@/lib/store/useNotificationStore';
 import AccessibleModal from '@/components/shared/AccessibleModal';
+import { apiUrl } from '@/lib/api';
+
 
 interface SessionEdit {
     id: string;
@@ -80,11 +82,11 @@ export default function SessionsTab({ locale }: SessionsTabProps) {
         setLoading(true);
         try {
             const [sessRes, courseRes, instRes, boatRes, calRes] = await Promise.all([
-                fetch('/api/admin/sessions/list'),
-                fetch('/api/admin/courses/list'),
-                fetch('/api/admin/list-staff'),
-                fetch('/api/admin/boats/list'),
-                fetch('/api/admin/calendar/list')
+                fetch(apiUrl('/api/admin/sessions/list')),
+                fetch(apiUrl('/api/admin/courses/list')),
+                fetch(apiUrl('/api/admin/list-staff')),
+                fetch(apiUrl('/api/admin/boats/list')),
+                fetch(apiUrl('/api/admin/calendar/list'))
             ]);
 
             const [sessData, courseData, instData, boatData, calData] = await Promise.all([
@@ -145,7 +147,7 @@ export default function SessionsTab({ locale }: SessionsTabProps) {
         searchTimeout.current = setTimeout(async () => {
             setSearchingInstructors(true);
             try {
-                const res = await fetch(`/api/admin/list-staff?q=${encodeURIComponent(q)}`);
+                const res = await fetch(apiUrl(`/api/admin/list-staff?q=${encodeURIComponent(q)}`));
                 const data = await res.json();
                 if (res.ok) setInstructors(data.staff || []);
             } catch (err: unknown) {
@@ -161,7 +163,7 @@ export default function SessionsTab({ locale }: SessionsTabProps) {
         searchTimeout.current = setTimeout(async () => {
             setSearchingCourses(true);
             try {
-                const res = await fetch(`/api/admin/courses/list?q=${encodeURIComponent(q)}`);
+                const res = await fetch(apiUrl(`/api/admin/courses/list?q=${encodeURIComponent(q)}`));
                 const data = await res.json();
                 if (res.ok) setCourses(data.courses || []);
             } catch (err: unknown) {
@@ -177,7 +179,7 @@ export default function SessionsTab({ locale }: SessionsTabProps) {
         searchTimeout.current = setTimeout(async () => {
             setSearchingBoats(true);
             try {
-                const res = await fetch(`/api/admin/boats/list?q=${encodeURIComponent(q)}`);
+                const res = await fetch(apiUrl(`/api/admin/boats/list?q=${encodeURIComponent(q)}`));
                 const data = await res.json();
                 if (res.ok) setBoats(data.boats || []);
             } catch (err: unknown) {
@@ -191,7 +193,7 @@ export default function SessionsTab({ locale }: SessionsTabProps) {
     const checkAvailability = async (start: string, end: string, excludeId?: string) => {
         if (!start || !end) return;
         try {
-            const url = `/api/admin/boats/availability?start=${encodeURIComponent(start)}&end=${encodeURIComponent(end)}${excludeId ? `&excludeSessionId=${excludeId}` : ''}`;
+            const url = apiUrl(`/api/admin/boats/availability?start=${encodeURIComponent(start)}&end=${encodeURIComponent(end)}${excludeId ? `&excludeSessionId=${excludeId}` : ''}`);
             const res = await fetch(url);
             const data = await res.json();
             if (data.success) {
@@ -331,7 +333,7 @@ export default function SessionsTab({ locale }: SessionsTabProps) {
                 ? { ...formData, id: editingSession.id }
                 : formData;
 
-            const res = await fetch(endpoint, {
+            const res = await fetch(apiUrl(endpoint), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
@@ -650,7 +652,7 @@ export default function SessionsTab({ locale }: SessionsTabProps) {
                                 payload = cleanData;
                             }
 
-                            const res = await fetch(endpoint, {
+                            const res = await fetch(apiUrl(endpoint), {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
                                 body: JSON.stringify(payload)

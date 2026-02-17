@@ -2,6 +2,8 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Trash2, Power, Edit3, Loader2 } from 'lucide-react';
 import AccessibleModal from '../../shared/AccessibleModal';
+import { apiUrl } from '@/lib/api';
+
 
 interface Course {
     id: string;
@@ -52,8 +54,8 @@ export default function CampaignManager() {
         setIsLoading(true);
         try {
             const [campRes, courseRes] = await Promise.all([
-                fetch('/api/admin/marketing/campaigns'),
-                fetch('/api/admin/courses/list')
+                fetch(apiUrl('/api/admin/marketing/campaigns')),
+                fetch(apiUrl('/api/admin/courses/list'))
             ]);
             const campData = await campRes.json();
             const courseData = await courseRes.json();
@@ -69,7 +71,7 @@ export default function CampaignManager() {
 
     const handleToggleStatus = async (id: string, currentStatus: boolean) => {
         try {
-            const res = await fetch(`/api/admin/marketing/campaigns/${id}`, {
+            const res = await fetch(apiUrl(`/api/admin/marketing/campaigns/${id}`), {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ activo: !currentStatus })
@@ -85,7 +87,7 @@ export default function CampaignManager() {
     const handleDelete = async (id: string) => {
         if (!confirm('¿Estás seguro de que deseas eliminar esta campaña?')) return;
         try {
-            const res = await fetch(`/api/admin/marketing/campaigns/${id}`, { method: 'DELETE' });
+            const res = await fetch(apiUrl(`/api/admin/marketing/campaigns/${id}`), { method: 'DELETE' });
             if (res.ok) {
                 setCampaigns(prev => prev.filter(c => c.id !== id));
             }
@@ -103,7 +105,7 @@ export default function CampaignManager() {
                 : '/api/admin/marketing/campaigns';
             const method = editingCampaign ? 'PATCH' : 'POST';
 
-            const res = await fetch(url, {
+            const res = await fetch(apiUrl(url), {
                 method,
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(formData)
