@@ -26,6 +26,10 @@ export async function generateMetadata({ params: { locale } }: { params: { local
     };
 }
 
+export function generateStaticParams() {
+    return ['es', 'eu', 'en', 'fr'].map(locale => ({ locale }));
+}
+
 export default async function RentalPage({ params: { locale } }: { params: { locale: string } }) {
     const t = await getTranslations({ locale, namespace: 'rental_page' });
     const supabase = createClient();

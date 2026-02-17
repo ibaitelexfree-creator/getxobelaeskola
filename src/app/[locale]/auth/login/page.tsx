@@ -1,16 +1,15 @@
+'use client';
+
 import LoginForm from '@/components/auth/LoginForm';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
+import { useSearchParams } from 'next/navigation';
+import { Suspense } from 'react';
 
-export default function LoginPage({
-    params: { locale },
-    searchParams
-}: {
-    params: { locale: string };
-    searchParams: { [key: string]: string | string[] | undefined }
-}) {
+function LoginPageContent({ locale }: { locale: string }) {
     const t = useTranslations('auth');
-    const returnTo = searchParams?.returnTo;
+    const searchParams = useSearchParams();
+    const returnTo = searchParams.get('returnTo');
 
     return (
         <main className="min-h-screen grid grid-cols-1 lg:grid-cols-2">
@@ -48,7 +47,7 @@ export default function LoginPage({
                     <footer className="mt-12 text-center text-[10px] uppercase tracking-widest">
                         <p className="text-foreground/40">
                             {t('no_account')}{' '}
-                            <Link href={`/${locale}/auth/register${returnTo ? `?returnTo=${encodeURIComponent(returnTo as string)}` : ''}`} className="text-accent hover:text-sea-foam transition-colors font-bold">
+                            <Link href={`/${locale}/auth/register${returnTo ? `?returnTo=${encodeURIComponent(returnTo)}` : ''}`} className="text-accent hover:text-sea-foam transition-colors font-bold">
                                 {t('create_one')}
                             </Link>
                         </p>
@@ -56,5 +55,17 @@ export default function LoginPage({
                 </div>
             </div>
         </main>
+    );
+}
+
+export default function LoginPage({
+    params: { locale }
+}: {
+    params: { locale: string }
+}) {
+    return (
+        <Suspense fallback={<div className="min-h-screen bg-nautical-black" />}>
+            <LoginPageContent locale={locale} />
+        </Suspense>
     );
 }
