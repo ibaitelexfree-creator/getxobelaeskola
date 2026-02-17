@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import { validateIdentityDocument, validateEmail } from '@/lib/utils/validators';
+import { validateIdentityDocument, validateEmail, DocumentType } from '@/lib/utils/validators';
+import { useTranslations } from 'next-intl';
 
 interface LegalConsentModalProps {
     isOpen: boolean;
@@ -24,9 +25,12 @@ export default function LegalConsentModal({
     legalText,
     initialData
 }: LegalConsentModalProps) {
+    const t = useTranslations('legal_modal');
+    const tV = useTranslations('validation');
     const [fullName, setFullName] = useState('');
     const [email, setEmail] = useState('');
     const [dni, setDni] = useState('');
+    const [documentType, setDocumentType] = useState<DocumentType>('DNI');
     const [dniError, setDniError] = useState<string | null>(null);
     const [emailError, setEmailError] = useState<string | null>(null);
     const [accepted, setAccepted] = useState(false);
@@ -42,9 +46,8 @@ export default function LegalConsentModal({
         }
     }, [isOpen, initialData]);
 
-
-
-    // Documentos disponibles
+    // Documentos disponibles - labels translated via specific keys if needed, 
+    // but these are proper names of files
     const documents = [
         { name: 'Formulario Inscripción a cursos', path: '/Documentos/Formularios inscripcion, LOPD y normas a firmar al contratar servicioos/Formulario Inscripción a cursos.pdf' },
         { name: 'Formulario Inscripción Socios', path: '/Documentos/Formularios inscripcion, LOPD y normas a firmar al contratar servicioos/Formulario Inscripción Socias.pdf' },
@@ -59,16 +62,16 @@ export default function LegalConsentModal({
         if (!accepted) return;
 
         // Validate DNI/NIE/Passport
-        const validation = validateIdentityDocument(dni);
+        const validation = validateIdentityDocument(dni, documentType);
         if (!validation.isValid) {
-            setDniError(validation.message || 'El documento no es válido');
+            setDniError(validation.message || tV('email_invalid')); // Using generic if message empty
             return;
         }
 
         // Validate Email
         const emailValidation = validateEmail(email);
         if (!emailValidation.isValid) {
-            setEmailError(emailValidation.message || 'El correo electrónico no es válido');
+            setEmailError(emailValidation.message || tV('email_invalid'));
             return;
         }
 
@@ -86,13 +89,13 @@ export default function LegalConsentModal({
                 {/* Header */}
                 <div className="p-6 border-b border-white/10 flex justify-between items-center bg-white/5">
                     <h2 className="text-xl font-display text-white uppercase tracking-widest">
-                        {viewingDoc ? 'Visualizando Documento' : (consentType === 'course' ? 'Términos de Inscripción' : 'Condiciones de Alquiler')}
+                        {viewingDoc ? t('viewing_doc') : (consentType === 'course' ? t('terms_title') : t('rental_title'))}
                     </h2>
                     <button
                         onClick={viewingDoc ? () => setViewingDoc(null) : onClose}
                         className="text-white/40 hover:text-white transition-colors flex items-center gap-2 text-xs uppercase tracking-widest"
                     >
-                        {viewingDoc ? '← Volver' : '✕'}
+                        {viewingDoc ? `← ${t('back')}` : '✕'}
                     </button>
                 </div>
 
@@ -110,7 +113,7 @@ export default function LegalConsentModal({
                         ) : (
                             <>
                                 <div className="space-y-4">
-                                    <p className="text-xs uppercase tracking-widest text-accent font-bold">Documentos Legales Obligatorios</p>
+                                    <p className="text-xs uppercase tracking-widest text-accent font-bold">{t('mandatory_docs')}</p>
                                     <div className="grid sm:grid-cols-2 gap-4">
                                         {documents.map((doc, idx) => (
                                             <button
@@ -124,7 +127,7 @@ export default function LegalConsentModal({
                                             </button>
                                         ))}
                                     </div>
-                                    <p className="text-[10px] text-white/40 italic">* Haz clic en cada documento para leerlo online desde aquí mismo.</p>
+                                    <p className="text-[10px] text-white/40 italic">{t('click_to_read')}</p>
                                 </div>
 
                                 <div className="bg-white/5 p-6 rounded-sm text-sm text-white/70 font-light leading-relaxed max-h-32 overflow-y-auto border border-white/5 italic custom-scrollbar block whitespace-pre-line">
@@ -133,7 +136,7 @@ export default function LegalConsentModal({
 
                                 <div className="grid md:grid-cols-2 gap-6 pt-4 border-t border-white/5">
                                     <div className="space-y-2">
-                                        <label className="text-3xs uppercase tracking-widest text-accent font-bold">Nombre Completo</label>
+                                        <label className="text-3xs uppercase tracking-widest text-accent font-bold">{t('full_name')}</label>
                                         <input
                                             required
                                             type="text"
@@ -145,29 +148,47 @@ export default function LegalConsentModal({
                                         />
                                     </div>
                                     <div className="space-y-2">
-                                        <label className="text-3xs uppercase tracking-widest text-accent font-bold">DNI / NIE / Pasaporte</label>
-                                        <input
-                                            required
-                                            type="text"
-                                            value={dni}
-                                            onChange={(e) => {
-                                                setDni(e.target.value);
-                                                if (dniError) setDniError(null);
-                                            }}
-                                            onBlur={() => {
-                                                if (dni) {
-                                                    const validation = validateIdentityDocument(dni);
-                                                    if (!validation.isValid) {
-                                                        setDniError(validation.message || 'El documento no es válido');
+                                        <label className="text-3xs uppercase tracking-widest text-accent font-bold">{t('identity_doc')}</label>
+                                        <div className="flex gap-2">
+                                            <select
+                                                value={documentType}
+                                                onChange={(e) => {
+                                                    const newType = e.target.value as DocumentType;
+                                                    setDocumentType(newType);
+                                                    if (dni) {
+                                                        const validation = validateIdentityDocument(dni, newType);
+                                                        setDniError(validation.isValid ? null : validation.message || 'Error');
                                                     }
-                                                }
-                                            }}
-                                            className={`w-full bg-white/5 border ${dniError ? 'border-red-500/50' : 'border-white/10'} p-4 text-white focus:border-accent outline-none text-sm transition-all`}
-                                            placeholder="12345678Z"
-                                            readOnly={!!initialData?.dni}
-                                        />
+                                                }}
+                                                className="bg-white/5 border border-white/10 p-4 text-white focus:border-accent outline-none text-sm transition-all appearance-none cursor-pointer hover:bg-white/10"
+                                            >
+                                                <option value="DNI" className="bg-nautical-black">DNI</option>
+                                                <option value="NIE" className="bg-nautical-black">NIE</option>
+                                                <option value="PASPORT" className="bg-nautical-black">Pasaporte</option>
+                                            </select>
+                                            <input
+                                                required
+                                                type="text"
+                                                value={dni}
+                                                onChange={(e) => {
+                                                    setDni(e.target.value);
+                                                    if (dniError) setDniError(null);
+                                                }}
+                                                onBlur={() => {
+                                                    if (dni) {
+                                                        const validation = validateIdentityDocument(dni, documentType);
+                                                        if (!validation.isValid) {
+                                                            setDniError(validation.message || tV('email_invalid'));
+                                                        }
+                                                    }
+                                                }}
+                                                className={`flex-1 bg-white/5 border ${dniError ? 'border-red-500/50' : 'border-white/10'} p-4 text-white focus:border-accent outline-none text-sm transition-all`}
+                                                placeholder={documentType === 'DNI' ? '12345678Z' : documentType === 'NIE' ? 'X1234567L' : 'Pasaporte N123456'}
+                                                readOnly={!!initialData?.dni}
+                                            />
+                                        </div>
                                         {dniError && (
-                                            <p className="text-red-400 text-xs mt-1 pl-1 flex items-center gap-1">
+                                            <p className="text-red-400 text-[10px] mt-1 pl-1 flex items-center gap-1">
                                                 <span>⚠️</span> {dniError}
                                             </p>
                                         )}
@@ -175,7 +196,7 @@ export default function LegalConsentModal({
                                 </div>
 
                                 <div className="space-y-2">
-                                    <label className="text-3xs uppercase tracking-widest text-accent font-bold">Email de Registro</label>
+                                    <label className="text-3xs uppercase tracking-widest text-accent font-bold">{t('email_label')}</label>
                                     <input
                                         required
                                         type="email"
@@ -188,7 +209,7 @@ export default function LegalConsentModal({
                                             if (email) {
                                                 const validation = validateEmail(email);
                                                 if (!validation.isValid) {
-                                                    setEmailError(validation.message || 'El correo electrónico no es válido');
+                                                    setEmailError(validation.message || tV('email_invalid'));
                                                 }
                                             }
                                         }}
@@ -212,7 +233,7 @@ export default function LegalConsentModal({
                                         required
                                     />
                                     <span className="text-xs text-white/80 group-hover:text-white transition-colors leading-relaxed">
-                                        Confirmo que he leído y acepto expresamente los documentos PDF arriba indicados, así como las condiciones detalladas en este formulario. Entiendo que esta aceptación equivale a una firma digital vinculante.
+                                        {t('confirmation_checkbox')}
                                     </span>
                                 </label>
                             </>
@@ -227,14 +248,14 @@ export default function LegalConsentModal({
                                 onClick={onClose}
                                 className="flex-1 py-5 border border-white/10 text-3xs uppercase tracking-widest font-bold text-white/60 hover:text-white hover:bg-white/5 transition-all"
                             >
-                                Cancelar
+                                {t('cancel')}
                             </button>
                             <button
                                 type="submit"
                                 disabled={!accepted || loading}
                                 className={`flex-[2] py-5 bg-accent text-nautical-black text-3xs uppercase tracking-widest font-bold transition-all ${!accepted ? 'opacity-30 grayscale' : 'hover:scale-[1.02] shadow-xl shadow-accent/20'}`}
                             >
-                                {loading ? 'Procesando...' : 'Firmar y Continuar al Pago'}
+                                {loading ? t('processing') : t('sign_and_continue')}
                             </button>
                         </div>
                     )}

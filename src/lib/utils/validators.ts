@@ -1,49 +1,58 @@
 
 /**
- * Valida un documento de identidad (DNI, NIE o Pasaporte).
- * Prioriza la validación de documentos españoles (DNI/NIE).
- * Si no coincide con el formato español, intenta validar como pasaporte genérico.
+ * Tipos de documentos de identidad soportados.
  */
-export function validateIdentityDocument(document: string): { isValid: boolean; message?: string; type?: 'DNI' | 'NIE' | 'PASPORT' } {
-    // Normalizar: quitar espacios y guiones, y convertir a mayúsculas
+export type DocumentType = 'DNI' | 'NIE' | 'PASPORT';
+
+/**
+ * Valida un documento de identidad según su tipo.
+ */
+export function validateIdentityDocument(document: string, type?: DocumentType): { isValid: boolean; message?: string; type: DocumentType } {
     const value = document.replace(/[\s-]/g, '').toUpperCase();
 
-    // Comprobación vacía
     if (!value) {
-        return { isValid: false, message: 'El campo es obligatorio.' };
+        return { isValid: false, message: 'El campo es obligatorio.', type: type || 'DNI' };
     }
 
-    // 1. Intentar validar como DNI (8 dígitos + 1 letra)
-    if (/^[0-9]{8}[A-Z]$/.test(value)) {
-        if (isValidDNI(value)) {
-            return { isValid: true, type: 'DNI' };
-        } else {
-            return { isValid: false, message: 'DNI inválido (la letra no coincide).' };
+    // Si se especifica el tipo, validamos solo para ese tipo
+    if (type === 'DNI') {
+        if (/^[0-9]{7,8}[A-Z]$/.test(value)) {
+            return isValidDNI(value)
+                ? { isValid: true, type: 'DNI' }
+                : { isValid: false, message: 'La letra del DNI no es válida.', type: 'DNI' };
         }
+        return { isValid: false, message: 'Formato de DNI inválido (ej: 12345678Z).', type: 'DNI' };
     }
 
-    // 2. Intentar validar como NIE (X/Y/Z + 7 dígitos + 1 letra)
+    if (type === 'NIE') {
+        if (/^[XYZ][0-9]{7}[A-Z]$/.test(value)) {
+            return isValidNIE(value)
+                ? { isValid: true, type: 'NIE' }
+                : { isValid: false, message: 'La letra del NIE no es válida.', type: 'NIE' };
+        }
+        return { isValid: false, message: 'Formato de NIE inválido (ej: X1234567L).', type: 'NIE' };
+    }
+
+    if (type === 'PASPORT') {
+        // Formato genérico de pasaporte: al menos 6 caracteres alfanuméricos
+        if (/^[A-Z0-9]{6,20}$/.test(value)) {
+            return { isValid: true, type: 'PASPORT' };
+        }
+        return { isValid: false, message: 'Pasaporte inválido (6-20 caracteres alfanuméricos).', type: 'PASPORT' };
+    }
+
+    // Si NO se especifica tipo (auto-detección - mantener compatibilidad)
+    if (/^[0-9]{7,8}[A-Z]$/.test(value)) {
+        return isValidDNI(value) ? { isValid: true, type: 'DNI' } : { isValid: false, message: 'DNI inválido.', type: 'DNI' };
+    }
     if (/^[XYZ][0-9]{7}[A-Z]$/.test(value)) {
-        if (isValidNIE(value)) {
-            return { isValid: true, type: 'NIE' };
-        } else {
-            return { isValid: false, message: 'NIE inválido (la letra no coincide).' };
-        }
+        return isValidNIE(value) ? { isValid: true, type: 'NIE' } : { isValid: false, message: 'NIE inválido.', type: 'NIE' };
     }
-
-    // 3. Otros casos: tratamiento como Pasaporte
-    // Formato genérico: al menos 6 caracteres alfanuméricos, máximo 20
-    // Evitar caracteres especiales raros
     if (/^[A-Z0-9]{6,20}$/.test(value)) {
-        // Validación laxa para pasaporte internacional
         return { isValid: true, type: 'PASPORT' };
     }
 
-    // Si no encaja en ninguno
-    return {
-        isValid: false,
-        message: 'Formato no reconocido. Debe ser un DNI, NIE o Pasaporte válido.'
-    };
+    return { isValid: false, message: 'Documento no reconocido.', type: 'DNI' };
 }
 
 /**
@@ -51,8 +60,8 @@ export function validateIdentityDocument(document: string): { isValid: boolean; 
  */
 function isValidDNI(dni: string): boolean {
     const letters = "TRWAGMYFPDXBNJZSQVHLCKE";
-    const numberPart = parseInt(dni.substring(0, 8), 10);
-    const letterPart = dni.substring(8, 9);
+    const numberPart = parseInt(dni.substring(0, dni.length - 1), 10);
+    const letterPart = dni.substring(dni.length - 1);
 
     return letters.charAt(numberPart % 23) === letterPart;
 }
@@ -62,14 +71,14 @@ function isValidDNI(dni: string): boolean {
  */
 function isValidNIE(nie: string): boolean {
     let niePrefix = nie.charAt(0);
-    let numberPartStr = nie.substring(1, 8);
-    let letterPart = nie.substring(8, 9);
+    let numberPartStr = nie.substring(1, nie.length - 1);
+    let letterPart = nie.substring(nie.length - 1);
 
     let prefixValue = '';
     if (niePrefix === 'X') prefixValue = '0';
     else if (niePrefix === 'Y') prefixValue = '1';
     else if (niePrefix === 'Z') prefixValue = '2';
-    else return false; // No debería pasar si el regex previo coincide
+    else return false;
 
     const numberPart = parseInt(prefixValue + numberPartStr, 10);
     const letters = "TRWAGMYFPDXBNJZSQVHLCKE";

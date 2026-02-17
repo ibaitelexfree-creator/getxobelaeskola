@@ -588,6 +588,36 @@
             "loading_record": "Cargando Expediente...",
             "found_no_students": "No se encontraron navegantes para \"{query}\"",
             "online_control": "Control de Expedientes Online"
+        },
+        "maintenance_modal": {
+            "update_status_title": "Actualizar Estado de Incidencia",
+            "original_incident": "Incidencia Original",
+            "new_status": "Nuevo Estado",
+            "notes_placeholder": "Descripción / Notas de Actualización",
+            "cost_updated": "Coste Actualizado ()",
+            "confirm_update": "Confirmar Actualización",
+            "maintenance_title_suffix": "Mantenimiento",
+            "new_incident_tab": "Nueva Incidencia",
+            "history_tab": "Historial",
+            "type_label": "Tipo",
+            "initial_status_label": "Estado Inicial",
+            "description_label": "Descripción de la incidencia",
+            "description_placeholder": "Describe el problema o trabajo necesario...",
+            "estimated_cost": "Coste Estimado ()",
+            "register_btn": "Registrar Mantenimiento",
+            "loading_history": "Cargando historial...",
+            "no_records": "No hay registros de mantenimiento.",
+            "registered_by": "Registrado por:",
+            "types": {
+                "correctivo": "Correctivo (Avería)",
+                "preventivo": "Preventivo (Revisión)",
+                "mejora": "Mejora / Upgrade"
+            },
+            "status": {
+                "pendiente": "Pendiente",
+                "en_proceso": "En Proceso",
+                "completado": "Completado"
+            }
         }
     },
     "footer": {
@@ -595,7 +625,8 @@
         "rental": "Alquiler",
         "school": "La Escuela",
         "contact": "Contacto",
-        "copyright": "© 2026 Getxo Bela Eskola · Experiencia Náutica Premium"
+        "copyright": "© 2026 Getxo Bela Eskola · Experiencia Náutica Premium",
+        "slogan": "Getxo Bela Eskola  Experiencia náutica por excelencia en el Puerto Deportivo de Getxo."
     },
     "academy": {
         "title": "Academia Digital",
@@ -609,7 +640,8 @@
             "theory_hours": "h teoría",
             "practice_hours": "h práctica",
             "view_courses": "Ver Cursos →",
-            "transversal": "Transversal"
+            "transversal": "Transversal",
+            "title_suffix": ""
         },
         "status": {
             "completed": "✓ Completado",
@@ -628,7 +660,14 @@
             "back_to_dashboard": "Volver al Dashboard",
             "view_requirements": "Ver Requisitos de Desbloqueo",
             "go_to_academy": "Volver a la Academia"
-        }
+        },
+        "motivational_quotes": [
+            "El que no sabe a qué puerto quiere navegar, nunca tiene viento a favor.",
+            "Un mar tranquilo nunca hizo un navegante habilidoso.",
+            "Ajusta tus velas para aprovechar cada racha de viento.",
+            "La mejor forma de navegar es con el corazón y la técnica.",
+            "Cada nudo de experiencia cuenta en tu bitácora."
+        ]
     },
     "errors": {
         "404": {
@@ -686,6 +725,67 @@
             "label": "Calidad Trimado",
             "accuracy": "Precisión",
             "optimal_trim": "Trimado Óptimo"
+        },
+        "game_over": {
+            "title": "REGATA COMPLETADA",
+            "buoys_collected": "Has recogido todas las boyas!",
+            "final_score": "Puntuación Final",
+            "name_placeholder": "Introduce tu nombre",
+            "save_btn": "GUARDAR",
+            "ranking_title": "RANKING - TOP 10",
+            "restart_btn": "VOLVER A JUGAR"
         }
+    },
+    "validation": {
+        "name_short": "Nombre demasiado corto",
+        "last_name_short": "Apellidos demasiado cortos",
+        "email_invalid": "Email no válido",
+        "password_short": "Mínimo 6 caracteres",
+        "subject_short": "Asunto demasiado corto",
+        "message_short": "El mensaje es demasiado corto"
+    },
+    "legal": {
+        "rental_contract": "CONTRATO DE ARRENDAMIENTO DE MATERIAL NÁUTICO - GETXO BELA ESKOLA\n\n1. REQUISITOS DEL ARRENDATARIO: El cliente declara poseer los conocimientos técnicos necesarios para el manejo seguro del material alquilado. En caso de veleros de recreo, se requiere la titulación mínima correspondiente.\n\n2. ESTADO Y DEVOLUCIÓN: El material se entrega en perfecto estado de funcionamiento. El cliente se compromete a devolverlo en el mismo estado. Cualquier daño causado por negligencia será responsabilidad exclusiva del cliente.\n\n3. ZONAS DE NAVEGACIÓN: La navegación se limitará a las zonas autorizadas y tiempos acordados. El cliente se compromete a respetar las normas del Puerto Deportivo de Getxo y la normativa de Capitanía Marítima.\n\n4. SEGURIDAD: El uso del chaleco salvavidas es obligatorio y personal durante todo el tiempo que se permanezca en el agua.\n\n5. RESCATE Y ASISTENCIA: Si el cliente requiere asistencia o rescate por imprudencia o salida de las zonas permitidas, los costes derivados correrán a su cargo.\n\n6. FIRMA DIGITAL: Al marcar la casilla de aceptación, el cliente ratifica que ha comprendido todos los puntos anteriores y asume su responsabilidad legal.",
+        "consent_acceptance": "He leído y acepto expresamente las condiciones legales detalladas anteriormente. Entiendo que esta aceptación equivale a una firma digital vinculante.",
+        "error_log_consent": "No se pudo registrar la firma legal. Inténtalo de nuevo."
+    },
+    "legal_modal": {
+        "viewing_doc": "Visualizando Documento",
+        "terms_title": "Términos de Inscripción",
+        "rental_title": "Condiciones de Alquiler",
+        "back": "Volver",
+        "mandatory_docs": "Documentos Legales Obligatorios",
+        "click_to_read": "* Haz clic en cada documento para leerlo online desde aquí mismo.",
+        "full_name": "Nombre Completo",
+        "identity_doc": "Documento de Identidad",
+        "email_label": "Email de Registro",
+        "confirmation_checkbox": "Confirmo que he leído y acepto expresamente los documentos PDF arriba indicados, así como las condiciones detalladas en este formulario. Entiendo que esta aceptación equivale a una firma digital vinculante.",
+        "sign_and_continue": "Firmar y Continuar al Pago",
+        "cancel": "Cancelar",
+        "processing": "Procesando..."
+    },
+    "profile_modal": {
+        "title": "Editar Perfil",
+        "subtitle": "Actualiza tus datos personales",
+        "name": "Nombre",
+        "last_name": "Apellidos",
+        "phone": "Teléfono",
+        "cancel": "Cancelar",
+        "save": "Guardar Cambios",
+        "saving": "Guardando...",
+        "error_updating": "Error al actualizar perfil",
+        "connection_error": "Error de conexión"
+    },
+    "profile_sidebar": {
+        "verified_member": "Miembro verificado",
+        "official_partner": "Socio Oficial",
+        "account_info": "Información de Cuenta",
+        "role": "Rol",
+        "student": "Estudiante",
+        "edit_profile": "Editar Perfil",
+        "managing_subscription": "Gestionar Suscripción",
+        "membership_card": "Mi Carnet de Socio",
+        "loading": "Cargando...",
+        "portal_error": "Error al abrir el portal de pagos"
     }
 }

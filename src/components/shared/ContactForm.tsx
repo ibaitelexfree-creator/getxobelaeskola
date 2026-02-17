@@ -7,18 +7,20 @@ import { useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useTranslations } from 'next-intl';
 
-const contactSchema = z.object({
-    nombre: z.string().min(2, 'El nombre es demasiado corto'),
-    email: z.string().email('Email no válido'),
-    telefono: z.string().optional(),
-    asunto: z.string().min(5, 'Asunto demasiado corto'),
-    mensaje: z.string().min(10, 'El mensaje es demasiado corto'),
-});
-
-type ContactFormValues = z.infer<typeof contactSchema>;
-
 export default function ContactForm() {
     const t = useTranslations('contact_form');
+    const tv = useTranslations('validation');
+
+    const contactSchema = z.object({
+        nombre: z.string().min(2, tv('name_short')),
+        email: z.string().email(tv('email_invalid')),
+        telefono: z.string().optional(),
+        asunto: z.string().min(5, tv('subject_short')),
+        mensaje: z.string().min(10, tv('message_short')),
+    });
+
+    type ContactFormValues = z.infer<typeof contactSchema>;
+
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [success, setSuccess] = useState(false);
     const [error, setError] = useState<string | null>(null);

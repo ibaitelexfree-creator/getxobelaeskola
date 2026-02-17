@@ -91,13 +91,16 @@ export default function DashboardPage({ params }: { params: { locale: string } }
     const [loading, setLoading] = useState(true);
     const { addNotification } = useNotificationStore();
 
-    const MOTIVATIONAL_QUOTES = [
-        "El que no sabe a qué puerto quiere navegar, nunca tiene viento a favor.",
-        "Un mar tranquilo nunca hizo un navegante habilidoso.",
-        "Ajusta tus velas para aprovechar cada racha de viento.",
-        "La mejor forma de navegar es con el corazón y la técnica.",
-        "Cada nudo de experiencia cuenta en tu bitácora."
-    ];
+    // Use try/catch because t.raw might fail if the key is missing or not an array
+    let MOTIVATIONAL_QUOTES: string[] = [];
+    try {
+        MOTIVATIONAL_QUOTES = (t.raw('motivational_quotes') as string[]) || [];
+    } catch (e) {
+        MOTIVATIONAL_QUOTES = [
+            "El que no sabe a qué puerto quiere navegar, nunca tiene viento a favor.",
+            "Un mar tranquilo nunca hizo un navegante habilidoso."
+        ];
+    }
 
     // Fetch data
     useEffect(() => {

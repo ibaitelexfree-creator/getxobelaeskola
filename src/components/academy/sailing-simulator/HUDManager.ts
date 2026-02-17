@@ -18,9 +18,11 @@ export class HUDManager {
     private scoreVal: HTMLElement;
     private radarCanvas: HTMLCanvasElement;
     private radarCtx: CanvasRenderingContext2D | null;
+    private labels: any;
 
-    constructor(shadowRoot: ShadowRoot) {
+    constructor(shadowRoot: ShadowRoot, labels: any) {
         this.shadowRoot = shadowRoot;
+        this.labels = labels;
 
         // 1. Create Container
         this.container = document.createElement('div');
@@ -191,11 +193,11 @@ export class HUDManager {
             <div id="panel-score" class="hud-panel" style="display: flex; flex-direction: column; align-items: flex-start;">
                 <div style="display: flex; gap: 20px; align-items: center;">
                     <div>
-                        <div class="hud-label">PUNTUACIÓN</div>
+                        <div class="hud-label">${this.labels.score || 'PUNTUACIÓN'}</div>
                         <div class="hud-value" id="score-display">000000</div>
                     </div>
                     <div>
-                        <div class="hud-label">BOYAS RECOGIDAS</div>
+                        <div class="hud-label">${this.labels.buoys || 'BOYAS RECOGIDAS'}</div>
                         <div class="hud-value" id="buoy-display">0 / 5</div>
                     </div>
                 </div>
@@ -209,10 +211,10 @@ export class HUDManager {
             <!-- Instruments -->
             <div id="panel-instruments" class="hud-panel">
                 <div class="instrument-group">
-                    <div class="hud-label">VELOCIDAD</div>
+                    <div class="hud-label">${this.labels.speed || 'VELOCIDAD'}</div>
                     <div class="hud-value" style="font-size: 20px;">
                         <span id="speed-val">0.0</span>
-                        <div class="hud-unit" style="display:inline-block; font-size:10px;">NUDOS</div>
+                        <div class="hud-unit" style="display:inline-block; font-size:10px;">${this.labels.knots || 'NUDOS'}</div>
                         <div id="speed-kmh" style="font-size: 14px; color: #88ccff; margin-top:-4px;">0 km/h</div>
                     </div>
                 </div>
@@ -220,12 +222,12 @@ export class HUDManager {
                 <div style="width: 1px; height: 30px; background: rgba(255,255,255,0.2);"></div>
 
                 <div class="instrument-group" style="width: 140px;">
-                    <div class="hud-label">EFICIENCIA</div>
+                    <div class="hud-label">${this.labels.efficiency || 'EFICIENCIA'}</div>
                     <div class="trim-gauge">
                         <div id="trim-bar" class="trim-fill"></div>
                     </div>
                     <div class="hud-unit" style="margin-top: 4px; font-size: 10px;">
-                        <span id="trim-val">0</span>% OPTIMAL
+                        <span id="trim-val">0</span>% ${this.labels.optimal || 'ÓPTIMO'}
                     </div>
                 </div>
             </div>
@@ -369,7 +371,7 @@ export class HUDManager {
         ctx.fillStyle = '#88ccff';
         ctx.fillText('S', cx, cy + r);
         ctx.fillText('E', cx + r, cy);
-        ctx.fillText('W', cx - r, cy);
+        ctx.fillText(this.labels.west || 'O', cx - r, cy);
 
         // 2. Draw Boat (Centered, Rotated by Heading)
         // Boat Heading 0 = North (Up, -Z). 

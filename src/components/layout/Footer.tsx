@@ -69,7 +69,7 @@ export default async function Footer({ locale }: { locale: string }) {
                     {t('copyright')}
                     <br />
                     <span className="mt-4 block hover:text-white/60 transition-colors cursor-default">
-                        Getxo Bela Eskola — Experiencia náutica por excelencia en el Puerto Deportivo de Getxo.
+                        {t('slogan')}
                     </span>
                 </div>
             </div>

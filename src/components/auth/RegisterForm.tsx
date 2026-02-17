@@ -8,18 +8,20 @@ import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 
-const registerSchema = z.object({
-    nombre: z.string().min(2, 'Nombre demasiado corto'),
-    apellidos: z.string().min(2, 'Apellidos demasiado corto'),
-    email: z.string().email('Email no válido'),
-    password: z.string().min(6, 'Mínimo 6 caracteres'),
-    subscribeNewsletter: z.boolean(),
-});
-
-type RegisterValues = z.infer<typeof registerSchema>;
-
 export default function RegisterForm() {
     const t = useTranslations('auth_form');
+    const tv = useTranslations('validation');
+
+    const registerSchema = z.object({
+        nombre: z.string().min(2, tv('name_short')),
+        apellidos: z.string().min(2, tv('last_name_short')),
+        email: z.string().email(tv('email_invalid')),
+        password: z.string().min(6, tv('password_short')),
+        subscribeNewsletter: z.boolean(),
+    });
+
+    type RegisterValues = z.infer<typeof registerSchema>;
+
     const [loading, setLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState<string | null>(null);
