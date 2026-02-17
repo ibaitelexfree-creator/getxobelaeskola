@@ -1,0 +1,2 @@
+-- This migration has been replaced by 008_student_skills_system.sql
+-- and is effectively empty to prevent conflicts if already applied or pending.
