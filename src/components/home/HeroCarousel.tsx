@@ -91,7 +91,7 @@ export default function HeroCarousel() {
                                 <div className="flex flex-wrap gap-6">
                                     <Link
                                         href={`/${locale}${slide.link}`}
-                                        className="px-12 py-5 bg-accent text-nautical-black text-[13px] uppercase tracking-[0.2em] font-black hover:bg-white transition-all duration-500 rounded-sm shadow-xl hover:shadow-accent/20"
+                                        className="px-8 sm:px-12 py-4 sm:py-5 bg-accent text-nautical-black text-[13px] uppercase tracking-[0.2em] font-black hover:bg-white transition-all duration-500 rounded-sm shadow-xl hover:shadow-accent/20"
                                         aria-label={`${slide.action}: ${slide.title}`}
                                     >
                                         {slide.action}

@@ -27,7 +27,7 @@ export default async function AboutPage({ params: { locale } }: { params: { loca
                         <span className="inline-block text-accent uppercase tracking-[1em] text-sm font-bold mb-12 opacity-80 animate-fade-in-up">
                             {t('header_badge')}
                         </span>
-                        <h1 className="text-4xl md:text-7xl lg:text-[10rem] font-display leading-[0.9] mb-12 drop-shadow-2xl animate-reveal">
+                        <h1 className="text-4xl md:text-7xl lg:text-[10rem] font-display text-white leading-[0.9] mb-12 drop-shadow-2xl animate-reveal relative">
                             {t('header_title')} <br />
                             <span className="italic font-light text-brass-gold/90">
                                 {t('header_highlight')}
@@ -51,7 +51,7 @@ export default async function AboutPage({ params: { locale } }: { params: { loca
             </section>
 
             {/* 2. Heritage & Story Section */}
-            <section className="py-48 relative overflow-hidden">
+            <section className="py-24 md:py-48 relative overflow-hidden">
                 <div className="container mx-auto px-6">
                     <div className="grid lg:grid-cols-12 gap-12 items-center">
                         {/* Decorative Quote Mark */}
@@ -74,7 +74,7 @@ export default async function AboutPage({ params: { locale } }: { params: { loca
                                     {t('desc1')}
                                 </p>
                                 <div className="p-8 border-l-2 border-brass-gold/20 bg-white/[0.02] backdrop-blur-sm">
-                                    <p className="text-foreground/40 font-light text-lg leading-relaxed italic">
+                                    <p className="text-foreground/60 font-light text-lg leading-relaxed italic">
                                         {t('desc2')}
                                     </p>
                                 </div>
@@ -106,7 +106,7 @@ export default async function AboutPage({ params: { locale } }: { params: { loca
             </section>
 
             {/* 3. The Pillars (Values) Section */}
-            <section className="py-64 relative bg-black/20">
+            <section className="py-32 md:py-64 relative bg-black/20">
                 <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-5 pointer-events-none" />
                 <div className="container mx-auto px-6 relative">
                     <header className="mb-32 text-center max-w-4xl mx-auto space-y-8">

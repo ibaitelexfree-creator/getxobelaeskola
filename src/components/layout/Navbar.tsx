@@ -78,7 +78,8 @@ export default function Navbar({ locale: propLocale }: { locale?: string }) {
         // 2. Build URL
         const segments = pathname.split('/');
 
-        if (segments[1] === 'es' || segments[1] === 'eu') {
+        const supportedLocales = ['es', 'eu', 'en'];
+        if (supportedLocales.includes(segments[1])) {
             segments[1] = targetLocale;
         } else {
             segments.splice(1, 0, targetLocale);
@@ -108,7 +109,7 @@ export default function Navbar({ locale: propLocale }: { locale?: string }) {
 
     return (
         <>
-            <nav className="fixed top-0 left-0 w-full z-[9999] px-3 sm:px-4 md:px-6 py-3 md:py-6 xl:py-8 flex justify-between items-center bg-[#010409] backdrop-blur-md border-b border-white/5 min-h-[70px] md:min-h-[auto]">
+            <nav className="fixed top-0 left-0 w-full z-[9999] px-3 sm:px-4 md:px-6 py-3 md:py-6 xl:py-8 flex justify-between items-center bg-[#010409]/80 backdrop-blur-md border-b border-white/5 min-h-[70px] md:min-h-[auto]">
                 <Link
                     href={`/${locale}`}
                     className="flex items-center gap-2 md:gap-4 group transition-transform hover:scale-105 relative z-[110] max-w-[75%] sm:max-w-none"
@@ -127,7 +128,7 @@ export default function Navbar({ locale: propLocale }: { locale?: string }) {
                         <span className="font-display text-base sm:text-xl tracking-tight text-white leading-none truncate">
                             GETXO <span className="italic font-light text-accent">BELA</span>
                         </span>
-                        <span className="text-[7px] sm:text-[10px] md:text-2xs uppercase tracking-[0.2em] sm:tracking-[0.4em] text-white/40 font-bold mt-1 truncate">Escuela Náutica</span>
+                        <span className="text-[9px] sm:text-[10px] md:text-2xs uppercase tracking-[0.2em] sm:tracking-[0.4em] text-white/40 font-bold mt-1 truncate">Escuela Náutica</span>
                     </div>
                 </Link>
 
@@ -143,19 +144,20 @@ export default function Navbar({ locale: propLocale }: { locale?: string }) {
 
                 <div className="flex gap-2 sm:gap-4 items-center relative z-[110] flex-shrink-0 ml-auto sm:ml-0">
                     {/* Language Selector - Desktop only from xl */}
-                    <div className="hidden xl:flex bg-white/5 border border-white/10 rounded-full p-1 group/lang relative">
-                        <button
-                            onClick={() => handleLanguageSwitch('es')}
-                            className={`px-3 py-1.5 rounded-full text-2xs uppercase tracking-widest font-black transition-all ${locale === 'es' ? 'bg-accent text-nautical-black shadow-lg shadow-accent/20' : 'text-white/40 hover:text-white'}`}
-                        >
-                            ES
-                        </button>
-                        <button
-                            onClick={() => handleLanguageSwitch('eu')}
-                            className={`px-3 py-1.5 rounded-full text-2xs uppercase tracking-widest font-black transition-all ${locale === 'eu' ? 'bg-accent text-nautical-black shadow-lg shadow-accent/20' : 'text-white/40 hover:text-white'}`}
-                        >
-                            EU
-                        </button>
+                    <div className="hidden xl:flex bg-white/5 border border-white/10 rounded-full p-1 group/lang relative items-center">
+                        {[
+                            { code: 'es', label: 'ES' },
+                            { code: 'eu', label: 'EU' },
+                            { code: 'en', label: 'EN' }
+                        ].map((lang) => (
+                            <button
+                                key={lang.code}
+                                onClick={() => handleLanguageSwitch(lang.code)}
+                                className={`px-3 py-1.5 rounded-full text-[10px] uppercase tracking-widest font-black transition-all duration-300 ${locale === lang.code ? 'bg-accent text-nautical-black shadow-lg shadow-accent/20 scale-105' : 'text-white/40 hover:text-white'}`}
+                            >
+                                {lang.label}
+                            </button>
+                        ))}
 
                         <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 opacity-0 group-hover/lang:opacity-100 transition-all pointer-events-none">
                             <span className="text-2xs text-accent tracking-[0.3em] font-bold uppercase whitespace-nowrap">{t('language_selector')}</span>
@@ -284,19 +286,23 @@ export default function Navbar({ locale: propLocale }: { locale?: string }) {
                         )}
 
                         {/* Language Selector Mobile */}
-                        <div className="flex justify-between items-center bg-white/5 border border-white/10 rounded-full p-2">
-                            <button
-                                onClick={() => handleLanguageSwitch('es')}
-                                className={`flex-1 py-3 rounded-full text-2xs uppercase tracking-[0.3em] font-black transition-all ${locale === 'es' ? 'bg-white text-nautical-black shadow-lg shadow-white/20' : 'text-white/40'}`}
-                            >
-                                Castellano
-                            </button>
-                            <button
-                                onClick={() => handleLanguageSwitch('eu')}
-                                className={`flex-1 py-3 rounded-full text-2xs uppercase tracking-[0.3em] font-black transition-all ${locale === 'eu' ? 'bg-white text-nautical-black shadow-lg shadow-white/20' : 'text-white/40'}`}
-                            >
-                                Euskara
-                            </button>
+                        <div className="flex flex-col gap-3">
+                            <span className="text-[10px] uppercase tracking-[0.4em] font-black text-white/30 ml-4">{t('language_selector')}</span>
+                            <div className="grid grid-cols-3 gap-2 bg-white/5 border border-white/10 rounded-2xl p-2">
+                                {[
+                                    { code: 'es', label: 'Castellano' },
+                                    { code: 'eu', label: 'Euskara' },
+                                    { code: 'en', label: 'English' }
+                                ].map((lang) => (
+                                    <button
+                                        key={lang.code}
+                                        onClick={() => handleLanguageSwitch(lang.code)}
+                                        className={`py-3 rounded-xl text-[10px] uppercase tracking-widest font-black transition-all duration-300 ${locale === lang.code ? 'bg-white text-nautical-black shadow-xl shadow-white/10 scale-[1.02]' : 'text-white/40'}`}
+                                    >
+                                        {lang.label.substring(0, 3)}
+                                    </button>
+                                ))}
+                            </div>
                         </div>
                     </div>
                 </div>

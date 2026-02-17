@@ -59,10 +59,20 @@ export default async function LocaleLayout({
 
 export async function generateMetadata({ params: { locale } }: { params: { locale: string } }) {
   const isEu = locale === 'eu';
-  const title = isEu ? 'Getxo Bela Eskola | Nabigazio Akademia' : 'Getxo Sailing School | Escuela de Navegación';
-  const description = isEu
-    ? 'Ezagutu nabigazioaren mundua Getxon. Cursos de vela, academia online y alquiler de embarcaciones.'
-    : 'Descubre el mundo de la navegación en Getxo. Cursos de vela, academia online y alquiler de embarcaciones.';
+  const isEn = locale === 'en';
+
+  let title = 'Getxo Sailing School | Escuela de Navegación';
+  let description = 'Descubre el mundo de la navegación en Getxo. Cursos de vela, academia online y alquiler de embarcaciones.';
+
+  if (isEu) {
+    title = 'Getxo Bela Eskola | Nabigazio Akademia';
+    description = 'Ezagutu nabigazioaren mundua Getxon. Bela ikastaroak, online akademia eta ontzien alokairua.';
+  } else if (isEn) {
+    title = 'Getxo Sailing School | Nautical Academy';
+    description = 'Discover the world of sailing in Getxo. Sailing courses, online academy, and boat rentals.';
+  }
+
+  const ogLocale = isEu ? 'eu_ES' : isEn ? 'en_US' : 'es_ES';
 
   return {
     title: {
@@ -85,6 +95,7 @@ export async function generateMetadata({ params: { locale } }: { params: { local
       languages: {
         'es-ES': '/es',
         'eu-ES': '/eu',
+        'en-US': '/en',
       },
     },
     openGraph: {
@@ -99,7 +110,7 @@ export async function generateMetadata({ params: { locale } }: { params: { local
           height: 630,
         },
       ],
-      locale: isEu ? 'eu_ES' : 'es_ES',
+      locale: ogLocale,
       type: 'website',
     },
     twitter: {
