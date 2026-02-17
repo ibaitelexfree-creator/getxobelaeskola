@@ -33,7 +33,7 @@ export default function MembershipCardPage({ params: { locale } }: { params: { l
     }
 
     return (
-        <main className="min-h-screen pt-32 pb-24 px-6 bg-nautical-black text-white print:pt-0 print:pb-0 print:bg-white print:text-black">
+        <main className="min-h-screen pt-24 md:pt-32 pb-24 px-6 bg-nautical-black text-white print:pt-0 print:pb-0 print:bg-white print:text-black">
             <div className="max-w-md mx-auto">
                 <div className="mb-8 text-center print:hidden">
                     <h1 className="text-2xl font-display italic mb-2">Tu Carnet de Socio</h1>
@@ -94,7 +94,7 @@ export default function MembershipCardPage({ params: { locale } }: { params: { l
                         🖨️ Imprimir
                     </button>
                     <Link
-                        href={`/${locale}/student/dashboard`}
+                        href={`/${locale}/student/profile`}
                         className="py-3 bg-accent text-nautical-black text-[10px] uppercase tracking-widest font-black hover:bg-white transition-all flex items-center justify-center shadow-lg shadow-accent/10"
                     >
                         Volver →

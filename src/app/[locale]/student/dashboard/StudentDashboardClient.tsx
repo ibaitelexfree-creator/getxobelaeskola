@@ -5,8 +5,10 @@ import { getApiUrl } from '@/lib/platform';
 import StudentProfileSidebar from '@/components/student/StudentProfileSidebar';
 import MembershipWidget from '@/components/student/MembershipWidget';
 import DashboardRefresh from '@/components/student/DashboardRefresh';
+import MobileStudentHub from '@/components/student/MobileStudentHub';
 import EmptyState from '@/components/ui/EmptyState';
 import DailyChallengeWidget from '@/components/student/DailyChallengeWidget';
+import NotificationPermissionBanner from '@/components/dashboard/NotificationPermissionBanner';
 import Link from 'next/link';
 
 interface DashboardItem {
@@ -31,6 +33,7 @@ export default function StudentDashboardClient({
 }) {
     const [data, setData] = useState<any>(null);
     const [loading, setLoading] = useState(true);
+    const [isMobile, setIsMobile] = useState(false);
 
     useEffect(() => {
         async function fetchDashboardData() {
@@ -45,6 +48,17 @@ export default function StudentDashboardClient({
             }
         }
         fetchDashboardData();
+    }, []);
+
+    useEffect(() => {
+        const checkMobile = () => {
+            const isCapacitor = typeof window !== 'undefined' && !!(window as any).Capacitor?.isNativePlatform?.();
+            const isNarrow = window.innerWidth < 768;
+            setIsMobile(isCapacitor || isNarrow);
+        };
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
+        return () => window.removeEventListener('resize', checkMobile);
     }, []);
 
     if (loading) {
@@ -123,21 +137,40 @@ export default function StudentDashboardClient({
     };
 
     const formatDateTime = (date: string | Date | undefined, time?: string) => {
-        const d = formatDate(date);
-        if (!time) return d;
-        return `${d} - ${time.slice(0, 5)}h`;
+        if (!date) return '--/--/----';
+        const datePart = formatDate(date);
+        return time ? `${datePart} — ${time}` : datePart;
     };
 
-    return (
-        <main className="min-h-screen pt-32 pb-24 px-6 relative">
-            <div className="bg-mesh" />
+    if (isMobile) {
+        return (
+            <main className="min-h-screen relative bg-nautical-black">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-accent/5 blur-[80px] rounded-full pointer-events-none" />
+                <div className="absolute bottom-20 left-0 w-48 h-48 bg-blue-500/5 blur-[60px] rounded-full pointer-events-none" />
+                <MobileStudentHub
+                    profile={profile}
+                    upcomingInscripciones={upcomingInscripciones}
+                    upcomingRentals={upcomingRentals}
+                    locale={locale}
+                    t={t}
+                />
+            </main>
+        );
+    }
 
-            <div className="container mx-auto">
-                <header className="mb-16">
+    return (
+        <div className="flex flex-col lg:flex-row gap-8 min-h-screen bg-nautical-black/5 p-4 lg:p-8 pt-32">
+            <div className="bg-mesh" />
+            <StudentProfileSidebar profile={profile} email={user?.email || ''} locale={locale} />
+
+            <main className="flex-1 space-y-12 max-w-5xl z-10">
+                <NotificationPermissionBanner />
+
+                <header>
                     <span className="text-accent uppercase tracking-widest text-xs font-semibold mb-4 block">
                         {t.eyebrow}
                     </span>
-                    <h1 className="text-4xl md:text-7xl font-display mb-4">
+                    <h1 className="text-4xl md:text-7xl font-display mb-4 text-white">
                         {t.welcome.replace('{name}', profile?.nombre || 'Navegante')}
                     </h1>
                     <p className="text-foreground/40 font-light">{t.subtitle}</p>
@@ -221,14 +254,73 @@ export default function StudentDashboardClient({
                                 <EmptyState icon="⛵" title={t.courses_section.empty_title} subtitle={t.courses_section.empty_subtitle} actionLabel={t.courses_section.btn_explore} actionHref={`/${locale}/courses`} />
                             )}
                         </section>
+
+                        <section>
+                            <div className="flex justify-between items-end mb-8">
+                                <h2 className="text-xs uppercase tracking-widest text-accent font-bold">{t.rentals_section.title}</h2>
+                                <Link href={`/${locale}/rental`} className="text-[10px] uppercase tracking-widest text-foreground/40 hover:text-accent transition-colors">
+                                    {t.rentals_section.new_rental}
+                                </Link>
+                            </div>
+                            {upcomingRentals.length > 0 ? (
+                                <div className="space-y-6">
+                                    {upcomingRentals.map((rent: any) => {
+                                        const status = getStatusInfo(rent);
+                                        const itemName = rent.servicios_alquiler ? (locale === 'es' ? rent.servicios_alquiler.nombre_es : rent.servicios_alquiler.nombre_eu) : 'Alquiler de Material';
+                                        return (
+                                            <div key={rent.id} className="bg-card p-6 border border-card-border flex justify-between items-center group hover:border-accent/30 transition-all rounded-sm">
+                                                <div className="flex items-center gap-6">
+                                                    <div className="w-12 h-12 bg-accent/10 flex items-center justify-center text-accent text-xl rounded-sm">🌊</div>
+                                                    <div>
+                                                        <h3 className="text-lg font-display text-white group-hover:text-accent transition-colors">{itemName}</h3>
+                                                        <p className="text-xs text-foreground/40 font-light">
+                                                            {formatDateTime(rent.fecha_reserva, rent.hora_inicio)}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                                <div className="flex flex-col items-end gap-3 text-right">
+                                                    <span className={`text-[9px] uppercase tracking-widest px-3 py-1 border font-bold ${status.color}`}>{status.label}</span>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            ) : (
+                                <EmptyState icon="🌊" title={t.rentals_section.empty_title} subtitle={t.rentals_section.empty_subtitle} actionLabel={t.rentals_section.btn_reserve} actionHref={`/${locale}/rental`} />
+                            )}
+                        </section>
+
+                        {/* History Section */}
+                        {(pastInscripciones.length > 0 || pastRentals.length > 0) && (
+                            <section className="pt-16 border-t border-white/5">
+                                <h2 className="text-xs uppercase tracking-widest text-foreground/20 mb-8 font-bold">{t.history_section.title}</h2>
+                                <div className="space-y-4 opacity-50 grayscale hover:grayscale-0 transition-all duration-500">
+                                    {[...pastInscripciones, ...pastRentals].sort((a, b) => new Date(b.fecha_reserva || b.ediciones_curso?.fecha_inicio || 0).getTime() - new Date(a.fecha_reserva || a.ediciones_curso?.fecha_inicio || 0).getTime()).slice(0, 3).map((item: any) => (
+                                        <div key={item.id} className="flex justify-between items-center py-4 border-b border-white/5 last:border-0 text-sm">
+                                            <div className="flex items-center gap-4">
+                                                <div className="w-8 h-8 bg-white/5 flex items-center justify-center text-xs rounded-sm">✓</div>
+                                                <div>
+                                                    <div className="text-white/60 font-medium">
+                                                        {item.cursos ? (locale === 'es' ? item.cursos.nombre_es : item.cursos.nombre_eu) : (item.servicios_alquiler ? (locale === 'es' ? item.servicios_alquiler.nombre_es : item.servicios_alquiler.nombre_eu) : 'Actividad pasada')}
+                                                    </div>
+                                                    <div className="text-[10px] text-white/20 uppercase tracking-tighter">
+                                                        {formatDate(item.fecha_reserva || item.ediciones_curso?.fecha_inicio)}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <span className="text-[10px] uppercase tracking-widest text-white/20">{t.history_section.completed}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </section>
+                        )}
                     </div>
 
                     <div className="lg:col-span-1 space-y-8">
                         <DailyChallengeWidget locale={locale} />
-                        <StudentProfileSidebar profile={profile} email={user?.email || ''} locale={locale} />
                     </div>
                 </div>
-            </div>
-        </main>
+            </main>
+        </div>
     );
 }

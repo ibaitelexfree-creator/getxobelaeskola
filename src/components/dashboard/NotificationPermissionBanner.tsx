@@ -19,7 +19,7 @@ export default function NotificationPermissionBanner() {
         // but if it's 'denied', we definitely want to show a way to re-enable (often needs settings).
         // For now, let's show if it's explicitly likely to need user action.
         checkPermissions().then((status) => {
-            if (status.receive !== 'granted') {
+            if (status && status.receive !== 'granted') {
                 setIsVisible(true);
             }
         });
@@ -31,7 +31,7 @@ export default function NotificationPermissionBanner() {
         await requestPermissions();
         // After request, check again
         const status = await checkPermissions();
-        if (status.receive === 'granted') {
+        if (status && status.receive === 'granted') {
             setIsVisible(false);
         }
     };

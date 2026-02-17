@@ -21,7 +21,11 @@
         "payment_canceled": "Ordainketa bertan behera utzi da",
         "payment_canceled_desc": "Ordainketa prozesua eten egin da eta ez da kargurik egin.",
         "payment_error": "Errorea ordaintzean",
-        "payment_error_desc": "Arazo bat gertatu da ordainketa prozesatzean. Mesedez, saiatu berriro."
+        "payment_error_desc": "Arazo bat gertatu da ordainketa prozesatzean. Mesedez, saiatu berriro.",
+        "enable_notifications_title": "Aktibatu Jakinarazpenak",
+        "enable_notifications_desc": "Gaitu jakinarazpenak zure erreserben egoerari, ikastaroen aldaketei eta eguraldi-abisu garrantzitsuei buruzko informazioa jasotzeko.",
+        "enable_btn": "AKTIBATU ABISUAK",
+        "later_btn": "GEROAGO"
     },
     "hero": {
         "title": "Dotoretasuna itsasoan",

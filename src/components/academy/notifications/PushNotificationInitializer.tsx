@@ -15,7 +15,7 @@ export default function PushNotificationInitializer() {
 
             // If we haven't asked yet (prompt), ask now.
             // If already granted, ensure we are registered (requestPermissions handles this internally).
-            if (status.receive === 'prompt' || status.receive === 'granted') {
+            if (status && (status.receive === 'prompt' || status.receive === 'granted')) {
                 await requestPermissions();
             }
         };

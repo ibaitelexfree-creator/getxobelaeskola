@@ -21,7 +21,11 @@
         "payment_canceled": "Pago cancelado",
         "payment_canceled_desc": "El proceso de pago se ha interrumpido y no se ha realizado ningún cargo.",
         "payment_error": "Error en el pago",
-        "payment_error_desc": "Ha ocurrido un problema al procesar tu pago. Por favor, inténtalo de nuevo."
+        "payment_error_desc": "Ha ocurrido un problema al procesar tu pago. Por favor, inténtalo de nuevo.",
+        "enable_notifications_title": "Activar Notificaciones",
+        "enable_notifications_desc": "Habilita las notificaciones para recibir avisos sobre el estado de tus reservas, cambios en las clases y alertas meteorológicas importantes.",
+        "enable_btn": "ACTIVAR AVISOS",
+        "later_btn": "LUEGO"
     },
     "hero": {
         "title": "Elegancia en el mar",

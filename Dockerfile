@@ -5,7 +5,9 @@ FROM node:22-alpine AS deps
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 COPY package.json package-lock.json ./
-RUN npm ci --legacy-peer-deps
+# Cache npm dependencies
+RUN --mount=type=cache,target=/root/.npm \
+    npm ci --legacy-peer-deps
 
 # -----------------------------
 # Stage 2: Builder
@@ -42,7 +44,9 @@ ENV GOOGLE_PRIVATE_KEY=${GOOGLE_PRIVATE_KEY}
 ENV STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET}
 ENV RESEND_API_KEY=${RESEND_API_KEY}
 
-RUN npm run build
+# Cache Next.js build cache
+RUN --mount=type=cache,target=/app/.next/cache \
+    npm run build
 
 # -----------------------------
 # Stage 3: Runner
