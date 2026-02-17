@@ -17,8 +17,8 @@ export default async function StudentDashboard({
         id: string;
         estado_pago?: string;
         fecha_reserva?: string;
-        ediciones_curso?: { fecha_inicio: string; cursos?: { nombre_es: string; nombre_eu: string; slug: string } };
-        metadata?: { start_date: string };
+        ediciones_curso?: { fecha_inicio: string; fecha_fin: string; cursos?: { nombre_es: string; nombre_eu: string; slug: string } };
+        metadata?: { start_date: string; end_date?: string };
         cursos?: { nombre_es: string; nombre_eu: string; slug: string };
         servicios_alquiler?: { nombre_es: string; nombre_eu: string };
         hora_inicio?: string;
@@ -47,7 +47,7 @@ export default async function StudentDashboard({
 
     const { data: inscripciones } = await supabaseAdmin
         .from('inscripciones')
-        .select('*, ediciones_curso(fecha_inicio, cursos(nombre_es, nombre_eu, slug)), cursos(nombre_es, nombre_eu, slug)')
+        .select('*, ediciones_curso(fecha_inicio, fecha_fin, cursos(nombre_es, nombre_eu, slug)), cursos(nombre_es, nombre_eu, slug)')
         .eq('perfil_id', user.id)
         .order('created_at', { ascending: false });
 
@@ -124,6 +124,22 @@ export default async function StudentDashboard({
         const date = new Date(rent.fecha_reserva);
         return date < today;
     }) || [];
+
+    const formatDate = (date: string | Date | undefined) => {
+        if (!date) return '--/--/----';
+        return new Date(date).toLocaleDateString('es-ES', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric'
+        });
+    };
+
+    const formatDateTime = (date: string | Date | undefined, time?: string) => {
+        const d = formatDate(date);
+        if (!time) return d;
+        const t = time.slice(0, 5);
+        return `${d} - ${t}h`;
+    };
 
     return (
         <main className="min-h-screen pt-32 pb-24 px-6 relative">
@@ -222,9 +238,13 @@ export default async function StudentDashboard({
                                                         </h3>
                                                         <p className="text-xs text-foreground/40 font-light">
                                                             {edition?.fecha_inicio
-                                                                ? `Comienza el ${new Date(edition.fecha_inicio).toLocaleDateString()}`
+                                                                ? (edition.fecha_fin && edition.fecha_fin !== edition.fecha_inicio
+                                                                    ? `De el ${formatDate(edition.fecha_inicio)} al ${formatDate(edition.fecha_fin)}`
+                                                                    : `El ${formatDate(edition.fecha_inicio)}`)
                                                                 : (ins.metadata?.start_date
-                                                                    ? `Comienza el ${new Date(ins.metadata.start_date).toLocaleDateString()}`
+                                                                    ? (ins.metadata.end_date && ins.metadata.end_date !== ins.metadata.start_date
+                                                                        ? `De el ${formatDate(ins.metadata.start_date)} al ${formatDate(ins.metadata.end_date)}`
+                                                                        : `El ${formatDate(ins.metadata.start_date)}`)
                                                                     : 'Pendiente de asignar fecha')}
                                                         </p>
                                                     </div>
@@ -282,7 +302,7 @@ export default async function StudentDashboard({
                                                             {name}
                                                         </h3>
                                                         <p className="text-xs text-foreground/40 font-light">
-                                                            {rent.fecha_reserva ? new Date(rent.fecha_reserva).toLocaleDateString() : 'Fecha pendiente'} - {rent.hora_inicio?.slice(0, 5)}h
+                                                            {formatDateTime(rent.fecha_reserva, rent.hora_inicio)}
                                                             {rent.opcion_seleccionada && rent.opcion_seleccionada !== 'Estándar' && (
                                                                 <span className="text-brass-gold ml-2">• {rent.opcion_seleccionada}</span>
                                                             )}
@@ -335,7 +355,7 @@ export default async function StudentDashboard({
                                         return (
                                             <div key={item.id} className="flex justify-between items-center py-3 px-6 bg-white/[0.02] border border-white/5 rounded-sm">
                                                 <div className="flex items-center gap-4 text-xs">
-                                                    <span className="text-foreground/40">{dateStr ? new Date(dateStr).toLocaleDateString() : '--/--/--'}</span>
+                                                    <span className="text-foreground/40">{formatDateTime(dateStr, (item as any).hora_inicio)}</span>
                                                     <span className="text-white font-medium">{name}</span>
                                                 </div>
                                                 <span className="text-[8px] uppercase tracking-widest text-foreground/40">Completado</span>
