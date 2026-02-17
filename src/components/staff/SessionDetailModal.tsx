@@ -2,6 +2,8 @@
 import React, { useState, useEffect } from 'react';
 import AccessibleModal from '@/components/shared/AccessibleModal';
 import SearchableSelect from '@/components/ui/SearchableSelect';
+import { apiUrl } from '@/lib/api';
+
 
 interface Session {
     id: string;
@@ -70,7 +72,7 @@ export default function SessionDetailModal({ session, onClose, onUpdate, allInst
             setLoading(true);
             try {
                 // 1. Fetch Students enrolled in this course (using dedicated API)
-                const studentsRes = await fetch(`/api/admin/course-students?courseId=${session.curso_id}`);
+                const studentsRes = await fetch(apiUrl(`/api/admin/course-students?courseId=${session.curso_id}`));
                 if (studentsRes.ok) {
                     const studentsData = await studentsRes.json();
                     setStudents(studentsData.students || []);
@@ -79,7 +81,7 @@ export default function SessionDetailModal({ session, onClose, onUpdate, allInst
                 }
 
                 // 2. Fetch existing attendance for this session
-                const attendanceRes = await fetch(`/api/admin/sessions/attendance?sessionId=${session.id}`);
+                const attendanceRes = await fetch(apiUrl(`/api/admin/sessions/attendance?sessionId=${session.id}`));
                 if (attendanceRes.ok) {
                     const attendanceData = await attendanceRes.json();
                     if (attendanceData.attendance) {
@@ -109,7 +111,7 @@ export default function SessionDetailModal({ session, onClose, onUpdate, allInst
 
         const checkAvailability = async () => {
             try {
-                const res = await fetch(`/api/admin/boats/availability?start=${encodeURIComponent(formData.fecha_inicio)}&end=${encodeURIComponent(formData.fecha_fin)}&excludeSessionId=${encodeURIComponent(session.id)}`);
+                const res = await fetch(apiUrl(`/api/admin/boats/availability?start=${encodeURIComponent(formData.fecha_inicio)}&end=${encodeURIComponent(formData.fecha_fin)}&excludeSessionId=${encodeURIComponent(session.id)}`));
                 const data = await res.json();
                 if (data.success) {
                     setAvailability(data.availability || {});
@@ -132,7 +134,7 @@ export default function SessionDetailModal({ session, onClose, onUpdate, allInst
 
         // Persist
         try {
-            await fetch('/api/admin/sessions/attendance', {
+            await fetch(apiUrl('/api/admin/sessions/attendance'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({

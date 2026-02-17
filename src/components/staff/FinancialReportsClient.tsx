@@ -4,6 +4,8 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import AccessibleModal from '../shared/AccessibleModal';
+import { apiUrl } from '@/lib/api';
+
 
 interface FinancialTransaction {
     id: string;
@@ -224,7 +226,7 @@ export default function FinancialReportsClient({ initialData, initialView, total
         if (!editingTx) return;
         setIsSaving(true);
         try {
-            const response = await fetch('/api/admin/rentals/financials/update', {
+            const response = await fetch(apiUrl('/api/admin/rentals/financials/update'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({

@@ -4,6 +4,8 @@ import React, { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import AccessibleModal from '../shared/AccessibleModal';
 import MaintenanceModal from './MaintenanceModal';
+import { apiUrl } from '@/lib/api';
+
 
 interface Boat {
     id: string;
@@ -44,7 +46,7 @@ export default function BoatsTab({ userRole }: BoatsTabProps) {
     const fetchBoats = async () => {
         setLoading(true);
         try {
-            const res = await fetch('/api/admin/boats/list');
+            const res = await fetch(apiUrl('/api/admin/boats/list'));
             const data = await res.json();
             if (res.ok) {
                 setBoats(data.boats || []);
@@ -93,7 +95,7 @@ export default function BoatsTab({ userRole }: BoatsTabProps) {
                 ? { ...formData, id: editingBoat.id }
                 : formData;
 
-            const res = await fetch(endpoint, {
+            const res = await fetch(apiUrl(endpoint), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
@@ -118,7 +120,7 @@ export default function BoatsTab({ userRole }: BoatsTabProps) {
         if (!confirm(t('boats.delete_confirm'))) return;
 
         try {
-            const res = await fetch('/api/admin/boats/delete', {
+            const res = await fetch(apiUrl('/api/admin/boats/delete'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ id })

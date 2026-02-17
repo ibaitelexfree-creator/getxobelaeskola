@@ -2,6 +2,8 @@
 import React from 'react';
 import { useTranslations } from 'next-intl';
 import { ClientDate, StaffProfile } from './StaffShared';
+import { apiUrl } from '@/lib/api';
+
 
 interface Inscription {
     id: string;
@@ -193,7 +195,7 @@ export default function AcademicTab({
                                                             onClick={async () => {
                                                                 if (confirm(t('courses.delete_confirm'))) {
                                                                     try {
-                                                                        const res = await fetch('/api/admin/delete-inscription', {
+                                                                        const res = await fetch(apiUrl('/api/admin/delete-inscription'), {
                                                                             method: 'POST',
                                                                             body: JSON.stringify({ id: ins.id })
                                                                         });

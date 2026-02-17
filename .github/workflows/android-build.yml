@@ -1,13 +1,13 @@
-name: Build Android APK
+name: Build & Distribute Android
 
 on:
   push:
     branches: [ main, master ]
-  workflow_dispatch: # Permite ejecutarlo manualmente desde la pestaña Actions
+  workflow_dispatch:
 
 jobs:
   build:
-    name: Build & Export APK
+    name: Build & Distribute
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -16,23 +16,18 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 22
           cache: 'npm'
 
       - name: Install dependencies
         run: npm install
 
-      - name: Build Next.js (Static Export)
-        run: |
-          # Truco para que el export no falle con las rutas de API
-          if [ -d "src/app/api" ]; then mv src/app/api src/api-temp; fi
-          npm run build
-          if [ -d "src/api-temp" ]; then mv src/api-temp src/app/api; fi
+      - name: Build Next.js (Static Export for Capacitor)
+        run: npm run build:capacitor
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
           NEXT_PUBLIC_APP_URL: ${{ secrets.NEXT_PUBLIC_APP_URL }}
-          NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY }}
 
       - name: Java Setup
         uses: actions/setup-java@v4
@@ -52,8 +47,9 @@ jobs:
           chmod +x gradlew
           ./gradlew assembleDebug
 
-      - name: Upload APK artifact
-        uses: actions/upload-artifact@v4
+      - name: Upload to Firebase App Distribution
+        uses: w9jds/firebase-action@master
         with:
-          name: GetxoBelaEskola-Debug-APK
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          args: appdistribution:distribute android/app/build/outputs/apk/debug/app-debug.apk --app ${{ secrets.FIREBASE_APP_ID }} --groups "testers"
+        env:
+          GCP_SA_KEY: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_KEY }}

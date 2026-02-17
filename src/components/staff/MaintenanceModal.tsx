@@ -67,7 +67,7 @@ export default function MaintenanceModal({ boat, onClose }: MaintenanceModalProp
     const handleCreateLog = async () => {
         setError(null);
         try {
-            const res = await fetch('/api/admin/boats/maintenance', {
+            const res = await fetch(apiUrl('/api/admin/boats/maintenance'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -110,7 +110,7 @@ export default function MaintenanceModal({ boat, onClose }: MaintenanceModalProp
     const handleSaveUpdate = async () => {
         if (!editingLog) return;
         try {
-            const res = await fetch('/api/admin/boats/maintenance', {
+            const res = await fetch(apiUrl('/api/admin/boats/maintenance'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({

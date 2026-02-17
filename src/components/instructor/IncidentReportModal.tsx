@@ -1,5 +1,7 @@
 'use client';
 import React, { useState, useEffect } from 'react';
+import { apiUrl } from '@/lib/api';
+
 
 interface Boat {
     id: string;
@@ -28,7 +30,7 @@ export default function IncidentReportModal({ isOpen, onClose }: IncidentReportM
         if (isOpen) {
             setLoading(true);
             // Fetch boats for the dropdown
-            fetch('/api/admin/boats/list')
+            fetch(apiUrl('/api/admin/boats/list'))
                 .then(res => res.json())
                 .then(data => {
                     if (data.boats) {
@@ -49,7 +51,7 @@ export default function IncidentReportModal({ isOpen, onClose }: IncidentReportM
 
         setSubmitting(true);
         try {
-            const res = await fetch('/api/admin/boats/maintenance', {
+            const res = await fetch(apiUrl('/api/admin/boats/maintenance'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
