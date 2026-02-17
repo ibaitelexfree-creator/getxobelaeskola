@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useFocusTrap } from '@/hooks/useFocusTrap';
+import { useTranslations } from 'next-intl';
 
 interface AccessibleModalProps {
     isOpen: boolean;
@@ -22,6 +23,7 @@ export default function AccessibleModal({
     children,
     maxWidth = 'max-w-2xl'
 }: AccessibleModalProps) {
+    const t = useTranslations('nav');
     const modalRef = useFocusTrap(isOpen);
     const [mounted, setMounted] = useState(false);
 
@@ -70,7 +72,7 @@ export default function AccessibleModal({
                     </h2>
                     <button
                         onClick={onClose}
-                        aria-label="Cerrar modal"
+                        aria-label={t('close')}
                         className="p-2 hover:bg-white/10 rounded-full transition-all text-white/40 hover:text-white"
                     >
                         <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">

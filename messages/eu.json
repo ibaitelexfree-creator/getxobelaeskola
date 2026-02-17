@@ -531,7 +531,8 @@
                 "returned": "ITZULITA (AMATITUTA)"
             },
             "update_error": "Errorea erregistroa eguneratzean",
-            "connection_error": "Konexio errorea"
+            "connection_error": "Konexio errorea",
+            "filter_active": "Iragazki aktiboa: {term}"
         },
         "financials": {
             "today": "Gaur",
@@ -554,7 +555,8 @@
             "total_sum": "Batura Guztira",
             "no_records": "Ez da aurkitu erregistrorik.",
             "various": "Hainbat",
-            "reporting_scan": "Finantza Azterketa"
+            "reporting_scan": "Finantza Azterketa",
+            "week": "Azken Astea"
         },
         "academia": {
             "title": "Online Akademia",
@@ -575,7 +577,38 @@
             "skills_count": "{count} Gaitasun",
             "diplomas_count": "{count} Diploma",
             "official_cert": "ZIURTAGIRI OFIZIALA",
-            "nautical_formation": "Nautika Prestakuntza"
+            "nautical_formation": "Nautika Prestakuntza",
+            "online_control": "Espediente online kontrola"
+        },
+        "maintenance_modal": {
+            "update_status_title": "Gertakariaren Egoera Eguneratu",
+            "original_incident": "Jatorrizko Gertakaria",
+            "new_status": "Egoera Berria",
+            "notes_placeholder": "Deskribapena / Eguneratze Oharrak",
+            "cost_updated": "Eguneratutako Kostua ()",
+            "confirm_update": "Eguneratzea Berretsi",
+            "maintenance_title_suffix": "Mantentze-lana",
+            "new_incident_tab": "Gertakari Berria",
+            "history_tab": "Historiala",
+            "type_label": "Mota",
+            "initial_status_label": "Hasierako Egoera",
+            "description_label": "Gertakariaren deskribapena",
+            "description_placeholder": "Deskribatu arazoa edo beharrezko lana...",
+            "estimated_cost": "Aurreikusitako Kostua ()",
+            "register_btn": "Mantentze-lana Erregistratu",
+            "loading_history": "Historiala kargatzen...",
+            "no_records": "Ez dago mantentze-lanen erregistrorik.",
+            "registered_by": "Nork erregistratua:",
+            "types": {
+                "correctivo": "Zuzentzailea (Matxura)",
+                "preventivo": "Prebentiboa (Berrikuspena)",
+                "mejora": "Hobekuntza"
+            },
+            "status": {
+                "pendiente": "Zain",
+                "en_proceso": "Abian",
+                "completado": "Amaituta"
+            }
         }
     },
     "footer": {
@@ -583,7 +616,8 @@
         "rental": "Alokairua",
         "school": "Eskola",
         "contact": "Kontaktua",
-        "copyright": "© 2026 Getxo Bela Eskola · Premium Itsas Esperientzia"
+        "copyright": "© 2026 Getxo Bela Eskola · Premium Itsas Esperientzia",
+        "slogan": "Getxo Bela Eskola  Itsas esperientzia bikaina Getxoko Kirol Portuan."
     },
     "academy": {
         "title": "Akademia Digital",
@@ -617,7 +651,14 @@
             "back_to_dashboard": "Dashboardera itzuli",
             "view_requirements": "Desblokeatzeko baldintzak ikusi",
             "go_to_academy": "Akademiara Itzuli"
-        }
+        },
+        "motivational_quotes": [
+            "Nora nabigatu nahi duen ez dakienari, ez zaio sekula haizea alde jarriko.",
+            "Itsaso bareak ez du inoiz nabigatzaile treberik egin.",
+            "Doitu zure belak haize-bolada bakoitza aprobetxatzeko.",
+            "Nabigatzeko modurik onena bihotzarekin eta teknikarekin da.",
+            "Esperientzia nudo bakoitzak balio du zure bitakoran."
+        ]
     },
     "errors": {
         "404": {
@@ -635,5 +676,107 @@
             "retry_button": "SAIATU BERRIRO ⟳",
             "home_button": "ETXERA ITZULI ⚓"
         }
+    },
+    "wind_lab": {
+        "title": "Haizearen Laborategia",
+        "subtitle": "Fluidoen Dinamika",
+        "audio_on": " Audioa On",
+        "audio_off": " Audioa Off",
+        "ghost_on": "Funtasma On",
+        "ghost_off": "Funtasma Off",
+        "forces_on": "Indarrak On",
+        "forces_off": "Indarrak Off",
+        "controls": {
+            "mainsheet": "Eskota Nagusia",
+            "rudder": "Lema",
+            "wind_direction": "Haizearen Norabidea",
+            "wind_speed": "Haizearen Abiadura",
+            "port": "Babor",
+            "stbd": "Estriborra",
+            "knots": "NUDOAK"
+        },
+        "telemetry": {
+            "true_wind": "Benetako Haizea",
+            "apparent_wind": "Itxurazko Haizea",
+            "boat_speed": "Ontziaren Abiadura",
+            "heel_angle": "Eskora",
+            "efficiency": "Eraginkortasuna",
+            "aoa": "Eraso Angelua"
+        },
+        "forces": {
+            "lift": "SUSTENTAZIOA",
+            "drag": "ERRESISTENTZIA",
+            "aw": "VA"
+        },
+        "feedback": {
+            "perfect": "BIKAINA",
+            "good": "ONA",
+            "poor": "TRIMATZE TXARRA",
+            "stall": "GALERA",
+            "label": "Trimatuaren Kalitatea",
+            "accuracy": "Zehaztasuna",
+            "optimal_trim": "Trimatu Optimonenea"
+        },
+        "game_over": {
+            "title": "ESTROPADA AMAITUTA",
+            "buoys_collected": "Boya guztiak jaso dituzu!",
+            "final_score": "Azken Puntuazioa",
+            "name_placeholder": "Idatzi zure izena",
+            "save_btn": "GORDE",
+            "ranking_title": "RANKINGA - TOP 10",
+            "restart_btn": "BERRIRO JOKATU"
+        }
+    },
+    "validation": {
+        "name_short": "Izena laburregia da",
+        "last_name_short": "Abizenak laburregiak dira",
+        "email_invalid": "Email baliogabea",
+        "password_short": "Gutxienez 6 karaktere",
+        "subject_short": "Gaia laburregia da",
+        "message_short": "Mezua laburregia da"
+    },
+    "legal": {
+        "rental_contract": "MATERIAL NAUTIKOA ALOKATZEKO KONTRATUA - GETXO BELA ESKOLA\n\n1. ERRENTATSAILEAREN BALDINTZAK: Bezeroak adierazten du alokatutako materiala modu seguruan erabiltzeko beharrezko ezagutza teknikoak dituela. Aisialdiko belaontzien kasuan, dagokion gutxieneko titulazioa beharrezkoa da.\n\n2. EGOERA ETA ITZULTZEA: Materiala funtzionamendu-egoera egokian entregatzen da. Bezeroak egoera berean itzultzeko konpromisoa hartzen du. Ardura gabekeriagatik sortutako edozein kalte bezeroaren ardura esklusiboa izango da.\n\n3. NABIGAZIO EREMUAK: Nabigazioa baimendutako eremuetara eta adostutako denborara mugatuko da. Bezeroak Getxoko Kirol Portuko arauak eta Itsas Kapaintzaren araudia errespetatzeko konpromisoa hartzen du.\n\n4. SEGURTASUNA: Salbamendu-txalekoa erabiltzea nahitaezkoa eta pertsonala da uretan geratzen den denbora guztian.\n\n5. RESKATEA ETA LAGUNTZA: Bezeroak zuhurtzia faltagatik edo baimendutako eremuetatik kanpo ateratzeagatik laguntza edo erreskatea behar badu, sor daitezkeen gastuak bere kontu izango dira.\n\n6. SINADURA DIGITALA: Onarpen-laukia markatzean, bezeroak berresten du aurreko puntu guztiak ulertu dituela eta bere legezko erantzukizuna onartzen duela.",
+        "consent_acceptance": "Goian zehaztutako legezko baldintzak irakurri eta berariaz onartzen ditut. Ulertzen dut onarpen honek sinadura digital lotesle baten balioa duela.",
+        "error_log_consent": "Ezin izan da legezko sinadura erregistratu. Saiatu berriro."
+    },
+    "legal_modal": {
+        "viewing_doc": "Dokumentua Ikusten",
+        "terms_title": "Izen-emate Baldintzak",
+        "rental_title": "Alokairu Baldintzak",
+        "back": "Itzuli",
+        "mandatory_docs": "Nahitaezko Lege Dokumentuak",
+        "click_to_read": "* Egin klik dokumentu bakoitzean hemendik bertatik online irakurtzeko.",
+        "full_name": "Izen Osoa",
+        "identity_doc": "Nortasun Agiria",
+        "email_label": "Erregistro Emaila",
+        "confirmation_checkbox": "Berresten dut goian adierazitako PDF dokumentuak eta formulario honetan zehaztutako baldintzak irakurri eta berariaz onartzen ditudala. Ulertzen dut onarpen honek sinadura digital lotesle baten balioa duela.",
+        "sign_and_continue": "Sinatu eta Ordainketara Jarraitu",
+        "cancel": "Utzi",
+        "processing": "Prozesatzen..."
+    },
+    "profile_modal": {
+        "title": "Profila Editatu",
+        "subtitle": "Eguneratu zure datu pertsonalak",
+        "name": "Izena",
+        "last_name": "Abizenak",
+        "phone": "Telefonoa",
+        "cancel": "Utzi",
+        "save": "Aldaketak Gorde",
+        "saving": "Gordetzen...",
+        "error_updating": "Errorea profila eguneratzean",
+        "connection_error": "Konexio errorea"
+    },
+    "profile_sidebar": {
+        "verified_member": "Kide egiaztatua",
+        "official_partner": "Bazkide Ofiziala",
+        "account_info": "Kontuaren Informazioa",
+        "role": "Rola",
+        "student": "Ikaslea",
+        "edit_profile": "Profila Editatu",
+        "managing_subscription": "Harpidetza Kudeatu",
+        "membership_card": "Nire Bazkide Txartela",
+        "loading": "Kargatzen...",
+        "portal_error": "Errorea ordainketa-ataria irekitzean"
     }
 }

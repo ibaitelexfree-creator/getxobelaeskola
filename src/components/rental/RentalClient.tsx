@@ -264,6 +264,8 @@ export default function RentalClient({
         setIsLegalModalOpen(true);
     };
 
+    const tLegal = useTranslations('legal');
+
     const handleLegalConfirm = async (legalData: { fullName: string; email: string; dni: string }) => {
         if (!pendingBooking) return;
         setIsLegalModalOpen(false);
@@ -279,12 +281,7 @@ export default function RentalClient({
             const params = new URLSearchParams(window.location.search);
             params.set('error', selectedTime === '' ? t('booking.no_times_selected_date') : t('booking.invalid_date'));
             router.replace(`${window.location.pathname}?${params.toString()}`, { scroll: false });
-            if (selectedTime === '') {
-                // Focus on day to let them pick another
-                dayRef.current?.focus();
-            } else {
-                dayRef.current?.focus();
-            }
+            dayRef.current?.focus();
             setLoading(false);
             return;
         }
@@ -300,14 +297,14 @@ export default function RentalClient({
                     fullName: legalData.fullName,
                     email: legalData.email,
                     dni: legalData.dni,
-                    legalText: "He leído y acepto expresamente las condiciones legales detalladas anteriormente. Entiendo que esta aceptación equivale a una firma digital vinculante.",
+                    legalText: tLegal('consent_acceptance'),
                     consentType: 'rental',
                     referenceId: serviceId
                 })
             });
 
             if (!consentResponse.ok) {
-                throw new Error('No se pudo registrar la firma legal. Inténtalo de nuevo.');
+                throw new Error(tLegal('error_log_consent'));
             }
 
             const response = await fetch('/api/checkout/rental', {
@@ -319,7 +316,6 @@ export default function RentalClient({
                     locale,
                     reservedDate: dateValue,
                     reservedTime: selectedTime,
-                    // Pass legal data to checkout for metadata
                     legalName: legalData.fullName,
                     legalDni: legalData.dni
                 })
@@ -414,7 +410,7 @@ export default function RentalClient({
                                     return (
                                         <Image
                                             src={imgSrc}
-                                            alt={service.nombre_es}
+                                            alt={locale === 'eu' ? (service.nombre_eu || service.nombre_es) : service.nombre_es}
                                             fill
                                             className="object-cover grayscale-[0.3] group-hover:grayscale-0 group-hover:scale-110 transition-all duration-700"
                                         />
@@ -570,19 +566,7 @@ export default function RentalClient({
                     email: user.email,
                     dni: profile?.dni
                 } : undefined}
-                legalText={`CONTRATO DE ARRENDAMIENTO DE MATERIAL NÁUTICO - GETXO BELA ESKOLA
-
-1. REQUISITOS DEL ARRENDATARIO: El cliente declara poseer los conocimientos técnicos necesarios para el manejo seguro del material alquilado. En caso de veleros de recreo, se requiere la titulación mínima correspondiente.
-
-2. ESTADO Y DEVOLUCIÓN: El material se entrega en perfecto estado de funcionamiento. El cliente se compromete a devolverlo en el mismo estado. Cualquier daño causado por negligencia será responsabilidad exclusiva del cliente.
-
-3. ZONAS DE NAVEGACIÓN: La navegación se limitará a las zonas autorizadas y tiempos acordados. El cliente se compromete a respetar las normas del Puerto Deportivo de Getxo y la normativa de Capitanía Marítima.
-
-4. SEGURIDAD: El uso del chaleco salvavidas es obligatorio y personal durante todo el tiempo que se permanezca en el agua.
-
-5. RESCATE Y ASISTENCIA: Si el cliente requiere asistencia o rescate por imprudencia o salida de las zonas permitidas, los costes derivados correrán a su cargo.
-
-6. FIRMA DIGITAL: Al marcar la casilla de aceptación, el cliente ratifica que ha comprendido todos los puntos anteriores y asume su responsabilidad legal.`}
+                legalText={tLegal('rental_contract')}
             />
         </div>
     );
