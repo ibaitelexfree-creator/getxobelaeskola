@@ -38,8 +38,9 @@ export default function StudentDashboardClient({
     useEffect(() => {
         async function fetchDashboardData() {
             try {
-                const res = await fetch(getApiUrl('/api/student/dashboard-stats'));
+                const res = await fetch(getApiUrl('/api/student/dashboard-stats/'));
                 const json = await res.json();
+                console.log('Dashboard Data:', json);
                 setData(json);
             } catch (e) {
                 console.error('Error fetching dashboard data:', e);

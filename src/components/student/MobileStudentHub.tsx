@@ -23,21 +23,21 @@ export default function MobileStudentHub({
 
     const quickActions = [
         {
-            label: 'Cursos',
+            label: t.academy_widget?.title || 'Cursos',
             icon: <BookOpen className="w-6 h-6 text-blue-400" />,
             bg: 'bg-blue-500/10',
             border: 'border-blue-500/20',
             href: `/${locale}/student/courses`
         },
         {
-            label: 'Alquiler',
+            label: t.rentals_section?.title.split(' ')[1] || 'Alquiler',
             icon: <Sailboat className="w-6 h-6 text-emerald-400" />,
             bg: 'bg-emerald-500/10',
             border: 'border-emerald-500/20',
             href: `/${locale}/student/rentals`
         },
         {
-            label: 'Academia',
+            label: t.academy_widget?.card_title || 'Academia',
             icon: <GraduationCap className="w-6 h-6 text-purple-400" />,
             bg: 'bg-purple-500/10',
             border: 'border-purple-500/20',
@@ -64,7 +64,7 @@ export default function MobileStudentHub({
             <header className="px-6 pt-8">
                 <div className="flex items-center justify-between mb-2">
                     <div className="flex flex-col">
-                        <span className="text-white/40 text-xs uppercase tracking-widest font-bold">Hola,</span>
+                        <span className="text-white/40 text-xs uppercase tracking-widest font-bold">{t.welcome?.split(',')[0]},</span>
                         <h1 className="text-3xl font-display text-white">
                             {userName} <span className="animate-wave inline-block origin-bottom-right">👋</span>
                         </h1>

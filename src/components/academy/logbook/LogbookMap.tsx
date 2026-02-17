@@ -3,14 +3,12 @@
 import React, { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MapPin, Info, Anchor, Waves, Wind, Navigation } from 'lucide-react';
+import { MapPin, Anchor, Waves } from 'lucide-react';
 
-// Dynamic Leaflet Imports
-const MapContainer = dynamic(() => import('react-leaflet').then(mod => mod.MapContainer), { ssr: false });
-const TileLayer = dynamic(() => import('react-leaflet').then(mod => mod.TileLayer), { ssr: false });
-const Polyline = dynamic(() => import('react-leaflet').then(mod => mod.Polyline), { ssr: false });
-const CircleMarker = dynamic(() => import('react-leaflet').then(mod => mod.CircleMarker), { ssr: false });
-const Popup = dynamic(() => import('react-leaflet').then(mod => mod.Popup), { ssr: false });
+const LeafletLogbookMap = dynamic(() => import('./LeafletLogbookMap'), {
+    ssr: false,
+    loading: () => <div className="w-full h-full bg-[#050b14] animate-pulse flex items-center justify-center text-blue-500/20">Cargando Carta de Navegación...</div>
+});
 
 interface NavigationPoint {
     id: string;
@@ -34,78 +32,26 @@ export default function LogbookMap({ sessions }: LogbookMapProps) {
         setMounted(true);
     }, []);
 
-    // Filter sessions with location data
-    const pointsWithLocation = sessions.filter(s => s.ubicacion);
-
     if (!mounted) return (
         <div className="w-full aspect-[5/4] bg-[#050b14] rounded-3xl border border-white/10 flex items-center justify-center">
-            <div className="animate-pulse text-blue-500/20">Cargando Carta de Navegación...</div>
+            <div className="animate-pulse text-blue-500/20">Cargando Bitácora...</div>
         </div>
     );
 
     return (
         <div className="relative w-full aspect-[5/4] bg-[#050b14] rounded-3xl border border-white/10 overflow-hidden shadow-2xl group/map">
 
-            <MapContainer
-                center={[43.35, -3.01]}
-                zoom={13}
-                style={{ height: '100%', width: '100%', background: '#050b14' }}
-                zoomControl={false}
-                attributionControl={false}
-            >
-                <TileLayer
-                    url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-                />
-
-                {/* Tracks */}
-                {sessions.filter(s => s.track_log && Array.isArray(s.track_log)).map((session) => (
-                    <Polyline
-                        key={`track-${session.id}`}
-                        positions={session.track_log!.map((p: any) => [p.lat, p.lng])}
-                        pathOptions={{
-                            color: selectedPoint?.id === session.id ? "#fbbf24" : "#0ea5e9",
-                            weight: selectedPoint?.id === session.id ? 4 : 2,
-                            opacity: selectedPoint?.id === session.id ? 1 : 0.6
-                        }}
-                        eventHandlers={{
-                            click: () => setSelectedPoint(session)
-                        }}
-                    />
-                ))}
-
-                {/* Markers */}
-                {pointsWithLocation.map((point) => (
-                    <CircleMarker
-                        key={point.id}
-                        center={[point.ubicacion!.lat, point.ubicacion!.lng]}
-                        radius={selectedPoint?.id === point.id ? 8 : 5}
-                        pathOptions={{
-                            fillColor: selectedPoint?.id === point.id ? '#fbbf24' : '#0ea5e9',
-                            color: 'white',
-                            weight: 1,
-                            fillOpacity: 0.8
-                        }}
-                        eventHandlers={{
-                            click: () => setSelectedPoint(point)
-                        }}
-                    >
-                        <Popup>
-                            <div className="text-[10px] text-nautical-black font-bold uppercase">
-                                {point.zona_nombre}
-                            </div>
-                        </Popup>
-                    </CircleMarker>
-                ))}
-            </MapContainer>
+            <LeafletLogbookMap
+                sessions={sessions}
+                selectedPoint={selectedPoint}
+                setSelectedPoint={setSelectedPoint}
+            />
 
             {/* Instruction Overlay */}
             <div className="absolute top-6 left-6 flex flex-col gap-2 z-[1000]">
                 <div className="p-3 bg-blue-950/80 backdrop-blur-md rounded-xl border border-blue-500/30 text-white/80 text-[10px] uppercase tracking-widest flex items-center gap-3 shadow-xl">
                     <MapPin size={12} className="text-accent" />
                     Bitácora Geográfica "Getxo-Abra"
-                </div>
-                <div className="p-2 bg-black/40 backdrop-blur-sm rounded-lg border border-white/5 text-white/30 text-[8px] uppercase tracking-widest">
-                    Haz clic en un track o waypoint para ver el log
                 </div>
             </div>
 

@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     Radar, RadarChart, PolarGrid,
     PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer
@@ -15,6 +15,18 @@ interface SkillRadarProps {
 }
 
 export default function SkillRadar({ skills }: SkillRadarProps) {
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+
+    if (!mounted) return (
+        <div className="bg-white/5 border border-white/10 rounded-xl p-6 h-[400px] flex items-center justify-center">
+            <div className="animate-pulse text-white/5">Cargando Radar...</div>
+        </div>
+    );
+
     return (
         <div className="bg-white/5 border border-white/10 rounded-xl p-6">
             <h3 className="text-xl font-display italic text-white mb-6 flex items-center gap-3">
@@ -47,7 +59,7 @@ export default function SkillRadar({ skills }: SkillRadarProps) {
             </div>
 
             <p className="text-3xs text-white/30 text-center uppercase tracking-[0.2em] mt-2">
-                Basado en el rendimiento de tus quizzes
+                Basado en el rendimiento de tus actividades y quizzes
             </p>
         </div>
     );

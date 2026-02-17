@@ -13,7 +13,7 @@ export async function GET() {
         // 1. Perfil y Rango
         const { data: profile } = await supabase
             .from('profiles')
-            .select('full_name, avatar_url')
+            .select('nombre, apellidos, avatar_url')
             .eq('id', user.id)
             .single();
 
@@ -83,7 +83,7 @@ export async function GET() {
 
         return NextResponse.json({
             identity: {
-                name: profile?.full_name || user.email,
+                name: profile?.nombre ? `${profile.nombre} ${profile.apellidos || ''}`.trim() : user.email,
                 avatar: profile?.avatar_url,
                 rango,
                 rangoColor: color,

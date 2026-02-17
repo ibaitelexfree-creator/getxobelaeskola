@@ -3,17 +3,16 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import dynamic from 'next/dynamic';
 import { motion } from 'framer-motion';
-import { Map as MapIcon, Compass, Shield, Navigation, Play, Square, Save, Trash2, AlertCircle, Cpu } from 'lucide-react';
+import { Compass, Shield, Navigation, Play, Square, Save, Trash2, AlertCircle, Cpu } from 'lucide-react';
 import Link from 'next/link';
-import { useSmartTracker, LocationPoint } from '@/hooks/useSmartTracker';
+import { useSmartTracker } from '@/hooks/useSmartTracker';
 import { apiUrl } from '@/lib/api';
 
-// Dynamic import for Leaflet elements (they need 'window' to exist)
-const MapContainer = dynamic(() => import('react-leaflet').then(mod => mod.MapContainer), { ssr: false });
-const TileLayer = dynamic(() => import('react-leaflet').then(mod => mod.TileLayer), { ssr: false });
-const Polyline = dynamic(() => import('react-leaflet').then(mod => mod.Polyline), { ssr: false });
-const CircleMarker = dynamic(() => import('react-leaflet').then(mod => mod.CircleMarker), { ssr: false });
-const Popup = dynamic(() => import('react-leaflet').then(mod => mod.Popup), { ssr: false });
+// Dynamic import for the Map component
+const LeafletMap = dynamic(() => import('./LeafletMap'), {
+    ssr: false,
+    loading: () => <div className="w-full h-full bg-blue-950/20 animate-pulse flex items-center justify-center text-blue-400/30">Cargando Mapa...</div>
+});
 
 interface NavigationExperienceMapProps {
     sessions: any[];
@@ -49,22 +48,21 @@ export default function NavigationExperienceMap({ sessions, locale }: Navigation
         setIsSaving(true);
         setSaveError(null);
         try {
+            const formData = new FormData();
+            const gpxContent = `<?xml version="1.0" encoding="UTF-8"?>
+            <gpx version="1.1" creator="Getxo Sailing School">
+                <trk><trkseg>
+                    ${livePoints.map(p => `<trkpt lat="${p.lat}" lon="${p.lng}"><time>${new Date(p.timestamp).toISOString()}</time></trkpt>`).join('')}
+                </trkseg></trk>
+            </gpx>`;
+            const blob = new Blob([gpxContent], { type: 'application/gpx+xml' });
+            formData.append('file', blob, 'live_track.gpx');
+            const latestSession = sessions[0];
+            formData.append('sessionId', latestSession?.id || '');
+
             const response = await fetch(apiUrl('/api/logbook/upload-track'), {
                 method: 'POST',
-                body: (() => {
-                    const formData = new FormData();
-                    const gpxContent = `<?xml version="1.0" encoding="UTF-8"?>
-                    <gpx version="1.1" creator="Getxo Sailing School">
-                        <trk><trkseg>
-                            ${livePoints.map(p => `<trkpt lat="${p.lat}" lon="${p.lng}"><time>${new Date(p.timestamp).toISOString()}</time></trkpt>`).join('')}
-                        </trkseg></trk>
-                    </gpx>`;
-                    const blob = new Blob([gpxContent], { type: 'application/gpx+xml' });
-                    formData.append('file', blob, 'live_track.gpx');
-                    const latestSession = sessions[0];
-                    formData.append('sessionId', latestSession?.id || '');
-                    return formData;
-                })()
+                body: formData
             });
 
             const result = await response.json();
@@ -81,14 +79,9 @@ export default function NavigationExperienceMap({ sessions, locale }: Navigation
         }
     };
 
-    // Center of the Abra
     const center: [number, number] = [43.35, -3.01];
 
-    if (!mounted) return (
-        <section className="relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.02] p-8 h-[500px] flex items-center justify-center">
-            <div className="animate-pulse text-accent/20">Cargando Sistema de Navegación...</div>
-        </section>
-    );
+    if (!mounted) return null;
 
     return (
         <section className="relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.02] p-8">
@@ -112,61 +105,15 @@ export default function NavigationExperienceMap({ sessions, locale }: Navigation
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 items-start">
-                {/* Real Map Widget */}
                 <div className="lg:col-span-3 relative aspect-video bg-blue-950/20 rounded-xl border border-blue-500/20 overflow-hidden shadow-2xl group min-h-[400px]">
 
-                    <MapContainer
+                    {/* Render the Dynamic Map */}
+                    <LeafletMap
                         center={center}
-                        zoom={13}
-                        style={{ height: '100%', width: '100%', background: '#0a1628' }}
-                        zoomControl={false}
-                        attributionControl={false}
-                    >
-                        {/* Premium Dark Tiles */}
-                        <TileLayer
-                            url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-                        />
-
-                        {/* Historical Tracks */}
-                        {mappedSessions.map((s) => (
-                            <React.Fragment key={s.id}>
-                                {s.track_log && Array.isArray(s.track_log) && (
-                                    <Polyline
-                                        positions={s.track_log.map((p: any) => [p.lat, p.lng])}
-                                        pathOptions={{ color: '#0ea5e9', weight: 2, opacity: 0.4 }}
-                                    />
-                                )}
-                                <CircleMarker
-                                    center={[s.ubicacion.lat, s.ubicacion.lng]}
-                                    radius={4}
-                                    pathOptions={{ fillColor: '#0ea5e9', color: 'white', weight: 1, fillOpacity: 0.8 }}
-                                >
-                                    <Popup>
-                                        <div className="text-[10px] text-nautical-black font-bold uppercase">
-                                            {s.zona_nombre}
-                                        </div>
-                                    </Popup>
-                                </CircleMarker>
-                            </React.Fragment>
-                        ))}
-
-                        {/* Live Tracking Path */}
-                        {livePoints.length > 0 && (
-                            <Polyline
-                                positions={livePoints.map(p => [p.lat, p.lng])}
-                                pathOptions={{ color: '#fbbf24', weight: 3, dashArray: '5, 10', opacity: 0.8 }}
-                            />
-                        )}
-
-                        {/* Current Position Marker */}
-                        {currentPosition && (
-                            <CircleMarker
-                                center={[currentPosition.lat, currentPosition.lng]}
-                                radius={6}
-                                pathOptions={{ fillColor: '#fbbf24', border: 'none', fillOpacity: 1, color: '#fbbf24', weight: 10, opacity: 0.3 }}
-                            />
-                        )}
-                    </MapContainer>
+                        mappedSessions={mappedSessions}
+                        livePoints={livePoints}
+                        currentPosition={currentPosition}
+                    />
 
                     {/* HUD Overlay */}
                     <div className="absolute inset-0 pointer-events-none border border-inset border-white/5 z-[1000]" />
@@ -183,7 +130,6 @@ export default function NavigationExperienceMap({ sessions, locale }: Navigation
                         )}
                     </div>
 
-                    {/* Map Controls */}
                     <div className="absolute top-4 right-4 flex gap-2 z-[1000]">
                         {!isTracking ? (
                             <button
@@ -205,9 +151,7 @@ export default function NavigationExperienceMap({ sessions, locale }: Navigation
                     </div>
                 </div>
 
-                {/* Stats & Actions */}
                 <div className="lg:col-span-2 space-y-6">
-                    {/* Manual Control Panel (High Priority for APK) */}
                     <div className="p-6 bg-blue-600/10 border border-blue-500/20 rounded-2xl shadow-xl backdrop-blur-sm">
                         <div className="flex items-center gap-3 mb-6 font-display italic text-lg text-white">
                             <Compass className={`text-accent ${isTracking ? 'animate-spin-slow' : ''}`} size={24} />
@@ -231,11 +175,6 @@ export default function NavigationExperienceMap({ sessions, locale }: Navigation
                                 Finalizar Navegación
                             </button>
                         )}
-
-                        <div className="mt-4 flex items-center justify-center gap-2 text-[9px] uppercase tracking-widest text-white/40 font-bold">
-                            <span className={`w-1.5 h-1.5 rounded-full ${isTracking ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`} />
-                            {isTracking ? 'Sensor Activo - Grabando' : 'Sistema en Reposo'}
-                        </div>
                     </div>
 
                     {livePoints.length > 0 && !isTracking && (
@@ -266,11 +205,6 @@ export default function NavigationExperienceMap({ sessions, locale }: Navigation
                                     <Trash2 size={18} />
                                 </button>
                             </div>
-                            {saveError && (
-                                <p className="text-[10px] text-red-400 mt-3 flex items-center gap-2 bg-red-500/10 p-2 rounded">
-                                    <AlertCircle size={12} /> {saveError}
-                                </p>
-                            )}
                         </motion.div>
                     )}
 
@@ -284,25 +218,9 @@ export default function NavigationExperienceMap({ sessions, locale }: Navigation
                                 <p className="text-white/40 text-[10px] uppercase tracking-widest font-bold">Abra Interior & Puerto Deportivo</p>
                             </div>
                         </div>
-
-                        <div className="space-y-4">
-                            <div>
-                                <div className="flex justify-between items-center mb-2">
-                                    <span className="text-[10px] text-white/40 uppercase tracking-widest font-bold">Domino del Área</span>
-                                    <span className="text-xs font-black text-accent">62%</span>
-                                </div>
-                                <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
-                                    <motion.div
-                                        initial={{ width: 0 }}
-                                        animate={{ width: '62%' }}
-                                        className="h-full bg-accent"
-                                    />
-                                </div>
-                            </div>
-                            <p className="text-xs text-white/40 italic leading-relaxed">
-                                "Has navegado la mayoría de las áreas del puerto. Prueba a alejarte hacia el rompeolas norte en tu siguiente sesión para desbloquear nuevas zonas."
-                            </p>
-                        </div>
+                        <p className="text-xs text-white/40 italic leading-relaxed">
+                            "Has navegado la mayoría de las áreas del puerto. Prueba a alejarte hacia el rompeolas norte en tu siguiente sesión para desbloquear nuevas zonas."
+                        </p>
                     </div>
                 </div>
             </div>
