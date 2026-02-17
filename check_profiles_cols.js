@@ -1,19 +1,26 @@
+
 const { createClient } = require('@supabase/supabase-js');
+const fs = require('fs');
+const path = require('path');
+
+function getEnv() {
+    const envPath = path.join(process.cwd(), '.env');
+    const content = fs.readFileSync(envPath, 'utf8');
+    const env = {};
+    content.split('\n').forEach(line => {
+        const [key, ...val] = line.split('=');
+        if (key && val) env[key.trim()] = val.join('=').trim().replace(/"/g, '');
+    });
+    return env;
+}
 
 async function run() {
-    const supabase = createClient(
-        'https://xbledhifomblirxurtyv.supabase.co',
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhibGVkaGlmb21ibGlyeHVydHl2Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MDYyMjE5NywiZXhwIjoyMDg2MTk4MTk3fQ.tynAhTsdBLSv_FI4CbGhWfHLjmfmsl8SJaeiTRDsd_A'
-    );
+    const env = getEnv();
+    const supabase = createClient(env.NEXT_PUBLIC_SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY);
 
-    const { data, error } = await supabase.from('profiles').select('*').limit(1);
-    if (error) {
-        console.error(error);
-    } else if (data[0]) {
-        console.log('Profiles Columns:', Object.keys(data[0]).join(', '));
-        console.log('Sample Row:', data[0]);
-    } else {
-        console.log('No data found in profiles');
+    const { data: profiles, error } = await supabase.from('profiles').select('*').limit(1);
+    if (profiles && profiles[0]) {
+        Object.keys(profiles[0]).forEach(k => console.log('COL:' + k));
     }
 }
 
