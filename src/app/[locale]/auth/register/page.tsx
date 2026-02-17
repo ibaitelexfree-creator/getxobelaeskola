@@ -1,17 +1,16 @@
+'use client';
+
 import RegisterForm from '@/components/auth/RegisterForm';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
+import { useSearchParams } from 'next/navigation';
+import { Suspense } from 'react';
 
-export default function RegisterPage({
-    params: { locale },
-    searchParams
-}: {
-    params: { locale: string };
-    searchParams: { [key: string]: string | string[] | undefined }
-}) {
+function RegisterPageContent({ locale }: { locale: string }) {
     const t = useTranslations('auth');
-    const returnTo = searchParams?.returnTo;
+    const searchParams = useSearchParams();
+    const returnTo = searchParams.get('returnTo');
 
     return (
         <main className="min-h-screen grid grid-cols-1 lg:grid-cols-2">
@@ -30,7 +29,7 @@ export default function RegisterPage({
                     <footer className="mt-12 text-center text-[10px] uppercase tracking-widest">
                         <p className="text-foreground/40">
                             {t('has_account')}{' '}
-                            <Link href={`/${locale}/auth/login${returnTo ? `?returnTo=${encodeURIComponent(returnTo as string)}` : ''}`} className="text-accent hover:text-sea-foam transition-colors font-bold">
+                            <Link href={`/${locale}/auth/login${returnTo ? `?returnTo=${encodeURIComponent(returnTo)}` : ''}`} className="text-accent hover:text-sea-foam transition-colors font-bold">
                                 {t('login_here')}
                             </Link>
                         </p>
@@ -55,5 +54,17 @@ export default function RegisterPage({
                 </div>
             </div>
         </main>
+    );
+}
+
+export default function RegisterPage({
+    params: { locale }
+}: {
+    params: { locale: string }
+}) {
+    return (
+        <Suspense fallback={<div className="min-h-screen bg-nautical-black" />}>
+            <RegisterPageContent locale={locale} />
+        </Suspense>
     );
 }
