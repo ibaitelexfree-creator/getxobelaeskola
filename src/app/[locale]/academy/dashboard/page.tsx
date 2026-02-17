@@ -346,7 +346,7 @@ export default function DashboardPage({ params }: { params: { locale: string } }
                                                 {h.duracion_h}h
                                             </div>
                                             <div className="text-[8px] text-white/20 mt-2 font-mono">
-                                                {new Date(h.fecha).toLocaleDateString(undefined, { day: '2-digit', month: '2-digit' })}
+                                                {new Date(h.fecha).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit' })}
                                             </div>
                                         </div>
                                     );

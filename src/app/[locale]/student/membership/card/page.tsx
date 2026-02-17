@@ -76,7 +76,7 @@ export default function MembershipCardPage({ params: { locale } }: { params: { l
                         <div>
                             <div className="text-[7px] uppercase tracking-widest text-white/30 print:text-black/30">Válido hasta</div>
                             <div className="text-xs font-bold text-accent">
-                                {profile.fecha_fin_periodo ? new Date(profile.fecha_fin_periodo).toLocaleDateString() : 'N/A'}
+                                {profile.fecha_fin_periodo ? new Date(profile.fecha_fin_periodo).toLocaleDateString('es-ES') : 'N/A'}
                             </div>
                         </div>
                         <div className="bg-white p-1 rounded-sm">

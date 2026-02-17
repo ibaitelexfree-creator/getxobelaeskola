@@ -144,7 +144,7 @@ export default function VerifyCertificatePage({ params }: { params: { locale: st
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-left bg-black/20 rounded-2xl p-6 border border-white/5">
                                 <div>
                                     <div className="text-[9px] uppercase tracking-widest text-white/30 mb-1">Fecha Emisión</div>
-                                    <div className="text-white font-mono text-sm">{new Date(result.fecha_emision).toLocaleDateString()}</div>
+                                    <div className="text-white font-mono text-sm">{new Date(result.fecha_emision).toLocaleDateString('es-ES')}</div>
                                 </div>
                                 <div>
                                     <div className="text-[9px] uppercase tracking-widest text-white/30 mb-1">Nota Final</div>

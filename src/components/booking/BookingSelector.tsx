@@ -131,8 +131,8 @@ export default function BookingSelector({ editions, coursePrice, courseId }: Boo
     const formatDate = (dateStr: string) => {
         try {
             return new Date(dateStr).toLocaleDateString('es-ES', {
-                day: 'numeric',
-                month: 'long',
+                day: '2-digit',
+                month: '2-digit',
                 year: 'numeric'
             });
         } catch {

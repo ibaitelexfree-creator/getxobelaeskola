@@ -122,7 +122,7 @@ export default function VerificationPage({
                                                 </div>
                                                 <div>
                                                     <div className="text-[10px] text-white/40 uppercase tracking-widest mb-1">Fecha Emisión</div>
-                                                    <div className="text-2xl font-bold text-white">{new Date(data.fecha_emision).toLocaleDateString()}</div>
+                                                    <div className="text-2xl font-bold text-white">{new Date(data.fecha_emision).toLocaleDateString('es-ES')}</div>
                                                 </div>
                                             </div>
 
