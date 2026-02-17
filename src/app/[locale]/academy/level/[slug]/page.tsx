@@ -10,9 +10,11 @@ export async function generateStaticParams() {
     );
 }
 
+import { apiUrl } from '@/lib/api';
+
 export async function generateMetadata({ params }: { params: { locale: string; slug: string } }) {
     try {
-        const resNiveles = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || (process.env.NODE_ENV === 'production' ? 'https://getxobelaeskola.cloud' : 'http://localhost:3000')}/api/academy/levels`);
+        const resNiveles = await fetch(apiUrl('/api/academy/levels'));
         const dataNiveles = await resNiveles.json();
         const nivel = dataNiveles.niveles?.find((n: any) => n.slug === params.slug);
 
