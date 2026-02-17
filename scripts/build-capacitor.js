@@ -26,9 +26,10 @@ try {
         console.log('✅ API folder moved to temporary location.');
     }
 
-    // 2. Run the build
-    console.log('🚀 Running Next.js build...');
-    execSync('npm run build', { stdio: 'inherit' });
+    // 2. Run the build for Capacitor
+    console.log('🚀 Running Next.js build for Capacitor...');
+    const env = { ...process.env, IS_CAPACITOR: 'true' };
+    execSync('next build', { stdio: 'inherit', env });
     console.log('✅ Build completed successfully.');
 
 } catch (error) {

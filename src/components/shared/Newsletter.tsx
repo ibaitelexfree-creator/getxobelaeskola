@@ -2,6 +2,8 @@
 
 import React, { useState } from 'react';
 import { useTranslations } from 'next-intl';
+import { apiUrl } from '@/lib/api';
+
 
 export default function Newsletter({ locale }: { locale: string }) {
     const t = useTranslations('newsletter');
@@ -15,7 +17,7 @@ export default function Newsletter({ locale }: { locale: string }) {
         setStatus('loading');
 
         try {
-            const response = await fetch('/api/newsletter/subscribe', {
+            const response = await fetch(apiUrl('/api/newsletter/subscribe'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email, locale })

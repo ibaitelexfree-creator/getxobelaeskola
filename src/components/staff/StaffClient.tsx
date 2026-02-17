@@ -14,6 +14,8 @@ import AcademyStaffTab from './AcademyStaffTab';
 import FinancialReportsClient from './FinancialReportsClient';
 import BITab from './BITab';
 import AccessibleModal from '../shared/AccessibleModal';
+import { apiUrl } from '@/lib/api';
+
 
 import { ClientDate, StaffProfile } from './StaffShared';
 
@@ -195,7 +197,7 @@ export default function StaffClient({
         setIsLoadingFinancials(true);
         setFinancialsError(null);
         try {
-            const res = await fetch('/api/admin/rentals/financials');
+            const res = await fetch(apiUrl('/api/admin/rentals/financials'));
             const data = await res.json();
             if (res.ok) {
                 setFinancialsData(data.rentals || []);
@@ -228,7 +230,7 @@ export default function StaffClient({
 
     const logActivity = async (action: string, targetId: string, targetType: string, description: string, metadata: Record<string, unknown> = {}) => {
         try {
-            await fetch('/api/admin/log-activity', {
+            await fetch(apiUrl('/api/admin/log-activity'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ action_type: action, target_id: targetId, target_type: targetType, description, metadata })
@@ -249,7 +251,7 @@ export default function StaffClient({
                         status: rentalStatusFilter,
                         sort: rentalSort
                     });
-                    const res = await fetch(`/api/admin/rentals/list?${params.toString()}`);
+                    const res = await fetch(apiUrl(`/api/admin/rentals/list?${params.toString()}`));
                     const data = await res.json();
                     if (res.ok) {
                         setPaginatedRentals(data.rentals || []);
@@ -272,7 +274,7 @@ export default function StaffClient({
         if (activeTab === 'staff_mgmt' && staffProfiles.length === 0) {
             const fetchStaff = async () => {
                 try {
-                    const res = await fetch('/api/admin/list-staff');
+                    const res = await fetch(apiUrl('/api/admin/list-staff'));
                     const data = await res.json();
                     if (res.ok) setStaffProfiles(data.staff || []);
                 } catch (err) {
@@ -286,7 +288,7 @@ export default function StaffClient({
     // Fetch Audit Logs on demand
     const fetchLogs = useCallback(async () => {
         try {
-            const res = await fetch('/api/admin/audit-logs/list?limit=50');
+            const res = await fetch(apiUrl('/api/admin/audit-logs/list?limit=50'));
             const data = await res.json();
             if (res.ok) setAuditLogs(data.logs || []);
         } catch (err: unknown) {
@@ -402,7 +404,7 @@ export default function StaffClient({
         if (searchTerm.length < 2) { setStudents([]); return; }
         const timer = setTimeout(async () => {
             try {
-                const res = await fetch(`/api/admin/search-students?q=${encodeURIComponent(searchTerm)}`);
+                const res = await fetch(apiUrl(`/api/admin/search-students?q=${encodeURIComponent(searchTerm)}`));
                 const data = await res.json();
                 if (res.ok && data.students) {
                     const sorted = [...data.students].sort((a: StaffProfile, b: StaffProfile) => (a.nombre || '').localeCompare(b.nombre || ''));
@@ -422,7 +424,7 @@ export default function StaffClient({
         setStudents([]);
         setStudentInscriptions([]);
         try {
-            const response = await fetch(`/api/admin/list-inscriptions?studentId=${student.id}`);
+            const response = await fetch(apiUrl(`/api/admin/list-inscriptions?studentId=${student.id}`));
             const data = await response.json();
             if (data && Array.isArray(data.inscriptions)) {
                 setStudentInscriptions(data.inscriptions);
@@ -436,7 +438,7 @@ export default function StaffClient({
         if (!selectedStudent || !editStudentData) return;
         setIsSavingProfile(true);
         try {
-            const res = await fetch('/api/admin/update-profile', {
+            const res = await fetch(apiUrl('/api/admin/update-profile'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(editStudentData)
@@ -472,7 +474,7 @@ export default function StaffClient({
         if (!editStaffData) return;
         setIsSavingStaff(true);
         try {
-            const res = await fetch('/api/admin/update-staff', {
+            const res = await fetch(apiUrl('/api/admin/update-staff'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -510,7 +512,7 @@ export default function StaffClient({
     const handleSendNewsletter = async (data: { title: string, content: string, scheduled_for?: string }) => {
         setIsSendingNewsletter(true);
         try {
-            const res = await fetch('/api/admin/newsletters/create', {
+            const res = await fetch(apiUrl('/api/admin/newsletters/create'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data)
@@ -538,7 +540,7 @@ export default function StaffClient({
         if (!editingLog) return;
         setIsSavingLog(true);
         try {
-            const res = await fetch('/api/admin/update-log', {
+            const res = await fetch(apiUrl('/api/admin/update-log'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -579,7 +581,7 @@ export default function StaffClient({
 
         console.log('Confirming Inscription Status Change:', { id, nextStatus, newLog });
         try {
-            const res = await fetch('/api/admin/update-inscription', {
+            const res = await fetch(apiUrl('/api/admin/update-inscription'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ id, estado_pago: nextStatus, log_seguimiento: newLog })
@@ -623,7 +625,7 @@ export default function StaffClient({
             .filter(l => l.timestamp !== timestamp);
 
         try {
-            const res = await fetch('/api/admin/update-inscription', {
+            const res = await fetch(apiUrl('/api/admin/update-inscription'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ id: insId, log_seguimiento: newLog, estado_pago: ins.estado_pago })
@@ -667,7 +669,7 @@ export default function StaffClient({
         setStatusNote('');
 
         try {
-            const res = await fetch('/api/admin/update-rental', {
+            const res = await fetch(apiUrl('/api/admin/update-rental'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ id, estado_entrega: nextStatus, log_seguimiento: newLog })
@@ -713,7 +715,7 @@ export default function StaffClient({
         }
 
         try {
-            const res = await fetch('/api/admin/update-rental', {
+            const res = await fetch(apiUrl('/api/admin/update-rental'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ id: rentalId, log_seguimiento: newLog })
@@ -858,7 +860,7 @@ export default function StaffClient({
                                             const newLog = [...currentLog, newEntry];
 
                                             try {
-                                                const res = await fetch('/api/admin/update-inscription', {
+                                                const res = await fetch(apiUrl('/api/admin/update-inscription'), {
                                                     method: 'POST',
                                                     headers: { 'Content-Type': 'application/json' },
                                                     body: JSON.stringify({ id: viewingInsHistory.id, log_seguimiento: newLog })

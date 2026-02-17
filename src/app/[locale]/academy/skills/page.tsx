@@ -3,6 +3,8 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
+import { apiUrl } from '@/lib/api';
+
 
 interface Skill {
     id: string;
@@ -28,7 +30,7 @@ export default function SkillsPage({ params }: { params: { locale: string } }) {
     useEffect(() => {
         async function fetchData() {
             try {
-                const res = await fetch('/api/academy/skills');
+                const res = await fetch(apiUrl('/api/academy/skills'));
                 const data = await res.json();
 
                 if (data.catálogo) {
@@ -125,14 +127,14 @@ export default function SkillsPage({ params }: { params: { locale: string } }) {
                             <div
                                 key={skill.id}
                                 className={`relative p-8 rounded-3xl border transition-all duration-300 group ${unlocked
-                                        ? 'bg-white/5 border-white/20 hover:border-accent/50'
-                                        : 'bg-black/40 border-white/5 grayscale opacity-50'
+                                    ? 'bg-white/5 border-white/20 hover:border-accent/50'
+                                    : 'bg-black/40 border-white/5 grayscale opacity-50'
                                     }`}
                             >
                                 <div className="flex items-start gap-6">
                                     <div className={`w-16 h-16 rounded-2xl flex items-center justify-center text-3xl shrink-0 transition-transform group-hover:scale-110 ${unlocked
-                                            ? 'bg-accent text-nautical-black shadow-lg shadow-accent/20'
-                                            : 'bg-white/5 text-white/20 border border-white/10'
+                                        ? 'bg-accent text-nautical-black shadow-lg shadow-accent/20'
+                                        : 'bg-white/5 text-white/20 border border-white/10'
                                         }`}>
                                         {unlocked ? skill.icon : '🔒'}
                                     </div>

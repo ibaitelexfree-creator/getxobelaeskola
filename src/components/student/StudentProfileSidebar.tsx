@@ -7,6 +7,8 @@ import { Sparkles } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import EditProfileModal from './EditProfileModal';
 import LogoutButton from '@/components/auth/LogoutButton';
+import { apiUrl } from '@/lib/api';
+
 
 interface Profile {
     id: string;
@@ -37,7 +39,7 @@ export default function StudentProfileSidebar({ profile, email, locale }: Studen
     const handleManageMembership = async () => {
         try {
             setPortalLoading(true);
-            const res = await fetch('/api/membership/portal', {
+            const res = await fetch(apiUrl('/api/membership/portal'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ locale })

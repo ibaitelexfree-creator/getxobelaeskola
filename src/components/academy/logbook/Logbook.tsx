@@ -13,6 +13,8 @@ import CertificateCard from '@/components/academy/CertificateCard';
 import { generateLogbookReportPDF } from '@/lib/logbook/pdfReportGenerator';
 import LogbookMap from './LogbookMap';
 import FleetMastery from './FleetMastery';
+import { apiUrl } from '@/lib/api';
+
 
 interface LogEntry {
     id: string;
@@ -61,12 +63,12 @@ export default function Logbook() {
             setLoading(true);
             try {
                 // Fetch official progress
-                const resProgress = await fetch('/api/academy/progress');
+                const resProgress = await fetch(apiUrl('/api/academy/progress'));
                 const dataProgress = await resProgress.json();
                 setOfficialData(dataProgress);
 
                 // Fetch cloud diary
-                const resDiary = await fetch('/api/academy/logbook/diary');
+                const resDiary = await fetch(apiUrl('/api/academy/logbook/diary'));
                 const dataDiary = await resDiary.json();
                 if (Array.isArray(dataDiary)) {
                     setDiaryEntries(dataDiary);
@@ -84,7 +86,7 @@ export default function Logbook() {
         if (!newNote.trim()) return;
 
         try {
-            const res = await fetch('/api/academy/logbook/diary', {
+            const res = await fetch(apiUrl('/api/academy/logbook/diary'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -107,7 +109,7 @@ export default function Logbook() {
 
     const deleteEntry = async (id: string) => {
         try {
-            const res = await fetch(`/api/academy/logbook/diary?id=${id}`, {
+            const res = await fetch(apiUrl(`/api/academy/logbook/diary?id=${id}`), {
                 method: 'DELETE'
             });
 
@@ -276,7 +278,7 @@ export default function Logbook() {
                                                                     formData.append('sessionId', session.id);
 
                                                                     try {
-                                                                        const res = await fetch('/api/academy/logbook/upload-track', {
+                                                                        const res = await fetch(apiUrl('/api/academy/logbook/upload-track'), {
                                                                             method: 'POST',
                                                                             body: formData
                                                                         });

@@ -13,6 +13,8 @@ import {
 import { startOfMonth, endOfMonth, startOfQuarter, endOfQuarter, startOfYear, endOfYear, format, subYears } from 'date-fns';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import { apiUrl } from '@/lib/api';
+
 
 interface BIData {
     boatProfitability: { name: string; revenue: number; cost: number; profit: number }[];
@@ -56,7 +58,7 @@ export default function BITab() {
                 endDate: dateRange.end,
                 compare: compareYoY ? 'yoy' : ''
             });
-            const res = await fetch(`/api/admin/bi?${params.toString()}`);
+            const res = await fetch(apiUrl(`/api/admin/bi?${params.toString()}`));
             const json = await res.json();
             if (res.ok) {
                 setData(json);

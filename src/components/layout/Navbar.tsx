@@ -7,6 +7,8 @@ import { useParams, useRouter, usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { Menu, X, ChevronRight, Sparkles } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
+import { apiUrl } from '@/lib/api';
+
 
 export default function Navbar({ locale: propLocale }: { locale?: string }) {
     const t = useTranslations('nav');
@@ -66,7 +68,7 @@ export default function Navbar({ locale: propLocale }: { locale?: string }) {
 
     const handleLogout = async () => {
         setIsMenuOpen(false);
-        await fetch(`/api/auth/logout?locale=${locale}`, { method: 'POST' });
+        await fetch(apiUrl(`/api/auth/logout?locale=${locale}`), { method: 'POST' });
         router.push(`/${locale}/auth/login`);
         router.refresh();
     };

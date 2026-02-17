@@ -4,6 +4,8 @@ import React, { useState, useEffect } from 'react';
 
 import LogoutButton from '@/components/auth/LogoutButton';
 import { ClientDate } from '@/components/staff/StaffShared';
+import { apiUrl } from '@/lib/api';
+
 import SessionDetailModal from '@/components/staff/SessionDetailModal';
 import IncidentReportModal from '@/components/instructor/IncidentReportModal';
 
@@ -264,9 +266,8 @@ export default function InstructorClient({ profile, initialSessions, initialInsc
                         setSessions(prev => prev.map(s => s.id === updated.id ? updated : s));
                         setSelectedSession(null);
 
-                        // Actual API update
                         try {
-                            const res = await fetch('/api/admin/sessions/update', {
+                            const res = await fetch(apiUrl('/api/admin/sessions/update'), {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
                                 body: JSON.stringify(updated)

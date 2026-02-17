@@ -7,6 +7,8 @@ import { useRouter } from 'next/navigation';
 import LegalConsentModal from '../shared/LegalConsentModal';
 import { createClient } from '@/lib/supabase/client';
 import NauticalImage from '@/components/ui/NauticalImage';
+import { apiUrl } from '@/lib/api';
+
 
 function getSpainTimeInfo() {
     const now = new Date();
@@ -291,7 +293,7 @@ export default function RentalClient({
 
         try {
             // Log consent
-            const consentResponse = await fetch('/api/legal/consent', {
+            const consentResponse = await fetch(apiUrl('/api/legal/consent'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -308,7 +310,7 @@ export default function RentalClient({
                 throw new Error(tLegal('error_log_consent'));
             }
 
-            const response = await fetch('/api/checkout/rental', {
+            const response = await fetch(apiUrl('/api/checkout/rental'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({

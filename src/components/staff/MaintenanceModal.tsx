@@ -3,6 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import AccessibleModal from '../shared/AccessibleModal';
 import { useTranslations } from 'next-intl';
+import { apiUrl } from '@/lib/api';
+
 
 interface Boat {
     id: string;
@@ -46,7 +48,7 @@ export default function MaintenanceModal({ boat, onClose }: MaintenanceModalProp
     const fetchLogs = React.useCallback(async () => {
         setLoading(true);
         try {
-            const res = await fetch(`/api/admin/boats/maintenance?boatId=${boat.id}`);
+            const res = await fetch(apiUrl(`/api/admin/boats/maintenance?boatId=${boat.id}`));
             const data = await res.json();
             if (res.ok) setLogs(data.logs || []);
         } catch (e) {

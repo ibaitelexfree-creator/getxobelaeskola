@@ -5,6 +5,8 @@ import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import LegalConsentModal from '../shared/LegalConsentModal';
 import { createClient } from '@/lib/supabase/client';
+import { apiUrl } from '@/lib/api';
+
 
 
 interface Edition {
@@ -65,7 +67,7 @@ export default function BookingSelector({ editions, coursePrice, courseId }: Boo
             const selectedEditionData = editions.find(e => e.id === selectedEdition);
 
             // Log consent
-            const consentResponse = await fetch('/api/legal/consent', {
+            const consentResponse = await fetch(apiUrl('/api/legal/consent'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -83,7 +85,7 @@ export default function BookingSelector({ editions, coursePrice, courseId }: Boo
             }
 
             // Original Checkout Logic
-            const response = await fetch('/api/checkout', {
+            const response = await fetch(apiUrl('/api/checkout'), {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
