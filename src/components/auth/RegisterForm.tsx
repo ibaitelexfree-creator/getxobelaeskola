@@ -58,11 +58,12 @@ export default function RegisterForm() {
         setError(null);
 
         const locale = window.location.pathname.split('/')[1] || 'es';
+        const appUrl = process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, '') || window.location.origin;
         const { error: authError } = await supabase.auth.signUp({
             email: data.email,
             password: data.password,
             options: {
-                emailRedirectTo: `${window.location.origin}/api/auth/callback?next=/${locale}/student/dashboard`,
+                emailRedirectTo: `${appUrl}/api/auth/callback?next=/${locale}/student/dashboard`,
                 data: {
                     nombre: data.nombre,
                     apellidos: data.apellidos,

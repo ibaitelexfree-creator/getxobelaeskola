@@ -59,9 +59,9 @@ export default async function RentalPage({ params: { locale } }: { params: { loc
                         <span className="text-accent uppercase tracking-[0.6em] text-sm font-bold mb-8 block animate-fade-in-up">
                             {t('header_eyebrow')}
                         </span>
-                        <h1 className="text-5xl md:text-7xl lg:text-9xl font-display leading-[0.9] text-white mb-12 animate-reveal">
+                        <h1 className="text-5xl md:text-7xl lg:text-9xl font-display leading-[0.9] text-white mb-12 animate-reveal relative z-20">
                             {t('title_prefix')} <br />
-                            <span className="italic font-light text-brass-gold/90">{t('title_highlight')}</span>
+                            <span className="italic font-light text-brass-gold/90 drop-shadow-sm">{t('title_highlight')}</span>
                         </h1>
                         <p className="max-w-2xl text-foreground/40 font-light text-xl leading-relaxed border-l border-white/10 pl-12 mt-12 animate-fade-in" style={{ animationDelay: '0.8s' }}>
                             {t('description')}

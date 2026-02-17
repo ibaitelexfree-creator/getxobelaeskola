@@ -356,13 +356,13 @@ export default function RentalClient({
     return (
         <div className="space-y-12">
             {/* Filter */}
-            <div className="flex flex-wrap gap-4 border-b border-white/5 pb-8">
+            <div className="flex overflow-x-auto md:flex-wrap gap-4 border-b border-white/5 pb-8 custom-scrollbar no-scrollbar">
                 {categories.map(cat => (
                     <button
                         key={cat.id}
                         type="button"
                         onClick={() => setSelectedCategory(cat.id)}
-                        className={`px-6 py-2 text-3xs uppercase tracking-widest transition-all ${selectedCategory === cat.id
+                        className={`px-6 py-2 text-3xs uppercase tracking-widest transition-all whitespace-nowrap ${selectedCategory === cat.id
                             ? 'bg-accent text-nautical-black font-bold'
                             : 'text-foreground/60 hover:text-white'
                             }`}

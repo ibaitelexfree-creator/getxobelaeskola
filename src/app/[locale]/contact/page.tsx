@@ -18,7 +18,7 @@ export default function ContactPage() {
                             <span className="text-accent uppercase tracking-[0.6em] text-sm font-bold mb-6 block">
                                 {t('header_badge')}
                             </span>
-                            <h1 className="text-4xl md:text-[8rem] font-display leading-[0.9] mb-12">
+                            <h1 className="text-4xl md:text-[8rem] font-display text-white leading-[0.9] mb-12">
                                 {t('header_title')} <br />
                                 <span className="italic font-light text-brass-gold/90">{t('header_highlight')}</span>
                             </h1>

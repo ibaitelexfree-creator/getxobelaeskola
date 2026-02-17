@@ -435,6 +435,18 @@ a:hover {
   background: rgba(255, 255, 255, 0.3);
 }
 
+/* Hide scrollbar utility */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  /* IE and Edge */
+  scrollbar-width: none;
+  /* Firefox */
+}
+
 /* High Contrast Mode Support */
 @media (prefers-contrast: high) {
   .text-technical {
