@@ -34,6 +34,11 @@ const nextConfig = {
     compress: true,
     poweredByHeader: false,
     output: isCapacitor ? 'export' : 'standalone',
+    staticPageGenerationTimeout: 300, // Increase timeout to 5 minutes
+    experimental: {
+        workerThreads: false, // Turn off worker threads to see if it reduces overhead/hanging on some machines
+        cpus: 1, // Limit to 1 CPU to reduce parallel fetching load during build
+    }
 };
 
 export default withNextIntl(nextConfig);
