@@ -118,6 +118,7 @@ export default function Navbar({ locale: propLocale }: { locale?: string }) {
             <nav className="fixed top-0 left-0 w-full z-[9999] px-3 sm:px-4 md:px-6 py-3 md:py-6 xl:py-8 flex justify-between items-center bg-[#010409]/80 backdrop-blur-md border-b border-white/5 min-h-[70px] md:min-h-[auto]">
                 <Link
                     href={`/${locale}`}
+                    prefetch={false}
                     className="flex items-center gap-2 md:gap-4 group transition-transform hover:scale-105 relative z-[110] max-w-[75%] sm:max-w-none"
                     onClick={() => setIsMenuOpen(false)}
                 >
@@ -140,11 +141,11 @@ export default function Navbar({ locale: propLocale }: { locale?: string }) {
 
                 {/* Desktop Menu - Now visible from xl (1280px) */}
                 <div className="hidden xl:flex gap-6 xxl:gap-12 text-sm uppercase tracking-[0.2em] font-semibold">
-                    <Link href={`/${locale}/courses`} className="hover:text-accent transition-colors">{t('courses')}</Link>
-                    <Link href={`/${locale}/academy`} className="hover:text-accent transition-colors">{t('academy')}</Link>
-                    <Link href={`/${locale}/rental`} className="hover:text-accent transition-colors">{t('rental')}</Link>
-                    <Link href={`/${locale}/about`} className="hover:text-accent transition-colors">{t('about')}</Link>
-                    <Link href={`/${locale}/contact`} className="hover:text-accent transition-colors">{t('contact')}</Link>
+                    <Link href={`/${locale}/courses`} prefetch={false} className="hover:text-accent transition-colors">{t('courses')}</Link>
+                    <Link href={`/${locale}/academy`} prefetch={false} className="hover:text-accent transition-colors">{t('academy')}</Link>
+                    <Link href={`/${locale}/rental`} prefetch={false} className="hover:text-accent transition-colors">{t('rental')}</Link>
+                    <Link href={`/${locale}/about`} prefetch={false} className="hover:text-accent transition-colors">{t('about')}</Link>
+                    <Link href={`/${locale}/contact`} prefetch={false} className="hover:text-accent transition-colors">{t('contact')}</Link>
                 </div>
 
 
@@ -185,6 +186,7 @@ export default function Navbar({ locale: propLocale }: { locale?: string }) {
                             )}
                             <Link
                                 href={user.rol === 'admin' || user.rol === 'instructor' ? `/${locale}/staff` : `/${locale}/student/dashboard`}
+                                prefetch={false}
                                 className="text-2xs uppercase tracking-[0.2em] font-black text-accent bg-accent/5 px-4 py-2 rounded-sm border border-accent/20 hover:bg-accent hover:text-nautical-black transition-all"
                             >
                                 {user.rol === 'admin' || user.rol === 'instructor' ? t('admin_panel') : t('dashboard')}
@@ -197,7 +199,7 @@ export default function Navbar({ locale: propLocale }: { locale?: string }) {
                             </button>
                         </div>
                     ) : (
-                        <Link href={`/${locale}/auth/login`} className="hidden xl:block text-2xs uppercase tracking-[0.15em] font-black border border-white/10 px-6 py-2 rounded-sm hover:bg-white/5 transition-all">
+                        <Link href={`/${locale}/auth/login`} prefetch={false} className="hidden xl:block text-2xs uppercase tracking-[0.15em] font-black border border-white/10 px-6 py-2 rounded-sm hover:bg-white/5 transition-all">
                             {t('login')}
                         </Link>
                     )}
@@ -243,6 +245,7 @@ export default function Navbar({ locale: propLocale }: { locale?: string }) {
                             <Link
                                 key={link.href}
                                 href={`/${locale}/${link.href}`}
+                                prefetch={false}
                                 className="group flex items-center justify-between"
                                 style={{ transitionDelay: `${idx * 100}ms` }}
                                 onClick={() => setIsMenuOpen(false)}
@@ -272,6 +275,7 @@ export default function Navbar({ locale: propLocale }: { locale?: string }) {
                                 )}
                                 <Link
                                     href={user.rol === 'admin' || user.rol === 'instructor' ? `/${locale}/staff` : `/${locale}/student/dashboard`}
+                                    prefetch={false}
                                     className="w-full text-center py-5 bg-accent text-nautical-black font-display italic text-xl shadow-xl shadow-accent/20"
                                     onClick={() => setIsMenuOpen(false)}
                                 >
@@ -287,6 +291,7 @@ export default function Navbar({ locale: propLocale }: { locale?: string }) {
                         ) : (
                             <Link
                                 href={`/${locale}/auth/login`}
+                                prefetch={false}
                                 className="w-full block text-center py-5 border border-white/20 text-white font-display italic text-xl bg-white/5 active:bg-white/10 transition-all"
                                 onClick={() => setIsMenuOpen(false)}
                             >

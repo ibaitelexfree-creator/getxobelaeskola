@@ -41,9 +41,10 @@ export default function MobileBottomNav() {
                         <Link
                             key={item.path}
                             href={`/${locale}${item.path}`}
+                            prefetch={false}
                             className={`flex flex-col items-center justify-center gap-0.5 flex-1 py-2 transition-all duration-200 ${active
-                                    ? 'text-accent'
-                                    : 'text-white/40 active:text-white/70'
+                                ? 'text-accent'
+                                : 'text-white/40 active:text-white/70'
                                 }`}
                         >
                             <div className={`transition-transform duration-200 ${active ? 'scale-110' : ''}`}>

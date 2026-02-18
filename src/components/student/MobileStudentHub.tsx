@@ -1,12 +1,14 @@
 import { useState } from 'react';
 import Link from 'next/link';
-import { BookOpen, Sailboat, GraduationCap, User, Trophy, Calendar, ChevronRight, Anchor } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { BookOpen, Sailboat, GraduationCap, User, Trophy, Calendar, ChevronRight, Anchor, Compass, Book } from 'lucide-react';
 
 
 interface MobileStudentHubProps {
     profile: any;
     upcomingInscripciones: any[];
     upcomingRentals: any[];
+    academyStats?: any;
     locale: string;
     t: any;
 }
@@ -15,9 +17,11 @@ export default function MobileStudentHub({
     profile,
     upcomingInscripciones,
     upcomingRentals,
+    academyStats,
     locale,
     t
 }: MobileStudentHubProps) {
+    const router = useRouter();
     const userName = profile?.nombre?.split(' ')[0] || 'Navegante';
     const hasBookings = upcomingInscripciones.length > 0 || upcomingRentals.length > 0;
 
@@ -37,18 +41,18 @@ export default function MobileStudentHub({
             href: `/${locale}/student/rentals`
         },
         {
-            label: t.academy_widget?.card_title || 'Academia',
-            icon: <GraduationCap className="w-6 h-6 text-purple-400" />,
+            label: 'Mapa',
+            icon: <Compass className="w-6 h-6 text-purple-400" />,
             bg: 'bg-purple-500/10',
             border: 'border-purple-500/20',
-            href: `/${locale}/academy`
+            href: `/${locale}/academy/exploration`
         },
         {
-            label: 'Club',
-            icon: <Anchor className="w-6 h-6 text-amber-400" />,
+            label: 'Bitácora',
+            icon: <Book className="w-6 h-6 text-amber-400" />,
             bg: 'bg-amber-500/10',
             border: 'border-amber-500/20',
-            href: `/${locale}/student/membership`
+            href: `/${locale}/academy/logbook`
         },
     ];
 
@@ -61,7 +65,7 @@ export default function MobileStudentHub({
     return (
         <div className="flex flex-col gap-8 pb-24">
             {/* Header Greeting */}
-            <header className="px-6 pt-8">
+            <header className="px-6 pt-8 relative z-[100]">
                 <div className="flex items-center justify-between mb-2">
                     <div className="flex flex-col">
                         <span className="text-white/40 text-xs uppercase tracking-widest font-bold">{t.welcome?.split(',')[0]},</span>
@@ -70,11 +74,38 @@ export default function MobileStudentHub({
                         </h1>
                     </div>
 
-                    <Link href={`/${locale}/student/profile`} className="w-10 h-10 rounded-full bg-accent/10 border border-accent/20 flex items-center justify-center text-accent">
-                        <User className="w-5 h-5" />
-                    </Link>
+                    <button
+                        onClick={() => router.push(`/${locale}/student/profile`)}
+                        className="w-10 h-10 rounded-full bg-accent/10 border border-accent/20 flex items-center justify-center text-accent active:scale-95 transition-transform"
+                    >
+                        <User className="w-5 h-5 pointer-events-none" />
+                    </button>
                 </div>
             </header>
+
+            {/* Academy Quick Stats */}
+            {academyStats && (
+                <section className="px-6">
+                    <div className="bg-white/5 border border-white/10 rounded-2xl p-6 flex justify-between items-center overflow-hidden relative">
+                        <div className="absolute right-0 top-0 w-32 h-32 bg-accent/5 blur-[40px] rounded-full pointer-events-none" />
+
+                        <div className="grid grid-cols-3 gap-8 w-full relative z-10">
+                            <div className="flex flex-col gap-1">
+                                <span className="text-[10px] uppercase tracking-widest text-white/40 font-bold">Millas</span>
+                                <span className="text-2xl font-display text-white">{academyStats.totalMiles || 0}</span>
+                            </div>
+                            <div className="flex flex-col gap-1">
+                                <span className="text-[10px] uppercase tracking-widest text-white/40 font-bold">Niveles</span>
+                                <span className="text-2xl font-display text-white">{academyStats.academyLevels || 0}</span>
+                            </div>
+                            <div className="flex flex-col gap-1">
+                                <span className="text-[10px] uppercase tracking-widest text-white/40 font-bold">Certif.</span>
+                                <span className="text-2xl font-display text-white">{academyStats.academyCerts || 0}</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            )}
 
             {/* Quick Actions Grid */}
             <section className="px-6 grid grid-cols-2 gap-4">
@@ -82,6 +113,7 @@ export default function MobileStudentHub({
                     <Link
                         key={action.label}
                         href={action.href}
+                        prefetch={false}
                         className={`flex flex-col items-center justify-center gap-3 p-6 rounded-2xl border backdrop-blur-sm transition-transform active:scale-95 ${action.bg} ${action.border}`}
                     >
                         <div className="p-3 rounded-full bg-white/5 shadow-inner">
@@ -148,7 +180,11 @@ export default function MobileStudentHub({
 
             {/* Daily Challenge Teaser */}
             <section className="px-6">
-                <Link href={`/${locale}/academy/dashboard`} className="block bg-gradient-to-r from-accent/20 to-transparent border border-accent/20 rounded-2xl p-6 relative overflow-hidden">
+                <Link
+                    href={`/${locale}/student/daily-challenge`}
+                    prefetch={false}
+                    className="block bg-gradient-to-r from-accent/20 to-transparent border border-accent/20 rounded-2xl p-6 relative overflow-hidden"
+                >
                     <div className="flex items-center gap-4 relative z-10">
                         <div className="w-12 h-12 rounded-full bg-accent text-nautical-black flex items-center justify-center">
                             <Trophy className="w-6 h-6" />

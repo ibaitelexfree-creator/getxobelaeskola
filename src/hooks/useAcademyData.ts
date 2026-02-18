@@ -40,30 +40,41 @@ export function useAcademyData() {
             setLoading(true);
             setError(null);
             try {
-                // Fetch in parallel
+                // Fetch in parallel with absolute URLs and credentials for cross-origin (mobile)
+                const fetchOptions = {
+                    credentials: 'include' as RequestCredentials,
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                };
+
                 const [resNiveles, resProgreso, resCursos, resEnrollments] = await Promise.all([
-                    fetch(apiUrl('/api/academy/levels')),
-                    fetch(apiUrl('/api/academy/progress')),
-                    fetch(apiUrl('/api/academy/courses')),
-                    fetch(apiUrl('/api/academy/enrollments'))
+                    fetch(apiUrl('/api/levels'), fetchOptions),
+                    fetch(apiUrl('/api/progress'), fetchOptions),
+                    fetch(apiUrl('/api/courses'), fetchOptions),
+                    fetch(apiUrl('/api/enrollments'), fetchOptions)
                 ]);
 
                 if (!isMounted) return;
 
-                if (!resNiveles.ok) throw new Error('Failed to fetch levels');
+                // Levels is critical
+                if (!resNiveles.ok) {
+                    const errData = await resNiveles.json().catch(() => ({}));
+                    throw new Error(errData.error || `Failed to fetch levels: ${resNiveles.status}`);
+                }
 
                 const dataNiveles = await resNiveles.json();
-                const dataCursos = await resCursos.json();
+                const dataCursos = await resCursos.json().catch(() => ({ cursos: [] }));
 
                 let dataEnrollments: string[] = [];
                 if (resEnrollments.ok) {
-                    const jsonEnroll = await resEnrollments.json();
+                    const jsonEnroll = await resEnrollments.json().catch(() => ({}));
                     dataEnrollments = jsonEnroll.enrollments || [];
                 }
 
                 let progresoNiveles: ProgresoNivel[] = [];
                 if (resProgreso.ok) {
-                    const dataProgreso = await resProgreso.json();
+                    const dataProgreso = await resProgreso.json().catch(() => ({}));
                     progresoNiveles = dataProgreso.progreso?.filter(
                         (p: any) => p.tipo_entidad === 'nivel'
                     ) || [];
@@ -86,7 +97,8 @@ export function useAcademyData() {
                 setEnrollments(dataEnrollments);
             } catch (err) {
                 if (isMounted) {
-                    setError('Error al cargar datos de la academia');
+                    const errorMessage = err instanceof Error ? err.message : 'Error desconocido';
+                    setError(`Error al cargar academia: ${errorMessage}`);
                     console.error('Error in useAcademyData:', err);
                 }
             } finally {
@@ -148,9 +160,10 @@ export function useAcademyData() {
         niveles,
         progreso,
         cursosPorNivel,
-        enrollments, // Return enrollments if needed for finer grain UI
+        enrollments,
         loading,
         error,
         getEstadoNivel
     };
 }
+

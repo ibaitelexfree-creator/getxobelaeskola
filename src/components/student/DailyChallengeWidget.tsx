@@ -91,33 +91,34 @@ export default function DailyChallengeWidget({ locale }: DailyChallengeWidgetPro
     async function fetchDailyChallenge() {
         try {
             setLoading(true);
-            const { data: { user } } = await supabase.auth.getUser();
-            if (!user) return;
+            // Fetch from API to ensure consistent challenge selection logic with server
+            const res = await fetch('/api/daily-challenge');
 
-            const todayStr = new Date().toISOString().split('T')[0];
-            const { data: existingAttempt } = await supabase
-                .from('intentos_desafios')
-                .select('*')
-                .eq('perfil_id', user.id)
-                .eq('fecha', todayStr)
-                .maybeSingle();
-
-            if (existingAttempt) {
-                setStatus('completed');
-                setLoading(false);
-                return;
+            if (!res.ok) {
+                if (res.status === 401) {
+                    // Handle unauthorized if needed, or let the interceptor/layout handle it
+                    console.log('Unauthorized access to daily challenge');
+                }
+                throw new Error('Failed to fetch challenge');
             }
 
-            const { data: challenges } = await supabase
-                .from('desafios_diarios')
-                .select('*')
-                .eq('activo', true);
+            const data = await res.json();
 
-            if (challenges && challenges.length > 0) {
-                const day = new Date().getDate();
-                setChallenge(challenges[day % challenges.length]);
+            if (data.challenge) {
+                setChallenge(data.challenge);
                 setStatus('idle');
             }
+
+            if (data.completed) {
+                setStatus('completed');
+                // If completed, we might have result info in the response or we rely on stats
+                if (data.result) {
+                    setChallenge((prev) => prev ? ({ ...prev, ...data.result }) : null);
+                    if (data.correct) setStatus('correct');
+                    else setStatus('wrong');
+                }
+            }
+
         } catch (error) {
             console.error('Error fetching challenge:', error);
         } finally {
@@ -130,12 +131,20 @@ export default function DailyChallengeWidget({ locale }: DailyChallengeWidgetPro
 
         setStatus('answering');
         try {
-            const { data, error } = await supabase.rpc('completar_desafio_diario', {
-                p_desafio_id: challenge.id,
-                p_respuesta: selectedOption
+            const res = await fetch('/api/daily-challenge', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    desafioId: challenge.id,
+                    respuesta: selectedOption
+                })
             });
 
-            if (error) throw error;
+            const data = await res.json();
+
+            if (!res.ok) throw new Error(data.error || 'Failed to submit');
 
             if (data.success) {
                 if (data.correcto) {
@@ -150,6 +159,11 @@ export default function DailyChallengeWidget({ locale }: DailyChallengeWidgetPro
                 } else {
                     setStatus('wrong');
                 }
+                // Add explanation to challenge object for display
+                if (data.explanation) {
+                    setChallenge((prev: any) => ({ ...prev, ...data.explanation }));
+                }
+
                 fetchUserStats(); // Update streak and stats
             }
         } catch (error) {

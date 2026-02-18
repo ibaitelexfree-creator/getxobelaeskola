@@ -389,25 +389,29 @@ export default function RentalClient({
 
                                     // Specific user-requested mappings
                                     if (name.includes('j80')) {
-                                        imgSrc = '/images/J80.png';
+                                        imgSrc = '/images/J80.webp';
                                     } else if (name.includes('raquero')) {
-                                        imgSrc = '/images/course-raquero-students.jpg';
-                                    } else if (name.includes('kayak') && (name.includes('1') || !name.includes('2'))) {
+                                        imgSrc = '/images/course-raquero-students.webp';
+                                    }
+                                    // Missing specific images for kayak/piragua - falling back to category defaults
+                                    /* 
+                                    else if (name.includes('kayak') && (name.includes('1') || !name.includes('2'))) {
                                         imgSrc = '/images/course-kayak-yellow-single.jpg';
                                     } else if (name.includes('piragua') && name.includes('1')) {
                                         imgSrc = '/images/course-piragua-competition-single.jpg';
                                     } else if (name.includes('piragua') && name.includes('2')) {
                                         imgSrc = '/images/course-piragua-competition-double.jpg';
                                     }
+                                    */
 
                                     // General category fallbacks if still empty or no specific match
-                                    if (!imgSrc || imgSrc.includes('placeholder')) {
-                                        if (service.categoria === 'windsurf') imgSrc = '/images/rental-category-windsurf.jpg';
-                                        else if (service.categoria === 'paddlesurf') imgSrc = '/images/rental-category-paddle.jpg';
-                                        else if (service.categoria === 'kayak') imgSrc = '/images/course-kayak-yellow-single.jpg';
-                                        else if (service.categoria === 'piragua') imgSrc = '/images/course-piragua-competition-single.jpg';
-                                        else if (service.categoria === 'veleros' || service.categoria === 'vela-ligera' || service.categoria === 'dinghy') imgSrc = '/images/rental-category-dinghy.jpg';
-                                        else imgSrc = '/images/course-card-advanced.jpg';
+                                    if (!imgSrc || imgSrc.includes('placeholder') || imgSrc.includes('rental-category')) {
+                                        if (service.categoria === 'windsurf') imgSrc = '/images/home-hero-sailing-action.webp';
+                                        else if (service.categoria === 'paddlesurf') imgSrc = '/images/home-hero-sailing-action.webp';
+                                        else if (service.categoria === 'kayak') imgSrc = '/images/home-hero-sailing-action.webp';
+                                        else if (service.categoria === 'piragua') imgSrc = '/images/home-hero-sailing-action.webp';
+                                        else if (service.categoria === 'veleros' || service.categoria === 'vela-ligera' || service.categoria === 'dinghy') imgSrc = '/images/course-detail-header-sailing.webp';
+                                        else imgSrc = '/images/legacy/course-card-advanced.jpg'; // Fallback to a legacy image we know exists
                                     }
 
                                     return (

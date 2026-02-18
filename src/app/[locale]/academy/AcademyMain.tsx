@@ -52,6 +52,28 @@ export default function AcademyMain({ params }: { params: { locale: string } }) 
             {/* Level Map Grid */}
             <main className="container mx-auto px-6 py-24">
                 <div className="max-w-6xl mx-auto space-y-12">
+                    {error && niveles.length === 0 && (
+                        <div className="text-center py-20 animate-fade-in">
+                            <div className="inline-block p-6 glass-card border-red-500/20 bg-red-500/5 mb-8">
+                                <span className="text-4xl mb-4 block">⚠️</span>
+                                <h2 className="text-xl font-display italic text-white mb-2">Error de Conexión</h2>
+                                <p className="text-white/50 text-sm max-w-sm mx-auto mb-6">
+                                    No hemos podido establecer comunicación con la bitácora académica.
+                                    Por favor, comprueba tu conexión y vuelve a intentarlo.
+                                </p>
+                                <button
+                                    onClick={() => window.location.reload()}
+                                    className="px-8 py-3 bg-accent text-nautical-black text-xs font-black uppercase tracking-widest hover:bg-white transition-all"
+                                >
+                                    Recargar Bitácora ⚓
+                                </button>
+                            </div>
+                            <p className="text-[10px] font-mono text-white/20 uppercase tracking-[0.3em]">
+                                ID CAUSA: {error}
+                            </p>
+                        </div>
+                    )}
+
                     {niveles.map((nivel, index) => {
                         const estado = getEstadoNivel(nivel);
                         const progresoNivel = progreso.find(p => p.nivel_id === nivel.id);
