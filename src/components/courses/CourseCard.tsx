@@ -21,8 +21,8 @@ interface CourseCardProps {
 
 export default function CourseCard({ course, locale }: CourseCardProps) {
     const t = useTranslations('courses');
-    const name = locale === 'es' ? course.nombre_es : course.nombre_eu;
-    const description = locale === 'es' ? course.descripcion_es : course.descripcion_eu;
+    const name = (locale === 'es' ? course.nombre_es : course.nombre_eu) || course.nombre_es || 'Curso sin nombre';
+    const description = (locale === 'es' ? course.descripcion_es : course.descripcion_eu) || course.descripcion_es || '';
 
     return (
         <div className="group relative bg-white/[0.02] border border-white/5 hover:border-accent/40 transition-all duration-700 overflow-hidden backdrop-blur-sm shadow-2xl">

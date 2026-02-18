@@ -133,10 +133,10 @@ export default function LevelDetailMain({
 
                     <div className="text-center lg:text-left flex-1">
                         <h1 className="text-4xl lg:text-8xl font-display italic text-white mb-6 leading-tight">
-                            {params.locale === 'eu' ? nivel.nombre_eu : nivel.nombre_es}
+                            {(params.locale === 'eu' ? nivel.nombre_eu : nivel.nombre_es) || nivel.nombre_es}
                         </h1>
                         <p className="text-xl lg:text-2xl text-white/70 font-light leading-relaxed max-w-3xl">
-                            {params.locale === 'eu' ? nivel.descripcion_eu : nivel.descripcion_es}
+                            {(params.locale === 'eu' ? nivel.descripcion_eu : nivel.descripcion_es) || nivel.descripcion_es}
                         </p>
                     </div>
 
@@ -189,11 +189,11 @@ export default function LevelDetailMain({
                                                 0{index + 1}
                                             </span>
                                             <h3 className="text-3xl lg:text-4xl font-display italic text-white group-hover:text-accent transition-colors leading-none">
-                                                {params.locale === 'eu' ? curso.nombre_eu : curso.nombre_es}
+                                                {(params.locale === 'eu' ? curso.nombre_eu : curso.nombre_es) || curso.nombre_es}
                                             </h3>
                                         </div>
                                         <p className="text-white/60 font-light leading-relaxed max-w-2xl text-lg">
-                                            {params.locale === 'eu' ? curso.descripcion_eu : curso.descripcion_es}
+                                            {(params.locale === 'eu' ? curso.descripcion_eu : curso.descripcion_es) || curso.descripcion_es}
                                         </p>
 
                                         <div className="flex flex-wrap gap-8 mt-8 text-[9px] font-bold text-white/30 uppercase tracking-[0.3em]">

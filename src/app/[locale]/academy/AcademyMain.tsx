@@ -6,7 +6,7 @@ import { useTranslations } from 'next-intl';
 import { useAcademyData } from '@/hooks/useAcademyData';
 import { useNotificationStore } from '@/lib/store/useNotificationStore';
 import AcademySkeleton from '@/components/academy/AcademySkeleton';
-import { Compass, Book, Ship, Anchor, Globe, Shield, Wind, ChevronRight } from 'lucide-react';
+import { Compass, Book, Ship, Anchor, Globe, Shield, Wind, ChevronRight, AlertCircle } from 'lucide-react';
 
 export default function AcademyMain({ params }: { params: { locale: string } }) {
     const t = useTranslations('academy');
@@ -89,14 +89,13 @@ export default function AcademyMain({ params }: { params: { locale: string } }) 
                 <div className="container mx-auto px-6 relative">
                     <div className="max-w-4xl animate-premium-in">
                         <span className="text-accent uppercase tracking-[1em] text-[10px] font-black block mb-6 drop-shadow-sm" aria-hidden="true">
-                            Escuela Náutica Digital
+                            {t('map.eyebrow')}
                         </span>
                         <h1 className="text-4xl md:text-8xl font-display italic text-white mb-8 leading-tight">
-                            Tu Viaje de <span className="text-accent underline decoration-accent/20 underline-offset-[16px]">Formación</span>
+                            {t('map.title_prefix')} <span className="text-accent underline decoration-accent/20 underline-offset-[16px]">{t('map.title_highlight')}</span>
                         </h1>
                         <p className="text-lg md:text-xl text-white/70 leading-relaxed max-w-2xl font-light">
-                            Explora los 7 niveles de excelencia náutica. Cada etapa desbloquea nuevos conocimientos,
-                            desde los fundamentos del mar hasta el mando de grandes embarcaciones.
+                            {t('map.description')}
                         </p>
                     </div>
                 </div>
@@ -129,6 +128,21 @@ export default function AcademyMain({ params }: { params: { locale: string } }) 
                             </div>
                         )}
 
+                        {!error && !loading && niveles.length === 0 && (
+                            <div className="text-center py-20 animate-fade-in">
+                                <div className="inline-block p-8 border border-white/10 rounded-2xl bg-white/5">
+                                    <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-4 text-white/20">
+                                        <AlertCircle className="w-8 h-8" />
+                                    </div>
+                                    <h3 className="text-xl font-display text-white mb-2">Viaje en Calma</h3>
+                                    <p className="text-white/50 max-w-md mx-auto">
+                                        No hay niveles de formación disponibles en este momento.
+                                        Vuelve pronto para comenzar tu travesía.
+                                    </p>
+                                </div>
+                            </div>
+                        )}
+
                         {niveles.map((nivel, index) => {
                             const estado = getEstadoNivel(nivel);
                             const progresoNivel = progreso.find(p => p.nivel_id === nivel.id);
@@ -152,7 +166,7 @@ export default function AcademyMain({ params }: { params: { locale: string } }) 
                             const prereqNames = (nivel.prerequisitos || [])
                                 .map(id => niveles.find(n => n.id === id))
                                 .filter(Boolean)
-                                .map(n => params.locale === 'eu' ? n!.nombre_eu : n!.nombre_es);
+                                .map(n => (params.locale === 'eu' ? n!.nombre_eu : n!.nombre_es) || n!.nombre_es);
 
                             const ariaLabel = isPaywallLocked
                                 ? `${nivel.nombre_es}. Curso no adquirido. Ir a página de compra.`
@@ -163,7 +177,11 @@ export default function AcademyMain({ params }: { params: { locale: string } }) 
                             return (
                                 <div key={nivel.id} className="relative group">
                                     {index < niveles.length - 1 && (
-                                        <div className="absolute left-[60px] top-[140px] w-px h-16 bg-gradient-to-b from-accent/20 to-transparent hidden lg:block" aria-hidden="true" />
+                                        <>
+                                            <div className="absolute left-[60px] top-[140px] w-px h-16 bg-gradient-to-b from-accent/20 to-transparent hidden lg:block" aria-hidden="true" />
+                                            {/* Mobile Connector */}
+                                            <div className="absolute left-1/2 -ml-px top-[100%] h-32 w-0.5 bg-gradient-to-b from-accent/20 to-transparent block lg:hidden" aria-hidden="true" />
+                                        </>
                                     )}
 
                                     <Link
@@ -202,7 +220,7 @@ export default function AcademyMain({ params }: { params: { locale: string } }) 
                                                 <div className="flex-1 text-center lg:text-left">
                                                     <header className="mb-4">
                                                         <h2 className="text-3xl lg:text-5xl font-display italic text-white mb-4 group-hover:text-accent transition-colors leading-tight">
-                                                            {params.locale === 'eu' ? nivel.nombre_eu : nivel.nombre_es}
+                                                            {(params.locale === 'eu' ? nivel.nombre_eu : nivel.nombre_es) || nivel.nombre_es}
                                                         </h2>
                                                         {isLocked && prereqNames.length > 0 ? (
                                                             <div className="bg-red-500/10 border border-red-500/20 rounded-sm py-2 px-4 mb-4 inline-block">
@@ -212,7 +230,7 @@ export default function AcademyMain({ params }: { params: { locale: string } }) 
                                                             </div>
                                                         ) : (
                                                             <p className="text-lg text-white/60 font-light leading-relaxed max-w-2xl">
-                                                                {params.locale === 'eu' ? nivel.descripcion_eu : nivel.descripcion_es}
+                                                                {(params.locale === 'eu' ? nivel.descripcion_eu : nivel.descripcion_es) || nivel.descripcion_es}
                                                             </p>
                                                         )}
                                                     </header>

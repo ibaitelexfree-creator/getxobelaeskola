@@ -11,13 +11,13 @@ interface NauticalImageProps extends Omit<ImageProps, 'onError'> {
 }
 
 const CATEGORY_FALLBACKS: Record<NauticalCategory, string> = {
-    veleros: '/images/rental-category-dinghy.jpg',
-    kayak: '/images/course-kayak-yellow-single.jpg',
-    paddle: '/images/rental-category-paddle.jpg',
-    windsurf: '/images/rental-category-windsurf.jpg',
-    piragua: '/images/course-piragua-competition-single.jpg',
-    academy: '/images/course-card-advanced.jpg',
-    general: '/images/home-hero-sailing-action.jpg'
+    veleros: '/images/J80.webp',
+    kayak: '/images/home-hero-sailing-action.webp',
+    paddle: '/images/home-hero-sailing-action.webp',
+    windsurf: '/images/courses/PerfeccionamientoVela.webp',
+    piragua: '/images/home-hero-sailing-action.webp',
+    academy: '/images/courses/CursodeVelaLigera.webp',
+    general: '/images/home-hero-sailing-action.webp'
 };
 
 export default function NauticalImage({

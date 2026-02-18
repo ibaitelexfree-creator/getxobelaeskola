@@ -356,8 +356,26 @@ export default function RentalClient({
         }
     };
 
+    useEffect(() => {
+        if (bookingService) {
+            window.dispatchEvent(new CustomEvent('hide-scroll-to-top'));
+        } else {
+            window.dispatchEvent(new CustomEvent('show-scroll-to-top'));
+        }
+        return () => {
+            window.dispatchEvent(new CustomEvent('show-scroll-to-top'));
+        };
+    }, [bookingService]);
+
+    const bookingRef = useRef<HTMLDivElement>(null);
+    useEffect(() => {
+        if (bookingService && bookingRef.current) {
+            bookingRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    }, [bookingService]);
+
     return (
-        <div className="space-y-12">
+        <div className="space-y-12 pb-32">
             {/* Filter */}
             <div className="flex overflow-x-auto md:flex-wrap gap-4 border-b border-white/5 pb-8 custom-scrollbar no-scrollbar">
                 {categories.map(cat => (
@@ -381,7 +399,7 @@ export default function RentalClient({
                     const isBookingThis = bookingService === service.id;
 
                     return (
-                        <div key={service.id} className="group bg-white/5 border border-white/10 hover:border-accent/40 transition-all duration-300 overflow-hidden rounded-sm relative flex flex-col">
+                        <div key={service.id} ref={isBookingThis ? bookingRef : null} className="group bg-white/5 border border-white/10 hover:border-accent/40 transition-all duration-300 overflow-hidden rounded-sm relative flex flex-col">
                             <div className="aspect-video relative overflow-hidden bg-nautical-black/50">
                                 {(() => {
                                     const name = service.nombre_es.toLowerCase();
@@ -392,26 +410,18 @@ export default function RentalClient({
                                         imgSrc = '/images/J80.webp';
                                     } else if (name.includes('raquero')) {
                                         imgSrc = '/images/course-raquero-students.webp';
+                                    } else if (name.includes('optimist') || name.includes('laser') || name.includes('vela')) {
+                                        imgSrc = '/images/courses/CursodeVelaLigera.webp';
                                     }
-                                    // Missing specific images for kayak/piragua - falling back to category defaults
-                                    /* 
-                                    else if (name.includes('kayak') && (name.includes('1') || !name.includes('2'))) {
-                                        imgSrc = '/images/course-kayak-yellow-single.jpg';
-                                    } else if (name.includes('piragua') && name.includes('1')) {
-                                        imgSrc = '/images/course-piragua-competition-single.jpg';
-                                    } else if (name.includes('piragua') && name.includes('2')) {
-                                        imgSrc = '/images/course-piragua-competition-double.jpg';
-                                    }
-                                    */
 
                                     // General category fallbacks if still empty or no specific match
                                     if (!imgSrc || imgSrc.includes('placeholder') || imgSrc.includes('rental-category')) {
-                                        if (service.categoria === 'windsurf') imgSrc = '/images/home-hero-sailing-action.webp';
+                                        if (service.categoria === 'windsurf') imgSrc = '/images/courses/PerfeccionamientoVela.webp';
                                         else if (service.categoria === 'paddlesurf') imgSrc = '/images/home-hero-sailing-action.webp';
                                         else if (service.categoria === 'kayak') imgSrc = '/images/home-hero-sailing-action.webp';
                                         else if (service.categoria === 'piragua') imgSrc = '/images/home-hero-sailing-action.webp';
-                                        else if (service.categoria === 'veleros' || service.categoria === 'vela-ligera' || service.categoria === 'dinghy') imgSrc = '/images/course-detail-header-sailing.webp';
-                                        else imgSrc = '/images/legacy/course-card-advanced.jpg'; // Fallback to a legacy image we know exists
+                                        else if (service.categoria === 'veleros' || service.categoria === 'vela-ligera' || service.categoria === 'dinghy') imgSrc = '/images/J80.webp';
+                                        else imgSrc = '/images/home-hero-sailing-action.webp';
                                     }
 
                                     return (
