@@ -5,8 +5,8 @@ import { motion } from 'framer-motion';
 import { MessageCircle, Phone, Mail } from 'lucide-react';
 
 export default function QuickContact() {
-    const whatsappNumber = "+34688643444"; // Getxo Bela official
-    const email = "escuela@getxobela.com";
+    const whatsappNumber = "+34634405624"; // Getxo Bela Escuela
+    const email = "info@getxobelaeskola.com";
 
     return (
         <section className="bg-card p-6 border border-card-border rounded-sm relative overflow-hidden group">
@@ -33,8 +33,7 @@ export default function QuickContact() {
                 </a>
 
                 <a
-                    href="mailto:info@getxobelaeskola.com"
-                    onClick={(e) => e.stopPropagation()}
+                    href={`mailto:${email}`}
                     className="flex items-center gap-4 p-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-sm transition-all group/item"
                 >
                     <div className="w-10 h-10 bg-white/10 flex items-center justify-center rounded-full text-white/60 group-hover/item:scale-110 transition-transform">

@@ -7,7 +7,9 @@ import * as z from 'zod';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
+
 import Link from 'next/link';
+import GoogleAuthButton from './GoogleAuthButton';
 
 const loginSchema = z.object({
     email: z.string().email('Email no válido'),
@@ -189,6 +191,17 @@ export default function LoginForm({ locale = 'es' }: { locale?: string }) {
             >
                 {loading ? t('logging_in') : t('login_btn')}
             </button>
+
+            <div className="relative my-8">
+                <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-white/10"></div>
+                </div>
+                <div className="relative flex justify-center text-[10px] uppercase tracking-widest">
+                    <span className="bg-nautical-black px-4 text-white/20 font-bold italic">O BIEN</span>
+                </div>
+            </div>
+
+            <GoogleAuthButton />
         </form>
     );
 }

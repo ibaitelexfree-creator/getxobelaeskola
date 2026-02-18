@@ -40,7 +40,7 @@ export default async function PrivacyPage({ params: { locale } }: { params: { lo
                         <div>
                             <h2 className="text-2xl font-display text-white mb-4">1. Responsable del Tratamiento</h2>
                             <p>
-                                El responsable del tratamiento de tus datos es Getxo Bela Eskola, con dirección en Muelle Arriluzea s/n, 48990 Getxo. Puedes contactar con nosotros en escuela@getxobela.com.
+                                El responsable del tratamiento de tus datos es Getxo Bela Eskola, con dirección en Muelle Arriluzea s/n, 48990 Getxo. Puedes contactar con nosotros en info@getxobelaeskola.com.
                             </p>
                         </div>
 
@@ -66,7 +66,7 @@ export default async function PrivacyPage({ params: { locale } }: { params: { lo
                         <div>
                             <h2 className="text-2xl font-display text-white mb-4">4. Tus Derechos</h2>
                             <p>
-                                Tienes derecho a acceder, rectificar o suprimir tus datos Personales. Para ejercer estos derechos, envía un correo a escuela@getxobela.com adjuntando copia de tu DNI.
+                                Tienes derecho a acceder, rectificar o suprimir tus datos Personales. Para ejercer estos derechos, envía un correo a info@getxobelaeskola.com adjuntando copia de tu DNI.
                             </p>
                         </div>
                     </div>

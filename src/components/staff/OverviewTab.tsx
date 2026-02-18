@@ -2,7 +2,8 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
-import { ClientDate, WindGauge } from './StaffShared';
+import { ClientDate } from './StaffShared';
+import WeatherPremium from '../shared/WeatherPremium';
 
 interface StaffProfile {
     id: string;
@@ -236,41 +237,7 @@ export default function OverviewTab({
                     )}
                 </div>
                 <div className="space-y-8">
-                    <WindGauge knots={12} />
-
-                    <div className="glass-panel p-8 border border-white/5 relative overflow-hidden">
-                        <div className="absolute top-0 right-0 w-32 h-32 bg-accent/5 blur-3xl rounded-full -mr-16 -mt-16" />
-                        <div className="flex justify-between items-center mb-6">
-                            <h3 className="text-3xs uppercase tracking-[0.4em] text-accent font-black">{t('overview.fleet_monitor')}</h3>
-                            <div className="flex gap-2">
-                                <div className="w-1.5 h-1.5 bg-accent rounded-full animate-pulse" />
-                                <div className="w-1.5 h-1.5 bg-accent/40 rounded-full" />
-                            </div>
-                        </div>
-                        <div className="grid grid-cols-3 gap-4">
-                            <div className="text-center p-4 bg-white/5 rounded-sm">
-                                <p className="text-3xs text-white/30 uppercase font-bold mb-1">{t('overview.stats.in_water')}</p>
-                                <p className="text-2xl font-display text-white italic">{rentals.filter(r => r.estado_entrega === 'entregado').length}</p>
-                            </div>
-                            <div className="text-center p-4 bg-white/5 rounded-sm">
-                                <p className="text-3xs text-white/30 uppercase font-bold mb-1">{t('overview.stats.returned')}</p>
-                                <p className="text-2xl font-display text-white/40 italic">{rentals.filter(r => r.estado_entrega === 'devuelto').length}</p>
-                            </div>
-                            <div className="text-center p-4 bg-white/5 rounded-sm border border-accent/20">
-                                <p className="text-3xs text-accent font-bold mb-1">{t('overview.stats.pending')}</p>
-                                <p className="text-2xl font-display text-accent italic">{rentals.filter(r => r.estado_entrega === 'pendiente').length}</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="glass-panel p-8 border border-white/5 space-y-4">
-                        <h3 className="text-3xs uppercase tracking-[0.4em] text-white/40 font-black">{t('overview.weather_note')}</h3>
-                        <textarea
-                            value={staffNote}
-                            onChange={(e) => setStaffNote(e.target.value)}
-                            className="w-full h-48 bg-transparent text-sm text-white/60 font-mono leading-relaxed outline-none resize-none custom-scrollbar"
-                        />
-                    </div>
+                    <WeatherPremium />
                 </div>
             </div>
         </>

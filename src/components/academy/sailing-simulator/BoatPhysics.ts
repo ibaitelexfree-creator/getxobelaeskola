@@ -159,7 +159,9 @@ export class BoatPhysics {
         // 7. Heel Physics (Visual + Feeling)
         // Smooth out the sign of the sail angle to prevent jumping when crossing center
         const sailSignSmooth = MathUtils.clamp(sailAngle * 5.0, -1.0, 1.0);
-        const targetHeel = (heelForce / 2000.0) * sailSignSmooth;
+        // FIX: Invert sign so the boat heels AWAY from the wind (Leeward)
+        // If sail is at + (Starboard), wind is from Port, boat should heel to Starboard (negative roll around Z)
+        const targetHeel = -(heelForce / 2000.0) * sailSignSmooth;
 
         // Smooth Damping (Slightly slower to prevent rapid oscillations)
         this.state.heel += (targetHeel - this.state.heel) * dt * 1.5;

@@ -143,7 +143,7 @@ export default function StaffClient({
     const [students, setStudents] = useState<StaffProfile[]>([]);
     const [selectedStudent, setSelectedStudent] = useState<StaffProfile | null>(null);
     const [studentInscriptions, setStudentInscriptions] = useState<Inscription[]>([]);
-    const [staffNote, setStaffNote] = useState('INFO WINDGURU GETXO (1243538):\n- Viento: 10-14 kts N/NW\n- Rachas: 22 kts\n- Olas: 1.2m\n- Temp: 12-14°C');
+    const [staffNote, setStaffNote] = useState('INFO ESCUELA: Condiciones para navegación seguras. Revisar avisos de Euskalmet si el viento supera los 20 nudos.');
 
     // Status Logic States
     const [updatingStatus, setUpdatingStatus] = useState<{ id: string, nextStatus: string } | null>(null);

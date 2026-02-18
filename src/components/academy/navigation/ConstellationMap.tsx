@@ -2,7 +2,7 @@
 
 import React, { useRef, useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import { Info, X } from 'lucide-react';
 
 interface ConstellationNode {
@@ -17,18 +17,21 @@ interface ConstellationNode {
 }
 
 // Mock Data representing a "Sailing Galaxy"
+// Links are relative to locale now
 const COSMOS_DATA: ConstellationNode[] = [
-    { id: '1', label: 'Fundamentos', x: 400, y: 300, type: 'star', status: 'completed', description: 'El inicio de todo marinero.', link: '/academy/course/per-patron-embarcaciones-recreo' },
-    { id: '2', label: 'Nudos', x: 600, y: 250, type: 'star', status: 'available', description: 'El arte de la cabuyería.', link: '/academy/tools/knots' },
-    { id: '3', label: 'Meteorología', x: 800, y: 400, type: 'planet', status: 'available', description: 'Entendiendo el cielo y el mar.', link: '/academy/tools/wind-lab' },
+    { id: '1', label: 'Fundamentos', x: 400, y: 300, type: 'star', status: 'completed', description: 'El inicio de todo marinero.', link: '/academy/course/iniciacion-j80' },
+    { id: '2', label: 'Nudos', x: 600, y: 250, type: 'star', status: 'available', description: 'El arte de la cabuyería.', link: '/academy/course/perfeccionamiento-vela' }, // Fixed to existing course or generic tool
+    { id: '3', label: 'Meteorología', x: 800, y: 400, type: 'planet', status: 'available', description: 'Entendiendo el cielo y el mar.', link: '/academy' },
     { id: '4', label: 'Seguridad', x: 500, y: 600, type: 'star', status: 'available', description: 'Primero, sobrevivir.' },
-    { id: '5', label: 'Navegación', x: 200, y: 500, type: 'nebula', status: 'available', description: 'Arte de ir de A a B.', link: '/academy/tools/chart-plotter' },
-    { id: '6', label: 'Partes del Barco', x: 300, y: 200, type: 'planet', status: 'available', description: 'Conoce tu embarcación.', link: '/academy/tools/nomenclature' },
+    { id: '5', label: 'Navegación', x: 200, y: 500, type: 'nebula', status: 'available', description: 'Arte de ir de A a B.', link: '/academy/logbook?tab=map' },
+    { id: '6', label: 'Partes del Barco', x: 300, y: 200, type: 'planet', status: 'available', description: 'Conoce tu embarcación.', link: '/academy' },
     { id: '7', label: 'Cuaderno', x: 100, y: 150, type: 'star', status: 'available', description: 'Tu viaje personal.', link: '/academy/logbook' },
 ];
 
 export default function ConstellationMap() {
     const router = useRouter();
+    const params = useParams();
+    const locale = (params?.locale as string) || 'es';
     const svgRef = useRef<SVGSVGElement>(null);
     const [viewBox, setViewBox] = useState({ x: 0, y: 0, w: 1000, h: 800 });
     const [isDragging, setIsDragging] = useState(false);
@@ -43,7 +46,7 @@ export default function ConstellationMap() {
 
     const handleMouseMove = (e: React.MouseEvent) => {
         if (!isDragging) return;
-        const dx = (e.clientX - startPoint.x) * (viewBox.w / window.innerWidth); // Scale drag to viewBox
+        const dx = (e.clientX - startPoint.x) * (viewBox.w / window.innerWidth);
         const dy = (e.clientY - startPoint.y) * (viewBox.h / window.innerHeight);
 
         setViewBox(prev => ({
@@ -64,14 +67,12 @@ export default function ConstellationMap() {
         const newW = e.deltaY > 0 ? viewBox.w * zoomFactor : viewBox.w / zoomFactor;
         const newH = e.deltaY > 0 ? viewBox.h * zoomFactor : viewBox.h / zoomFactor;
 
-        // Limit zoom
         if (newW < 200 || newW > 2000) return;
 
         setViewBox(prev => ({
             ...prev,
             w: newW,
             h: newH,
-            // Zoom towards center attempt (simplified)
             x: prev.x - (newW - prev.w) / 2,
             y: prev.y - (newH - prev.h) / 2
         }));
@@ -82,9 +83,14 @@ export default function ConstellationMap() {
         setActiveNode(node);
     };
 
+    const navigateToNode = (path: string) => {
+        const fullPath = path.startsWith('/') ? `/${locale}${path}` : `/${locale}/${path}`;
+        router.push(fullPath);
+    };
+
     return (
         <div className="w-full h-full bg-[#000510] relative overflow-hidden font-display select-none">
-            {/* Background Stars (Static CSS) */}
+            {/* Background Stars */}
             <div className="absolute inset-0 opacity-50 pointer-events-none" style={{ background: 'url(/images/stars-bg.png) repeat' }} />
 
             {/* Hint */}
@@ -129,13 +135,8 @@ export default function ConstellationMap() {
                         className={`transition-opacity duration-300 hover:opacity-80 cursor-pointer ${node.status === 'locked' ? 'opacity-30 grayscale' : 'opacity-100'}`}
                         filter={node.status !== 'locked' ? "url(#glow)" : ""}
                     >
-                        {/* Orbit/Ring */}
                         <circle cx={node.x} cy={node.y} r={node.type === 'planet' ? 25 : 15} fill="transparent" stroke={node.status === 'completed' ? '#4ade80' : '#fbbf24'} strokeWidth="1" strokeOpacity="0.5" />
-
-                        {/* Core Star */}
                         <circle cx={node.x} cy={node.y} r={node.type === 'planet' ? 8 : 5} fill={node.status === 'completed' ? '#4ade80' : '#fbbf24'} />
-
-                        {/* Label */}
                         <text x={node.x} y={node.y + 40} textAnchor="middle" fill="white" fontSize="12" letterSpacing="1" className="uppercase font-light tracking-widest pointer-events-none">
                             {node.label}
                         </text>
@@ -154,7 +155,7 @@ export default function ConstellationMap() {
 
                     {activeNode.link ? (
                         <button
-                            onClick={() => router.push(activeNode.link!)}
+                            onClick={() => navigateToNode(activeNode.link!)}
                             className="bg-accent text-nautical-black px-6 py-2 rounded-sm font-bold uppercase text-2xs tracking-widest hover:bg-white transition-colors"
                         >
                             Explorar
@@ -167,3 +168,4 @@ export default function ConstellationMap() {
         </div>
     );
 }
+

@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { ClientDate, StaffProfile } from './StaffShared';
+import { generateCertificatePDF } from '@/lib/certificates/pdfGenerator';
 
 interface AcademyData {
     progress: Array<{
@@ -21,11 +22,17 @@ interface AcademyData {
     certificates: Array<{
         id: string;
         created_at: string;
-        curso?: { nombre_es: string };
-        nivel?: { nombre_es: string };
+        tipo: string;
+        numero_certificado: string;
+        verificacion_hash: string;
+        nivel_distincion?: string;
+        fecha_emision: string;
+        curso?: { nombre_es: string; nombre_eu: string };
+        nivel?: { nombre_es: string; nombre_eu: string };
     }>;
     achievements: unknown[];
 }
+
 
 interface AcademyStaffTabProps {
     searchTerm: string;
@@ -193,21 +200,40 @@ export default function AcademyStaffTab({
                                         </h4>
                                         <div className="space-y-4">
                                             {academyData.certificates.length > 0 ? (
-                                                academyData.certificates.map((c, idx) => (
-                                                    <div key={idx} className="p-6 glass-card flex justify-between items-center group/cert">
-                                                        <div>
-                                                            <span className="text-3xs text-accent uppercase font-black tracking-widest mb-1 block">{t('academia.official_cert')}</span>
-                                                            <p className="text-lg font-display text-white italic">{c.curso?.nombre_es || c.nivel?.nombre_es || t('academia.nautical_formation')}</p>
-                                                            <p className="text-technical mt-1 opacity-40 text-2xs"><ClientDate date={c.created_at} format="short" /></p>
+                                                academyData.certificates.map((c) => {
+                                                    const handleDownload = async (cert: any) => {
+                                                        const courseName = cert.tipo === 'curso'
+                                                            ? cert.curso?.nombre_es
+                                                            : cert.tipo === 'nivel'
+                                                                ? cert.nivel?.nombre_es
+                                                                : 'Capitán de Vela';
+
+                                                        await generateCertificatePDF({
+                                                            studentName: `${selectedStudent?.nombre || ''} ${selectedStudent?.apellidos || ''}`.trim() || 'Estudiante',
+                                                            courseName: courseName || 'Curso de Vela',
+                                                            issueDate: cert.fecha_emision || cert.created_at,
+                                                            certificateId: cert.numero_certificado,
+                                                            verificationHash: cert.verificacion_hash,
+                                                            distinction: (cert.nivel_distincion as any) || 'standard',
+                                                        });
+                                                    };
+
+                                                    return (
+                                                        <div key={c.id} className="p-6 glass-card flex justify-between items-center group/cert">
+                                                            <div>
+                                                                <span className="text-3xs text-accent uppercase font-black tracking-widest mb-1 block">{t('academia.official_cert')}</span>
+                                                                <p className="text-lg font-display text-white italic">{c.curso?.nombre_es || c.nivel?.nombre_es || t('academia.nautical_formation')}</p>
+                                                                <p className="text-technical mt-1 opacity-40 text-2xs"><ClientDate date={c.created_at} format="short" /></p>
+                                                            </div>
+                                                            <button
+                                                                onClick={() => handleDownload(c)}
+                                                                className="px-6 py-2.5 border border-white/10 text-2xs uppercase font-black tracking-widest hover:bg-white hover:text-nautical-black transition-all"
+                                                            >
+                                                                {t('academia.download_certificate')}
+                                                            </button>
                                                         </div>
-                                                        <a
-                                                            href={`/api/academy/certificates/download?id=${c.id}`}
-                                                            className="px-6 py-2.5 border border-white/10 text-2xs uppercase font-black tracking-widest hover:bg-white hover:text-nautical-black transition-all"
-                                                        >
-                                                            {t('academia.download_certificate')}
-                                                        </a>
-                                                    </div>
-                                                ))
+                                                    );
+                                                })
                                             ) : (
                                                 <div className="p-8 border border-dashed border-white/5 text-center text-3xs text-white/20 uppercase font-bold italic">
                                                     {t('academia.no_certificates')}

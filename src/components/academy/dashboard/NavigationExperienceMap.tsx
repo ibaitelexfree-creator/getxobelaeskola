@@ -117,7 +117,10 @@ export default function NavigationExperienceMap({ sessions }: { sessions: any[] 
 
                     {/* Floating Map Controls */}
                     <div className="absolute top-4 left-4 flex flex-col gap-2 z-[1000]">
-                        <div className="px-3 py-1.5 bg-blue-900/40 backdrop-blur-md border border-blue-500/30 rounded-lg text-[10px] font-black text-blue-200 uppercase tracking-widest shadow-xl flex items-center gap-2">
+                        <div className={`px-3 py-1.5 backdrop-blur-md border rounded-lg text-[10px] font-black uppercase tracking-widest shadow-xl flex items-center gap-2 transition-colors duration-300 ${statusMessage.includes('TIERRA')
+                            ? 'bg-amber-600/60 border-amber-400 text-white animate-pulse'
+                            : 'bg-blue-900/40 border-blue-500/30 text-blue-200'
+                            }`}>
                             <Cpu size={14} className={isTracking ? 'animate-spin' : ''} />
                             AI: {statusMessage}
                         </div>

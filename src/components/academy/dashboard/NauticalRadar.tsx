@@ -4,7 +4,8 @@ import React, { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { WeatherService, WeatherData, ConditionAlert } from '@/lib/academy/weather-service';
 import { Wind, Waves, Thermometer, ChevronUp, ChevronDown, Minus, CheckCircle2, AlertTriangle, AlertOctagon, Anchor, BarChart3, X, ArrowDown } from 'lucide-react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
+import { createPortal } from 'react-dom';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area, ReferenceLine } from 'recharts';
 import { apiUrl } from '@/lib/api';
 
 interface NauticalRadarProps {
@@ -12,7 +13,7 @@ interface NauticalRadarProps {
     locale: string;
 }
 
-// Windguru-inspired colors for Beaufort scale
+// Professional nautical colors for Beaufort scale
 const getWindColor = (knots: number) => {
     if (knots < 1) return '#ffffff';
     if (knots <= 3) return '#daebff';
@@ -41,23 +42,59 @@ const MOCK_HISTORY = [
     { time: '16:00', wind: 13, gust: 17, direction: 320, tide: 2.1, temp: 15, pressure: 1012 },
 ];
 
+const INITIAL_WEATHER: WeatherData = {
+    windSpeed: 0,
+    windDirection: 0,
+    windGust: 0,
+    tideHeight: 0,
+    tideStatus: 'stable',
+    nextTides: [],
+    temperature: 0,
+    pressure: 1013,
+    condition: 'Loading...',
+    visibility: 0,
+    isLive: false
+};
+
 export default function NauticalRadar({ userRankSlug, locale }: NauticalRadarProps) {
     const t = useTranslations('nautical_radar');
-    const [weather, setWeather] = useState<WeatherData | null>(null);
+    const [weather, setWeather] = useState<WeatherData>(INITIAL_WEATHER);
+    const [isLoaded, setIsLoaded] = useState(false);
     const [alert, setAlert] = useState<ConditionAlert | null>(null);
     const [sweepAngle, setSweepAngle] = useState(0);
     const [showHistory, setShowHistory] = useState(false);
     const [history, setHistory] = useState<any[]>(MOCK_HISTORY);
+    const [historyLoading, setHistoryLoading] = useState(false);
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+
+    // Body scroll lock
+    useEffect(() => {
+        if (showHistory) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'unset';
+        }
+        return () => { document.body.style.overflow = 'unset'; };
+    }, [showHistory]);
 
     useEffect(() => {
         const fetchWeather = async () => {
-            const data = await WeatherService.getGetxoWeather();
-            setWeather(data);
-            setAlert(WeatherService.getConditionAlert(data.windSpeed, userRankSlug));
+            try {
+                const data = await WeatherService.getGetxoWeather();
+                setWeather(data);
+                setIsLoaded(true);
+                setAlert(WeatherService.getConditionAlert(data.windSpeed, userRankSlug));
+            } catch (error) {
+                console.error('Error in radar fetch:', error);
+            }
         };
 
         fetchWeather();
-        const interval = setInterval(fetchWeather, 60000); // Update every minute
+        const interval = setInterval(fetchWeather, 30000); // Faster update (30s)
 
         let animationFrame: number;
         const animate = () => {
@@ -75,27 +112,31 @@ export default function NauticalRadar({ userRankSlug, locale }: NauticalRadarPro
     useEffect(() => {
         if (showHistory) {
             const fetchHistory = async () => {
+                setHistoryLoading(true);
                 try {
-                    const res = await fetch(apiUrl('/api/academy/weather?history=true'));
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+                    const res = await fetch(apiUrl(`/api/weather?history=true&_cb=${Date.now()}`), {
+                        signal: controller.signal
+                    });
+                    clearTimeout(timeoutId);
+
                     if (res.ok) {
                         const data = await res.json();
-                        if (data.history && data.history.length > 0) {
+                        if (data.history && Array.isArray(data.history)) {
                             setHistory(data.history);
                         }
                     }
                 } catch (error) {
                     console.error('Error fetching history:', error);
+                } finally {
+                    setHistoryLoading(false);
                 }
             };
             fetchHistory();
         }
     }, [showHistory]);
-
-    if (!weather) return (
-        <div className="w-full aspect-square md:aspect-auto md:h-80 rounded-xl bg-black/40 border border-white/10 animate-pulse flex items-center justify-center">
-            <span className="text-white/20 uppercase tracking-widest text-xs">{t('loading')}</span>
-        </div>
-    );
 
     return (
         <>
@@ -103,10 +144,11 @@ export default function NauticalRadar({ userRankSlug, locale }: NauticalRadarPro
                 {/* Header: Bridge Command Style */}
                 <div className="bg-blue-900/40 border-b border-blue-500/30 px-4 py-2 flex justify-between items-center">
                     <div className="flex items-center gap-2">
-                        <div className={`w-2 h-2 rounded-full ${weather.isLive ? 'bg-emerald-400 animate-pulse shadow-[0_0_8px_rgba(52,211,153,0.8)]' : 'bg-amber-400'}`} />
+                        <div className={`w-2 h-2 rounded-full ${isLoaded ? (weather.isLive ? 'bg-emerald-400 animate-pulse shadow-[0_0_8px_rgba(52,211,153,0.8)]' : 'bg-amber-400') : 'bg-blue-400 animate-ping'}`} />
                         <span className="text-[10px] font-black uppercase tracking-widest text-blue-300">
                             {t('title')}
-                            {weather.isLive && <span className="ml-2 px-1 rounded bg-emerald-500/20 text-emerald-400 text-[8px] border border-emerald-500/30">LIVE</span>}
+                            {isLoaded && weather.isLive && <span className="ml-2 px-1 rounded bg-emerald-500/20 text-emerald-400 text-[8px] border border-emerald-500/30">LIVE</span>}
+                            {!isLoaded && <span className="ml-2 text-[8px] opacity-40 animate-pulse">CONNECTING...</span>}
                         </span>
                     </div>
                     <span className="text-[10px] font-mono text-blue-400/60 font-bold uppercase tracking-tighter">{t('location')}</span>
@@ -134,7 +176,7 @@ export default function NauticalRadar({ userRankSlug, locale }: NauticalRadarPro
                         {/* Wind Arrow Displayed on Radar */}
                         <div
                             className="absolute inset-0 transition-transform duration-1000 ease-out z-20"
-                            style={{ transform: `rotate(${weather.windDirection}deg)` }}
+                            style={{ transform: `rotate(${weather.windDirection || 0}deg)` }}
                         >
                             <div className="absolute top-[8%] left-1/2 -translate-x-1/2 flex flex-col items-center">
                                 <div className="w-0 h-0 border-l-[8px] border-l-transparent border-r-[8px] border-r-transparent border-b-[12px] border-b-accent drop-shadow-[0_0_8px_rgba(255,191,0,0.8)]" />
@@ -157,7 +199,10 @@ export default function NauticalRadar({ userRankSlug, locale }: NauticalRadarPro
                         {/* Live Data Overlays on Radar */}
                         <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-blue-950/90 border border-blue-500/40 px-3 py-1 rounded backdrop-blur-md shadow-lg z-30">
                             <div className="flex flex-col items-center">
-                                <span className="text-[16px] font-mono text-blue-300 font-black tracking-tighter">{weather.windSpeed}<span className="text-[10px] ml-1 text-white/40">{t('knots').toUpperCase()}</span></span>
+                                <span className="text-[16px] font-mono text-blue-300 font-black tracking-tighter">
+                                    {Number(weather?.windSpeed || 0).toFixed(0)}
+                                    <span className="text-[10px] ml-1 text-white/40">{t('knots').toUpperCase()}</span>
+                                </span>
                             </div>
                         </div>
                     </div>
@@ -171,17 +216,17 @@ export default function NauticalRadar({ userRankSlug, locale }: NauticalRadarPro
                                 <span className="text-[8px] font-black uppercase tracking-widest text-white/20">{t('wind')}</span>
                             </div>
                             <div className="flex items-baseline gap-1">
-                                <span className="text-3xl font-display italic text-white font-black">{weather.windSpeed}</span>
+                                <span className="text-3xl font-display italic text-white font-black">{weather.windSpeed || 0}</span>
                                 <span className="text-[10px] font-bold text-blue-400">AWS</span>
                             </div>
                             <div className="flex justify-between mt-2 border-t border-white/5 pt-2">
                                 <div className="flex flex-col">
                                     <span className="text-[10px] text-white/20 uppercase tracking-widest">{t('gust')}</span>
-                                    <span className="text-xs font-mono text-amber-400 font-bold">{weather.windGust}</span>
+                                    <span className="text-xs font-mono text-amber-400 font-bold">{weather.windGust || 0}</span>
                                 </div>
                                 <div className="flex flex-col text-right">
                                     <span className="text-[10px] text-white/20 uppercase tracking-widest">TWA</span>
-                                    <span className="text-xs font-mono text-blue-300 font-bold">{weather.windDirection}°</span>
+                                    <span className="text-xs font-mono text-blue-300 font-bold">{(weather.windDirection || 0)}°</span>
                                 </div>
                             </div>
                         </div>
@@ -193,7 +238,11 @@ export default function NauticalRadar({ userRankSlug, locale }: NauticalRadarPro
                                 <span className="text-[8px] font-black uppercase tracking-widest text-white/20">{t('tide')}</span>
                             </div>
                             <div className="flex items-baseline gap-1">
-                                <span className="text-3xl font-display italic text-white font-black">{weather.tideHeight.toFixed(1)}</span>
+                                <span className="text-3xl font-display italic text-white font-black">
+                                    {weather?.tideHeight !== undefined && weather?.tideHeight !== null
+                                        ? Number(weather.tideHeight).toFixed(1)
+                                        : '--.-'}
+                                </span>
                                 <span className="text-[10px] font-bold text-cyan-400">DEPTH</span>
                             </div>
                             <div className="flex flex-col mt-2 border-t border-white/5 pt-2">
@@ -212,17 +261,17 @@ export default function NauticalRadar({ userRankSlug, locale }: NauticalRadarPro
                             <div className="bg-white/[0.02] border border-white/5 p-2 rounded-lg flex flex-col items-center">
                                 <Thermometer className="w-3 h-3 text-orange-400 mb-1" />
                                 <span className="text-[8px] text-white/20 uppercase tracking-widest mb-1">{t('temp')}</span>
-                                <span className="text-xs font-mono text-white font-bold">{weather.temperature}°C</span>
+                                <span className="text-xs font-mono text-white font-bold">{typeof weather?.temperature === 'number' ? weather.temperature.toFixed(1) : (parseFloat(weather?.temperature as any) || 0).toFixed(1)}°C</span>
                             </div>
                             <div className="bg-white/[0.02] border border-white/5 p-2 rounded-lg flex flex-col items-center">
                                 <Anchor className="w-3 h-3 text-blue-400 mb-1" />
                                 <span className="text-[8px] text-white/20 uppercase tracking-widest mb-1">{t('pressure')}</span>
-                                <span className="text-xs font-mono text-white font-bold">{weather.pressure}</span>
+                                <span className="text-xs font-mono text-white font-bold">{weather.pressure || '----'}</span>
                             </div>
                             <div className="bg-white/[0.02] border border-white/5 p-2 rounded-lg flex flex-col items-center">
                                 <CheckCircle2 className="w-3 h-3 text-emerald-400 mb-1" />
                                 <span className="text-[8px] text-white/20 uppercase tracking-widest mb-1">{t('visibility')}</span>
-                                <span className="text-xs font-mono text-white font-bold">{weather.visibility}nm</span>
+                                <span className="text-xs font-mono text-white font-bold">{weather.visibility || '--'}nm</span>
                             </div>
                         </div>
                     </div>
@@ -262,67 +311,76 @@ export default function NauticalRadar({ userRankSlug, locale }: NauticalRadarPro
                 )}
             </section>
 
-            {/* History Modal */}
-            {showHistory && (
-                <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
-                    <div className="bg-[#050b14] border border-blue-500/30 rounded-2xl w-full max-w-5xl overflow-hidden shadow-2xl">
-                        <div className="bg-blue-900/40 p-4 border-b border-blue-500/30 flex justify-between items-center">
+            {/* History Modal - Portalized */}
+            {mounted && showHistory && typeof document !== 'undefined' && createPortal(
+                <div
+                    className="fixed inset-0 z-[99999] flex items-center justify-center p-4"
+                    style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(4px)' }}
+                >
+                    <div className="bg-[#050b14] border border-blue-500/30 rounded-2xl w-full max-w-5xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
+                        <div className="bg-blue-900/40 p-4 border-b border-blue-500/30 flex justify-between items-center shrink-0">
                             <h3 className="text-white font-display italic uppercase tracking-widest text-sm flex items-center gap-2">
                                 <BarChart3 className="w-4 h-4 text-accent" />
                                 {t('history_title')}
+                                {historyLoading && <span className="ml-2 text-[8px] animate-pulse text-accent">SYNCING...</span>}
                             </h3>
                             <button
                                 onClick={() => setShowHistory(false)}
-                                className="text-white/40 hover:text-white transition-colors"
+                                className="text-white/40 hover:text-white transition-colors p-2"
                             >
                                 <X className="w-5 h-5" />
                             </button>
                         </div>
 
-                        <div className="p-6 space-y-6 overflow-y-auto max-h-[85vh]">
+                        <div className={`flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar ${historyLoading ? 'opacity-50 pointer-events-none' : ''}`}>
                             {/* Windguru Style Meteogram */}
-                            <div className="bg-black/40 rounded-xl border border-white/5 overflow-hidden">
+                            <div className="bg-black/40 rounded-xl border border-white/5 overflow-hidden shrink-0">
                                 <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-blue-500/20">
                                     <div className="min-w-[800px]">
                                         {/* Hours Row */}
                                         <div className="flex border-b border-white/5 bg-white/5">
                                             <div className="w-28 shrink-0 p-3 text-[10px] font-black uppercase text-white/40 flex items-center bg-black/20">{t('history_time')}</div>
-                                            {history.map((h, i) => (
-                                                <div key={i} className="flex-1 text-center p-3 text-[10px] font-mono text-white/60 border-l border-white/5">{h.time}</div>
+                                            {Array.isArray(history) && history.map((h, i) => (
+                                                <div key={i} className="flex-1 text-center p-3 text-[10px] font-mono text-white/60 border-l border-white/5">{h?.time || '--:--'}</div>
                                             ))}
                                         </div>
 
                                         {/* Wind Speed Row (Rich Colors) */}
                                         <div className="flex border-b border-white/5">
                                             <div className="w-28 shrink-0 p-3 text-[10px] font-black uppercase text-white/40 flex items-center bg-black/20">{t('history_wind')}</div>
-                                            {history.map((h, i) => (
-                                                <div
-                                                    key={i}
-                                                    className="flex-1 text-center p-3 text-xs font-black border-l border-white/10"
-                                                    style={{ backgroundColor: getWindColor(h.wind), color: getWindTextColor(h.wind) }}
-                                                >
-                                                    {h.wind}
-                                                </div>
-                                            ))}
+                                            {Array.isArray(history) && history.map((h, i) => {
+                                                const wind = h ? (typeof h.wind === 'number' ? h.wind : parseFloat(h.wind as any) || 0) : 0;
+                                                return (
+                                                    <div
+                                                        key={i}
+                                                        className="flex-1 text-center p-3 text-xs font-black border-l border-white/10"
+                                                        style={{ backgroundColor: getWindColor(wind), color: getWindTextColor(wind) }}
+                                                    >
+                                                        {Math.round(wind)}
+                                                    </div>
+                                                );
+                                            })}
                                         </div>
 
                                         {/* Wind Gusts */}
                                         <div className="flex border-b border-white/5">
                                             <div className="w-28 shrink-0 p-3 text-[10px] font-black uppercase text-white/40 flex items-center bg-black/20">{t('history_gusts')}</div>
-                                            {history.map((h, i) => (
-                                                <div key={i} className="flex-1 text-center p-3 text-[10px] font-bold text-amber-500/80 border-l border-white/5">{h.gust}</div>
+                                            {Array.isArray(history) && history.map((h, i) => (
+                                                <div key={i} className="flex-1 text-center p-3 text-[10px] font-bold text-amber-500/80 border-l border-white/5">
+                                                    {h ? (typeof h.gust === 'number' ? Math.round(h.gust) : Math.round(parseFloat(h.gust as any) || 0)) : 0}
+                                                </div>
                                             ))}
                                         </div>
 
                                         {/* Wind Direction Arrows */}
                                         <div className="flex border-b border-white/5">
                                             <div className="w-28 shrink-0 p-3 text-[10px] font-black uppercase text-white/40 flex items-center bg-black/20">{t('history_direction')}</div>
-                                            {history.map((h, i) => (
+                                            {Array.isArray(history) && history.map((h, i) => (
                                                 <div key={i} className="flex-1 flex items-center justify-center p-3 border-l border-white/5 bg-blue-900/5">
                                                     <ArrowDown
                                                         size={14}
                                                         className="text-blue-400 drop-shadow-[0_0_8px_rgba(59,130,246,0.3)]"
-                                                        style={{ transform: `rotate(${h.direction}deg)` }}
+                                                        style={{ transform: `rotate(${h?.direction || 0}deg)` }}
                                                     />
                                                 </div>
                                             ))}
@@ -331,16 +389,20 @@ export default function NauticalRadar({ userRankSlug, locale }: NauticalRadarPro
                                         {/* Temperature Row */}
                                         <div className="flex border-b border-white/5">
                                             <div className="w-28 shrink-0 p-3 text-[10px] font-black uppercase text-white/40 flex items-center bg-black/20">{t('history_temp')}</div>
-                                            {history.map((h, i) => (
-                                                <div key={i} className="flex-1 text-center p-3 text-[10px] font-mono text-orange-400 border-l border-white/5">{h.temp?.toFixed(0)}º</div>
+                                            {Array.isArray(history) && history.map((h, i) => (
+                                                <div key={i} className="flex-1 text-center p-3 text-[10px] font-mono text-orange-400 border-l border-white/5">
+                                                    {h && typeof h.temp !== 'undefined' ? (typeof h.temp === 'number' ? h.temp.toFixed(0) : (parseFloat(h.temp as any) || 0).toFixed(0)) : '--'}º
+                                                </div>
                                             ))}
                                         </div>
 
                                         {/* Tide Level */}
                                         <div className="flex">
                                             <div className="w-28 shrink-0 p-3 text-[10px] font-black uppercase text-white/40 flex items-center bg-black/20">{t('history_tide')}</div>
-                                            {history.map((h, i) => (
-                                                <div key={i} className="flex-1 text-center p-3 text-[10px] font-mono text-cyan-400 border-l border-white/5">{h.tide?.toFixed(1)}</div>
+                                            {Array.isArray(history) && history.map((h, i) => (
+                                                <div key={i} className="flex-1 text-center p-3 text-[10px] font-mono text-cyan-400 border-l border-white/5">
+                                                    {h && typeof h.tide !== 'undefined' ? (typeof h.tide === 'number' ? h.tide.toFixed(1) : (parseFloat(h.tide as any) || 0).toFixed(1)) : '--.-'}
+                                                </div>
                                             ))}
                                         </div>
                                     </div>
@@ -348,65 +410,137 @@ export default function NauticalRadar({ userRankSlug, locale }: NauticalRadarPro
                             </div>
 
                             {/* Supplementary Charts for Visualizing Trends */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                {/* Wind Trend Area Chart */}
-                                <div className="bg-white/[0.02] border border-white/5 rounded-xl p-4">
-                                    <h4 className="text-[10px] font-black text-blue-300 uppercase tracking-widest mb-4 flex items-center gap-2">
-                                        <Wind className="w-3 h-3" /> {t('wind_chart_title')}
-                                    </h4>
-                                    <div className="h-40 w-full">
+                            <div className="grid grid-cols-1 gap-8">
+                                {/* Velocity Chart (Wind & Gusts) */}
+                                <div className="bg-white/[0.02] border border-white/5 rounded-xl p-6 shadow-inner">
+                                    <div className="flex justify-between items-center mb-6">
+                                        <h4 className="text-[10px] font-black text-white/60 uppercase tracking-[0.2em] flex items-center gap-2">
+                                            <Wind className="w-4 h-4 text-blue-400" /> {t('wind_chart_title')}
+                                        </h4>
+                                        <div className="flex gap-4">
+                                            <div className="flex items-center gap-2">
+                                                <div className="w-2 h-2 rounded-full bg-emerald-500" />
+                                                <span className="text-[9px] font-bold text-white/40 uppercase tracking-widest">{t('wind_chart_wind_label')}</span>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <div className="w-2 h-2 rounded-full bg-red-500" />
+                                                <span className="text-[9px] font-bold text-white/40 uppercase tracking-widest">{t('wind_chart_gust_label')}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="h-64 w-full">
                                         <ResponsiveContainer width="100%" height="100%">
-                                            <AreaChart data={history}>
-                                                <defs>
-                                                    <linearGradient id="colorWind" x1="0" y1="0" x2="0" y2="1">
-                                                        <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
-                                                        <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
-                                                    </linearGradient>
-                                                </defs>
-                                                <CartesianGrid strokeDasharray="3 3" stroke="#ffffff05" vertical={false} />
-                                                <XAxis dataKey="time" stroke="#ffffff20" fontSize={8} tickLine={false} axisLine={false} />
-                                                <YAxis stroke="#ffffff20" fontSize={8} tickLine={false} axisLine={false} />
-                                                <Tooltip contentStyle={{ backgroundColor: '#050b14', border: '1px solid rgba(59,130,246,0.3)', borderRadius: '8px', fontSize: '10px' }} />
-                                                <Area type="monotone" dataKey="wind" stroke="#3b82f6" strokeWidth={2} fill="url(#colorWind)" name={t('wind_chart_wind_label')} />
-                                                <Area type="monotone" dataKey="gust" stroke="#f59e0b" strokeWidth={1} fill="transparent" name={t('wind_chart_gust_label')} strokeDasharray="4 4" />
-                                            </AreaChart>
+                                            <LineChart data={Array.isArray(history) ? history : []} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                                                <CartesianGrid strokeDasharray="3 3" stroke="#ffffff08" vertical={false} />
+                                                <XAxis
+                                                    dataKey="time"
+                                                    stroke="#ffffff20"
+                                                    fontSize={9}
+                                                    tickLine={false}
+                                                    axisLine={false}
+                                                    tick={{ fill: 'rgba(255,255,255,0.4)', fontWeight: 700 }}
+                                                    label={{ value: t('history_time').toUpperCase(), position: 'insideBottom', offset: -10, fill: 'rgba(255,255,255,0.2)', fontSize: 8, fontWeight: 900 }}
+                                                />
+                                                <YAxis
+                                                    stroke="#ffffff20"
+                                                    fontSize={9}
+                                                    tickLine={false}
+                                                    axisLine={false}
+                                                    domain={[0, 80]}
+                                                    ticks={[0, 10, 20, 30, 40, 50, 60, 70, 80]}
+                                                    tick={{ fill: 'rgba(255,255,255,0.4)', fontWeight: 700 }}
+                                                    label={{ value: t('knots').toUpperCase(), angle: -90, position: 'insideLeft', fill: 'rgba(255,255,255,0.2)', fontSize: 8, fontWeight: 900, offset: 15 }}
+                                                />
+                                                <Tooltip
+                                                    contentStyle={{ backgroundColor: '#050b14', border: '1px solid rgba(59,130,246,0.3)', borderRadius: '4px', fontSize: '10px', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.5)' }}
+                                                    itemStyle={{ fontWeight: 700 }}
+                                                />
+                                                <Line
+                                                    type="monotone"
+                                                    dataKey="wind"
+                                                    stroke="#10b981"
+                                                    strokeWidth={2}
+                                                    dot={{ r: 3, fill: '#10b981', strokeWidth: 1, stroke: '#000' }}
+                                                    activeDot={{ r: 5, fill: '#34d399' }}
+                                                    name={t('wind_chart_wind_label')}
+                                                />
+                                                <Line
+                                                    type="monotone"
+                                                    dataKey="gust"
+                                                    stroke="#ef4444"
+                                                    strokeWidth={2}
+                                                    dot={{ r: 3, fill: '#ef4444', strokeWidth: 1, stroke: '#000' }}
+                                                    activeDot={{ r: 5, fill: '#f87171' }}
+                                                    name={t('wind_chart_gust_label')}
+                                                />
+                                            </LineChart>
                                         </ResponsiveContainer>
                                     </div>
                                 </div>
 
-                                {/* Tide Cycle Area Chart */}
-                                <div className="bg-white/[0.02] border border-white/5 rounded-xl p-4">
-                                    <h4 className="text-[10px] font-black text-cyan-300 uppercase tracking-widest mb-4 flex items-center gap-2">
-                                        <Waves className="w-3 h-3" /> {t('tide_chart_title')}
-                                    </h4>
-                                    <div className="h-40 w-full">
+                                {/* Direction Chart */}
+                                <div className="bg-white/[0.02] border border-white/5 rounded-xl p-6">
+                                    <div className="flex justify-between items-center mb-6">
+                                        <h4 className="text-[10px] font-black text-white/60 uppercase tracking-[0.2em] flex items-center gap-2">
+                                            <BarChart3 className="w-4 h-4 text-blue-400" /> {t('history_direction')}
+                                        </h4>
+                                    </div>
+                                    <div className="h-64 w-full">
                                         <ResponsiveContainer width="100%" height="100%">
-                                            <AreaChart data={history}>
-                                                <defs>
-                                                    <linearGradient id="colorTide" x1="0" y1="0" x2="0" y2="1">
-                                                        <stop offset="5%" stopColor="#22d3ee" stopOpacity={0.3} />
-                                                        <stop offset="95%" stopColor="#22d3ee" stopOpacity={0} />
-                                                    </linearGradient>
-                                                </defs>
-                                                <CartesianGrid strokeDasharray="3 3" stroke="#ffffff05" vertical={false} />
-                                                <XAxis dataKey="time" stroke="#ffffff20" fontSize={8} tickLine={false} axisLine={false} />
-                                                <YAxis stroke="#ffffff20" fontSize={8} tickLine={false} axisLine={false} />
-                                                <Tooltip contentStyle={{ backgroundColor: '#050b14', border: '1px solid rgba(34,211,238,0.3)', borderRadius: '8px', fontSize: '10px' }} />
-                                                <Area type="monotone" dataKey="tide" stroke="#22d3ee" strokeWidth={2} fill="url(#colorTide)" name={t('tide_chart_tide_label')} />
-                                            </AreaChart>
+                                            <LineChart data={Array.isArray(history) ? history : []} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                                                <CartesianGrid strokeDasharray="3 3" stroke="#ffffff08" vertical={false} />
+                                                <XAxis
+                                                    dataKey="time"
+                                                    stroke="#ffffff20"
+                                                    fontSize={9}
+                                                    tickLine={false}
+                                                    axisLine={false}
+                                                    tick={{ fill: 'rgba(255,255,255,0.4)', fontWeight: 700 }}
+                                                    label={{ value: t('history_time').toUpperCase(), position: 'insideBottom', offset: -10, fill: 'rgba(255,255,255,0.2)', fontSize: 8, fontWeight: 900 }}
+                                                />
+                                                <YAxis
+                                                    stroke="#ffffff20"
+                                                    fontSize={9}
+                                                    tickLine={false}
+                                                    axisLine={false}
+                                                    domain={[0, 360]}
+                                                    ticks={[0, 90, 180, 270, 360]}
+                                                    tick={{ fill: 'rgba(255,255,255,0.4)', fontWeight: 700 }}
+                                                    tickFormatter={(value) => {
+                                                        if (value === 0 || value === 360) return '0° (N)';
+                                                        if (value === 90) return '90° (E)';
+                                                        if (value === 180) return '180° (S)';
+                                                        if (value === 270) return '270° (W)';
+                                                        return `${value}°`;
+                                                    }}
+                                                />
+                                                <Tooltip
+                                                    contentStyle={{ backgroundColor: '#050b14', border: '1px solid rgba(59,130,246,0.3)', borderRadius: '4px', fontSize: '10px' }}
+                                                />
+                                                <Line
+                                                    type="monotone"
+                                                    dataKey="direction"
+                                                    stroke="#3b82f6"
+                                                    strokeWidth={2}
+                                                    dot={{ r: 3, fill: '#3b82f6', strokeWidth: 1, stroke: '#000' }}
+                                                    activeDot={{ r: 5, fill: '#60a5fa' }}
+                                                    name={t('history_direction')}
+                                                />
+                                            </LineChart>
                                         </ResponsiveContainer>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div className="bg-blue-900/10 p-4 border-t border-blue-500/10">
+                        <div className="bg-blue-900/10 p-4 border-t border-blue-500/10 shrink-0">
                             <p className="text-[9px] text-white/30 uppercase tracking-[0.2em] text-center">
                                 {t('history_footer')}
                             </p>
                         </div>
                     </div>
-                </div>
+                </div>,
+                document.body
             )}
         </>
     );

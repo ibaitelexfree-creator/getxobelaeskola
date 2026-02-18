@@ -117,19 +117,14 @@ export default function CourseDetailMain({
     }
 
     const currentCourseStatus = unlockStatus?.cursos?.[curso.id] || 'bloqueado';
-    const isCourseLocked = currentCourseStatus === 'locked' || currentCourseStatus === 'bloqueado';
+    // isCourseLocked is handled below
 
-    if (isCourseLocked) {
-        return (
-            <div className="min-h-screen bg-nautical-black pt-20">
-                <LockedContentOverlay
-                    title="Curso Bloqueado"
-                    message="Navega primero por los niveles anteriores para desbloquear este curso."
-                    backPath={`/${params.locale}/academy/level/${curso.nivel_formacion.slug}`}
-                />
-            </div>
-        );
-    }
+
+    // We no longer block the entire course view if locked. 
+    // This allows users to see the "Career Plan" (modules) before enrolling.
+    // The modules themselves will still appear as locked.
+    const isCourseLocked = false;
+
 
     const totalUnidades = modulos.reduce((sum, m) => sum + m.num_unidades, 0);
 

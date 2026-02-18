@@ -35,6 +35,25 @@ import { EventManager } from './EventManager';
 import { ScoringManager } from './ScoringManager';
 import { WindEffectManager } from './WindEffectManager';
 import { FloatingTextManager } from './FloatingTextManager';
+import * as turf from '@turf/turf';
+import waterGeometryData from '../../../data/geospatial/water-geometry.json';
+
+// Mapping simulator context to real world for geofencing
+const REAL_WORLD_CENTER = { lat: 43.3485, lng: -3.0185 }; // Getxo Port area
+const LAT_SCALE = 1 / 111320; // 1 meter approx
+const LNG_SCALE = 1 / 81000;  // 1 meter approx at 43 deg lat
+
+function checkWaterCollision(pos: Vector3): boolean {
+    const lat = REAL_WORLD_CENTER.lat - (pos.z * LAT_SCALE);
+    const lng = REAL_WORLD_CENTER.lng + (pos.x * LNG_SCALE);
+    const point = turf.point([lng, lat]);
+
+    const collection = waterGeometryData as any;
+    if (collection.features) {
+        return collection.features.some((f: any) => turf.booleanPointInPolygon(point, f));
+    }
+    return true; // Default to water if data structure is unexpected
+}
 
 let renderer: WebGLRenderer;
 let scene: Scene;
@@ -137,6 +156,22 @@ function animate() {
         wind.update(dt);
         const apparentWind = wind.getApparentWind(boatPhysics.state.velocity, boatPhysics.state.heading);
         boatPhysics.update(dt, apparentWind, inputState.sailAngle, inputState.rudderAngle);
+
+        // Water Geofencing Check
+        const inWater = checkWaterCollision(boatPhysics.state.position);
+        if (!inWater) {
+            // Collision with land: Hard stop and visual feedback
+            boatPhysics.state.velocity.set(0, 0, 0);
+            boatPhysics.state.speed = 0;
+            boatPhysics.state.speedKmh = 0;
+
+            // Limit position slightly back or just stop
+            // For simplicity, we just stop the movement
+
+            if (elapsedTime % 1 < 0.1) { // Throttle messages
+                floatingText.add("¡TIERRA!", boatPhysics.state.position.clone().add(new Vector3(0, 5, 0)));
+            }
+        }
 
         // Update Gameplay
         objectives.update(dt, elapsedTime, boatPhysics.state.position);

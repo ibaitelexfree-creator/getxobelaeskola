@@ -5,6 +5,7 @@ import { useTranslations, useLocale } from 'next-intl';
 import { InputController } from './InputController';
 import { AudioManager } from './AudioManager';
 import { HUDManager } from './HUDManager';
+import { Volume2, VolumeX } from 'lucide-react';
 
 /**
  * SailingSimulator v2 (Optimized)
@@ -26,6 +27,15 @@ export const SailingSimulator: React.FC = () => {
     const [gameOver, setGameOver] = React.useState(false);
     const [gameOverData, setGameOverData] = React.useState<{ score: number, leaderboard: any[] }>({ score: 0, leaderboard: [] });
     const [playerName, setPlayerName] = React.useState('');
+    const [isMuted, setIsMuted] = React.useState(false);
+
+    const toggleSound = () => {
+        const nextMuted = !isMuted;
+        setIsMuted(nextMuted);
+        if (audioRef.current) {
+            audioRef.current.setMuted(nextMuted);
+        }
+    };
 
     useEffect(() => {
         if (!containerRef.current) return;
@@ -120,7 +130,12 @@ export const SailingSimulator: React.FC = () => {
                     payload.boatState.efficiency
                 );
             } else if (type === 'GAME_OVER') {
-                setGameOverData(payload);
+                const stored = localStorage.getItem('sailing_leaderboard');
+                const leaderboard = stored ? JSON.parse(stored) : [];
+                setGameOverData({
+                    score: payload.score,
+                    leaderboard: leaderboard
+                });
                 setGameOver(true);
             }
         };
@@ -177,53 +192,108 @@ export const SailingSimulator: React.FC = () => {
     }, []);
 
     const handleSaveScore = () => {
-        // Since ScoringManager is in worker, we might need a specific bridge for leaderboard saving
-        // For now, reload as was original or trigger a worker message
-        console.log("Saving score for:", playerName, gameOverData.score);
-        // Implement worker call if needed to save via DB
+        if (!playerName.trim()) return;
+
+        const newEntry = {
+            name: playerName,
+            score: gameOverData.score,
+            date: new Date().toLocaleDateString()
+        };
+
+        const updatedLeaderboard = [...gameOverData.leaderboard, newEntry]
+            .sort((a, b) => b.score - a.score)
+            .slice(0, 10);
+
+        localStorage.setItem('sailing_leaderboard', JSON.stringify(updatedLeaderboard));
+        setGameOverData({ ...gameOverData, leaderboard: updatedLeaderboard });
+        alert(t('game_over.saved_success') || '¡Puntuación Guardada!');
     };
 
     const handleRestart = () => {
         window.location.reload();
     };
 
+    // Calculate current rank
+    const currentRank = React.useMemo(() => {
+        if (!gameOver) return 0;
+        const tempBoard = [...gameOverData.leaderboard, { name: 'YOU', score: gameOverData.score }]
+            .sort((a, b) => b.score - a.score);
+        return tempBoard.findIndex(e => e.name === 'YOU') + 1;
+    }, [gameOver, gameOverData]);
+
     return (
         <div ref={containerRef} style={{ width: '100%', height: '100dvh', position: 'relative' }}>
-            {gameOver && (
-                <div style={{
-                    position: 'absolute', top: 0, left: 0, width: '100%', height: '100%',
-                    background: 'rgba(0,0,0,0.85)', display: 'flex', flexDirection: 'column',
-                    alignItems: 'center', justifyContent: 'center', color: 'white', zIndex: 1000,
-                    fontFamily: 'sans-serif'
-                }}>
-                    <h1 style={{ fontSize: '3rem', color: '#00e5ff', marginBottom: '10px', textAlign: 'center' }}>{t('game_over.title')}</h1>
-                    <div style={{ fontSize: '1.5rem', marginBottom: '30px', textAlign: 'center' }}>{t('game_over.buoys_collected')}</div>
-                    <div style={{ marginBottom: '30px', textAlign: 'center' }}>
-                        <p style={{ marginBottom: '5px', textTransform: 'uppercase', fontSize: '0.9rem', color: '#888' }}>{t('game_over.final_score')}</p>
-                        <div style={{ fontSize: '4rem', fontWeight: 'bold' }}>{gameOverData.score}</div>
+            {/* Sound Toggle Button */}
+            {
+                !gameOver && (
+                    <button
+                        onClick={toggleSound}
+                        style={{
+                            position: 'absolute',
+                            top: '20px',
+                            right: '120px', // Shift left to not overlap with potential other top-right elements
+                            zIndex: 2000,
+                            background: 'rgba(5, 11, 20, 0.6)',
+                            border: '1px solid rgba(0, 229, 255, 0.3)',
+                            borderRadius: '12px',
+                            width: '44px',
+                            height: '44px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            color: isMuted ? '#ff4081' : '#00e5ff',
+                            cursor: 'pointer',
+                            backdropFilter: 'blur(8px)',
+                            transition: 'all 0.3s ease',
+                            boxShadow: '0 4px 15px rgba(0,0,0,0.3)'
+                        }}
+                        title={isMuted ? 'Unmute Sound' : 'Mute Sound'}
+                    >
+                        {isMuted ? <VolumeX size={24} /> : <Volume2 size={24} />}
+                    </button>
+                )
+            }
+
+            {
+                gameOver && (
+                    <div style={{
+                        position: 'absolute', top: 0, left: 0, width: '100%', height: '100%',
+                        background: 'rgba(0,0,0,0.85)', display: 'flex', flexDirection: 'column',
+                        alignItems: 'center', justifyContent: 'center', color: 'white', zIndex: 1000,
+                        fontFamily: 'sans-serif'
+                    }}>
+                        <h1 style={{ fontSize: '3rem', color: '#00e5ff', marginBottom: '10px', textAlign: 'center' }}>{t('game_over.title')}</h1>
+                        <div style={{ fontSize: '1.2rem', color: '#ffd700', fontWeight: 'bold', marginBottom: '20px', textTransform: 'uppercase', letterSpacing: '2px' }}>
+                            🏆 Posición en el Ranking: {currentRank}º
+                        </div>
+                        <div style={{ fontSize: '1.5rem', marginBottom: '30px', textAlign: 'center' }}>{t('game_over.buoys_collected')}</div>
+                        <div style={{ marginBottom: '30px', textAlign: 'center' }}>
+                            <p style={{ marginBottom: '5px', textTransform: 'uppercase', fontSize: '0.9rem', color: '#888' }}>{t('game_over.final_score')}</p>
+                            <div style={{ fontSize: '4rem', fontWeight: 'bold' }}>{gameOverData.score}</div>
+                        </div>
+                        <div style={{ display: 'flex', gap: '10px', marginBottom: '40px' }}>
+                            <input
+                                type="text"
+                                placeholder={t('game_over.name_placeholder')}
+                                value={playerName}
+                                onChange={(e) => setPlayerName(e.target.value)}
+                                style={{ padding: '10px', fontSize: '1.2rem', borderRadius: '5px', border: 'none', width: '250px', textAlign: 'center' }}
+                            />
+                            <button onClick={handleSaveScore} style={{ padding: '10px 20px', fontSize: '1.2rem', fontWeight: 'bold', background: '#00e5ff', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>{t('game_over.save_btn')}</button>
+                        </div>
+                        <div style={{ width: '90%', maxWidth: '600px', background: 'rgba(255,255,255,0.05)', padding: '30px', borderRadius: '15px' }}>
+                            <h3 style={{ borderBottom: '1px solid #444', paddingBottom: '10px', marginBottom: '20px', color: '#00e5ff' }}>{t('game_over.ranking_title')}</h3>
+                            {gameOverData.leaderboard.map((entry, i) => (
+                                <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+                                    <span>{i + 1}. {entry.name}</span>
+                                    <span style={{ fontWeight: 'bold', color: '#00e5ff' }}>{entry.score}</span>
+                                </div>
+                            ))}
+                        </div>
+                        <button onClick={handleRestart} style={{ marginTop: '40px', padding: '15px 40px', fontSize: '1.2rem', background: 'transparent', border: '2px solid #00e5ff', color: '#00e5ff', borderRadius: '50px', cursor: 'pointer', fontWeight: 'bold' }}>{t('game_over.restart_btn')}</button>
                     </div>
-                    <div style={{ display: 'flex', gap: '10px', marginBottom: '40px' }}>
-                        <input
-                            type="text"
-                            placeholder={t('game_over.name_placeholder')}
-                            value={playerName}
-                            onChange={(e) => setPlayerName(e.target.value)}
-                            style={{ padding: '10px', fontSize: '1.2rem', borderRadius: '5px', border: 'none', width: '250px', textAlign: 'center' }}
-                        />
-                        <button onClick={handleSaveScore} style={{ padding: '10px 20px', fontSize: '1.2rem', fontWeight: 'bold', background: '#00e5ff', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>{t('game_over.save_btn')}</button>
-                    </div>
-                    <div style={{ width: '90%', maxWidth: '600px', background: 'rgba(255,255,255,0.05)', padding: '30px', borderRadius: '15px' }}>
-                        <h3 style={{ borderBottom: '1px solid #444', paddingBottom: '10px', marginBottom: '20px', color: '#00e5ff' }}>{t('game_over.ranking_title')}</h3>
-                        {gameOverData.leaderboard.map((entry, i) => (
-                            <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
-                                <span>{i + 1}. {entry.name}</span>
-                                <span style={{ fontWeight: 'bold', color: '#00e5ff' }}>{entry.score}</span>
-                            </div>
-                        ))}
-                    </div>
-                    <button onClick={handleRestart} style={{ marginTop: '40px', padding: '15px 40px', fontSize: '1.2rem', background: 'transparent', border: '2px solid #00e5ff', color: '#00e5ff', borderRadius: '50px', cursor: 'pointer', fontWeight: 'bold' }}>{t('game_over.restart_btn')}</button>
-                </div>
-            )}
-        </div>
+                )
+            }
+        </div >
     );
 };

@@ -2,6 +2,8 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
+import { useParams } from 'next/navigation';
+import Link from 'next/link';
 import { Anchor, Ship, Wind, Clock, Star, TrendingUp } from 'lucide-react';
 
 interface BoatMasteryData {
@@ -18,7 +20,33 @@ interface BoatMasteryProps {
 }
 
 export default function BoatMastery({ data }: BoatMasteryProps) {
-    if (!data || data.length === 0) return null;
+    const params = useParams();
+    const locale = (params?.locale as string) || 'es';
+
+    if (!data || data.length === 0) {
+        return (
+            <section className="space-y-6">
+                <div>
+                    <h2 className="text-xl font-display italic text-white flex items-center gap-3">
+                        <span className="text-accent drop-shadow-[0_0_8px_rgba(255,191,0,0.4)]">⛵</span> Tu Flota
+                    </h2>
+                    <p className="text-[10px] text-white/40 uppercase tracking-[0.2em] mt-1">
+                        Maestría y experiencia por embarcación
+                    </p>
+                </div>
+                <div className="bg-[#111827] border border-dashed border-white/10 rounded-2xl p-12 text-center">
+                    <Ship className="w-12 h-12 text-white/10 mx-auto mb-4" />
+                    <p className="text-white/40 text-sm italic mb-6">No has registrado sesiones de navegación aún.</p>
+                    <Link
+                        href={`/${locale}/academy/logbook`}
+                        className="inline-flex items-center gap-2 px-6 py-2 bg-white/5 hover:bg-white/10 border border-white/10 text-[10px] uppercase font-bold tracking-widest text-accent transition-all rounded-sm"
+                    >
+                        Registrar mi primera sesión
+                    </Link>
+                </div>
+            </section>
+        );
+    }
 
     return (
         <section className="space-y-6">
@@ -59,8 +87,8 @@ export default function BoatMastery({ data }: BoatMasteryProps) {
                                         </h3>
                                         <div className="flex items-center gap-2 text-[10px] uppercase tracking-widest text-white/40">
                                             <span className={`px-2 py-0.5 rounded-full ${boat.level === 'Maestro' ? 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30' :
-                                                    boat.level === 'Avanzado' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' :
-                                                        'bg-white/10 text-white/60'
+                                                boat.level === 'Avanzado' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' :
+                                                    'bg-white/10 text-white/60'
                                                 }`}>
                                                 {boat.level}
                                             </span>
@@ -85,8 +113,8 @@ export default function BoatMastery({ data }: BoatMasteryProps) {
                                         animate={{ width: `${boat.progress}%` }}
                                         transition={{ duration: 1, delay: 0.5 + (index * 0.1) }}
                                         className={`h-full rounded-full ${boat.level === 'Maestro' ? 'bg-gradient-to-r from-yellow-600 to-yellow-400' :
-                                                boat.level === 'Avanzado' ? 'bg-gradient-to-r from-blue-600 to-blue-400' :
-                                                    'bg-gradient-to-r from-white/20 to-white/40'
+                                            boat.level === 'Avanzado' ? 'bg-gradient-to-r from-blue-600 to-blue-400' :
+                                                'bg-gradient-to-r from-white/20 to-white/40'
                                             }`}
                                     />
                                 </div>
@@ -98,15 +126,19 @@ export default function BoatMastery({ data }: BoatMasteryProps) {
                                     <Clock size={10} />
                                     Última vez: {new Date(boat.lastUsed).toLocaleDateString('es-ES')}
                                 </div>
-                                <div className="flex items-center gap-1 text-[10px] text-accent opacity-0 group-hover:opacity-100 transition-opacity">
+                                <Link
+                                    href={`/${locale}/academy/logbook`}
+                                    className="flex items-center gap-1 text-[10px] text-accent opacity-0 group-hover:opacity-100 transition-opacity hover:underline"
+                                >
                                     <TrendingUp size={10} />
                                     Ver bitácora
-                                </div>
+                                </Link>
                             </div>
                         </div>
                     </motion.div>
                 ))}
             </div>
         </section>
+
     );
 }
