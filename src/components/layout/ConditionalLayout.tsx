@@ -1,35 +1,21 @@
 'use client';
-
 import { usePathname } from 'next/navigation';
-import { ReactNode, useState, useEffect } from 'react';
+import { ReactNode } from 'react';
 import AcademyControls from '@/components/layout/AcademyControls';
 import MobileBottomNav from '@/components/layout/MobileBottomNav';
+import NotificationContainer from '@/components/academy/notifications/NotificationContainer';
+import RealtimeNotifications from '@/components/academy/notifications/RealtimeNotifications';
+import ActivityTracker from '@/components/academy/ActivityTracker';
 
 interface ConditionalLayoutProps {
     children: ReactNode;
     navbar: ReactNode;
     footer: ReactNode;
-}
-
-function useIsMobile() {
-    const [isMobile, setIsMobile] = useState(false);
-    useEffect(() => {
-        const check = () => {
-            // Capacitor native OR narrow viewport
-            const isCapacitor = typeof window !== 'undefined' && !!(window as any).Capacitor?.isNativePlatform?.();
-            const isNarrow = window.innerWidth < 768;
-            setIsMobile(isCapacitor || isNarrow);
-        };
-        check();
-        window.addEventListener('resize', check);
-        return () => window.removeEventListener('resize', check);
-    }, []);
-    return isMobile;
+    locale: string;
 }
 
 export default function ConditionalLayout({ children, navbar, footer }: ConditionalLayoutProps) {
     const pathname = usePathname();
-    const isMobile = useIsMobile();
     const isAcademy = pathname.includes('/academy');
     const isAuth = pathname.includes('/auth/');
 
@@ -41,31 +27,44 @@ export default function ConditionalLayout({ children, navbar, footer }: Conditio
                     {children}
                     <AcademyControls />
                 </main>
-                {isMobile && !isAuth && <MobileBottomNav />}
+                {!isAuth && (
+                    <div className="md:hidden">
+                        <MobileBottomNav />
+                    </div>
+                )}
+                <NotificationContainer />
+                <RealtimeNotifications />
+                <ActivityTracker />
             </>
         );
     }
 
-    // Mobile layout — no navbar/footer, bottom tab nav
-    if (isMobile) {
-        return (
-            <>
-                <main className="flex-grow pb-20 min-h-screen bg-nautical-black">
-                    {children}
-                </main>
-                {!isAuth && <MobileBottomNav />}
-            </>
-        );
-    }
-
-    // Desktop layout — full navbar & footer
     return (
         <>
-            {navbar}
-            <main className="flex-grow">
+            {/* Desktop Navbar - hidden on mobile */}
+            {!isAuth && <div className="hidden md:block">{navbar}</div>}
+
+            <main className={`flex-grow min-h-screen bg-nautical-black ${!isAuth ? 'pb-24 md:pb-0' : ''}`}>
                 {children}
             </main>
-            {footer}
+
+            {/* Desktop Footer - hidden on mobile */}
+            {!isAuth && <div className="hidden md:block">{footer}</div>}
+
+            {/* Mobile Navigation - hidden on desktop */}
+            {!isAuth && (
+                <div className="md:hidden">
+                    <MobileBottomNav />
+                </div>
+            )}
+
+            {!isAuth && (
+                <>
+                    <NotificationContainer />
+                    <RealtimeNotifications />
+                    <ActivityTracker />
+                </>
+            )}
         </>
     );
 }

@@ -74,10 +74,14 @@ jobs:
           chmod +x gradlew
           ./gradlew assembleDebug
 
+      - name: Verify APK existence
+        run: |
+          ls -l android/app/build/outputs/apk/debug/app-debug.apk
+
       - name: Upload to Firebase App Distribution
-        uses: w9jds/firebase-action@master
+        uses: w9jds/firebase-action@v15.6.0
         with:
-          args: --project getxo-bela-eskola appdistribution:distribute ./android/app/build/outputs/apk/debug/app-debug.apk --app "${{ secrets.FIREBASE_APP_ID }}" --groups "testers"
+          args: appdistribution:distribute android/app/build/outputs/apk/debug/app-debug.apk --app "${{ secrets.FIREBASE_APP_ID }}" --groups "testers"
         env:
           GCP_SA_KEY: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_KEY }}
-          FIREBASE_PROJECT: getxo-bela-eskola
+          FIREBASE_PROJECT: "69772078869"

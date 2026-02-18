@@ -106,7 +106,7 @@ export default async function AboutPage({ params: { locale } }: { params: { loca
                                 <div className="absolute -top-6 -right-6 w-full h-full border border-white/5 group-hover:-top-2 group-hover:-right-2 transition-all duration-700" />
                                 <div className="relative h-full overflow-hidden shadow-2xl">
                                     <Image
-                                        src="/images/about-value-passion.jpg"
+                                        src="/images/course-raquero-students.webp"
                                         alt="Sea Experience"
                                         fill
                                         sizes="(max-width: 1024px) 100vw, 50vw"
@@ -142,19 +142,19 @@ export default async function AboutPage({ params: { locale } }: { params: { loca
                                 title: t('values.v1_title'),
                                 desc: t('values.v1_desc'),
                                 icon: "⚓",
-                                bg: "/images/about-value-experience.jpg"
+                                bg: "/images/home-hero-sailing-action.webp"
                             },
                             {
                                 title: t('values.v2_title'),
                                 desc: t('values.v2_desc'),
                                 icon: "⛵",
-                                bg: "/images/home-hero-sailing-action.webp"
+                                bg: "/images/course-raquero-students.webp"
                             },
                             {
                                 title: t('values.v3_title'),
                                 desc: t('values.v3_desc'),
                                 icon: "🌊",
-                                bg: "/images/about-value-community.jpg"
+                                bg: "/images/home-cta-join.webp"
                             }
                         ].map((item, i) => (
                             <div key={i} className="group relative h-[600px] p-20 flex flex-col justify-end overflow-hidden border-r last:border-r-0 border-white/5">

@@ -1,5 +1,6 @@
 'use client';
 
+import React, { Suspense } from 'react';
 import Logbook from '@/components/academy/logbook/Logbook';
 
 export default function LogbookPage() {

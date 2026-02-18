@@ -662,7 +662,24 @@
             "Doitu zure belak haize-bolada bakoitza aprobetxatzeko.",
             "Nabigatzeko modurik onena bihotzarekin eta teknikarekin da.",
             "Esperientzia nudo bakoitzak balio du zure bitakoran."
-        ]
+        ],
+        "logbook": {
+            "moods": {
+                "discovery": "Aurkikuntza",
+                "confident": "Seguru",
+                "challenging": "Erronka"
+            },
+            "save_private": "Gorde Pribatua",
+            "new_entry": "Sarrera Berria",
+            "reflections": "Nire Itsas Hausnarketak",
+            "discard": "Baztertu",
+            "placeholder": "Idatzi gaurko egunari buruzko hausnarketak...",
+            "official_history": "Historial Ofiziala",
+            "skills": "Gaitasunak",
+            "water_map": "Uren Mapa",
+            "my_fleet": "Nire Flota",
+            "personal_diary": "Egunkari Pertsonala"
+        }
     },
     "errors": {
         "404": {
