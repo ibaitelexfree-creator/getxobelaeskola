@@ -5,9 +5,10 @@ import dynamic from 'next/dynamic';
 import { useParams } from 'next/navigation';
 import {
     Book, MapPin, Award, Ship, Waves, Wind,
-    ChevronRight, Anchor, Calendar, Download
+    ChevronRight, Anchor, Calendar, Download, Plus, Trash2, Smile, Layers, HelpCircle
 } from 'lucide-react';
 import { apiUrl } from '@/lib/api';
+import { useAcademyFeedback } from '@/hooks/useAcademyFeedback';
 
 // Direct dynamic import with explicit default handling
 const LeafletMap = dynamic(
@@ -28,9 +29,42 @@ const LeafletMap = dynamic(
 export default function Logbook() {
     const [activeTab, setActiveTab] = useState<'official' | 'map' | 'skills' | 'diary'>('official');
     const [officialData, setOfficialData] = useState<any>(null);
+    const [diaryEntries, setDiaryEntries] = useState<any[]>([]);
+    const [allSkills, setAllSkills] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
+    const [loadingDiary, setLoadingDiary] = useState(false);
+    const [isSavingDiary, setIsSavingDiary] = useState(false);
+    const [newDiaryContent, setNewDiaryContent] = useState('');
     const [selectedPoint, setSelectedPoint] = useState<any>(null);
     const params = useParams();
+    const { showMessage } = useAcademyFeedback();
+
+    async function loadDiary() {
+        setLoadingDiary(true);
+        try {
+            const res = await fetch(apiUrl('/api/logbook/diary'));
+            if (res.ok) {
+                const data = await res.json();
+                setDiaryEntries(data);
+            }
+        } catch (error) {
+            console.error('Error loading diary:', error);
+        } finally {
+            setLoadingDiary(false);
+        }
+    }
+
+    async function loadSkills() {
+        try {
+            const res = await fetch(apiUrl('/api/skills'));
+            if (res.ok) {
+                const data = await res.json();
+                setAllSkills(data.habilidades?.todas || []);
+            }
+        } catch (error) {
+            console.error('Error loading skills:', error);
+        }
+    }
 
     useEffect(() => {
         async function loadData() {
@@ -51,7 +85,6 @@ export default function Logbook() {
                 setOfficialData(data);
             } catch (error) {
                 console.error('Error loading logbook:', error);
-                // Set fallback data or empty state if fetch fails
                 setOfficialData({ horas: [], estadisticas: { horas_totales: 0 }, user: { full_name: 'Invitado' } });
             } finally {
                 setLoading(false);
@@ -59,7 +92,55 @@ export default function Logbook() {
         }
 
         loadData();
+        loadSkills();
     }, []);
+
+    useEffect(() => {
+        if (activeTab === 'diary') {
+            loadDiary();
+        }
+    }, [activeTab]);
+
+    const handleAddDiaryEntry = async () => {
+        if (!newDiaryContent.trim()) return;
+
+        setIsSavingDiary(true);
+        try {
+            const res = await fetch(apiUrl('/api/logbook/diary'), {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ contenido: newDiaryContent })
+            });
+
+            if (res.ok) {
+                setNewDiaryContent('');
+                loadDiary();
+                showMessage('Éxito', 'Entrada guardada en tu diario', 'success');
+            } else {
+                showMessage('Error', 'No se pudo guardar la entrada', 'error');
+            }
+        } catch (error) {
+            console.error('Error adding diary entry:', error);
+            showMessage('Error', 'Error de conexión', 'error');
+        } finally {
+            setIsSavingDiary(false);
+        }
+    };
+
+    const handleDeleteDiaryEntry = async (id: string) => {
+        try {
+            const res = await fetch(apiUrl(`/api/logbook/diary?id=${id}`), {
+                method: 'DELETE'
+            });
+
+            if (res.ok) {
+                loadDiary();
+                showMessage('Eliminado', 'Entrada eliminada', 'info');
+            }
+        } catch (error) {
+            console.error('Error deleting diary entry:', error);
+        }
+    };
 
     if (loading) {
         return (
@@ -73,7 +154,7 @@ export default function Logbook() {
     const sessions = officialData?.horas || [];
 
     return (
-        <div className="w-full max-w-6xl mx-auto h-full flex flex-col font-display p-6 relative pb-20">
+        <div className={`w-full ${activeTab === 'map' ? 'max-w-7xl' : 'max-w-6xl'} mx-auto h-full flex flex-col font-display p-6 relative pb-20 transition-all duration-700`}>
             {/* Header */}
             <header className="flex flex-col md:flex-row items-center justify-between mb-12 gap-8">
                 <div className="flex items-center gap-6">
@@ -120,46 +201,78 @@ export default function Logbook() {
             {/* Content Area */}
             <div className="flex-grow">
                 {activeTab === 'official' && (
-                    <div className="grid grid-cols-1 gap-6">
-                        {sessions.length > 0 ? (
-                            sessions.map((session: any) => (
-                                <div key={session.id} className="group bg-white/[0.03] hover:bg-white/[0.07] border border-white/10 rounded-3xl p-8 transition-all duration-500">
-                                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-8">
-                                        <div className="flex items-center gap-8">
-                                            <div className="w-16 h-16 rounded-2xl bg-accent/10 border border-accent/20 flex items-center justify-center text-3xl">
-                                                ⛵
-                                            </div>
-                                            <div>
-                                                <div className="text-[10px] uppercase tracking-widest text-white/30 mb-1">
-                                                    {new Date(session.fecha).toLocaleDateString()}
+                    <div className="flex flex-col gap-8">
+                        {/* Info Official Description */}
+                        <div className="bg-blue-500/5 border border-blue-500/20 rounded-[2rem] p-8 flex flex-col md:flex-row items-center gap-8 backdrop-blur-sm">
+                            <div className="w-16 h-16 bg-blue-500/20 rounded-full flex items-center justify-center text-blue-400 shrink-0">
+                                <Award size={32} />
+                            </div>
+                            <div className="flex-grow text-center md:text-left">
+                                <h3 className="text-xl font-bold text-white mb-2 italic">Registro de Millas Oficial</h3>
+                                <p className="text-white/50 text-sm leading-relaxed max-w-2xl">
+                                    Este cuaderno contiene tus horas de navegación certificadas por Getxo Bela Eskola.
+                                    Los registros aquí presentes son <span className="text-blue-400 font-bold">oficiales</span>, validados por instructores, y computan para la obtención de rangos y certificados.
+                                    Cada milla te acerca más a tu próximo título.
+                                </p>
+                            </div>
+                            <button
+                                onClick={() => showMessage('Info', 'Funcionalidad de solicitud en desarrollo', 'info')}
+                                className="px-6 py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-full text-[10px] font-black uppercase tracking-widest text-white transition-all flex items-center gap-2 whitespace-nowrap"
+                            >
+                                <Plus size={14} /> Solicitar Registro
+                            </button>
+                        </div>
+
+                        <div className="grid grid-cols-1 gap-6">
+                            {sessions.length > 0 ? (
+                                sessions.map((session: any) => (
+                                    <div key={session.id} className="group bg-white/[0.03] hover:bg-white/[0.07] border border-white/10 rounded-3xl p-8 transition-all duration-500">
+                                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-8">
+                                            <div className="flex items-center gap-8">
+                                                <div className="w-16 h-16 rounded-2xl bg-accent/10 border border-accent/20 flex items-center justify-center text-3xl">
+                                                    ⛵
                                                 </div>
-                                                <h3 className="text-2xl font-bold text-white group-hover:text-accent transition-colors">
-                                                    {session.tipo}
-                                                </h3>
-                                                <div className="flex items-center gap-4 text-sm text-white/40 mt-2">
-                                                    <span className="flex items-center gap-1"><Ship size={14} /> {session.embarcacion}</span>
-                                                    <span className="flex items-center gap-1"><Wind size={14} /> {session.duracion_h}h</span>
+                                                <div>
+                                                    <div className="text-[10px] uppercase tracking-widest text-white/30 mb-1">
+                                                        {new Date(session.fecha).toLocaleDateString()}
+                                                    </div>
+                                                    <h3 className="text-2xl font-bold text-white group-hover:text-accent transition-colors">
+                                                        {session.tipo}
+                                                    </h3>
+                                                    <div className="flex items-center gap-4 text-sm text-white/40 mt-2">
+                                                        <span className="flex items-center gap-1"><Ship size={14} /> {session.embarcacion}</span>
+                                                        <span className="flex items-center gap-1"><Wind size={14} /> {session.duracion_h}h</span>
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                        <div className="text-right">
-                                            <div className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border ${session.verificado ? 'bg-green-500/20 border-green-500/30 text-green-400' : 'bg-amber-500/20 border-amber-500/30 text-amber-400'}`}>
-                                                {session.verificado ? 'Verificado' : 'Pendiente'}
+                                            <div className="text-right flex flex-col items-end gap-2">
+                                                <div className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border ${session.verificado ? 'bg-green-500/20 border-green-500/30 text-green-400' : 'bg-amber-500/20 border-amber-500/30 text-amber-400'}`}>
+                                                    {session.verificado ? 'Verificado' : 'Pendiente'}
+                                                </div>
+                                                <div className="text-[10px] text-white/20 uppercase tracking-tighter">ID: {session.id.slice(0, 8)}</div>
                                             </div>
                                         </div>
                                     </div>
+                                ))
+                            ) : (
+                                <div className="py-32 text-center border-2 border-dashed border-white/5 rounded-[3rem] bg-white/[0.01]">
+                                    <Anchor className="mx-auto text-white/5 mb-6" size={48} />
+                                    <p className="text-white/40 font-bold uppercase tracking-widest text-xs mb-2">Aún no hay registros oficiales</p>
+                                    <p className="text-white/20 text-xs max-w-xs mx-auto">Tus sesiones certificadas por la escuela aparecerán aquí automáticamente tras ser validadas.</p>
                                 </div>
-                            ))
-                        ) : (
-                            <div className="py-24 text-center border-2 border-dashed border-white/5 rounded-[3rem]">
-                                <p className="text-white/20 uppercase tracking-widest text-xs">Sin registros aún</p>
-                            </div>
-                        )}
+                            )}
+                        </div>
                     </div>
                 )}
 
                 {activeTab === 'map' && (
-                    <div className="relative w-full aspect-video bg-[#050b14] rounded-3xl border border-white/10 overflow-hidden shadow-2xl">
+                    <div className="relative w-full h-[650px] bg-[#050b14] rounded-[2.5rem] border border-white/10 overflow-hidden shadow-2xl flex flex-col">
+                        <div className="absolute top-8 left-8 z-[1000] pointer-events-none">
+                            <div className="bg-black/40 backdrop-blur-xl border border-white/10 p-4 rounded-3xl">
+                                <h3 className="text-white font-bold text-sm mb-1 italic">Mapa de Travesías</h3>
+                                <p className="text-white/40 text-[10px] uppercase tracking-widest">Visualización de Millas</p>
+                            </div>
+                        </div>
                         {/* We render the dynamic component only when on the map tab */}
                         <LeafletMap
                             sessions={sessions}
@@ -202,20 +315,153 @@ export default function Logbook() {
                 )}
 
                 {activeTab === 'skills' && (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {(officialData?.habilidades || []).map((h: any) => (
-                            <div key={h.habilidad.id} className="bg-white/5 p-8 rounded-3xl border border-white/10">
-                                <div className="text-3xl mb-4">{h.habilidad.icono || '⚡'}</div>
-                                <h3 className="text-xl font-bold mb-2">{h.habilidad.nombre_es}</h3>
-                                <p className="text-sm text-white/40 leading-relaxed">{h.habilidad.descripcion_es}</p>
+                    <div className="flex flex-col gap-10">
+                        <header className="flex items-center justify-between bg-white/5 border border-white/10 p-8 rounded-[2rem]">
+                            <div className="flex items-center gap-4">
+                                <div className="w-12 h-12 bg-accent/20 rounded-2xl flex items-center justify-center text-accent">
+                                    <Layers size={24} />
+                                </div>
+                                <div>
+                                    <h3 className="text-xl font-bold text-white italic">Catálogo de Habilidades</h3>
+                                    <p className="text-white/40 text-[10px] uppercase tracking-widest">Dominio Técnico y Marino</p>
+                                </div>
                             </div>
-                        ))}
+                            <div className="text-right">
+                                <span className="text-4xl font-black text-white">
+                                    {allSkills.filter(s => s.obtenida).length}
+                                </span>
+                                <span className="text-white/20 text-xl font-bold"> / {allSkills.length || 12}</span>
+                            </div>
+                        </header>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {(allSkills.length > 0 ? allSkills : (officialData?.habilidades || [])).map((h: any) => {
+                                const skill = h.habilidad || h;
+                                const isObtained = h.obtenida || !!h.fecha_obtencion;
+
+                                return (
+                                    <div key={skill.id} className={`group relative bg-white/[0.03] p-8 rounded-[2.5rem] border transition-all duration-500 ${isObtained ? 'border-accent/30' : 'border-white/5 opacity-60'}`}>
+                                        {!isObtained && (
+                                            <div className="absolute top-6 right-6 text-white/10 group-hover:text-white/20 transition-colors">
+                                                <HelpCircle size={16} />
+                                            </div>
+                                        )}
+                                        <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-3xl mb-6 ${isObtained ? 'bg-accent/10 border border-accent/20 shadow-[0_0_20px_rgba(var(--accent-rgb),0.1)]' : 'bg-white/5 grayscale'}`}>
+                                            {skill.icono || '⚡'}
+                                        </div>
+                                        <h3 className={`text-xl font-bold mb-2 ${isObtained ? 'text-white' : 'text-white/40'}`}>{skill.nombre_es}</h3>
+                                        <p className="text-xs text-white/30 leading-relaxed mb-6">{skill.descripcion_es}</p>
+
+                                        <div className="flex items-center justify-between mt-auto pt-6 border-t border-white/5">
+                                            <span className="text-[10px] uppercase tracking-widest text-white/20 font-black">{skill.categoria}</span>
+                                            {isObtained ? (
+                                                <span className="text-[10px] uppercase tracking-widest text-accent font-black">Desbloqueado</span>
+                                            ) : (
+                                                <span className="text-[10px] uppercase tracking-widest text-white/10 font-black italic">Bloqueado</span>
+                                            )}
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
                     </div>
                 )}
 
                 {activeTab === 'diary' && (
-                    <div className="py-20 text-center bg-white/5 rounded-3xl border border-white/10 italic text-white/20 font-serif">
-                        Diario Personal - Próximamente
+                    <div className="flex flex-col gap-8 max-w-4xl mx-auto">
+                        {/* Add Entry Form */}
+                        <div className="bg-white/[0.03] border border-white/10 rounded-[2.5rem] p-8 backdrop-blur-md">
+                            <div className="flex items-center gap-4 mb-6">
+                                <div className="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center text-white/40">
+                                    <Plus size={24} />
+                                </div>
+                                <div>
+                                    <h3 className="text-xl font-bold text-white italic">Nueva Entrada de Diario</h3>
+                                    <p className="text-white/40 text-[10px] uppercase tracking-widest">Tus reflexiones personales de mar</p>
+                                </div>
+                            </div>
+
+                            <textarea
+                                value={newDiaryContent}
+                                onChange={(e) => setNewDiaryContent(e.target.value)}
+                                placeholder="Hoy la mar estaba brava... Mis sensaciones al timón fueron..."
+                                className="w-full bg-black/40 border border-white/5 rounded-3xl p-6 text-white text-sm focus:outline-none focus:border-accent/40 min-h-[150px] transition-all resize-none mb-6"
+                            />
+
+                            <div className="flex items-center justify-between">
+                                <div className="flex gap-2">
+                                    <button className="w-10 h-10 bg-white/5 hover:bg-white/10 rounded-full flex items-center justify-center text-white/40 transition-colors">
+                                        <Smile size={18} />
+                                    </button>
+                                    <button className="w-10 h-10 bg-white/5 hover:bg-white/10 rounded-full flex items-center justify-center text-white/40 transition-colors">
+                                        <MapPin size={18} />
+                                    </button>
+                                </div>
+                                <button
+                                    onClick={handleAddDiaryEntry}
+                                    disabled={isSavingDiary || !newDiaryContent.trim()}
+                                    className={`px-8 py-3 rounded-full text-[10px] font-black uppercase tracking-widest transition-all
+                                        ${newDiaryContent.trim()
+                                            ? 'bg-accent text-nautical-black shadow-lg shadow-accent/20 hover:scale-105'
+                                            : 'bg-white/5 text-white/20'
+                                        }`}
+                                >
+                                    {isSavingDiary ? 'Guardando...' : 'Guardar Entrada'}
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Recent Entries */}
+                        <div className="space-y-6">
+                            <h4 className="text-[10px] uppercase tracking-widest text-white/20 font-black ml-4">Entradas Recientes</h4>
+
+                            {loadingDiary ? (
+                                <div className="py-12 flex justify-center">
+                                    <div className="animate-spin rounded-full h-8 w-8 border-2 border-accent border-t-transparent"></div>
+                                </div>
+                            ) : diaryEntries.length > 0 ? (
+                                diaryEntries.map((entry: any) => (
+                                    <div key={entry.id} className="group bg-white/[0.02] hover:bg-white/[0.04] border border-white/5 rounded-[2.2rem] p-8 transition-all relative overflow-hidden">
+                                        <div className="relative z-10">
+                                            <div className="flex items-center justify-between mb-4">
+                                                <div className="flex items-center gap-3">
+                                                    <Calendar size={14} className="text-white/20" />
+                                                    <span className="text-[10px] uppercase tracking-widest text-white/30">
+                                                        {new Date(entry.fecha).toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                                                    </span>
+                                                </div>
+                                                <button
+                                                    onClick={() => handleDeleteDiaryEntry(entry.id)}
+                                                    className="opacity-0 group-hover:opacity-100 p-2 text-red-500/40 hover:text-red-500 hover:bg-red-500/10 rounded-full transition-all"
+                                                >
+                                                    <Trash2 size={14} />
+                                                </button>
+                                            </div>
+                                            <p className="text-white/70 leading-relaxed italic font-serif">
+                                                "{entry.contenido}"
+                                            </p>
+                                            {entry.tags && entry.tags.length > 0 && (
+                                                <div className="flex gap-2 mt-4">
+                                                    {entry.tags.map((tag: string) => (
+                                                        <span key={tag} className="text-[8px] uppercase tracking-tighter bg-white/5 px-2 py-0.5 rounded text-white/20 font-black">
+                                                            #{tag}
+                                                        </span>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
+                                        <div className="absolute -right-4 -bottom-4 text-white/[0.02] group-hover:text-white/[0.05] transition-colors">
+                                            <Book size={120} />
+                                        </div>
+                                    </div>
+                                ))
+                            ) : (
+                                <div className="py-20 text-center bg-white/[0.01] rounded-[2.5rem] border border-dashed border-white/5">
+                                    <Book className="mx-auto text-white/5 mb-4" size={40} />
+                                    <p className="text-white/20 italic text-sm font-serif">Tu mar de reflexiones está esperando...</p>
+                                </div>
+                            )}
+                        </div>
                     </div>
                 )}
             </div>

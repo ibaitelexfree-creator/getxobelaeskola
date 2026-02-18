@@ -180,7 +180,7 @@ export default function ChartCanvas() {
                 <div className="w-[3000px] h-[2000px] bg-[#f8f5f0] relative shadow-2xl border-[12px] border-[#3e2723] rounded-sm overflow-hidden">
                     {/* Selected Chart Image */}
                     <img
-                        src={`/images/academy/ChartPlotterMap/Chart${currentChart}.png`}
+                        src={`/images/academy/ChartPlotterMap/Chart${currentChart}.webp`}
                         className="absolute inset-0 w-full h-full object-cover opacity-90"
                         alt={`Chart ${currentChart}`}
                     />

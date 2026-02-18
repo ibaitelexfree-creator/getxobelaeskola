@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
-import { X } from 'lucide-react';
+import { X, Book, Ship, Globe, Anchor, Wind, Shield, ChevronRight } from 'lucide-react';
 import { useNotificationStore } from '@/lib/store/useNotificationStore';
 import dynamic from 'next/dynamic';
 
@@ -348,6 +348,67 @@ export default function DashboardPage({ params }: { params: { locale: string } }
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
+
+            <div className="container mx-auto px-6 py-8">
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                    {[
+                        {
+                            id: 'logbook',
+                            label: 'Bitácora',
+                            icon: <Book className="w-5 h-5" />,
+                            color: 'text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20',
+                            href: `/${params.locale}/academy/logbook`
+                        },
+                        {
+                            id: 'nomenclature',
+                            label: 'Partes',
+                            icon: <Ship className="w-5 h-5" />,
+                            color: 'text-amber-500 bg-amber-500/10 hover:bg-amber-500/20',
+                            href: `/${params.locale}/academy/tools/nomenclature`
+                        },
+                        {
+                            id: 'chart-plotter',
+                            label: 'Navegación',
+                            icon: <Globe className="w-5 h-5" />,
+                            color: 'text-blue-400 bg-blue-500/10 hover:bg-blue-500/20',
+                            href: `/${params.locale}/academy/tools/chart-plotter`
+                        },
+                        {
+                            id: 'knots',
+                            label: 'Nudos',
+                            icon: <Anchor className="w-5 h-5" />,
+                            color: 'text-orange-400 bg-orange-500/10 hover:bg-orange-500/20',
+                            href: `/${params.locale}/academy/tools/knots`
+                        },
+                        {
+                            id: 'wind-lab',
+                            label: 'Viento',
+                            icon: <Wind className="w-5 h-5" />,
+                            color: 'text-cyan-400 bg-cyan-500/10 hover:bg-cyan-500/20',
+                            href: `/${params.locale}/academy/tools/wind-lab`
+                        },
+                        {
+                            id: 'skills',
+                            label: 'Seguridad',
+                            icon: <Shield className="w-5 h-5" />,
+                            color: 'text-red-400 bg-red-500/10 hover:bg-red-500/20',
+                            href: `/${params.locale}/academy/skills`
+                        }
+                    ].map((tool) => (
+                        <Link
+                            key={tool.id}
+                            href={tool.href}
+                            prefetch={false}
+                            className={`flex flex-col items-center justify-center p-4 rounded-xl border border-white/5 transition-all duration-300 group ${tool.color}`}
+                        >
+                            <div className="mb-2 transition-transform group-hover:scale-110">
+                                {tool.icon}
+                            </div>
+                            <span className="text-[10px] font-black uppercase tracking-widest">{tool.label}</span>
+                        </Link>
+                    ))}
                 </div>
             </div>
 

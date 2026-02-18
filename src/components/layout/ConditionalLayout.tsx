@@ -1,6 +1,7 @@
 'use client';
 import { usePathname } from 'next/navigation';
-import { ReactNode } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
+import { Capacitor } from '@capacitor/core';
 import AcademyControls from '@/components/layout/AcademyControls';
 import MobileBottomNav from '@/components/layout/MobileBottomNav';
 import NotificationContainer from '@/components/academy/notifications/NotificationContainer';
@@ -20,6 +21,16 @@ export default function ConditionalLayout({ children, navbar, footer }: Conditio
     const isAcademy = pathname.includes('/academy');
     const isAuth = pathname.includes('/auth/');
 
+    // Default to false (SSR/Web)
+    const [isNativeApp, setIsNativeApp] = useState(false);
+
+    useEffect(() => {
+        // Check if running in a native Capacitor environment (iOS/Android)
+        if (Capacitor.isNativePlatform()) {
+            setIsNativeApp(true);
+        }
+    }, []);
+
     // Academy mode — no nav, show academy controls
     if (isAcademy) {
         return (
@@ -28,8 +39,8 @@ export default function ConditionalLayout({ children, navbar, footer }: Conditio
                     {children}
                     <AcademyControls />
                 </main>
-                {!isAuth && (
-                    <div className="md:hidden">
+                {!isAuth && isNativeApp && (
+                    <div className="block">
                         <MobileBottomNav />
                     </div>
                 )}
@@ -43,19 +54,23 @@ export default function ConditionalLayout({ children, navbar, footer }: Conditio
 
     return (
         <>
-            {/* Desktop Navbar - hidden on mobile */}
-            {!isAuth && <div className="hidden md:block">{navbar}</div>}
+            {/* Navbar: Visible on Web (Responsive), Hidden on Native App */}
+            {!isAuth && !isNativeApp && (
+                <div className="block">{navbar}</div>
+            )}
 
             <main className={`flex-grow min-h-screen bg-nautical-black ${!isAuth ? 'pb-24 md:pb-0' : ''}`}>
                 {children}
             </main>
 
-            {/* Desktop Footer - hidden on mobile */}
-            {!isAuth && <div className="hidden md:block">{footer}</div>}
+            {/* Footer: Visible on Web (Responsive), Hidden on Native App */}
+            {!isAuth && !isNativeApp && (
+                <div className="block">{footer}</div>
+            )}
 
-            {/* Mobile Navigation - hidden on desktop */}
-            {!isAuth && (
-                <div className="md:hidden">
+            {/* Mobile Navigation: Visible ONLY on Native Mobile App */}
+            {!isAuth && isNativeApp && (
+                <div className="block">
                     <MobileBottomNav />
                 </div>
             )}

@@ -177,7 +177,7 @@ export default async function CourseDetailPage({
             precio: 150,
             duracion_h: 20,
             nivel: 'iniciacion',
-            imagen_url: '/images/courses/IniciacionJ80.png',
+            imagen_url: '/images/courses/IniciacionJ80.webp',
             detalles: {
                 es: ['Maniobras básicas a vela', 'Seguridad en puerto y mar', 'Grupos reducidos (mín. 4)', '20 horas de formación'],
                 eu: ['Oinarrizko bela maniobrak', 'Segurtasuna portuan eta itsasoan', 'Talde txikiak (gutxienez 4)', '20 orduko prestakuntza']
@@ -192,7 +192,7 @@ export default async function CourseDetailPage({
             precio: 220,
             duracion_h: 20,
             nivel: 'intermedio',
-            imagen_url: '/images/courses/PerfeccionamientoVela.png',
+            imagen_url: '/images/courses/PerfeccionamientoVela.webp',
             detalles: {
                 es: ['Técnica avanzada de trimado', 'Táctica de regata', 'Navegación nocturna básica', 'Perfeccionamiento de maniobras'],
                 eu: ['Trimatzeko teknika aurreratua', 'Estropada taktika', 'Oinarrizko gaueko nabigazioa', 'Maniobrak hobetzea']
@@ -207,7 +207,7 @@ export default async function CourseDetailPage({
             precio: 149,
             duracion_h: 6,
             nivel: 'iniciacion',
-            imagen_url: '/images/courses/LicenciadeNavegacion.png',
+            imagen_url: '/images/courses/LicenciadeNavegacion.webp',
             detalles: {
                 es: ['Título oficial sin examen', 'Gobierno de barcos hasta 6m', 'Motos náuticas hasta 55CV', 'Navegación diurna (2 millas)'],
                 eu: ['Azterketarik gabeko titulu ofiziala', '6 metrorainoko ontzien gobernua', '55CV-rainoko motorrak', 'Eguneko nabigazioa (2 milia)']
@@ -222,7 +222,7 @@ export default async function CourseDetailPage({
             precio: 100,
             duracion_h: 12,
             nivel: 'iniciacion',
-            imagen_url: '/images/courses/CursodeVelaLigera.png',
+            imagen_url: '/images/courses/CursodeVelaLigera.webp',
             detalles: {
                 es: ['Optimist, Laser y 420', 'Octubre a Junio', '3 domingos al mes', 'Incluye monitor y equipo'],
                 eu: ['Optimist, Laser eta 420', 'Urritik Ekainera', 'Hilean 3 igande', 'Monitorea eta ekipoa barne']
