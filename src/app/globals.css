@@ -344,13 +344,13 @@ a:hover {
 
 /* Nautical Textures (Fase 10) */
 .bg-waves {
-  background-image: url('/images/bg-texture-waves.png');
+  background-image: url('/images/bg-texture-waves.webp');
   background-repeat: repeat;
   background-size: 512px;
 }
 
 .bg-maps {
-  background-image: url('/images/bg-texture-maps.png');
+  background-image: url('/images/bg-texture-maps.webp');
   background-repeat: repeat;
   background-size: 800px;
 }

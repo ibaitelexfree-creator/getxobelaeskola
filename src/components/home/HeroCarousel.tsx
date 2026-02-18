@@ -5,12 +5,25 @@ import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { useParams } from 'next/navigation';
 
-export default function HeroCarousel() {
+interface HeroSlide {
+    id: number;
+    image: string;
+    title: string;
+    subtitle: string;
+    action: string;
+    link: string;
+}
+
+interface HeroCarouselProps {
+    initialSlides?: HeroSlide[];
+}
+
+export default function HeroCarousel({ initialSlides }: HeroCarouselProps) {
     const t = useTranslations('home.hero');
     const { locale } = useParams();
     const [current, setCurrent] = useState(0);
 
-    const slides = [
+    const slides: HeroSlide[] = initialSlides || [
         {
             id: 1,
             image: '/images/home-hero-sailing-action.webp',
@@ -29,7 +42,7 @@ export default function HeroCarousel() {
         },
         {
             id: 3,
-            image: '/images/course-card-initiation.jpg',
+            image: '/images/legacy/course-card-initiation.jpg',
             title: t('slide3_title'),
             subtitle: t('slide3_subtitle'),
             action: t('slide3_action'),
@@ -65,15 +78,16 @@ export default function HeroCarousel() {
                         alt={`${slide.title}: ${slide.subtitle}`}
                         fill
                         priority={index === 0}
+                        quality={70}
                         sizes="100vw"
-                        className={`object-cover transition-transform duration-[6000ms] ease-linear ${index === current ? 'scale-110' : 'scale-100'
+                        className={`object-cover transition-transform duration-[6000ms] ease-linear will-change-transform ${index === current ? 'scale-110' : 'scale-100'
                             }`}
                     />
                     <div className="absolute inset-0 bg-gradient-to-r from-nautical-black/80 via-nautical-black/40 to-transparent" />
 
                     <div className="absolute inset-0 flex items-center">
                         <div className="container mx-auto px-6">
-                            <div className={`max-w-3xl transition-all duration-1000 delay-300 transform ${index === current ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
+                            <div className={`max-w-3xl transition-[opacity,transform] duration-1000 delay-300 transform ${index === current ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
                                 }`}>
                                 <span className="text-accent uppercase tracking-[0.4em] text-2xs font-bold mb-6 block">
                                     Getxo <span className="italic">Bela</span> Eskola
@@ -116,11 +130,11 @@ export default function HeroCarousel() {
                         role="tab"
                         aria-selected={index === current}
                         aria-label={`Ver diapositiva ${index + 1}: ${slide.title}`}
-                        className={`group relative w-12 h-1 transition-all duration-500 overflow-hidden ${index === current ? 'bg-accent/40' : 'bg-white/10 hover:bg-white/30'
+                        className={`group relative w-12 h-1 transition-[background-color] duration-500 overflow-hidden ${index === current ? 'bg-accent/40' : 'bg-white/10 hover:bg-white/30'
                             }`}
                     >
                         <div
-                            className={`absolute top-0 left-0 h-full bg-accent transition-all duration-[6000ms] linear ${index === current ? 'w-full' : 'w-0'
+                            className={`absolute top-0 left-0 h-full w-full bg-accent transition-transform duration-[6000ms] ease-linear origin-left ${index === current ? 'scale-x-100' : 'scale-x-0'
                                 }`}
                         />
                     </button>

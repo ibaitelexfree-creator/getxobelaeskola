@@ -40,6 +40,13 @@ export default async function LocaleLayout({
 
   return (
     <html lang={locale} className={`${cormorantGaramond.variable} ${outfit.variable} ${jetbrainsMono.variable}`} suppressHydrationWarning>
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://xbledhifomblirxurtyv.supabase.co" />
+        <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+        <link rel="dns-prefetch" href="https://xbledhifomblirxurtyv.supabase.co" />
+      </head>
       <body suppressHydrationWarning>
         <NextIntlClientProvider messages={messages} locale={locale} timeZone="Europe/Madrid">
           <AcademyFeedbackProvider>

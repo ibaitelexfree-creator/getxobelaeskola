@@ -1,38 +1,22 @@
-'use client';
-
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useTranslations } from 'next-intl';
-import { useParams } from 'next/navigation';
 
-export default function ProgramsSection() {
-    const t = useTranslations('home.programs');
-    const { locale } = useParams();
+interface ProgramsSectionProps {
+    locale: string;
+    badge: string;
+    title: string;
+    learn_more: string;
+    programs: {
+        title: string;
+        price: string;
+        desc: string;
+        image: string;
+        link: string;
+    }[];
+}
 
-    const programs = [
-        {
-            title: t('licencia_title'),
-            price: t('licencia_price'),
-            desc: t('licencia_desc'),
-            image: '/images/course-license-navigation.jpg',
-            link: '/courses/licencia-navegacion'
-        },
-        {
-            title: t('j80_title'),
-            price: t('j80_price'),
-            desc: t('j80_desc'),
-            image: '/images/course-card-initiation.jpg',
-            link: '/courses/iniciacion-j80'
-        },
-        {
-            title: t('rental_title'),
-            price: t('price_rental'),
-            desc: t('rental_desc'),
-            image: '/images/course-card-advanced.jpg',
-            link: '/rental'
-        }
-    ];
+export default function ProgramsSection({ locale, badge, title, learn_more, programs }: ProgramsSectionProps) {
 
     return (
         <section className="py-64 bg-nautical-black relative overflow-hidden">
@@ -42,10 +26,10 @@ export default function ProgramsSection() {
             <div className="container mx-auto px-6 relative z-10 text-center">
                 <header className="mb-32">
                     <span className="text-accent uppercase tracking-[0.6em] text-sm font-bold mb-8 block">
-                        {t('badge')}
+                        {badge}
                     </span>
                     <h2 className="text-3xl sm:text-4xl md:text-7xl lg:text-9xl font-display text-white mb-12 italic leading-none">
-                        {t('title')}
+                        {title}
                     </h2>
                     <div className="w-32 h-px bg-gradient-to-r from-transparent via-brass-gold to-transparent mx-auto" />
                 </header>
@@ -78,7 +62,7 @@ export default function ProgramsSection() {
                                 </p>
                                 <div className="flex items-center gap-4 text-xs uppercase tracking-[0.3em] font-black text-accent mt-4">
                                     <span className="border-b-2 border-accent/20 pb-1 group-hover:border-accent transition-all duration-500">
-                                        {t('learn_more')}
+                                        {learn_more}
                                     </span>
                                     <span className="translate-x-0 group-hover:translate-x-3 transition-transform duration-500">→</span>
                                 </div>
