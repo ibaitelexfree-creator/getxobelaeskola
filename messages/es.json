@@ -671,7 +671,24 @@
             "Ajusta tus velas para aprovechar cada racha de viento.",
             "La mejor forma de navegar es con el corazón y la técnica.",
             "Cada nudo de experiencia cuenta en tu bitácora."
-        ]
+        ],
+        "logbook": {
+            "moods": {
+                "discovery": "Descubrimiento",
+                "confident": "Seguro",
+                "challenging": "Desafiante"
+            },
+            "save_private": "Guardar Privado",
+            "new_entry": "Nueva Entrada",
+            "reflections": "Mis Reflexiones Náuticas",
+            "discard": "Descartar",
+            "placeholder": "Escribe tus reflexiones sobre la jornada de hoy...",
+            "official_history": "Historial Oficial",
+            "skills": "Habilidades",
+            "water_map": "Mapa de Aguas",
+            "my_fleet": "Mi Flota",
+            "personal_diary": "Diario Personal"
+        }
     },
     "errors": {
         "404": {

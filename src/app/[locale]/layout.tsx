@@ -46,15 +46,13 @@ export default async function LocaleLayout({
             <PushNotificationInitializer />
             <div className="min-h-screen flex flex-col relative w-full overflow-x-hidden">
               <ConditionalLayout
+                locale={locale}
                 navbar={<Navbar locale={locale} />}
                 footer={<Footer locale={locale} />}
               >
                 {children}
               </ConditionalLayout>
             </div>
-            <NotificationContainer />
-            <RealtimeNotifications />
-            <ActivityTracker />
             <ScrollUpButton />
             <Suspense fallback={null}>
               <StatusToast />
@@ -71,21 +69,22 @@ export async function generateMetadata({ params: { locale } }: { params: { local
   const isEn = locale === 'en';
   const isFr = locale === 'fr';
 
-  let title = 'Getxo Sailing School | Escuela de Navegación';
-  let description = 'Descubre el mundo de la navegación en Getxo. Cursos de vela, academia online y alquiler de embarcaciones.';
+  let title = 'Getxo Bela Eskola | Escuela de Navegación en Getxo';
+  let description = 'Aprende a navegar en el Cantábrico. Cursos de vela ligera, cruceros J80, academia náutica online y alquiler de material en el Puerto Deportivo de Getxo.';
 
   if (isEu) {
-    title = 'Getxo Bela Eskola | Nabigazio Akademia';
-    description = 'Ezagutu nabigazioaren mundua Getxon. Bela ikastaroak, online akademia eta ontzien alokairua.';
+    title = 'Getxo Bela Eskola | Nabigazio Akademia Getxon';
+    description = 'Ikasi nabigatzen Kantauri itsasoan. Bela ikastaroak, J80 ontziak, online akademia eta material alokairua Getxoko Portu Kiroleruan.';
   } else if (isEn) {
-    title = 'Getxo Sailing School | Nautical Academy';
-    description = 'Discover the world of sailing in Getxo. Sailing courses, online academy, and boat rentals.';
+    title = 'Getxo Sailing School | Sailing Lessons in Getxo';
+    description = 'Learn to sail in the Bay of Biscay. Pro sailing courses, J80 yacht training, online academy, and boat rentals in Getxo Marina.';
   } else if (isFr) {
-    title = 'Getxo Sailing School | École Nautique';
-    description = 'Découvrez le monde de la navigation à Getxo. Cours de voile, académie en ligne et location de bateaux.';
+    title = 'Getxo Sailing School | École de Voile à Getxo';
+    description = 'Apprenez la navigation en mer Cantabrique. Cours de voile, formation J80, académie en ligne et location de bateaux à Getxo.';
   }
 
   const ogLocale = isEu ? 'eu_ES' : isEn ? 'en_US' : isFr ? 'fr_FR' : 'es_ES';
+  const siteUrl = 'https://getxobelaeskola.com'; // Using the primary .com domain
 
   return {
     title: {
@@ -93,35 +92,31 @@ export async function generateMetadata({ params: { locale } }: { params: { local
       template: `%s | Getxo Sailing School`
     },
     description,
-    keywords: ['vela', 'sailing', 'getxo', 'academia náutica', 'bela eskola', 'alquiler barcos', 'voile', 'école nautique'],
+    keywords: ['vela getxo', 'escuela náutica', 'bela eskola', 'alquiler barcos getxo', 'cursos vela', 'licencia navegación', 'J80 getxo', 'pakea bela'],
     authors: [{ name: 'Getxo Sailing School' }],
     creator: 'Getxo Sailing School',
     publisher: 'Getxo Sailing School',
-    formatDetection: {
-      email: false,
-      address: false,
-      telephone: false,
-    },
-    metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://getxobelaeskola.com'),
+    metadataBase: new URL(siteUrl),
     alternates: {
-      canonical: 'https://getxobelaeskola.com',
+      canonical: '/',
       languages: {
-        'es-ES': 'https://getxobelaeskola.com/es',
-        'eu-ES': 'https://getxobelaeskola.com/eu',
-        'en-US': 'https://getxobelaeskola.com/en',
-        'fr-FR': 'https://getxobelaeskola.com/fr',
+        'es-ES': '/es',
+        'eu-ES': '/eu',
+        'en-US': '/en',
+        'fr-FR': '/fr',
       },
     },
     openGraph: {
       title,
       description,
-      url: process.env.NEXT_PUBLIC_APP_URL || 'https://getxobelaeskola.com',
+      url: siteUrl,
       siteName: 'Getxo Sailing School',
       images: [
         {
-          url: '/og-image.jpg', // Requiere crear esta imagen
+          url: '/images/home-hero-sailing-action.webp',
           width: 1200,
           height: 630,
+          alt: 'Getxo Sailing School - Sailing Action'
         },
       ],
       locale: ogLocale,
@@ -131,7 +126,7 @@ export async function generateMetadata({ params: { locale } }: { params: { local
       card: 'summary_large_image',
       title,
       description,
-      images: ['/og-image.jpg'],
+      images: ['/images/home-hero-sailing-action.webp'],
     },
     robots: {
       index: true,

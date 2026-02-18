@@ -2,16 +2,16 @@ import { MetadataRoute } from 'next';
 import { createClient } from '@/lib/supabase/client';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://getxo-sailing-school.vercel.app';
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://getxobelaeskola.cloud';
 
     // 1. Static Routes
     const staticRoutes = [
-        '',
-        '/about',
-        '/contact',
-        '/courses',
-        '/rental',
-        '/academy'
+        '/',
+        '/about/',
+        '/contact/',
+        '/courses/',
+        '/rental/',
+        '/academy/'
     ];
 
     // 2. Fetch Dynamic Courses
@@ -30,13 +30,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
             url: `${baseUrl}/es${route}`,
             lastModified: new Date(),
             changeFrequency: 'weekly',
-            priority: route === '' ? 1 : 0.8,
+            priority: route === '/' ? 1 : 0.8,
         });
         entries.push({
             url: `${baseUrl}/eu${route}`,
             lastModified: new Date(),
             changeFrequency: 'weekly',
-            priority: route === '' ? 1 : 0.8,
+            priority: route === '/' ? 1 : 0.8,
         });
     });
 
@@ -45,13 +45,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         // @ts-ignore
         courses.forEach((course: any) => {
             entries.push({
-                url: `${baseUrl}/es/courses/${course.slug}`,
+                url: `${baseUrl}/es/courses/${course.slug}/`,
                 lastModified: new Date(course.updated_at || new Date()),
                 changeFrequency: 'weekly',
                 priority: 0.9,
             });
             entries.push({
-                url: `${baseUrl}/eu/courses/${course.slug}`,
+                url: `${baseUrl}/eu/courses/${course.slug}/`,
                 lastModified: new Date(course.updated_at || new Date()),
                 changeFrequency: 'weekly',
                 priority: 0.9,

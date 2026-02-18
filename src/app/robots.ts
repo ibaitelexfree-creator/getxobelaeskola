@@ -1,7 +1,7 @@
 import { MetadataRoute } from 'next';
 
 export default function robots(): MetadataRoute.Robots {
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://getxo-sailing-school.vercel.app';
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://getxobelaeskola.cloud';
 
     return {
         rules: {
@@ -10,9 +10,8 @@ export default function robots(): MetadataRoute.Robots {
             disallow: [
                 '/private/',
                 '/api/',
-                '/staff/',
                 '/admin/',
-                '/student/dashboard/' // Don't index student dashboards
+                '/**/student/dashboard/' // Disallow dashboard in any locale
             ],
         },
         sitemap: `${baseUrl}/sitemap.xml`,

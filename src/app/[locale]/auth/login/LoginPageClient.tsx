@@ -15,12 +15,20 @@ function LoginPageContent({ locale }: { locale: string }) {
     const returnTo = searchParams.get('returnTo');
     const router = useRouter();
     const [checking, setChecking] = useState(true);
+    const [isMobile, setIsMobile] = useState(false);
+
+    useEffect(() => {
+        const check = () => setIsMobile(window.innerWidth < 1024);
+        check();
+        window.addEventListener('resize', check);
+        return () => window.removeEventListener('resize', check);
+    }, []);
 
     // Auto-redirect if already authenticated
     useEffect(() => {
         const supabase = createClient();
-        supabase.auth.getUser().then(({ data: { user } }) => {
-            if (user) {
+        supabase.auth.getSession().then(({ data: { session } }: { data: { session: any } }) => {
+            if (session) {
                 router.replace(returnTo || `/${locale}/student/dashboard`);
             } else {
                 setChecking(false);
@@ -28,13 +36,11 @@ function LoginPageContent({ locale }: { locale: string }) {
         });
     }, [locale, router, returnTo]);
 
-    if (checking) {
-        return (
-            <div className="min-h-screen bg-nautical-black flex items-center justify-center">
-                <div className="w-10 h-10 border-2 border-accent border-t-transparent rounded-full animate-spin" />
-            </div>
-        );
-    }
+    // Render nothing while we decide if we need to redirect
+    // BUT we should render the form as soon as possible if we want 100 speed
+    // So let's only hide if we are CERTAIN we are redirecting.
+    // However, to avoid flash of content, we can use a simpler approach.
+    // For 100 speed, we render the page immediately and the useEffect handles the "already logged in" edge case.
 
     return (
         <main className="min-h-screen bg-nautical-black flex flex-col relative overflow-hidden">
@@ -43,19 +49,21 @@ function LoginPageContent({ locale }: { locale: string }) {
             <div className="absolute bottom-0 right-0 w-[300px] h-[300px] bg-brass-gold/5 blur-[120px] rounded-full pointer-events-none" />
 
             {/* Desktop: Two Column Layout */}
-            <div className="hidden lg:block absolute inset-y-0 left-0 w-1/2 overflow-hidden">
-                <video
-                    autoPlay loop muted playsInline
-                    className="absolute inset-0 w-full h-full object-cover opacity-30 grayscale"
-                >
-                    <source src="https://assets.mixkit.co/videos/preview/mixkit-sailing-boat-on-the-sea-during-sunset-34538-large.mp4" type="video/mp4" />
-                </video>
-                <div className="absolute inset-0 bg-gradient-to-r from-nautical-black via-transparent to-nautical-black" />
-                <div className="absolute bottom-20 left-16 z-10">
-                    <h2 className="text-5xl font-display mb-3 italic text-white">{t('hero_text')}</h2>
-                    <p className="text-accent uppercase tracking-widest text-[10px] font-bold">Getxo Bela Eskola · Est. 1992</p>
+            {!isMobile && (
+                <div className="hidden lg:block absolute inset-y-0 left-0 w-1/2 overflow-hidden">
+                    <video
+                        autoPlay loop muted playsInline
+                        className="absolute inset-0 w-full h-full object-cover opacity-30 grayscale"
+                    >
+                        <source src="https://assets.mixkit.co/videos/preview/mixkit-sailing-boat-on-the-sea-during-sunset-34538-large.mp4" type="video/mp4" />
+                    </video>
+                    <div className="absolute inset-0 bg-gradient-to-r from-nautical-black via-transparent to-nautical-black" />
+                    <div className="absolute bottom-20 left-16 z-10">
+                        <h2 className="text-5xl font-display mb-3 italic text-white">{t('hero_text')}</h2>
+                        <p className="text-accent uppercase tracking-widest text-[10px] font-bold">Getxo Bela Eskola · Est. 1992</p>
+                    </div>
                 </div>
-            </div>
+            )}
 
             {/* Content — Full on mobile, right half on desktop */}
             <div className="flex-1 flex items-center justify-center px-6 py-12 lg:ml-[50%] relative z-10">

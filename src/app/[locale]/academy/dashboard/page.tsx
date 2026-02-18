@@ -329,7 +329,7 @@ export default function DashboardPage({ params }: { params: { locale: string } }
                     <CareerAdvisor recommendations={data.recommendations || []} />
                     <ActivityHeatmap data={data.estadisticas.activity_heatmap || []} />
 
-                    <NavigationExperienceMap sessions={data.horas || []} locale={params.locale} />
+                    <NavigationExperienceMap sessions={data.horas || []} />
 
                     <section>
                         <h2 className="text-xl font-display italic mb-6 flex items-center gap-3">

@@ -1,4 +1,3 @@
-
 const { createClient } = require('@supabase/supabase-js');
 
 const SUPABASE_URL = "https://xbledhifomblirxurtyv.supabase.co";
@@ -6,8 +5,12 @@ const SERVICE_ROLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhY
 
 async function checkCursos() {
     const supabase = createClient(SUPABASE_URL, SERVICE_ROLE_KEY);
-    const { data: cursoData } = await supabase.from('cursos').select('*').limit(1);
-    console.log(cursoData);
+    const { data: cursoData, error } = await supabase.from('cursos').select('nombre_es, imagen_url');
+    if (error) {
+        console.error(error);
+        return;
+    }
+    console.log(JSON.stringify(cursoData, null, 2));
 }
 
 checkCursos();

@@ -65,10 +65,9 @@ export default async function ContactPage({ params: { locale } }: { params: { lo
                         </div>
 
                         {/* Social Links or Extra Decor */}
-                        <div className="mt-24 pt-24 border-t border-white/5 flex gap-12 text-xs uppercase tracking-[0.3em] text-foreground/20 font-light">
-                            <a href="#" className="hover:text-white transition-colors">Instagram</a>
-                            <a href="#" className="hover:text-white transition-colors">Facebook</a>
-                            <a href="#" className="hover:text-white transition-colors">LinkedIn</a>
+                        <div className="mt-24 pt-24 border-t border-white/5 flex gap-12 text-xs uppercase tracking-[0.3em] font-light">
+                            <a href="https://www.instagram.com/pakeabelaeskola/" target="_blank" rel="noopener noreferrer" className="text-foreground/40 hover:text-white transition-colors">Instagram</a>
+                            <a href="https://www.facebook.com/Pakea.bela.eskola/" target="_blank" rel="noopener noreferrer" className="text-foreground/40 hover:text-white transition-colors">Facebook</a>
                         </div>
                     </div>
 

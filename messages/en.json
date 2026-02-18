@@ -671,7 +671,24 @@
             "Adjust your sails to use every gust of wind.",
             "The best way to sail is with heart and technique.",
             "Every knot of experience counts in your logbook."
-        ]
+        ],
+        "logbook": {
+            "moods": {
+                "discovery": "Discovery",
+                "confident": "Confident",
+                "challenging": "Challenging"
+            },
+            "save_private": "Save Private",
+            "new_entry": "New Entry",
+            "reflections": "My Nautical Reflections",
+            "discard": "Discard",
+            "placeholder": "Write your reflections about today's journey...",
+            "official_history": "Official History",
+            "skills": "Skills",
+            "water_map": "Water Map",
+            "my_fleet": "My Fleet",
+            "personal_diary": "Personal Diary"
+        }
     },
     "errors": {
         "404": {

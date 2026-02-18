@@ -84,6 +84,12 @@ export default function AcademyControls() {
                     >
                         EU
                     </button>
+                    <button
+                        onClick={() => handleLanguageSwitch('en')}
+                        className={`w-8 h-8 rounded-full flex items-center justify-center text-[8px] font-black transition-colors ${currentLocale === 'en' ? 'bg-accent text-nautical-black' : 'text-white/40 hover:text-white hover:bg-white/10'}`}
+                    >
+                        EN
+                    </button>
                 </div>
 
                 {/* Exploration / Dashboard Toggle */}

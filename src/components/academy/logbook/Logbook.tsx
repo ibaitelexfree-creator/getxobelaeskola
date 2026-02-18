@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useParams } from 'next/navigation';
 import {
     Book, Edit3, Save, Calendar, Wind, Compass,
     Award, Plus, Trash2, Anchor, Star,
@@ -48,6 +49,8 @@ interface Skill {
 
 export default function Logbook() {
     const t = useTranslations('academy');
+    const params = useParams();
+    const locale = (params?.locale as string) || 'es';
     const [activeTab, setActiveTab] = useState<'official' | 'diary' | 'skills' | 'map' | 'fleet'>('official');
     const [diaryEntries, setDiaryEntries] = useState<LogEntry[]>([]);
     const [isWriting, setIsWriting] = useState(false);
@@ -56,6 +59,16 @@ export default function Logbook() {
 
     const [officialData, setOfficialData] = useState<any>(null);
     const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            const params = new URLSearchParams(window.location.search);
+            const tab = params.get('tab');
+            if (tab && ['official', 'diary', 'skills', 'map', 'fleet'].includes(tab)) {
+                setActiveTab(tab as any);
+            }
+        }
+    }, []);
 
     // Load official data and diary from cloud
     useEffect(() => {
@@ -68,7 +81,7 @@ export default function Logbook() {
                 setOfficialData(dataProgress);
 
                 // Fetch cloud diary
-                const resDiary = await fetch(apiUrl('/api/academy/logbook/diary'));
+                const resDiary = await fetch(apiUrl('/api/logbook/diary'));
                 const dataDiary = await resDiary.json();
                 if (Array.isArray(dataDiary)) {
                     setDiaryEntries(dataDiary);
@@ -86,7 +99,7 @@ export default function Logbook() {
         if (!newNote.trim()) return;
 
         try {
-            const res = await fetch(apiUrl('/api/academy/logbook/diary'), {
+            const res = await fetch(apiUrl('/api/logbook/diary'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -109,7 +122,7 @@ export default function Logbook() {
 
     const deleteEntry = async (id: string) => {
         try {
-            const res = await fetch(apiUrl(`/api/academy/logbook/diary?id=${id}`), {
+            const res = await fetch(apiUrl(`/api/logbook/diary?id=${id}`), {
                 method: 'DELETE'
             });
 
@@ -124,10 +137,10 @@ export default function Logbook() {
     const handleDownloadReport = async () => {
         if (!officialData) return;
         await generateLogbookReportPDF({
-            studentName: officialData.user?.full_name || 'Navegante',
+            studentName: officialData?.user?.full_name || 'Navegante',
             totalHours: totalHours,
             totalMiles: Number(totalMiles),
-            sessions: officialData.horas || []
+            sessions: officialData?.horas || []
         });
     };
 
@@ -431,12 +444,14 @@ export default function Logbook() {
                                                 <button
                                                     key={mood}
                                                     onClick={() => setSelectedMood(mood)}
-                                                    className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${selectedMood === mood ? 'bg-accent text-nautical-black scale-110 shadow-lg shadow-accent/20' : 'bg-white/5 text-white/40 hover:text-white border border-white/5'}`}
-                                                    title={mood}
+                                                    className={`px-4 h-10 rounded-full flex items-center justify-center gap-2 transition-all ${selectedMood === mood ? 'bg-accent text-nautical-black scale-105 shadow-lg shadow-accent/20' : 'bg-white/5 text-white/40 hover:text-white border border-white/5'}`}
                                                 >
                                                     {mood === 'discovery' && <Compass size={16} />}
                                                     {mood === 'confident' && <Award size={16} />}
                                                     {mood === 'challenging' && <Wind size={16} />}
+                                                    <span className="text-[10px] uppercase font-black">
+                                                        {mood === 'discovery' ? 'Descubrimiento' : mood === 'confident' ? 'Seguro' : 'Desafiante'}
+                                                    </span>
                                                 </button>
                                             ))}
                                         </div>
