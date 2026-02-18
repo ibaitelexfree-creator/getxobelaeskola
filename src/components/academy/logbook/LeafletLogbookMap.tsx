@@ -1,8 +1,20 @@
 'use client';
 
 import React from 'react';
-import { MapContainer, TileLayer, Polyline, CircleMarker, Popup } from 'react-leaflet';
+import { MapContainer, TileLayer } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
+import L from 'leaflet';
+
+// Fix for default marker icons in Leaflet
+if (typeof window !== 'undefined') {
+    // @ts-ignore
+    delete L.Icon.Default.prototype._getIconUrl;
+    L.Icon.Default.mergeOptions({
+        iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
+        iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
+        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+    });
+}
 
 interface LeafletLogbookMapProps {
     sessions: any[];
@@ -14,84 +26,24 @@ export default function LeafletLogbookMap({ sessions, selectedPoint, setSelected
     if (typeof window === 'undefined') return null;
 
     return (
-        <div style={{ height: '100%', width: '100%' }}>
+        <div className="w-full h-full relative" style={{ minHeight: '400px', background: '#050b14' }}>
             <MapContainer
                 center={[43.35, -3.01]}
                 zoom={13}
-                style={{ height: '100%', width: '100%', background: '#050b14' }}
+                scrollWheelZoom={false}
+                style={{ height: '100%', width: '100%' }}
                 zoomControl={false}
                 attributionControl={false}
             >
                 <TileLayer
                     url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
                 />
-
-                {/* Tracks */}
-                {Array.isArray(sessions) && sessions
-                    .filter(s => s.track_log && Array.isArray(s.track_log))
-                    .map((session) => {
-                        const validPositions = session.track_log
-                            ?.map((p: any) => {
-                                const lat = typeof p.lat === 'string' ? parseFloat(p.lat) : p.lat;
-                                const lng = typeof p.lng === 'string' ? parseFloat(p.lng) : p.lng;
-                                if (isNaN(lat) || isNaN(lng)) return null;
-                                return [lat, lng] as [number, number];
-                            })
-                            .filter((p: [number, number] | null): p is [number, number] => p !== null) || [];
-
-                        if (validPositions.length < 2) return null;
-
-                        return (
-                            <Polyline
-                                key={`track-${session.id}`}
-                                positions={validPositions}
-                                pathOptions={{
-                                    color: selectedPoint?.id === session.id ? "#fbbf24" : "#0ea5e9",
-                                    weight: selectedPoint?.id === session.id ? 4 : 2,
-                                    opacity: selectedPoint?.id === session.id ? 1 : 0.6
-                                }}
-                                eventHandlers={{
-                                    click: () => setSelectedPoint(session)
-                                }}
-                            />
-                        );
-                    })}
-
-                {/* Markers */}
-                {Array.isArray(sessions) && sessions
-                    .filter(s => s.ubicacion &&
-                        (typeof s.ubicacion.lat === 'number' || typeof s.ubicacion.lat === 'string') &&
-                        (typeof s.ubicacion.lng === 'number' || typeof s.ubicacion.lng === 'string'))
-                    .map((point) => {
-                        const lat = typeof point.ubicacion!.lat === 'string' ? parseFloat(point.ubicacion!.lat) : point.ubicacion!.lat;
-                        const lng = typeof point.ubicacion!.lng === 'string' ? parseFloat(point.ubicacion!.lng) : point.ubicacion!.lng;
-
-                        if (isNaN(lat) || isNaN(lng)) return null;
-
-                        return (
-                            <CircleMarker
-                                key={point.id}
-                                center={[lat, lng]}
-                                radius={selectedPoint?.id === point.id ? 8 : 5}
-                                pathOptions={{
-                                    fillColor: selectedPoint?.id === point.id ? '#fbbf24' : '#0ea5e9',
-                                    color: 'white',
-                                    weight: 1,
-                                    fillOpacity: 0.8
-                                }}
-                                eventHandlers={{
-                                    click: () => setSelectedPoint(point)
-                                }}
-                            >
-                                <Popup>
-                                    <div className="text-[10px] text-black font-bold uppercase">
-                                        {point.zona_nombre}
-                                    </div>
-                                </Popup>
-                            </CircleMarker>
-                        );
-                    })}
             </MapContainer>
+
+            {/* HUD to confirm render */}
+            <div className="absolute top-4 right-4 z-[1000] px-3 py-1 bg-accent/20 border border-accent/40 rounded-full text-[8px] font-black text-accent uppercase tracking-widest">
+                Engine Active
+            </div>
         </div>
     );
 }

@@ -1,13 +1,32 @@
-'use client';
 import React from 'react';
 import Link from 'next/link';
-import { useTranslations } from 'next-intl';
-import { useParams } from 'next/navigation';
 import Image from 'next/image';
 
-export default function ExperienceSection() {
-    const t = useTranslations('home.experience');
-    const { locale } = useParams();
+interface ExperienceSectionProps {
+    locale: string;
+    filosofia: string;
+    lifestyle_title: string;
+    lifestyle_subtitle: string;
+    desc1: string;
+    desc2: string;
+    about_link: string;
+    live: string;
+    the: string;
+    passion: string;
+}
+
+export default function ExperienceSection({
+    locale,
+    filosofia,
+    lifestyle_title,
+    lifestyle_subtitle,
+    desc1,
+    desc2,
+    about_link,
+    live,
+    the,
+    passion
+}: ExperienceSectionProps) {
 
     return (
         <section className="relative py-48 bg-nautical-deep overflow-hidden">
@@ -30,7 +49,7 @@ export default function ExperienceSection() {
                         {/* Decorative floating box */}
                         <div className="absolute -bottom-12 -right-12 bg-accent p-12 hidden lg:block">
                             <p className="text-nautical-black font-display text-4xl leading-tight">
-                                {t('live')} <br /> {t('the')} <br /> <span className="italic pl-8">{t('passion')}</span>
+                                {live} <br /> {the} <br /> <span className="italic pl-8">{passion}</span>
                             </p>
                         </div>
                     </div>
@@ -38,20 +57,20 @@ export default function ExperienceSection() {
                     <div className="space-y-12">
                         <header>
                             <span className="text-brass-gold uppercase tracking-[0.4em] text-2xs font-bold mb-6 block">
-                                {t('filosofia')}
+                                {filosofia}
                             </span>
                             <h2 className="text-3xl sm:text-5xl lg:text-7xl font-display text-white mb-8 leading-[1.1]">
-                                {t('lifestyle_title')} <br />
-                                <span className="italic font-light">{t('lifestyle_subtitle')}</span>
+                                {lifestyle_title} <br />
+                                <span className="italic font-light">{lifestyle_subtitle}</span>
                             </h2>
                         </header>
 
                         <div className="space-y-8 max-w-lg">
                             <p className="text-foreground/60 font-light text-lg leading-relaxed">
-                                {t('desc1')}
+                                {desc1}
                             </p>
                             <p className="text-foreground/60 font-light text-lg leading-relaxed">
-                                {t('desc2')}
+                                {desc2}
                             </p>
                         </div>
 
@@ -60,8 +79,8 @@ export default function ExperienceSection() {
                                 href={`/${locale}/about`}
                                 className="group relative inline-flex items-center gap-4 text-3xs uppercase tracking-[0.3em] font-bold text-white"
                             >
-                                <span className="w-12 h-px bg-accent group-hover:w-24 transition-all duration-500" />
-                                {t('about_link')}
+                                <span className="w-12 h-px bg-accent group-hover:scale-x-150 transition-transform duration-500 origin-left" />
+                                {about_link}
                             </Link>
                         </div>
                     </div>

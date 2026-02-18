@@ -123,7 +123,7 @@ export default function Navbar({ locale: propLocale }: { locale?: string }) {
                 >
                     <div className="relative w-10 h-10 sm:w-16 sm:h-16 md:w-14 md:h-14 flex-shrink-0">
                         <Image
-                            src="/images/LogoGetxoBelaEskola.png"
+                            src="/images/LogoGetxoBelaEskola.webp"
                             alt="Getxo Bela Eskola"
                             fill
                             className="object-contain"

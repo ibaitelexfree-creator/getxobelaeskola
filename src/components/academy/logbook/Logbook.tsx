@@ -1,287 +1,219 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
+import dynamic from 'next/dynamic';
 import { useParams } from 'next/navigation';
 import {
-    Book, Edit3, Save, Calendar, Wind, Compass,
-    Award, Plus, Trash2, Anchor, Star,
-    Download, CheckCircle2, ChevronRight, Activity,
-    Ship, Waves
+    Book, MapPin, Award, Ship, Waves, Wind,
+    ChevronRight, Anchor, Calendar, Download
 } from 'lucide-react';
-import { useTranslations } from 'next-intl';
-import CertificateCard from '@/components/academy/CertificateCard';
-import { generateLogbookReportPDF } from '@/lib/logbook/pdfReportGenerator';
-import LogbookMap from './LogbookMap';
-import FleetMastery from './FleetMastery';
 import { apiUrl } from '@/lib/api';
 
-interface LogEntry {
-    id: string;
-    fecha: string;
-    contenido: string;
-    estado_animo: 'confident' | 'challenging' | 'discovery';
-    tags: string[];
-}
-
-interface NauticalSession {
-    id: string;
-    fecha: string;
-    tipo: string;
-    duracion_h: number;
-    embarcacion: string;
-    condiciones_meteo: string;
-    notas: string;
-    verificado: boolean;
-    track_log?: any[];
-}
+// Direct dynamic import with explicit default handling
+const LeafletMap = dynamic(
+    () => import('./LeafletLogbookMap').then((mod) => mod.default),
+    {
+        ssr: false,
+        loading: () => (
+            <div className="w-full h-full bg-[#050b14] animate-pulse flex items-center justify-center text-blue-500/20">
+                <div className="flex flex-col items-center gap-4">
+                    <div className="w-12 h-12 border-4 border-blue-500/30 border-t-blue-500 rounded-full animate-spin"></div>
+                    <span className="text-[10px] uppercase tracking-widest">Cargando Mapa...</span>
+                </div>
+            </div>
+        )
+    }
+);
 
 export default function Logbook() {
-    const t = useTranslations('academy');
-    const params = useParams();
-    const locale = (params?.locale as string) || 'es';
-    const [activeTab, setActiveTab] = useState<'official' | 'diary' | 'skills' | 'map' | 'fleet'>('official');
-    const [diaryEntries, setDiaryEntries] = useState<LogEntry[]>([]);
-    const [isWriting, setIsWriting] = useState(false);
-    const [newNote, setNewNote] = useState('');
-    const [selectedMood, setSelectedMood] = useState<LogEntry['estado_animo']>('discovery');
+    const [activeTab, setActiveTab] = useState<'official' | 'map' | 'skills' | 'diary'>('official');
     const [officialData, setOfficialData] = useState<any>(null);
     const [loading, setLoading] = useState(true);
+    const [selectedPoint, setSelectedPoint] = useState<any>(null);
+    const params = useParams();
 
     useEffect(() => {
-        if (typeof window !== 'undefined') {
-            const params = new URLSearchParams(window.location.search);
-            const tab = params.get('tab');
-            if (tab && ['official', 'diary', 'skills', 'map', 'fleet'].includes(tab)) {
-                setActiveTab(tab as any);
-            }
-        }
-    }, []);
-
-    useEffect(() => {
-        async function fetchData() {
+        async function loadData() {
             setLoading(true);
             try {
-                const resProgress = await fetch(apiUrl('/api/academy/progress'));
-                const dataProgress = await resProgress.json();
-                console.log('Official Data:', dataProgress);
-                setOfficialData(dataProgress);
-
-                const resDiary = await fetch(apiUrl('/api/logbook/diary'));
-                const dataDiary = await resDiary.json();
-                if (Array.isArray(dataDiary)) {
-                    setDiaryEntries(dataDiary);
-                }
+                const res = await fetch(apiUrl('/api/academy/progress'));
+                const data = await res.json();
+                console.log('Logbook Data Loaded:', data);
+                setOfficialData(data);
             } catch (error) {
-                console.error('Error loading logbook data:', error);
+                console.error('Error loading logbook:', error);
             } finally {
                 setLoading(false);
             }
         }
-        fetchData();
+        loadData();
     }, []);
-
-    const handleDownloadReport = async () => {
-        if (!officialData) return;
-        await generateLogbookReportPDF({
-            studentName: officialData?.user?.full_name || 'Navegante',
-            totalHours: officialData?.estadisticas?.horas_totales || 0,
-            totalMiles: Number((officialData?.estadisticas?.horas_totales || 0) * 5.2),
-            sessions: officialData?.horas || []
-        });
-    };
-
-    const handleAddEntry = async () => {
-        if (!newNote.trim()) return;
-        try {
-            const res = await fetch(apiUrl('/api/logbook/diary'), {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    contenido: newNote,
-                    estado_animo: selectedMood,
-                    tags: []
-                })
-            });
-            if (res.ok) {
-                const newEntry = await res.json();
-                setDiaryEntries([newEntry, ...diaryEntries]);
-                setNewNote('');
-                setIsWriting(false);
-            }
-        } catch (error) {
-            console.error('Error saving entry:', error);
-        }
-    };
 
     if (loading) {
         return (
             <div className="flex flex-col items-center justify-center min-h-[400px]">
                 <div className="animate-spin rounded-full h-12 w-12 border-4 border-accent border-t-transparent"></div>
-                <p className="text-white/40 text-xs uppercase mt-6 tracking-widest">Consultando Registros...</p>
+                <p className="text-white/40 text-[10px] uppercase mt-6 tracking-[0.3em]">Sincronizando Bitácora...</p>
             </div>
         );
     }
 
-    const totalHours = officialData?.estadisticas?.horas_totales || 0;
-    const totalMiles = (totalHours * 5.2).toFixed(1);
+    const sessions = officialData?.horas || [];
 
     return (
         <div className="w-full max-w-6xl mx-auto h-full flex flex-col font-display p-6 relative pb-20">
-            {/* Minimal Header */}
-            <header className="flex flex-col md:flex-row items-center justify-between mb-12 gap-8 relative">
+            {/* Header */}
+            <header className="flex flex-col md:flex-row items-center justify-between mb-12 gap-8">
                 <div className="flex items-center gap-6">
-                    <div className="w-20 h-20 bg-accent rounded-2xl flex items-center justify-center">
+                    <div className="w-20 h-20 bg-accent rounded-3xl flex items-center justify-center shadow-xl shadow-accent/10">
                         <Book className="text-nautical-black w-10 h-10" />
                     </div>
                     <div>
                         <h1 className="text-4xl font-display font-bold text-white italic">Bitácora Digital</h1>
-                        <p className="text-white/40 text-sm mt-1">Tu historial de travesías y habilidades.</p>
+                        <p className="text-white/40 text-sm mt-1">Historial del Navegante: {officialData?.user?.full_name}</p>
                     </div>
                 </div>
 
-                <div className="flex gap-4">
-                    <div className="px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-center">
-                        <div className="text-[10px] uppercase tracking-widest text-white/40">Millas</div>
-                        <div className="text-3xl font-black text-white">{totalMiles}</div>
+                <div className="px-8 py-5 bg-white/5 border border-white/10 rounded-3xl text-center backdrop-blur-md">
+                    <div className="text-[10px] uppercase tracking-widest text-white/40 mb-1">Millas Totales</div>
+                    <div className="text-4xl font-black text-white">
+                        {((officialData?.estadisticas?.horas_totales || 0) * 5.2).toFixed(1)}
                     </div>
-                    <button
-                        onClick={handleDownloadReport}
-                        className="px-6 py-4 bg-accent text-nautical-black rounded-2xl font-black uppercase text-[10px]"
-                    >
-                        Descargar PDF
-                    </button>
                 </div>
             </header>
 
-            {/* Content Switcher */}
-            <div className="flex gap-4 mb-8">
-                {['official', 'skills', 'map', 'fleet', 'diary'].map((tab) => (
+            {/* Tab Navigation */}
+            <div className="flex flex-wrap gap-3 mb-12">
+                {[
+                    { id: 'official', label: 'Oficial', icon: <Anchor size={14} /> },
+                    { id: 'map', label: 'Mapa', icon: <MapPin size={14} /> },
+                    { id: 'skills', label: 'Habilidades', icon: <Award size={14} /> },
+                    { id: 'diary', label: 'Diario', icon: <Book size={14} /> }
+                ].map((tab) => (
                     <button
-                        key={tab}
-                        onClick={() => setActiveTab(tab as any)}
-                        className={`px-4 py-2 rounded-full text-xs font-black uppercase tracking-widest ${activeTab === tab ? 'bg-accent text-nautical-black' : 'text-white/40'}`}
+                        key={tab.id}
+                        onClick={() => setActiveTab(tab.id as any)}
+                        className={`flex items-center gap-2 px-6 py-3 rounded-full text-[10px] font-black uppercase tracking-widest transition-all
+                            ${activeTab === tab.id
+                                ? 'bg-accent text-nautical-black shadow-lg shadow-accent/20 scale-105'
+                                : 'bg-white/5 text-white/40 hover:bg-white/10 hover:text-white'
+                            }`}
                     >
-                        {tab}
+                        {tab.icon}
+                        {tab.label}
                     </button>
                 ))}
             </div>
 
-            <div className="flex-grow text-white">
+            {/* Content Area */}
+            <div className="flex-grow">
                 {activeTab === 'official' && (
                     <div className="grid grid-cols-1 gap-6">
-                        {(officialData?.horas || []).length > 0 ? (
-                            officialData.horas.map((session: NauticalSession) => (
-                                <div
-                                    key={session.id}
-                                    className="group relative bg-white/[0.03] hover:bg-white/[0.07] border border-white/10 rounded-3xl p-8 transition-all duration-500 overflow-hidden"
-                                >
-                                    <div className="absolute top-0 right-0 w-32 h-full bg-gradient-to-l from-accent/5 to-transparent skew-x-12 translate-x-16 group-hover:translate-x-0 transition-transform duration-700" />
-
-                                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 relative z-10">
+                        {sessions.length > 0 ? (
+                            sessions.map((session: any) => (
+                                <div key={session.id} className="group bg-white/[0.03] hover:bg-white/[0.07] border border-white/10 rounded-3xl p-8 transition-all duration-500">
+                                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-8">
                                         <div className="flex items-center gap-8">
-                                            <div className={`w-16 h-16 rounded-2xl flex items-center justify-center text-3xl border shadow-lg ${session.verificado ? 'bg-green-500/10 border-green-500/30 text-green-400' : 'bg-amber-500/10 border-amber-500/30 text-amber-400'}`}>
-                                                {session.tipo === 'regata' ? '🏁' : session.tipo === 'travesia' ? '📍' : '⛵'}
+                                            <div className="w-16 h-16 rounded-2xl bg-accent/10 border border-accent/20 flex items-center justify-center text-3xl">
+                                                ⛵
                                             </div>
                                             <div>
-                                                <div className="flex items-center gap-4 mb-2">
-                                                    <span className="text-[10px] uppercase tracking-[0.3em] font-black text-white/30">
-                                                        {new Date(session.fecha).toLocaleDateString('es-ES', { day: '2-digit', month: 'long', year: 'numeric' })}
-                                                    </span>
-                                                    <div className={`px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest border ${session.verificado ? 'bg-green-500/20 border-green-500/30 text-green-400 shadow-[0_0_15px_rgba(34,197,94,0.2)]' : 'bg-amber-500/20 border-amber-500/30 text-amber-400 shadow-[0_0_15px_rgba(245,158,11,0.2)]'}`}>
-                                                        {session.verificado ? 'Validado' : 'Pendiente'}
-                                                    </div>
+                                                <div className="text-[10px] uppercase tracking-widest text-white/30 mb-1">
+                                                    {new Date(session.fecha).toLocaleDateString()}
                                                 </div>
-                                                <h3 className="text-2xl font-bold text-white group-hover:text-accent transition-colors leading-none mb-3">{session.tipo || 'Práctica Libre'}</h3>
-                                                <div className="flex items-center gap-6 text-sm text-white/40">
-                                                    <span className="flex items-center gap-2 bg-white/5 px-3 py-1 rounded-lg"><Ship size={14} className="text-accent" /> {session.embarcacion || 'Barco Escuela'}</span>
-                                                    <span className="flex items-center gap-2 bg-white/5 px-3 py-1 rounded-lg"><Wind size={14} className="text-blue-400" /> {session.condiciones_meteo || 'Viento variable'}</span>
+                                                <h3 className="text-2xl font-bold text-white group-hover:text-accent transition-colors">
+                                                    {session.tipo}
+                                                </h3>
+                                                <div className="flex items-center gap-4 text-sm text-white/40 mt-2">
+                                                    <span className="flex items-center gap-1"><Ship size={14} /> {session.embarcacion}</span>
+                                                    <span className="flex items-center gap-1"><Wind size={14} /> {session.duracion_h}h</span>
                                                 </div>
                                             </div>
                                         </div>
-
-                                        <div className="flex flex-col items-end justify-center">
-                                            <div className="text-[10px] uppercase tracking-widest text-white/20 mb-1">Tiempo de Navegación</div>
-                                            <div className="text-4xl font-black text-white">{session.duracion_h} <span className="text-xs text-white/40">h</span></div>
-                                            <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-white/20 group-hover:text-accent group-hover:bg-accent/10 transition-all mt-4">
-                                                <ChevronRight size={24} />
+                                        <div className="text-right">
+                                            <div className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border ${session.verificado ? 'bg-green-500/20 border-green-500/30 text-green-400' : 'bg-amber-500/20 border-amber-500/30 text-amber-400'}`}>
+                                                {session.verificado ? 'Verificado' : 'Pendiente'}
                                             </div>
                                         </div>
                                     </div>
-
-                                    {session.notas && (
-                                        <div className="mt-8 pt-6 border-t border-white/5 text-sm text-white/50 italic font-serif leading-relaxed">
-                                            "{session.notas}"
-                                        </div>
-                                    )}
                                 </div>
                             ))
                         ) : (
-                            <div className="py-24 text-center bg-white/5 border-2 border-dashed border-white/10 rounded-[3rem] group hover:border-accent/20 transition-all">
-                                <div className="text-6xl mb-8 opacity-20 group-hover:scale-110 transition-transform duration-500">⚓</div>
-                                <h3 className="text-2xl font-bold text-white mb-3">Tu bitácora está esperando tu primera aventura</h3>
-                                <p className="text-white/40 max-w-sm mx-auto text-sm leading-relaxed mb-8">Empieza tus prácticas de navegación o inscríbete en un curso para comenzar a llenar tu historial oficial.</p>
-                                <button className="px-10 py-4 bg-accent text-nautical-black font-black uppercase tracking-widest text-[10px] rounded-full hover:scale-105 transition-all shadow-xl shadow-accent/10">
-                                    Ver Cursos Disponibles →
-                                </button>
+                            <div className="py-24 text-center border-2 border-dashed border-white/5 rounded-[3rem]">
+                                <p className="text-white/20 uppercase tracking-widest text-xs">Sin registros aún</p>
                             </div>
                         )}
                     </div>
                 )}
+
+                {activeTab === 'map' && (
+                    <div className="relative w-full aspect-video bg-[#050b14] rounded-3xl border border-white/10 overflow-hidden shadow-2xl">
+                        {/* We render the dynamic component only when on the map tab */}
+                        <LeafletMap
+                            sessions={sessions}
+                            selectedPoint={selectedPoint}
+                            setSelectedPoint={setSelectedPoint}
+                        />
+
+                        {/* Overlay to check if the wrapper renders */}
+                        <div className="absolute top-4 left-4 z-[1000] pointer-events-none">
+                            <div className="px-3 py-1 bg-black/50 backdrop-blur rounded text-[8px] text-white/50 uppercase tracking-widest">
+                                Status: Safe Mode
+                            </div>
+                        </div>
+
+                        {selectedPoint && (
+                            <div className="absolute inset-y-6 right-6 w-80 bg-[#0a1628]/95 backdrop-blur-2xl border border-accent/30 rounded-3xl p-8 shadow-2xl z-[1000] overflow-hidden">
+                                <button
+                                    onClick={() => setSelectedPoint(null)}
+                                    className="absolute top-4 right-4 text-white/20 hover:text-white"
+                                >
+                                    ✕
+                                </button>
+                                <div className="flex items-center gap-3 mb-4 border-b border-white/5 pb-4">
+                                    <div className="w-10 h-10 bg-accent/20 rounded-xl flex items-center justify-center text-accent">
+                                        <Anchor size={20} />
+                                    </div>
+                                    <div>
+                                        <h4 className="text-accent font-black uppercase text-[10px] tracking-widest">Travesía</h4>
+                                        <p className="text-white font-bold">{selectedPoint.zona_nombre || 'Navegación'}</p>
+                                    </div>
+                                </div>
+                                <div className="space-y-4">
+                                    <div>
+                                        <span className="text-[10px] uppercase tracking-widest text-white/40">Fecha</span>
+                                        <p className="text-sm text-white">{new Date(selectedPoint.fecha).toLocaleDateString()}</p>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <span className="text-[10px] uppercase tracking-widest text-white/40 font-black">Navegado</span>
+                                            <p className="text-lg font-black text-white">{selectedPoint.duracion_h} <span className="text-xs text-accent">h</span></p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                )}
+
                 {activeTab === 'skills' && (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {(officialData?.habilidades || []).length > 0 ? (
-                            officialData.habilidades.map((item: any) => (
-                                <div key={item.habilidad.id} className="bg-white/5 p-8 rounded-3xl border border-white/10">
-                                    <div className="text-3xl mb-4">{item.habilidad.icono || '⛵'}</div>
-                                    <h3 className="text-xl font-bold mb-2">{item.habilidad.nombre_es}</h3>
-                                    <p className="text-sm text-white/40 leading-relaxed">{item.habilidad.descripcion_es}</p>
-                                </div>
-                            ))
-                        ) : (
-                            <div className="col-span-full py-20 text-center border-2 border-dashed border-white/5 rounded-3xl text-white/20">
-                                <p>Explora la academia para desbloquear habilidades.</p>
+                        {(officialData?.habilidades || []).map((h: any) => (
+                            <div key={h.habilidad.id} className="bg-white/5 p-8 rounded-3xl border border-white/10">
+                                <div className="text-3xl mb-4">{h.habilidad.icono || '⚡'}</div>
+                                <h3 className="text-xl font-bold mb-2">{h.habilidad.nombre_es}</h3>
+                                <p className="text-sm text-white/40 leading-relaxed">{h.habilidad.descripcion_es}</p>
                             </div>
-                        )}
+                        ))}
                     </div>
                 )}
+
                 {activeTab === 'diary' && (
-                    <div className="space-y-6">
-                        <div className="flex justify-between items-center">
-                            <h2 className="text-2xl font-display italic">Mi Diario Náutico</h2>
-                            <button onClick={() => setIsWriting(true)} className="bg-accent text-nautical-black px-6 py-2 rounded-full font-black text-[10px] uppercase">
-                                Nueva Entrada
-                            </button>
-                        </div>
-
-                        {isWriting && (
-                            <div className="bg-white/5 p-8 rounded-3xl border border-accent/20">
-                                <textarea
-                                    className="w-full bg-transparent border-none focus:ring-0 text-xl italic placeholder:text-white/10"
-                                    placeholder="¿Cómo fue la jornada de hoy?"
-                                    value={newNote}
-                                    onChange={(e) => setNewNote(e.target.value)}
-                                />
-                                <div className="flex justify-end gap-4 mt-6">
-                                    <button onClick={() => setIsWriting(false)} className="text-white/40 text-xs">Descartar</button>
-                                    <button onClick={handleAddEntry} className="bg-white/10 px-6 py-2 rounded-full text-xs">Guardar</button>
-                                </div>
-                            </div>
-                        )}
-
-                        <div className="space-y-4">
-                            {diaryEntries.map(entry => (
-                                <div key={entry.id} className="bg-white/[0.02] p-8 rounded-3xl border border-white/5">
-                                    <p className="text-[10px] text-accent mb-4 uppercase tracking-[0.2em]">{new Date(entry.fecha).toLocaleDateString()}</p>
-                                    <p className="text-xl italic text-white/80 leading-relaxed font-serif">"{entry.contenido}"</p>
-                                </div>
-                            ))}
-                        </div>
+                    <div className="py-20 text-center bg-white/5 rounded-3xl border border-white/10 italic text-white/20 font-serif">
+                        Diario Personal - Próximamente
                     </div>
                 )}
-                {activeTab === 'map' && <LogbookMap sessions={officialData?.horas || []} />}
-                {activeTab === 'fleet' && <FleetMastery mastery={officialData?.estadisticas?.fleet_mastery || []} />}
             </div>
         </div>
     );
 }
-

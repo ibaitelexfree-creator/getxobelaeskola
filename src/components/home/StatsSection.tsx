@@ -1,20 +1,25 @@
 import React from 'react';
 import Image from 'next/image';
-import { useTranslations } from 'next-intl';
 
-export default function StatsSection() {
-    const t = useTranslations('home.stats');
+interface StatsSectionProps {
+    pasionLabel: string;
+    alumnosLabel: string;
+    flotaLabel: string;
+    clasesLabel: string;
+}
+
+export default function StatsSection({ pasionLabel, alumnosLabel, flotaLabel, clasesLabel }: StatsSectionProps) {
     const stats = [
-        { label: t('pasion'), value: '30+' },
-        { label: t('alumnos'), value: '5K+' },
-        { label: t('flota'), value: '12' },
-        { label: t('clases'), value: '100%' }
+        { label: pasionLabel, value: '30+' },
+        { label: alumnosLabel, value: '5K+' },
+        { label: flotaLabel, value: '12' },
+        { label: clasesLabel, value: '100%' }
     ];
     return (
         <section className="relative py-32 bg-nautical-black overflow-hidden group">
             <div className="absolute inset-0 z-0">
                 <Image
-                    src="/images/home-hero-sailing-action.jpg"
+                    src="/images/home-hero-sailing-action.webp"
                     alt="Ocean"
                     fill
                     sizes="100vw"
@@ -33,7 +38,7 @@ export default function StatsSection() {
                             <h2 className="text-5xl lg:text-7xl font-display text-white mb-4 group-hover:text-accent transition-colors duration-500">
                                 {stat.value}
                             </h2>
-                            <div className="w-8 h-px bg-brass-gold mx-auto mb-4 group-hover:w-16 transition-all duration-500" />
+                            <div className="w-12 h-px bg-brass-gold mx-auto mb-4 group-hover:scale-x-150 transition-transform duration-500 origin-center" />
                             <p className="text-3xs uppercase tracking-[0.3em] font-bold text-foreground/40 text-accent/80">
                                 {stat.label}
                             </p>

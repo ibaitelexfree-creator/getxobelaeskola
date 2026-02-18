@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import Logbook from '@/components/academy/logbook/Logbook';
 

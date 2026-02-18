@@ -1,28 +1,17 @@
-'use client';
 import React from 'react';
 import Image from 'next/image';
-import { useTranslations } from 'next-intl';
 
-export default function FeaturesSection() {
-    const t = useTranslations('home.features');
+interface Feature {
+    icon: string;
+    title: string;
+    desc: string;
+}
 
-    const features = [
-        {
-            icon: '/images/icon-3d-certificate.png',
-            title: t('cert_title'),
-            desc: t('cert_desc')
-        },
-        {
-            icon: '/images/icon-3d-instructor.png',
-            title: t('staff_title'),
-            desc: t('staff_desc')
-        },
-        {
-            icon: '/images/icon-3d-community.png',
-            title: t('comm_title'),
-            desc: t('comm_desc')
-        }
-    ];
+interface FeaturesSectionProps {
+    features: Feature[];
+}
+
+export default function FeaturesSection({ features }: FeaturesSectionProps) {
 
     return (
         <section className="py-32 bg-nautical-black relative">

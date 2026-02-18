@@ -4,6 +4,7 @@ import ExperienceSection from '@/components/home/ExperienceSection';
 import StatsSection from '@/components/home/StatsSection';
 import FeaturesSection from '@/components/home/FeaturesSection';
 import ProgramsSection from '@/components/home/ProgramsSection';
+import { getTranslations } from 'next-intl/server';
 import { Metadata } from 'next';
 
 export async function generateMetadata({ params: { locale } }: { params: { locale: string } }): Promise<Metadata> {
@@ -31,14 +32,119 @@ export async function generateMetadata({ params: { locale } }: { params: { local
   };
 }
 
-export default function LandingPage() {
+export default async function LandingPage({ params: { locale } }: { params: { locale: string } }) {
+  const tHero = await getTranslations({ locale, namespace: 'home.hero' });
+  const tStats = await getTranslations({ locale, namespace: 'home.stats' });
+  const tExp = await getTranslations({ locale, namespace: 'home.experience' });
+  const tProg = await getTranslations({ locale, namespace: 'home.programs' });
+  const tFeat = await getTranslations({ locale, namespace: 'home.features' });
+
+  const initialSlides = [
+    {
+      id: 1,
+      image: '/images/home-hero-sailing-action.webp',
+      title: tHero('slide1_title'),
+      subtitle: tHero('slide1_subtitle'),
+      action: tHero('slide1_action'),
+      link: '/courses'
+    },
+    {
+      id: 2,
+      image: '/images/course-detail-header-sailing.webp',
+      title: tHero('slide2_title'),
+      subtitle: tHero('slide2_subtitle'),
+      action: tHero('slide2_action'),
+      link: '/rental'
+    },
+    {
+      id: 3,
+      image: '/images/legacy/course-card-initiation.jpg',
+      title: tHero('slide3_title'),
+      subtitle: tHero('slide3_subtitle'),
+      action: tHero('slide3_action'),
+      link: '/courses/licencia-navegacion'
+    },
+    {
+      id: 4,
+      image: '/images/course-raquero-students.webp',
+      title: tHero('slide4_title'),
+      subtitle: tHero('slide4_subtitle'),
+      action: tHero('slide4_action'),
+      link: '/courses/vela-ligera'
+    }
+  ];
+
+  const programs = [
+    {
+      title: tProg('licencia_title'),
+      price: tProg('licencia_price'),
+      desc: tProg('licencia_desc'),
+      image: '/images/course-license-navigation.jpg',
+      link: '/courses/licencia-navegacion'
+    },
+    {
+      title: tProg('j80_title'),
+      price: tProg('j80_price'),
+      desc: tProg('j80_desc'),
+      image: '/images/course-card-initiation.jpg',
+      link: '/courses/iniciacion-j80'
+    },
+    {
+      title: tProg('rental_title'),
+      price: tProg('price_rental'),
+      desc: tProg('rental_desc'),
+      image: '/images/course-card-advanced.jpg',
+      link: '/rental'
+    }
+  ];
+
+  const features = [
+    {
+      icon: '/images/icon-3d-certificate.webp',
+      title: tFeat('cert_title'),
+      desc: tFeat('cert_desc')
+    },
+    {
+      icon: '/images/icon-3d-instructor.webp',
+      title: tFeat('staff_title'),
+      desc: tFeat('staff_desc')
+    },
+    {
+      icon: '/images/icon-3d-community.webp',
+      title: tFeat('comm_title'),
+      desc: tFeat('comm_desc')
+    }
+  ];
+
   return (
     <main className="w-full">
-      <HeroCarousel />
-      <StatsSection />
-      <ExperienceSection />
-      <ProgramsSection />
-      <FeaturesSection />
+      <HeroCarousel initialSlides={initialSlides} />
+      <StatsSection
+        pasionLabel={tStats('pasion')}
+        alumnosLabel={tStats('alumnos')}
+        flotaLabel={tStats('flota')}
+        clasesLabel={tStats('clases')}
+      />
+      <ExperienceSection
+        locale={locale}
+        filosofia={tExp('filosofia')}
+        lifestyle_title={tExp('lifestyle_title')}
+        lifestyle_subtitle={tExp('lifestyle_subtitle')}
+        desc1={tExp('desc1')}
+        desc2={tExp('desc2')}
+        about_link={tExp('about_link')}
+        live={tExp('live')}
+        the={tExp('the')}
+        passion={tExp('passion')}
+      />
+      <ProgramsSection
+        locale={locale}
+        badge={tProg('badge')}
+        title={tProg('title')}
+        learn_more={tProg('learn_more')}
+        programs={programs}
+      />
+      <FeaturesSection features={features} />
 
       {/* SEO Hidden H1 */}
       <h1 className="sr-only">Getxo Bela Eskola | Escuela de Vela en Getxo</h1>
