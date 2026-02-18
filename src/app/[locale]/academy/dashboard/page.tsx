@@ -5,21 +5,24 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { useNotificationStore } from '@/lib/store/useNotificationStore';
-import CertificateCard from '@/components/academy/CertificateCard';
-import EmptyState from '@/components/academy/EmptyState';
+import dynamic from 'next/dynamic';
+
+const CertificateCard = dynamic(() => import('@/components/academy/CertificateCard'), { ssr: false });
+const EmptyState = dynamic(() => import('@/components/academy/EmptyState'), { ssr: false });
+const RankProgress = dynamic(() => import('@/components/academy/gamification/RankProgress'), { ssr: false });
+const ActivityHeatmap = dynamic(() => import('@/components/academy/dashboard/ActivityHeatmap'), { ssr: false });
+const SkillRadar = dynamic(() => import('@/components/academy/dashboard/SkillRadar'), { ssr: false });
+const BoatMastery = dynamic(() => import('@/components/academy/dashboard/BoatMastery'), { ssr: false });
+const NauticalRadar = dynamic(() => import('@/components/academy/dashboard/NauticalRadar'), { ssr: false });
+const CareerAdvisor = dynamic(() => import('@/components/academy/dashboard/CareerAdvisor'), { ssr: false });
+const NavigationExperienceMap = dynamic(() => import('@/components/academy/dashboard/NavigationExperienceMap'), { ssr: false });
+const DailyChallengeWidget = dynamic(() => import('@/components/academy/dashboard/DailyChallengeWidget'), { ssr: false });
+
 import AcademySkeleton from '@/components/academy/AcademySkeleton';
-import RankProgress from '@/components/academy/gamification/RankProgress';
 import { getRank, calculateEstimatedXP } from '@/lib/gamification/ranks';
-import ActivityHeatmap from '@/components/academy/dashboard/ActivityHeatmap';
-import SkillRadar from '@/components/academy/dashboard/SkillRadar';
-import BoatMastery from '@/components/academy/dashboard/BoatMastery';
 import NotificationContainer from '@/components/academy/notifications/NotificationContainer';
 import AchievementToast from '@/components/academy/notifications/AchievementToast';
 import SkillUnlockedModal from '@/components/academy/notifications/SkillUnlockedModal';
-import NauticalRadar from '@/components/academy/dashboard/NauticalRadar';
-import CareerAdvisor from '@/components/academy/dashboard/CareerAdvisor';
-import NavigationExperienceMap from '@/components/academy/dashboard/NavigationExperienceMap';
-import DailyChallengeWidget from '@/components/academy/dashboard/DailyChallengeWidget';
 import { apiUrl } from '@/lib/api';
 
 // --- Interfaces ---
@@ -268,6 +271,7 @@ export default function DashboardPage({ params }: { params: { locale: string } }
 
     return (
         <div className="min-h-screen bg-gradient-to-b from-nautical-black via-nautical-black to-[#0a1628] text-white pb-20">
+            <h1 className="sr-only">Dashboard de Academia | Getxo Bela Eskola</h1>
             <NotificationContainer />
             <AchievementToast />
             <SkillUnlockedModal />

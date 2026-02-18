@@ -35,7 +35,7 @@ export default async function Footer({ locale }: { locale: string }) {
                 <div className="flex flex-col items-center gap-6 mb-12 group">
                     <div className="relative w-32 h-32 transition-transform duration-700 group-hover:scale-110">
                         <Image
-                            src="/images/LogoGetxoBelaEskola.png"
+                            src="/images/LogoGetxoBelaEskola.webp"
                             alt="Getxo Bela Eskola"
                             fill
                             sizes="128px"

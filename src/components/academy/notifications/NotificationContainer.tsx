@@ -39,7 +39,9 @@ function NotificationItem({ notification, onDismiss }: { notification: Notificat
             <div className="flex gap-4">
                 <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-2xl shrink-0 ${isSpecial ? 'bg-accent text-nautical-black' : 'bg-white/10 text-accent'
                     }`}>
-                    {notification.icon || (notification.type === 'achievement' ? '🏆' : '⚡')}
+                    <span role="img" aria-label={notification.type === 'achievement' ? 'logro' : 'notificación'}>
+                        {notification.icon || (notification.type === 'achievement' ? '🏆' : '⚡')}
+                    </span>
                 </div>
 
                 <div className="flex-1 min-w-0">
@@ -54,6 +56,7 @@ function NotificationItem({ notification, onDismiss }: { notification: Notificat
                 <button
                     onClick={onDismiss}
                     className="h-6 w-6 text-white/20 hover:text-white transition-colors"
+                    aria-label="Cerrar notificación"
                 >
                     ✕
                 </button>

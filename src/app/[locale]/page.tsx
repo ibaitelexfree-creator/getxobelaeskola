@@ -1,11 +1,15 @@
-import React from 'react';
-import HeroCarousel from '@/components/home/HeroCarousel';
-import ExperienceSection from '@/components/home/ExperienceSection';
-import StatsSection from '@/components/home/StatsSection';
-import FeaturesSection from '@/components/home/FeaturesSection';
-import ProgramsSection from '@/components/home/ProgramsSection';
+import dynamic from 'next/dynamic';
 import { getTranslations } from 'next-intl/server';
 import { Metadata } from 'next';
+
+const HeroCarousel = dynamic(() => import('@/components/home/HeroCarousel'), {
+  loading: () => <div className="h-screen w-full bg-nautical-black animate-pulse" />
+});
+const ExperienceSection = dynamic(() => import('@/components/home/ExperienceSection'));
+const StatsSection = dynamic(() => import('@/components/home/StatsSection'));
+const FeaturesSection = dynamic(() => import('@/components/home/FeaturesSection'));
+const ProgramsSection = dynamic(() => import('@/components/home/ProgramsSection'));
+
 
 export async function generateMetadata({ params: { locale } }: { params: { locale: string } }): Promise<Metadata> {
   const isEu = locale === 'eu';
@@ -117,7 +121,7 @@ export default async function LandingPage({ params: { locale } }: { params: { lo
   ];
 
   return (
-    <main className="w-full">
+    <div className="w-full">
       <HeroCarousel initialSlides={initialSlides} />
       <StatsSection
         pasionLabel={tStats('pasion')}
@@ -147,7 +151,12 @@ export default async function LandingPage({ params: { locale } }: { params: { lo
       <FeaturesSection features={features} />
 
       {/* SEO Hidden H1 */}
-      <h1 className="sr-only">Getxo Bela Eskola | Escuela de Vela en Getxo</h1>
-    </main>
+      <h1 className="sr-only">
+        {locale === 'eu' ? 'Getxo Bela Eskola | Bela Eskola Getxon' :
+          locale === 'en' ? 'Getxo Sailing School | Sailing Lessons in Getxo' :
+            locale === 'fr' ? 'Getxo Sailing School | École de Voile à Getxo' :
+              'Getxo Bela Eskola | Escuela de Vela en Getxo'}
+      </h1>
+    </div>
   );
 }

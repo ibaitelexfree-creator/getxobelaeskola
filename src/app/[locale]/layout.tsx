@@ -19,8 +19,6 @@ export const viewport: Viewport = {
   themeColor: '#001B3A', // Nautical Black
   width: 'device-width',
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
   viewportFit: 'cover',
 };
 
@@ -43,11 +41,12 @@ export default async function LocaleLayout({
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link rel="preconnect" href="https://xbledhifomblirxurtyv.supabase.co" />
-        <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
         <link rel="dns-prefetch" href="https://xbledhifomblirxurtyv.supabase.co" />
       </head>
       <body suppressHydrationWarning>
+        <a href="#main-content" className="skip-link">
+          {locale === 'eu' ? 'Edukira jo' : locale === 'en' ? 'Skip to content' : locale === 'fr' ? 'Aller au contenu' : 'Saltar al contenido'}
+        </a>
         <NextIntlClientProvider messages={messages} locale={locale} timeZone="Europe/Madrid">
           <AcademyFeedbackProvider>
             <PushNotificationInitializer />
@@ -57,10 +56,13 @@ export default async function LocaleLayout({
                 navbar={<Navbar locale={locale} />}
                 footer={<Footer locale={locale} />}
               >
-                {children}
+                <main id="main-content" className="flex-grow">
+                  {children}
+                </main>
               </ConditionalLayout>
             </div>
             <ScrollUpButton />
+
             <Suspense fallback={null}>
               <StatusToast />
             </Suspense>

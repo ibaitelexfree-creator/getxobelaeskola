@@ -63,6 +63,7 @@ export default function Newsletter({ locale }: { locale: string }) {
                                 onChange={(e) => setEmail(e.target.value)}
                                 placeholder={t('email_placeholder')}
                                 required
+                                aria-label={t('email_placeholder')}
                                 className="flex-grow bg-white/5 border border-white/10 px-6 py-4 text-white text-lg placeholder:text-white/20 focus:outline-none focus:border-accent/40 transition-all rounded-sm font-sans"
                             />
                             <button
