@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { User, Sparkles, LogOut, ChevronRight, Settings, CreditCard, Shield, Globe, Compass, Book } from 'lucide-react';
+import { User, Sparkles, LogOut, ChevronRight, Settings, CreditCard, Shield, Globe, Compass, Book, Ship, Anchor } from 'lucide-react';
 
 import { createClient } from '@/lib/supabase/client';
 import EditProfileModal from '@/components/student/EditProfileModal';
@@ -215,6 +215,7 @@ export default function MobileProfileClient({
                     <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden">
                         <Link
                             href={`/${locale}/academy/exploration`}
+                            prefetch={false}
                             className="w-full flex items-center justify-between p-4 active:bg-white/5 transition-colors border-b border-white/5"
                         >
                             <div className="flex items-center gap-4">
@@ -231,7 +232,8 @@ export default function MobileProfileClient({
 
                         <Link
                             href={`/${locale}/academy/logbook`}
-                            className="w-full flex items-center justify-between p-4 active:bg-white/5 transition-colors"
+                            prefetch={false}
+                            className="w-full flex items-center justify-between p-4 active:bg-white/5 transition-colors border-b border-white/5"
                         >
                             <div className="flex items-center gap-4">
                                 <div className="w-8 h-8 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-400">
@@ -240,6 +242,93 @@ export default function MobileProfileClient({
                                 <div className="text-left">
                                     <span className="text-white font-medium text-sm block">Cuaderno de Bitácora</span>
                                     <span className="text-white/40 text-[10px]">Tu diario de navegación</span>
+                                </div>
+                            </div>
+                            <ChevronRight className="w-4 h-4 text-white/20" />
+                        </Link>
+
+                        <Link
+                            href={`/${locale}/academy/tools/nomenclature`}
+                            prefetch={false}
+                            className="w-full flex items-center justify-between p-4 active:bg-white/5 transition-colors border-b border-white/5"
+                        >
+                            <div className="flex items-center gap-4">
+                                <div className="w-8 h-8 rounded-full bg-amber-500/10 flex items-center justify-center text-amber-500">
+                                    <Ship className="w-4 h-4" />
+                                </div>
+                                <div className="text-left">
+                                    <span className="text-white font-medium text-sm block">Partes del Barco</span>
+                                    <span className="text-white/40 text-[10px]">Nomenclatura Marítima</span>
+                                </div>
+                            </div>
+                            <ChevronRight className="w-4 h-4 text-white/20" />
+                        </Link>
+
+                        <Link
+                            href={`/${locale}/academy/tools/chart-plotter`}
+                            prefetch={false}
+                            className="w-full flex items-center justify-between p-4 active:bg-white/5 transition-colors border-b border-white/5"
+                        >
+                            <div className="flex items-center gap-4">
+                                <div className="w-8 h-8 rounded-full bg-indigo-500/10 flex items-center justify-center text-indigo-400">
+                                    <Globe className="w-4 h-4" />
+                                </div>
+                                <div className="text-left">
+                                    <span className="text-white font-medium text-sm block">Navegación</span>
+                                    <span className="text-white/40 text-[10px]">Cartografía y Trazado</span>
+                                </div>
+                            </div>
+                            <ChevronRight className="w-4 h-4 text-white/20" />
+                        </Link>
+
+                        <Link
+                            href={`/${locale}/academy/tools/knots`}
+                            prefetch={false}
+                            className="w-full flex items-center justify-between p-4 active:bg-white/5 transition-colors border-b border-white/5"
+                        >
+                            <div className="flex items-center gap-4">
+                                <div className="w-8 h-8 rounded-full bg-orange-500/10 flex items-center justify-center text-orange-400">
+                                    <Anchor className="w-4 h-4" />
+                                </div>
+                                <div className="text-left">
+                                    <span className="text-white font-medium text-sm block">Nudos</span>
+                                    <span className="text-white/40 text-[10px]">Maniobra de Cabuyería</span>
+                                </div>
+                            </div>
+                            <ChevronRight className="w-4 h-4 text-white/20" />
+                        </Link>
+
+                        <Link
+                            href={`/${locale}/academy/tools/wind-lab`}
+                            prefetch={false}
+                            className="w-full flex items-center justify-between p-4 active:bg-white/5 transition-colors border-b border-white/5"
+                        >
+                            <div className="flex items-center gap-4">
+                                <div className="w-8 h-8 rounded-full bg-cyan-500/10 flex items-center justify-center text-cyan-400">
+                                    <div className="w-4 h-4 border-2 border-current rounded-full flex items-center justify-center">
+                                        <div className="w-1 h-3 bg-current rotate-45" />
+                                    </div>
+                                </div>
+                                <div className="text-left">
+                                    <span className="text-white font-medium text-sm block">Meteorología</span>
+                                    <span className="text-white/40 text-[10px]">Laboratorio de Viento</span>
+                                </div>
+                            </div>
+                            <ChevronRight className="w-4 h-4 text-white/20" />
+                        </Link>
+
+                        <Link
+                            href={`/${locale}/academy/skills`}
+                            prefetch={false}
+                            className="w-full flex items-center justify-between p-4 active:bg-white/5 transition-colors"
+                        >
+                            <div className="flex items-center gap-4">
+                                <div className="w-8 h-8 rounded-full bg-red-500/10 flex items-center justify-center text-red-400">
+                                    <Shield className="w-4 h-4" />
+                                </div>
+                                <div className="text-left">
+                                    <span className="text-white font-medium text-sm block">Seguridad</span>
+                                    <span className="text-white/40 text-[10px]">Habilidades Técnicas</span>
                                 </div>
                             </div>
                             <ChevronRight className="w-4 h-4 text-white/20" />

@@ -62,7 +62,7 @@ export default async function LandingPage({ params: { locale } }: { params: { lo
     },
     {
       id: 3,
-      image: '/images/legacy/course-card-initiation.jpg',
+      image: '/images/courses/IniciacionJ80.webp',
       title: tHero('slide3_title'),
       subtitle: tHero('slide3_subtitle'),
       action: tHero('slide3_action'),
@@ -83,21 +83,21 @@ export default async function LandingPage({ params: { locale } }: { params: { lo
       title: tProg('licencia_title'),
       price: tProg('licencia_price'),
       desc: tProg('licencia_desc'),
-      image: '/images/course-license-navigation.jpg',
+      image: '/images/courses/LicenciadeNavegacion.webp',
       link: '/courses/licencia-navegacion'
     },
     {
       title: tProg('j80_title'),
       price: tProg('j80_price'),
       desc: tProg('j80_desc'),
-      image: '/images/course-card-initiation.jpg',
+      image: '/images/courses/IniciacionJ80.webp',
       link: '/courses/iniciacion-j80'
     },
     {
       title: tProg('rental_title'),
       price: tProg('price_rental'),
       desc: tProg('rental_desc'),
-      image: '/images/course-card-advanced.jpg',
+      image: '/images/courses/PerfeccionamientoVela.webp',
       link: '/rental'
     }
   ];

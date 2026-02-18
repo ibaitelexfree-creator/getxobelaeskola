@@ -20,11 +20,11 @@ interface ConstellationNode {
 // Links are relative to locale now
 const COSMOS_DATA: ConstellationNode[] = [
     { id: '1', label: 'Fundamentos', x: 400, y: 300, type: 'star', status: 'completed', description: 'El inicio de todo marinero.', link: '/academy/course/iniciacion-j80' },
-    { id: '2', label: 'Nudos', x: 600, y: 250, type: 'star', status: 'available', description: 'El arte de la cabuyería.', link: '/academy/course/perfeccionamiento-vela' }, // Fixed to existing course or generic tool
-    { id: '3', label: 'Meteorología', x: 800, y: 400, type: 'planet', status: 'available', description: 'Entendiendo el cielo y el mar.', link: '/academy' },
-    { id: '4', label: 'Seguridad', x: 500, y: 600, type: 'star', status: 'available', description: 'Primero, sobrevivir.' },
-    { id: '5', label: 'Navegación', x: 200, y: 500, type: 'nebula', status: 'available', description: 'Arte de ir de A a B.', link: '/academy/logbook?tab=map' },
-    { id: '6', label: 'Partes del Barco', x: 300, y: 200, type: 'planet', status: 'available', description: 'Conoce tu embarcación.', link: '/academy' },
+    { id: '2', label: 'Nudos', x: 600, y: 250, type: 'star', status: 'available', description: 'El arte de la cabuyería.', link: '/academy/tools/knots' },
+    { id: '3', label: 'Meteorología', x: 800, y: 400, type: 'planet', status: 'available', description: 'Entendiendo el cielo y el mar.', link: '/academy/tools/wind-lab' },
+    { id: '4', label: 'Seguridad', x: 500, y: 600, type: 'star', status: 'available', description: 'Primero, sobrevivir.', link: '/academy/skills' },
+    { id: '5', label: 'Navegación', x: 200, y: 500, type: 'nebula', status: 'available', description: 'Arte de ir de A a B.', link: '/academy/tools/chart-plotter' },
+    { id: '6', label: 'Partes del Barco', x: 300, y: 200, type: 'planet', status: 'available', description: 'Conoce tu embarcación.', link: '/academy/tools/nomenclature' },
     { id: '7', label: 'Cuaderno', x: 100, y: 150, type: 'star', status: 'available', description: 'Tu viaje personal.', link: '/academy/logbook' },
 ];
 
@@ -37,8 +37,9 @@ export default function ConstellationMap() {
     const [isDragging, setIsDragging] = useState(false);
     const [startPoint, setStartPoint] = useState({ x: 0, y: 0 });
     const [activeNode, setActiveNode] = useState<ConstellationNode | null>(null);
+    const [lastPinchDistance, setLastPinchDistance] = useState<number | null>(null);
 
-    // Pan (Drag) Logic
+    // Pan (Drag) Logic - Mouse
     const handleMouseDown = (e: React.MouseEvent) => {
         setIsDragging(true);
         setStartPoint({ x: e.clientX, y: e.clientY });
@@ -46,28 +47,65 @@ export default function ConstellationMap() {
 
     const handleMouseMove = (e: React.MouseEvent) => {
         if (!isDragging) return;
-        const dx = (e.clientX - startPoint.x) * (viewBox.w / window.innerWidth);
-        const dy = (e.clientY - startPoint.y) * (viewBox.h / window.innerHeight);
+        pan(e.clientX, e.clientY);
+    };
+
+    // Pan Logic - Touch
+    const handleTouchStart = (e: React.TouchEvent) => {
+        if (e.touches.length === 1) {
+            setIsDragging(true);
+            setStartPoint({ x: e.touches[0].clientX, y: e.touches[0].clientY });
+        } else if (e.touches.length === 2) {
+            const dist = Math.hypot(
+                e.touches[0].clientX - e.touches[1].clientX,
+                e.touches[0].clientY - e.touches[1].clientY
+            );
+            setLastPinchDistance(dist);
+        }
+    };
+
+    const handleTouchMove = (e: React.TouchEvent) => {
+        if (e.touches.length === 1 && isDragging) {
+            pan(e.touches[0].clientX, e.touches[0].clientY);
+        } else if (e.touches.length === 2 && lastPinchDistance !== null) {
+            const dist = Math.hypot(
+                e.touches[0].clientX - e.touches[1].clientX,
+                e.touches[0].clientY - e.touches[1].clientY
+            );
+            const delta = dist - lastPinchDistance;
+            zoom(delta > 0 ? 0.95 : 1.05);
+            setLastPinchDistance(dist);
+        }
+    };
+
+    const pan = (clientX: number, clientY: number) => {
+        const dx = (clientX - startPoint.x) * (viewBox.w / window.innerWidth);
+        const dy = (clientY - startPoint.y) * (viewBox.h / window.innerHeight);
 
         setViewBox(prev => ({
             ...prev,
             x: prev.x - dx,
             y: prev.y - dy
         }));
-        setStartPoint({ x: e.clientX, y: e.clientY });
+        setStartPoint({ x: clientX, y: clientY });
     };
 
     const handleMouseUp = () => {
         setIsDragging(false);
+        setLastPinchDistance(null);
     };
 
     // Zoom Logic
     const handleWheel = (e: React.WheelEvent) => {
-        const zoomFactor = 1.1;
-        const newW = e.deltaY > 0 ? viewBox.w * zoomFactor : viewBox.w / zoomFactor;
-        const newH = e.deltaY > 0 ? viewBox.h * zoomFactor : viewBox.h / zoomFactor;
+        const zoomFactor = e.deltaY > 0 ? 1.1 : 0.9;
+        zoom(zoomFactor);
+    };
 
-        if (newW < 200 || newW > 2000) return;
+    const zoom = (factor: number) => {
+        const newW = viewBox.w * factor;
+        const newH = viewBox.h * factor;
+
+        if (newW < 200 || newW > 3000) return;
 
         setViewBox(prev => ({
             ...prev,
@@ -89,13 +127,32 @@ export default function ConstellationMap() {
     };
 
     return (
-        <div className="w-full h-full bg-[#000510] relative overflow-hidden font-display select-none">
+        <div className="w-full h-full bg-[#000510] relative overflow-hidden font-display select-none touch-none">
             {/* Background Stars */}
             <div className="absolute inset-0 opacity-50 pointer-events-none" style={{ background: 'url(/images/stars-bg.png) repeat' }} />
 
             {/* Hint */}
-            <div className="absolute top-6 left-6 text-white/40 text-2xs pointer-events-none">
+            <div className="absolute top-6 left-6 text-white/40 text-2xs pointer-events-none md:block hidden">
                 <p>Arrastra para explorar. Rueda para zoom.</p>
+            </div>
+            <div className="absolute top-6 left-6 text-white/40 text-2xs pointer-events-none block md:hidden">
+                <p>Desliza para mover. Pincha para zoom.</p>
+            </div>
+
+            {/* Zoom Controls (Floating) */}
+            <div className="absolute bottom-6 right-6 flex flex-col gap-2 z-20">
+                <button
+                    onClick={() => zoom(0.8)}
+                    className="w-10 h-10 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-white border border-white/20 transition-colors"
+                >
+                    +
+                </button>
+                <button
+                    onClick={() => zoom(1.2)}
+                    className="w-10 h-10 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-white border border-white/20 transition-colors"
+                >
+                    -
+                </button>
             </div>
 
             {/* Main Interactive SVG */}
@@ -108,6 +165,9 @@ export default function ConstellationMap() {
                 onMouseUp={handleMouseUp}
                 onMouseLeave={handleMouseUp}
                 onWheel={handleWheel}
+                onTouchStart={handleTouchStart}
+                onTouchMove={handleTouchMove}
+                onTouchEnd={handleMouseUp}
             >
                 <defs>
                     <filter id="glow">
@@ -146,7 +206,7 @@ export default function ConstellationMap() {
 
             {/* Active Node Modal / Card */}
             {activeNode && (
-                <div className="absolute bottom-12 left-1/2 -translate-x-1/2 w-80 bg-nautical-deep/90 backdrop-blur-md border border-white/10 p-6 rounded-xl shadow-2xl text-center">
+                <div className="absolute bottom-12 left-1/2 -translate-x-1/2 w-[90%] max-w-sm bg-nautical-deep/90 backdrop-blur-md border border-white/10 p-6 rounded-xl shadow-2xl text-center">
                     <button onClick={() => setActiveNode(null)} className="absolute top-2 right-2 text-white/50 hover:text-white">
                         <X size={16} />
                     </button>

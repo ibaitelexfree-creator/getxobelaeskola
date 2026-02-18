@@ -2,17 +2,20 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useTranslations } from 'next-intl';
-import OverviewTab from './OverviewTab';
-import RentalsTab from './RentalsTab';
-import AcademicTab from './AcademicTab';
-import CommunicationTab from './CommunicationTab';
-import StaffMgmtTab from './StaffMgmtTab';
-import CoursesTab from './CoursesTab';
-import BoatsTab from './BoatsTab';
-import SessionsTab from './SessionsTab';
-import AcademyStaffTab from './AcademyStaffTab';
-import FinancialReportsClient from './FinancialReportsClient';
-import BITab from './BITab';
+import dynamic from 'next/dynamic';
+
+const OverviewTab = dynamic(() => import('./OverviewTab'), { ssr: false });
+const RentalsTab = dynamic(() => import('./RentalsTab'), { ssr: false });
+const AcademicTab = dynamic(() => import('./AcademicTab'), { ssr: false });
+const CommunicationTab = dynamic(() => import('./CommunicationTab'), { ssr: false });
+const StaffMgmtTab = dynamic(() => import('./StaffMgmtTab'), { ssr: false });
+const CoursesTab = dynamic(() => import('./CoursesTab'), { ssr: false });
+const BoatsTab = dynamic(() => import('./BoatsTab'), { ssr: false });
+const SessionsTab = dynamic(() => import('./SessionsTab'), { ssr: false });
+const AcademyStaffTab = dynamic(() => import('./AcademyStaffTab'), { ssr: false });
+const FinancialReportsClient = dynamic(() => import('./FinancialReportsClient'), { ssr: false });
+const BITab = dynamic(() => import('./BITab'), { ssr: false });
+
 import AccessibleModal from '../shared/AccessibleModal';
 import { apiUrl } from '@/lib/api';
 

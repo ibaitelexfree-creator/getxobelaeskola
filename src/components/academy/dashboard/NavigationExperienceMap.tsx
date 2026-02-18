@@ -92,12 +92,13 @@ export default function NavigationExperienceMap({ sessions }: { sessions: any[] 
                         Tu huella geográfica en tiempo real
                     </p>
                 </div>
-                <a
+                <Link
                     href={`/${locale}/academy/logbook?tab=map`}
+                    prefetch={false}
                     className="px-4 py-2 bg-white/5 border border-white/10 rounded text-[10px] uppercase tracking-widest font-black text-accent hover:bg-accent hover:text-nautical-black transition-all inline-block"
                 >
                     Ver Bitácora →
-                </a>
+                </Link>
             </div>
 
             <div className="flex flex-col gap-8">
