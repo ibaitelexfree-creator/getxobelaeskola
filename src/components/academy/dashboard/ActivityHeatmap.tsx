@@ -34,20 +34,13 @@ export default function ActivityHeatmap({ data }: ActivityHeatmapProps) {
                     <CalendarHeatmap
                         startDate={startDate}
                         endDate={today}
-                        values={data}
-                        classForValue={(value) => {
-                            if (!value) return 'color-empty';
+                        values={Array.isArray(data) ? data : []}
+                        classForValue={(value: any) => {
+                            if (!value || typeof value.count === 'undefined') return 'color-empty';
                             return `color-scale-${Math.min(value.count, 4)}`;
                         }}
-                        tooltipDataAttrs={(value: any) => {
-                            if (!value || !value.date) return { 'data-tip': 'Sin actividad' };
-                            try {
-                                return {
-                                    'data-tip': `${format(new Date(value.date), 'dd/MM/yyyy')}: ${value.count} actividades`
-                                };
-                            } catch (e) {
-                                return { 'data-tip': 'Error en fecha' };
-                            }
+                        tooltipDataAttrs={() => {
+                            return {};
                         }}
                     />
                 </div>

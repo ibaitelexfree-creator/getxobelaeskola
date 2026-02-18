@@ -1,8 +1,6 @@
 import { requireAuth } from '@/lib/auth-guard';
 import { NextResponse } from 'next/server';
-import Stripe from 'stripe';
-
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
+import { stripe } from '@/lib/stripe';
 
 export async function POST(request: Request) {
     try {
@@ -37,6 +35,7 @@ export async function POST(request: Request) {
         // 2. Create Checkout Session
         const session = await stripe.checkout.sessions.create({
             payment_method_types: ['card'],
+            allow_promotion_codes: true,
             customer: profile?.stripe_customer_id || undefined,
             customer_email: profile?.stripe_customer_id ? undefined : user.email,
             line_items: [
@@ -56,7 +55,7 @@ export async function POST(request: Request) {
                 },
             ],
             mode: 'subscription',
-            success_url: `${origin}/${locale}/student/dashboard?membership=success`,
+            success_url: `${origin}/${locale}/student/payment-success?session_id={CHECKOUT_SESSION_ID}&type=membership`,
             cancel_url: `${origin}/${locale}/student/dashboard?membership=canceled`,
             metadata: {
                 user_id: user.id as string,

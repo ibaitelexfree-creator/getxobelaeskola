@@ -1,12 +1,16 @@
 export const getApiBaseUrl = () => {
     // In Capacitor, we can't use relative URLs like /api
     // We must use the absolute URL of the production server or local dev server
-    if (typeof window !== 'undefined' &&
-        (window.location.protocol === 'file:' ||
-            window.location.hostname === 'localhost' ||
-            window.location.protocol === 'capacitor:')) {
+    if (typeof window !== 'undefined') {
+        const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+        const isCapacitor = window.location.protocol === 'capacitor:' || window.location.protocol === 'file:';
 
-        // If we have a custom App URL (like production or local IP), use it
+        // If we are on localhost in a browser, use the current origin
+        if (isLocalhost && !isCapacitor) {
+            return window.location.origin;
+        }
+
+        // In Capacitor or if NEXT_PUBLIC_APP_URL is explicitly set
         if (process.env.NEXT_PUBLIC_APP_URL) {
             return process.env.NEXT_PUBLIC_APP_URL.replace(/\/$/, '');
         }

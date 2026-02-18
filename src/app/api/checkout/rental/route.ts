@@ -1,14 +1,17 @@
 import { requireAuth } from '@/lib/auth-guard';
 import { NextResponse } from 'next/server';
-import Stripe from 'stripe';
-
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
+import { stripe } from '@/lib/stripe';
 
 export async function POST(request: Request) {
     try {
-        const { serviceId, optionIndex, locale, reservedDate, reservedTime, legalName, legalDni } = await request.json();
+        const { serviceId, optionIndex, locale = 'es', reservedDate, reservedTime, legalName, legalDni } = await request.json();
+
+        if (!serviceId || !reservedDate || !reservedTime) {
+            return NextResponse.json({ error: 'Faltan datos obligatorios (servicio, fecha o hora)' }, { status: 400 });
+        }
+
         const { user, supabase, error: authError } = await requireAuth();
-        if (authError) return authError;
+        if (authError || !user) return authError || NextResponse.json({ error: 'No autorizado' }, { status: 401 });
 
         const { data: profile } = await supabase.from('profiles').select('nombre, apellidos').eq('id', user.id).single();
 
@@ -77,6 +80,8 @@ export async function POST(request: Request) {
         // 4. Create Stripe Session
         const session = await stripe.checkout.sessions.create({
             payment_method_types: ['card'],
+            tax_id_collection: { enabled: true },
+            allow_promotion_codes: true,
             line_items: [
                 {
                     price_data: {
@@ -91,7 +96,7 @@ export async function POST(request: Request) {
                 },
             ],
             mode: 'payment',
-            success_url: `${appUrl}/${locale}/student/dashboard?success=true`,
+            success_url: `${appUrl}/${locale}/student/payment-success?session_id={CHECKOUT_SESSION_ID}&type=rental`,
             cancel_url: `${appUrl}/${locale}/rental?canceled=true`,
             metadata: {
                 user_id: user.id as string,

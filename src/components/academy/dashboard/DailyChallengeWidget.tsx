@@ -156,7 +156,7 @@ export default function DailyChallengeWidget({ locale }: DailyChallengeWidgetPro
                         </div>
 
                         <h4 className={`text-2xl font-black uppercase tracking-tighter mb-2 ${data.correct ? 'text-emerald-400' : 'text-red-400'}`}>
-                            {data.correct ? t('correct', { xp: challenge.xp_recompensa }) : t('wrong', { answer: challenge.opciones[data.result.respuesta_correcta] })}
+                            {data.correct ? t('correct', { xp: challenge.xp_recompensa }) : t('wrong', { answer: challenge.opciones[data.result.respuesta_correcta] || '' })}
                         </h4>
 
                         <p className="text-white/40 text-[10px] uppercase tracking-[0.3em] mb-8 font-black">

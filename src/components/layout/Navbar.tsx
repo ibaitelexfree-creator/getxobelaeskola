@@ -27,6 +27,7 @@ export default function Navbar({ locale: propLocale }: { locale?: string }) {
         [key: string]: unknown;
     }
     const [user, setUser] = useState<AuthUser | null>(null);
+    const [loading, setLoading] = useState(true);
 
     const supabase = createClient();
 
@@ -51,15 +52,18 @@ export default function Navbar({ locale: propLocale }: { locale?: string }) {
                 if (error && !error.message.includes('Auth session missing')) {
                     console.error("Auth init error:", error.message);
                 }
-                getUserData(user);
+                await getUserData(user);
             } catch (err) {
                 console.error("Critical auth error:", err);
+            } finally {
+                setLoading(false);
             }
         };
         init();
 
-        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event: string, session: { user: AuthUser | null } | null) => {
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event: string, session: any) => {
             getUserData(session?.user || null);
+            setLoading(false);
         });
 
         return () => subscription.unsubscribe();
@@ -166,7 +170,9 @@ export default function Navbar({ locale: propLocale }: { locale?: string }) {
                         </div>
                     </div>
 
-                    {user ? (
+                    {loading ? (
+                        <div className="hidden xl:block w-32 h-10 bg-white/5 animate-pulse rounded-sm" />
+                    ) : user ? (
                         <div className="hidden xl:flex gap-6 items-center">
                             {/* Member Badge - Desktop */}
                             {user.status_socio === 'activo' && (
@@ -251,8 +257,9 @@ export default function Navbar({ locale: propLocale }: { locale?: string }) {
 
                     {/* Bottom Actions */}
                     <div className={`space-y-10 transition-all duration-700 delay-500 ${isMenuOpen ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
-                        {/* Auth Button Mobile */}
-                        {user ? (
+                        {loading ? (
+                            <div className="w-full h-16 bg-white/5 animate-pulse rounded" />
+                        ) : user ? (
                             <div className="flex flex-col gap-4">
                                 {/* Member Badge - Mobile */}
                                 {user.status_socio === 'activo' && (
