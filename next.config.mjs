@@ -36,11 +36,32 @@ const nextConfig = {
     output: isCapacitor ? 'export' : 'standalone',
     staticPageGenerationTimeout: 300, // Increase timeout to 5 minutes
     experimental: {
-        // Allowing default worker threads and CPU usage for faster builds on CI
-        // only use these if you experience memory issues
-        // workerThreads: false,
-        // cpus: 1,
-    }
+    },
+    async headers() {
+        return [
+            {
+                source: '/:path*',
+                headers: [
+                    {
+                        key: 'X-Frame-Options',
+                        value: 'DENY',
+                    },
+                    {
+                        key: 'X-Content-Type-Options',
+                        value: 'nosniff',
+                    },
+                    {
+                        key: 'Referrer-Policy',
+                        value: 'strict-origin-when-cross-origin',
+                    },
+                    {
+                        key: 'Permissions-Policy',
+                        value: 'camera=(), microphone=(), geolocation=()',
+                    },
+                ],
+            },
+        ];
+    },
 };
 
 export default withNextIntl(nextConfig);

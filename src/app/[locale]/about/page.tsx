@@ -6,10 +6,10 @@ import { Metadata } from 'next';
 
 export async function generateMetadata({ params: { locale } }: { params: { locale: string } }): Promise<Metadata> {
     const isEu = locale === 'eu';
-    const title = isEu ? 'Gure Eskola | Getxo Bela Eskola' : 'Nuestra Escuela | Getxo Sailing School';
+    const title = isEu ? 'Gure Eskola' : 'Nuestra Escuela';
     const description = isEu
-        ? 'Ezagutu Getxo Bela Eskolako historia eta balioak. 1993tik nabigazioaren pasioa partekatzen.'
-        : 'Descubre la historia y valores de Getxo Bela Eskola. Compartiendo la pasión por la navegación desde 1993.';
+        ? 'Ezagutu Getxo Bela Eskolako historia, gure ondarea eta itsas balioak. 1993tik nabigazioaren pasioa hurbiltzen.'
+        : 'Conoce la historia de Getxo Bela Eskola, nuestro patrimonio y valores náuticos. Compartiendo la pasión por el mar desde 1993.';
 
     return {
         title,
@@ -17,7 +17,7 @@ export async function generateMetadata({ params: { locale } }: { params: { local
         openGraph: {
             title,
             description,
-            images: ['/images/about-hero-heritage.webp']
+            images: ['https://getxobelaeskola.com/images/about-hero-heritage.webp']
         }
     };
 }

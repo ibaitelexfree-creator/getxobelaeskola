@@ -1,8 +1,27 @@
 import ContactForm from '@/components/shared/ContactForm';
-import { useTranslations } from 'next-intl';
+import { getTranslations } from 'next-intl/server';
+import { Metadata } from 'next';
 
-export default function ContactPage() {
-    const t = useTranslations('contact_page');
+export async function generateMetadata({ params: { locale } }: { params: { locale: string } }): Promise<Metadata> {
+    const isEu = locale === 'eu';
+    const title = isEu ? 'Kontaktua' : 'Contacto';
+    const description = isEu
+        ? 'Jarri gurekin harremanetan. Hemen gaude zure nabigazio galderak erantzuteko Getxon.'
+        : 'Contacta con nosotros. Estamos aquí para resolver tus dudas sobre navegación en Getxo.';
+
+    return {
+        title,
+        description,
+        openGraph: {
+            title,
+            description,
+            images: ['https://getxobelaeskola.com/images/home-hero-sailing-action.webp']
+        }
+    };
+}
+
+export default async function ContactPage({ params: { locale } }: { params: { locale: string } }) {
+    const t = await getTranslations({ locale, namespace: 'contact_page' });
 
     return (
         <main className="min-h-screen pt-48 pb-24 px-6 relative bg-nautical-black selection:bg-accent selection:text-nautical-black">
