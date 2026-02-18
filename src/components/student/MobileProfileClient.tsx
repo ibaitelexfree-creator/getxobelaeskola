@@ -1,10 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { User, Sparkles, LogOut, ChevronRight, Settings, CreditCard, Shield } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { User, Sparkles, LogOut, ChevronRight, Settings, CreditCard, Shield, Globe, Compass, Book } from 'lucide-react';
 
+import { createClient } from '@/lib/supabase/client';
 import EditProfileModal from '@/components/student/EditProfileModal';
 import SafetySettingsModal from '@/components/student/SafetySettingsModal';
 import LogoutButton from '@/components/auth/LogoutButton';
@@ -20,18 +22,73 @@ interface Profile {
 }
 
 export default function MobileProfileClient({
-    profile,
-    email,
+    profile: initialProfile,
+    email: initialEmail,
     locale
 }: {
-    profile: Profile;
-    email: string;
+    profile?: Profile | null;
+    email?: string;
     locale: string;
 }) {
     const [isEditing, setIsEditing] = useState(false);
     const [isSafetySettingsOpen, setIsSafetySettingsOpen] = useState(false);
-    const [currentProfile, setCurrentProfile] = useState<Profile>(profile);
+    const [currentProfile, setCurrentProfile] = useState<Profile | null>(initialProfile || null);
+    const [currentEmail, setCurrentEmail] = useState<string>(initialEmail || '');
+    const [loading, setLoading] = useState(!initialProfile);
+    const router = useRouter();
+    const supabase = createClient();
+
+    useEffect(() => {
+        async function loadProfile() {
+            if (currentProfile) {
+                setLoading(false);
+                return;
+            }
+
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) {
+                router.replace(`/${locale}/auth/login?returnTo=/${locale}/student/profile`);
+                return;
+            }
+
+            setCurrentEmail(user.email || '');
+
+            const { data: profile } = await supabase
+                .from('profiles')
+                .select('*')
+                .eq('id', user.id)
+                .single();
+
+            if (profile) {
+                setCurrentProfile(profile);
+            }
+            setLoading(false);
+        }
+
+        loadProfile();
+    }, [supabase, locale, router, currentProfile]);
+
     const isSocio = currentProfile?.status_socio === 'activo';
+
+    const handleLanguageSwitch = (targetLocale: string) => {
+        if (targetLocale === locale) return;
+        document.cookie = `NEXT_LOCALE=${targetLocale}; path=/; max-age=31536000; SameSite=Lax`;
+        let path = window.location.pathname;
+        if (path.startsWith(`/${locale}`)) {
+            path = path.replace(`/${locale}`, `/${targetLocale}`);
+        } else {
+            path = `/${targetLocale}${path}`;
+        }
+        window.location.assign(path);
+    };
+
+    if (loading) {
+        return (
+            <div className="min-h-screen bg-nautical-black flex items-center justify-center">
+                <div className="w-10 h-10 border-4 border-accent/20 border-t-accent rounded-full animate-spin" />
+            </div>
+        );
+    }
 
     return (
         <div className="pb-24 bg-nautical-black min-h-screen">
@@ -46,8 +103,10 @@ export default function MobileProfileClient({
                             className="object-cover"
                         />
                     </div>
-                    <h1 className="text-2xl font-display text-white">{currentProfile?.nombre} {currentProfile?.apellidos}</h1>
-                    <p className="text-white/40 text-sm mt-1">{email}</p>
+                    <h1 className="text-2xl font-display text-white">
+                        {currentProfile?.nombre || 'Navegante'} {currentProfile?.apellidos || ''}
+                    </h1>
+                    <p className="text-white/40 text-sm mt-1">{currentEmail}</p>
 
                     {isSocio && (
                         <div className="mt-4 px-4 py-1.5 rounded-full bg-gradient-to-r from-amber-100 via-yellow-300 to-amber-500 border border-yellow-200 shadow-[0_0_15px_rgba(252,211,77,0.3)] flex items-center gap-2">
@@ -134,7 +193,7 @@ export default function MobileProfileClient({
                             </>
                         ) : (
                             <Link
-                                href={`/${locale}/academy/membership`}
+                                href={`/${locale}/student/membership`}
                                 className="w-full flex items-center justify-between p-4 active:bg-white/5 transition-colors"
                             >
                                 <div className="flex items-center gap-4">
@@ -151,6 +210,70 @@ export default function MobileProfileClient({
                         )}
                     </div>
                 </section>
+                <section className="space-y-3">
+                    <h2 className="text-xs uppercase tracking-widest text-white/40 font-bold ml-1">Herramientas de Academia</h2>
+                    <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden">
+                        <Link
+                            href={`/${locale}/academy/exploration`}
+                            className="w-full flex items-center justify-between p-4 active:bg-white/5 transition-colors border-b border-white/5"
+                        >
+                            <div className="flex items-center gap-4">
+                                <div className="w-8 h-8 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-400">
+                                    <Compass className="w-4 h-4" />
+                                </div>
+                                <div className="text-left">
+                                    <span className="text-white font-medium text-sm block">Mapa de Constelaciones</span>
+                                    <span className="text-white/40 text-[10px]">Modo Exploración</span>
+                                </div>
+                            </div>
+                            <ChevronRight className="w-4 h-4 text-white/20" />
+                        </Link>
+
+                        <Link
+                            href={`/${locale}/academy/logbook`}
+                            className="w-full flex items-center justify-between p-4 active:bg-white/5 transition-colors"
+                        >
+                            <div className="flex items-center gap-4">
+                                <div className="w-8 h-8 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-400">
+                                    <Book className="w-4 h-4" />
+                                </div>
+                                <div className="text-left">
+                                    <span className="text-white font-medium text-sm block">Cuaderno de Bitácora</span>
+                                    <span className="text-white/40 text-[10px]">Tu diario de navegación</span>
+                                </div>
+                            </div>
+                            <ChevronRight className="w-4 h-4 text-white/20" />
+                        </Link>
+                    </div>
+                </section>
+
+                {/* Language Switch */}
+                <section className="space-y-3">
+                    <h2 className="text-xs uppercase tracking-widest text-white/40 font-bold ml-1">Idioma</h2>
+                    <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden flex divide-x divide-white/10">
+                        <button
+                            onClick={() => handleLanguageSwitch('es')}
+                            className={`flex-1 p-4 flex flex-col items-center gap-1 transition-colors ${locale === 'es' ? 'bg-accent/10 border-b-2 border-b-accent' : 'active:bg-white/5'}`}
+                        >
+                            <span className={`text-[8px] font-black ${locale === 'es' ? 'text-accent' : 'text-white/40'}`}>ES</span>
+                            <span className={`text-xs ${locale === 'es' ? 'text-white' : 'text-white/40'}`}>Español</span>
+                        </button>
+                        <button
+                            onClick={() => handleLanguageSwitch('eu')}
+                            className={`flex-1 p-4 flex flex-col items-center gap-1 transition-colors ${locale === 'eu' ? 'bg-accent/10 border-b-2 border-b-accent' : 'active:bg-white/5'}`}
+                        >
+                            <span className={`text-[8px] font-black ${locale === 'eu' ? 'text-accent' : 'text-white/40'}`}>EU</span>
+                            <span className={`text-xs ${locale === 'eu' ? 'text-white' : 'text-white/40'}`}>Euskara</span>
+                        </button>
+                        <button
+                            onClick={() => handleLanguageSwitch('en')}
+                            className={`flex-1 p-4 flex flex-col items-center gap-1 transition-colors ${locale === 'en' ? 'bg-accent/10 border-b-2 border-b-accent' : 'active:bg-white/5'}`}
+                        >
+                            <span className={`text-[8px] font-black ${locale === 'en' ? 'text-accent' : 'text-white/40'}`}>EN</span>
+                            <span className={`text-xs ${locale === 'en' ? 'text-white' : 'text-white/40'}`}>English</span>
+                        </button>
+                    </div>
+                </section>
 
                 {/* Logout */}
                 <div className="pt-4">
@@ -158,15 +281,17 @@ export default function MobileProfileClient({
                 </div>
             </div>
 
-            <EditProfileModal
-                isOpen={isEditing}
-                onClose={() => setIsEditing(false)}
-                profile={currentProfile}
-                onProfileUpdate={(updated) => {
-                    setCurrentProfile(updated);
-                    setIsEditing(false);
-                }}
-            />
+            {currentProfile && (
+                <EditProfileModal
+                    isOpen={isEditing}
+                    onClose={() => setIsEditing(false)}
+                    profile={currentProfile}
+                    onProfileUpdate={(updated) => {
+                        setCurrentProfile(updated);
+                        setIsEditing(false);
+                    }}
+                />
+            )}
 
             <SafetySettingsModal
                 isOpen={isSafetySettingsOpen}
@@ -175,4 +300,5 @@ export default function MobileProfileClient({
         </div>
     );
 }
+
 

@@ -155,6 +155,7 @@ export default function StudentDashboardClient({
                     profile={profile}
                     upcomingInscripciones={upcomingInscripciones}
                     upcomingRentals={upcomingRentals}
+                    academyStats={academyStats}
                     locale={locale}
                     t={t}
                 />

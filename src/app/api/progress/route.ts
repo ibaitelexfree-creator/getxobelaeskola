@@ -36,18 +36,23 @@ export async function GET(request: Request) {
         const supabase = createClient();
 
         const [
-            { data: rawProgress, error: progressError },
-            { data: allCourses },
-            { data: allLevels }
+            resProgress,
+            resCourses,
+            resLevels
         ] = await Promise.all([
             supabase.from('progreso_alumno').select('*').eq('alumno_id', user.id),
             supabase.from('cursos').select('id, slug, nombre_es, nombre_eu'),
-            supabase.from('niveles').select('id, slug, nombre_es, nombre_eu')
+            supabase.from('niveles_formacion').select('id, slug, nombre_es, nombre_eu')
         ]);
 
-        if (progressError) {
-            return NextResponse.json({ error: 'Error loading progress' }, { status: 500 });
+        if (resProgress.error) {
+            console.error('Progress Error:', resProgress.error);
+            return withCors(NextResponse.json({ error: 'Error loading progress' }, { status: 500 }), request);
         }
+
+        const rawProgress = resProgress.data;
+        const allCourses = resCourses.data;
+        const allLevels = resLevels.data;
 
         // Create lookup maps
         const courseMap = (allCourses || []).reduce((acc: any, c: any) => ({ ...acc, [c.id]: c }), {});

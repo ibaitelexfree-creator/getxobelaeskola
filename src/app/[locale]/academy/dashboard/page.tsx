@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
+import { X } from 'lucide-react';
 import { useNotificationStore } from '@/lib/store/useNotificationStore';
 import dynamic from 'next/dynamic';
 
@@ -226,7 +227,26 @@ export default function DashboardPage({ params }: { params: { locale: string } }
         return <AcademySkeleton />;
     }
 
-    if (!data) return null;
+    if (!data) {
+        return (
+            <div className="min-h-screen bg-nautical-black flex flex-col items-center justify-center p-6 text-center">
+                <div className="w-20 h-20 bg-accent/10 rounded-full flex items-center justify-center text-accent mb-6">
+                    <X size={40} />
+                </div>
+                <h2 className="text-2xl font-display text-white mb-2 italic">No se pudo cargar tu bitácora</h2>
+                <p className="text-white/40 mb-8 max-w-xs">Parece que hay un problema de conexión o tu sesión ha expirado.</p>
+                <button
+                    onClick={() => window.location.reload()}
+                    className="px-8 py-3 bg-accent text-nautical-black font-black uppercase tracking-widest text-xs rounded"
+                >
+                    Reintentar
+                </button>
+                <Link href={`/${params.locale}/student/dashboard`} className="mt-4 text-white/20 text-[10px] uppercase tracking-widest hover:text-white transition-colors">
+                    Volver al Panel Principal
+                </Link>
+            </div>
+        );
+    }
 
     const currentXP = calculateEstimatedXP(data.progreso, data.logros);
     const currentRank = getRank(currentXP);
