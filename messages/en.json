@@ -629,6 +629,8 @@
         "rental": "Rental",
         "school": "The School",
         "contact": "Contact",
+        "privacy": "Privacy",
+        "cookies": "Cookies",
         "copyright": "© 2026 Getxo Bela Eskola · Premium Nautical Experience",
         "slogan": "Getxo Bela Eskola  Nautical experience par excellence in the Getxo Marina."
     },
@@ -810,6 +812,8 @@
         "message_short": "The message is too short"
     },
     "legal": {
+        "privacy_title": "Privacy Policy",
+        "cookies_title": "Cookies Policy",
         "rental_contract": "NAUTICAL EQUIPMENT RENTAL CONTRACT - GETXO BELA ESKOLA\n\n1. LESSEE REQUIREMENTS: The client declares to possess the necessary technical knowledge for the safe handling of the rented material. In the case of recreational sailboats, the corresponding minimum qualification is required.\n\n2. CONDITION AND RETURN: The material is delivered in perfect working condition. The client agrees to return it in the same condition. Any damage caused by negligence will be the exclusive responsibility of the client.\n\n3. NAVIGATION ZONES: Navigation will be limited to authorized zones and agreed times. The client agrees to respect the rules of the Getxo Marina and the regulations of the Maritime Captaincy.\n\n4. SAFETY: The use of a life jacket is mandatory and personal at all times while in the water.\n\n5. RESCUE AND ASSISTANCE: If the client requires assistance or rescue due to imprudence or leaving the permitted zones, the resulting costs will be at their expense.\n\n6. DIGITAL SIGNATURE: By checking the acceptance box, the client ratifies that they have understood all the previous points and assume their legal responsibility.",
         "consent_acceptance": "I have read and expressly accept the legal conditions detailed above. I understand that this acceptance is equivalent to a binding digital signature.",
         "error_log_consent": "Could not register legal signature. Please try again."

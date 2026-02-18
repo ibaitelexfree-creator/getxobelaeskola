@@ -19,7 +19,7 @@ export async function generateMetadata({ params: { locale } }: { params: { local
         openGraph: {
             title,
             description,
-            images: ['https://getxobelaeskola.com/images/home-fleet-preview.jpg']
+            images: ['/images/home-hero-sailing-action.webp']
         }
     };
 }

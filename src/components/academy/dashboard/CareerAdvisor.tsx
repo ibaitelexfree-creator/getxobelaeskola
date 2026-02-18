@@ -191,10 +191,10 @@ export default function CareerAdvisor({ recommendations }: CareerAdvisorProps) {
                                         </Link>
 
                                         <div className="hidden sm:flex items-center gap-3">
-                                            <div className="flex -space-x-2">
+                                            <div className="flex gap-1.5">
                                                 {[1, 2, 3].map(i => (
-                                                    <div key={i} className="w-8 h-8 rounded-full border border-nautical-black bg-white/10 flex items-center justify-center text-[10px]">
-                                                        ⚓
+                                                    <div key={i} className="w-8 h-8 rounded-full border border-accent/20 bg-accent/5 flex items-center justify-center">
+                                                        <Anchor size={12} className="text-accent" />
                                                     </div>
                                                 ))}
                                             </div>

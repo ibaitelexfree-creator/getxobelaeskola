@@ -1,4 +1,15 @@
 import { getTranslations } from 'next-intl/server';
+import { Metadata } from 'next';
+
+export async function generateMetadata({ params: { locale } }: { params: { locale: string } }): Promise<Metadata> {
+    const isEu = locale === 'eu';
+    const title = isEu ? 'Cookie Politika' : 'Política de Cookies';
+    const description = isEu
+        ? 'Getxo Bela Eskolako cookieen erabilera eta informazioa.'
+        : 'Información sobre el uso de cookies en el sitio web de Getxo Bela Eskola.';
+
+    return { title, description };
+}
 
 export default async function CookiesPage({ params: { locale } }: { params: { locale: string } }) {
     const t = await getTranslations({ locale, namespace: 'legal' });
@@ -13,7 +24,7 @@ export default async function CookiesPage({ params: { locale } }: { params: { lo
                         Getxo Sailing School
                     </span>
                     <h1 className="text-4xl md:text-7xl font-display text-white mb-8 italic">
-                        Política de <span className="text-brass-gold">Cookies</span>
+                        {t('cookies_title')}
                     </h1>
                     <div className="w-24 h-px bg-accent/40" />
                 </header>

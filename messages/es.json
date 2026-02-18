@@ -629,6 +629,8 @@
         "rental": "Alquiler",
         "school": "La Escuela",
         "contact": "Contacto",
+        "privacy": "Privacidad",
+        "cookies": "Cookies",
         "copyright": "© 2026 Getxo Bela Eskola · Experiencia Náutica Premium",
         "slogan": "Getxo Bela Eskola  Experiencia náutica por excelencia en el Puerto Deportivo de Getxo."
     },
@@ -810,6 +812,8 @@
         "message_short": "El mensaje es demasiado corto"
     },
     "legal": {
+        "privacy_title": "Política de Privacidad",
+        "cookies_title": "Política de Cookies",
         "rental_contract": "CONTRATO DE ARRENDAMIENTO DE MATERIAL NÁUTICO - GETXO BELA ESKOLA\n\n1. REQUISITOS DEL ARRENDATARIO: El cliente declara poseer los conocimientos técnicos necesarios para el manejo seguro del material alquilado. En caso de veleros de recreo, se requiere la titulación mínima correspondiente.\n\n2. ESTADO Y DEVOLUCIÓN: El material se entrega en perfecto estado de funcionamiento. El cliente se compromete a devolverlo en el mismo estado. Cualquier daño causado por negligencia será responsabilidad exclusiva del cliente.\n\n3. ZONAS DE NAVEGACIÓN: La navegación se limitará a las zonas autorizadas y tiempos acordados. El cliente se compromete a respetar las normas del Puerto Deportivo de Getxo y la normativa de Capitanía Marítima.\n\n4. SEGURIDAD: El uso del chaleco salvavidas es obligatorio y personal durante todo el tiempo que se permanezca en el agua.\n\n5. RESCATE Y ASISTENCIA: Si el cliente requiere asistencia o rescate por imprudencia o salida de las zonas permitidas, los costes derivados correrán a su cargo.\n\n6. FIRMA DIGITAL: Al marcar la casilla de aceptación, el cliente ratifica que ha comprendido todos los puntos anteriores y asume su responsabilidad legal.",
         "consent_acceptance": "He leído y acepto expresamente las condiciones legales detalladas anteriormente. Entiendo que esta aceptación equivale a una firma digital vinculante.",
         "error_log_consent": "No se pudo registrar la firma legal. Inténtalo de nuevo."

@@ -62,9 +62,7 @@ export async function generateMetadata({
         openGraph: {
             title: name,
             description: description,
-            images: [displayCourse.imagen_url && displayCourse.imagen_url.startsWith('http')
-                ? displayCourse.imagen_url
-                : `https://getxobelaeskola.com${displayCourse.imagen_url}`].filter(Boolean)
+            images: [displayCourse.imagen_url || '/images/home-hero-sailing-action.webp']
         },
         twitter: {
             card: 'summary_large_image',

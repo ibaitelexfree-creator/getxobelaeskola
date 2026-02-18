@@ -1,4 +1,15 @@
 import { getTranslations } from 'next-intl/server';
+import { Metadata } from 'next';
+
+export async function generateMetadata({ params: { locale } }: { params: { locale: string } }): Promise<Metadata> {
+    const isEu = locale === 'eu';
+    const title = isEu ? 'Pribatutasun Politika' : 'Política de Privacidad';
+    const description = isEu
+        ? 'Getxo Bela Eskolako pribatutasun politika eta datuen babesa.'
+        : 'Política de privacidad y protección de datos de Getxo Bela Eskola.';
+
+    return { title, description };
+}
 
 export default async function PrivacyPage({ params: { locale } }: { params: { locale: string } }) {
     const t = await getTranslations({ locale, namespace: 'legal' });
@@ -13,7 +24,7 @@ export default async function PrivacyPage({ params: { locale } }: { params: { lo
                         Getxo Sailing School
                     </span>
                     <h1 className="text-4xl md:text-7xl font-display text-white mb-8 italic">
-                        Política de <span className="text-brass-gold">Privacidad</span>
+                        {t('privacy_title')}
                     </h1>
                     <div className="w-24 h-px bg-accent/40" />
                 </header>

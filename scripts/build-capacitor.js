@@ -32,6 +32,33 @@ try {
     execSync('next build', { stdio: 'inherit', env });
     console.log('✅ Build completed successfully.');
 
+    // 2.5 Create root index.html for Capacitor entry point (with redirect to default locale)
+    console.log('📄 Creating root index.html for localized export...');
+    const outDir = path.join(__dirname, '..', 'out');
+    const indexHtmlPath = path.join(outDir, 'index.html');
+
+    const indexContent = `<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="refresh" content="0;url=./es/index.html" />
+    <title>Redirecting...</title>
+    <script>
+      window.location.href = "./es/index.html";
+    </script>
+  </head>
+  <body>
+    <p>Redirecting to <a href="./es/index.html">Spanish version</a>...</p>
+  </body>
+</html>`;
+
+    if (fs.existsSync(outDir)) {
+        fs.writeFileSync(indexHtmlPath, indexContent);
+        console.log('✅ Created root index.html with redirect to /es/');
+    } else {
+        console.warn('⚠️ out directory not found, skipping index.html creation');
+    }
+
 } catch (error) {
     console.error('❌ Build failed:', error.message);
 } finally {
