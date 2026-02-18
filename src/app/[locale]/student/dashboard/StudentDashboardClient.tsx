@@ -8,8 +8,12 @@ import DashboardRefresh from '@/components/student/DashboardRefresh';
 import MobileStudentHub from '@/components/student/MobileStudentHub';
 import EmptyState from '@/components/ui/EmptyState';
 import DailyChallengeWidget from '@/components/student/DailyChallengeWidget';
+import QuickContact from '@/components/student/QuickContact';
 import NotificationPermissionBanner from '@/components/dashboard/NotificationPermissionBanner';
+import { Menu, X, ChevronRight, Sparkles } from 'lucide-react';
 import Link from 'next/link';
+
+import DashboardSkeleton from '@/components/student/DashboardSkeleton';
 
 interface DashboardItem {
     id: string;
@@ -62,11 +66,7 @@ export default function StudentDashboardClient({
     }, []);
 
     if (loading) {
-        return (
-            <div className="min-h-screen bg-nautical-black flex items-center justify-center">
-                <div className="text-accent animate-spin text-4xl">⚓</div>
-            </div>
-        );
+        return <DashboardSkeleton />;
     }
 
     const {
@@ -193,32 +193,75 @@ export default function StudentDashboardClient({
                                 </Link>
                             </div>
 
-                            <div className="bg-gradient-to-r from-[#0a1628] to-[#0f213a] p-8 border border-accent/20 rounded-sm relative overflow-hidden group">
-                                <div className="absolute top-0 right-0 p-8 opacity-5 text-9xl pointer-events-none group-hover:scale-110 transition-transform duration-700">🎓</div>
-                                <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
-                                    <div>
-                                        <h3 className="text-2xl font-display italic text-white mb-2">{t.academy_widget.card_title}</h3>
-                                        <p className="text-white/60 text-sm max-w-md mb-6">
-                                            {hasAcademyActivity ? t.academy_widget.card_desc_active : t.academy_widget.card_desc_inactive}
-                                        </p>
-                                        <div className="flex gap-6 mb-8 md:mb-0">
-                                            <div>
-                                                <div className="text-2xl font-bold text-accent">{totalMiles}</div>
-                                                <div className="text-[9px] uppercase tracking-widest text-white/40">Millas Navegadas</div>
+                            <div className="bg-gradient-to-br from-[#0a1628] to-[#010816] p-1 lg:p-1 border border-accent/20 rounded-sm relative overflow-hidden group">
+                                <div className="absolute top-0 right-0 p-8 opacity-[0.03] text-9xl pointer-events-none group-hover:scale-110 group-hover:opacity-[0.07] transition-all duration-1000">🎓</div>
+
+                                <div className="bg-[#050c18] p-8 rounded-[1px] relative z-10">
+                                    <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-10">
+                                        <div className="flex-1">
+                                            <div className="flex items-center gap-3 mb-4">
+                                                <div className="w-8 h-8 bg-accent/10 flex items-center justify-center rounded-full text-accent shadow-[0_0_15px_rgba(var(--accent-rgb),0.2)]">
+                                                    <Sparkles size={14} />
+                                                </div>
+                                                <h3 className="text-2xl font-display italic text-white">{t.academy_widget.card_title}</h3>
                                             </div>
-                                            <div>
-                                                <div className="text-2xl font-bold text-accent">{academyLevels}</div>
-                                                <div className="text-[9px] uppercase tracking-widest text-white/40">{t.academy_widget.stats_levels}</div>
-                                            </div>
-                                            <div>
-                                                <div className="text-2xl font-bold text-accent">{academyCerts}</div>
-                                                <div className="text-[9px] uppercase tracking-widest text-white/40">{t.academy_widget.stats_certs}</div>
+
+                                            <p className="text-white/50 text-sm max-w-md mb-8 leading-relaxed">
+                                                {hasAcademyActivity ? t.academy_widget.card_desc_active : t.academy_widget.card_desc_inactive}
+                                            </p>
+
+                                            <div className="grid grid-cols-3 gap-4 lg:gap-8">
+                                                <div className="space-y-1">
+                                                    <div className="text-3xl font-black text-white italic tracking-tighter leading-none">{totalMiles}</div>
+                                                    <div className="text-[8px] uppercase tracking-[0.2em] text-accent/60 font-medium">Millas</div>
+                                                </div>
+                                                <div className="space-y-1">
+                                                    <div className="text-3xl font-black text-white italic tracking-tighter leading-none">{academyLevels}</div>
+                                                    <div className="text-[8px] uppercase tracking-[0.2em] text-accent/60 font-medium">{t.academy_widget.stats_levels}</div>
+                                                </div>
+                                                <div className="space-y-1">
+                                                    <div className="text-3xl font-black text-white italic tracking-tighter leading-none">{academyCerts}</div>
+                                                    <div className="text-[8px] uppercase tracking-[0.2em] text-accent/60 font-medium">{t.academy_widget.stats_certs}</div>
+                                                </div>
                                             </div>
                                         </div>
+
+                                        <div className="flex flex-col items-center gap-6 w-full md:w-auto">
+                                            {/* Progress Circular Visual */}
+                                            <div className="relative w-32 h-32 flex items-center justify-center">
+                                                <svg className="w-full h-full transform -rotate-90">
+                                                    <circle
+                                                        cx="64"
+                                                        cy="64"
+                                                        r="58"
+                                                        fill="transparent"
+                                                        stroke="currentColor"
+                                                        strokeWidth="4"
+                                                        className="text-white/5"
+                                                    />
+                                                    <circle
+                                                        cx="64"
+                                                        cy="64"
+                                                        r="58"
+                                                        fill="transparent"
+                                                        stroke="currentColor"
+                                                        strokeWidth="4"
+                                                        strokeDasharray={364}
+                                                        strokeDashoffset={364 - (Math.min(totalMiles, 100) / 100) * 364}
+                                                        className="text-accent shadow-[0_0_15px_rgba(var(--accent-rgb),0.5)] transition-all duration-1000 ease-out"
+                                                    />
+                                                </svg>
+                                                <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
+                                                    <span className="text-[9px] uppercase tracking-widest text-white/30 font-bold">Goal</span>
+                                                    <span className="text-sm font-black text-white">100 Mi</span>
+                                                </div>
+                                            </div>
+
+                                            <Link href={`/${locale}/academy/dashboard`} className="w-full md:w-auto px-10 py-4 bg-accent text-nautical-black font-black uppercase tracking-[0.2em] text-[10px] rounded hover:bg-white hover:scale-105 active:scale-95 transition-all shadow-[0_0_20px_rgba(var(--accent-rgb),0.3)] text-center">
+                                                {hasAcademyActivity ? t.academy_widget.btn_continue : t.academy_widget.btn_start}
+                                            </Link>
+                                        </div>
                                     </div>
-                                    <Link href={`/${locale}/academy/dashboard`} className="px-8 py-3 bg-accent text-nautical-black font-bold uppercase tracking-widest text-xs rounded hover:bg-white transition-all">
-                                        {hasAcademyActivity ? t.academy_widget.btn_continue : t.academy_widget.btn_start}
-                                    </Link>
                                 </div>
                             </div>
                         </section>
@@ -318,6 +361,7 @@ export default function StudentDashboardClient({
 
                     <div className="lg:col-span-1 space-y-8">
                         <DailyChallengeWidget locale={locale} />
+                        <QuickContact />
                     </div>
                 </div>
             </main>

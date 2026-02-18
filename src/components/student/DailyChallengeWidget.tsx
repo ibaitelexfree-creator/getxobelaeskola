@@ -100,7 +100,7 @@ export default function DailyChallengeWidget({ locale }: DailyChallengeWidgetPro
                 .select('*')
                 .eq('perfil_id', user.id)
                 .eq('fecha', todayStr)
-                .single();
+                .maybeSingle();
 
             if (existingAttempt) {
                 setStatus('completed');
@@ -257,8 +257,8 @@ export default function DailyChallengeWidget({ locale }: DailyChallengeWidgetPro
                             className="space-y-6"
                         >
                             <div className={`p-6 rounded-sm border ${status === 'correct'
-                                    ? 'bg-green-500/5 border-green-500/20 text-green-400'
-                                    : 'bg-red-500/5 border-red-500/20 text-red-400'
+                                ? 'bg-green-500/5 border-green-500/20 text-green-400'
+                                : 'bg-red-500/5 border-red-500/20 text-red-400'
                                 }`}>
                                 <div className="flex items-center gap-3 mb-4">
                                     <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm ${status === 'correct' ? 'bg-green-500 text-black' : 'bg-red-500 text-white'
@@ -266,7 +266,7 @@ export default function DailyChallengeWidget({ locale }: DailyChallengeWidgetPro
                                         {status === 'correct' ? '✓' : '✗'}
                                     </div>
                                     <p className="text-sm font-bold tracking-tight uppercase">
-                                        {status === 'correct' ? t('correct', { xp: xpAwarded }) : t('wrong', { answer: challenge?.opciones[challenge.respuesta_correcta] })}
+                                        {status === 'correct' ? t('correct', { xp: xpAwarded }) : t('wrong', { answer: (challenge && challenge.opciones[challenge.respuesta_correcta]) || '' })}
                                     </p>
                                 </div>
 
@@ -314,8 +314,8 @@ export default function DailyChallengeWidget({ locale }: DailyChallengeWidgetPro
                                         onClick={() => setSelectedOption(index)}
                                         disabled={status === 'answering'}
                                         className={`group/btn w-full text-left p-4 text-xs transition-all border relative overflow-hidden ${selectedOption === index
-                                                ? 'border-accent bg-accent/5'
-                                                : 'border-white/5 bg-white/[0.02] hover:bg-white/[0.05] hover:border-white/20'
+                                            ? 'border-accent bg-accent/5'
+                                            : 'border-white/5 bg-white/[0.02] hover:bg-white/[0.05] hover:border-white/20'
                                             }`}
                                     >
                                         <div className="relative z-10 flex items-center justify-between">

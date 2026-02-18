@@ -42,6 +42,7 @@ export default function CareerAdvisor({ recommendations }: CareerAdvisorProps) {
     if (!recommendations || recommendations.length === 0) return null;
 
     const mainRec = recommendations[0];
+    if (!mainRec) return null;
 
     const StatBar = ({ label, value, icon: Icon }: any) => (
         <div className="space-y-1.5 flex-1 min-w-[120px]">

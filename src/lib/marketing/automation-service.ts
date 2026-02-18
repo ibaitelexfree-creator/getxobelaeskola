@@ -1,8 +1,6 @@
 import { createAdminClient } from '../supabase/admin';
 import { resend, DEFAULT_FROM_EMAIL } from '../resend';
-import Stripe from 'stripe';
-
-const stripe = process.env.STRIPE_SECRET_KEY ? new Stripe(process.env.STRIPE_SECRET_KEY) : null;
+import { stripe } from '../stripe';
 
 export async function processMarketingAutomations() {
     const supabase = createAdminClient();

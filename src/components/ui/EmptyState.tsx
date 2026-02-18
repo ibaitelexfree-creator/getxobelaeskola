@@ -21,6 +21,16 @@ export default function EmptyState({ icon = '⚓', title, subtitle, actionLabel,
         >
             {/* Background elements */}
             <div className="absolute inset-0 bg-mesh opacity-[0.03]" />
+            <div className="absolute inset-0 pointer-events-none opacity-[0.02]">
+                <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <pattern id="waves" width="80" height="40" patternUnits="userSpaceOnUse">
+                            <path d="M 0 20 Q 20 0 40 20 T 80 20" fill="none" stroke="currentColor" strokeWidth="1" />
+                        </pattern>
+                    </defs>
+                    <rect width="100%" height="100%" fill="url(#waves)" />
+                </svg>
+            </div>
             <motion.div
                 animate={{
                     scale: [1, 1.2, 1],

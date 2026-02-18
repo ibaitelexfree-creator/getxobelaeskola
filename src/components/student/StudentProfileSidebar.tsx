@@ -17,6 +17,8 @@ interface Profile {
     telefono: string;
     rol: string;
     status_socio?: string;
+    xp?: number;
+    total_xp?: number;
 }
 
 interface StudentProfileSidebarProps {
@@ -83,6 +85,13 @@ export default function StudentProfileSidebar({ profile, email, locale }: Studen
                                 </span>
                             </div>
                         )}
+                    </div>
+
+                    <div className="mt-6 flex flex-col items-center gap-1">
+                        <div className="text-2xl font-black text-white italic tracking-tighter">
+                            {currentProfile?.xp || 0} <span className="text-accent text-xs">XP</span>
+                        </div>
+                        <div className="text-[8px] uppercase tracking-[0.3em] text-white/30 font-bold">Puntos de Experiencia</div>
                     </div>
                 </div>
 
