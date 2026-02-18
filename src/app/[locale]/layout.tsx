@@ -102,20 +102,20 @@ export async function generateMetadata({ params: { locale } }: { params: { local
       address: false,
       telephone: false,
     },
-    metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://getxobelaeskola.cloud'), // Cambiar a dominio real
+    metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://getxobelaeskola.com'),
     alternates: {
-      canonical: '/',
+      canonical: 'https://getxobelaeskola.com',
       languages: {
-        'es-ES': '/es',
-        'eu-ES': '/eu',
-        'en-US': '/en',
-        'fr-FR': '/fr',
+        'es-ES': 'https://getxobelaeskola.com/es',
+        'eu-ES': 'https://getxobelaeskola.com/eu',
+        'en-US': 'https://getxobelaeskola.com/en',
+        'fr-FR': 'https://getxobelaeskola.com/fr',
       },
     },
     openGraph: {
       title,
       description,
-      url: process.env.NEXT_PUBLIC_APP_URL || 'https://getxo-sailing-school.vercel.app',
+      url: process.env.NEXT_PUBLIC_APP_URL || 'https://getxobelaeskola.com',
       siteName: 'Getxo Sailing School',
       images: [
         {

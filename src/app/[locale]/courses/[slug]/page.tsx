@@ -60,9 +60,11 @@ export async function generateMetadata({
         title: name,
         description: description,
         openGraph: {
-            title: `${name} | Getxo Sailing School`,
+            title: name,
             description: description,
-            images: [displayCourse.imagen_url].filter(Boolean)
+            images: [displayCourse.imagen_url && displayCourse.imagen_url.startsWith('http')
+                ? displayCourse.imagen_url
+                : `https://getxobelaeskola.com${displayCourse.imagen_url}`].filter(Boolean)
         },
         twitter: {
             card: 'summary_large_image',

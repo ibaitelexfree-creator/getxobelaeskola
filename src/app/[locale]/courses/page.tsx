@@ -6,12 +6,10 @@ import { getTranslations } from 'next-intl/server';
 export async function generateMetadata({ params: { locale } }: { params: { locale: string } }): Promise<Metadata> {
     const isEu = locale === 'eu';
 
-    const title = isEu
-        ? 'Ikastaroen Katalogoa | Getxo Bela Eskola'
-        : 'Catálogo de Cursos | Getxo Sailing School';
+    const title = isEu ? 'Ikastaroak' : 'Cursos';
     const description = isEu
-        ? 'Ezagutu gure bela, kayak eta nabigazio lizentzia ikastaroak. Ikasi nabigatzen Getxon.'
-        : 'Descubre nuestros cursos de vela, kayak y licencia de navegación. Aprende a navegar en Getxo con profesionales.';
+        ? 'Ezagutu gure bela, kayak eta nabigazio lizentzia ikastaroak Getxon. Formazio praktikoa eta teorikoa.'
+        : 'Explora nuestro catálogo de cursos de vela, kayak y licencias de navegación en Getxo. Formación náutica para todos los niveles.';
 
     return {
         title,
@@ -19,7 +17,7 @@ export async function generateMetadata({ params: { locale } }: { params: { local
         openGraph: {
             title,
             description,
-            images: ['/images/course-raquero-students.webp']
+            images: ['https://getxobelaeskola.com/images/course-raquero-students.webp']
         }
     };
 }

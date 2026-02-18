@@ -8,12 +8,10 @@ import { Metadata } from 'next';
 export async function generateMetadata({ params: { locale } }: { params: { locale: string } }): Promise<Metadata> {
     const isEu = locale === 'eu';
 
-    const title = isEu
-        ? 'Alokairua | Getxo Bela Eskola'
-        : 'Alquiler de Embarcaciones | Getxo Sailing School';
+    const title = isEu ? 'Alokairua' : 'Alquiler';
     const description = isEu
-        ? 'Alokatu kayakak, paddle surfa, windsurfa eta belaontziak Getxon. Gozatu itsasoaz gurekin.'
-        : 'Alquila kayaks, paddle surf, windsurf y veleros en Getxo. Disfruta del mar con nuestra flota profesional.';
+        ? 'Alokatu kayakak, paddle surfa, windsurfa eta belaontziak Getxon. Gozatu itsasoaz gure flota profesionalarekin.'
+        : 'Alquiler de kayaks, paddle surf, windsurf y veleros en Getxo. Disfruta del mar con nuestra flota profesional de embarcaciones.';
 
     return {
         title,
@@ -21,7 +19,7 @@ export async function generateMetadata({ params: { locale } }: { params: { local
         openGraph: {
             title,
             description,
-            images: ['/images/home-fleet-preview.jpg']
+            images: ['https://getxobelaeskola.com/images/home-fleet-preview.jpg']
         }
     };
 }

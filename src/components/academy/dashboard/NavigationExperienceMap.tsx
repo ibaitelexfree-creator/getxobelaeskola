@@ -3,7 +3,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import dynamic from 'next/dynamic';
 import { motion } from 'framer-motion';
-import { Compass, Shield, Navigation, Play, Square, Save, Trash2, AlertCircle, Cpu } from 'lucide-react';
+import { Compass, Shield, Navigation, Play, Square, Save, Trash2, Cpu } from 'lucide-react';
 import Link from 'next/link';
 import { useSmartTracker } from '@/hooks/useSmartTracker';
 import { apiUrl } from '@/lib/api';
@@ -26,7 +26,6 @@ export default function NavigationExperienceMap({ sessions, locale }: Navigation
         points: livePoints,
         currentPosition,
         statusMessage,
-        error: geoError,
         startTracking,
         stopTracking,
         clearPoints
@@ -40,7 +39,6 @@ export default function NavigationExperienceMap({ sessions, locale }: Navigation
         setMounted(true);
     }, []);
 
-    // Filter sessions with location
     const mappedSessions = useMemo(() => sessions.filter(s => s.ubicacion).slice(-10), [sessions]);
 
     const saveLiveTrack = async () => {
@@ -129,26 +127,6 @@ export default function NavigationExperienceMap({ sessions, locale }: Navigation
                             </div>
                         )}
                     </div>
-
-                    <div className="absolute top-4 right-4 flex gap-2 z-[1000]">
-                        {!isTracking ? (
-                            <button
-                                onClick={() => startTracking(false)}
-                                className="w-10 h-10 rounded-full bg-accent text-nautical-black flex items-center justify-center shadow-2xl hover:scale-110 transition-transform hover:bg-white"
-                                title="Iniciar Grabación"
-                            >
-                                <Play size={16} fill="currentColor" />
-                            </button>
-                        ) : (
-                            <button
-                                onClick={() => stopTracking()}
-                                className="w-10 h-10 rounded-full bg-red-500 text-white flex items-center justify-center shadow-2xl hover:scale-110 transition-transform"
-                                title="Detener Grabación"
-                            >
-                                <Square size={16} fill="currentColor" />
-                            </button>
-                        )}
-                    </div>
                 </div>
 
                 <div className="lg:col-span-2 space-y-6">
@@ -178,11 +156,7 @@ export default function NavigationExperienceMap({ sessions, locale }: Navigation
                     </div>
 
                     {livePoints.length > 0 && !isTracking && (
-                        <motion.div
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            className="p-6 bg-accent/10 border border-accent/30 rounded-2xl border-dashed"
-                        >
+                        <div className="p-6 bg-accent/10 border border-accent/30 rounded-2xl border-dashed">
                             <div className="flex items-center justify-between mb-4">
                                 <h4 className="text-accent font-black text-xs uppercase tracking-[0.2em] flex items-center gap-2">
                                     <Navigation size={16} /> Sesión Capturada
@@ -205,23 +179,8 @@ export default function NavigationExperienceMap({ sessions, locale }: Navigation
                                     <Trash2 size={18} />
                                 </button>
                             </div>
-                        </motion.div>
-                    )}
-
-                    <div className="p-6 bg-white/5 border border-white/10 rounded-2xl">
-                        <div className="flex items-center gap-4 mb-6">
-                            <div className="w-12 h-12 rounded-2xl bg-blue-500/10 flex items-center justify-center text-blue-400 border border-blue-500/20">
-                                <Shield size={24} />
-                            </div>
-                            <div>
-                                <h4 className="text-white font-bold text-base">Zonas de Getxo</h4>
-                                <p className="text-white/40 text-[10px] uppercase tracking-widest font-bold">Abra Interior & Puerto Deportivo</p>
-                            </div>
                         </div>
-                        <p className="text-xs text-white/40 italic leading-relaxed">
-                            "Has navegado la mayoría de las áreas del puerto. Prueba a alejarte hacia el rompeolas norte en tu siguiente sesión para desbloquear nuevas zonas."
-                        </p>
-                    </div>
+                    )}
                 </div>
             </div>
         </section>
