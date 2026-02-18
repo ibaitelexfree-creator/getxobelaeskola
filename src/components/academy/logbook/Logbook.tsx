@@ -155,13 +155,6 @@ export default function Logbook() {
                             setSelectedPoint={setSelectedPoint}
                         />
 
-                        {/* Overlay to check if the wrapper renders */}
-                        <div className="absolute top-4 left-4 z-[1000] pointer-events-none">
-                            <div className="px-3 py-1 bg-black/50 backdrop-blur rounded text-[8px] text-white/50 uppercase tracking-widest">
-                                Status: Safe Mode
-                            </div>
-                        </div>
-
                         {selectedPoint && (
                             <div className="absolute inset-y-6 right-6 w-80 bg-[#0a1628]/95 backdrop-blur-2xl border border-accent/30 rounded-3xl p-8 shadow-2xl z-[1000] overflow-hidden">
                                 <button
