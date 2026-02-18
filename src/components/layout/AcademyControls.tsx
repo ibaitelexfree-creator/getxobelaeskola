@@ -120,7 +120,7 @@ export default function AcademyControls() {
                     className="w-12 h-12 bg-nautical-black/90 backdrop-blur-md border border-white/10 rounded-full flex items-center justify-center text-white/60 hover:text-accent hover:border-accent/50 transition-all shadow-2xl group"
                     title="Cuaderno de Bitácora"
                 >
-                    < Book className="w-5 h-5" />
+                    <Book className="w-5 h-5" />
                 </button>
 
                 {/* Fullscreen Toggle */}

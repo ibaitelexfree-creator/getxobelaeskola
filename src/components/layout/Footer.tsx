@@ -92,6 +92,15 @@ export default async function Footer({ locale }: { locale: string }) {
 
                 <div className="w-12 h-px bg-white/5 mb-12" />
 
+                <div className="flex flex-wrap justify-center gap-x-8 gap-y-4 text-[10px] uppercase tracking-[0.2em] font-bold text-foreground/40 mb-12">
+                    <Link href={`/${locale}/privacy`} className="hover:text-white transition-colors">
+                        {t('privacy')}
+                    </Link>
+                    <Link href={`/${locale}/cookies`} className="hover:text-white transition-colors">
+                        {t('cookies')}
+                    </Link>
+                </div>
+
                 <div className="text-sm uppercase tracking-[0.2em] text-foreground/60 font-medium text-center max-w-xl leading-loose">
                     {t('copyright')}
                     <br />

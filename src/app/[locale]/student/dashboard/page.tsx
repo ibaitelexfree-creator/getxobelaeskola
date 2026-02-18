@@ -1,5 +1,18 @@
 import { getTranslations } from 'next-intl/server';
 import StudentDashboardClient from './StudentDashboardClient';
+import { Metadata } from 'next';
+
+export async function generateMetadata({ params: { locale } }: { params: { locale: string } }): Promise<Metadata> {
+    const t = await getTranslations('student_dashboard');
+    return {
+        title: t('eyebrow'),
+        description: t('subtitle'),
+        robots: {
+            index: false,
+            follow: false,
+        }
+    };
+}
 
 export function generateStaticParams() {
     return ['es', 'eu', 'en', 'fr'].map(locale => ({ locale }));

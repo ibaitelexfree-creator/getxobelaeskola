@@ -17,7 +17,7 @@ export async function generateMetadata({ params: { locale } }: { params: { local
         openGraph: {
             title,
             description,
-            images: ['https://getxobelaeskola.com/images/course-raquero-students.webp']
+            images: ['/images/course-raquero-students.webp']
         }
     };
 }

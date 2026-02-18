@@ -3,6 +3,14 @@ import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import StaffClient from '@/components/staff/StaffClient';
 import Link from 'next/link';
+import { Metadata } from 'next';
+
+export async function generateMetadata({ params: { locale } }: { params: { locale: string } }): Promise<Metadata> {
+    return {
+        title: locale === 'eu' ? 'Admin Panela' : 'Panel de Administración',
+        robots: { index: false, follow: false }
+    };
+}
 
 export function generateStaticParams() {
     return ['es', 'eu', 'en', 'fr'].map(locale => ({ locale }));

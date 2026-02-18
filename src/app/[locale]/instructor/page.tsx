@@ -2,6 +2,14 @@ import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import InstructorClient from '@/components/instructor/InstructorClient';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { Metadata } from 'next';
+
+export async function generateMetadata({ params: { locale } }: { params: { locale: string } }): Promise<Metadata> {
+    return {
+        title: locale === 'eu' ? 'Instruktore Panela' : 'Panel de Instructor',
+        robots: { index: false, follow: false }
+    };
+}
 
 export default async function InstructorPage({
     params: { locale }

@@ -4,18 +4,32 @@ import { Metadata } from 'next';
 
 export async function generateMetadata({ params: { locale } }: { params: { locale: string } }): Promise<Metadata> {
     const isEu = locale === 'eu';
-    const title = isEu ? 'Kontaktua' : 'Contacto';
-    const description = isEu
-        ? 'Jarri gurekin harremanetan. Hemen gaude zure nabigazio galderak erantzuteko Getxon.'
-        : 'Contacta con nosotros. Estamos aquí para resolver tus dudas sobre navegación en Getxo.';
+    const isEn = locale === 'en';
+    const isFr = locale === 'fr';
+
+    let title = 'Contacto';
+    let description = 'Contacta con nosotros. Estamos aquí para resolver tus dudas sobre navegación en Getxo.';
+
+    if (isEu) {
+        title = 'Kontaktua';
+        description = 'Jarri gurekin harremanetan. Hemen gaude zure nabigazio galderak erantzuteko Getxon.';
+    } else if (isEn) {
+        title = 'Contact Us';
+        description = 'Get in touch with us. We are here to answer your sailing questions in Getxo.';
+    } else if (isFr) {
+        title = 'Contactez-nous';
+        description = 'Contactez-nous. Nous sommes là pour répondre à vos questions sur la navigation à Getxo.';
+    }
+
+    const fullTitle = `${title} | Getxo Bela Eskola`;
 
     return {
-        title,
+        title: fullTitle,
         description,
         openGraph: {
-            title,
+            title: fullTitle,
             description,
-            images: ['https://getxobelaeskola.com/images/home-hero-sailing-action.webp']
+            images: ['/images/home-hero-sailing-action.webp']
         }
     };
 }

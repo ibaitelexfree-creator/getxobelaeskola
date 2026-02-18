@@ -84,7 +84,7 @@ export async function generateMetadata({ params: { locale } }: { params: { local
   }
 
   const ogLocale = isEu ? 'eu_ES' : isEn ? 'en_US' : isFr ? 'fr_FR' : 'es_ES';
-  const siteUrl = 'https://getxobelaeskola.com'; // Using the primary .com domain
+  const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://getxobelaeskola.cloud';
 
   return {
     title: {
@@ -98,12 +98,11 @@ export async function generateMetadata({ params: { locale } }: { params: { local
     publisher: 'Getxo Sailing School',
     metadataBase: new URL(siteUrl),
     alternates: {
-      canonical: '/',
       languages: {
-        'es-ES': '/es',
-        'eu-ES': '/eu',
-        'en-US': '/en',
-        'fr-FR': '/fr',
+        'es-ES': '/es/',
+        'eu-ES': '/eu/',
+        'en-US': '/en/',
+        'fr-FR': '/fr/',
       },
     },
     openGraph: {
