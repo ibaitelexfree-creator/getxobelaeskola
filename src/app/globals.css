@@ -474,3 +474,16 @@ a:hover {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* Safe Area Utilities */
+.safe-area-top {
+  padding-top: env(safe-area-inset-top);
+}
+
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.pb-safe {
+  padding-bottom: calc(1rem + env(safe-area-inset-bottom));
+}

@@ -42,6 +42,15 @@ function LoginPageContent({ locale }: { locale: string }) {
     // However, to avoid flash of content, we can use a simpler approach.
     // For 100 speed, we render the page immediately and the useEffect handles the "already logged in" edge case.
 
+    // If we are still checking for a session, show a loading state instead of the login form
+    if (checking) {
+        return (
+            <div className="min-h-screen bg-nautical-black flex items-center justify-center">
+                <div className="w-10 h-10 border-4 border-accent/20 border-t-accent rounded-full animate-spin" />
+            </div>
+        );
+    }
+
     return (
         <main className="min-h-screen bg-nautical-black flex flex-col relative overflow-hidden">
             {/* Background Gradient Effects */}

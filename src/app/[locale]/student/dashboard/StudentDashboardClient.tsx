@@ -12,7 +12,8 @@ import QuickContact from '@/components/student/QuickContact';
 import NotificationPermissionBanner from '@/components/dashboard/NotificationPermissionBanner';
 import { Menu, X, ChevronRight, Sparkles } from 'lucide-react';
 import Link from 'next/link';
-
+import { useRouter } from 'next/navigation';
+import { createClient } from '@/lib/supabase/client';
 import DashboardSkeleton from '@/components/student/DashboardSkeleton';
 import WeatherPremium from '@/components/shared/WeatherPremium';
 
@@ -40,11 +41,28 @@ export default function StudentDashboardClient({
     const [loading, setLoading] = useState(true);
     const [isMobile, setIsMobile] = useState(false);
 
+    const router = useRouter();
+
+    useEffect(() => {
+        const supabase = createClient();
+        supabase.auth.getSession().then(({ data: { session } }: any) => {
+            if (!session) {
+                router.replace(`/${locale}/auth/login?returnTo=${encodeURIComponent(`/${locale}/student/dashboard`)}`);
+            }
+        });
+    }, [locale, router]);
+
     useEffect(() => {
         async function fetchDashboardData() {
             try {
                 const res = await fetch(getApiUrl('/api/student/dashboard-stats/'));
                 const json = await res.json();
+
+                if (json.error === 'Unauthorized') {
+                    router.replace(`/${locale}/auth/login?returnTo=${encodeURIComponent(`/${locale}/student/dashboard`)}`);
+                    return;
+                }
+
                 setData(json);
             } catch (e) {
                 console.error('Error fetching dashboard data:', e);
@@ -53,7 +71,7 @@ export default function StudentDashboardClient({
             }
         }
         fetchDashboardData();
-    }, []);
+    }, [locale, router]);
 
     useEffect(() => {
         const checkMobile = () => {

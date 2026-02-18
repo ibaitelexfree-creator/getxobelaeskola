@@ -1,6 +1,7 @@
 import dynamic from 'next/dynamic';
 import { getTranslations } from 'next-intl/server';
 import { Metadata } from 'next';
+import NativeAppRedirect from '@/components/shared/NativeAppRedirect';
 
 const HeroCarousel = dynamic(() => import('@/components/home/HeroCarousel'), {
   loading: () => <div className="h-screen w-full bg-nautical-black animate-pulse" />
@@ -122,6 +123,7 @@ export default async function LandingPage({ params: { locale } }: { params: { lo
 
   return (
     <div className="w-full">
+      <NativeAppRedirect locale={locale} />
       <HeroCarousel initialSlides={initialSlides} />
       <StatsSection
         pasionLabel={tStats('pasion')}

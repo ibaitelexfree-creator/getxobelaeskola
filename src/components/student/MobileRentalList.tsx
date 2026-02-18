@@ -116,8 +116,19 @@ export default function MobileRentalList({
         }
     };
 
+    useEffect(() => {
+        if (isSheetOpen) {
+            window.dispatchEvent(new CustomEvent('hide-scroll-to-top'));
+        } else {
+            window.dispatchEvent(new CustomEvent('show-scroll-to-top'));
+        }
+        return () => {
+            window.dispatchEvent(new CustomEvent('show-scroll-to-top'));
+        };
+    }, [isSheetOpen]);
+
     return (
-        <div className="pb-24">
+        <div className="pb-32">
             {/* Header */}
             <div className="px-6 py-6 sticky top-0 bg-nautical-black/80 backdrop-blur-xl z-10 border-b border-white/5">
                 <h1 className="text-2xl font-display text-white">Alquiler de Material</h1>
@@ -161,9 +172,9 @@ export default function MobileRentalList({
 
             {/* Booking Sheet (Simple overlay) */}
             {isSheetOpen && selectedService && (
-                <div className="fixed inset-0 z-50 flex items-end justify-center">
+                <div className="fixed inset-0 z-[300] flex items-end justify-center">
                     <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setIsSheetOpen(false)} />
-                    <div className="bg-nautical-black border-t border-white/10 w-full max-w-md rounded-t-3xl p-6 relative z-10 animate-fade-in-up max-h-[85vh] overflow-y-auto">
+                    <div className="bg-nautical-black border-t border-white/10 w-full max-w-md rounded-t-3xl p-6 pb-12 relative z-10 animate-fade-in-up max-h-[85vh] overflow-y-auto">
                         <div className="w-12 h-1 bg-white/10 rounded-full mx-auto mb-6" />
 
                         <h2 className="text-xl font-display text-white mb-6">
@@ -211,8 +222,8 @@ export default function MobileRentalList({
                                                 key={idx}
                                                 onClick={() => setSelectedOption(selectedOption === idx ? null : idx)}
                                                 className={`p-3 rounded-xl border text-left transition-all flex justify-between ${selectedOption === idx
-                                                        ? 'bg-accent/10 border-accent text-white'
-                                                        : 'bg-white/5 border-white/10 text-white/60'
+                                                    ? 'bg-accent/10 border-accent text-white'
+                                                    : 'bg-white/5 border-white/10 text-white/60'
                                                     }`}
                                             >
                                                 <span className="text-xs">{opt.label}</span>

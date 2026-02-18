@@ -37,6 +37,16 @@ const FALLBACK_COURSES: Course[] = [
         descripcion_eu: 'Lortu zure titulu ofiziala egun bakar batean, azterketarik gabe.',
         precio: 149,
         imagen_url: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=2094'
+    },
+    {
+        id: 'f3',
+        slug: 'vela-ligera',
+        nombre_es: 'Vela Ligera',
+        nombre_eu: 'Bela Arina',
+        descripcion_es: 'Cursos para niños y adultos en embarcaciones individuales.',
+        descripcion_eu: 'Haur eta helduentzako ikastaroak ontzi indibidualetan.',
+        precio: 100,
+        imagen_url: '/images/course-raquero-students.webp'
     }
 ];
 
@@ -46,15 +56,34 @@ export default function MobileCourseList({ locale }: { locale: string }) {
     const [search, setSearch] = useState('');
     const [isSearchOpen, setIsSearchOpen] = useState(false);
 
+    // Context-aware helpers with fallback to Spanish
+    const getName = (c: Course) => {
+        if (locale === 'eu' && c.nombre_eu) return c.nombre_eu;
+        return c.nombre_es || 'Curso sin nombre';
+    };
+
+    const getDesc = (c: Course) => {
+        if (locale === 'eu' && c.descripcion_eu) return c.descripcion_eu;
+        return c.descripcion_es || '';
+    };
+
+    const getCategory = (c: Course) => {
+        if (!c.categoria) return 'Bela Eskola';
+        if (locale === 'eu' && c.categoria.nombre_eu) return c.categoria.nombre_eu;
+        return c.categoria.nombre_es || 'Bela Eskola';
+    };
+
     useEffect(() => {
         async function fetchCourses() {
             try {
                 const res = await fetch(getApiUrl('/api/courses'));
+                if (!res.ok) throw new Error('Network response was not ok');
                 const json = await res.json();
-                if (json.cursos && json.cursos.length > 0) {
+
+                if (json.cursos && Array.isArray(json.cursos) && json.cursos.length > 0) {
                     setCourses(json.cursos);
                 } else {
-                    // If DB is empty, use fallbacks so user sees something
+                    console.warn('API returned empty courses, using fallback.');
                     setCourses(FALLBACK_COURSES);
                 }
             } catch (err) {
@@ -68,8 +97,10 @@ export default function MobileCourseList({ locale }: { locale: string }) {
     }, []);
 
     const filteredCourses = courses.filter(c => {
-        const name = (locale === 'es' ? c.nombre_es : c.nombre_eu) || '';
-        return name.toLowerCase().includes(search.toLowerCase());
+        const name = getName(c);
+        const desc = getDesc(c);
+        const query = search.toLowerCase();
+        return name.toLowerCase().includes(query) || desc.toLowerCase().includes(query);
     });
 
     if (loading) {
@@ -77,7 +108,7 @@ export default function MobileCourseList({ locale }: { locale: string }) {
             <div className="flex flex-col items-center justify-center pt-32 space-y-4">
                 <div className="w-12 h-12 border-4 border-accent border-t-transparent rounded-full animate-spin" />
                 <p className="text-white/40 text-sm font-medium animate-pulse">
-                    {locale === 'es' ? 'Cargando cursos...' : 'Ikastaroak kargatzen...'}
+                    {locale === 'eu' ? 'Ikastaroak kargatzen...' : 'Cargando cursos...'}
                 </p>
             </div>
         );
@@ -92,10 +123,10 @@ export default function MobileCourseList({ locale }: { locale: string }) {
                         <>
                             <div className="flex flex-col">
                                 <h1 className="text-2xl font-display italic text-white leading-none">
-                                    {locale === 'es' ? 'Cursos' : 'Ikastaroak'}
+                                    {locale === 'eu' ? 'Ikastaroak' : 'Cursos'}
                                 </h1>
                                 <span className="text-[10px] uppercase tracking-[0.3em] text-accent font-black mt-1">
-                                    {courses.length} {locale === 'es' ? 'Disponibles' : 'Eskuragarri'}
+                                    {courses.length} {locale === 'eu' ? 'Eskuragarri' : 'Disponibles'}
                                 </span>
                             </div>
                             <button
@@ -113,7 +144,7 @@ export default function MobileCourseList({ locale }: { locale: string }) {
                                 <input
                                     autoFocus
                                     type="text"
-                                    placeholder={locale === 'es' ? 'Buscar...' : 'Bilatu...'}
+                                    placeholder={locale === 'eu' ? 'Bilatu...' : 'Buscar...'}
                                     value={search}
                                     onChange={(e) => setSearch(e.target.value)}
                                     className="w-full h-12 bg-white/5 border border-accent/30 rounded-xl pl-12 pr-4 text-white placeholder:text-white/20 outline-none focus:border-accent transition-all ring-0"
@@ -133,14 +164,14 @@ export default function MobileCourseList({ locale }: { locale: string }) {
             {/* Course Grid */}
             <div className="px-6 pt-8 grid gap-6">
                 {filteredCourses.length > 0 ? (
-                    filteredCourses.map((course) => {
-                        const name = locale === 'es' ? course.nombre_es : course.nombre_eu;
-                        const desc = locale === 'es' ? course.descripcion_es : course.descripcion_eu;
-                        const category = course.categoria ? (locale === 'es' ? course.categoria.nombre_es : course.categoria.nombre_eu) : (locale === 'es' ? 'Bela Eskola' : 'Bela Eskola');
+                    filteredCourses.map((course, idx) => {
+                        const name = getName(course);
+                        const desc = getDesc(course);
+                        const category = getCategory(course);
 
                         return (
                             <Link
-                                key={course.id}
+                                key={course.id || `course-${idx}`}
                                 href={`/${locale}/student/courses/${course.slug}`}
                                 className="group relative bg-white/[0.02] border border-white/10 rounded-3xl overflow-hidden active:scale-[0.98] transition-all duration-300 hover:border-accent/30"
                             >
@@ -150,10 +181,17 @@ export default function MobileCourseList({ locale }: { locale: string }) {
                                             src={course.imagen_url}
                                             alt={name}
                                             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                                            onError={(e) => {
+                                                (e.target as HTMLImageElement).style.display = 'none';
+                                                (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden');
+                                            }}
                                         />
                                     ) : (
                                         <div className="w-full h-full flex items-center justify-center text-5xl bg-gradient-to-br from-nautical-black to-white/5">⛵</div>
                                     )}
+                                    <div className="hidden absolute inset-0 flex items-center justify-center bg-nautical-black/50">
+                                        <span className="text-4xl">⛵</span>
+                                    </div>
                                     <div className="absolute inset-0 bg-gradient-to-t from-nautical-black via-transparent to-transparent opacity-60" />
 
                                     <div className="absolute top-4 left-4 bg-accent/20 backdrop-blur-md border border-accent/30 px-3 py-1.5 rounded-full">
@@ -189,19 +227,19 @@ export default function MobileCourseList({ locale }: { locale: string }) {
                         </div>
                         <div>
                             <h3 className="text-xl font-display text-white mb-2">
-                                {locale === 'es' ? 'No se encontraron cursos' : 'Ez da ikastarorik aurkitu'}
+                                {locale === 'eu' ? 'Ez da ikastarorik aurkitu' : 'No se encontraron cursos'}
                             </h3>
                             <p className="text-white/40 max-w-[240px] mx-auto text-sm leading-relaxed">
-                                {locale === 'es'
-                                    ? 'Prueba con otros términos o explora nuestras categorías'
-                                    : 'Saiatu beste termino batzuekin edo arakatu gure kategoriak'}
+                                {locale === 'eu'
+                                    ? 'Saiatu beste termino batzuekin edo arakatu gure kategoriak'
+                                    : 'Prueba con otros términos o explora nuestras categorías'}
                             </p>
                         </div>
                         <button
                             onClick={() => { setSearch(''); setIsSearchOpen(false); }}
                             className="px-6 py-3 bg-white/5 hover:bg-white/10 text-white text-xs font-black uppercase tracking-widest rounded-xl transition-colors"
                         >
-                            {locale === 'es' ? 'Ver todos los cursos' : 'Ikastaro guztiak ikusi'}
+                            {locale === 'eu' ? 'Ikastaro guztiak ikusi' : 'Ver todos los cursos'}
                         </button>
                     </div>
                 )}

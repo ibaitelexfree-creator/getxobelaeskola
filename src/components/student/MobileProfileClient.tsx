@@ -45,7 +45,10 @@ export default function MobileProfileClient({
                 return;
             }
 
-            const { data: { user } } = await supabase.auth.getUser();
+            // Use getSession for faster check on mobile
+            const { data: { session } } = await supabase.auth.getSession();
+            const user = session?.user;
+
             if (!user) {
                 router.replace(`/${locale}/auth/login?returnTo=/${locale}/student/profile`);
                 return;

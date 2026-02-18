@@ -39,6 +39,20 @@ export default function ScrollToTop() {
         return () => window.removeEventListener('scroll', toggleVisibility);
     }, []);
 
+    // 3. Listen for external hide/show events
+    const [isExternallyHidden, setIsExternallyHidden] = useState(false);
+    useEffect(() => {
+        const hideScroll = () => setIsExternallyHidden(true);
+        const showScroll = () => setIsExternallyHidden(false);
+
+        window.addEventListener('hide-scroll-to-top', hideScroll);
+        window.addEventListener('show-scroll-to-top', showScroll);
+        return () => {
+            window.removeEventListener('hide-scroll-to-top', hideScroll);
+            window.removeEventListener('show-scroll-to-top', showScroll);
+        };
+    }, []);
+
     const scrollToTop = () => {
         window.scrollTo({
             top: 0,
@@ -49,7 +63,7 @@ export default function ScrollToTop() {
     return (
         <button
             onClick={scrollToTop}
-            className={`fixed bottom-8 right-8 z-[9999] p-3 rounded-full bg-accent text-nautical-black shadow-lg shadow-accent/20 transition-all duration-500 hover:scale-110 hover:-translate-y-1 group ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10 pointer-events-none'
+            className={`fixed bottom-8 right-8 z-[9999] p-3 rounded-full bg-accent text-nautical-black shadow-lg shadow-accent/20 transition-all duration-500 hover:scale-110 hover:-translate-y-1 group ${isVisible && !isExternallyHidden ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10 pointer-events-none'
                 }`}
             aria-label="Scroll to top"
         >

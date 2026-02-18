@@ -27,32 +27,32 @@ export default function MobileStudentHub({
 
     const quickActions = [
         {
-            label: t.academy_widget?.title || 'Cursos',
+            label: t.academy_widget?.title || 'Campus Virtual',
             icon: <BookOpen className="w-6 h-6 text-blue-400" />,
             bg: 'bg-blue-500/10',
             border: 'border-blue-500/20',
             href: `/${locale}/student/courses`
         },
         {
-            label: t.rentals_section?.title.split(' ')[1] || 'Alquiler',
+            label: t.rentals_section?.title.split(' ')[1] || 'Alquileres',
             icon: <Sailboat className="w-6 h-6 text-emerald-400" />,
             bg: 'bg-emerald-500/10',
             border: 'border-emerald-500/20',
             href: `/${locale}/student/rentals`
         },
         {
-            label: 'Mapa',
+            label: 'Academia Digital',
             icon: <Compass className="w-6 h-6 text-purple-400" />,
             bg: 'bg-purple-500/10',
             border: 'border-purple-500/20',
-            href: `/${locale}/academy/exploration`
+            href: `/${locale}/academy`
         },
         {
-            label: 'Bitácora',
-            icon: <Book className="w-6 h-6 text-amber-400" />,
-            bg: 'bg-amber-500/10',
-            border: 'border-amber-500/20',
-            href: `/${locale}/academy/logbook`
+            label: 'Club',
+            icon: <Anchor className="w-6 h-6 text-brass-gold" />,
+            bg: 'bg-brass-gold/10',
+            border: 'border-brass-gold/20',
+            href: `/${locale}/student/membership`
         },
     ];
 
