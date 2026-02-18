@@ -5,6 +5,7 @@ import AcademyControls from '@/components/layout/AcademyControls';
 import MobileBottomNav from '@/components/layout/MobileBottomNav';
 import NotificationContainer from '@/components/academy/notifications/NotificationContainer';
 import RealtimeNotifications from '@/components/academy/notifications/RealtimeNotifications';
+import SafetyMonitor from '@/components/academy/notifications/SafetyMonitor';
 import ActivityTracker from '@/components/academy/ActivityTracker';
 
 interface ConditionalLayoutProps {
@@ -34,6 +35,7 @@ export default function ConditionalLayout({ children, navbar, footer }: Conditio
                 )}
                 <NotificationContainer />
                 <RealtimeNotifications />
+                <SafetyMonitor />
                 <ActivityTracker />
             </>
         );
@@ -62,6 +64,7 @@ export default function ConditionalLayout({ children, navbar, footer }: Conditio
                 <>
                     <NotificationContainer />
                     <RealtimeNotifications />
+                    <SafetyMonitor />
                     <ActivityTracker />
                 </>
             )}

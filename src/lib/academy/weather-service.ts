@@ -32,9 +32,35 @@ export const WeatherService = {
      */
     async getGetxoWeather(): Promise<WeatherData> {
         try {
-            const res = await fetch(apiUrl('/api/academy/weather'));
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 5000);
+
+            const res = await fetch(apiUrl('/api/weather'), {
+                signal: controller.signal,
+                cache: 'no-store'
+            });
+            clearTimeout(timeoutId);
+
             if (!res.ok) throw new Error('Failed to fetch weather');
-            return await res.json();
+            const data = await res.json();
+
+            // The /api/weather route returns { weather: {...}, fleet: {...}, alerts: [...] }
+            // We need to extract the 'weather' part and map it to our interface
+            const raw = data.weather || {};
+
+            return {
+                windSpeed: raw.knots || 0,
+                windDirection: raw.direction || 0,
+                windGust: raw.gusts || raw.knots || 0,
+                tideHeight: raw.tideHeight || 0,
+                tideStatus: raw.tideStatus || 'stable',
+                nextTides: raw.nextTides || [],
+                temperature: raw.temp || 0,
+                pressure: raw.pressure || 1013,
+                condition: raw.condition || 'Clear',
+                visibility: raw.visibility || 10,
+                isLive: true
+            };
         } catch (error) {
             console.error('Error in WeatherService:', error);
             // Return realistic mock as very last fallback

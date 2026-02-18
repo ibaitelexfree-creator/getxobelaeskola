@@ -20,7 +20,6 @@ export class ScoringManager {
 
     constructor() {
         this.buoyStartTime = performance.now() / 1000;
-        this.loadLeaderboard();
     }
 
     public update(dt: number, boatState: BoatState, objective: ObjectiveState) {
@@ -55,32 +54,11 @@ export class ScoringManager {
         return Math.floor(this.totalScore).toString().padStart(6, '0');
     }
 
-    // Leaderboard Logic
-    private loadLeaderboard() {
-        if (typeof localStorage === 'undefined') return;
-        try {
-            const data = localStorage.getItem('sailing_leaderboard');
-            if (data) {
-                this.leaderboard = JSON.parse(data);
-            }
-        } catch (e) {
-            console.error("Failed to load leaderboard", e);
-        }
-    }
-
-    public saveScore(name: string) {
-        if (typeof localStorage === 'undefined') return;
-
-        this.leaderboard.push({
-            name,
-            score: this.totalScore,
-            date: new Date().toLocaleDateString()
-        });
-
-        // Sort descending
-        this.leaderboard.sort((a, b) => b.score - a.score);
-        this.leaderboard = this.leaderboard.slice(0, 10); // Keep top 10
-
-        localStorage.setItem('sailing_leaderboard', JSON.stringify(this.leaderboard));
+    // Simplified Ranking Logic (to be verified on Main Thread)
+    public getRank(leaderboard: ScoreEntry[]): number {
+        // Find position if this score was inserted
+        const sorted = [...leaderboard, { name: 'YOU', score: this.totalScore, date: '' }]
+            .sort((a, b) => b.score - a.score);
+        return sorted.findIndex(e => e.name === 'YOU' && e.score === this.totalScore) + 1;
     }
 }

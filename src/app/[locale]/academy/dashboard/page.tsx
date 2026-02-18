@@ -132,7 +132,7 @@ export default function DashboardPage({ params }: { params: { locale: string } }
     const [data, setData] = useState<DashboardData | null>(null);
     const [cursos, setCursos] = useState<Curso[]>([]);
     const [loading, setLoading] = useState(true);
-    const { addNotification } = useNotificationStore();
+    const { addNotification, clearNotifications } = useNotificationStore();
 
     let MOTIVATIONAL_QUOTES: string[] = [];
     try {
@@ -148,7 +148,7 @@ export default function DashboardPage({ params }: { params: { locale: string } }
         window.scrollTo({ top: 0, behavior: 'instant' });
         async function fetchData() {
             try {
-                const resProgreso = await fetch(apiUrl('/api/academy/progress'));
+                const resProgreso = await fetch(apiUrl(`/api/academy/progress?locale=${params.locale}`));
                 const progressData = await resProgreso.json();
 
                 if (progressData.error) throw new Error(progressData.error);
@@ -158,13 +158,16 @@ export default function DashboardPage({ params }: { params: { locale: string } }
                 const coursesData = await resCursos.json();
                 setCursos(coursesData.cursos || []);
 
+                // Clear any previous notifications to ensure only one quote is shown
+                clearNotifications();
+
                 const randomQuote = MOTIVATIONAL_QUOTES[Math.floor(Math.random() * MOTIVATIONAL_QUOTES.length)];
                 addNotification({
                     type: 'info',
                     title: '¡Buen viento, Navegante!',
                     message: randomQuote,
                     icon: '🧭',
-                    duration: 6000
+                    duration: 12000 // Doubled duration as requested
                 });
 
             } catch (error) {

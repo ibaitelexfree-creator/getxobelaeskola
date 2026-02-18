@@ -14,6 +14,7 @@ import { Menu, X, ChevronRight, Sparkles } from 'lucide-react';
 import Link from 'next/link';
 
 import DashboardSkeleton from '@/components/student/DashboardSkeleton';
+import WeatherPremium from '@/components/shared/WeatherPremium';
 
 interface DashboardItem {
     id: string;
@@ -179,6 +180,10 @@ export default function StudentDashboardClient({
                     </header>
 
                     <DashboardRefresh hasData={hasAnyData} />
+
+                    <div className="mb-12">
+                        <WeatherPremium />
+                    </div>
 
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
                         <div className="lg:col-span-2 space-y-16">

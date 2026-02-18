@@ -290,6 +290,7 @@
         "email_not_confirmed": "Email non confirmé. Veuillez vérifier votre boîte de réception.",
         "resend_email": "Renvoyer",
         "resend_success": "Email renvoyé avec succès.",
+        "google_btn": "Continuer avec Google",
         "rate_limit": "Vous avez dépassé la limite de tentatives. Veuillez attendre quelques minutes avant de réessayer."
     },
     "legal": {

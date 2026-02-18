@@ -4,7 +4,9 @@ import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { User, Sparkles, LogOut, ChevronRight, Settings, CreditCard, Shield } from 'lucide-react';
+
 import EditProfileModal from '@/components/student/EditProfileModal';
+import SafetySettingsModal from '@/components/student/SafetySettingsModal';
 import LogoutButton from '@/components/auth/LogoutButton';
 
 interface Profile {
@@ -27,6 +29,7 @@ export default function MobileProfileClient({
     locale: string;
 }) {
     const [isEditing, setIsEditing] = useState(false);
+    const [isSafetySettingsOpen, setIsSafetySettingsOpen] = useState(false);
     const [currentProfile, setCurrentProfile] = useState<Profile>(profile);
     const isSocio = currentProfile?.status_socio === 'activo';
 
@@ -85,6 +88,28 @@ export default function MobileProfileClient({
                     </div>
                 </section>
 
+                {/* Safety & Settings */}
+                <section className="space-y-3">
+                    <h2 className="text-xs uppercase tracking-widest text-white/40 font-bold ml-1">Seguridad</h2>
+                    <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden">
+                        <button
+                            onClick={() => setIsSafetySettingsOpen(true)}
+                            className="w-full flex items-center justify-between p-4 active:bg-white/5 transition-colors"
+                        >
+                            <div className="flex items-center gap-4">
+                                <div className="w-8 h-8 rounded-full bg-red-500/10 flex items-center justify-center text-red-500">
+                                    <Shield className="w-4 h-4" />
+                                </div>
+                                <div className="text-left">
+                                    <span className="text-white font-medium text-sm block">Alertas de Seguridad</span>
+                                    <span className="text-white/40 text-[10px]">Configurar sirena y avisos</span>
+                                </div>
+                            </div>
+                            <ChevronRight className="w-4 h-4 text-white/20" />
+                        </button>
+                    </div>
+                </section>
+
                 {/* Membership */}
                 <section className="space-y-3">
                     <h2 className="text-xs uppercase tracking-widest text-white/40 font-bold ml-1">Membresía</h2>
@@ -106,7 +131,6 @@ export default function MobileProfileClient({
                                     </div>
                                     <ChevronRight className="w-4 h-4 text-white/20" />
                                 </Link>
-                                {/* Portal link handled via separate component or logic but sticking to basic link for now or button */}
                             </>
                         ) : (
                             <Link
@@ -143,6 +167,12 @@ export default function MobileProfileClient({
                     setIsEditing(false);
                 }}
             />
+
+            <SafetySettingsModal
+                isOpen={isSafetySettingsOpen}
+                onClose={() => setIsSafetySettingsOpen(false)}
+            />
         </div>
     );
 }
+

@@ -15,6 +15,9 @@ export async function OPTIONS(request: Request) {
 
 export async function GET(request: Request) {
     try {
+        const { searchParams } = new URL(request.url);
+        const locale = searchParams.get('locale') || 'es';
+
         // 1. AUTHENTICATION
         const { user, profile, error } = await requireAuth();
         if (error || !user) {
@@ -27,31 +30,38 @@ export async function GET(request: Request) {
         const is_staff = profile?.rol === 'admin' || profile?.rol === 'instructor';
 
         // 2. AUTHORIZATION
-        // Get list of enrolled courses to filter context
         const enrolledCourseIds = await getUserEnrollments(user.id);
 
-        // 3. FETCH PROGRESS
+        // 3. FETCH PROGRESS & METADATA
         const supabase = createClient();
 
-        // Only fetch progress related to enrolled courses?
-        // OR fetch all and filter in memory?
-        // Progress table might not have `curso_id` on every row (e.g. `unidad` progress).
-        // Best approach: Fetch all, but ensure we don't leak "existence" of unenrolled content via detailed metadata (if attached).
-        // Since `progreso_alumno` is purely user data, it's safer to return it.
-        // However, we should verify the `entidad_id` belongs to an enrolled course if strictly paranoid.
-        // For performance, getting all user progress is usually acceptable if it's THEIR data.
-        // But to be "Hardened":
-
-        const { data: rawProgress, error: progressError } = await supabase
-            .from('progreso_alumno')
-            .select('*')
-            .eq('alumno_id', user.id);
+        const [
+            { data: rawProgress, error: progressError },
+            { data: allCourses },
+            { data: allLevels }
+        ] = await Promise.all([
+            supabase.from('progreso_alumno').select('*').eq('alumno_id', user.id),
+            supabase.from('cursos').select('id, slug, nombre_es, nombre_eu'),
+            supabase.from('niveles').select('id, slug, nombre_es, nombre_eu')
+        ]);
 
         if (progressError) {
             return NextResponse.json({ error: 'Error loading progress' }, { status: 500 });
         }
 
-        const filteredProgress = rawProgress || [];
+        // Create lookup maps
+        const courseMap = (allCourses || []).reduce((acc: any, c: any) => ({ ...acc, [c.id]: c }), {});
+        const levelMap = (allLevels || []).reduce((acc: any, n: any) => ({ ...acc, [n.id]: n }), {});
+
+        const filteredProgress = (rawProgress || []).map((p: any) => {
+            if (p.tipo_entidad === 'curso' && courseMap[p.entidad_id]) {
+                return { ...p, slug: courseMap[p.entidad_id].slug, nombre: locale === 'eu' ? courseMap[p.entidad_id].nombre_eu : courseMap[p.entidad_id].nombre_es };
+            }
+            if (p.tipo_entidad === 'nivel' && levelMap[p.entidad_id]) {
+                return { ...p, slug: levelMap[p.entidad_id].slug, nombre: locale === 'eu' ? levelMap[p.entidad_id].nombre_eu : levelMap[p.entidad_id].nombre_es };
+            }
+            return p;
+        });
 
         // 4. FETCH ADDITIONAL DATA FOR DASHBOARD
         const { data: skills } = await supabase
@@ -80,13 +90,12 @@ export async function GET(request: Request) {
         const puntosTotales = filteredProgress.reduce((acc: number, p: any) => acc + (p.puntos_obtenidos || 0), 0) || 0;
         const nivelesCompletados = filteredProgress.filter((p: any) => p.tipo_entidad === 'nivel' && p.estado === 'completado').length;
 
-        // Progreso global: average of course percentages
         const cursosProgreso = filteredProgress.filter((p: any) => p.tipo_entidad === 'curso');
         const progresoGlobal = cursosProgreso.length > 0
             ? Math.round(cursosProgreso.reduce((acc: number, c: any) => acc + (c.porcentaje || 0), 0) / cursosProgreso.length)
             : 0;
 
-        // Skill radar calculation
+        // Skill radar
         const categoriesMap: Record<string, string> = {
             'tecnica': 'Maniobra',
             'seguridad': 'Seguridad',
@@ -97,24 +106,17 @@ export async function GET(request: Request) {
 
         const skillRadar = Object.entries(categoriesMap).map(([dbCat, uiLabel]) => {
             const userSkillsInCategory = (skills || []).filter((s: any) => s.habilidad?.categoria === dbCat).length;
-            // Max skills per category for 100% calculation (estimate)
             const maxEstimate = dbCat === 'tecnica' ? 6 : dbCat === 'excelencia' ? 1 : 2;
             const score = Math.min(100, Math.round((userSkillsInCategory / maxEstimate) * 100));
 
-            return {
-                subject: uiLabel,
-                A: score,
-                fullMark: 100
-            };
+            return { subject: uiLabel, A: score, fullMark: 100 };
         });
 
-        // Activity heatmap (last 30 days)
         const activityHeatmap = (horas || []).map((h: any) => ({
             date: h.fecha,
             count: Math.ceil(Number(h.duracion_h))
         }));
 
-        // Boat Mastery Calculation
         const boatStats: Record<string, { hours: number, sessions: number, lastUsed: string }> = {};
         (horas || []).forEach((h: any) => {
             const boatName = h.embarcacion || 'Barco Genérico';
@@ -156,23 +158,17 @@ export async function GET(request: Request) {
             Array.isArray(s.habilidad) ? s.habilidad[0]?.slug : s.habilidad?.slug
         );
 
-        // Advanced Analytics
         const totalSessions = (horas || []).length;
         const distinctBoats = new Set((horas || []).map((h: any) => h.embarcacion).filter(Boolean)).size;
-        const totalMilesNum = (horasTotales * 5.2);
         const totalHours = horasTotales;
 
-        // Consistency Analysis (sessions per week in last month)
         const thirtyDaysAgo = new Date();
         thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
         const recentSessions = (horas || []).filter((h: any) => new Date(h.fecha) > thirtyDaysAgo).length;
         const consistencyScore = Math.min(100, (recentSessions / 4) * 100);
 
-        // Intelligence: Find the real gap
         const hasTrimado = userHabilidades.includes('trimador');
-        const hasLoboMar = userHabilidades.includes('lobo-mar');
 
-        // High Wind Detection
         const highWindSessions = (horas || []).filter((h: any) => {
             const meteo = (h.condiciones_meteo || '').toLowerCase();
             const windMatch = meteo.match(/(\d+)\s*(kt|knots|nudos)/);
@@ -187,6 +183,7 @@ export async function GET(request: Request) {
         };
 
         // Decision Tree for "Smart Next Step"
+        // LOCALIZED LINKS: /${locale}/...
         if (nivelesCompletados === 0 && totalSessions === 0) {
             recommendations.push({
                 id: 'path-initiation',
@@ -195,7 +192,7 @@ export async function GET(request: Request) {
                 message: 'Tu perfil está listo para la transformación. El análisis sugiere comenzar con la base teórica de Vela Ligera para desbloquear tu primer rango oficial.',
                 analysis: 'Potencial detectado. Falta registro de horas base.',
                 actionLabel: 'Ver Plan de Carrera',
-                actionHref: '/es/academy/course/iniciacion-vela-ligera',
+                actionHref: `/${locale}/academy/course/iniciacion-vela-ligera`,
                 stats: analysis,
                 priority: 'high'
             });
@@ -207,7 +204,7 @@ export async function GET(request: Request) {
                 message: 'Tu técnica es sólida en vientos medios, pero el análisis de bitácora muestra una brecha en condiciones >15kt. El siguiente paso lógico es el perfeccionamiento de trimado.',
                 analysis: 'Base técnica completada. Falta experiencia en viento fuerte.',
                 actionLabel: 'Masterclass de Trimado',
-                actionHref: '/es/courses/masterclass-trimado',
+                actionHref: `/${locale}/courses/masterclass-trimado`,
                 stats: analysis,
                 priority: 'critical'
             });
@@ -219,7 +216,7 @@ export async function GET(request: Request) {
                 message: 'Has dominado tu embarcación habitual. Para alcanzar el rango de Timonel, el sistema recomienda probar un monotipo diferente o participar en una travesía de crucero.',
                 analysis: 'Consistencia alta. Poca variedad de embarcación.',
                 actionLabel: 'Explorar Flota',
-                actionHref: '/es/rental',
+                actionHref: `/${locale}/rental`,
                 stats: analysis,
                 priority: 'medium'
             });
@@ -232,7 +229,7 @@ export async function GET(request: Request) {
                 message: 'Mantienes un rumbo excelente. Tu consistencia es superior al 80% de los alumnos de tu nivel. Sigue acumulando millas para desbloquear el siguiente certificado.',
                 analysis: 'Progreso lineal estable. El objetivo es la persistencia.',
                 actionLabel: 'Continuar Bitácora',
-                actionHref: '/es/academy',
+                actionHref: `/${locale}/academy`,
                 stats: analysis,
                 priority: 'high'
             });
@@ -285,3 +282,4 @@ export async function GET(request: Request) {
         ), request);
     }
 }
+

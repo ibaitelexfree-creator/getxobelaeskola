@@ -36,16 +36,28 @@ export default function Logbook() {
         async function loadData() {
             setLoading(true);
             try {
-                const res = await fetch(apiUrl('/api/academy/progress'));
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
+
+                const res = await fetch(apiUrl('/api/academy/progress'), {
+                    signal: controller.signal
+                });
+                clearTimeout(timeoutId);
+
+                if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+
                 const data = await res.json();
                 console.log('Logbook Data Loaded:', data);
                 setOfficialData(data);
             } catch (error) {
                 console.error('Error loading logbook:', error);
+                // Set fallback data or empty state if fetch fails
+                setOfficialData({ horas: [], estadisticas: { horas_totales: 0 }, user: { full_name: 'Invitado' } });
             } finally {
                 setLoading(false);
             }
         }
+
         loadData();
     }, []);
 

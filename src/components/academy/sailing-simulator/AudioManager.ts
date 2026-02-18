@@ -148,6 +148,14 @@ export class AudioManager {
         */
     }
 
+    public setMuted(muted: boolean) {
+        this.isMuted = muted;
+        if (this.masterGain && this.ctx) {
+            // Smoothly fade out/in to avoid clicks
+            this.masterGain.gain.setTargetAtTime(muted ? 0 : 0.5, this.ctx.currentTime, 0.1);
+        }
+    }
+
     public dispose() {
         if (this.ctx) {
             this.ctx.close();

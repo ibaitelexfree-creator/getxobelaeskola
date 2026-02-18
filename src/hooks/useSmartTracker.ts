@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Geolocation, Position } from '@capacitor/geolocation';
 import { Network, ConnectionStatus } from '@capacitor/network';
 import { Capacitor } from '@capacitor/core';
+import { isPointInWater } from '@/lib/geospatial/water-check';
 
 export interface LocationPoint {
     lat: number;
@@ -16,12 +17,6 @@ export interface LocationPoint {
 const SCHOOL_WIFI_SSID = '5B00';
 const BASE_CAR_SPEED_THRESHOLD = 12.86; // ~46 km/h (25 knots)
 const HIGH_WIND_CAR_THRESHOLD = 20.57; // ~74 km/h (40 knots) for foiling/high performance
-const MARITIME_ZONE = {
-    minLat: 43.33, // Avoid residential Getxo/Areeta center
-    maxLat: 43.42,
-    minLng: -3.15,
-    maxLng: -3.001 // Border near the coast
-};
 
 export function useSmartTracker() {
     const [isTracking, setIsTracking] = useState(false);
@@ -56,12 +51,7 @@ export function useSmartTracker() {
 
     // Helper: Check if coordinates are in the sea
     const isAtSea = (lat: number, lng: number) => {
-        return (
-            lat >= MARITIME_ZONE.minLat &&
-            lat <= MARITIME_ZONE.maxLat &&
-            lng >= MARITIME_ZONE.minLng &&
-            lng <= MARITIME_ZONE.maxLng
-        );
+        return isPointInWater(lat, lng);
     };
 
     // Helper: Convert m/s to knots
@@ -121,14 +111,20 @@ export function useSmartTracker() {
                                 // Transition from auto-scan to actual recording
                                 addPoint(newPoint);
                             } else {
-                                setStatusMessage('En Tierra / Rumbo a Casa - Ignorando');
+                                setStatusMessage('ZONA DE TIERRA - ESCANEANDO');
                                 // If we were recording and moved far away from sea, stop
                                 if (points.length > 5) {
+                                    setStatusMessage('Regreso a Tierra - Track Finalizado');
                                     stopTracking();
                                 }
                             }
                         } else {
-                            // Manual tracking: always add but warn if speed is crazy
+                            // Manual tracking: always add but warn if on land
+                            if (!atSea) {
+                                setStatusMessage('⚠️ EN TIERRA');
+                            } else {
+                                setStatusMessage('Grabando...');
+                            }
                             addPoint(newPoint);
                         }
                     }

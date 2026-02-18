@@ -254,6 +254,7 @@
         "email_not_confirmed": "Email not confirmed. Please check your inbox.",
         "resend_email": "Resend",
         "resend_success": "Email resent successfully.",
+        "google_btn": "Continue with Google",
         "rate_limit": "You have exceeded the attempt limit. Please wait a few minutes before trying again."
     },
     "booking": {

@@ -20,19 +20,12 @@ export async function GET(
             );
         }
 
-        // 2. AUTHORIZATION (CRITICAL)
+        // 2. AUTHORIZATION (Optional for base info, required for full content)
         const hasAccess = await verifyCourseAccess(user.id, params.slug);
-
-        if (!hasAccess) {
-            // Standardized Anti-Enumeration Response
-            return NextResponse.json(
-                { error: 'Resource not found' },
-                { status: 404 }
-            );
-        }
 
         // 3. DATA FETCH
         const supabase = createClient();
+
 
         const { data: curso, error: cursoError } = await supabase
             .from('cursos')
@@ -110,8 +103,10 @@ export async function GET(
         return NextResponse.json({
             curso,
             modulos: modulosConUnidades,
-            progreso
+            progreso,
+            isEnrolled: hasAccess
         });
+
 
     } catch (err) {
         console.error('Error fetching course:', err);

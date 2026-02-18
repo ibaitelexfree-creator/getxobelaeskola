@@ -8,6 +8,7 @@ import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { apiUrl } from '@/lib/api';
+import GoogleAuthButton from './GoogleAuthButton';
 
 
 export default function RegisterForm() {
@@ -210,6 +211,17 @@ export default function RegisterForm() {
             >
                 {loading ? t('registering') : t('register_btn')}
             </button>
+
+            <div className="relative my-8">
+                <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-white/10"></div>
+                </div>
+                <div className="relative flex justify-center text-[10px] uppercase tracking-widest">
+                    <span className="bg-nautical-black px-4 text-white/40 font-bold italic">O BIEN</span>
+                </div>
+            </div>
+
+            <GoogleAuthButton />
         </form>
     );
 }

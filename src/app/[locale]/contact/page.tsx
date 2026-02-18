@@ -67,8 +67,12 @@ export default async function ContactPage({ params: { locale } }: { params: { lo
                             <div className="group space-y-4">
                                 <p className="text-xs uppercase tracking-[0.4em] text-foreground/20 font-bold group-hover:text-accent transition-colors duration-500">{t('contact_label')}</p>
                                 <div className="space-y-2">
-                                    <p className="text-3xl font-display italic text-white/80 group-hover:text-white transition-colors duration-500 tracking-wide">info@getxobelaeskola.com</p>
-                                    <p className="text-3xl font-display italic text-white/80 group-hover:text-white transition-colors duration-500 tracking-wider">(+34) 944 916 632</p>
+                                    <a href="mailto:info@getxobelaeskola.com" className="text-3xl font-display italic text-white/80 hover:text-accent transition-colors duration-500 tracking-wide block">
+                                        info@getxobelaeskola.com
+                                    </a>
+                                    <a href="tel:+34944916632" className="text-3xl font-display italic text-white/80 hover:text-accent transition-colors duration-500 tracking-wider block">
+                                        (+34) 944 916 632
+                                    </a>
                                 </div>
                             </div>
 
