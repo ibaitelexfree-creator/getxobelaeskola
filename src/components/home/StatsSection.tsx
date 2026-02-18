@@ -35,9 +35,9 @@ export default function StatsSection({ pasionLabel, alumnosLabel, flotaLabel, cl
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-24">
                     {stats.map((stat, index) => (
                         <div key={index} className="text-center group">
-                            <h2 className="text-5xl lg:text-7xl font-display text-white mb-4 group-hover:text-accent transition-colors duration-500">
+                            <div className="text-5xl lg:text-7xl font-display text-white mb-4 group-hover:text-accent transition-colors duration-500">
                                 {stat.value}
-                            </h2>
+                            </div>
                             <div className="w-12 h-px bg-brass-gold mx-auto mb-4 group-hover:scale-x-150 transition-transform duration-500 origin-center" />
                             <p className="text-3xs uppercase tracking-[0.3em] font-bold text-foreground/40 text-accent/80">
                                 {stat.label}

@@ -38,7 +38,7 @@ export default function ExperienceSection({
                     <div className="relative">
                         <div className="relative aspect-[4/5] overflow-hidden group">
                             <Image
-                                src="/images/course-detail-header-sailing.jpg"
+                                src="/images/course-detail-header-sailing.webp"
                                 alt="Sailing Experience"
                                 fill
                                 sizes="(max-width: 1024px) 100vw, 50vw"

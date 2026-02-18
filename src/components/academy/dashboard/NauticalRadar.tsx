@@ -4,9 +4,15 @@ import React, { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { WeatherService, WeatherData, ConditionAlert } from '@/lib/academy/weather-service';
 import { Wind, Waves, Thermometer, ChevronUp, ChevronDown, Minus, CheckCircle2, AlertTriangle, AlertOctagon, Anchor, BarChart3, X, ArrowDown } from 'lucide-react';
+import dynamic from 'next/dynamic';
 import { createPortal } from 'react-dom';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area, ReferenceLine } from 'recharts';
 import { apiUrl } from '@/lib/api';
+
+const RadarHistoryModal = dynamic(() => import('./RadarHistoryModal'), {
+    ssr: false,
+    loading: () => null
+});
+
 
 interface NauticalRadarProps {
     userRankSlug: string;
@@ -295,6 +301,7 @@ export default function NauticalRadar({ userRankSlug, locale }: NauticalRadarPro
                                 <button
                                     onClick={() => setShowHistory(true)}
                                     className="text-[10px] font-black text-accent hover:underline flex items-center gap-1"
+                                    aria-label={t('action_history')}
                                 >
                                     <BarChart3 className="w-3 h-3" />
                                     {t('action_history')}
@@ -311,235 +318,16 @@ export default function NauticalRadar({ userRankSlug, locale }: NauticalRadarPro
                 )}
             </section>
 
-            {/* History Modal - Portalized */}
+            {/* History Modal - Portalized & Lazy Loaded */}
             {mounted && showHistory && typeof document !== 'undefined' && createPortal(
-                <div
-                    className="fixed inset-0 z-[99999] flex items-center justify-center p-4"
-                    style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(4px)' }}
-                >
-                    <div className="bg-[#050b14] border border-blue-500/30 rounded-2xl w-full max-w-5xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
-                        <div className="bg-blue-900/40 p-4 border-b border-blue-500/30 flex justify-between items-center shrink-0">
-                            <h3 className="text-white font-display italic uppercase tracking-widest text-sm flex items-center gap-2">
-                                <BarChart3 className="w-4 h-4 text-accent" />
-                                {t('history_title')}
-                                {historyLoading && <span className="ml-2 text-[8px] animate-pulse text-accent">SYNCING...</span>}
-                            </h3>
-                            <button
-                                onClick={() => setShowHistory(false)}
-                                className="text-white/40 hover:text-white transition-colors p-2"
-                            >
-                                <X className="w-5 h-5" />
-                            </button>
-                        </div>
-
-                        <div className={`flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar ${historyLoading ? 'opacity-50 pointer-events-none' : ''}`}>
-                            {/* Windguru Style Meteogram */}
-                            <div className="bg-black/40 rounded-xl border border-white/5 overflow-hidden shrink-0">
-                                <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-blue-500/20">
-                                    <div className="min-w-[800px]">
-                                        {/* Hours Row */}
-                                        <div className="flex border-b border-white/5 bg-white/5">
-                                            <div className="w-28 shrink-0 p-3 text-[10px] font-black uppercase text-white/40 flex items-center bg-black/20">{t('history_time')}</div>
-                                            {Array.isArray(history) && history.map((h, i) => (
-                                                <div key={i} className="flex-1 text-center p-3 text-[10px] font-mono text-white/60 border-l border-white/5">{h?.time || '--:--'}</div>
-                                            ))}
-                                        </div>
-
-                                        {/* Wind Speed Row (Rich Colors) */}
-                                        <div className="flex border-b border-white/5">
-                                            <div className="w-28 shrink-0 p-3 text-[10px] font-black uppercase text-white/40 flex items-center bg-black/20">{t('history_wind')}</div>
-                                            {Array.isArray(history) && history.map((h, i) => {
-                                                const wind = h ? (typeof h.wind === 'number' ? h.wind : parseFloat(h.wind as any) || 0) : 0;
-                                                return (
-                                                    <div
-                                                        key={i}
-                                                        className="flex-1 text-center p-3 text-xs font-black border-l border-white/10"
-                                                        style={{ backgroundColor: getWindColor(wind), color: getWindTextColor(wind) }}
-                                                    >
-                                                        {Math.round(wind)}
-                                                    </div>
-                                                );
-                                            })}
-                                        </div>
-
-                                        {/* Wind Gusts */}
-                                        <div className="flex border-b border-white/5">
-                                            <div className="w-28 shrink-0 p-3 text-[10px] font-black uppercase text-white/40 flex items-center bg-black/20">{t('history_gusts')}</div>
-                                            {Array.isArray(history) && history.map((h, i) => (
-                                                <div key={i} className="flex-1 text-center p-3 text-[10px] font-bold text-amber-500/80 border-l border-white/5">
-                                                    {h ? (typeof h.gust === 'number' ? Math.round(h.gust) : Math.round(parseFloat(h.gust as any) || 0)) : 0}
-                                                </div>
-                                            ))}
-                                        </div>
-
-                                        {/* Wind Direction Arrows */}
-                                        <div className="flex border-b border-white/5">
-                                            <div className="w-28 shrink-0 p-3 text-[10px] font-black uppercase text-white/40 flex items-center bg-black/20">{t('history_direction')}</div>
-                                            {Array.isArray(history) && history.map((h, i) => (
-                                                <div key={i} className="flex-1 flex items-center justify-center p-3 border-l border-white/5 bg-blue-900/5">
-                                                    <ArrowDown
-                                                        size={14}
-                                                        className="text-blue-400 drop-shadow-[0_0_8px_rgba(59,130,246,0.3)]"
-                                                        style={{ transform: `rotate(${h?.direction || 0}deg)` }}
-                                                    />
-                                                </div>
-                                            ))}
-                                        </div>
-
-                                        {/* Temperature Row */}
-                                        <div className="flex border-b border-white/5">
-                                            <div className="w-28 shrink-0 p-3 text-[10px] font-black uppercase text-white/40 flex items-center bg-black/20">{t('history_temp')}</div>
-                                            {Array.isArray(history) && history.map((h, i) => (
-                                                <div key={i} className="flex-1 text-center p-3 text-[10px] font-mono text-orange-400 border-l border-white/5">
-                                                    {h && typeof h.temp !== 'undefined' ? (typeof h.temp === 'number' ? h.temp.toFixed(0) : (parseFloat(h.temp as any) || 0).toFixed(0)) : '--'}º
-                                                </div>
-                                            ))}
-                                        </div>
-
-                                        {/* Tide Level */}
-                                        <div className="flex">
-                                            <div className="w-28 shrink-0 p-3 text-[10px] font-black uppercase text-white/40 flex items-center bg-black/20">{t('history_tide')}</div>
-                                            {Array.isArray(history) && history.map((h, i) => (
-                                                <div key={i} className="flex-1 text-center p-3 text-[10px] font-mono text-cyan-400 border-l border-white/5">
-                                                    {h && typeof h.tide !== 'undefined' ? (typeof h.tide === 'number' ? h.tide.toFixed(1) : (parseFloat(h.tide as any) || 0).toFixed(1)) : '--.-'}
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Supplementary Charts for Visualizing Trends */}
-                            <div className="grid grid-cols-1 gap-8">
-                                {/* Velocity Chart (Wind & Gusts) */}
-                                <div className="bg-white/[0.02] border border-white/5 rounded-xl p-6 shadow-inner">
-                                    <div className="flex justify-between items-center mb-6">
-                                        <h4 className="text-[10px] font-black text-white/60 uppercase tracking-[0.2em] flex items-center gap-2">
-                                            <Wind className="w-4 h-4 text-blue-400" /> {t('wind_chart_title')}
-                                        </h4>
-                                        <div className="flex gap-4">
-                                            <div className="flex items-center gap-2">
-                                                <div className="w-2 h-2 rounded-full bg-emerald-500" />
-                                                <span className="text-[9px] font-bold text-white/40 uppercase tracking-widest">{t('wind_chart_wind_label')}</span>
-                                            </div>
-                                            <div className="flex items-center gap-2">
-                                                <div className="w-2 h-2 rounded-full bg-red-500" />
-                                                <span className="text-[9px] font-bold text-white/40 uppercase tracking-widest">{t('wind_chart_gust_label')}</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="h-64 w-full">
-                                        <ResponsiveContainer width="100%" height="100%">
-                                            <LineChart data={Array.isArray(history) ? history : []} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
-                                                <CartesianGrid strokeDasharray="3 3" stroke="#ffffff08" vertical={false} />
-                                                <XAxis
-                                                    dataKey="time"
-                                                    stroke="#ffffff20"
-                                                    fontSize={9}
-                                                    tickLine={false}
-                                                    axisLine={false}
-                                                    tick={{ fill: 'rgba(255,255,255,0.4)', fontWeight: 700 }}
-                                                    label={{ value: t('history_time').toUpperCase(), position: 'insideBottom', offset: -10, fill: 'rgba(255,255,255,0.2)', fontSize: 8, fontWeight: 900 }}
-                                                />
-                                                <YAxis
-                                                    stroke="#ffffff20"
-                                                    fontSize={9}
-                                                    tickLine={false}
-                                                    axisLine={false}
-                                                    domain={[0, 80]}
-                                                    ticks={[0, 10, 20, 30, 40, 50, 60, 70, 80]}
-                                                    tick={{ fill: 'rgba(255,255,255,0.4)', fontWeight: 700 }}
-                                                    label={{ value: t('knots').toUpperCase(), angle: -90, position: 'insideLeft', fill: 'rgba(255,255,255,0.2)', fontSize: 8, fontWeight: 900, offset: 15 }}
-                                                />
-                                                <Tooltip
-                                                    contentStyle={{ backgroundColor: '#050b14', border: '1px solid rgba(59,130,246,0.3)', borderRadius: '4px', fontSize: '10px', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.5)' }}
-                                                    itemStyle={{ fontWeight: 700 }}
-                                                />
-                                                <Line
-                                                    type="monotone"
-                                                    dataKey="wind"
-                                                    stroke="#10b981"
-                                                    strokeWidth={2}
-                                                    dot={{ r: 3, fill: '#10b981', strokeWidth: 1, stroke: '#000' }}
-                                                    activeDot={{ r: 5, fill: '#34d399' }}
-                                                    name={t('wind_chart_wind_label')}
-                                                />
-                                                <Line
-                                                    type="monotone"
-                                                    dataKey="gust"
-                                                    stroke="#ef4444"
-                                                    strokeWidth={2}
-                                                    dot={{ r: 3, fill: '#ef4444', strokeWidth: 1, stroke: '#000' }}
-                                                    activeDot={{ r: 5, fill: '#f87171' }}
-                                                    name={t('wind_chart_gust_label')}
-                                                />
-                                            </LineChart>
-                                        </ResponsiveContainer>
-                                    </div>
-                                </div>
-
-                                {/* Direction Chart */}
-                                <div className="bg-white/[0.02] border border-white/5 rounded-xl p-6">
-                                    <div className="flex justify-between items-center mb-6">
-                                        <h4 className="text-[10px] font-black text-white/60 uppercase tracking-[0.2em] flex items-center gap-2">
-                                            <BarChart3 className="w-4 h-4 text-blue-400" /> {t('history_direction')}
-                                        </h4>
-                                    </div>
-                                    <div className="h-64 w-full">
-                                        <ResponsiveContainer width="100%" height="100%">
-                                            <LineChart data={Array.isArray(history) ? history : []} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
-                                                <CartesianGrid strokeDasharray="3 3" stroke="#ffffff08" vertical={false} />
-                                                <XAxis
-                                                    dataKey="time"
-                                                    stroke="#ffffff20"
-                                                    fontSize={9}
-                                                    tickLine={false}
-                                                    axisLine={false}
-                                                    tick={{ fill: 'rgba(255,255,255,0.4)', fontWeight: 700 }}
-                                                    label={{ value: t('history_time').toUpperCase(), position: 'insideBottom', offset: -10, fill: 'rgba(255,255,255,0.2)', fontSize: 8, fontWeight: 900 }}
-                                                />
-                                                <YAxis
-                                                    stroke="#ffffff20"
-                                                    fontSize={9}
-                                                    tickLine={false}
-                                                    axisLine={false}
-                                                    domain={[0, 360]}
-                                                    ticks={[0, 90, 180, 270, 360]}
-                                                    tick={{ fill: 'rgba(255,255,255,0.4)', fontWeight: 700 }}
-                                                    tickFormatter={(value) => {
-                                                        if (value === 0 || value === 360) return '0° (N)';
-                                                        if (value === 90) return '90° (E)';
-                                                        if (value === 180) return '180° (S)';
-                                                        if (value === 270) return '270° (W)';
-                                                        return `${value}°`;
-                                                    }}
-                                                />
-                                                <Tooltip
-                                                    contentStyle={{ backgroundColor: '#050b14', border: '1px solid rgba(59,130,246,0.3)', borderRadius: '4px', fontSize: '10px' }}
-                                                />
-                                                <Line
-                                                    type="monotone"
-                                                    dataKey="direction"
-                                                    stroke="#3b82f6"
-                                                    strokeWidth={2}
-                                                    dot={{ r: 3, fill: '#3b82f6', strokeWidth: 1, stroke: '#000' }}
-                                                    activeDot={{ r: 5, fill: '#60a5fa' }}
-                                                    name={t('history_direction')}
-                                                />
-                                            </LineChart>
-                                        </ResponsiveContainer>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="bg-blue-900/10 p-4 border-t border-blue-500/10 shrink-0">
-                            <p className="text-[9px] text-white/30 uppercase tracking-[0.2em] text-center">
-                                {t('history_footer')}
-                            </p>
-                        </div>
-                    </div>
-                </div>,
+                <RadarHistoryModal
+                    showHistory={showHistory}
+                    setShowHistory={setShowHistory}
+                    history={history}
+                    historyLoading={historyLoading}
+                    getWindColor={getWindColor}
+                    getWindTextColor={getWindTextColor}
+                />,
                 document.body
             )}
         </>
