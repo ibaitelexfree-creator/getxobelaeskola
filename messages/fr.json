@@ -328,11 +328,9 @@
         "contact": "Contact",
         "copyright": "© 2026 Getxo Bela Eskola · Expérience Nautique Premium",
         "slogan": "Getxo Bela Eskola · L'expérience nautique par excellence dans la Marina de Getxo.",
-        "links": {
-            "privacy": "Confidentialité",
-            "terms": "Conditions",
-            "cookies": "Cookies"
-        }
+        "privacy": "Confidentialité",
+        "terms": "Conditions",
+        "cookies": "Cookies"
     },
     "nautical_radar": {
         "title": "Radar de Navigation \"Pont de Commandement\"",

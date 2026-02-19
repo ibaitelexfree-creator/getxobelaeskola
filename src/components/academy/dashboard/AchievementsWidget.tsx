@@ -43,14 +43,14 @@ export default function AchievementsWidget({ logros, locale }: AchievementsWidge
                     </div>
                     <div>
                         <h3 className="text-lg font-bold text-white italic">Logros</h3>
-                        <p className="text-white/40 text-[10px] uppercase tracking-widest">
+                        <p className="text-white/60 text-[10px] uppercase tracking-widest">
                             {logros.length} Desbloqueados
                         </p>
                     </div>
                 </div>
                 <div className="text-right">
                     <div className="text-2xl font-black text-amber-500">{totalPoints}</div>
-                    <div className="text-[10px] uppercase tracking-widest text-white/20 font-bold">XP TOTAL</div>
+                    <div className="text-[10px] uppercase tracking-widest text-white/50 font-bold">XP TOTAL</div>
                 </div>
             </div>
 
@@ -59,30 +59,33 @@ export default function AchievementsWidget({ logros, locale }: AchievementsWidge
                     {visibleLogros.map((item) => (
                         <div
                             key={item.logro.id}
-                            className="group relative aspect-square bg-white/[0.03] hover:bg-white/[0.08] border border-white/5 hover:border-amber-500/30 rounded-2xl flex flex-col items-center justify-center transition-all cursor-help"
+                            tabIndex={0}
+                            role="button"
+                            aria-label={`Logro: ${locale === 'eu' ? item.logro.nombre_eu : item.logro.nombre_es}. ${item.logro.puntos} XP.`}
+                            className="group relative aspect-square bg-white/[0.03] hover:bg-white/[0.08] focus:bg-white/[0.08] border border-white/5 hover:border-amber-500/30 focus:border-amber-500/30 rounded-2xl flex flex-col items-center justify-center transition-all cursor-help outline-none"
                         >
-                            <div className="text-2xl mb-1 group-hover:scale-110 transition-transform">
+                            <div className="text-2xl mb-1 group-hover:scale-110 group-focus:scale-110 transition-transform">
                                 {item.logro.icono || '🏆'}
                             </div>
-                            <div className="text-[8px] font-black uppercase tracking-widest text-white/30 group-hover:text-amber-500/80 transition-colors">
+                            <div className="text-[8px] font-black uppercase tracking-widest text-white/50 group-hover:text-amber-500/80 group-focus:text-amber-500/80 transition-colors">
                                 {item.logro.puntos} XP
                             </div>
 
                             {/* Tooltip */}
-                            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 bg-[#0a1628] border border-white/10 p-3 rounded-xl shadow-xl opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50">
+                            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 bg-[#0a1628] border border-white/10 p-3 rounded-xl shadow-xl opacity-0 group-hover:opacity-100 group-focus:opacity-100 pointer-events-none transition-opacity z-50">
                                 <div className="flex justify-between items-start mb-1">
                                     <span className={`text-[8px] uppercase tracking-widest font-black px-1.5 py-0.5 rounded ${item.logro.rareza === 'legendario' ? 'bg-purple-500/20 text-purple-400' :
-                                            item.logro.rareza === 'epico' ? 'bg-amber-500/20 text-amber-400' :
-                                                'bg-blue-500/20 text-blue-400'
+                                        item.logro.rareza === 'epico' ? 'bg-amber-500/20 text-amber-400' :
+                                            'bg-blue-500/20 text-blue-400'
                                         }`}>
                                         {item.logro.rareza}
                                     </span>
-                                    <span className="text-[8px] text-white/30">{new Date(item.fecha_obtencion).toLocaleDateString()}</span>
+                                    <span className="text-[8px] text-white/50">{new Date(item.fecha_obtencion).toLocaleDateString()}</span>
                                 </div>
                                 <h4 className="text-xs font-bold text-white mb-1">
                                     {locale === 'eu' ? item.logro.nombre_eu : item.logro.nombre_es}
                                 </h4>
-                                <p className="text-[10px] text-white/50 leading-tight">
+                                <p className="text-[10px] text-white/70 leading-tight">
                                     {locale === 'eu' ? item.logro.descripcion_eu : item.logro.descripcion_es}
                                 </p>
                             </div>
@@ -99,12 +102,12 @@ export default function AchievementsWidget({ logros, locale }: AchievementsWidge
             ) : (
                 <div className="py-8 text-center border border-dashed border-white/5 rounded-2xl bg-white/[0.01]">
                     <Lock className="mx-auto text-white/10 mb-3" size={24} />
-                    <p className="text-white/30 text-xs font-bold uppercase tracking-widest">Sin Logros Aún</p>
-                    <p className="text-white/20 text-[10px] max-w-[150px] mx-auto mt-1">Completa desafíos para desbloquear medallas.</p>
+                    <p className="text-white/50 text-xs font-bold uppercase tracking-widest">Sin Logros Aún</p>
+                    <p className="text-white/40 text-[10px] max-w-[150px] mx-auto mt-1">Completa desafíos para desbloquear medallas.</p>
                 </div>
             )}
 
-            <button className="w-full mt-4 py-3 bg-white/5 hover:bg-white/10 border border-white/5 rounded-xl text-[10px] font-black uppercase tracking-widest text-white/40 hover:text-white transition-all flex items-center justify-center gap-2">
+            <button className="w-full mt-4 py-3 bg-white/5 hover:bg-white/10 border border-white/5 rounded-xl text-[10px] font-black uppercase tracking-widest text-white/60 hover:text-white transition-all flex items-center justify-center gap-2 focus-visible:ring-2 focus-visible:ring-accent outline-none">
                 Ver todos los logros <Star size={12} />
             </button>
         </div>

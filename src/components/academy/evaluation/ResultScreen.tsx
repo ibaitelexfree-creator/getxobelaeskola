@@ -60,7 +60,8 @@ export default function ResultScreen({
                             src="/images/feedback-success-confetti.webp"
                             alt="Celebración"
                             fill
-                            className="object-cover scale-110"
+                            className="object-cover scale-110 opacity-60"
+                            aria-hidden="true"
                         />
                     </div>
                 )}
@@ -98,7 +99,7 @@ export default function ResultScreen({
                                 / 100
                             </span>
                         </div>
-                        <p className="text-slate-400 text-sm md:text-base max-w-md mx-auto font-light leading-relaxed">
+                        <p className="text-slate-300 text-sm md:text-base max-w-md mx-auto font-light leading-relaxed">
                             {result.feedback}
                         </p>
                     </div>
@@ -108,16 +109,23 @@ export default function ResultScreen({
                         <div className="w-full space-y-4">
                             <button
                                 onClick={() => setShowDetails(!showDetails)}
-                                className="text-2xs uppercase tracking-widest font-bold text-blue-400 hover:text-blue-300 transition-colors flex items-center gap-2 mx-auto"
+                                aria-expanded={showDetails}
+                                aria-controls="detailed-review-section"
+                                className="text-2xs uppercase tracking-widest font-bold text-blue-400 hover:text-blue-300 transition-colors flex items-center gap-2 mx-auto focus-visible:ring-2 focus-visible:ring-blue-500 rounded-sm outline-none px-2 py-1"
                             >
                                 {showDetails ? 'Ocultar Revisión' : 'Ver Revisión Detallada'}
-                                <svg className={`w-3 h-3 transition-transform duration-300 ${showDetails ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg className={`w-3 h-3 transition-transform duration-300 ${showDetails ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M19 9l-7 7-7-7" />
                                 </svg>
                             </button>
 
                             {showDetails && (
-                                <div className="w-full space-y-3 text-left animate-in slide-in-from-top-4 duration-500 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
+                                <div
+                                    id="detailed-review-section"
+                                    className="w-full space-y-3 text-left animate-in slide-in-from-top-4 duration-500 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar"
+                                    role="region"
+                                    aria-label="Revisión detallada de preguntas"
+                                >
                                     {result.details.map((detail, idx) => (
                                         <div key={idx} className={`p-5 rounded-2xl border backdrop-blur-sm ${detail.isCorrect ? 'bg-green-500/5 border-green-500/20' : 'bg-red-500/5 border-red-500/20'
                                             }`}>
@@ -127,18 +135,18 @@ export default function ResultScreen({
                                                     {idx + 1}
                                                 </div>
                                                 <div className="flex-1 space-y-3">
-                                                    <p className="text-sm font-medium text-slate-200">{detail.enunciado_es}</p>
+                                                    <p className="text-sm font-medium text-white/90">{detail.enunciado_es}</p>
 
                                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-2xs">
                                                         <div className="space-y-1">
-                                                            <span className="text-slate-500 uppercase tracking-wider font-bold text-3xs">Tu respuesta</span>
+                                                            <span className="text-slate-400 uppercase tracking-wider font-bold text-3xs">Tu respuesta</span>
                                                             <p className={`font-semibold ${detail.isCorrect ? 'text-green-400' : 'text-red-400'}`}>
                                                                 {detail.userAnswer || '(Sin respuesta)'}
                                                             </p>
                                                         </div>
                                                         {!detail.isCorrect && (
                                                             <div className="space-y-1">
-                                                                <span className="text-slate-500 uppercase tracking-wider font-bold text-3xs">Respuesta correcta</span>
+                                                                <span className="text-slate-400 uppercase tracking-wider font-bold text-3xs">Respuesta correcta</span>
                                                                 <p className="text-green-400 font-semibold">{detail.correctAnswer}</p>
                                                             </div>
                                                         )}

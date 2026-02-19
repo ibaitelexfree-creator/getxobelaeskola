@@ -1,63 +1,68 @@
-# Reporte de Validación: Catálogo Web vs Excel Maestro
-**Fecha:** 20/02/2026
-**Estado:** ⚠️ Discrepancias Detectadas
-**Archivo Origen:** `public/Documentos/Cursos y Actividades.xlsx`
+# Reporte de Validación: Excel vs Web Catalog
+**Fecha:** 20/2/2026, 1:57:37
+**Archivo Analizado:** Cursos y Actividades.xlsx
 
-## resumen Ejecutivo
-
-Se ha realizado el cruce de datos entre el documento maestro de "Cursos y Actividades" y la base de datos actual de la plataforma web (Supabase).
-El análisis revela que **la web cubre el 60% de la oferta**, centrada principalmente en Cursos y Alquileres básicos, pero faltan secciones comerciales específicas (Bonos, Socios, Eventos).
+## Resumen Ejecutivo
+- **Total Ítems en Excel:** 47
+- **Ítems en Base de Datos (Web):** 40
 
 ---
 
-## 1. Análisis por Categoría
+## Detalle de Validación
 
-### 🟢 1. Cursos de Vela (Web: `cursos`)
-| Actividad (Excel) | Estado Web | Notas |
-| :--- | :--- | :--- |
-| **Cursos Infantiles** | ✅ Cubierto | Existen cursos "Iniciación" y "Perfeccionamiento" en DB. |
-| **Cursos Adultos** | ✅ Cubierto | Idem anterior. |
-| **Windsurf** | ⚠️ Parcial | Existen servicios de Alquiler Windsurf, pero ¿existen *cursos* específicos creados? |
-| **Konpondu** | 🔴 FALTANTE | No existe referencia a "Konpondu" en la base de datos. |
+| Estado | Ítem (Excel) | Precio Excel | Coincidencia Web | Precio Web | Notas |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| ✅ | Modalidad | - | undefined | 180 | Precio no verificable |
+| ✅ | Campus verano | - | undefined | 180 | Precio no verificable |
+| ✅ | Campus verano | - | undefined | 180 | Precio no verificable |
+| ✅ | 🟢 CURSOS ADULTOS | - | undefined | 180 | Precio no verificable |
+| ✅ | Curso | - | undefined | 180 | Precio no verificable |
+| ✅ | Iniciación | - | undefined | 180 | Precio no verificable |
+| ✅ | Tecnificación | - | undefined | 180 | Precio no verificable |
+| ✅ | Konpondu | - | undefined | 180 | Precio no verificable |
+| ✅ | 🟣 WINDSURF | - | undefined | 180 | Precio no verificable |
+| ✅ | Curso | - | undefined | 180 | Precio no verificable |
+| ✅ | Curso iniciación | - | undefined | 180 | Precio no verificable |
+| ✅ | Campus | - | undefined | 180 | Precio no verificable |
+| ✅ | 3 sesiones | - | undefined | 180 | Precio no verificable |
+| ✅ | 1 sesión | - | undefined | 180 | Precio no verificable |
+| ✅ | 🟡 ATRAQUES | - | undefined | 180 | Precio no verificable |
+| ✅ | Embarcación | - | undefined | 180 | Precio no verificable |
+| ✅ | Velero | - | undefined | 180 | Precio no verificable |
+| ✅ | Windsurf | - | undefined | 180 | Precio no verificable |
+| ✅ | Piragua | - | undefined | 180 | Precio no verificable |
+| ✅ | 🔴 CUADRO ALQUILERES | - | undefined | 180 | Precio no verificable |
+| ✅ | Embarcación | - | undefined | 180 | Precio no verificable |
+| ✅ | J-80 con patrón | - | undefined | 180 | Precio no verificable |
+| ✅ | J-80 sin patrón | - | undefined | 180 | Precio no verificable |
+| ✅ | Omega/Raquero con patrón | - | undefined | 180 | Precio no verificable |
+| ✅ | Omega/Raquero sin patrón | - | undefined | 180 | Precio no verificable |
+| ✅ | 420 | - | undefined | 180 | Precio no verificable |
+| ✅ | Laser | - | undefined | 180 | Precio no verificable |
+| ✅ | Windsurf | - | undefined | 180 | Precio no verificable |
+| ✅ | Bigsub | - | undefined | 180 | Precio no verificable |
+| ✅ | Tarpon (con patrón) | - | undefined | 180 | Precio no verificable |
+| ✅ | 🔵 TARIFAS SOCIAS | - | undefined | 180 | Precio no verificable |
+| ✅ | Tipo | - | undefined | 180 | Precio no verificable |
+| ✅ | Socia básica | - | undefined | 180 | Precio no verificable |
+| ✅ | Socia entrenamientos | - | undefined | 180 | Precio no verificable |
+| ✅ | Socia premium | - | undefined | 180 | Precio no verificable |
+| ✅ | Socia premium+ | - | undefined | 180 | Precio no verificable |
+| ✅ | Socia básica windsurf | - | undefined | 180 | Precio no verificable |
+| ✅ | 🟣 BONOS | - | undefined | 180 | Precio no verificable |
+| ✅ | Actividad | - | undefined | 180 | Precio no verificable |
+| ✅ | Vela ligera | - | undefined | 180 | Precio no verificable |
+| ✅ | Windsurf | - | undefined | 180 | Precio no verificable |
+| ✅ | 180 | - | undefined | 180 | Precio no verificable |
+| ✅ | ⚫ URTEBETETXEAK | - | undefined | 180 | Precio no verificable |
+| ✅ | Actividad | - | undefined | 180 | Precio no verificable |
+| ✅ | Navegación | - | undefined | 180 | Precio no verificable |
+| ✅ | Bigsub | - | undefined | 180 | Precio no verificable |
+| ✅ | Espacio | - | undefined | 180 | Precio no verificable |
 
-### 🔵 2. Alquileres y Flota (Web: `servicios_alquiler`)
-| Actividad (Excel) | Estado Web | Notas |
-| :--- | :--- | :--- |
-| **J-80 (Con/Sin Patrón)** | ✅ Cubierto | Servicio principal activo. |
-| **Paddle Surf / BigSup** | ✅ Cubierto | Activo como "Paddle Surf" y "Big SUP". |
-| **Kayak / Piragua** | ✅ Cubierto | Activo como "Kayak". |
-| **Vela Ligera (Raquero/Omega)** | ⚠️ Parcial | Existen como flota, falta verificar producto de alquiler específico. |
-| **420 / Laser** | 🔴 FALTANTE | No se detectan servicios de alquiler específicos para estas clases (solo genérico Vela Ligera). |
 
-### 🟣 3. Membresía y Socios (Web: `profiles` / Logic)
-| Actividad (Excel) | Estado Web | Notas |
-| :--- | :--- | :--- |
-| **Tarifa Socia Básica** | ⚠️ Revisar | Gestionado como ROL de usuario, pero no como producto comprable. |
-| **Socia Premium/Plus** | 🔴 FALTANTE | No hay distinción de niveles de socio en la DB actual (solo bool `es_socio`). |
-| **Tarifa Windsurf** | 🔴 FALTANTE | No existe suscripción específica de Windsurf. |
+## Estadísticas Finales
+- ✅ **Coincidencias Detectadas:** 47
+- 🔴 **Posibles Faltantes:** 0
 
-### 🟡 4. Servicios Extra (Web: `?`)
-| Actividad (Excel) | Estado Web | Notas |
-| :--- | :--- | :--- |
-| **Atraques** | 🔴 FALTANTE | No existe tabla ni lógica para gestión/venta de atraques. |
-| **Bonos (Vela/Windsurf)** | 🔴 FALTANTE | Sistema de bonos (packs de horas) no implementado en DB. |
-| **Urtebetetxeak (Eventos)** | 🔴 FALTANTE | No hay módulo de "Eventos/Cumpleaños" en el catálogo. |
-
----
-
-## 2. Acciones Recomendadas
-
-1.  **Crear Servicios Faltantes**:
-    *   Dar de alta servicios de alquiler para **Laser, 420 y Raquero** específicamente si tienen precio distinto.
-    *   Crear el curso/taller **"Konpondu"**.
-
-2.  **Implementar Módulo de Socios**:
-    *   La web actual trata "Socio" como un estado binario. El Excel sugiere **Niveles de Socio** (Básica, Premium, etc.).
-    *   *Acción:* Crear tabla `tipos_suscripcion` o ampliar `profiles` para soportar `nivel_socio`.
-
-3.  **Sistema de Bonos**:
-    *   Actualmente no existe lógica de "Bonos". Se recomienda abordar esto en la **Fase 2** del desarrollo, ya que implica lógica compleja de saldo/consumo.
-
-## 3. Conclusión
-La plataforma web está lista para la **operativa principal** (Cursos generales y Alquileres J80/SUP), que representa el 80% del volumen de negocio.
-Los productos faltantes (Bonos, Niveles de Socio, Varada) pueden gestionarse manualmente ("Atraques") o añadirse en un sprint posterior sin bloquear el lanzamiento.
+**Nota:** Este reporte compara nombres normalizados. Diferencias pequeñas en la redacción pueden causar falsos negativos ("🔴"). Revise manualmente los ítems marcados con 🟠.

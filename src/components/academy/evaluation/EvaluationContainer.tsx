@@ -93,7 +93,7 @@ export default function EvaluationContainer({
                 <div className="absolute inset-0 flex flex-col items-center justify-center p-12 text-center">
                     <div className="w-16 h-16 border-2 border-accent/30 border-t-accent rounded-full animate-spin mb-8" />
                     <h3 className="text-2xl font-display italic text-white mb-2 tracking-wide">Preparando Travesía</h3>
-                    <p className="text-white/40 text-2xs uppercase tracking-[0.3em] font-black">Validando cartas náuticas...</p>
+                    <p className="text-white/70 text-2xs uppercase tracking-[0.3em] font-black">Validando cartas náuticas...</p>
                 </div>
             </div>
         );

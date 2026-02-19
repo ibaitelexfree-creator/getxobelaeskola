@@ -18,4 +18,4 @@ WORKDIR /workspace
 EXPOSE 18789
 
 # Default command
-CMD ["openclaw", "gateway", "--bind", "lan"]
+CMD ["openclaw", "gateway", "--bind", "lan", "--allow-unconfigured"]
