@@ -18,10 +18,10 @@ export async function PATCH(request: Request) {
         }
 
         // Update profile
-        const { error: updateError } = await supabase
-            .from('profiles')
-            .update({ preferences: { animations_enabled } })
-            .eq('id', user.id);
+        // Update user metadata (auth.users)
+        const { error: updateError } = await supabase.auth.updateUser({
+            data: { preferences: { animations_enabled } }
+        });
 
         if (updateError) {
             // Fallback: If 'preferences' column doesn't exist or is not JSONB, 

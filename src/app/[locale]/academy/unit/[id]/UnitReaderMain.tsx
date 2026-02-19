@@ -97,7 +97,7 @@ export default function UnitReaderMain({
                     setProgreso(data.progreso);
 
                     try {
-                        const resStatus = await fetch(apiUrl('/api/academy/unlock-status'));
+                        const resStatus = await fetch(apiUrl('/api/unlock-status'));
                         const dataStatus = await resStatus.json();
                         setUnlockStatus(dataStatus || {});
                     } catch (e) {

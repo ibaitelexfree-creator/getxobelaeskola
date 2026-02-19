@@ -26,7 +26,7 @@ export const useWindLabAudio = (state: WindLabState, physics: DerivedPhysics) =>
             audioRef.current.update(
                 physics.apparentWindSpeed,
                 physics.efficiency,
-                physics.isStalled
+                physics.mainIsStalled || physics.jibIsStalled
             );
         }
     }, [physics]);

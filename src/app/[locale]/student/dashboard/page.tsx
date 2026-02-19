@@ -3,7 +3,7 @@ import StudentDashboardClient from './StudentDashboardClient';
 import { Metadata } from 'next';
 
 export async function generateMetadata({ params: { locale } }: { params: { locale: string } }): Promise<Metadata> {
-    const t = await getTranslations('student_dashboard');
+    const t = await getTranslations({ locale, namespace: 'student_dashboard' });
     return {
         title: t('eyebrow'),
         description: t('subtitle'),
@@ -23,12 +23,12 @@ export default async function StudentDashboard({
 }: {
     params: { locale: string };
 }) {
-    const t = await getTranslations('student_dashboard');
+    const t = await getTranslations({ locale, namespace: 'student_dashboard' });
 
     // Pass raw translations as a plain object to avoid serialization issues
     const translations = {
         eyebrow: t('eyebrow'),
-        welcome: t.raw('welcome'),
+        welcome: t('welcome', { name: '{{NAME}}' }),
         subtitle: t('subtitle'),
         academy_widget: {
             title: t('academy_widget.title'),

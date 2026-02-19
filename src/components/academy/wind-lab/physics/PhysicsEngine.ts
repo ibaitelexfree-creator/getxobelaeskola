@@ -3,7 +3,8 @@ export interface WindLabState {
     trueWindDirection: number; // degrees (0-360)
     boatHeading: number; // degrees (0-360)
     boatSpeed: number; // knots
-    sailAngle: number; // degrees (relative to centerline, 0-90) - this is boom angle
+    sailAngle: number; // degrees (Main Boom, relative to centerline, 0-90)
+    jibAngle: number; // degrees (Jib Sheet, relative to centerline, 0-90)
     heelAngle: number; // degrees
     rudderAngle: number; // degrees (-45 to 45)
     angularVelocity: number; // degrees per second
@@ -12,175 +13,214 @@ export interface WindLabState {
 export interface DerivedPhysics {
     apparentWindSpeed: number; // knots
     apparentWindAngle: number; // degrees relative to bow (0-180, usually signed -180 to 180)
-    angleOfAttack: number; // degrees (AoA)
-    liftCoefficient: number;
-    dragCoefficient: number;
+
+    // Main Sail Stats
+    mainAoA: number;
+    mainLift: number;
+    mainDrag: number;
+    mainEfficiency: number;
+    mainIsStalled: boolean;
+    mainIsLuffing: boolean;
+
+    // Jib Sail Stats
+    jibAoA: number;
+    jibLift: number;
+    jibDrag: number;
+    jibEfficiency: number;
+    jibIsStalled: boolean;
+    jibIsLuffing: boolean;
+
     driveForce: number; // Forward force
     heelForce: number; // Sideways force
-    efficiency: number; // 0-1 (For audio/visual feedback)
-    isStalled: boolean;
-    isLuffing: boolean;
+    efficiency: number; // Combined efficiency (0-1) for audio/visual feedback
 }
 
 export class PhysicsEngine {
 
-    private static readonly MAX_LIFT_AOA = 15; // Degrees where lift peaks
-    private static readonly STALL_AOA = 20; // Degrees where stall begins
-    private static readonly DRAG_COEFF_BASE = 0.1;
+    private static readonly MAX_LIFT_AOA = 20; // Degrees where lift peaks
+    private static readonly STALL_AOA = 25; // Degrees where stall begins, wider margin for game
+    private static readonly DRAG_COEFF_BASE = 0.05;
 
     // Safety Limits
-    private static readonly MAX_BOAT_SPEED = 50; // knots (Sanity limit)
-    private static readonly MAX_WIND_SPEED = 100; // knots
-    private static readonly MAX_FORCE = 10000; // Arbitrary unit limit to prevent explosion
+    private static readonly MAX_BOAT_SPEED = 50;
+    private static readonly MAX_WIND_SPEED = 100;
+    private static readonly MAX_FORCE = 500; // Reduced to reasonable game units
 
-    /**
-     * Calculates the physics state based on current inputs.
-     * returning derived physics values.
-     */
     public static calculatePhysics(state: WindLabState): DerivedPhysics {
         // 0. Safety Sanitization
-        const safeBoatSpeed = this.clamp(state.boatSpeed || 0, 0, this.MAX_BOAT_SPEED);
-        const safeTrueWindSpeed = this.clamp(state.trueWindSpeed || 0, 0, this.MAX_WIND_SPEED);
-        const safeTrueWindDirection = this.normalizeAngle(state.trueWindDirection || 0);
-        const safeHeading = this.normalizeAngle(state.boatHeading || 0);
-        const safeSailAngle = this.clamp(Math.abs(state.sailAngle || 0), 0, 90);
+        const boatSpeed = this.clamp(state.boatSpeed || 0, 0, this.MAX_BOAT_SPEED);
+        const trueWindSpeed = this.clamp(state.trueWindSpeed || 0, 0, this.MAX_WIND_SPEED);
+        const trueWindDirection = this.normalizeAngle(state.trueWindDirection || 0);
+        const heading = this.normalizeAngle(state.boatHeading || 0);
+        const mainAngle = this.clamp(Math.abs(state.sailAngle || 0), 0, 90);
+        const jibAngle = this.clamp(Math.abs(state.jibAngle || 0), 0, 90);
 
         // 1. Calculate Apparent Wind
-        // Convert everything to radians for calculation
-        const twdRad = (safeTrueWindDirection * Math.PI) / 180;
-        const headingRad = (safeHeading * Math.PI) / 180;
+        const twdRad = (trueWindDirection * Math.PI) / 180;
+        const headingRad = (heading * Math.PI) / 180;
 
-        // True Wind Vector (Global coordinates) x=East, y=North
-        const vTwX = safeTrueWindSpeed * Math.sin(twdRad);
-        const vTwY = safeTrueWindSpeed * Math.cos(twdRad);
+        // True Wind Vector (Global)
+        const vTwX = trueWindSpeed * Math.sin(twdRad);
+        const vTwY = trueWindSpeed * Math.cos(twdRad);
 
-        // Boat Velocity Vector (Global coordinates)
-        const vBoatX = safeBoatSpeed * Math.sin(headingRad);
-        const vBoatY = safeBoatSpeed * Math.cos(headingRad);
+        // Boat Velocity Vector (Global)
+        const vBoatX = boatSpeed * Math.sin(headingRad);
+        const vBoatY = boatSpeed * Math.cos(headingRad);
 
         // Apparent Wind Vector = True Wind - Boat Velocity
-        // Aw = Tw - Vb
         const vAwX = vTwX - vBoatX;
         const vAwY = vTwY - vBoatY;
 
-        const rawApparentWindSpeed = Math.sqrt(vAwX * vAwX + vAwY * vAwY);
-        // Clamp AWS to prevent compounding infinity
-        const apparentWindSpeed = this.clamp(rawApparentWindSpeed, 0, this.MAX_WIND_SPEED * 1.5);
+        const apparentWindSpeed = Math.sqrt(vAwX * vAwX + vAwY * vAwY);
 
-        // Apparent Wind Angle relative to North/Global
-        let awDirGlobal = Math.atan2(vAwX, vAwY); // -PI to PI
-        if (awDirGlobal < 0) awDirGlobal += 2 * Math.PI;
+        // Apparent Wind Angle relative to Heading
+        // Calculate Global AW Angle
+        let awDirGlobal = Math.atan2(vAwX, vAwY); // 0 is North (Y axis)
 
-        // Apparent Wind Angle relative to Heading (0 is bow, 180 is stern)
-        // We want the angle difference.
+        // Relative Angle (0 = Bow, 180 = Stern)
+        // Adjust for Heading
         let awaRad = awDirGlobal - headingRad;
 
-        // Normalize to -PI to PI safely
+        // Normalize to -PI to PI
         awaRad = Math.atan2(Math.sin(awaRad), Math.cos(awaRad));
 
         const apparentWindAngle = (awaRad * 180) / Math.PI;
         const absAwa = Math.abs(apparentWindAngle);
 
-        // 2. Calculate Angle of Attack (AoA)
-        // AoA is the difference between AWA and Sail Angle
-        const angleOfAttack = absAwa - safeSailAngle;
+        // 2. Compute Foil Physics
+        // Main Sail (Area size factor 1.0)
+        // Note: computeFoil returns internal physics object
+        const mainPhysics = this.computeFoil(absAwa, mainAngle, 1.0);
 
-        // 3. Calculate Lift and Drag Coefficients
-        // Simple lift curve approximation: Linear until stall, then drops.
-        let liftCoeff = 0;
-        let dragCoeff = this.DRAG_COEFF_BASE;
-        let isStalled = false;
-        let isLuffing = false;
+        // Jib Sail (Area size factor 0.6) - Jib is smaller but efficient
+        const jibPhysics = this.computeFoil(absAwa, jibAngle, 0.6);
 
-        if (angleOfAttack < 0) {
-            // Luffing (Backwinding)
-            isLuffing = true;
-            // Lift is minimal/negative, drag increases due to flapping
-            liftCoeff = Math.max(-0.5, angleOfAttack * 0.05);
-            dragCoeff += Math.abs(angleOfAttack) * 0.01;
-        } else if (angleOfAttack <= this.MAX_LIFT_AOA) {
-            // Linear Lift (Ideal Laminar Flow)
-            // CL = 2 * PI * alpha (roughly for thin airfoils, simplified here)
-            // Let's say max CL is 1.5 at 15 degrees.
-            liftCoeff = (angleOfAttack / this.MAX_LIFT_AOA) * 1.5;
-            // Induced Drag
-            dragCoeff += (liftCoeff * liftCoeff) * 0.05;
-        } else if (angleOfAttack <= this.STALL_AOA) {
-            // Pre-stall / Rounding off
-            liftCoeff = 1.5 - ((angleOfAttack - this.MAX_LIFT_AOA) * 0.1);
-            dragCoeff += 0.2;
-        } else {
-            // Stalled
-            isStalled = true;
-            // Lift drops drastically, Drag increases massivley
-            liftCoeff = Math.max(0, 1.4 - ((angleOfAttack - this.STALL_AOA) * 0.1));
-            dragCoeff += 0.5 + (angleOfAttack - this.STALL_AOA) * 0.05;
-        }
+        // 3. Resolve Forces (Aero)
+        // Thrust = Lift * sin(AWA) - Drag * cos(AWA)
+        // Heel   = Lift * cos(AWA) + Drag * sin(AWA)
+        // (Using absolute AWA for magnitude, direction handled by sign?)
+        // Actually, easiest to just sum Lift/Drag magnitudes first if sails are same side.
 
-        // 4. Calculate Forces
-        // Force = 0.5 * rho * V^2 * Area * Coeff
-        // We assume constant rho * Area = k
-        const k = 1.0;
-        const vSquared = apparentWindSpeed * apparentWindSpeed;
+        const totalLift = (mainPhysics.lift * 1.0 + jibPhysics.lift * 0.6) * apparentWindSpeed * apparentWindSpeed * 0.1;
+        const totalDrag = (mainPhysics.drag * 1.0 + jibPhysics.drag * 0.6) * apparentWindSpeed * apparentWindSpeed * 0.1;
 
-        const totalLiftVectorMag = k * vSquared * liftCoeff;
-        const totalDragVectorMag = k * vSquared * dragCoeff;
+        // Projection
+        // If wind from Starboard (AWA > 0), Lift pulls to Port.
+        // Thrust component: L * sin(AWA) - D * cos(AWA)
+        // If AWA=90 (Beam Reach): Thrust = L * 1 - D * 0 = L. Correct.
+        // If AWA=0 (Irons): Thrust = L * 0 - D * 1 = -D. Correct.
+        // If AWA=180 (Run): Thrust = L * 0 - D * (-1) = D. Correct. 
 
-        // Force Resolution Logic
-        // AWA is angle FROM bow. (Wind COMES from AWA).
-        // So Wind vector points towards AWA + 180.
-        const windVectorAngle = awaRad + Math.PI;
+        const absAwaRad = Math.abs(awaRad);
+        let driveForce = totalLift * Math.sin(absAwaRad) - totalDrag * Math.cos(absAwaRad);
+        let heelForce = totalLift * Math.cos(absAwaRad) + totalDrag * Math.sin(absAwaRad);
 
-        const dragForceForward = totalDragVectorMag * Math.cos(windVectorAngle); // Contribution to forward motion
-        const dragForceSide = totalDragVectorMag * Math.sin(windVectorAngle);     // Contribution to heeling (leeway)
-
-        // Lift vector: Perpendicular to Wind Vector.
-        // If AWA > 0 (Wind Stbd), Lift points to Port (-90 relative to wind vector).
-        // Standard Lift points "Upwind-ish" relative to Drag.
-        const liftAngle = (awaRad > 0) ? (windVectorAngle - Math.PI / 2) : (windVectorAngle + Math.PI / 2);
-
-        const liftForceForward = totalLiftVectorMag * Math.cos(liftAngle);
-        const liftForceSide = totalLiftVectorMag * Math.sin(liftAngle);
-
-        // Total Drive (Forward Force)
-        let driveForce = liftForceForward + dragForceForward;
-
-        // Total Heel (Sideways Force)
-        let heelForce = liftForceSide + dragForceSide;
-
-        // Final Safety Clamp on Forces
+        // Clamp Forces
         driveForce = this.clamp(driveForce, -this.MAX_FORCE, this.MAX_FORCE);
-        heelForce = this.clamp(heelForce, -this.MAX_FORCE, this.MAX_FORCE);
+        heelForce = this.clamp(heelForce, 0, this.MAX_FORCE); // Heel is always positive (magnitude)
 
-        // Efficiency metric: How close are we to max L/D forward drive?
-        // Simplified heuristic
-        const efficiency = (isStalled || isLuffing) ? 0 : (liftCoeff / 1.5) * Math.max(0, (1 - (dragCoeff * 2)));
+        // Efficiency metric (0-1)
+        const combinedEfficiency = (mainPhysics.efficiency + jibPhysics.efficiency) / 2;
 
         return {
             apparentWindSpeed,
-            apparentWindAngle, // degrees
-            angleOfAttack,
-            liftCoefficient: isNaN(liftCoeff) ? 0 : liftCoeff,
-            dragCoefficient: isNaN(dragCoeff) ? 0 : dragCoeff,
-            driveForce: isNaN(driveForce) ? 0 : driveForce,
-            heelForce: isNaN(heelForce) ? 0 : Math.abs(heelForce),
-            efficiency: isNaN(efficiency) ? 0 : Math.max(0, Math.min(1, efficiency)),
-            isStalled,
-            isLuffing
+            apparentWindAngle,
+
+            mainAoA: mainPhysics.aoa,
+            mainLift: mainPhysics.lift,
+            mainDrag: mainPhysics.drag,
+            mainEfficiency: mainPhysics.efficiency,
+            mainIsStalled: mainPhysics.isStalled,
+            mainIsLuffing: mainPhysics.isLuffing,
+
+            jibAoA: jibPhysics.aoa,
+            jibLift: jibPhysics.lift,
+            jibDrag: jibPhysics.drag,
+            jibEfficiency: jibPhysics.efficiency,
+            jibIsStalled: jibPhysics.isStalled,
+            jibIsLuffing: jibPhysics.isLuffing,
+
+            driveForce,
+            heelForce,
+            efficiency: combinedEfficiency
         };
     }
 
-    /**
-     * Calculates the theoretical optimal sail angle for a given Apparent Wind Angle.
-     * OSA = clamp(|AWA| - MAX_LIFT_AOA, 0, 90)
-     */
-    public static getOptimalSailAngle(apparentWindAngle: number): number {
-        const absAwa = Math.abs(apparentWindAngle);
-        const target = absAwa - this.MAX_LIFT_AOA;
-        return this.clamp(target, 0, 90);
+    private static computeFoil(absAwa: number, sailAngle: number, sizeFactor: number) {
+        // AoA: Angle between Chord (Sail) and Wind
+        // AWA is angle of wind to centerline. 
+        // Sail Angle is angle of boom to centerline.
+        // AoA = AWA - SailAngle.
+        // If AWA = 45, Sail = 0 -> AoA = 45 (Stall)
+        // If AWA = 45, Sail = 30 -> AoA = 15 (Good)
+        // If AWA = 45, Sail = 45 -> AoA = 0 (Luffing)
+        // If AWA = 45, Sail = 60 -> AoA = -15 (Backwinded)
+
+        let aoa = absAwa - sailAngle;
+
+        let cl = 0; // Coefficient of Lift
+        let cd = this.DRAG_COEFF_BASE; // Coefficient of Drag
+        let isStalled = false;
+        let isLuffing = false;
+
+        // Calculate Coefficients
+        if (aoa < 0) {
+            // Luffing / Backwinded
+            isLuffing = true;
+            cl = 0;
+            cd = 0.1 + Math.abs(aoa) * 0.01; // Flapping drag
+        } else if (aoa <= this.MAX_LIFT_AOA) {
+            // Linear Lift Region
+            // Cl rises linearly with AoA
+            // Max Cl approx 1.5
+            const t = aoa / this.MAX_LIFT_AOA;
+            cl = t * 1.5;
+            cd = this.DRAG_COEFF_BASE + (cl * cl) * 0.05; // Induced drag
+        } else if (aoa <= this.STALL_AOA) {
+            // Peak / Transition
+            cl = 1.5;
+            cd = 0.2;
+        } else {
+            // Stalled
+            isStalled = true;
+            // Lift drops, Drag increases
+            // Simple model: Lift decays, Drag grows linearly
+            const excess = aoa - this.STALL_AOA;
+            cl = Math.max(0.5, 1.5 - excess * 0.05);
+            cd = 0.5 + excess * 0.02;
+        }
+
+        // Efficiency (L/D ratio normalized for game feedback)
+        // Ideal L/D ~ 10-15?
+        // We normalize to 0-1 for UI bar
+        // Ideal AoA is around 15.
+        // If AoA is 15 -> Cl=1.5, Cd=0.15 -> Ratio 10.
+        // Return normalized "goodness"
+        let efficiency = 0;
+        if (!isStalled && !isLuffing) {
+            // Bell curve peaking at MAX_LIFT_AOA
+            const dist = Math.abs(aoa - (this.MAX_LIFT_AOA - 5)); // Peak around 15
+            efficiency = Math.max(0, 1 - (dist / 15));
+        }
+
+        return {
+            aoa,
+            lift: cl,
+            drag: cd,
+            efficiency,
+            isStalled,
+            isLuffing,
+            sizeFactor
+        };
     }
 
-    // --- Helpers ---
+    public static getOptimalSailAngle(apparentWindAngle: number, offset: number = 0): number {
+        const absAwa = Math.abs(apparentWindAngle);
+        // Optimal AoA is roughly 15 degrees
+        // SailAngle = AWA - OptimalAoA
+        const target = absAwa - 15 - offset;
+        return this.clamp(target, 0, 90);
+    }
 
     private static clamp(val: number, min: number, max: number): number {
         if (!Number.isFinite(val)) return min;

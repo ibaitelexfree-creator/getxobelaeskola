@@ -18,6 +18,7 @@ const NauticalRadar = dynamic(() => import('@/components/academy/dashboard/Nauti
 const CareerAdvisor = dynamic(() => import('@/components/academy/dashboard/CareerAdvisor'), { ssr: false });
 const NavigationExperienceMap = dynamic(() => import('@/components/academy/dashboard/NavigationExperienceMap'), { ssr: false });
 const DailyChallengeWidget = dynamic(() => import('@/components/academy/dashboard/DailyChallengeWidget'), { ssr: false });
+const AchievementsWidget = dynamic(() => import('@/components/academy/dashboard/AchievementsWidget'), { ssr: false });
 
 import AcademySkeleton from '@/components/academy/AcademySkeleton';
 import { getRank, calculateEstimatedXP } from '@/lib/gamification/ranks';
@@ -419,6 +420,25 @@ export default function DashboardPage({ params }: { params: { locale: string } }
 
                     <NavigationExperienceMap sessions={data.horas || []} />
 
+                    {/* Certificates Section */}
+                    {data.certificados && data.certificados.length > 0 && (
+                        <section>
+                            <h2 className="text-xl font-display italic mb-6 flex items-center gap-3">
+                                <span className="text-accent">▶</span> Certificados & Diplomas
+                            </h2>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                {data.certificados.map((cert: any) => (
+                                    <CertificateCard
+                                        key={cert.id}
+                                        certificate={cert}
+                                        studentName={data.user?.full_name}
+                                        locale={params.locale}
+                                    />
+                                ))}
+                            </div>
+                        </section>
+                    )}
+
                     <section>
                         <h2 className="text-xl font-display italic mb-6 flex items-center gap-3">
                             <span className="text-accent">▶</span> En Curso
@@ -454,6 +474,7 @@ export default function DashboardPage({ params }: { params: { locale: string } }
                 <div className="space-y-12">
                     <NauticalRadar userRankSlug={currentRank.id} locale={params.locale} />
                     <DailyChallengeWidget locale={params.locale} />
+                    <AchievementsWidget logros={data.logros || []} locale={params.locale} />
                     <SkillRadar skills={data.estadisticas.skill_radar || []} />
                     <BoatMastery data={data.estadisticas.boat_mastery || []} />
                 </div>

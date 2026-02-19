@@ -129,7 +129,7 @@ export default function ConstellationMap() {
     return (
         <div className="w-full h-full bg-[#000510] relative overflow-hidden font-display select-none touch-none">
             {/* Background Stars */}
-            <div className="absolute inset-0 opacity-50 pointer-events-none" style={{ background: 'url(/images/stars-bg.png) repeat' }} />
+            <div className="absolute inset-0 opacity-50 pointer-events-none" style={{ background: 'url(/images/stars-bg.svg) repeat' }} />
 
             {/* Hint */}
             <div className="absolute top-6 left-6 text-white/40 text-2xs pointer-events-none md:block hidden">

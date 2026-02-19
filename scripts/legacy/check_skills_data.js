@@ -1,0 +1,71 @@
+
+const { createClient } = require('@supabase/supabase-js');
+const fs = require('fs');
+const path = require('path');
+
+function loadEnv() {
+    const envLocalPath = path.join(process.cwd(), '.env.local');
+    const envPath = path.join(process.cwd(), '.env');
+    let content = '';
+
+    if (fs.existsSync(envLocalPath)) {
+        content = fs.readFileSync(envLocalPath, 'utf8');
+    } else if (fs.existsSync(envPath)) {
+        content = fs.readFileSync(envPath, 'utf8');
+    }
+
+    const lines = content.split('\n');
+    for (const line of lines) {
+        const parts = line.split('=');
+        if (parts.length >= 2) {
+            const key = parts[0].trim();
+            const value = parts.slice(1).join('=').trim().replace(/^"(.*)"$/, '$1');
+            if (key && value) {
+                process.env[key] = value;
+            }
+        }
+    }
+}
+
+loadEnv();
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+if (!supabaseUrl || !supabaseKey) {
+    console.error("Missing Supabase URL or Key.");
+    process.exit(1);
+}
+
+const supabase = createClient(supabaseUrl, supabaseKey);
+
+async function checkSkills() {
+    console.log("Checking 'habilidades' table...");
+
+    const { data, error } = await supabase
+        .from('habilidades')
+        .select('*');
+
+    if (error) {
+        console.error("Error fetching 'habilidades':", error.message);
+        // If table doesn't exist, we know we need migration + seed
+    } else {
+        console.log(`Found ${data.length} skills in 'habilidades'.`);
+        if (data.length > 0) {
+            console.log("First skill:", data[0]);
+        } else {
+            console.log("Table is empty.");
+        }
+    }
+
+    console.log("Checking 'fn_evaluar_habilidades'...");
+    // Just checking if we can call it (it expects UUID, passing random one might work or error with specifics)
+    const { error: rpcError } = await supabase.rpc('evaluar_habilidades', { p_alumno_id: '00000000-0000-0000-0000-000000000000' });
+    if (rpcError) {
+        console.log("RPC 'evaluar_habilidades' check:", rpcError.message);
+    } else {
+        console.log("RPC 'evaluar_habilidades' exists and is callable.");
+    }
+}
+
+checkSkills();

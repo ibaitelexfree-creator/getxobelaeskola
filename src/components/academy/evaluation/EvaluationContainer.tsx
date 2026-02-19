@@ -84,7 +84,7 @@ export default function EvaluationContainer({
         return (
             <div className="relative w-full max-w-2xl aspect-video rounded-3xl overflow-hidden shadow-2xl border border-white/10 group">
                 <Image
-                    src="/images/evaluation-loading-compass.jpg"
+                    src="/images/legacy/evaluation-loading-compass.jpg"
                     alt="Iniciando evaluación..."
                     fill
                     className="object-cover scale-110 group-hover:scale-100 transition-transform duration-[10s]"

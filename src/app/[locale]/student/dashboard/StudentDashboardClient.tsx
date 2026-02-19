@@ -1,21 +1,24 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import dynamic from 'next/dynamic';
+import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { getApiUrl } from '@/lib/platform';
-import StudentProfileSidebar from '@/components/student/StudentProfileSidebar';
-import MembershipWidget from '@/components/student/MembershipWidget';
-import DashboardRefresh from '@/components/student/DashboardRefresh';
-import MobileStudentHub from '@/components/student/MobileStudentHub';
-import EmptyState from '@/components/ui/EmptyState';
-import DailyChallengeWidget from '@/components/student/DailyChallengeWidget';
-import QuickContact from '@/components/student/QuickContact';
-import NotificationPermissionBanner from '@/components/dashboard/NotificationPermissionBanner';
 import { Menu, X, ChevronRight, Sparkles } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import DashboardSkeleton from '@/components/student/DashboardSkeleton';
-import WeatherPremium from '@/components/shared/WeatherPremium';
+
+// Dynamic Imports for Optimization
+const StudentProfileSidebar = dynamic(() => import('@/components/student/StudentProfileSidebar'));
+const MembershipWidget = dynamic(() => import('@/components/student/MembershipWidget'));
+const DailyChallengeWidget = dynamic(() => import('@/components/student/DailyChallengeWidget'));
+const WeatherPremium = dynamic(() => import('@/components/shared/WeatherPremium'), { ssr: false });
+const MobileStudentHub = dynamic(() => import('@/components/student/MobileStudentHub'));
+const NotificationPermissionBanner = dynamic(() => import('@/components/dashboard/NotificationPermissionBanner'), { ssr: false });
+const QuickContact = dynamic(() => import('@/components/student/QuickContact'));
+const DashboardRefresh = dynamic(() => import('@/components/student/DashboardRefresh'));
+const EmptyState = dynamic(() => import('@/components/ui/EmptyState'));
 
 interface DashboardItem {
     id: string;
@@ -55,7 +58,7 @@ export default function StudentDashboardClient({
     useEffect(() => {
         async function fetchDashboardData() {
             try {
-                const res = await fetch(getApiUrl('/api/student/dashboard-stats/'));
+                const res = await fetch(getApiUrl('/api/student/dashboard-stats'));
                 const json = await res.json();
 
                 if (json.error === 'Unauthorized') {
@@ -83,10 +86,6 @@ export default function StudentDashboardClient({
         window.addEventListener('resize', checkMobile);
         return () => window.removeEventListener('resize', checkMobile);
     }, []);
-
-    if (loading) {
-        return <DashboardSkeleton />;
-    }
 
     const {
         profile,
@@ -121,45 +120,51 @@ export default function StudentDashboardClient({
         return { label: 'PENDIENTE', color: 'text-green-500 border-green-500/30', paid: true };
     };
 
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    const upcomingInscripciones = inscripciones.filter((ins: any) => {
-        const dateStr = ins.ediciones_curso?.fecha_inicio || ins.metadata?.start_date;
-        if (!dateStr) return true;
-        return new Date(dateStr) >= today;
-    });
-
-    const pastInscripciones = inscripciones.filter((ins: any) => {
-        const dateStr = ins.ediciones_curso?.fecha_inicio || ins.metadata?.start_date;
-        if (!dateStr) return false;
-        return new Date(dateStr) < today;
-    });
-
-    const upcomingRentals = rentals.filter((rent: any) => {
-        if (!rent.fecha_reserva) return true;
-        return new Date(rent.fecha_reserva) >= today;
-    });
-
-    const pastRentals = rentals.filter((rent: any) => {
-        if (!rent.fecha_reserva) return false;
-        return new Date(rent.fecha_reserva) < today;
-    });
-
-    const formatDate = (date: string | Date | undefined) => {
+    const formatDate = useCallback((date: string | Date | undefined) => {
         if (!date) return '--/--/----';
-        return new Date(date).toLocaleDateString('es-ES', {
-            day: '2-digit',
-            month: '2-digit',
-            year: 'numeric'
-        });
-    };
+        try {
+            return new Date(date).toLocaleDateString('es-ES', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric'
+            });
+        } catch (e) {
+            return '--/--/----';
+        }
+    }, []);
 
-    const formatDateTime = (date: string | Date | undefined, time?: string) => {
+    const formatDateTime = useCallback((date: string | Date | undefined, time?: string) => {
         if (!date) return '--/--/----';
         const datePart = formatDate(date);
         return time ? `${datePart} — ${time}` : datePart;
-    };
+    }, [formatDate]);
+
+    // Memoize categories to avoid re-filtering on every render
+    const { upcomingInscripciones, pastInscripciones, upcomingRentals, pastRentals } = useMemo(() => {
+        const tday = new Date();
+        tday.setHours(0, 0, 0, 0);
+
+        return {
+            upcomingInscripciones: inscripciones.filter((ins: any) => {
+                const dateStr = ins.ediciones_curso?.fecha_inicio || ins.metadata?.start_date;
+                return !dateStr || new Date(dateStr) >= tday;
+            }),
+            pastInscripciones: inscripciones.filter((ins: any) => {
+                const dateStr = ins.ediciones_curso?.fecha_inicio || ins.metadata?.start_date;
+                return dateStr && new Date(dateStr) < tday;
+            }),
+            upcomingRentals: rentals.filter((rent: any) => {
+                return !rent.fecha_reserva || new Date(rent.fecha_reserva) >= tday;
+            }),
+            pastRentals: rentals.filter((rent: any) => {
+                return rent.fecha_reserva && new Date(rent.fecha_reserva) < tday;
+            })
+        };
+    }, [inscripciones, rentals]);
+
+    if (loading) {
+        return <DashboardSkeleton />;
+    }
 
     return (
         <div className="relative min-h-screen bg-nautical-black">
@@ -191,9 +196,9 @@ export default function StudentDashboardClient({
                             {t.eyebrow}
                         </span>
                         <h1 className="text-4xl md:text-6xl lg:text-7xl font-display mb-4 text-white leading-[1.1]">
-                            {t.welcome.split('{name}')[0]}
+                            {(t.welcome || '').split('{{NAME}}')[0]}
                             <span className="text-accent italic">{profile?.nombre || 'Navegante'}</span>
-                            {t.welcome.split('{name}')[1]}
+                            {(t.welcome || '').split('{{NAME}}')[1]}
                         </h1>
                         <p className="text-foreground/60 font-medium tracking-wide">{t.subtitle}</p>
                     </header>

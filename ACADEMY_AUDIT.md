@@ -29,9 +29,9 @@ Este documento recoge los hallazgos, incoherencias y mejoras detectadas durante 
 - **Flashcards**: Pendiente ⏳
 
 ## 5. Gamificación y Perfil
-- **Logros**: Pendiente ⏳
-- **Certificados**: Pendiente ⏳
-- **Bitácora**: Pendiente ⏳
+- **Logros**: Implementado ✅ (Widget en Dashboard)
+- **Certificados**: Implementado ✅ (Generación PDF y visualización)
+- **Bitácora**: Implementado ✅ (Funcionalidad completa)
 
 ---
 *Última actualización: 12/02/2026 16:26*

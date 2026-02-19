@@ -66,7 +66,7 @@ export default function ModuleDetailMain({
                     setProgreso(data.progreso);
                     setProgresoUnidades(data.progreso_unidades || []);
                     try {
-                        const resStatus = await fetch(apiUrl('/api/academy/unlock-status'));
+                        const resStatus = await fetch(apiUrl('/api/unlock-status'));
                         const dataStatus = await resStatus.json();
                         setUnlockStatus(dataStatus || null);
                     } catch (e) { console.error(e); }
