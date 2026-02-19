@@ -95,8 +95,22 @@ export async function GET() {
             }
         });
 
-    } catch (error) {
-        console.error('Error fetching dashboard stats:', error);
-        return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+    } catch (error: any) {
+        console.error('CRITICAL: Error fetching dashboard stats:', error);
+
+        // Detailed error logging for debugging
+        if (error.code) console.error('Error Code:', error.code);
+        if (error.message) console.error('Error Message:', error.message);
+        if (error.details) console.error('Error Details:', error.details);
+        if (error.stack) console.error('Error Stack:', error.stack);
+
+        return NextResponse.json(
+            {
+                error: 'Internal Server Error',
+                message: error.message || 'Unknown error',
+                code: error.code || 'UNKNOWN'
+            },
+            { status: 500 }
+        );
     }
 }

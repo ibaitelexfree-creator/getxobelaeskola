@@ -16,6 +16,7 @@ interface Boat {
     estado: string;
     notas: string;
     imagen_url: string;
+    notion_threshold?: number;
 }
 
 interface BoatsTabProps {
@@ -26,11 +27,13 @@ export default function BoatsTab({ userRole }: BoatsTabProps) {
     const t = useTranslations('staff_panel');
     const isAdmin = userRole === 'admin';
     const [boats, setBoats] = useState<Boat[]>([]);
+    const [notionFleet, setNotionFleet] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingBoat, setEditingBoat] = useState<Boat | null>(null);
     const [managingMaintenance, setManagingMaintenance] = useState<Boat | null>(null);
     const [saving, setSaving] = useState(false);
+    const [showNotionIntelligence, setShowNotionIntelligence] = useState(true);
 
     // Form State
     const [formData, setFormData] = useState<Partial<Boat>>({
@@ -40,21 +43,26 @@ export default function BoatsTab({ userRole }: BoatsTabProps) {
         matricula: '',
         estado: 'disponible',
         notas: '',
-        imagen_url: ''
+        imagen_url: '',
+        notion_threshold: 0.2
     });
 
     const fetchBoats = async () => {
         setLoading(true);
         try {
-            const res = await fetch(apiUrl('/api/admin/boats/list'));
-            const data = await res.json();
-            if (res.ok) {
-                setBoats(data.boats || []);
-            } else {
-                console.error('Error fetching boats:', data.error);
-            }
+            const [boatsRes, notionRes] = await Promise.all([
+                fetch(apiUrl('/api/admin/boats/list')),
+                fetch('/api/admin/notion/fleet')
+            ]);
+
+            const boatsData = await boatsRes.json();
+            const notionData = await notionRes.json();
+
+            if (boatsRes.ok) setBoats(boatsData.boats || []);
+            if (notionRes.ok) setNotionFleet(notionData.fleet || []);
+
         } catch (error) {
-            console.error('Error fetching boats:', error);
+            console.error('Error fetching data:', error);
         } finally {
             setLoading(false);
         }
@@ -250,6 +258,15 @@ export default function BoatsTab({ userRole }: BoatsTabProps) {
 
                         {isAdmin && (
                             <button
+                                onClick={() => setShowNotionIntelligence(!showNotionIntelligence)}
+                                className={`px-6 py-3 text-[10px] uppercase tracking-widest font-black transition-all shadow-lg whitespace-nowrap flex-1 lg:flex-none ${showNotionIntelligence ? 'bg-sea-foam text-nautical-black' : 'bg-white/5 text-white/40 border border-white/10'}`}
+                            >
+                                {showNotionIntelligence ? '💡 Intel ON' : '💡 Intel OFF'}
+                            </button>
+                        )}
+
+                        {isAdmin && (
+                            <button
                                 onClick={handleCreate}
                                 className="bg-accent text-nautical-black px-6 py-3 text-[10px] uppercase tracking-widest font-black hover:bg-white transition-all shadow-lg shadow-accent/20 whitespace-nowrap flex-1 lg:flex-none"
                             >
@@ -280,6 +297,40 @@ export default function BoatsTab({ userRole }: BoatsTabProps) {
 
                         <h3 className="text-xl font-display text-white mb-1">{boat.nombre}</h3>
                         <p className="text-2xs text-white/40 font-mono mb-4">{boat.matricula || t('boats.matricula')}</p>
+
+                        {/* Notion Intelligence Widget */}
+                        {showNotionIntelligence && isAdmin && (
+                            <div className="mb-6 p-4 bg-accent/5 border border-accent/20 rounded-sm animate-premium-in">
+                                <div className="flex justify-between items-center mb-3">
+                                    <span className="text-[9px] uppercase tracking-widest font-bold text-accent italic">Notion Intelligence</span>
+                                    <a href={notionFleet.find(n => n.supabase_id === boat.id)?.notion_url} target="_blank" rel="noopener noreferrer" className="text-[10px] opacity-40 hover:opacity-100 transition-opacity">↗️</a>
+                                </div>
+                                {(() => {
+                                    const intel = notionFleet.find(n => n.supabase_id === boat.id);
+                                    if (!intel) return <p className="text-[10px] text-white/20 italic">No vinculado en Notion</p>;
+                                    return (
+                                        <div className="space-y-2">
+                                            <div className="flex justify-between items-center">
+                                                <span className="text-[11px] text-white/60">Alerta:</span>
+                                                <span className={`text-[11px] font-bold ${intel.alerta.includes('🚨') ? 'text-red-500 animate-pulse' : 'text-green-500'}`}>
+                                                    {intel.alerta}
+                                                </span>
+                                            </div>
+                                            <div className="flex justify-between items-center">
+                                                <span className="text-[11px] text-white/60">ROI Proyectado:</span>
+                                                <span className={`text-[11px] font-mono ${intel.roi > 0 ? 'text-sea-foam' : 'text-white/40'}`}>
+                                                    {intel.roi}%
+                                                </span>
+                                            </div>
+                                            <div className="flex justify-between items-center bg-white/5 p-2 mt-2">
+                                                <span className="text-[9px] text-white/40 uppercase">Ingresos: {intel.ingresos_reservas}€</span>
+                                                <span className="text-[9px] text-white/40 uppercase">Gastos: {intel.gastos}€</span>
+                                            </div>
+                                        </div>
+                                    );
+                                })()}
+                            </div>
+                        )}
 
                         <div className="mt-auto space-y-4">
                             <div className="flex justify-between text-2xs text-white/40 border-t border-white/5 pt-4">
@@ -407,14 +458,28 @@ export default function BoatsTab({ userRole }: BoatsTabProps) {
                         />
                     </div>
 
-                    <div className="space-y-2">
-                        <label className="text-2xs uppercase tracking-[0.2em] text-white/40 font-bold ml-1">{t('boats.modal.image_label')}</label>
-                        <input
-                            disabled={!isAdmin}
-                            className={`w-full bg-white/5 border border-white/10 p-4 text-white outline-none focus:border-accent font-mono text-sm ${!isAdmin && 'opacity-50 cursor-not-allowed'}`}
-                            value={formData.imagen_url}
-                            onChange={e => setFormData({ ...formData, imagen_url: e.target.value })}
-                        />
+                    <div className="bg-accent/5 p-6 rounded-sm border border-accent/20 space-y-4">
+                        <div className="flex justify-between items-center">
+                            <h4 className="text-[10px] uppercase font-bold tracking-[0.2em] text-accent italic">Notion Fleet Control</h4>
+                            <div className="text-[8px] bg-accent/20 px-2 py-1 text-accent font-black">AI AGENT</div>
+                        </div>
+                        <div className="space-y-2">
+                            <label className="text-2xs uppercase tracking-[0.2em] text-white/40 font-bold ml-1">Umbral ROI para Alerta (%)</label>
+                            <div className="flex items-center gap-4">
+                                <input
+                                    type="number"
+                                    step="0.05"
+                                    min="0"
+                                    max="1"
+                                    disabled={!isAdmin}
+                                    className={`flex-1 bg-white/5 border border-white/10 p-4 text-white outline-none focus:border-accent ${!isAdmin && 'opacity-50 cursor-not-allowed'}`}
+                                    value={formData.notion_threshold || 0}
+                                    onChange={e => setFormData({ ...formData, notion_threshold: parseFloat(e.target.value) })}
+                                />
+                                <span className="text-3xl font-display text-accent italic">{((formData.notion_threshold || 0) * 100).toFixed(0)}%</span>
+                            </div>
+                            <p className="text-[9px] text-white/30 uppercase leading-relaxed">Este valor se sincroniza con Notion para disparar alertas de baja rentabilidad o necesidad de mantenimiento proactivo.</p>
+                        </div>
                     </div>
 
                     <div className="flex gap-4 pt-4">

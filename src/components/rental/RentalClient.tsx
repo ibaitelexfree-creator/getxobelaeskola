@@ -130,11 +130,16 @@ export default function RentalClient({
 
     const categories = [
         { id: 'all', name: t('categories.all') },
+        { id: 'alquileres', name: locale === 'eu' ? 'Alokairuak' : 'Alquileres' },
         { id: 'veleros', name: t('categories.veleros') },
         { id: 'windsurf', name: t('categories.windsurf') },
         { id: 'paddlesurf', name: t('categories.paddlesurf') },
         { id: 'kayak', name: t('categories.kayak') },
-        { id: 'piragua', name: t('categories.piragua') }
+        { id: 'piragua', name: t('categories.piragua') },
+        { id: 'atraques', name: locale === 'eu' ? 'Atrakatzeak' : 'Atraques' },
+        { id: 'membresias', name: locale === 'eu' ? 'Bazkidetzak' : 'Membresías' },
+        { id: 'bonos', name: locale === 'eu' ? 'Bonuak' : 'Bonos' },
+        { id: 'eventos', name: locale === 'eu' ? 'Ekitaldiak' : 'Eventos' }
     ];
 
     const filteredServices = selectedCategory === 'all'
@@ -382,7 +387,11 @@ export default function RentalClient({
                                         else if (service.categoria === 'paddlesurf') imgSrc = '/images/home-hero-sailing-action.webp';
                                         else if (service.categoria === 'kayak') imgSrc = '/images/home-hero-sailing-action.webp';
                                         else if (service.categoria === 'piragua') imgSrc = '/images/home-hero-sailing-action.webp';
-                                        else if (service.categoria === 'veleros' || service.categoria === 'vela-ligera' || service.categoria === 'dinghy') imgSrc = '/images/J80.webp';
+                                        else if (service.categoria === 'veleros' || service.categoria === 'alquileres') imgSrc = '/images/J80.webp';
+                                        else if (service.categoria === 'atraques') imgSrc = '/images/home-hero-sailing-action.webp';
+                                        else if (service.categoria === 'membresias') imgSrc = '/images/academy-hero.webp';
+                                        else if (service.categoria === 'bonos') imgSrc = '/images/course-raquero-students.webp';
+                                        else if (service.categoria === 'eventos') imgSrc = '/images/home-hero-sailing-action.webp';
                                         else imgSrc = '/images/home-hero-sailing-action.webp';
                                     }
 

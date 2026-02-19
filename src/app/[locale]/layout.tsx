@@ -2,18 +2,16 @@ import { NextIntlClientProvider } from 'next-intl';
 import { getMessages } from 'next-intl/server';
 import { cormorantGaramond, outfit, jetbrainsMono } from '@/app/fonts';
 import '@/app/globals.css';
+import dynamic from 'next/dynamic';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
-import NotificationContainer from '@/components/academy/notifications/NotificationContainer';
-import RealtimeNotifications from '@/components/academy/notifications/RealtimeNotifications';
-import ActivityTracker from '@/components/academy/ActivityTracker';
-import AcademyFeedbackProvider from '@/components/academy/AcademyFeedbackProvider';
-import PushNotificationInitializer from '@/components/academy/notifications/PushNotificationInitializer';
+const AcademyFeedbackProvider = dynamic(() => import('@/components/academy/AcademyFeedbackProvider'), { ssr: false });
+const PushNotificationInitializer = dynamic(() => import('@/components/academy/notifications/PushNotificationInitializer'), { ssr: false });
 import ConditionalLayout from '@/components/layout/ConditionalLayout';
-import ScrollUpButton from '@/components/shared/ScrollToTop';
+const ScrollUpButton = dynamic(() => import('@/components/shared/ScrollToTop'), { ssr: false });
 import { Viewport } from 'next';
 import { Suspense } from 'react';
-import StatusToast from '@/components/shared/StatusToast';
+const StatusToast = dynamic(() => import('@/components/shared/StatusToast'), { ssr: false });
 
 export const viewport: Viewport = {
   themeColor: '#001B3A', // Nautical Black
@@ -39,8 +37,6 @@ export default async function LocaleLayout({
   return (
     <html lang={locale} className={`${cormorantGaramond.variable} ${outfit.variable} ${jetbrainsMono.variable}`} suppressHydrationWarning>
       <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://xbledhifomblirxurtyv.supabase.co" />
       </head>
       <body suppressHydrationWarning>
@@ -107,6 +103,7 @@ export async function generateMetadata({ params: { locale } }: { params: { local
     publisher: 'Getxo Sailing School',
     metadataBase: new URL(siteUrl),
     alternates: {
+      canonical: `${siteUrl}/${locale}/`,
       languages: {
         'es-ES': '/es/',
         'eu-ES': '/eu/',

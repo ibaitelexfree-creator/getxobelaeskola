@@ -49,7 +49,7 @@ export default async function Footer({ locale }: { locale: string }) {
                     </div>
                 </div>
 
-                <div className="flex flex-wrap justify-center gap-x-12 gap-y-6 text-sm uppercase tracking-[0.3em] font-bold text-foreground/60 mb-12">
+                <div className="flex flex-wrap justify-center gap-x-12 gap-y-6 text-sm uppercase tracking-[0.3em] font-bold text-foreground mb-12">
                     <Link href={`/${locale}/courses`} className="hover:text-accent transition-colors duration-500">
                         {t('courses')}
                     </Link>
@@ -70,7 +70,7 @@ export default async function Footer({ locale }: { locale: string }) {
                         href="https://www.facebook.com/Pakea.bela.eskola/"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center text-white/40 hover:text-accent hover:border-accent/40 hover:bg-accent/5 transition-all duration-500 group"
+                        className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center text-white/60 hover:text-accent hover:border-accent/40 hover:bg-accent/5 transition-all duration-500 group"
                         aria-label="Facebook"
                     >
                         <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
@@ -81,7 +81,7 @@ export default async function Footer({ locale }: { locale: string }) {
                         href="https://www.instagram.com/pakeabelaeskola/"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center text-white/40 hover:text-accent hover:border-accent/40 hover:bg-accent/5 transition-all duration-500 group"
+                        className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center text-white/60 hover:text-accent hover:border-accent/40 hover:bg-accent/5 transition-all duration-500 group"
                         aria-label="Instagram"
                     >
                         <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
@@ -92,7 +92,7 @@ export default async function Footer({ locale }: { locale: string }) {
 
                 <div className="w-12 h-px bg-white/5 mb-12" />
 
-                <div className="flex flex-wrap justify-center gap-x-8 gap-y-4 text-[10px] uppercase tracking-[0.2em] font-bold text-foreground/40 mb-12">
+                <div className="flex flex-wrap justify-center gap-x-8 gap-y-4 text-[10px] uppercase tracking-[0.2em] font-bold text-foreground/70 mb-12">
                     <Link href={`/${locale}/privacy`} className="hover:text-white transition-colors">
                         {t('privacy')}
                     </Link>
@@ -101,10 +101,10 @@ export default async function Footer({ locale }: { locale: string }) {
                     </Link>
                 </div>
 
-                <div className="text-sm uppercase tracking-[0.2em] text-foreground/60 font-medium text-center max-w-xl leading-loose">
+                <div className="text-sm uppercase tracking-[0.2em] text-foreground/80 font-medium text-center max-w-xl leading-loose">
                     {t('copyright')}
                     <br />
-                    <span className="mt-4 block hover:text-white/60 transition-colors cursor-default">
+                    <span className="mt-4 block hover:text-white/80 transition-colors cursor-default">
                         {t('slogan')}
                     </span>
                 </div>

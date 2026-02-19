@@ -78,11 +78,15 @@ interface OverviewTabProps {
     setStaffNote: (v: string) => void;
     setEditingLog: (v: AuditLog) => void;
     onViewReports?: (view: 'today' | 'month' | 'year') => void;
+    notionMetrics?: any;
+    isSyncing?: boolean;
+    onTriggerSync?: () => void;
 }
 
 export default function OverviewTab({
     isAdmin, locale, displayStats, rentals, globalLogs, auditLogs, staffProfiles,
-    staffNote, setStaffNote, setEditingLog, onViewReports
+    staffNote, setStaffNote, setEditingLog, onViewReports,
+    notionMetrics, isSyncing, onTriggerSync
 }: OverviewTabProps) {
     const t = useTranslations('staff_panel');
     const [mounted, setMounted] = useState(false);
@@ -238,6 +242,92 @@ export default function OverviewTab({
                 </div>
                 <div className="space-y-8">
                     <WeatherPremium />
+
+                    {/* Notion Intelligence Hub */}
+                    {isAdmin && (
+                        <div className="glass-card p-8 rounded-sm space-y-8 border-accent/20">
+                            <div className="flex justify-between items-center">
+                                <div className="space-y-1">
+                                    <span className="text-3xs uppercase tracking-[0.3em] font-bold text-accent italic">Notion Hub</span>
+                                    <h3 className="text-2xl font-display text-white italic">Business Intel</h3>
+                                </div>
+                                <div className={`w-3 h-3 rounded-full ${notionMetrics ? 'bg-sea-foam animate-pulse' : 'bg-white/10'}`} />
+                            </div>
+
+                            {notionMetrics ? (
+                                <div className="space-y-6">
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="p-4 bg-white/5 border border-white/5 rounded-sm">
+                                            <p className="text-3xs text-white/40 uppercase mb-1">ROI Promedio</p>
+                                            <p className="text-2xl font-display text-sea-foam">{notionMetrics.avgROI}%</p>
+                                        </div>
+                                        <div className="p-4 bg-white/5 border border-white/5 rounded-sm">
+                                            <p className="text-3xs text-white/40 uppercase mb-1">Alertas Flota</p>
+                                            <p className={`text-2xl font-display ${notionMetrics.activeAlerts > 0 ? 'text-red-500' : 'text-green-500'}`}>
+                                                {notionMetrics.activeAlerts}
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-3">
+                                        <div className="flex justify-between text-2xs uppercase tracking-widest text-white/40">
+                                            <span>Salud de Flota</span>
+                                            <span>{notionMetrics.fleetSize} Embarcaciones</span>
+                                        </div>
+                                        <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
+                                            <div
+                                                className="h-full bg-accent transition-all duration-1000"
+                                                style={{ width: `${Math.max(20, 100 - (notionMetrics.activeAlerts * 25))}%` }}
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="p-4 bg-accent/5 border border-accent/10 rounded-sm">
+                                        <div className="flex justify-between items-center mb-2">
+                                            <span className="text-3xs text-accent">Beneficio Neto (Flota)</span>
+                                            <span className="text-sm font-mono text-white">{notionMetrics.netProfit?.toLocaleString()}€</span>
+                                        </div>
+                                        <div className="flex justify-between text-[10px] text-white/20">
+                                            <span>Ingresos: {notionMetrics.totalRevenue?.toLocaleString()}€</span>
+                                            <span>Gastos: {notionMetrics.totalExpenses?.toLocaleString()}€</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="space-y-4 animate-pulse">
+                                    <div className="h-20 bg-white/5 rounded-sm" />
+                                    <div className="h-20 bg-white/5 rounded-sm" />
+                                </div>
+                            )}
+
+                            <button
+                                onClick={onTriggerSync}
+                                disabled={isSyncing}
+                                className={`w-full py-4 border transition-all text-[10px] uppercase font-bold tracking-[0.2em] relative overflow-hidden group ${isSyncing ? 'border-accent/50 text-accent cursor-wait' : 'border-white/10 text-white/40 hover:border-accent hover:text-accent'}`}
+                            >
+                                {isSyncing ? (
+                                    <>
+                                        <span className="relative z-10 flex items-center justify-center gap-3">
+                                            <div className="w-3 h-3 border-2 border-accent border-t-transparent rounded-full animate-spin" />
+                                            Sincronizando Notion...
+                                        </span>
+                                        <div className="absolute inset-0 bg-accent/5 animate-pulse" />
+                                    </>
+                                ) : (
+                                    'Sincronizar Supabase → Notion'
+                                )}
+                            </button>
+
+                            <a
+                                href="https://notion.so"
+                                target="_blank"
+                                rel="noreferrer"
+                                className="block text-center text-[10px] text-white/20 hover:text-white transition-opacity italic"
+                            >
+                                Abrir Notion Dashboard ↗
+                            </a>
+                        </div>
+                    )}
                 </div>
             </div>
         </>

@@ -135,17 +135,17 @@ export default function Navbar({ locale: propLocale }: { locale?: string }) {
                         <span className="font-display text-base sm:text-xl tracking-tight text-white leading-none truncate">
                             GETXO <span className="italic font-light text-accent">BELA</span>
                         </span>
-                        <span className="text-[9px] sm:text-[10px] md:text-2xs uppercase tracking-[0.2em] sm:tracking-[0.4em] text-white/40 font-bold mt-1 truncate">Escuela Náutica</span>
+                        <span className="text-[9px] sm:text-[10px] md:text-2xs uppercase tracking-[0.2em] sm:tracking-[0.4em] text-white/70 font-bold mt-1 truncate">Escuela Náutica</span>
                     </div>
                 </Link>
 
                 {/* Desktop Menu - Now visible from xl (1280px) */}
                 <div className="hidden xl:flex gap-6 xxl:gap-12 text-sm uppercase tracking-[0.2em] font-semibold">
-                    <Link href={`/${locale}/courses`} prefetch={false} className="hover:text-accent transition-colors">{t('courses')}</Link>
-                    <Link href={`/${locale}/academy`} prefetch={false} className="hover:text-accent transition-colors">{t('academy')}</Link>
-                    <Link href={`/${locale}/rental`} prefetch={false} className="hover:text-accent transition-colors">{t('rental')}</Link>
-                    <Link href={`/${locale}/about`} prefetch={false} className="hover:text-accent transition-colors">{t('about')}</Link>
-                    <Link href={`/${locale}/contact`} prefetch={false} className="hover:text-accent transition-colors">{t('contact')}</Link>
+                    <Link href={`/${locale}/courses`} prefetch={false} className="hover:text-accent transition-colors text-white/90">{t('courses')}</Link>
+                    <Link href={`/${locale}/academy`} prefetch={false} className="hover:text-accent transition-colors text-white/90">{t('academy')}</Link>
+                    <Link href={`/${locale}/rental`} prefetch={false} className="hover:text-accent transition-colors text-white/90">{t('rental')}</Link>
+                    <Link href={`/${locale}/about`} prefetch={false} className="hover:text-accent transition-colors text-white/90">{t('about')}</Link>
+                    <Link href={`/${locale}/contact`} prefetch={false} className="hover:text-accent transition-colors text-white/90">{t('contact')}</Link>
                 </div>
 
 
@@ -160,7 +160,7 @@ export default function Navbar({ locale: propLocale }: { locale?: string }) {
                             <button
                                 key={lang.code}
                                 onClick={() => handleLanguageSwitch(lang.code)}
-                                className={`px-3 py-1.5 rounded-full text-[10px] uppercase tracking-widest font-black transition-all duration-300 ${locale === lang.code ? 'bg-accent text-nautical-black shadow-lg shadow-accent/20 scale-105' : 'text-white/40 hover:text-white'}`}
+                                className={`px-3 py-1.5 rounded-full text-[10px] uppercase tracking-widest font-black transition-all duration-300 ${locale === lang.code ? 'bg-accent text-nautical-black shadow-lg shadow-accent/20 scale-105' : 'text-white/60 hover:text-white'}`}
                             >
                                 {lang.label}
                             </button>
@@ -193,13 +193,13 @@ export default function Navbar({ locale: propLocale }: { locale?: string }) {
                             </Link>
                             <button
                                 onClick={handleLogout}
-                                className="text-2xs uppercase tracking-[0.2em] font-black border-b border-white/20 pb-1 hover:text-red-500 hover:border-red-500 transition-all opacity-60 hover:opacity-100"
+                                className="text-2xs uppercase tracking-[0.2em] font-black border-b border-white/40 pb-1 hover:text-red-500 hover:border-red-500 transition-all opacity-80 hover:opacity-100"
                             >
                                 {t('logout')}
                             </button>
                         </div>
                     ) : (
-                        <Link href={`/${locale}/auth/login`} prefetch={false} className="hidden xl:block text-2xs uppercase tracking-[0.15em] font-black border border-white/10 px-6 py-2 rounded-sm hover:bg-white/5 transition-all">
+                        <Link href={`/${locale}/auth/login`} prefetch={false} className="hidden xl:block text-2xs uppercase tracking-[0.15em] font-black border border-white/20 px-6 py-2 rounded-sm hover:bg-white/5 transition-all text-white/90">
                             {t('login')}
                         </Link>
                     )}
@@ -211,13 +211,13 @@ export default function Navbar({ locale: propLocale }: { locale?: string }) {
                             setIsMenuOpen(!isMenuOpen);
                         }}
                         className="xl:hidden flex-shrink-0 w-12 h-12 flex flex-col items-center justify-center gap-1.5 bg-accent border border-accent/20 rounded-sm text-nautical-black active:scale-90 shadow-2xl relative z-[10000] pointer-events-auto"
-                        aria-label={isMenuOpen ? t('close') : t('menu')}
+                        aria-pressed={isMenuOpen}
                     >
+                        <span className="sr-only">{isMenuOpen ? t('close') : t('menu')}</span>
                         {isMenuOpen ? (
-                            <X size={28} strokeWidth={3} />
+                            <X size={28} strokeWidth={3} aria-hidden="true" />
                         ) : (
-                            <div className="flex flex-col gap-1.5 w-7">
-                                <span className="sr-only">{t('menu')}</span>
+                            <div className="flex flex-col gap-1.5 w-7" aria-hidden="true">
                                 <span className="block w-full h-1 bg-nautical-black rounded-full" />
                                 <span className="block w-full h-1 bg-nautical-black rounded-full" />
                                 <span className="block w-full h-1 bg-nautical-black rounded-full" />

@@ -7,6 +7,7 @@ import dynamic from 'next/dynamic';
 import { listGoogleEvents } from '@/lib/google-calendar';
 
 const BookingSelector = dynamic(() => import('@/components/booking/BookingSelector'), { ssr: false });
+import JsonLd from '@/components/shared/JsonLd';
 
 import { Metadata } from 'next';
 
@@ -79,7 +80,15 @@ export async function generateMetadata({
 }
 
 export async function generateStaticParams() {
-    const slugs = ['iniciacion-j80', 'perfeccionamiento-vela', 'licencia-navegacion', 'vela-ligera'];
+    const slugs = [
+        'campus-verano-getxo',
+        'campus-verano-external',
+        'iniciacion-adultos',
+        'tecnificacion-adultos',
+        'konpondu',
+        'windsurf-iniciacion',
+        'windsurf-campus'
+    ];
     const locales = ['es', 'eu', 'en', 'fr'];
     return locales.flatMap(locale => slugs.map(slug => ({ locale, slug })));
 }
@@ -180,34 +189,34 @@ export default async function CourseDetailPage({
 
     // 3. Fallback Registry (Always active to ensure UI works)
     const fallbacks: Record<string, CourseFallback> = {
-        'iniciacion-j80': {
+        'campus-verano-getxo': {
             id: 'bc39dfeb-cd99-4bae-a5ae-e363d5a77d61',
-            nombre_es: 'Iniciación J80',
-            nombre_eu: 'J80 Hastapena',
-            descripcion_es: 'Iníciate en el mundo de la navegación a vela en veleros J80. Cursos de 20 horas en grupos reducidos para aprender las maniobras básicas y disfrutar de la ría y el Abra.',
-            descripcion_eu: 'Hasi nabigazio munduan J80 belaontzietan. 20 orduko ikastaroak talde txikietan, oinarrizko maniobrak ikasteko eta Abrako badiaz gozatzeko.',
-            precio: 150,
+            nombre_es: 'Campus Verano (Empadronados)',
+            nombre_eu: 'Udako Campusa (Erroldatuak)',
+            descripcion_es: 'Campus de verano para niños y jóvenes de 5 a 21 años empadronados en Getxo.',
+            descripcion_eu: '5 eta 21 urte bitarteko haur eta gazteentzako udako campusa, Getxon erroldatuta daudenentzat.',
+            precio: 130,
             duracion_h: 20,
+            nivel: 'iniciacion',
+            imagen_url: '/images/course-raquero-students.webp',
+            detalles: {
+                es: ['Navegación en grupo', 'Seguridad en el mar', 'Juegos y actividades', '20 horas semanales'],
+                eu: ['Taldeko nabigazioa', 'Segurtasuna itsasoan', 'Jolasak eta jarduerak', 'Astean 20 ordu']
+            }
+        },
+        'iniciacion-adultos': {
+            id: 'd8db9369-020c-4ffb-9a91-8dec67aacb0c',
+            nombre_es: 'Iniciación Adultos',
+            nombre_eu: 'Helduentzako Hasiera',
+            descripcion_es: 'Curso básico para adultos que quieren empezar en el mundo de la vela.',
+            descripcion_eu: 'Helduentzako oinarrizko ikastaroa bela munduan hasteko.',
+            precio: 180,
+            duracion_h: 12,
             nivel: 'iniciacion',
             imagen_url: '/images/courses/IniciacionJ80.webp',
             detalles: {
-                es: ['Maniobras básicas a vela', 'Seguridad en puerto y mar', 'Grupos reducidos (mín. 4)', '20 horas de formación'],
-                eu: ['Oinarrizko bela maniobrak', 'Segurtasuna portuan eta itsasoan', 'Talde txikiak (gutxienez 4)', '20 orduko prestakuntza']
-            }
-        },
-        'perfeccionamiento-vela': {
-            id: 'd8db9369-020c-4ffb-9a91-8dec67aacb0c',
-            nombre_es: 'Perfeccionamiento Vela',
-            nombre_eu: 'Bela Hobetzea',
-            descripcion_es: 'Mejora tu técnica, táctica y seguridad a bordo. Dirigido a quienes ya tienen experiencia y buscan navegar de forma más competitiva y autónoma.',
-            descripcion_eu: 'Hobetu zure teknika, taktika eta segurtasuna ontzian. Esperientzia dutenentzat eta era lehiakorragoan nabigatu nahi dutenentzat zuzendua.',
-            precio: 220,
-            duracion_h: 20,
-            nivel: 'intermedio',
-            imagen_url: '/images/courses/PerfeccionamientoVela.webp',
-            detalles: {
-                es: ['Técnica avanzada de trimado', 'Táctica de regata', 'Navegación nocturna básica', 'Perfeccionamiento de maniobras'],
-                eu: ['Trimatzeko teknika aurreratua', 'Estropada taktika', 'Oinarrizko gaueko nabigazioa', 'Maniobrak hobetzea']
+                es: ['Fundamentos de vela', 'Maniobras básicas', '12 horas de clase', 'Grupos de adultos'],
+                eu: ['Belaren oinarriak', 'Oinarrizko maniobrak', '12 orduko klaseak', 'Helduen taldeak']
             }
         },
         'licencia-navegacion': {
@@ -250,12 +259,41 @@ export default async function CourseDetailPage({
 
     const displayEditions = allRealEditions;
 
-    const t = await getTranslations({ locale, namespace: 'courses' });
-    const name = locale === 'es' ? displayCourse.nombre_es : displayCourse.nombre_eu;
-    const description = locale === 'es' ? displayCourse.descripcion_es : displayCourse.descripcion_eu;
+    const t = await getTranslations({ locale, namespace: 'courses' });    // Safe data extraction
+    const currentLocale = locale as 'es' | 'eu' | 'en' | 'fr';
+
+    const name = (currentLocale === 'eu' && displayCourse.nombre_eu) ? displayCourse.nombre_eu :
+        (currentLocale === 'en' && displayCourse.nombre_en) ? displayCourse.nombre_en :
+            (currentLocale === 'fr' && displayCourse.nombre_fr) ? displayCourse.nombre_fr :
+                displayCourse.nombre_es || displayCourse.nombre_en || displayCourse.nombre_eu || 'Course';
+
+    const description = (currentLocale === 'eu' && displayCourse.descripcion_eu) ? displayCourse.descripcion_eu :
+        (currentLocale === 'en' && displayCourse.descripcion_en) ? displayCourse.descripcion_en :
+            (currentLocale === 'fr' && displayCourse.descripcion_fr) ? displayCourse.descripcion_fr :
+                displayCourse.descripcion_es || 'Course description...';
+
+    const jsonLd = {
+        "@context": "https://schema.org",
+        "@type": "Course",
+        "name": name,
+        "description": description,
+        "provider": {
+            "@type": "Organization",
+            "name": "Getxo Bela Eskola",
+            "sameAs": "https://getxobelaeskola.cloud"
+        },
+        "image": displayCourse.imagen_url || 'https://getxobelaeskola.cloud/images/home-hero-sailing-action.webp',
+        "offers": {
+            "@type": "Offer",
+            "price": displayCourse.precio,
+            "priceCurrency": "EUR",
+            "availability": "https://schema.org/InStock"
+        }
+    };
 
     return (
         <main className="min-h-screen bg-nautical-deep" suppressHydrationWarning>
+            <JsonLd data={jsonLd} />
             <div className="fixed inset-0 bg-nautical-deep z-0" />
 
             <div className="relative z-10 pt-32 pb-24 px-6">

@@ -50,7 +50,7 @@ export default function Newsletter({ locale }: { locale: string }) {
                         <h2 className="text-4xl md:text-6xl font-display text-white mb-6">
                             {t('title')}
                         </h2>
-                        <p className="text-foreground/60 font-medium text-xl max-w-2xl mx-auto leading-relaxed">
+                        <p className="text-white/80 font-medium text-xl max-w-2xl mx-auto leading-relaxed">
                             {t('subtitle')}
                         </p>
                     </header>
@@ -63,8 +63,8 @@ export default function Newsletter({ locale }: { locale: string }) {
                                 onChange={(e) => setEmail(e.target.value)}
                                 placeholder={t('email_placeholder')}
                                 required
-                                aria-label={t('email_placeholder')}
-                                className="flex-grow bg-white/5 border border-white/10 px-6 py-4 text-white text-lg placeholder:text-white/20 focus:outline-none focus:border-accent/40 transition-all rounded-sm font-sans"
+                                aria-label={t('email_aria_label')}
+                                className="flex-grow bg-white/5 border border-white/10 px-6 py-4 text-white text-lg placeholder:text-white/40 focus:outline-none focus:border-accent/40 transition-all rounded-sm font-sans"
                             />
                             <button
                                 type="submit"

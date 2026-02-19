@@ -59,10 +59,33 @@ export default function HeroCarousel({ initialSlides }: HeroCarouselProps) {
     ];
 
     useEffect(() => {
-        const timer = setInterval(() => {
-            setCurrent((prev) => (prev + 1) % slides.length);
-        }, 6000);
-        return () => clearInterval(timer);
+        // Delay timer start to give priority to hydration and initial render
+        const startTimer = () => {
+            const timer = setInterval(() => {
+                setCurrent((prev) => (prev + 1) % slides.length);
+            }, 6000);
+            return timer;
+        };
+
+        let timerId: NodeJS.Timeout;
+
+        if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
+            window.requestIdleCallback(() => {
+                timerId = startTimer();
+            });
+        } else {
+            const timeout = setTimeout(() => {
+                timerId = startTimer();
+            }, 2000);
+            return () => {
+                clearTimeout(timeout);
+                if (timerId) clearInterval(timerId);
+            };
+        }
+
+        return () => {
+            if (timerId) clearInterval(timerId);
+        };
     }, [slides.length]);
 
     return (
@@ -78,7 +101,8 @@ export default function HeroCarousel({ initialSlides }: HeroCarouselProps) {
                         alt={`${slide.title}: ${slide.subtitle}`}
                         fill
                         priority={index === 0}
-                        quality={70}
+                        fetchPriority={index === 0 ? "high" : "auto"}
+                        quality={60}
                         sizes="100vw"
                         className={`object-cover transition-transform duration-[6000ms] ease-linear will-change-transform ${index === current ? 'scale-110' : 'scale-100'
                             }`}

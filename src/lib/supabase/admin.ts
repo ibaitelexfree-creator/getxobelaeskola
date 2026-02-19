@@ -5,8 +5,12 @@ import { createClient } from '@supabase/supabase-js';
  * USAR CON PRECAUCIÓN: Salta todas las políticas RLS.
  * Solo para uso en API Routes (Server Side) y nunca exponer al cliente.
  */
+let supabaseAdmin: ReturnType<typeof createClient> | null = null;
+
 export function createAdminClient() {
-    return createClient(
+    if (supabaseAdmin) return supabaseAdmin;
+
+    supabaseAdmin = createClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
         process.env.SUPABASE_SERVICE_ROLE_KEY!,
         {
@@ -16,4 +20,5 @@ export function createAdminClient() {
             }
         }
     );
+    return supabaseAdmin;
 }
