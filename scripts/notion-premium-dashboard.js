@@ -7,6 +7,31 @@ const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 const PAGE_ID = '30c31210b1a1815f9dbaf547ca68b195';
 const TABLE_MAP = JSON.parse(fs.readFileSync('scripts/table_to_notion_map.json', 'utf8'));
+const DRIVE_FOLDER_ID = process.env.GOOGLE_DRIVE_FOLDER_ID || '1x6JyHCHRpBNbnrFHPDvzvV01ukiwVCUD';
+
+// HELPER: Google Auth for Drive
+const { google } = require('googleapis');
+const driveAuth = new google.auth.JWT({
+    email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
+    key: process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+    scopes: ['https://www.googleapis.com/auth/drive.readonly']
+});
+const drive = google.drive({ version: 'v3', auth: driveAuth });
+
+async function listDriveFiles() {
+    try {
+        const res = await drive.files.list({
+            q: `'${DRIVE_FOLDER_ID}' in parents and trashed = false`,
+            fields: 'files(id, name, webViewLink, modifiedTime)',
+            orderBy: 'modifiedTime desc',
+            pageSize: 5
+        });
+        return res.data.files || [];
+    } catch (e) {
+        console.warn('⚠️ Google Drive access skipped (check service account permissions).');
+        return [];
+    }
+}
 
 async function fetchStats() {
     console.log('Fetching comprehensive stats from Supabase...');
@@ -93,7 +118,8 @@ async function fetchStats() {
         activeCourses,
         upcomingSessions,
         recentMessages,
-        subscribers
+        subscribers,
+        driveFiles: await listDriveFiles()
     };
     console.log('Stats summary:', JSON.stringify({ revenue: stats.revenue, counts: stats.counts }, null, 2));
     return stats;
@@ -136,13 +162,15 @@ async function buildDashboard(stats) {
 
     // HELPER: Create standard Rich Text Object with robust nesting
     const rt = (content, bold = false, color = 'default', link = null) => {
-        const obj = { type: 'text', text: { content } };
+        const obj = {
+            type: 'text',
+            text: { content: String(content ?? '') },
+            annotations: {
+                bold: !!bold,
+                color: color || 'default'
+            }
+        };
         if (link) obj.text.link = { url: link };
-        if (bold || color !== 'default') {
-            obj.annotations = {};
-            if (bold) obj.annotations.bold = true;
-            if (color !== 'default') obj.annotations.color = color;
-        }
         return obj;
     };
 
@@ -238,7 +266,7 @@ async function buildDashboard(stats) {
                         object: 'block', type: 'column', column: {
                             children: [
                                 { object: 'block', type: 'heading_2', heading_2: { rich_text: [rt('📧 Últimos Mensajes CRM')] } },
-                                ...stats.recentMessages.map(m => ({
+                                ...(Array.isArray(stats.recentMessages) ? stats.recentMessages : []).map(m => ({
                                     object: 'block', type: 'bulleted_list_item', bulleted_list_item: { rich_text: [rt(`${m.nombre}: `, true), rt(`${m.asunto}`)] }
                                 })),
                                 { object: 'block', type: 'paragraph', paragraph: { rich_text: [rt('Total Suscriptores: ', true), rt(`${stats.subscribers} 📧`)] } }
@@ -248,10 +276,11 @@ async function buildDashboard(stats) {
                     {
                         object: 'block', type: 'column', column: {
                             children: [
-                                { object: 'block', type: 'heading_2', heading_2: { rich_text: [rt('📅 Agenda Próxima')] } },
-                                ...stats.upcomingSessions.map(s => ({
-                                    object: 'block', type: 'bulleted_list_item', bulleted_list_item: { rich_text: [rt(`${s.date} ${s.time}: `, true), rt(`${s.instructor}`)] }
-                                }))
+                                { object: 'block', type: 'heading_2', heading_2: { rich_text: [rt('📂 Documentos Drive (Recientes)')] } },
+                                ...stats.driveFiles.map(f => ({
+                                    object: 'block', type: 'bulleted_list_item', bulleted_list_item: { rich_text: [rt(`${f.name}\n`, true, 'default', f.webViewLink), rt(new Date(f.modifiedTime).toLocaleDateString(), false, 'gray')] }
+                                })),
+                                { object: 'block', type: 'callout', callout: { rich_text: [rt('Total Alumnos: '), rt(`${stats.counts.students}`, true)], icon: { type: 'emoji', emoji: '🎓' }, color: 'blue_background' } }
                             ]
                         }
                     }
