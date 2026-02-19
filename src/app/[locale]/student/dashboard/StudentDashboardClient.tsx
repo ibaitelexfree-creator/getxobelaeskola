@@ -196,9 +196,17 @@ export default function StudentDashboardClient({
                             {t.eyebrow}
                         </span>
                         <h1 className="text-4xl md:text-6xl lg:text-7xl font-display mb-4 text-white leading-[1.1]">
-                            {(t.welcome || '').split('{{NAME}}')[0]}
-                            <span className="text-accent italic">{profile?.nombre || 'Navegante'}</span>
-                            {(t.welcome || '').split('{{NAME}}')[1]}
+                            {(() => {
+                                const welcome = t.welcome || 'Hola, {name}';
+                                const parts = welcome.includes('{{NAME}}') ? welcome.split('{{NAME}}') : welcome.split('{name}');
+                                return (
+                                    <>
+                                        {parts[0]}
+                                        <span className="text-accent italic">{profile?.nombre || 'Navegante'}</span>
+                                        {parts[1] || ''}
+                                    </>
+                                );
+                            })()}
                         </h1>
                         <p className="text-foreground/60 font-medium tracking-wide">{t.subtitle}</p>
                     </header>

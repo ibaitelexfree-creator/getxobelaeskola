@@ -28,7 +28,7 @@ export default function QuickContact() {
                     </div>
                     <div>
                         <p className="text-white text-xs font-bold uppercase tracking-widest">WhatsApp Escuela</p>
-                        <p className="text-white/40 text-[10px]">Respuesta rápida en horario lectivo</p>
+                        <p className="text-white/60 text-[10px]">Respuesta rápida en horario lectivo</p>
                     </div>
                 </a>
 
@@ -41,7 +41,7 @@ export default function QuickContact() {
                     </div>
                     <div>
                         <p className="text-white text-xs font-bold uppercase tracking-widest">Email Soporte</p>
-                        <p className="text-white/40 text-[10px]">Gestiones administrativas</p>
+                        <p className="text-white/60 text-[10px]">Gestiones administrativas</p>
                     </div>
                 </a>
             </div>
@@ -49,9 +49,9 @@ export default function QuickContact() {
             <div className="mt-6 pt-6 border-t border-white/5 flex items-center justify-between">
                 <div className="flex items-center gap-2">
                     <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                    <span className="text-[9px] uppercase tracking-widest text-white/30 font-bold italic">Soporte Online</span>
+                    <span className="text-[9px] uppercase tracking-widest text-white/50 font-bold italic">Soporte Online</span>
                 </div>
-                <span className="text-[9px] text-white/20">L-V: 09:00 — 19:00</span>
+                <span className="text-[9px] text-white/40">L-V: 09:00 — 19:00</span>
             </div>
         </section>
     );

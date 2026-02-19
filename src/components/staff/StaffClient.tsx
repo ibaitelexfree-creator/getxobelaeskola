@@ -166,6 +166,10 @@ export default function StaffClient({
     const [newsletters, setNewsletters] = useState<Newsletter[]>([]);
     const [isSendingNewsletter, setIsSendingNewsletter] = useState(false);
 
+    // Notion Integration State
+    const [notionMetrics, setNotionMetrics] = useState<any>(null);
+    const [isSyncingNotion, setIsSyncingNotion] = useState(false);
+
     // Staff Edit State
     const [isEditingStaff, setIsEditingStaff] = useState(false);
     const [editStaffData, setEditStaffData] = useState<StaffProfile | null>(null);
@@ -195,6 +199,42 @@ export default function StaffClient({
     const [financialsTotalCount, setFinancialsTotalCount] = useState(0);
     const [financialsError, setFinancialsError] = useState<string | null>(null);
     const [isLoadingFinancials, setIsLoadingFinancials] = useState(false);
+
+    const fetchNotionMetrics = useCallback(async () => {
+        try {
+            const res = await fetch('/api/admin/notion/metrics');
+            const data = await res.json();
+            if (res.ok) setNotionMetrics(data.summary);
+        } catch (error) {
+            console.error('Error fetching notion metrics:', error);
+        }
+    }, []);
+
+    const handleTriggerSync = async () => {
+        setIsSyncingNotion(true);
+        try {
+            const res = await fetch('/api/admin/notion/sync', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ direction: 'pull' })
+            });
+            if (res.ok) {
+                // Refresh metrics after sync
+                await fetchNotionMetrics();
+            } else {
+                const data = await res.json();
+                alert(`Error en sincronización: ${data.error}`);
+            }
+        } catch (error) {
+            console.error('Sync Error:', error);
+        } finally {
+            setIsSyncingNotion(false);
+        }
+    };
+
+    useEffect(() => {
+        if (isAdmin) fetchNotionMetrics();
+    }, [isAdmin, fetchNotionMetrics]);
 
     const fetchFinancials = useCallback(async () => {
         setIsLoadingFinancials(true);
@@ -952,15 +992,22 @@ export default function StaffClient({
                     <OverviewTab
                         isAdmin={isAdmin}
                         locale={locale}
-                        displayStats={displayStats}
-                        rentals={rentals}
+                        displayStats={stats}
+                        // @ts-expect-error - Type mismatch between local interfaces
+                        rentals={recentRentals}
                         globalLogs={globalLogs}
                         auditLogs={auditLogs}
                         staffProfiles={staffProfiles}
                         staffNote={staffNote}
                         setStaffNote={setStaffNote}
                         setEditingLog={setEditingLog}
-                        onViewReports={handleViewReports}
+                        onViewReports={(mode) => {
+                            setFinancialsViewMode(mode);
+                            setActiveTab('financials');
+                        }}
+                        notionMetrics={notionMetrics}
+                        isSyncing={isSyncingNotion}
+                        onTriggerSync={handleTriggerSync}
                     />
                 )}
 

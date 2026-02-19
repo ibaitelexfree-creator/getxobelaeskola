@@ -102,24 +102,26 @@ export default function LoginForm({ locale = 'es' }: { locale?: string }) {
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5 animate-fade-in">
             <div className="space-y-1.5">
-                <label className="text-[10px] uppercase tracking-[0.2em] text-accent font-bold ml-1">{t('email')}</label>
+                <label htmlFor="email" className="text-[10px] uppercase tracking-[0.2em] text-accent font-bold ml-1">{t('email')}</label>
                 <input
+                    id="email"
                     {...register('email')}
                     type="email"
                     autoComplete="email"
-                    className="w-full h-12 bg-white/5 border border-white/10 rounded-xl px-4 outline-none focus:border-accent focus:bg-white/[0.08] transition-all font-light text-white placeholder:text-white/20"
+                    className="w-full h-12 bg-white/5 border border-white/10 rounded-xl px-4 outline-none focus:border-accent focus:bg-white/[0.08] transition-all font-light text-white placeholder:text-white/40"
                     placeholder="tu@email.com"
                 />
                 {errors.email && <p className="text-[10px] text-red-500 uppercase tracking-widest mt-1">{errors.email.message}</p>}
             </div>
 
             <div className="space-y-1.5">
-                <label className="text-[10px] uppercase tracking-[0.2em] text-accent font-bold ml-1">{t('password')}</label>
+                <label htmlFor="password" className="text-[10px] uppercase tracking-[0.2em] text-accent font-bold ml-1">{t('password')}</label>
                 <input
+                    id="password"
                     {...register('password')}
                     type={showPassword ? 'text' : 'password'}
                     autoComplete="current-password"
-                    className="w-full h-12 bg-white/5 border border-white/10 rounded-xl px-4 outline-none focus:border-accent focus:bg-white/[0.08] transition-all font-light text-white placeholder:text-white/20"
+                    className="w-full h-12 bg-white/5 border border-white/10 rounded-xl px-4 outline-none focus:border-accent focus:bg-white/[0.08] transition-all font-light text-white placeholder:text-white/40"
                     placeholder="••••••••"
                 />
                 {errors.password && <p className="text-[10px] text-red-500 uppercase tracking-widest mt-1">{errors.password.message}</p>}
@@ -134,7 +136,7 @@ export default function LoginForm({ locale = 'es' }: { locale?: string }) {
                     />
                     <label
                         htmlFor="show-password"
-                        className="text-[9px] uppercase tracking-widest text-foreground/40 cursor-pointer hover:text-accent transition-colors"
+                        className="text-[9px] uppercase tracking-widest text-foreground/70 cursor-pointer hover:text-accent transition-colors"
                     >
                         {t('show_password')}
                     </label>
@@ -197,7 +199,7 @@ export default function LoginForm({ locale = 'es' }: { locale?: string }) {
                     <div className="w-full border-t border-white/10"></div>
                 </div>
                 <div className="relative flex justify-center text-[10px] uppercase tracking-widest">
-                    <span className="bg-nautical-black px-4 text-white/20 font-bold italic">O BIEN</span>
+                    <span className="bg-nautical-black px-4 text-white/50 font-bold italic">O BIEN</span>
                 </div>
             </div>
 

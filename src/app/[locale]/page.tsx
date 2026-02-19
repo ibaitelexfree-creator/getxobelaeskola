@@ -1,13 +1,12 @@
 import dynamic from 'next/dynamic';
 import { getTranslations } from 'next-intl/server';
 import { Metadata } from 'next';
-import NativeAppRedirect from '@/components/shared/NativeAppRedirect';
+import JsonLd from '@/components/shared/JsonLd';
 
-const HeroCarousel = dynamic(() => import('@/components/home/HeroCarousel'), {
-  loading: () => <div className="h-screen w-full bg-nautical-black animate-pulse" />
-});
+import HeroCarousel from '@/components/home/HeroCarousel';
+import StatsSection from '@/components/home/StatsSection';
+const NativeAppRedirect = dynamic(() => import('@/components/shared/NativeAppRedirect'), { ssr: false });
 const ExperienceSection = dynamic(() => import('@/components/home/ExperienceSection'));
-const StatsSection = dynamic(() => import('@/components/home/StatsSection'));
 const FeaturesSection = dynamic(() => import('@/components/home/FeaturesSection'));
 const ProgramsSection = dynamic(() => import('@/components/home/ProgramsSection'));
 
@@ -43,6 +42,28 @@ export default async function LandingPage({ params: { locale } }: { params: { lo
   const tExp = await getTranslations({ locale, namespace: 'home.experience' });
   const tProg = await getTranslations({ locale, namespace: 'home.programs' });
   const tFeat = await getTranslations({ locale, namespace: 'home.features' });
+
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "SportsActivityLocation",
+    "name": "Getxo Bela Eskola",
+    "image": "https://getxobelaeskola.cloud/images/home-hero-sailing-action.webp",
+    "description": locale === 'eu' ? 'Bela eskola Getxon. Ikasi nabigatzen.' : 'Escuela de vela en Getxo. Aprende a navegar.',
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "Puerto Deportivo de Getxo",
+      "addressLocality": "Getxo",
+      "addressRegion": "Bizkaia",
+      "addressCountry": "ES"
+    },
+    "geo": {
+      "@type": "GeoCoordinates",
+      "latitude": 43.3441,
+      "longitude": -3.0135
+    },
+    "url": "https://getxobelaeskola.cloud",
+    "telephone": "+34000000000"
+  };
 
   const initialSlides = [
     {
@@ -123,6 +144,7 @@ export default async function LandingPage({ params: { locale } }: { params: { lo
 
   return (
     <div className="w-full">
+      <JsonLd data={jsonLd} />
       <NativeAppRedirect locale={locale} />
       <HeroCarousel initialSlides={initialSlides} />
       <StatsSection

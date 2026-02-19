@@ -15,7 +15,8 @@ export async function POST(_request: Request) {
             matricula,
             estado,
             notas,
-            imagen_url
+            imagen_url,
+            notion_threshold
         } = body;
 
         if (!id) {
@@ -33,6 +34,7 @@ export async function POST(_request: Request) {
             if (capacidad !== undefined) updateData.capacidad = parseInt(capacidad);
             if (matricula !== undefined) updateData.matricula = matricula;
             if (imagen_url !== undefined) updateData.imagen_url = imagen_url;
+            if (notion_threshold !== undefined) updateData.notion_threshold = notion_threshold;
         }
 
         // Everyone (Admin + Instructor) can update status and notes

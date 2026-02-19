@@ -191,6 +191,7 @@
         "title": "Suscríbete a la Newsletter",
         "subtitle": "Recibe noticias, ofertas exclusivas y consejos de navegación en tu correo.",
         "email_placeholder": "tu@correo.com",
+        "email_aria_label": "Introduce tu correo electrónico",
         "button": "Suscribirse",
         "success": "¡Te has suscrito correctamente!",
         "error": "Error al suscribirse. Inténtalo de nuevo."

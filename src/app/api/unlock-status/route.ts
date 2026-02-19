@@ -33,8 +33,8 @@ export async function GET(request: Request) {
                 p_alumno_id: user.id
             });
 
-        if (rpcError) {
-            console.error('Error in unlock-status RPC:', rpcError);
+        if (rpcError || !unlockStatus) {
+            console.error('Error in unlock-status RPC:', rpcError || 'Returned null');
             return NextResponse.json(
                 { error: 'Internal Server Error' },
                 { status: 500 }

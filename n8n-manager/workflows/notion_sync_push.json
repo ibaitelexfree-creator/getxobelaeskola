@@ -1,0 +1,61 @@
+{
+    "name": "Sync Notion -> Supabase (Push)",
+    "nodes": [
+        {
+            "parameters": {
+                "httpMethod": "POST",
+                "path": "notion-push",
+                "options": {}
+            },
+            "id": "webhook-node",
+            "name": "Webhook",
+            "type": "n8n-nodes-base.webhook",
+            "typeVersion": 1,
+            "position": [
+                250,
+                300
+            ]
+        },
+        {
+            "parameters": {
+                "method": "POST",
+                "url": "https://getxobelaeskola.cloud/api/notion/sync",
+                "sendQueryParameters": true,
+                "queryParameters": {
+                    "parameters": [
+                        {
+                            "name": "secret",
+                            "value": "getxo_notion_sync_2026_pro"
+                        },
+                        {
+                            "name": "mode",
+                            "value": "push"
+                        }
+                    ]
+                },
+                "options": {}
+            },
+            "id": "http-node",
+            "name": "Trigger Project Sync API",
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.1,
+            "position": [
+                450,
+                300
+            ]
+        }
+    ],
+    "connections": {
+        "webhook-node": {
+            "main": [
+                [
+                    {
+                        "node": "http-node",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        }
+    }
+}

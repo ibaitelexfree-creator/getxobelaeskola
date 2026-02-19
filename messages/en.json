@@ -191,6 +191,7 @@
         "title": "Subscribe to our Newsletter",
         "subtitle": "Receive news, exclusive offers, and sailing tips in your inbox.",
         "email_placeholder": "you@email.com",
+        "email_aria_label": "Enter your email address",
         "button": "Subscribe",
         "success": "You have successfully subscribed!",
         "error": "Error subscribing. Please try again."

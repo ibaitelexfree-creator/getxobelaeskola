@@ -6,15 +6,32 @@ import { fetchEuskalmetAlerts } from '@/lib/euskalmet';
 
 export const dynamic = 'force-dynamic';
 
+// In-memory cache for weather data (expires in 5 minutes)
+let cachedWeather: any = null;
+let cachedAlerts: any = null;
+let lastFetchTime: number = 0;
+const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+
 export async function GET(request: NextRequest) {
     try {
         const { searchParams } = new URL(request.url);
         const includeHistory = searchParams.get('history') === 'true';
 
-        const [weather, alerts] = await Promise.all([
-            fetchWeatherData(),
-            fetchEuskalmetAlerts()
-        ]);
+        const now = Date.now();
+        let weather, alerts;
+
+        if (cachedWeather && cachedAlerts && (now - lastFetchTime < CACHE_DURATION)) {
+            weather = cachedWeather;
+            alerts = cachedAlerts;
+        } else {
+            [weather, alerts] = await Promise.all([
+                fetchWeatherData(),
+                fetchEuskalmetAlerts()
+            ]);
+            cachedWeather = weather;
+            cachedAlerts = alerts;
+            lastFetchTime = now;
+        }
 
         const supabase = createAdminClient();
 

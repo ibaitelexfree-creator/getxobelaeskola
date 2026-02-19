@@ -53,8 +53,17 @@ Students advance through a strict hierarchy:
 
 ### 3.3 Internationalization (i18n)
 - Uses `next-intl` with a `/[locale]/` route segment.
-- Supported languages: Spanish (`es`) and Basque (`eu`).
-- **Standard:** Every database record with user-facing text must have `_es` and `_eu` columns.
+- Supported languages: Spanish (`es`), Basque (`eu`), English (`en`), and French (`fr`).
+- **Standard:** Every database record with user-facing text must have `_es` and `_eu` columns (minimum). English and French fallbacks are implemented in the UI.
+
+### 3.4 Performance Patterns
+- **Supabase Singletons:** Reused client instances in `lib/supabase/client.ts` and `admin.ts` to prevent redundant connections.
+- **Weather API Caching:** 5-minute in-memory cache implemented for `/api/weather` to handle latent external Euskalmet/Unisono requests.
+- **Dynamic Imports:** Heavy components (Leaflet, Recharts) are loaded with `{ ssr: false }`.
+
+### 3.5 Mobile & Native Support
+- **Framework:** Capacitor integration for Android/iOS builds.
+- **Redirects:** `NativeAppRedirect` component detects mobile environment and optimizes the navigation flow for students.
 
 ---
 

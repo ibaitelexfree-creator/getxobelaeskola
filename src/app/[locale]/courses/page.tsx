@@ -1,6 +1,7 @@
 import { Metadata } from 'next';
 import { createClient } from '@/lib/supabase/server';
 import CourseCard from '@/components/courses/CourseCard';
+import CourseFilters from '@/components/courses/CourseFilters';
 import { getTranslations } from 'next-intl/server';
 
 export async function generateMetadata({ params: { locale } }: { params: { locale: string } }): Promise<Metadata> {
@@ -23,104 +24,81 @@ export async function generateMetadata({ params: { locale } }: { params: { local
 }
 
 export default async function CoursesPage({
-    params: { locale }
+    params: { locale },
+    searchParams
 }: {
-    params: { locale: string }
+    params: { locale: string };
+    searchParams: { category?: string };
 }) {
     const t = await getTranslations({ locale, namespace: 'courses_page' });
     const supabase = createClient();
-    const { data: courses } = await supabase
-        .from('cursos')
-        .select('*')
-        .eq('activo', true)
-        .eq('visible', true)
-        .order('created_at', { ascending: false });
 
-    // Fallback data if DB is empty or connection fails during dev
+    // Fetch all categories for the filter bar
+    const { data: categories } = await supabase
+        .from('categorias')
+        .select('*')
+        .order('nombre_es');
+
+    let query = supabase
+        .from('cursos')
+        .select(`
+            *,
+            categoria:categoria_id (
+                id,
+                slug,
+                nombre_es,
+                nombre_eu
+            )
+        `)
+        .eq('activo', true)
+        .eq('visible', true);
+
+    if (searchParams.category) {
+        query = query.eq('categoria_id', searchParams.category);
+    }
+
+    const { data: courses } = await query.order('created_at', { ascending: false });
+
+    // Fallback data reflecting the new catalog
     const fallbackCourses = [
         {
             id: '1',
-            slug: 'iniciacion-j80',
-            nombre_es: 'Iniciación J80',
-            nombre_eu: 'J80 Hastapena',
-            descripcion_es: 'Iníciate en la navegación a vela en veleros J80. Cursos de 20 horas en grupos reducidos.',
-            descripcion_eu: 'Hasi nabigazioan J80 belaontzietan. 20 orduko ikastaroak talde txikietan.',
-            precio: 150,
-            duracion_h: 20,
+            slug: 'iniciacion-adultos',
+            nombre_es: 'Iniciación Adultos',
+            nombre_eu: 'Helduentzako Hasiera',
+            descripcion_es: 'Curso de iniciación a la navegación para adultos. 12 horas de formación práctica.',
+            descripcion_eu: 'Helduentzako nabigazio ikastaroa (hasiera). 12 orduko prestakuntza praktikoa.',
+            precio: 180,
+            duracion_h: 12,
             nivel: 'iniciacion',
-            imagen_url: 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5997?q=80&w=2074'
+            categoria: { nombre_es: 'Cursos Adultos', nombre_eu: 'Helduentzako Ikastaroak' },
+            imagen_url: 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5997?q=70&w=800'
         },
         {
             id: '2',
-            slug: 'vela-ligera',
-            nombre_es: 'Curso de Vela Ligera',
-            nombre_eu: 'Bela Arina Ikastaroa',
-            descripcion_es: 'Entrenamientos en Optimist, Laser y 420. Aprende a navegar en barcos colectivos e individuales.',
-            descripcion_eu: 'Optimist, Laser eta 420 ontzietan entrenamenduak. Ikasi belaontzi kolektibo eta indibidualetan nabigatzen.',
-            precio: 100,
-            duracion_h: 12,
+            slug: 'campus-verano-getxo',
+            nombre_es: 'Campus Verano (Haurrak)',
+            nombre_eu: 'Udako Campusa (Haurrak)',
+            descripcion_es: 'Campus de verano para niños de 5 a 21 años. 20 horas de diversión y vela.',
+            descripcion_eu: '5 eta 21 urte bitarteko haurrendako udako campusa. 20 orduko dibertsioa eta bela.',
+            precio: 130,
+            duracion_h: 20,
             nivel: 'iniciacion',
+            categoria: { nombre_es: 'Cursos Infantiles', nombre_eu: 'Haurrentzako Ikastaroak' },
             imagen_url: '/images/course-raquero-students.webp'
         },
         {
-            id: '5',
-            slug: 'curso-kayak',
-            nombre_es: 'Curso de Kayak',
-            nombre_eu: 'Kayak Ikastaroa',
-            descripcion_es: 'Aprende las técnicas básicas de paleo y seguridad en kayak individual.',
-            descripcion_eu: 'Ikasi kayak indibidualean paleatzeko oinarrizko teknikak eta segurtasuna.',
-            precio: 60,
-            duracion_h: 4,
-            nivel: 'iniciacion',
-            imagen_url: '/images/course-kayak-yellow-single.jpg'
-        },
-        {
-            id: '6',
-            slug: 'piragua-competicion-individual',
-            nombre_es: 'Piragua Competición Individual',
-            nombre_eu: 'Banakako Piragua Txapelketa',
-            descripcion_es: 'Perfecciona tu técnica en piraguas de competición individuales.',
-            descripcion_eu: 'Hobetu zure teknika banakako piragua txapelketan.',
-            precio: 80,
-            duracion_h: 6,
-            nivel: 'avanzado',
-            imagen_url: '/images/course-piragua-competition-single.jpg'
-        },
-        {
-            id: '7',
-            slug: 'piragua-competicion-doble',
-            nombre_es: 'Piragua Competición Doble',
-            nombre_eu: 'Bikoitzako Piragua Txapelketa',
-            descripcion_es: 'Entrenamientos en equipo para piraguas de competición dobles.',
-            descripcion_eu: 'Taldekako entrenamenduak bikoitzako piragua txapelketan.',
-            precio: 120,
-            duracion_h: 8,
-            nivel: 'avanzado',
-            imagen_url: '/images/course-piragua-competition-double.jpg'
-        },
-        {
             id: '3',
-            slug: 'licencia-navegacion',
-            nombre_es: 'Licencia de Navegación',
-            nombre_eu: 'Nabigazio Lizentzia',
-            descripcion_es: 'Obtén tu titulación oficial en un solo día, sin examen.',
-            descripcion_eu: 'Lortu zure titulu ofiziala egun bakar batean, azterketarik gabe.',
-            precio: 149,
-            duracion_h: 6,
+            slug: 'windsurf-iniciacion',
+            nombre_es: 'Iniciación Windsurf',
+            nombre_eu: 'Windsurf Hasiera',
+            descripcion_es: 'Aprende los fundamentos del windsurf en 5 sesiones de 2 horas.',
+            descripcion_eu: 'Ikasi windsurfeko oinarriak 5 saiotan (2 ordu saio bakoitzeko).',
+            precio: 150,
+            duracion_h: 10,
             nivel: 'iniciacion',
-            imagen_url: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=2094'
-        },
-        {
-            id: '4',
-            slug: 'perfeccionamiento-vela',
-            nombre_es: 'Perfeccionamiento Vela',
-            nombre_eu: 'Bela Hobetzea',
-            descripcion_es: 'Mejora tu técnica, táctica y nivel de seguridad a bordo.',
-            descripcion_eu: 'Hobetu zure teknika, taktika eta segurtasun maila ontzian.',
-            precio: 220,
-            duracion_h: 20,
-            nivel: 'intermedio',
-            imagen_url: 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=1974'
+            categoria: { nombre_es: 'Windsurf', nombre_eu: 'Windsurfa' },
+            imagen_url: '/images/courses/PerfeccionamientoVela.webp'
         }
     ];
 
@@ -153,6 +131,7 @@ export default async function CoursesPage({
             {/* Courses Catalogue Grid */}
             <section className="pb-48 relative overflow-hidden">
                 <div className="container mx-auto px-6 relative z-10">
+                    <CourseFilters categories={categories || []} locale={locale} />
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
                         {displayCourses.map((course) => (
                             <CourseCard key={course.id} course={course} locale={locale} />

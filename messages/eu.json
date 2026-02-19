@@ -191,6 +191,7 @@
         "title": "Harpidetu Newsletter-era",
         "subtitle": "Jaso albisteak, eskaintza esklusiboak eta nabigazio aholkuak zure posta elektronikoan.",
         "email_placeholder": "zure@emaila.com",
+        "email_aria_label": "Idatzi zure helbide elektronikoa",
         "button": "Harpidetu",
         "success": "Ondo harpidetu zara!",
         "error": "Errorea harpidetzean. Saiatu berriro."

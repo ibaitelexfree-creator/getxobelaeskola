@@ -33,7 +33,8 @@ export async function POST(request: Request) {
                 matricula: matricula || '',
                 estado: estado || 'disponible',
                 notas: notas || '',
-                imagen_url: imagen_url || ''
+                imagen_url: imagen_url || '',
+                notion_threshold: body.notion_threshold !== undefined ? body.notion_threshold : 0.2
             })
             .select()
             .single();
