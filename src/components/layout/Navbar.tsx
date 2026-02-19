@@ -143,8 +143,9 @@ export default function Navbar({ locale: propLocale }: { locale?: string }) {
                 <div className="hidden xl:flex gap-12 items-center text-[10px] uppercase tracking-[0.4em] font-black">
                     {[
                         { href: 'courses', label: 'courses' },
-                        { href: 'academy', label: 'academy' },
                         { href: 'rental', label: 'rental' },
+                        { href: 'experiences', label: 'experiences' },
+                        { href: 'academy', label: 'academy' },
                         { href: 'about', label: 'about' },
                         { href: 'contact', label: 'contact' }
                     ].map((link) => (
@@ -245,8 +246,9 @@ export default function Navbar({ locale: propLocale }: { locale?: string }) {
                     <div className="flex flex-col gap-8 mb-12">
                         {[
                             { href: 'courses', label: 'courses' },
-                            { href: 'academy', label: 'academy' },
                             { href: 'rental', label: 'rental' },
+                            { href: 'experiences', label: 'experiences' },
+                            { href: 'academy', label: 'academy' },
                             { href: 'about', label: 'about' },
                             { href: 'contact', label: 'contact' }
                         ].map((link, idx) => (

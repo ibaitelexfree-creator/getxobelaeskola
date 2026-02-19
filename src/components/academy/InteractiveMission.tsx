@@ -99,7 +99,7 @@ function TacticMission({ data, onComplete }: { data: any, onComplete?: () => voi
 
     return (
         <div className="bg-nautical-black p-8 border-2 border-red-500/40 rounded-sm relative overflow-hidden">
-            <div className="absolute top-0 right-0 p-4 opacity-10">
+            <div className="absolute top-0 right-0 p-4 opacity-10" aria-hidden="true">
                 <span className="text-8xl">⚓</span>
             </div>
             <h3 className="text-2xl font-display italic text-white mb-2">🔴 Misión: Protocolo de Choque</h3>

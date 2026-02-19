@@ -182,12 +182,12 @@ export default function ConstellationMap() {
                 </defs>
 
                 {/* Connections (Lines) */}
-                <line x1="400" y1="300" x2="600" y2="250" stroke="rgba(255,255,255,0.1)" strokeWidth="1" strokeDasharray="5,5" />
-                <line x1="400" y1="300" x2="500" y2="600" stroke="rgba(255,255,255,0.1)" strokeWidth="1" strokeDasharray="5,5" />
-                <line x1="600" y1="250" x2="800" y2="400" stroke="rgba(255,255,255,0.1)" strokeWidth="1" strokeDasharray="5,5" />
-                <line x1="400" y1="300" x2="300" y2="200" stroke="rgba(255,255,255,0.1)" strokeWidth="1" strokeDasharray="5,5" />
-                <line x1="300" y1="200" x2="100" y2="150" stroke="rgba(255,255,255,0.1)" strokeWidth="1" strokeDasharray="5,5" />
-                <line x1="400" y1="300" x2="200" y2="500" stroke="rgba(255,255,255,0.1)" strokeWidth="1" strokeDasharray="5,5" />
+                <line x1="400" y1="300" x2="600" y2="250" stroke="rgba(255,255,255,0.1)" strokeWidth="1" strokeDasharray="5,5" aria-hidden="true" />
+                <line x1="400" y1="300" x2="500" y2="600" stroke="rgba(255,255,255,0.1)" strokeWidth="1" strokeDasharray="5,5" aria-hidden="true" />
+                <line x1="600" y1="250" x2="800" y2="400" stroke="rgba(255,255,255,0.1)" strokeWidth="1" strokeDasharray="5,5" aria-hidden="true" />
+                <line x1="400" y1="300" x2="300" y2="200" stroke="rgba(255,255,255,0.1)" strokeWidth="1" strokeDasharray="5,5" aria-hidden="true" />
+                <line x1="300" y1="200" x2="100" y2="150" stroke="rgba(255,255,255,0.1)" strokeWidth="1" strokeDasharray="5,5" aria-hidden="true" />
+                <line x1="400" y1="300" x2="200" y2="500" stroke="rgba(255,255,255,0.1)" strokeWidth="1" strokeDasharray="5,5" aria-hidden="true" />
 
                 {/* Nodes */}
                 {COSMOS_DATA.map((node) => (

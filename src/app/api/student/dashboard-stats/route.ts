@@ -62,7 +62,8 @@ export async function GET() {
         const [
             { data: progress },
             { data: certs },
-            { data: horas }
+            { data: horas },
+            { data: userBonos }
         ] = await Promise.all([
             // @ts-ignore
             supabase.from('progreso_alumno').select('id, tipo_entidad, estado').eq('alumno_id', user.id),
@@ -93,6 +94,7 @@ export async function GET() {
             },
             inscripciones: enrichedInscriptions,
             rentals: rentals || [],
+            bonos: userBonos || [],
             academyStats: {
                 totalHours: Math.round(totalHours * 10) / 10,
                 totalMiles: Math.round(totalMiles),

@@ -106,7 +106,7 @@ export default function QuizView({
                                 <span className={`text-lg font-bold ${isSelected ? 'text-primary' : 'text-foreground'}`}>
                                     {opt.texto}
                                 </span>
-                                {isSelected && <div className="absolute top-2 right-2 w-2 h-2 rounded-full bg-primary" />}
+                                {isSelected && <div className="absolute top-2 right-2 w-2 h-2 rounded-full bg-primary" aria-label="Seleccionado" />}
                             </button>
                         );
                     })}
@@ -133,7 +133,7 @@ export default function QuizView({
                                 }`}>
                                 {option.id || String.fromCharCode(65 + idx)}
                             </span>
-                            <span className={`text-base font-medium transition-colors ${isSelected ? 'text-foreground' : 'text-foreground/90 group-hover:text-foreground'
+                            <span className={`text-base font-medium transition-colors ${isSelected ? 'text-foreground' : 'text-white/90 group-hover:text-foreground'
                                 }`}>
                                 {option.texto}
                             </span>
@@ -183,9 +183,9 @@ export default function QuizView({
             <div className="flex flex-col md:flex-row items-center gap-6 mb-4">
                 {/* Progress */}
                 <div className="flex-1 w-full space-y-3">
-                    <div className="flex items-center justify-between text-2xs uppercase tracking-[0.2em] font-bold text-muted-foreground/60">
+                    <div className="flex items-center justify-between text-2xs uppercase tracking-[0.2em] font-bold text-white/60">
                         <div className="flex items-center gap-3">
-                            <span>Progreso <span className="text-muted-foreground/30">|</span> {currentQuestionIndex + 1} de {totalQuestions}</span>
+                            <span>Progreso <span className="text-white/30">|</span> {currentQuestionIndex + 1} de {totalQuestions}</span>
                             {lastSaved && (
                                 <span className="text-3xs text-green-500/60 font-mono animate-pulse">✓ Guardado</span>
                             )}
@@ -223,7 +223,7 @@ export default function QuizView({
                             </span>
                         </div>
                         <div className="flex flex-col">
-                            <span className="text-3xs uppercase tracking-widest text-muted-foreground font-bold">Tiempo</span>
+                            <span className="text-3xs uppercase tracking-widest text-white/60 font-bold">Tiempo</span>
                             <span className={`text-xl font-mono font-bold tabular-nums ${isUrgent ? 'text-red-400' : 'text-white'}`}>
                                 {formatTime(timeLeft)}
                             </span>
@@ -236,7 +236,7 @@ export default function QuizView({
                 {/* Navigation Sidebar (Desktop) */}
                 <div className="hidden lg:block space-y-6">
                     <div className="bg-white/5 backdrop-blur-md rounded-2xl border border-white/10 p-6">
-                        <h4 className="text-3xs uppercase tracking-widest font-black text-muted-foreground mb-6">Mapa de Examen</h4>
+                        <h4 className="text-3xs uppercase tracking-widest font-black text-white/60 mb-6">Mapa de Examen</h4>
                         <div className="grid grid-cols-4 gap-3">
                             {allQuestionIds.map((qId, idx) => {
                                 const isCurrent = idx === currentQuestionIndex;
@@ -246,10 +246,12 @@ export default function QuizView({
                                     <button
                                         key={qId}
                                         onClick={() => onNavigate(idx)}
+                                        aria-label={`Pregunta ${idx + 1}: ${isCurrent ? 'Actual' : hasAnswer ? 'Respondida' : 'Pendiente'}`}
+                                        aria-current={isCurrent ? 'step' : undefined}
                                         className={`w-10 h-10 rounded-lg text-2xs font-bold transition-all flex items-center justify-center border ${isCurrent
                                             ? 'bg-blue-600 border-blue-400 text-white shadow-[0_0_15px_rgba(37,99,235,0.4)]'
                                             : hasAnswer ? 'bg-green-500/20 border-green-500/50 text-green-400'
-                                                : 'bg-white/5 border-white/10 text-muted-foreground hover:bg-white/10'
+                                                : 'bg-white/5 border-white/10 text-white/60 hover:bg-white/10 hover:text-white'
                                             }`}
                                     >
                                         {idx + 1}
@@ -259,13 +261,13 @@ export default function QuizView({
                         </div>
 
                         <div className="mt-8 pt-6 border-t border-white/5 space-y-3">
-                            <div className="flex items-center gap-3 text-3xs text-muted-foreground">
+                            <div className="flex items-center gap-3 text-3xs text-white/60">
                                 <div className="w-2 h-2 rounded-full bg-blue-600" /> Actual
                             </div>
-                            <div className="flex items-center gap-3 text-3xs text-muted-foreground">
+                            <div className="flex items-center gap-3 text-3xs text-white/60">
                                 <div className="w-2 h-2 rounded-full bg-green-500/50" /> Respondida
                             </div>
-                            <div className="flex items-center gap-3 text-3xs text-muted-foreground">
+                            <div className="flex items-center gap-3 text-3xs text-white/60">
                                 <div className="w-2 h-2 rounded-full bg-white/10" /> Pendiente
                             </div>
                         </div>
@@ -288,7 +290,7 @@ export default function QuizView({
                                 <div className="inline-block px-3 py-1 bg-primary/10 text-primary text-3xs font-bold uppercase tracking-wider rounded-full border border-primary/20">
                                     {question.tipo_pregunta.replace('_', ' ')}
                                 </div>
-                                <span className="text-3xs font-bold text-muted-foreground/40">{question.puntos} {question.puntos === 1 ? 'punto' : 'puntos'}</span>
+                                <span className="text-3xs font-bold text-white/50">{question.puntos} {question.puntos === 1 ? 'punto' : 'puntos'}</span>
                             </div>
                             <h3 className="text-2xl font-semibold text-foreground leading-tight tracking-tight">
                                 {question.enunciado_es}
@@ -299,7 +301,7 @@ export default function QuizView({
                             <div className="relative w-full aspect-video rounded-xl overflow-hidden ring-1 ring-white/10 bg-black/20 shadow-inner">
                                 <Image
                                     src={question.imagen_url}
-                                    alt="Question Illustration"
+                                    alt={`Ilustración de la pregunta: ${question.enunciado_es}`}
                                     fill
                                     className="object-contain"
                                 />

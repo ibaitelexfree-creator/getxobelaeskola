@@ -72,25 +72,25 @@ export default function CooldownScreen({ reason, retryAfterSeconds, onRetry }: C
         switch (config.icon) {
             case 'clock':
                 return (
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-blue-400 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-blue-400 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                 );
             case 'limit':
                 return (
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                     </svg>
                 );
             case 'stop':
                 return (
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
                     </svg>
                 );
             case 'progress':
                 return (
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                     </svg>
                 );
@@ -107,7 +107,7 @@ export default function CooldownScreen({ reason, retryAfterSeconds, onRetry }: C
                 {config.title}
             </h2>
 
-            <p className="text-gray-400 max-w-sm mx-auto text-sm leading-relaxed">
+            <p className="text-gray-300 max-w-sm mx-auto text-sm leading-relaxed">
                 {config.message}
             </p>
 
@@ -131,8 +131,8 @@ export default function CooldownScreen({ reason, retryAfterSeconds, onRetry }: C
                 disabled={!isComplete || isBlocked}
                 onClick={onRetry}
                 className={`mt-6 px-6 py-2 rounded-full text-2xs font-bold uppercase tracking-widest transition-all duration-300 ${isComplete && !isBlocked
-                        ? 'bg-blue-600 hover:bg-blue-500 text-white shadow-lg cursor-pointer'
-                        : 'bg-white/5 text-gray-500 cursor-not-allowed border border-white/5'
+                    ? 'bg-blue-600 hover:bg-blue-500 text-white shadow-lg cursor-pointer'
+                    : 'bg-white/5 text-gray-400 cursor-not-allowed border border-white/5'
                     }`}
             >
                 {isBlocked

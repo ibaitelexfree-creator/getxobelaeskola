@@ -23,7 +23,7 @@ export default function MotivationalMessages({ type, context }: MotivationalMess
 
         const timer = setTimeout(() => {
             setIsVisible(false);
-        }, 4000);
+        }, 6000);
 
         return () => clearTimeout(timer);
     }, [type, context]);
@@ -32,6 +32,8 @@ export default function MotivationalMessages({ type, context }: MotivationalMess
 
     return (
         <div
+            role="status"
+            aria-live="polite"
             className={`
                 fixed bottom-8 left-1/2 -translate-x-1/2 z-50
                 transition-all duration-700 ease-out

@@ -130,16 +130,16 @@ export default function RentalClient({
 
     const categories = [
         { id: 'all', name: t('categories.all') },
-        { id: 'alquileres', name: locale === 'eu' ? 'Alokairuak' : 'Alquileres' },
+        { id: 'alquileres', name: t('categories.alquileres') },
         { id: 'veleros', name: t('categories.veleros') },
         { id: 'windsurf', name: t('categories.windsurf') },
         { id: 'paddlesurf', name: t('categories.paddlesurf') },
         { id: 'kayak', name: t('categories.kayak') },
         { id: 'piragua', name: t('categories.piragua') },
         { id: 'atraques', name: locale === 'eu' ? 'Atrakatzeak' : 'Atraques' },
-        { id: 'membresias', name: locale === 'eu' ? 'Bazkidetzak' : 'Membresías' },
-        { id: 'bonos', name: locale === 'eu' ? 'Bonuak' : 'Bonos' },
-        { id: 'eventos', name: locale === 'eu' ? 'Ekitaldiak' : 'Eventos' }
+        { id: 'membresias', name: t('categories.membresias') },
+        { id: 'bonos', name: t('categories.bonos') },
+        { id: 'eventos', name: t('categories.eventos') }
     ];
 
     const filteredServices = selectedCategory === 'all'
