@@ -623,7 +623,10 @@
         "school": "Eskola",
         "contact": "Kontaktua",
         "copyright": "© 2026 Getxo Bela Eskola · Premium Itsas Esperientzia",
-        "slogan": "Getxo Bela Eskola  Itsas esperientzia bikaina Getxoko Kirol Portuan."
+        "slogan": "Getxo Bela Eskola  Itsas esperientzia bikaina Getxoko Kirol Portuan.",
+        "privacy": "Pribatasuna",
+        "terms": "Baldintzak",
+        "cookies": "Cookieak"
     },
     "academy": {
         "title": "Akademia Digital",

@@ -97,8 +97,8 @@ export default function DailyChallengeWidget({ locale }: DailyChallengeWidgetPro
                 </div>
                 {!isCompleted && (
                     <div className="px-3 py-1 bg-white/5 border border-white/10 rounded-full flex items-center gap-2">
-                        <Target size={12} className="text-accent" />
-                        <span className="text-[10px] font-black text-white/60">{t('reward', { xp: challenge.xp_recompensa })}</span>
+                        <Target size={12} className="text-accent" aria-hidden="true" />
+                        <span className="text-[10px] font-black text-white/80">{t('reward', { xp: challenge.xp_recompensa })}</span>
                     </div>
                 )}
             </div>
@@ -116,14 +116,16 @@ export default function DailyChallengeWidget({ locale }: DailyChallengeWidgetPro
                             "{locale === 'eu' ? challenge.pregunta_eu : challenge.pregunta_es}"
                         </p>
 
-                        <div className="space-y-3">
+                        <div className="space-y-3" role="radiogroup" aria-label="Opciones de respuesta">
                             {challenge.opciones.map((opcion: string, idx: number) => (
                                 <button
                                     key={idx}
+                                    role="radio"
+                                    aria-checked={selectedOption === idx}
                                     onClick={() => setSelectedOption(idx)}
-                                    className={`w-full text-left p-4 rounded-xl border transition-all duration-300 flex items-center justify-between group/opt ${selectedOption === idx
-                                        ? 'bg-accent border-accent text-nautical-black shadow-lg shadow-accent/20'
-                                        : 'bg-white/5 border-white/5 text-white/60 hover:border-white/20 hover:bg-white/10'
+                                    className={`w-full text-left p-4 rounded-xl border transition-all duration-300 flex items-center justify-between group/opt focus-visible:ring-2 focus-visible:ring-accent outline-none ${selectedOption === idx
+                                        ? 'bg-accent border-accent text-nautical-black shadow-lg shadow-accent/20 font-bold'
+                                        : 'bg-white/5 border-white/5 text-white/80 hover:border-white/20 hover:bg-white/10'
                                         }`}
                                 >
                                     <span className="text-sm font-bold">{opcion}</span>
@@ -135,8 +137,8 @@ export default function DailyChallengeWidget({ locale }: DailyChallengeWidgetPro
                         <button
                             onClick={handleSubmit}
                             disabled={selectedOption === null || submitting}
-                            className={`mt-8 w-full py-4 rounded-xl font-black uppercase tracking-[0.3em] text-xs transition-all flex items-center justify-center gap-3 ${selectedOption === null || submitting
-                                ? 'bg-white/5 text-white/20 border border-white/5 cursor-not-allowed'
+                            className={`mt-8 w-full py-4 rounded-xl font-black uppercase tracking-[0.3em] text-xs transition-all flex items-center justify-center gap-3 focus-visible:ring-2 focus-visible:ring-accent outline-none ${selectedOption === null || submitting
+                                ? 'bg-white/5 text-white/40 border border-white/5 cursor-not-allowed'
                                 : 'bg-accent text-nautical-black hover:scale-[1.02] shadow-xl shadow-accent/10 active:scale-95'
                                 }`}
                         >
@@ -150,6 +152,8 @@ export default function DailyChallengeWidget({ locale }: DailyChallengeWidgetPro
                         initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
                         className="relative z-10 text-center py-4"
+                        role="alert"
+                        aria-live="assertive"
                     >
                         <div className={`w-20 h-20 rounded-full mx-auto mb-6 flex items-center justify-center border-2 ${data.correct ? 'bg-emerald-500/20 border-emerald-500 text-emerald-500 shadow-[0_0_30px_rgba(16,185,129,0.2)]' : 'bg-red-500/20 border-red-500 text-red-500'}`}>
                             {data.correct ? <CheckCircle2 size={40} /> : <XCircle size={40} />}
@@ -159,7 +163,7 @@ export default function DailyChallengeWidget({ locale }: DailyChallengeWidgetPro
                             {data.correct ? t('correct', { xp: challenge.xp_recompensa }) : t('wrong', { answer: challenge.opciones[data.result.respuesta_correcta] || '' })}
                         </h4>
 
-                        <p className="text-white/40 text-[10px] uppercase tracking-[0.3em] mb-8 font-black">
+                        <p className="text-white/60 text-[10px] uppercase tracking-[0.3em] mb-8 font-black">
                             {data.correct ? `Has ganado ${challenge.xp_recompensa} XP` : t('come_back')}
                         </p>
 
@@ -168,7 +172,7 @@ export default function DailyChallengeWidget({ locale }: DailyChallengeWidgetPro
                                 <Brain size={40} />
                             </div>
                             <span className="text-[9px] uppercase font-black text-accent tracking-widest block mb-1">{t('explanation')}</span>
-                            <p className="text-white/60 text-sm leading-relaxed italic">
+                            <p className="text-white/80 text-sm leading-relaxed italic">
                                 "{locale === 'eu' ? data.result.explicacion_eu : data.result.explicacion_es}"
                             </p>
                         </div>

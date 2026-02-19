@@ -69,7 +69,14 @@ export async function GET() {
             // @ts-ignore
             supabase.from('certificados').select('id').eq('alumno_id', user.id),
             // @ts-ignore
-            supabase.from('horas_navegacion').select('duracion_h').eq('alumno_id', user.id)
+            supabase.from('horas_navegacion').select('duracion_h').eq('alumno_id', user.id),
+            supabase.from('bonos_usuario')
+                .select(`
+                    *,
+                    tipos_bono (nombre, description, categorias_validas)
+                `)
+                .eq('usuario_id', user.id)
+                .in('estado', ['activo', 'agotado'])
         ]);
 
         const totalHours = horas?.reduce((acc, curr) => acc + Number(curr.duracion_h), 0) || 0;

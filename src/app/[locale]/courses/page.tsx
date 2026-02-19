@@ -1,8 +1,7 @@
 import { Metadata } from 'next';
 import { createClient } from '@/lib/supabase/server';
-import CourseCard from '@/components/courses/CourseCard';
-import CourseFilters from '@/components/courses/CourseFilters';
 import { getTranslations } from 'next-intl/server';
+import CoursesListClient from '@/components/courses/CoursesListClient';
 
 export async function generateMetadata({ params: { locale } }: { params: { locale: string } }): Promise<Metadata> {
     const isEu = locale === 'eu';
@@ -24,40 +23,47 @@ export async function generateMetadata({ params: { locale } }: { params: { local
 }
 
 export default async function CoursesPage({
-    params: { locale },
-    searchParams
+    params: { locale }
 }: {
     params: { locale: string };
-    searchParams: { category?: string };
 }) {
     const t = await getTranslations({ locale, namespace: 'courses_page' });
     const supabase = createClient();
 
-    // Fetch all categories for the filter bar
-    const { data: categories } = await supabase
-        .from('categorias')
-        .select('*')
-        .order('nombre_es');
+    let categories: any[] = [];
+    let allCourses: any[] = [];
 
-    let query = supabase
-        .from('cursos')
-        .select(`
-            *,
-            categoria:categoria_id (
-                id,
-                slug,
-                nombre_es,
-                nombre_eu
-            )
-        `)
-        .eq('activo', true)
-        .eq('visible', true);
+    // Safe Static Fetching
+    try {
+        // Fetch categories
+        const { data: catData } = await supabase
+            .from('categorias')
+            .select('*')
+            .order('nombre_es');
 
-    if (searchParams.category) {
-        query = query.eq('categoria_id', searchParams.category);
+        categories = catData || [];
+
+        // Fetch ALL courses (no filtering here)
+        const { data: coursesData } = await supabase
+            .from('cursos')
+            .select(`
+                *,
+                categoria:categoria_id (
+                    id,
+                    slug,
+                    nombre_es,
+                    nombre_eu
+                )
+            `)
+            .eq('activo', true)
+            .eq('visible', true)
+            .order('created_at', { ascending: false });
+
+        allCourses = coursesData || [];
+    } catch (error) {
+        console.error('Error loading courses for static build:', error);
+        // Fallback or empty - handled by client empty state or fallback below
     }
-
-    const { data: courses } = await query.order('created_at', { ascending: false });
 
     // Fallback data reflecting the new catalog
     const fallbackCourses = [
@@ -102,7 +108,7 @@ export default async function CoursesPage({
         }
     ];
 
-    const displayCourses = (courses && courses.length > 0) ? courses : fallbackCourses;
+    const displayCourses = (allCourses && allCourses.length > 0) ? allCourses : fallbackCourses;
 
     return (
         <main className="min-h-screen bg-nautical-black text-white selection:bg-accent selection:text-nautical-black">
@@ -128,17 +134,12 @@ export default async function CoursesPage({
                 </div>
             </section>
 
-            {/* Courses Catalogue Grid */}
-            <section className="pb-48 relative overflow-hidden">
-                <div className="container mx-auto px-6 relative z-10">
-                    <CourseFilters categories={categories || []} locale={locale} />
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
-                        {displayCourses.map((course) => (
-                            <CourseCard key={course.id} course={course} locale={locale} />
-                        ))}
-                    </div>
-                </div>
-            </section>
+            {/* Client-side Course List Area */}
+            <CoursesListClient
+                initialCourses={displayCourses}
+                categories={categories}
+                locale={locale}
+            />
 
             {/* Minimal Background Background Decoration */}
             <div className="fixed inset-0 bg-mesh opacity-10 pointer-events-none z-0" />
