@@ -34,6 +34,10 @@ services:
     environment:
       - OPENCLAW_TELEGRAM_TOKEN=8375089119:AAFC4svZTAYtIRG13rwlgLOdpZjfVLMXt5U
       - OPENCLAW_WORKSPACE=/workspace
+      - OPENCLAW_GATEWAY_MODE=remote
+      - OPENCLAW_GATEWAY_AUTH_MODE=token
+      - OPENCLAW_GATEWAY_TOKEN=test
+    command: [ "openclaw", "gateway", "--bind", "lan", "--allow-unconfigured" ]
     depends_on:
       - tailscale
 

@@ -21,6 +21,8 @@ export class StripeHandlers {
             await this.processRental(session, user_id, locale);
         } else if (mode === 'course' || mode === 'edition') {
             await this.processCourse(session, user_id, locale);
+        } else if (mode === 'bono_horas' || metadata.purchase_type === 'bono_horas') {
+            await this.processBonoPurchase(session, user_id, locale);
         } else {
             console.warn(`Unknown checkout mode: ${mode}`);
         }
@@ -260,5 +262,45 @@ export class StripeHandlers {
         } catch (e) {
             console.error('⚠️ Course side-effects failed:', e);
         }
+    }
+
+    private async processBonoPurchase(session: Stripe.Checkout.Session, userId: string, locale: string) {
+        const { bono_id, horas } = session.metadata || {};
+        if (!bono_id) throw new Error('Missing bono_id in metadata');
+
+        const horasTotales = parseFloat(horas || '0');
+        const fechaExpiracion = new Date();
+        fechaExpiracion.setFullYear(fechaExpiracion.getFullYear() + 1); // 1 year validity by default
+
+        // 1. Create User Bono
+        const { data: userBono, error: bonoErr } = await this.supabase
+            .from('bonos_usuario')
+            .insert({
+                usuario_id: userId,
+                tipo_bono_id: bono_id,
+                horas_iniciales: horasTotales,
+                horas_restantes: horasTotales,
+                fecha_expiracion: fechaExpiracion.toISOString(),
+                estado: 'activo'
+            })
+            .select('id')
+            .single();
+
+        if (bonoErr) throw bonoErr;
+
+        // 2. Initial Movement
+        const { error: movErr } = await this.supabase
+            .from('movimientos_bono')
+            .insert({
+                bono_id: userBono.id,
+                tipo_movimiento: 'compra',
+                horas: horasTotales,
+                descripcion: `Compra de bono: ${session.id}`
+            });
+
+        if (movErr) throw movErr;
+
+        // 3. Optional: Send notification
+        console.log(`✅ Bono ${bono_id} granted to user ${userId}`);
     }
 }

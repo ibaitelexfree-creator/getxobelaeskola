@@ -82,7 +82,7 @@ export const UnlockStatusBadge: React.FC<UnlockStatusBadgeProps> = ({ status, cl
             `}
             title={isLocked ? 'Completa el contenido anterior para desbloquear' : config.label}
         >
-            <span className="flex-shrink-0">{config.icon}</span>
+            <span className="flex-shrink-0" aria-hidden="true">{config.icon}</span>
             <span className="leading-none pt-0.5">{config.label}</span>
         </div>
     );

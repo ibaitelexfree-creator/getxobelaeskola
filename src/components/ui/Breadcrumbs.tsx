@@ -22,8 +22,9 @@ export default function Breadcrumbs({ items, className = '' }: BreadcrumbsProps)
                         <Link
                             href={items[items.length - 2].href!}
                             className="flex items-center gap-1 hover:text-accent transition-colors"
+                            aria-label={`Volver a ${items[items.length - 2].label}`}
                         >
-                            <ChevronRight className="w-3 h-3 rotate-180" />
+                            <ChevronRight className="w-3 h-3 rotate-180" aria-hidden="true" />
                             <span className="truncate max-w-[150px]">
                                 {items[items.length - 2].label}
                             </span>
@@ -37,8 +38,8 @@ export default function Breadcrumbs({ items, className = '' }: BreadcrumbsProps)
 
                 {/* Desktop: Full path */}
                 <li className="hidden md:flex items-center">
-                    <Link href="/" className="hover:text-accent transition-colors">
-                        <Home className="w-3 h-3" />
+                    <Link href="/" className="hover:text-accent transition-colors" aria-label="Volver al Inicio">
+                        <Home className="w-3 h-3" aria-hidden="true" />
                     </Link>
                 </li>
 
@@ -47,7 +48,7 @@ export default function Breadcrumbs({ items, className = '' }: BreadcrumbsProps)
 
                     return (
                         <li key={index} className="hidden md:flex items-center">
-                            <ChevronRight className="w-3 h-3 mx-1 text-white/40" />
+                            <ChevronRight className="w-3 h-3 mx-1 text-white/40" aria-hidden="true" />
                             {isLast ? (
                                 <span className="text-white font-medium" aria-current="page">
                                     {item.label}

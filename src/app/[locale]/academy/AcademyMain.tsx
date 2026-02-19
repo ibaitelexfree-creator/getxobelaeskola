@@ -247,8 +247,15 @@ export default function AcademyMain({ params }: { params: { locale: string } }) 
                                                     )}
 
                                                     {!isLocked && (estado === 'en_progreso' || (porcentaje > 0 && porcentaje < 100)) && (
-                                                        <div className="mt-8 max-w-sm mx-auto lg:mx-0" aria-label={`Progreso: ${porcentaje}%`}>
-                                                            <div className="h-1 bg-white/10 rounded-full overflow-hidden">
+                                                        <div className="mt-8 max-w-sm mx-auto lg:mx-0">
+                                                            <div
+                                                                className="h-1 bg-white/10 rounded-full overflow-hidden"
+                                                                role="progressbar"
+                                                                aria-valuenow={porcentaje}
+                                                                aria-valuemin={0}
+                                                                aria-valuemax={100}
+                                                                aria-label={`Progreso del nivel: ${porcentaje}%`}
+                                                            >
                                                                 <div
                                                                     className="h-full bg-accent transition-all duration-1000 ease-out shadow-[0_0_10px_rgba(255,191,0,0.5)]"
                                                                     style={{ width: `${porcentaje}%` }}
@@ -307,6 +314,7 @@ export default function AcademyMain({ params }: { params: { locale: string } }) 
                                     key={tool.id}
                                     href={tool.href}
                                     prefetch={false}
+                                    aria-label={`Herramienta: ${tool.label}. ${tool.desc}`}
                                     className="group bg-white/[0.03] border border-white/10 rounded-2xl p-6 hover:bg-white/[0.07] hover:border-accent/30 transition-all duration-500 flex flex-col items-center text-center gap-4"
                                 >
                                     <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-transform group-hover:scale-110 shadow-lg ${tool.color}`} aria-hidden="true">

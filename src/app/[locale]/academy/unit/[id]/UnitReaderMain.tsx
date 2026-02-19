@@ -277,8 +277,10 @@ export default function UnitReaderMain({
                                     { label: `Unidad ${unidad.orden}` }
                                 ]}
                             />
-                            <div className="flex items-center gap-4">
-                                <span className="text-xs text-white/80" aria-label={`Página ${navegacion?.posicion} de ${navegacion?.total}`}>{navegacion?.posicion} de {navegacion?.total}</span>
+                            <div className="flex items-center gap-4" role="status" aria-live="polite">
+                                <span className="text-xs text-white/80" aria-label={`Página ${navegacion?.posicion} de ${navegacion?.total}`}>
+                                    {navegacion?.posicion} de {navegacion?.total}
+                                </span>
                                 {isCompletada && (
                                     <span className="px-3 py-1 bg-accent/20 text-accent text-[8px] uppercase tracking-widest font-black rounded-full border border-accent/30">
                                         ✓ Completada

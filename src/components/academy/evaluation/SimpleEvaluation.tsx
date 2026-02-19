@@ -84,7 +84,7 @@ export default function SimpleEvaluation({ evaluacionId, entidadTipo, entidadId,
         return (
             <div className="max-w-2xl mx-auto p-8 text-center">
                 <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-accent border-t-transparent"></div>
-                <p className="mt-4 text-white/60">
+                <p className="mt-4 text-white/80" role="status">
                     Cargando evaluación...
                 </p>
             </div>
@@ -138,7 +138,7 @@ export default function SimpleEvaluation({ evaluacionId, entidadTipo, entidadId,
         return (
             <div className="max-w-2xl mx-auto p-8 text-center">
                 <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent"></div>
-                <p className="mt-4 text-gray-400">
+                <p className="mt-4 text-white/70" role="status">
                     {state.status === 'loading' ? 'Preparando evaluación...' : 'Enviando respuestas...'}
                 </p>
             </div>
@@ -194,7 +194,8 @@ export default function SimpleEvaluation({ evaluacionId, entidadTipo, entidadId,
                     <button
                         onClick={prevQuestion}
                         disabled={state.currentQuestionIndex === 0}
-                        className="px-6 py-2 rounded-lg border border-white/10 text-white/60 hover:text-white hover:bg-white/5 disabled:opacity-30 disabled:pointer-events-none transition-all"
+                        aria-label="Pregunta anterior"
+                        className="px-6 py-2 rounded-lg border border-white/10 text-white/80 hover:text-white hover:bg-white/5 disabled:opacity-30 disabled:pointer-events-none transition-all"
                     >
                         ← Anterior
                     </button>
@@ -213,6 +214,7 @@ export default function SimpleEvaluation({ evaluacionId, entidadTipo, entidadId,
                     ) : (
                         <button
                             onClick={nextQuestion}
+                            aria-label="Siguiente pregunta"
                             className="px-6 py-2 rounded-lg border border-white/10 text-white hover:bg-white/5 transition-all"
                         >
                             Siguiente →

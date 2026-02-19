@@ -2,6 +2,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { BookOpen, Sailboat, GraduationCap, User, Trophy, Calendar, ChevronRight, Anchor, Compass, Book } from 'lucide-react';
+import DailyNauticalQuote from '@/components/student/DailyNauticalQuote';
 
 
 interface MobileStudentHubProps {
@@ -122,6 +123,11 @@ export default function MobileStudentHub({
                         <span className="text-sm font-bold text-white tracking-wide">{action.label}</span>
                     </Link>
                 ))}
+            </section>
+
+            {/* Daily Nautical Quote */}
+            <section className="px-6">
+                <DailyNauticalQuote locale={locale} />
             </section>
 
             {/* Upcoming Bookings Slider */}

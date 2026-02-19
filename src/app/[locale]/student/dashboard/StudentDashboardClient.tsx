@@ -19,6 +19,9 @@ const NotificationPermissionBanner = dynamic(() => import('@/components/dashboar
 const QuickContact = dynamic(() => import('@/components/student/QuickContact'));
 const DashboardRefresh = dynamic(() => import('@/components/student/DashboardRefresh'));
 const EmptyState = dynamic(() => import('@/components/ui/EmptyState'));
+const BonosWallet = dynamic(() => import('@/components/student/BonosWallet'));
+const BonoPurchaseModal = dynamic(() => import('@/components/student/BonoPurchaseModal'));
+const DailyNauticalQuote = dynamic(() => import('@/components/student/DailyNauticalQuote'));
 
 interface DashboardItem {
     id: string;
@@ -43,6 +46,7 @@ export default function StudentDashboardClient({
     const [data, setData] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [isMobile, setIsMobile] = useState(false);
+    const [isBonoModalOpen, setIsBonoModalOpen] = useState(false);
 
     const router = useRouter();
 
@@ -92,6 +96,7 @@ export default function StudentDashboardClient({
         user,
         inscripciones = [],
         rentals = [],
+        bonos = [],
         academyStats = {}
     } = data || {};
 
@@ -219,6 +224,12 @@ export default function StudentDashboardClient({
 
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
                         <div className="lg:col-span-2 space-y-16">
+                            <BonosWallet
+                                bonos={bonos}
+                                locale={locale}
+                                onBuyClick={() => setIsBonoModalOpen(true)}
+                            />
+
                             <MembershipWidget
                                 status={profile?.status_socio || 'no_socio'}
                                 locale={locale}
@@ -399,12 +410,19 @@ export default function StudentDashboardClient({
                         </div>
 
                         <div className="lg:col-span-1 space-y-8">
+                            <DailyNauticalQuote locale={locale} />
                             <DailyChallengeWidget locale={locale} />
                             <QuickContact />
                         </div>
                     </div>
                 </main>
             </div>
+
+            <BonoPurchaseModal
+                isOpen={isBonoModalOpen}
+                onClose={() => setIsBonoModalOpen(false)}
+                locale={locale}
+            />
         </div>
     );
 }

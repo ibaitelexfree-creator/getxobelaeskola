@@ -94,8 +94,8 @@ export default function ModuleDetailMain({
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-nautical-black flex items-center justify-center" aria-live="polite">
-                <div className="text-center">
+            <div className="min-h-screen bg-nautical-black flex items-center justify-center">
+                <div className="text-center" role="status" aria-live="polite">
                     <div className="text-6xl mb-4 animate-bounce-slow" aria-hidden="true">⚓</div>
                     <p className="text-white/80 text-lg font-display italic">Navegando el módulo...</p>
                 </div>
@@ -173,7 +173,11 @@ export default function ModuleDetailMain({
                 <div className="max-w-4xl mx-auto space-y-4">
                     <header className="flex justify-between items-end border-b border-white/10 pb-6 mb-10">
                         <h2 className="text-3xl font-display italic text-white">Unidades Didácticas</h2>
-                        <div className="text-[10px] tracking-widest text-white/70 font-black uppercase">
+                        <div
+                            className="text-[10px] tracking-widest text-white/70 font-black uppercase"
+                            role="status"
+                            aria-label={`Unidades completadas: ${unidadesCompletadas} de ${unidades.length}`}
+                        >
                             {unidadesCompletadas} / {unidades.length} Completadas
                         </div>
                     </header>
