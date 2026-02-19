@@ -8,31 +8,9 @@ import LegalConsentModal from '../shared/LegalConsentModal';
 import { createClient } from '@/lib/supabase/client';
 import NauticalImage from '@/components/ui/NauticalImage';
 import { apiUrl } from '@/lib/api';
+import { getSpainTimeInfo, getInitialBookingDate } from '@/lib/utils/date';
 
 
-function getSpainTimeInfo() {
-    const now = new Date();
-    const formatter = new Intl.DateTimeFormat('en-GB', {
-        timeZone: 'Europe/Madrid',
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: false
-    });
-    const parts = formatter.formatToParts(now);
-    const getPart = (type: string) => parts.find(p => p.type === type)?.value || '';
-
-    return {
-        year: parseInt(getPart('year')),
-        month: parseInt(getPart('month')),
-        day: parseInt(getPart('day')),
-        hour: parseInt(getPart('hour')),
-        minute: parseInt(getPart('minute')),
-        dateStr: `${getPart('year')}-${getPart('month')}-${getPart('day')}`
-    };
-}
 
 interface RentalService {
     id: string;
@@ -62,23 +40,7 @@ export default function RentalClient({
     const [spainNow] = useState(() => getSpainTimeInfo());
     const currentYear = spainNow.year;
 
-    const initialDate = useMemo(() => {
-        const lastPossibleHour = 17; // El último slot empieza a las 17:00
-        if (spainNow.hour >= lastPossibleHour) {
-            // Si ya es tarde para hoy, pasamos a mañana
-            const d = new Date(spainNow.year, spainNow.month - 1, spainNow.day + 1);
-            return {
-                day: d.getDate().toString().padStart(2, '0'),
-                month: (d.getMonth() + 1).toString().padStart(2, '0'),
-                year: d.getFullYear().toString()
-            };
-        }
-        return {
-            day: spainNow.day.toString().padStart(2, '0'),
-            month: spainNow.month.toString().padStart(2, '0'),
-            year: spainNow.year.toString()
-        };
-    }, [spainNow]);
+    const initialDate = useMemo(() => getInitialBookingDate(spainNow), [spainNow]);
 
     const [day, setDay] = useState<string>(initialDate.day);
     const [month, setMonth] = useState<string>(initialDate.month);

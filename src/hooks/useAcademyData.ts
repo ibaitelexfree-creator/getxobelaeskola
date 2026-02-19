@@ -33,6 +33,7 @@ export function useAcademyData() {
     const [isStaff, setIsStaff] = useState(false);
 
     const [cursosPorNivel, setCursosPorNivel] = useState<Record<string, any[]>>({});
+    const [unlockStatus, setUnlockStatus] = useState<any>(null);
 
     useEffect(() => {
         let isMounted = true;
@@ -48,11 +49,12 @@ export function useAcademyData() {
                     }
                 };
 
-                const [resNiveles, resProgreso, resCursos, resEnrollments] = await Promise.all([
+                const [resNiveles, resProgreso, resCursos, resEnrollments, resUnlockStatus] = await Promise.all([
                     fetch(apiUrl('/api/levels'), fetchOptions),
                     fetch(apiUrl('/api/progress'), fetchOptions),
                     fetch(apiUrl('/api/courses'), fetchOptions),
-                    fetch(apiUrl('/api/enrollments'), fetchOptions)
+                    fetch(apiUrl('/api/enrollments'), fetchOptions),
+                    fetch(apiUrl('/api/unlock-status'), fetchOptions)
                 ]);
 
                 if (!isMounted) return;
@@ -81,6 +83,11 @@ export function useAcademyData() {
                     setIsStaff(!!dataProgreso.is_staff);
                 }
 
+                let dataUnlock = null;
+                if (resUnlockStatus.ok) {
+                    dataUnlock = await resUnlockStatus.json().catch(() => null);
+                }
+
                 // Map courses to levels
                 const mappedCursos: Record<string, any[]> = {};
                 (dataCursos.cursos || []).forEach((c: any) => {
@@ -95,6 +102,7 @@ export function useAcademyData() {
                 setProgreso(progresoNiveles);
                 setCursosPorNivel(mappedCursos);
                 setEnrollments(dataEnrollments);
+                setUnlockStatus(dataUnlock);
             } catch (err) {
                 if (isMounted) {
                     const errorMessage = err instanceof Error ? err.message : 'Error desconocido';
@@ -111,50 +119,28 @@ export function useAcademyData() {
     }, []);
 
     const getEstadoNivel = useCallback((nivel: Nivel): 'bloqueado' | 'disponible' | 'en_progreso' | 'completado' => {
-        // 0. Staff Bypass
-        if (isStaff) {
-            const currentProg = progreso.find(p => p.nivel_id === nivel.id);
-            if (currentProg?.estado === 'completado') return 'completado';
-            if (currentProg?.estado === 'en_progreso') return 'en_progreso';
-            return 'disponible';
+        // 0. Primary Truth: unlockStatus from API (Fase 6)
+        if (unlockStatus?.niveles?.[nivel.id]) {
+            const status = unlockStatus.niveles[nivel.id];
+            // Normalize status strings from DB ('no_iniciado' -> 'disponible' for UI)
+            if (status === 'completado' || status === 'distincion') return 'completado';
+            if (status === 'en_progreso') return 'en_progreso';
+            if (status === 'no_iniciado' || status === 'available') return 'disponible';
+            if (status === 'bloqueado' || status === 'locked') return 'bloqueado';
         }
 
-        // 1. Check Course Enrollment First (Paywall)
-        // If the level has courses, user MUST own at least one to access the level
+        // 1. Fallback / Staff Bypass
+        if (isStaff) return 'disponible';
+
+        // 2. Paywall Check (Ensures even if DB says 'bloqueado' we know it's because of purchase)
         const levelCourses = cursosPorNivel[nivel.id] || [];
         if (levelCourses.length > 0) {
             const isEnrolled = levelCourses.some(c => enrollments.includes(c.id));
             if (!isEnrolled) return 'bloqueado';
         }
 
-        // 2. Check direct progress
-        const progresoNivel = progreso.find(p => p.nivel_id === nivel.id);
-        if (progresoNivel) {
-            return progresoNivel.estado === 'completado' ? 'completado' :
-                progresoNivel.estado === 'en_progreso' ? 'en_progreso' : 'disponible';
-        }
-
-        // 3. First level is always available (if enrolled or free)
-        if (nivel.orden === 1) return 'disponible';
-
-        // 4. Check prerequisites
-        if (nivel.prerequisitos && nivel.prerequisitos.length > 0) {
-            const prerequisitosCumplidos = nivel.prerequisitos.every(prereqId => {
-                const prereqProgreso = progreso.find(p => p.nivel_id === prereqId);
-                return prereqProgreso?.estado === 'completado';
-            });
-            return prerequisitosCumplidos ? 'disponible' : 'bloqueado';
-        }
-
-        // 5. Fallback: Check previous level by order
-        const nivelAnterior = niveles.find(n => n.orden === nivel.orden - 1);
-        if (nivelAnterior) {
-            const progresoAnterior = progreso.find(p => p.nivel_id === nivelAnterior.id);
-            return progresoAnterior?.estado === 'completado' ? 'disponible' : 'bloqueado';
-        }
-
         return 'bloqueado';
-    }, [progreso, niveles, enrollments, cursosPorNivel, isStaff]);
+    }, [unlockStatus, enrollments, cursosPorNivel, isStaff]);
 
     return {
         niveles,

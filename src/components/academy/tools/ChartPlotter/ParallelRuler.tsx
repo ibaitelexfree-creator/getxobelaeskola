@@ -105,13 +105,13 @@ export default function ParallelRuler({ initialX, initialY, initialAngle, scale,
                 <div className="absolute top-0 w-full h-8 bg-white/60 backdrop-blur-sm border border-black/30 shadow-sm flex items-center justify-center">
                     <span className="text-[8px] font-mono opacity-50 select-none pointer-events-none">PARALLEL RULER</span>
                     {/* Measurement Ticks */}
-                    <div className="absolute bottom-0 w-full h-[5px] bg-[url('/images/ruler-ticks.png')] bg-repeat-x opacity-30" />
+                    <div className="absolute bottom-0 w-full h-[5px] bg-[url('/images/ruler-ticks.svg')] bg-repeat-x opacity-30" />
                 </div>
 
                 {/* Bottom Arm */}
                 <div className="absolute bottom-0 w-full h-8 bg-white/60 backdrop-blur-sm border border-black/30 shadow-sm flex items-center justify-center">
                     {/* Measurement Ticks */}
-                    <div className="absolute top-0 w-full h-[5px] bg-[url('/images/ruler-ticks.png')] bg-repeat-x opacity-30 invert" />
+                    <div className="absolute top-0 w-full h-[5px] bg-[url('/images/ruler-ticks.svg')] bg-repeat-x opacity-30 invert" />
                 </div>
 
                 {/* Connection Links (Visual) */}

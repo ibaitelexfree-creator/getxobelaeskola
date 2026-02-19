@@ -79,9 +79,12 @@ function updatePhysics(dt: number) {
     if (newBoatSpeed < 0.3 && Math.abs(state.rudderAngle) < 2.0) rudderForce = 0;
 
     let newAngularVelocity = (state.angularVelocity || 0);
-    newAngularVelocity += rudderForce * deltaTime * 4.0;
+    newAngularVelocity += rudderForce * deltaTime * 1.5;
+
+    // Hydrodynamic Damping
     const FPS_60_DT = 0.0166;
-    newAngularVelocity *= Math.pow(0.94, deltaTime / FPS_60_DT);
+    const baseDamping = 0.85; // Stronger damping
+    newAngularVelocity *= Math.pow(baseDamping, deltaTime / FPS_60_DT);
 
     let newHeading = state.boatHeading + newAngularVelocity;
     newHeading = ((newHeading % 360) + 360) % 360;
@@ -215,16 +218,22 @@ function renderParticles() {
         const dy = p.y - centerY;
         const localX = dx * Math.cos(-boatHeadingRad) - dy * Math.sin(-boatHeadingRad);
         const localY = dx * Math.sin(-boatHeadingRad) + dy * Math.cos(-boatHeadingRad);
+        // Hull Collision
         if ((localX * localX) / (hullB * hullB) + (localY * localY) / (hullA * hullA) < 1.1) return false;
+
+        // Main Sail Collision
         const sLocalX = dx * Math.cos(-totalSailAngleRad) - dy * Math.sin(-totalSailAngleRad);
         const sLocalY = dx * Math.sin(-totalSailAngleRad) + dy * Math.cos(-totalSailAngleRad);
         if (Math.abs(sLocalX) < 5 && sLocalY < 0 && sLocalY > -sailLen) return false;
+
         return p.life > 0 && p.x > -100 && p.x < canvas.width + 100 && p.y > -100 && p.y < canvas.height + 100;
     });
 
+    const isStalled = physics.mainIsStalled || physics.jibIsStalled;
+
     particles.forEach(p => {
         let hue = 200; let saturation = 80; let lightness = 60;
-        if (physics.isStalled) { hue = 0; lightness = 50 + Math.random() * 20; }
+        if (isStalled) { hue = 0; lightness = 50 + Math.random() * 20; }
         else if (physics.efficiency > 0.8) { hue = 150; saturation = 100; }
         const alpha = p.alpha * (p.life / 1);
         ctx.beginPath();

@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Ruler, Move, Compass, Pencil, Map as MapIcon } from 'lucide-react';
 import { motion } from 'framer-motion';
+import Image from 'next/image';
 import ParallelRuler from './ParallelRuler';
 import DividerTool from './DividerTool';
 
@@ -90,14 +91,6 @@ export default function ChartCanvas() {
         setScale(s => Math.min(3, Math.max(0.2, s * factor)));
     };
 
-    // Derived helpers
-    const getBearing = (p1: { x: number, y: number }, p2: { x: number, y: number }) => {
-        const angle = Math.atan2(p2.y - p1.y, p2.x - p1.x) * 180 / Math.PI;
-        let nautical = 90 + angle;
-        if (nautical < 0) nautical += 360;
-        return Math.round(nautical);
-    };
-
     return (
         <div className="relative w-full h-[calc(100vh-64px)] overflow-hidden bg-[#e0e0e0] cursor-crosshair select-none"
             onMouseDown={handleMouseDown}
@@ -178,11 +171,14 @@ export default function ChartCanvas() {
             >
                 {/* 1. Base Chart (Using the selected image) */}
                 <div className="w-[3000px] h-[2000px] bg-[#f8f5f0] relative shadow-2xl border-[12px] border-[#3e2723] rounded-sm overflow-hidden">
-                    {/* Selected Chart Image */}
-                    <img
+                    {/* Selected Chart Image Optimized */}
+                    <Image
                         src={`/images/academy/ChartPlotterMap/Chart${currentChart}.webp`}
-                        className="absolute inset-0 w-full h-full object-cover opacity-90"
+                        fill
+                        priority
+                        className="object-cover opacity-90"
                         alt={`Chart ${currentChart}`}
+                        sizes="3000px"
                     />
 
                     {/* Subtle Sea Tint Overlay */}

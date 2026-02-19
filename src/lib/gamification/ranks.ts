@@ -12,7 +12,7 @@ export const RANKS: Rank[] = [
         id: 'grumete',
         name: 'Grumete',
         minXP: 0,
-        icon: '/images/rank-badge-grumete.png', // Or emoji if image missing
+        icon: '/images/rank-badge-grumete.webp', // Or emoji if image missing
         description: 'Recién llegado a la cubierta. Tu viaje apenas comienza.',
         color: 'text-stone-400'
     },
@@ -89,3 +89,4 @@ export function calculateEstimatedXP(progress: any[], achievements: any[]): numb
 
     return xp;
 }
+

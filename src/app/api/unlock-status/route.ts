@@ -42,15 +42,13 @@ export async function GET(request: Request) {
         }
 
         // 4. FILTER & HARDEN
-        // If staff, we unlock EVERYTHING.
+        // Staff Bypass
         if (isStaff) {
             const unlockAll = (map: Record<string, string>) => {
-                const newMap: Record<string, string> = {};
-                Object.keys(map || {}).forEach(id => {
-                    if (map[id] === 'locked' || map[id] === 'bloqueado') {
+                const newMap: Record<string, string> = { ...(map || {}) };
+                Object.keys(newMap).forEach(id => {
+                    if (newMap[id] === 'locked' || newMap[id] === 'bloqueado') {
                         newMap[id] = 'available';
-                    } else {
-                        newMap[id] = map[id];
                     }
                 });
                 return newMap;
@@ -64,75 +62,27 @@ export async function GET(request: Request) {
             });
         }
 
-        const filteredCourses: Record<string, string> = {};
+        const filteredLevels = { ...(unlockStatus.niveles || {}) };
+        const filteredCourses = { ...(unlockStatus.cursos || {}) };
+        const filteredModules = { ...(unlockStatus.modulos || {}) };
+        const filteredUnits = { ...(unlockStatus.unidades || {}) };
 
-        // 1. Ensure ALL enrolled courses are available
-        enrolledCourseIds.forEach(id => {
-            filteredCourses[id] = 'available';
-        });
-
-        const coursesMap = unlockStatus.cursos || {};
-
-        // 2. Integrate RPC status
-        Object.keys(coursesMap).forEach(courseId => {
-            const isEnrolled = enrolledCourseIds.includes(courseId);
-            if (isEnrolled) {
-                // Keep it available if enrolled
+        // 1. Process Enrolled Courses
+        // Enrollment bypasses hierarchy blocks but NOT sequential blocks
+        enrolledCourseIds.forEach(courseId => {
+            if (filteredCourses[courseId] === 'bloqueado' || filteredCourses[courseId] === 'locked' || !filteredCourses[courseId]) {
                 filteredCourses[courseId] = 'available';
-            } else {
-                // If not enrolled, it is locked
-                filteredCourses[courseId] = 'bloqueado';
             }
         });
 
-        // We should also filter modules/units belonging to locked courses,
-        // but client-side logic handles this via hierarchical checks usually.
-        // For robustness, returning 'bloqueado' for the course is often enough for the UI to disable children.
+        // 2. Fetch structural info to identify "First" elements if needed
+        // but for now, we trust the DB's verficar_desbloqueos_dependencias if it ran.
+        // If it didn't run, we might need a manual boost here for the first unit of an enrolled course.
 
+        // 3. (Optional) Force first module of enrolled courses to be available if course is available
+        // This is a safety measure in case the trigger didn't fire for some reason.
 
-        // Filter Levels: If a user has an enrolled course in a level, that level should be available
-        const filteredLevels: Record<string, string> = { ...(unlockStatus.niveles || {}) };
-        const { data: levelMappings } = await supabase
-            .from('cursos')
-            .select('nivel_formacion_id')
-            .in('id', enrolledCourseIds);
-
-        const enrolledLevelIds = (levelMappings || []).map(m => m.nivel_formacion_id).filter(Boolean);
-
-        // Ensure all enrolled levels are marked available
-        enrolledLevelIds.forEach(id => {
-            if (id) filteredLevels[id] = 'available';
-        });
-
-        // Filter Modules: If they belong to an enrolled course, they should be available
-        const filteredModules: Record<string, string> = { ...(unlockStatus.modulos || {}) };
-        const { data: moduleMappings } = await supabase
-            .from('modulos')
-            .select('id')
-            .in('curso_id', enrolledCourseIds);
-
-        const enrolledModuleIds = (moduleMappings || []).map(m => m.id);
-
-        // Ensure all enrolled modules are marked available
-        enrolledModuleIds.forEach(id => {
-            filteredModules[id] = 'available';
-        });
-
-        // Filter Units: If they belong to an enrolled module, they should be available
-        const filteredUnits: Record<string, string> = { ...(unlockStatus.unidades || {}) };
-        const { data: unitMappings } = await supabase
-            .from('unidades_didacticas')
-            .select('id')
-            .in('modulo_id', enrolledModuleIds);
-
-        const enrolledUnitIds = (unitMappings || []).map(u => u.id);
-
-        // Ensure all enrolled units are marked available
-        enrolledUnitIds.forEach(id => {
-            filteredUnits[id] = 'available';
-        });
-
-        // 5. RESPONSE
+        // Final Response
         return NextResponse.json({
             ...unlockStatus,
             niveles: filteredLevels,

@@ -57,7 +57,7 @@ export default function ResultScreen({
                 {isPassing && (
                     <div className="absolute inset-0 z-0 pointer-events-none opacity-30">
                         <Image
-                            src="/images/feedback-success-confetti.png"
+                            src="/images/feedback-success-confetti.webp"
                             alt="Celebración"
                             fill
                             className="object-cover scale-110"
@@ -190,3 +190,4 @@ export default function ResultScreen({
         </>
     );
 }
+

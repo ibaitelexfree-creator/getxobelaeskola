@@ -5,6 +5,7 @@ import { useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import AccessibleModal from '../shared/AccessibleModal';
 import { apiUrl } from '@/lib/api';
+import { parseAmount } from '@/lib/utils/financial';
 
 
 interface FinancialTransaction {
@@ -124,13 +125,6 @@ export default function FinancialReportsClient({ initialData, initialView, total
     }, [initialView]);
 
     // Robust number parser
-    const parseAmount = (val: number | string | undefined | null) => {
-        if (typeof val === 'number') return val;
-        if (!val) return 0;
-        const clean = val.toString().replace(/[^0-9,.-]/g, '').replace(',', '.');
-        const parsed = parseFloat(clean);
-        return isNaN(parsed) ? 0 : parsed;
-    };
 
     const filteredData = useMemo(() => {
         let base = transactions;

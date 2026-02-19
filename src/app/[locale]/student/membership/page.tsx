@@ -80,7 +80,7 @@ export default function MembershipPage({ params: { locale } }: { params: { local
                     className="w-full aspect-[4/5] sm:aspect-[2/1] bg-gradient-to-br from-[#1a2c42] to-[#0a1628] rounded-2xl border border-brass-gold/30 p-8 relative overflow-hidden shadow-2xl mb-8 group"
                 >
                     <div className="absolute top-0 right-0 p-8 opacity-10 text-9xl group-hover:scale-110 transition-transform duration-1000">⚓</div>
-                    <div className="absolute inset-0 bg-[url('/images/nautical-pattern.png')] opacity-5" />
+                    <div className="absolute inset-0 bg-[url('/images/nautical-pattern.svg')] opacity-5" />
 
                     <div className="relative z-10 h-full flex flex-col justify-between">
                         <div>

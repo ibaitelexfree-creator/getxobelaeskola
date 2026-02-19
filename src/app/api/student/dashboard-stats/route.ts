@@ -64,8 +64,11 @@ export async function GET() {
             { data: certs },
             { data: horas }
         ] = await Promise.all([
-            supabase.from('progreso_alumno').select('id, tipo_entidad, estado, puntos_obtenidos').eq('alumno_id', user.id),
+            // @ts-ignore
+            supabase.from('progreso_alumno').select('id, tipo_entidad, estado').eq('alumno_id', user.id),
+            // @ts-ignore
             supabase.from('certificados').select('id').eq('alumno_id', user.id),
+            // @ts-ignore
             supabase.from('horas_navegacion').select('duracion_h').eq('alumno_id', user.id)
         ]);
 

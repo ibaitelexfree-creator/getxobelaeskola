@@ -34,3 +34,19 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# critical security
+.env
+.env.*
+!.env.example
+
+# debug & logs
+*.log
+*.log*
+*_debug.json
+debug_*.js
+*.txt
+!requirements.txt
+!robots.txt
+!LICENSE.txt
+

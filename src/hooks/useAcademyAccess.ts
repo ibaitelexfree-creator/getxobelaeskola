@@ -18,7 +18,7 @@ export function useAcademyAccess() {
 
     const fetchStatus = useCallback(async () => {
         try {
-            const res = await fetch(apiUrl('/api/academy/unlock-status'));
+            const res = await fetch(apiUrl('/api/unlock-status'));
             const data = await res.json();
             setStatusMap(data);
         } catch (err) {

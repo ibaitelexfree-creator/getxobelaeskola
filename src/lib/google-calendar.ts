@@ -1,5 +1,6 @@
 
 import { google } from 'googleapis';
+import { calculateEndTime } from '@/lib/utils/date';
 
 const calendar = google.calendar('v3');
 
@@ -114,11 +115,11 @@ export async function createRentalGoogleEvent(rental: any, serviceName: string, 
                 location: 'Puerto Deportivo de Getxo, Bizkaia',
                 description: `Cliente: ${userName}\nServicio: ${serviceName}\nOpción: ${rental.opcion_seleccionada || 'Estándar'}\nMonto: ${rental.monto_total}€\n\n⚙️ Gestionar en Panel: ${adminLink}`,
                 start: {
-                    dateTime: startDateTime.toISOString(),
+                    dateTime: `${rental.fecha_reserva}T${rental.hora_inicio}`,
                     timeZone: 'Europe/Madrid',
                 },
                 end: {
-                    dateTime: endDateTime.toISOString(),
+                    dateTime: `${rental.fecha_reserva}T${calculateEndTime(rental.hora_inicio, rental.duracion_horas || 1)}`,
                     timeZone: 'Europe/Madrid',
                 },
                 colorId: '9', // Blueberry (Lavender/Blue-ish) for Rentals

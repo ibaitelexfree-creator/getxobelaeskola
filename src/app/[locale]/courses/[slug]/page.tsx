@@ -16,11 +16,17 @@ export async function generateMetadata({
     params: { locale: string; slug: string }
 }): Promise<Metadata> {
     const supabase = createClient();
-    const { data: course } = await supabase
-        .from('cursos')
-        .select('*')
-        .eq('slug', slug)
-        .single();
+    let course = null;
+    try {
+        const { data } = await supabase
+            .from('cursos')
+            .select('*')
+            .eq('slug', slug)
+            .single();
+        course = data;
+    } catch (e) {
+        console.error('Metadata fetch failed:', e);
+    }
 
     // Re-use fallback logic for metadata
     const fallbacks: Record<string, any> = {
@@ -110,11 +116,17 @@ export default async function CourseDetailPage({
     const supabase = createClient();
 
     // 1. Fetch main course data
-    const { data: course } = await supabase
-        .from('cursos')
-        .select('*')
-        .eq('slug', slug)
-        .single();
+    let course = null;
+    try {
+        const { data } = await supabase
+            .from('cursos')
+            .select('*')
+            .eq('slug', slug)
+            .single();
+        course = data;
+    } catch (e) {
+        console.error('Course fetch failed:', e);
+    }
 
     // 2. Fetch real sessions/editions (if table works)
     let dbEditions: Edition[] = [];
@@ -238,7 +250,7 @@ export default async function CourseDetailPage({
 
     const displayEditions = allRealEditions;
 
-    const t = await getTranslations('courses');
+    const t = await getTranslations({ locale, namespace: 'courses' });
     const name = locale === 'es' ? displayCourse.nombre_es : displayCourse.nombre_eu;
     const description = locale === 'es' ? displayCourse.descripcion_es : displayCourse.descripcion_eu;
 

@@ -151,7 +151,7 @@ export default function MembershipCardPage({ params: { locale } }: { params: { l
                     <div className={`absolute inset-0 bg-[#111] border ${isSocio ? 'border-brass-gold/40 shadow-[0_0_50px_rgba(184,134,11,0.15)]' : 'border-white/10 opacity-60 grayscale'} rounded-2xl overflow-hidden flex flex-col justify-between p-8 group-hover:border-brass-gold/60 transition-all duration-700 print:border-black print:rounded-none`}>
 
                         {/* Background Patterns */}
-                        <div className="absolute inset-0 opacity-[0.15] pointer-events-none bg-[url('/images/nautical-pattern.png')] bg-repeat mix-blend-overlay" />
+                        <div className="absolute inset-0 opacity-[0.15] pointer-events-none bg-[url('/images/nautical-pattern.svg')] bg-repeat mix-blend-overlay" />
                         <div className={`absolute inset-0 bg-gradient-to-br ${isSocio ? 'from-brass-gold/15 via-transparent to-accent/5' : 'from-white/5 to-transparent'} pointer-events-none`} />
 
                         {/* Interactive Shine Effect */}

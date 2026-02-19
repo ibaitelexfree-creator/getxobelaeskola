@@ -32,7 +32,7 @@ export function useUnitProgress({ unidadId, isCompletado, erroresComunes }: UseU
         );
 
         try {
-            const res = await fetch(apiUrl('/api/academy/progress/unit-read'), {
+            const res = await fetch(apiUrl('/api/progress/unit-read'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({

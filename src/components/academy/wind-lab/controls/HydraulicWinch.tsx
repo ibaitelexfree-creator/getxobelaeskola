@@ -48,46 +48,39 @@ export const HydraulicWinch: React.FC<HydraulicWinchProps> = ({ value, min, max,
     }, [isDragging]);
 
     return (
-        <div className="flex flex-col items-center gap-2 h-full">
-            <span className="text-3xs font-bold text-slate-500 tracking-widest uppercase writing-vertical-lr">{label}</span>
+        <div className="flex flex-col items-center gap-2 h-full pb-1 relative group select-none">
+            {/* Value Label (Top) */}
+            <div className="absolute -top-6 left-1/2 -translate-x-1/2 text-xs font-mono font-bold text-cyan-300 drop-shadow-[0_0_5px_cyan]">
+                {value}°
+            </div>
 
             <div
                 ref={trackRef}
                 onMouseDown={onMouseDown}
-                className="relative w-12 flex-1 bg-slate-800 rounded-xl border border-slate-700 shadow-inner cursor-ns-resize group overflow-hidden"
+                className="relative w-8 h-full flex-1 cursor-ns-resize group"
             >
-                {/* Scale markings */}
-                <div className="absolute inset-0 flex flex-col justify-between py-4 px-1 pointer-events-none">
-                    {[...Array(10)].map((_, i) => (
-                        <div key={i} className={`h-[1px] ${i % 3 === 0 ? 'w-full bg-slate-600' : 'w-2 bg-slate-700'}`} />
-                    ))}
+                {/* Thin Center Rail / Track */}
+                <div className="absolute left-1/2 -translate-x-1/2 top-0 bottom-0 w-0.5 bg-slate-700/50 shadow-[0_0_10px_rgba(34,211,238,0.3)]">
+                    {/* Active Fill (from bottom) */}
+                    <div
+                        className="absolute bottom-0 left-0 w-full bg-cyan-400 shadow-[0_0_10px_cyan]"
+                        style={{ height: `${percentage}%` }}
+                    />
                 </div>
 
-                {/* Hydraulic Fluid (Active Track) */}
+                {/* Glow Line behind track */}
+                <div className="absolute left-1/2 -translate-x-1/2 top-0 bottom-0 w-1 bg-cyan-500/10 blur-sm pointer-events-none" />
+
+                {/* Winch Handle / Thumb */}
                 <div
-                    className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-cyan-600 to-cyan-400 shadow-[0_0_20px_rgba(34,211,238,0.3)] transition-all duration-75"
-                    style={{ height: `${percentage}%` }}
+                    className="absolute left-1/2 -translate-x-1/2 w-6 h-3 bg-slate-900 border border-cyan-400 rounded-sm shadow-[0_0_15px_cyan] flex items-center justify-center transition-all duration-75 group-active:scale-95 z-20 hover:scale-110"
+                    style={{ bottom: `calc(${percentage}% - 6px)` }}
                 >
-                    <div className="w-full h-1 bg-white/30 absolute top-0" />
-                </div>
-
-                {/* Winch Knob */}
-                <div
-                    className="absolute left-1/2 -translate-x-1/2 w-10 h-6 bg-slate-600 rounded border-2 border-slate-500 shadow-lg cursor-ns-resize group-active:scale-95 transition-all duration-75"
-                    style={{ bottom: `calc(${percentage}% - 12px)` }}
-                >
-                    <div className="flex flex-col gap-0.5 items-center justify-center h-full">
-                        <div className="w-6 h-[1px] bg-slate-400" />
-                        <div className="w-6 h-[1px] bg-slate-400" />
-                        <div className="w-6 h-[1px] bg-slate-400" />
-                    </div>
-                </div>
-
-                {/* Value Readout overlay */}
-                <div className="absolute bottom-2 left-1/2 -translate-x-1/2 text-3xs font-mono font-bold text-slate-300 drop-shadow-md">
-                    {value}°
+                    <div className="w-4 h-[1px] bg-cyan-400 shadow-[0_0_5px_cyan]" />
                 </div>
             </div>
+
+            <span className="text-[9px] font-black text-slate-500 tracking-widest uppercase mt-1">{label}</span>
         </div>
     );
 };
