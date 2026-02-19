@@ -20,6 +20,8 @@ function moveDir(src, dest) {
     }
 }
 
+let exitCode = 0;
+
 try {
     // 1. Move API folder out of src/app
     if (moveDir(apiPath, targetApiPath)) {
@@ -60,10 +62,14 @@ try {
     }
 
 } catch (error) {
-    console.error('❌ Build failed:', error.message);
+    console.error('❌ Build failed:', error);
+    exitCode = 1;
 } finally {
     // 3. Restore API folder
     if (moveDir(targetApiPath, apiPath)) {
         console.log('✅ API folder restored to src/app/api.');
+    }
+    if (exitCode !== 0) {
+        process.exit(exitCode);
     }
 }

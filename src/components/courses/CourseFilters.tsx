@@ -32,28 +32,39 @@ export default function CourseFilters({ categories, locale }: CourseFiltersProps
     };
 
     return (
-        <div className="flex flex-wrap gap-4 mb-16 animate-fade-in" style={{ animationDelay: '1s' }}>
-            <button
-                onClick={() => handleCategoryChange(null)}
-                className={`px-6 py-2.5 rounded-full text-xs font-black uppercase tracking-widest transition-all duration-300 border ${!activeCategory
-                        ? 'bg-accent text-nautical-black border-accent'
-                        : 'bg-white/5 text-white/60 border-white/10 hover:border-white/30 hover:text-white'
-                    }`}
-            >
-                {locale === 'eu' ? 'Guztiak' : 'Todos'}
-            </button>
-            {categories.map((cat) => (
+        <div className="relative mb-20 animate-fade-in" style={{ animationDelay: '0.8s' }}>
+            {/* Gradient Mask for horizontal scroll */}
+            <div className="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-nautical-deep to-transparent z-10 pointer-events-none" />
+
+            <div className="flex overflow-x-auto pb-4 gap-4 no-scrollbar scroll-smooth">
                 <button
-                    key={cat.id}
-                    onClick={() => handleCategoryChange(cat.id)}
-                    className={`px-6 py-2.5 rounded-full text-xs font-black uppercase tracking-widest transition-all duration-300 border ${activeCategory === cat.id
-                            ? 'bg-accent text-nautical-black border-accent shadow-[0_0_20px_rgba(255,77,0,0.3)]'
-                            : 'bg-white/5 text-white/60 border-white/10 hover:border-white/30 hover:text-white'
+                    onClick={() => handleCategoryChange(null)}
+                    className={`whitespace-nowrap px-8 py-3 rounded-sm text-[10px] font-black uppercase tracking-[0.3em] transition-all duration-500 border ${!activeCategory
+                        ? 'bg-accent text-nautical-black border-accent shadow-[0_0_25px_rgba(255,77,0,0.25)]'
+                        : 'bg-white/5 text-white/40 border-white/5 hover:border-white/20 hover:text-white'
                         }`}
                 >
-                    {locale === 'eu' ? cat.nombre_eu : cat.nombre_es}
+                    {locale === 'eu' ? 'Guztiak' : (locale === 'en' ? 'All' : 'Todos')}
                 </button>
-            ))}
+                {categories.map((cat) => (
+                    <button
+                        key={cat.id}
+                        onClick={() => handleCategoryChange(cat.id)}
+                        className={`whitespace-nowrap px-8 py-3 rounded-sm text-[10px] font-black uppercase tracking-[0.3em] transition-all duration-500 border ${activeCategory === cat.id
+                            ? 'bg-accent text-nautical-black border-accent shadow-[0_0_25px_rgba(255,77,0,0.25)]'
+                            : 'bg-white/5 text-white/40 border-white/5 hover:border-white/20 hover:text-white'
+                            }`}
+                    >
+                        {locale === 'eu' ? cat.nombre_eu : cat.nombre_es}
+                    </button>
+                ))}
+            </div>
+
+            {/* Hint for mobile scrolling */}
+            <div className="mt-4 flex items-center gap-3 opacity-20">
+                <div className="h-px w-8 bg-white" />
+                <span className="text-[9px] uppercase tracking-[0.4em] text-white">Slide to filter</span>
+            </div>
         </div>
     );
 }

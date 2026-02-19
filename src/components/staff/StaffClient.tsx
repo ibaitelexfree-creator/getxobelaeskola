@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useTranslations } from 'next-intl';
+import { useSearchParams } from 'next/navigation';
 import dynamic from 'next/dynamic';
 
 const OverviewTab = dynamic(() => import('./OverviewTab'), { ssr: false });
@@ -15,6 +16,8 @@ const SessionsTab = dynamic(() => import('./SessionsTab'), { ssr: false });
 const AcademyStaffTab = dynamic(() => import('./AcademyStaffTab'), { ssr: false });
 const FinancialReportsClient = dynamic(() => import('./FinancialReportsClient'), { ssr: false });
 const BITab = dynamic(() => import('./BITab'), { ssr: false });
+const DriveExplorerTab = dynamic(() => import('./DriveExplorerTab'), { ssr: false });
+const DataExplorerTab = dynamic(() => import('./DataExplorerTab'), { ssr: false });
 
 import AccessibleModal from '../shared/AccessibleModal';
 import { apiUrl } from '@/lib/api';
@@ -115,14 +118,22 @@ export default function StaffClient({
     userProfile, initialRentals = [], allRentals = [], initialStaff = [], locale, stats: initialStats, initialAuditLogs = [], chartData = []
 }: StaffClientProps) {
     const t = useTranslations('staff_panel');
-    const [activeTab, setActiveTab] = useState<'overview' | 'rentals' | 'courses' | 'academia' | 'catalog' | 'fleet' | 'sessions' | 'communication' | 'staff_mgmt' | 'financials' | 'bi'>('overview');
+    const searchParams = useSearchParams();
+    const [activeTab, setActiveTab] = useState<'overview' | 'rentals' | 'courses' | 'academia' | 'catalog' | 'fleet' | 'sessions' | 'communication' | 'staff_mgmt' | 'financials' | 'bi' | 'drive' | 'explorer'>('overview');
     const [financialsViewMode, setFinancialsViewMode] = useState<'today' | 'month' | 'year' | undefined>('year');
+
+    // Sync tab from URL
+    useEffect(() => {
+        const tabParam = searchParams.get('tab');
+        if (tabParam) {
+            setActiveTab(tabParam as any);
+        }
+    }, [searchParams]);
 
     // Scroll to top when tab changes
     useEffect(() => {
         window.scrollTo({ top: 0, behavior: 'instant' });
     }, [activeTab]);
-
 
     const [rentals, setRentals] = useState<Rental[]>(initialRentals || []);
     const [recentRentals, setRecentRentals] = useState<Rental[]>(allRentals || []);
@@ -140,7 +151,7 @@ export default function StaffClient({
 
     const userRole = (userProfile?.rol || '').toLowerCase();
     const isAdmin = userRole === 'admin';
-    const isInstructor = userRole === 'instructor' || userRole === 'admin'; // Admin is also an instructor
+    const isInstructor = userRole === 'instructor' || userRole === 'admin';
 
     const [searchTerm, setSearchTerm] = useState('');
     const [students, setStudents] = useState<StaffProfile[]>([]);
@@ -169,6 +180,7 @@ export default function StaffClient({
     // Notion Integration State
     const [notionMetrics, setNotionMetrics] = useState<any>(null);
     const [isSyncingNotion, setIsSyncingNotion] = useState(false);
+    const [isUpdatingDashboard, setIsUpdatingDashboard] = useState(false);
 
     // Staff Edit State
     const [isEditingStaff, setIsEditingStaff] = useState(false);
@@ -229,6 +241,26 @@ export default function StaffClient({
             console.error('Sync Error:', error);
         } finally {
             setIsSyncingNotion(false);
+        }
+    };
+
+    const handleUpdateDashboard = async () => {
+        setIsUpdatingDashboard(true);
+        try {
+            const res = await fetch('/api/admin/notion/update-dashboard', {
+                method: 'POST'
+            });
+            if (res.ok) {
+                alert('✅ Dashboard en Notion actualizado correctamente.');
+                await fetchNotionMetrics();
+            } else {
+                const data = await res.json();
+                alert(`Error al actualizar dashboard: ${data.error}`);
+            }
+        } catch (error) {
+            console.error('Dashboard Update Error:', error);
+        } finally {
+            setIsUpdatingDashboard(false);
         }
     };
 
@@ -814,11 +846,15 @@ export default function StaffClient({
                             { id: 'sessions', label: 'SESIONES' },
                             { id: 'communication', label: t('tabs.communication') },
                             { id: 'staff_mgmt', label: t('tabs.staff_mgmt') },
-                            ...(isAdmin ? [{ id: 'bi', label: 'BUSINESS INTEL' }] : [])
+                            { id: 'drive', label: 'DRIVE' },
+                            ...(isAdmin ? [
+                                { id: 'bi', label: 'BUSINESS INTEL' },
+                                { id: 'explorer', label: 'DATA X-RAY' }
+                            ] : [])
                         ].map(tab => (
                             <button
                                 key={tab.id}
-                                onClick={() => setActiveTab(tab.id as 'overview' | 'rentals' | 'courses' | 'academia' | 'catalog' | 'fleet' | 'sessions' | 'communication' | 'staff_mgmt' | 'bi')}
+                                onClick={() => setActiveTab(tab.id as any)}
                                 className={`text-sm uppercase tracking-[0.15em] font-black transition-all pb-2 border-b-2 whitespace-nowrap ${activeTab === tab.id ? 'text-accent border-accent text-shadow-glow' : 'text-white/20 border-transparent hover:text-white/40'}`}
                             >
                                 {tab.label}
@@ -993,7 +1029,6 @@ export default function StaffClient({
                         isAdmin={isAdmin}
                         locale={locale}
                         displayStats={stats}
-                        // @ts-expect-error - Type mismatch between local interfaces
                         rentals={recentRentals}
                         globalLogs={globalLogs}
                         auditLogs={auditLogs}
@@ -1008,6 +1043,8 @@ export default function StaffClient({
                         notionMetrics={notionMetrics}
                         isSyncing={isSyncingNotion}
                         onTriggerSync={handleTriggerSync}
+                        isUpdatingDashboard={isUpdatingDashboard}
+                        onUpdateDashboard={handleUpdateDashboard}
                     />
                 )}
 
@@ -1029,8 +1066,16 @@ export default function StaffClient({
                     </div>
                 )}
 
+                {activeTab === 'explorer' && (
+                    <DataExplorerTab />
+                )}
+
                 {activeTab === 'bi' && (
                     <BITab />
+                )}
+
+                {activeTab === 'drive' && (
+                    <DriveExplorerTab />
                 )}
 
                 {/* TAB CONTENT: RENTALS */}

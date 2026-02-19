@@ -16,11 +16,11 @@ export default function AcademySkeleton() {
                     {[1, 2, 3].map((i) => (
                         <div key={i} className="p-12 glass-card animate-pulse">
                             <div className="flex flex-col lg:flex-row gap-10">
-                                <div className="w-32 h-32 rounded-full bg-white/5" />
+                                <div className="w-32 h-32 rounded-full bg-white/10" />
                                 <div className="flex-1 space-y-4">
-                                    <div className="h-10 w-3/4 bg-white/5 rounded" />
-                                    <div className="h-4 w-full bg-white/5 rounded" />
-                                    <div className="h-4 w-1/2 bg-white/5 rounded" />
+                                    <div className="h-10 w-3/4 bg-white/10 rounded" />
+                                    <div className="h-4 w-full bg-white/10 rounded" />
+                                    <div className="h-4 w-1/2 bg-white/10 rounded" />
                                 </div>
                             </div>
                         </div>

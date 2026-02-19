@@ -11,19 +11,19 @@ export default function UnitSkeleton() {
                     {/* Title Section */}
                     <div className="mb-12">
                         <div className="flex items-center gap-4 mb-6">
-                            <div className="w-16 h-16 rounded-full bg-white/5 animate-pulse" />
+                            <div className="w-16 h-16 rounded-full bg-white/10 animate-pulse" />
                             <div className="flex-1 space-y-3">
-                                <div className="h-4 w-32 bg-white/5 rounded animate-pulse" />
-                                <div className="h-10 w-3/4 bg-white/5 rounded animate-pulse" />
+                                <div className="h-4 w-32 bg-white/10 rounded animate-pulse" />
+                                <div className="h-10 w-3/4 bg-white/10 rounded animate-pulse" />
                             </div>
                         </div>
 
                         {/* Objectives Box */}
                         <div className="bg-white/5 border border-white/10 rounded-sm p-6 space-y-3 animate-pulse">
                             <div className="h-3 w-24 bg-white/10 rounded" />
-                            <div className="h-3 w-full bg-white/5 rounded" />
-                            <div className="h-3 w-5/6 bg-white/5 rounded" />
-                            <div className="h-3 w-4/6 bg-white/5 rounded" />
+                            <div className="h-3 w-full bg-white/10 rounded" />
+                            <div className="h-3 w-5/6 bg-white/10 rounded" />
+                            <div className="h-3 w-4/6 bg-white/10 rounded" />
                         </div>
                     </div>
 
@@ -35,11 +35,11 @@ export default function UnitSkeleton() {
 
                     {/* Content */}
                     <div className="space-y-6">
-                        <div className="h-4 w-full bg-white/5 rounded animate-pulse" />
-                        <div className="h-4 w-full bg-white/5 rounded animate-pulse" />
-                        <div className="h-4 w-5/6 bg-white/5 rounded animate-pulse" />
-                        <div className="h-4 w-full bg-white/5 rounded animate-pulse" />
-                        <div className="h-32 w-full bg-white/5 rounded animate-pulse" />
+                        <div className="h-4 w-full bg-white/10 rounded animate-pulse" />
+                        <div className="h-4 w-full bg-white/10 rounded animate-pulse" />
+                        <div className="h-4 w-5/6 bg-white/10 rounded animate-pulse" />
+                        <div className="h-4 w-full bg-white/10 rounded animate-pulse" />
+                        <div className="h-32 w-full bg-white/10 rounded animate-pulse" />
                     </div>
                 </div>
             </div>

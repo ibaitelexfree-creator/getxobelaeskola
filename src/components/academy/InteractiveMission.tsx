@@ -3,6 +3,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { useLocale } from 'next-intl';
 
 interface InteractiveMissionProps {
     data: any;
@@ -26,7 +27,7 @@ export default function InteractiveMission({ data, onComplete }: InteractiveMiss
 
     return (
         <div className="p-8 bg-white/5 border border-white/10 rounded-sm text-center">
-            <p className="text-white/60 italic font-display">Esta unidad tiene contenido interactivo que se está cargando...</p>
+            <p className="text-white/80 italic font-display" role="status">Esta unidad tiene contenido interactivo que se está cargando...</p>
         </div>
     );
 }
@@ -47,7 +48,7 @@ function InventoryMission({ data, onComplete }: { data: any, onComplete?: () => 
     return (
         <div className="bg-premium-mesh p-8 border-2 border-accent/40 rounded-sm">
             <h3 className="text-2xl font-display italic text-white mb-4">🎒 Misión: Inventario de Cubierta</h3>
-            <p className="text-white/60 mb-8">{data.mision}</p>
+            <p className="text-white/80 mb-8">{data.mision}</p>
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 {items.map((item: string) => (
@@ -55,9 +56,10 @@ function InventoryMission({ data, onComplete }: { data: any, onComplete?: () => 
                         key={item}
                         onClick={() => toggleItem(item)}
                         className={`p-4 border transition-all duration-300 ${found.includes(item)
-                                ? 'bg-accent border-accent text-nautical-black'
-                                : 'bg-white/5 border-white/10 text-white/40 hover:border-accent/40 hover:text-white'
+                            ? 'bg-accent border-accent text-nautical-black font-bold'
+                            : 'bg-white/5 border-white/10 text-white/70 hover:border-accent/40 hover:text-white'
                             }`}
+                        aria-pressed={found.includes(item)}
                     >
                         <span className="text-3xs uppercase tracking-widest font-black">{item}</span>
                         {found.includes(item) && <span className="block mt-1">✓</span>}
@@ -112,12 +114,12 @@ function TacticMission({ data, onComplete }: { data: any, onComplete?: () => voi
                             onClick={() => checkAnswer(idx)}
                             disabled={selected !== null}
                             className={`p-4 text-left border transition-all duration-300 ${selected === null
-                                    ? 'border-white/10 hover:border-accent hover:bg-white/5'
-                                    : idx === currentScenario.correcta
-                                        ? 'bg-green-500/20 border-green-500 text-green-200'
-                                        : selected === idx
-                                            ? 'bg-red-500/20 border-red-500 text-red-200'
-                                            : 'opacity-50 border-white/10'
+                                ? 'border-white/10 hover:border-accent hover:bg-white/5'
+                                : idx === currentScenario.correcta
+                                    ? 'bg-green-500/20 border-green-500 text-green-200'
+                                    : selected === idx
+                                        ? 'bg-red-500/20 border-red-500 text-red-200'
+                                        : 'opacity-50 border-white/10 text-white/60'
                                 }`}
                         >
                             {opt}
@@ -137,6 +139,7 @@ function TacticMission({ data, onComplete }: { data: any, onComplete?: () => voi
 function KnotsMission({ data, onComplete }: { data: any, onComplete?: () => void }) {
     const [studied, setStudied] = useState<string[]>([]);
     const nudos = data.nudos || [];
+    const locale = useLocale();
 
     const study = (id: string) => {
         if (!studied.includes(id)) {
@@ -149,7 +152,7 @@ function KnotsMission({ data, onComplete }: { data: any, onComplete?: () => void
     return (
         <div className="bg-gradient-to-br from-blue-900/40 to-black p-8 border-2 border-blue-500/40 rounded-sm">
             <h3 className="text-2xl font-display italic text-white mb-4">🪢 Misión: Taller de Nudos</h3>
-            <p className="text-white/60 mb-8">{data.mision}</p>
+            <p className="text-white/70 mb-8">{data.mision}</p>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {nudos.map((nudo: any) => (
@@ -159,9 +162,10 @@ function KnotsMission({ data, onComplete }: { data: any, onComplete?: () => void
                             <p className="text-2xs text-white/40 mb-4">{nudo.desc}</p>
                         </div>
                         <Link
-                            href="/es/academy/tools/knots"
+                            href={`/${locale}/academy/tools/knots`}
                             onClick={() => study(nudo.id)}
-                            className={`text-center py-2 text-3xs uppercase font-black tracking-widest transition-all ${studied.includes(nudo.id) ? 'text-accent' : 'text-white/60 hover:text-white'}`}
+                            aria-label={studied.includes(nudo.id) ? `Nudo ${nudo.nombre} estudiado` : `Aprender nudo ${nudo.nombre}`}
+                            className={`text-center py-2 text-3xs uppercase font-black tracking-widest transition-all ${studied.includes(nudo.id) ? 'text-accent' : 'text-white/70 hover:text-white'}`}
                         >
                             {studied.includes(nudo.id) ? '✓ Estudiado' : 'Aprender →'}
                         </Link>

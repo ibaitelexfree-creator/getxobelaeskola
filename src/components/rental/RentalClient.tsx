@@ -342,46 +342,47 @@ export default function RentalClient({
     }, [bookingService]);
 
     return (
-        <div className="space-y-12 pb-32">
-            {/* Filter */}
-            <div className="flex overflow-x-auto md:flex-wrap gap-4 border-b border-white/5 pb-8 custom-scrollbar no-scrollbar">
-                {categories.map(cat => (
-                    <button
-                        key={cat.id}
-                        type="button"
-                        onClick={() => setSelectedCategory(cat.id)}
-                        className={`px-6 py-2 text-3xs uppercase tracking-widest transition-all whitespace-nowrap ${selectedCategory === cat.id
-                            ? 'bg-accent text-nautical-black font-bold'
-                            : 'text-foreground/60 hover:text-white'
-                            }`}
-                    >
-                        {cat.name}
-                    </button>
-                ))}
+        <div className="space-y-16 pb-48">
+            {/* Filter Section - Premium Scrollable */}
+            <div className="relative animate-fade-in">
+                <div className="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-nautical-deep to-transparent z-10 pointer-events-none" />
+                <div className="flex overflow-x-auto pb-4 gap-4 no-scrollbar scroll-smooth border-b border-white/5">
+                    {categories.map(cat => (
+                        <button
+                            key={cat.id}
+                            type="button"
+                            onClick={() => setSelectedCategory(cat.id)}
+                            className={`whitespace-nowrap px-8 py-3 rounded-sm text-[10px] font-black uppercase tracking-[0.3em] transition-all duration-500 border ${selectedCategory === cat.id
+                                ? 'bg-accent text-nautical-black border-accent shadow-[0_0_25px_rgba(255,77,0,0.25)]'
+                                : 'bg-white/5 text-white/40 border-white/5 hover:border-white/20 hover:text-white'
+                                }`}
+                        >
+                            {cat.name}
+                        </button>
+                    ))}
+                </div>
+                <div className="mt-4 flex items-center gap-3 opacity-20">
+                    <div className="h-px w-8 bg-white" />
+                    <span className="text-[9px] uppercase tracking-[0.4em] text-white">Slide categories</span>
+                </div>
             </div>
 
-            {/* Grid */}
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {/* Grid - Premium Cards */}
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-12">
                 {filteredServices.map(service => {
                     const isBookingThis = bookingService === service.id;
 
                     return (
-                        <div key={service.id} ref={isBookingThis ? bookingRef : null} className="group bg-white/5 border border-white/10 hover:border-accent/40 transition-all duration-300 overflow-hidden rounded-sm relative flex flex-col">
+                        <div key={service.id} ref={isBookingThis ? bookingRef : null} className="group relative glass-card overflow-hidden">
                             <div className="aspect-video relative overflow-hidden bg-nautical-black/50">
                                 {(() => {
                                     const name = service.nombre_es.toLowerCase();
                                     let imgSrc = service.imagen_url;
 
-                                    // Specific user-requested mappings
-                                    if (name.includes('j80')) {
-                                        imgSrc = '/images/J80.webp';
-                                    } else if (name.includes('raquero')) {
-                                        imgSrc = '/images/course-raquero-students.webp';
-                                    } else if (name.includes('optimist') || name.includes('laser') || name.includes('vela')) {
-                                        imgSrc = '/images/courses/CursodeVelaLigera.webp';
-                                    }
+                                    if (name.includes('j80')) imgSrc = '/images/J80.webp';
+                                    else if (name.includes('raquero')) imgSrc = '/images/course-raquero-students.webp';
+                                    else if (name.includes('optimist') || name.includes('laser') || name.includes('vela')) imgSrc = '/images/courses/CursodeVelaLigera.webp';
 
-                                    // General category fallbacks if still empty or no specific match
                                     if (!imgSrc || imgSrc.includes('placeholder') || imgSrc.includes('rental-category')) {
                                         if (service.categoria === 'windsurf') imgSrc = '/images/courses/PerfeccionamientoVela.webp';
                                         else if (service.categoria === 'paddlesurf') imgSrc = '/images/home-hero-sailing-action.webp';
@@ -402,129 +403,74 @@ export default function RentalClient({
                                             alt={locale === 'eu' ? (service.nombre_eu || service.nombre_es) : service.nombre_es}
                                             fill
                                             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                                            className="object-cover grayscale-[0.3] group-hover:grayscale-0 group-hover:scale-110 transition-all duration-700"
+                                            className="object-cover transition-transform duration-[2s] ease-out group-hover:scale-110 grayscale-[0.2] group-hover:grayscale-0"
                                         />
                                     );
                                 })()}
+                                <div className="absolute inset-0 premium-gradient-overlay z-10" />
                             </div>
 
-                            <div className="p-8 flex-1 flex flex-col">
-                                <h3 className="text-2xl font-display text-white mb-2">{locale === 'eu' ? (service.nombre_eu || service.nombre_es) : service.nombre_es}</h3>
-                                <p className="text-brass-gold font-display text-xl mb-6">{t('booking.from')} {service.precio_base}€</p>
+                            <div className="p-8 md:p-10 flex flex-col relative z-20">
+                                <div className="space-y-4 mb-8">
+                                    <div className="flex justify-between items-baseline border-b border-white/10 pb-4">
+                                        <span className="text-technical">Premium Service</span>
+                                        <span className="text-2xl font-display text-white italic">
+                                            {t('booking.from')} {service.precio_base}<span className="text-brass-gold text-lg ml-1">€</span>
+                                        </span>
+                                    </div>
+                                    <h3 className="text-3xl font-display text-white italic group-hover:text-accent transition-colors duration-500 leading-tight">
+                                        {locale === 'eu' ? (service.nombre_eu || service.nombre_es) : service.nombre_es}
+                                    </h3>
+                                </div>
 
                                 {isBookingThis ? (
-                                    <div className="mt-auto space-y-6 pt-6 border-t border-white/10">
-                                        <div className="grid grid-cols-1 gap-6">
-                                            <div className="space-y-3">
+                                    <div className="mt-auto space-y-8 pt-6 border-t border-white/10 animate-fade-in">
+                                        <div className="grid grid-cols-1 gap-8">
+                                            <div className="space-y-4">
                                                 <div className="flex justify-between items-center">
-                                                    <label className="text-3xs uppercase tracking-widest text-accent font-bold">{t('booking.date_label')}</label>
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => datePickerRef.current?.showPicker()}
-                                                        className="text-accent hover:scale-110 transition-transform"
-                                                    >
-                                                        📅
-                                                    </button>
+                                                    <label className="text-[10px] uppercase tracking-[0.3em] text-accent font-black">{t('booking.date_label')}</label>
+                                                    <button type="button" onClick={() => datePickerRef.current?.showPicker()} className="text-accent hover:scale-110 transition-transform">📅</button>
                                                 </div>
-                                                <div className="flex items-center gap-2 bg-nautical-black border border-white/10 p-4 group focus-within:border-accent transition-all relative">
-                                                    <input
-                                                        ref={dayRef}
-                                                        type="text"
-                                                        placeholder="DD"
-                                                        value={day}
-                                                        onChange={handleDayChange}
-                                                        onWheel={(e) => handleWheel(e, 'day')}
-                                                        className="w-8 bg-transparent text-white text-sm text-center outline-none cursor-ns-resize"
-                                                    />
-                                                    <span className="text-white/20">/</span>
-                                                    <input
-                                                        ref={monthRef}
-                                                        type="text"
-                                                        placeholder="MM"
-                                                        value={month}
-                                                        onChange={handleMonthChange}
-                                                        onWheel={(e) => handleWheel(e, 'month')}
-                                                        className="w-8 bg-transparent text-white text-sm text-center outline-none cursor-ns-resize"
-                                                    />
-                                                    <span className="text-white/20">/</span>
-
-                                                    {/* Year selection restricted to current and next year only */}
-                                                    <select
-                                                        ref={yearRef}
-                                                        value={year}
-                                                        onChange={(e) => setYear(e.target.value)}
-                                                        onWheel={(e) => handleWheel(e, 'year')}
-                                                        className="bg-transparent text-white text-sm outline-none cursor-pointer appearance-none px-1"
-                                                    >
+                                                <div className="flex items-center gap-4 bg-nautical-black/50 border border-white/10 p-5 rounded-sm focus-within:border-accent transition-all relative">
+                                                    <input ref={dayRef} type="text" placeholder="DD" value={day} onChange={handleDayChange} onWheel={(e) => handleWheel(e, 'day')} className="w-10 bg-transparent text-white text-lg text-center outline-none cursor-ns-resize font-display italic" />
+                                                    <span className="text-white/10">/</span>
+                                                    <input ref={monthRef} type="text" placeholder="MM" value={month} onChange={handleMonthChange} onWheel={(e) => handleWheel(e, 'month')} className="w-10 bg-transparent text-white text-lg text-center outline-none cursor-ns-resize font-display italic" />
+                                                    <span className="text-white/10">/</span>
+                                                    <select ref={yearRef} value={year} onChange={(e) => setYear(e.target.value)} onWheel={(e) => handleWheel(e, 'year')} className="bg-transparent text-white text-lg outline-none cursor-pointer appearance-none px-1 font-display italic">
                                                         <option value={currentYear} className="bg-nautical-black">{currentYear}</option>
                                                         <option value={currentYear + 1} className="bg-nautical-black">{currentYear + 1}</option>
                                                     </select>
-
-                                                    {/* Hidden picker restricted to today and next year */}
-                                                    <input
-                                                        type="date"
-                                                        ref={datePickerRef}
-                                                        className="absolute w-0 h-0 opacity-0"
-                                                        min={spainNow.dateStr}
-                                                        max={`${currentYear + 1}-12-31`}
-                                                        onChange={(e) => handlePickerChange(e.target.value)}
-                                                    />
+                                                    <input type="date" ref={datePickerRef} className="absolute w-0 h-0 opacity-0" min={spainNow.dateStr} max={`${currentYear + 1}-12-31`} onChange={(e) => handlePickerChange(e.target.value)} />
                                                 </div>
                                             </div>
 
-                                            <div className="space-y-3">
-                                                <label className="text-3xs uppercase tracking-widest text-accent font-bold">{t('booking.time_label')}</label>
-                                                <select
-                                                    value={selectedTime}
-                                                    onChange={(e) => setSelectedTime(e.target.value)}
-                                                    onWheel={handleTimeWheel}
-                                                    disabled={availableTimes.length === 0}
-                                                    className="w-full bg-nautical-black border border-white/10 text-white text-sm p-4 focus:border-accent outline-none cursor-ns-resize disabled:opacity-50"
-                                                >
-                                                    {availableTimes.length > 0 ? (
-                                                        availableTimes.map(t => (
-                                                            <option key={t} value={t} className="bg-nautical-black">{t}</option>
-                                                        ))
-                                                    ) : (
-                                                        <option value="" className="bg-nautical-black">{t('booking.no_times_available')}</option>
-                                                    )}
+                                            <div className="space-y-4">
+                                                <label className="text-[10px] uppercase tracking-[0.3em] text-accent font-black">{t('booking.time_label')}</label>
+                                                <select value={selectedTime} onChange={(e) => setSelectedTime(e.target.value)} onWheel={handleTimeWheel} disabled={availableTimes.length === 0} className="w-full bg-nautical-black/50 border border-white/10 text-white text-lg p-5 rounded-sm focus:border-accent outline-none cursor-ns-resize disabled:opacity-50 font-display italic appearance-none">
+                                                    {availableTimes.length > 0 ? availableTimes.map(t => <option key={t} value={t} className="bg-nautical-black">{t}</option>) : <option value="" className="bg-nautical-black">{t('booking.no_times_available')}</option>}
                                                 </select>
                                             </div>
                                         </div>
 
                                         {service.opciones && service.opciones.length > 0 && (
-                                            <div className="space-y-3">
-                                                <p className="text-3xs uppercase tracking-widest text-accent font-bold">{t('booking.extra_option')}</p>
-                                                <div className="grid grid-cols-1 gap-2">
+                                            <div className="space-y-4">
+                                                <p className="text-[10px] uppercase tracking-[0.3em] text-accent font-black">{t('booking.extra_option')}</p>
+                                                <div className="grid grid-cols-1 gap-3">
                                                     {service.opciones.map((opt, idx) => (
-                                                        <button
-                                                            key={idx}
-                                                            type="button"
-                                                            onClick={() => setBookingOption(idx)}
-                                                            className={`text-3xs p-4 border flex justify-between transition-all ${bookingOption === idx ? 'border-accent bg-accent/5 text-white' : 'border-white/5 text-foreground/60'}`}
-                                                        >
-                                                            <span>{opt.label}</span>
-                                                            <span className="font-bold text-brass-gold">+{opt.extra}€</span>
+                                                        <button key={idx} type="button" onClick={() => setBookingOption(idx)} className={`text-[10px] uppercase tracking-widest p-5 border flex justify-between transition-all rounded-sm ${bookingOption === idx ? 'border-accent bg-accent/10 text-white' : 'border-white/10 text-white/40 hover:border-white/30'}`}>
+                                                            <span className="font-bold">{opt.label}</span>
+                                                            <span className="font-display italic text-brass-gold text-lg">+{opt.extra}€</span>
                                                         </button>
                                                     ))}
                                                 </div>
                                             </div>
                                         )}
 
-                                        <div className="flex gap-2">
-                                            <button
-                                                type="button"
-                                                onClick={() => setBookingService(null)}
-                                                className="flex-1 py-4 border border-white/10 text-3xs uppercase tracking-widest hover:bg-white/5 text-white transition-all font-bold"
-                                            >
+                                        <div className="flex gap-4">
+                                            <button type="button" onClick={() => setBookingService(null)} className="flex-1 py-5 border border-white/10 text-[10px] uppercase tracking-[0.4em] hover:bg-white/5 text-white transition-all font-black rounded-sm">
                                                 {t('booking.cancel')}
                                             </button>
-                                            <button
-                                                type="button"
-                                                onClick={() => handleBooking(service.id, bookingOption !== null ? bookingOption : undefined)}
-                                                disabled={loading || availableTimes.length === 0}
-                                                className="flex-[2] py-4 bg-accent text-nautical-black text-3xs uppercase tracking-widest font-bold hover:scale-[1.02] transition-all disabled:opacity-50 disabled:grayscale disabled:hover:scale-100"
-                                            >
+                                            <button type="button" onClick={() => handleBooking(service.id, bookingOption !== null ? bookingOption : undefined)} disabled={loading || availableTimes.length === 0} className="flex-[2] py-5 bg-accent text-nautical-black text-[10px] uppercase tracking-[0.4em] font-black hover:scale-[1.02] shadow-xl shadow-accent/20 transition-all disabled:opacity-50 rounded-sm">
                                                 {loading ? '...' : t('booking.confirm')}
                                             </button>
                                         </div>
@@ -536,12 +482,13 @@ export default function RentalClient({
                                             setBookingService(service.id);
                                             setBookingOption(null);
                                         }}
-                                        className="mt-auto w-full py-5 bg-white/5 border border-white/10 hover:bg-accent hover:text-nautical-black text-3xs uppercase tracking-[0.2em] font-bold transition-all text-white"
+                                        className="mt-auto w-full py-6 border border-accent/20 text-accent hover:bg-accent hover:text-nautical-black text-[10px] uppercase tracking-[0.5em] font-black transition-all rounded-sm"
                                     >
                                         {t('booking.book_now')}
                                     </button>
                                 )}
                             </div>
+                            <div className="absolute inset-0 bg-mesh opacity-0 group-hover:opacity-10 transition-opacity duration-1000 pointer-events-none" />
                         </div>
                     );
                 })}

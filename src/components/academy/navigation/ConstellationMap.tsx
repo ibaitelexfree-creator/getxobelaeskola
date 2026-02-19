@@ -132,26 +132,28 @@ export default function ConstellationMap() {
             <div className="absolute inset-0 opacity-50 pointer-events-none" style={{ background: 'url(/images/stars-bg.svg) repeat' }} />
 
             {/* Hint */}
-            <div className="absolute top-6 left-6 text-white/40 text-2xs pointer-events-none md:block hidden">
+            <div className="absolute top-6 left-6 text-white/60 text-xs pointer-events-none md:block hidden bg-black/40 p-2 rounded backdrop-blur-sm">
                 <p>Arrastra para explorar. Rueda para zoom.</p>
             </div>
-            <div className="absolute top-6 left-6 text-white/40 text-2xs pointer-events-none block md:hidden">
+            <div className="absolute top-6 left-6 text-white/60 text-xs pointer-events-none block md:hidden bg-black/40 p-2 rounded backdrop-blur-sm">
                 <p>Desliza para mover. Pincha para zoom.</p>
             </div>
 
             {/* Zoom Controls (Floating) */}
-            <div className="absolute bottom-6 right-6 flex flex-col gap-2 z-20">
+            <div className="absolute bottom-6 right-6 flex flex-col gap-2 z-20" role="group" aria-label="Controles de zoom">
                 <button
                     onClick={() => zoom(0.8)}
-                    className="w-10 h-10 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-white border border-white/20 transition-colors"
+                    className="w-10 h-10 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-white border border-white/20 transition-colors focus-visible:ring-2 focus-visible:ring-accent outline-none"
+                    aria-label="Alejar mapa"
                 >
-                    +
+                    <span className="text-xl font-bold" aria-hidden="true">−</span>
                 </button>
                 <button
                     onClick={() => zoom(1.2)}
-                    className="w-10 h-10 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-white border border-white/20 transition-colors"
+                    className="w-10 h-10 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-white border border-white/20 transition-colors focus-visible:ring-2 focus-visible:ring-accent outline-none"
+                    aria-label="Acercar mapa"
                 >
-                    -
+                    <span className="text-xl font-bold" aria-hidden="true">+</span>
                 </button>
             </div>
 
@@ -191,13 +193,32 @@ export default function ConstellationMap() {
                 {COSMOS_DATA.map((node) => (
                     <g
                         key={node.id}
+                        role="button"
+                        tabIndex={node.status === 'locked' ? -1 : 0}
+                        aria-label={`${node.label} - ${node.description} - ${node.status === 'locked' ? 'Bloqueado' : 'Disponible'}`}
+                        aria-disabled={node.status === 'locked'}
                         onClick={(e) => { e.stopPropagation(); handleNodeClick(node); }}
-                        className={`transition-opacity duration-300 hover:opacity-80 cursor-pointer ${node.status === 'locked' ? 'opacity-30 grayscale' : 'opacity-100'}`}
+                        onKeyDown={(e) => {
+                            if (e.key === 'Enter' || e.key === ' ') {
+                                e.stopPropagation();
+                                e.preventDefault();
+                                handleNodeClick(node);
+                            }
+                        }}
+                        className={`transition-opacity duration-300 hover:opacity-80 focus:opacity-80 cursor-pointer outline-none ${node.status === 'locked' ? 'opacity-30 grayscale cursor-not-allowed' : 'opacity-100'}`}
                         filter={node.status !== 'locked' ? "url(#glow)" : ""}
                     >
+                        <circle
+                            cx={node.x}
+                            cy={node.y}
+                            r={node.type === 'planet' ? 30 : 20} // Hit area increased
+                            fill="transparent"
+                            className="stroke-transparent focus-visible:stroke-accent"
+                            strokeWidth="2"
+                        />
                         <circle cx={node.x} cy={node.y} r={node.type === 'planet' ? 25 : 15} fill="transparent" stroke={node.status === 'completed' ? '#4ade80' : '#fbbf24'} strokeWidth="1" strokeOpacity="0.5" />
                         <circle cx={node.x} cy={node.y} r={node.type === 'planet' ? 8 : 5} fill={node.status === 'completed' ? '#4ade80' : '#fbbf24'} />
-                        <text x={node.x} y={node.y + 40} textAnchor="middle" fill="white" fontSize="12" letterSpacing="1" className="uppercase font-light tracking-widest pointer-events-none">
+                        <text x={node.x} y={node.y + 40} textAnchor="middle" fill="white" fontSize="14" fontWeight="bold" letterSpacing="1" className="uppercase tracking-widest pointer-events-none drop-shadow-md">
                             {node.label}
                         </text>
                     </g>
@@ -206,12 +227,22 @@ export default function ConstellationMap() {
 
             {/* Active Node Modal / Card */}
             {activeNode && (
-                <div className="absolute bottom-12 left-1/2 -translate-x-1/2 w-[90%] max-w-sm bg-nautical-deep/90 backdrop-blur-md border border-white/10 p-6 rounded-xl shadow-2xl text-center">
-                    <button onClick={() => setActiveNode(null)} className="absolute top-2 right-2 text-white/50 hover:text-white">
-                        <X size={16} />
+                <div
+                    className="absolute bottom-12 left-1/2 -translate-x-1/2 w-[90%] max-w-sm bg-nautical-deep/95 backdrop-blur-xl border border-white/20 p-8 rounded-xl shadow-2xl text-center"
+                    role="dialog"
+                    aria-modal="true"
+                    aria-labelledby="node-title"
+                    aria-describedby="node-desc"
+                >
+                    <button
+                        onClick={() => setActiveNode(null)}
+                        className="absolute top-4 right-4 text-white/70 hover:text-white p-2 rounded-full hover:bg-white/10 transition-colors focus-visible:ring-2 focus-visible:ring-accent outline-none"
+                        aria-label="Cerrar detalles"
+                    >
+                        <X size={20} />
                     </button>
-                    <h3 className="text-xl text-accent font-display mb-2">{activeNode.label}</h3>
-                    <p className="text-white/70 text-sm mb-6">{activeNode.description}</p>
+                    <h3 id="node-title" className="text-2xl text-accent font-display mb-3">{activeNode.label}</h3>
+                    <p id="node-desc" className="text-white/90 text-sm mb-8 leading-relaxed">{activeNode.description}</p>
 
                     {activeNode.link ? (
                         <button
