@@ -1,7 +1,7 @@
 
 import { NextResponse } from 'next/server';
 
-const NOTION_TOKEN = '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';
+const NOTION_TOKEN = process.env.NOTION_TOKEN;
 const FLEET_DB_ID = '30c31210-b1a1-813b-a949-d7ddf66d84c9';
 
 export async function GET() {

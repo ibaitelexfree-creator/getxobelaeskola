@@ -20,49 +20,49 @@ const statusConfig: Record<string, { icon: React.ReactNode; label: string; color
     locked: {
         icon: <Lock className="w-4 h-4" />,
         label: 'Bloqueado',
-        color: 'text-gray-500',
+        color: 'text-gray-300',
         bg: 'bg-gray-100/10 border-gray-500/20',
     },
     bloqueado: {
         icon: <Lock className="w-4 h-4" />,
         label: 'Bloqueado',
-        color: 'text-gray-500',
+        color: 'text-gray-300',
         bg: 'bg-gray-100/10 border-gray-500/20',
     },
     available: {
         icon: <Unlock className="w-4 h-4" />,
         label: 'Disponible',
-        color: 'text-blue-400',
+        color: 'text-blue-300',
         bg: 'bg-blue-500/10 border-blue-500/20',
     },
     no_iniciado: {
         icon: <Circle className="w-4 h-4" />,
         label: 'Disponible',
-        color: 'text-blue-400',
+        color: 'text-blue-300',
         bg: 'bg-blue-500/10 border-blue-500/20',
     },
     in_progress: {
         icon: <RotateCw className="w-4 h-4 animate-spin-slow" />,
         label: 'En Progreso',
-        color: 'text-amber-400',
+        color: 'text-amber-300',
         bg: 'bg-amber-500/10 border-amber-500/20',
     },
     en_progreso: {
         icon: <RotateCw className="w-4 h-4 animate-spin-slow" />,
         label: 'En Progreso',
-        color: 'text-amber-400',
+        color: 'text-amber-300',
         bg: 'bg-amber-500/10 border-amber-500/20',
     },
     completed: {
         icon: <CheckCircle className="w-4 h-4" />,
         label: 'Completado',
-        color: 'text-green-400',
+        color: 'text-green-300',
         bg: 'bg-green-500/10 border-green-500/20',
     },
     completado: {
         icon: <CheckCircle className="w-4 h-4" />,
         label: 'Completado',
-        color: 'text-green-400',
+        color: 'text-green-300',
         bg: 'bg-green-500/10 border-green-500/20',
     },
 };
@@ -78,7 +78,7 @@ export const UnlockStatusBadge: React.FC<UnlockStatusBadgeProps> = ({ status, cl
                 inline-flex items-center gap-2 px-3 py-1 rounded-full text-3xs font-black uppercase tracking-widest border transition-all duration-300
                 ${config.color} ${config.bg} ${className}
                 ${(status === 'completed' || status === 'completado') ? 'shadow-[0_0_12px_rgba(74,222,128,0.2)] animate-pulse' : ''}
-                ${isLocked ? 'cursor-not-allowed opacity-70 hover:opacity-100 hover:bg-red-500/10 hover:border-red-500/20 hover:text-red-400' : ''}
+                ${isLocked ? 'cursor-not-allowed opacity-80 hover:opacity-100 hover:bg-white/5 hover:border-white/10 hover:text-white' : ''}
             `}
             title={isLocked ? 'Completa el contenido anterior para desbloquear' : config.label}
         >

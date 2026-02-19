@@ -19,13 +19,13 @@ export async function getUserEnrollments(userId: string): Promise<string[]> {
         .eq('id', userId)
         .single();
 
-    if (profile?.rol === 'admin' || profile?.rol === 'instructor') {
+    if (profile && ((profile as any).rol === 'admin' || (profile as any).rol === 'instructor')) {
         const { data: allCourses } = await supabaseAdmin
             .from('cursos')
             .select('id')
             .eq('activo', true);
 
-        return (allCourses || []).map(c => c.id);
+        return ((allCourses || []) as any[]).map(c => c.id);
     }
 
     // 1. Regular User: Only fetch valid, paid enrollments
@@ -40,7 +40,34 @@ export async function getUserEnrollments(userId: string): Promise<string[]> {
         return [];
     }
 
-    return data.map(row => row.curso_id).filter(Boolean);
+    return (data as any[]).map(row => row.curso_id).filter(Boolean);
+}
+
+/**
+ * Helper to check if an entity is unlocked via progress using the recursive RPC.
+ */
+async function isEntityUnlocked(userId: string, type: 'niveles' | 'cursos' | 'modulos' | 'unidades', entityId: string): Promise<boolean> {
+    console.log(`[isEntityUnlocked] Checking ${type} ${entityId} for user ${userId}`);
+    const supabaseAdmin = createAdminClient();
+    const { data: unlockStatus, error } = await supabaseAdmin.rpc('obtener_estado_desbloqueo_recursivo', {
+        p_alumno_id: userId
+    } as any);
+
+    if (error) {
+        console.error('[isEntityUnlocked] RPC Error:', error);
+        return false;
+    }
+
+    if (!unlockStatus || !(unlockStatus as any)[type]) {
+        console.warn(`[isEntityUnlocked] Missing unlock status for type ${type}`);
+        return false;
+    }
+
+    const status = (unlockStatus as any)[type][entityId];
+    console.log(`[isEntityUnlocked] Status for ${entityId}: ${status}`);
+
+    // Any status other than 'bloqueado' or missing means it's accessible
+    return !!status && status !== 'bloqueado' && status !== 'locked';
 }
 
 /**
@@ -62,7 +89,7 @@ export async function verifyCourseAccess(userId: string, courseSlug: string): Pr
         .eq('id', userId)
         .single();
 
-    if (profile?.rol === 'admin' || profile?.rol === 'instructor') return true;
+    if (profile && ((profile as any).rol === 'admin' || (profile as any).rol === 'instructor')) return true;
 
     // 1. Resolve Course ID from Slug
     const { data: course, error } = await supabaseAdmin
@@ -76,24 +103,23 @@ export async function verifyCourseAccess(userId: string, courseSlug: string): Pr
     }
 
     // 2. Check if this ID is in the user's enrollments
-    const { data: enrollment, error: enrollError } = await supabaseAdmin
+    const { data: enrollment } = await supabaseAdmin
         .from('inscripciones')
         .select('id')
         .eq('perfil_id', userId)
-        .eq('curso_id', course.id)
+        .eq('curso_id', (course as any).id)
         .eq('estado_pago', 'pagado')
         .single();
 
-    if (enrollError || !enrollment) {
-        return false;
-    }
+    if (enrollment) return true;
 
-    return true;
+    // 3. Fallback: Check progress-based unlock
+    return await isEntityUnlocked(userId, 'cursos', (course as any).id);
 }
 
 /**
  * Verifies if a user has access to a specific module.
- * Access is granted if the user owns the parent Course.
+ * Access is granted if the user owns the parent Course OR if it's unlocked via progress.
  * 
  * @param userId - The user's profile ID.
  * @param moduleId - The UUID of the module.
@@ -111,25 +137,27 @@ export async function verifyModuleAccess(userId: string, moduleId: string): Prom
         .eq('id', userId)
         .single();
 
-    if (profile?.rol === 'admin' || profile?.rol === 'instructor') return true;
+    if (profile && ((profile as any).rol === 'admin' || (profile as any).rol === 'instructor')) return true;
 
-    // 1. Find the parent Course ID for this Module
+    // 1. Check progress-based unlock (Fase 6 Primary Logic)
+    if (await isEntityUnlocked(userId, 'modulos', moduleId)) return true;
+
+    // 2. Fallback: Find the parent Course ID for this Module and check enrollment
     const { data: moduleData, error } = await supabaseAdmin
         .from('modulos')
         .select('curso_id')
         .eq('id', moduleId)
         .single();
 
-    if (error || !moduleData || !moduleData.curso_id) {
+    if (error || !moduleData || !(moduleData as any).curso_id) {
         return false;
     }
 
-    // 2. Verify enrollment in the parent Course
     const { data: enrollment } = await supabaseAdmin
         .from('inscripciones')
         .select('id')
         .eq('perfil_id', userId)
-        .eq('curso_id', moduleData.curso_id)
+        .eq('curso_id', (moduleData as any).curso_id)
         .eq('estado_pago', 'pagado')
         .single();
 
@@ -138,7 +166,7 @@ export async function verifyModuleAccess(userId: string, moduleId: string): Prom
 
 /**
  * Verifies if a user has access to a specific unit.
- * Access is granted if the user owns the grandparent Course.
+ * Access is granted if the user owns the grandparent Course OR if it's unlocked via progress.
  * 
  * @param userId - The user's profile ID.
  * @param unitId - The UUID of the unit.
@@ -156,10 +184,12 @@ export async function verifyUnitAccess(userId: string, unitId: string): Promise<
         .eq('id', userId)
         .single();
 
-    if (profile?.rol === 'admin' || profile?.rol === 'instructor') return true;
+    if (profile && ((profile as any).rol === 'admin' || (profile as any).rol === 'instructor')) return true;
 
-    // 1. Find the grandparent Course ID via the parent Module
-    // Join: unidades -> modulos -> curso_id
+    // 1. Check progress-based unlock (Fase 6 Primary Logic)
+    if (await isEntityUnlocked(userId, 'unidades', unitId)) return true;
+
+    // 2. Fallback: Find the grandparent Course ID via the parent Module
     const { data: unitData, error } = await supabaseAdmin
         .from('unidades_didacticas')
         .select(`
@@ -170,13 +200,12 @@ export async function verifyUnitAccess(userId: string, unitId: string): Promise<
         .eq('id', unitId)
         .single();
 
-    if (error || !unitData || !unitData.modulo || !(unitData.modulo as any).curso_id) {
+    if (error || !unitData || !(unitData as any).modulo || !(unitData as any).modulo.curso_id) {
         return false;
     }
 
-    const courseId = (unitData.modulo as any).curso_id;
+    const courseId = (unitData as any).modulo.curso_id;
 
-    // 2. Verify enrollment in the grandparent Course
     const { data: enrollment } = await supabaseAdmin
         .from('inscripciones')
         .select('id')

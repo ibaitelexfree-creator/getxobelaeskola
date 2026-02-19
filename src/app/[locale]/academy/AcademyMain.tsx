@@ -135,7 +135,7 @@ export default function AcademyMain({ params }: { params: { locale: string } }) 
                                         <AlertCircle className="w-8 h-8" />
                                     </div>
                                     <h3 className="text-xl font-display text-white mb-2">Viaje en Calma</h3>
-                                    <p className="text-white/50 max-w-md mx-auto">
+                                    <p className="text-white/70 max-w-md mx-auto">
                                         No hay niveles de formación disponibles en este momento.
                                         Vuelve pronto para comenzar tu travesía.
                                     </p>
@@ -211,7 +211,7 @@ export default function AcademyMain({ params }: { params: { locale: string } }) 
                                                         {isLocked ? '🔒' : nivel.icono}
                                                     </div>
                                                     <div className="text-center mt-4">
-                                                        <span className="text-sm uppercase tracking-[0.4em] text-white/40 font-black">
+                                                        <span className="text-sm uppercase tracking-[0.4em] text-white/70 font-black">
                                                             Nivel {nivel.orden}
                                                         </span>
                                                     </div>
@@ -236,12 +236,12 @@ export default function AcademyMain({ params }: { params: { locale: string } }) 
                                                     </header>
 
                                                     {!isLocked && (
-                                                        <div className="flex flex-wrap justify-center lg:justify-start gap-8 text-sm uppercase tracking-widest font-bold text-white/60">
+                                                        <div className="flex flex-wrap justify-center lg:justify-start gap-8 text-sm uppercase tracking-widest font-bold text-white/80">
                                                             <div className="flex items-center gap-2">
-                                                                <span className="text-accent text-lg">📚</span> {nivel.duracion_teorica_h}h Teoría
+                                                                <span className="text-accent text-lg" aria-hidden="true">📚</span> {nivel.duracion_teorica_h}h Teoría
                                                             </div>
                                                             <div className="flex items-center gap-2">
-                                                                <span className="text-accent text-lg">⛵</span> {nivel.duracion_practica_h}h Práctica
+                                                                <span className="text-accent text-lg" aria-hidden="true">⛵</span> {nivel.duracion_practica_h}h Práctica
                                                             </div>
                                                         </div>
                                                     )}
@@ -275,8 +275,8 @@ export default function AcademyMain({ params }: { params: { locale: string } }) 
                                                     )}
 
                                                     {isLocked && !isPaywallLocked && (
-                                                        <div className="inline-block px-6 py-2 bg-white/5 border border-white/10 text-white/30 text-xs font-black uppercase tracking-[0.2em] rounded-sm flex items-center justify-center gap-2">
-                                                            <span>🔒</span> Bloqueado
+                                                        <div className="inline-block px-6 py-2 bg-white/5 border border-white/10 text-white/70 text-xs font-black uppercase tracking-[0.2em] rounded-sm flex items-center justify-center gap-2">
+                                                            <span aria-hidden="true">🔒</span> Bloqueado
                                                         </div>
                                                     )}
 
@@ -295,10 +295,10 @@ export default function AcademyMain({ params }: { params: { locale: string } }) 
                     </section>
 
                     {/* Tools Section */}
-                    <section className="animate-fade-in">
+                    <section className="animate-fade-in" aria-labelledby="tools-title">
                         <div className="text-center mb-16">
-                            <h2 className="text-3xl font-display text-white mb-4 italic">Herramientas de <span className="text-accent">Navegación</span></h2>
-                            <p className="text-white/40 uppercase tracking-widest text-[10px] font-black">Instrumentos esenciales para tu formación</p>
+                            <h2 id="tools-title" className="text-3xl font-display text-white mb-4 italic">Herramientas de <span className="text-accent">Navegación</span></h2>
+                            <p className="text-white/70 uppercase tracking-widest text-[10px] font-black">Instrumentos esenciales para tu formación</p>
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -309,12 +309,12 @@ export default function AcademyMain({ params }: { params: { locale: string } }) 
                                     prefetch={false}
                                     className="group bg-white/[0.03] border border-white/10 rounded-2xl p-6 hover:bg-white/[0.07] hover:border-accent/30 transition-all duration-500 flex flex-col items-center text-center gap-4"
                                 >
-                                    <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-transform group-hover:scale-110 shadow-lg ${tool.color}`}>
+                                    <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-transform group-hover:scale-110 shadow-lg ${tool.color}`} aria-hidden="true">
                                         {tool.icon}
                                     </div>
                                     <div>
                                         <h3 className="text-white font-bold mb-1 tracking-tight group-hover:text-accent transition-colors">{tool.label}</h3>
-                                        <p className="text-white/40 text-[10px] uppercase tracking-wider">{tool.desc}</p>
+                                        <p className="text-white/60 text-[10px] uppercase tracking-wider">{tool.desc}</p>
                                     </div>
                                     <div className="mt-2 text-accent opacity-0 group-hover:opacity-100 transition-all transform translate-y-2 group-hover:translate-y-0">
                                         <ChevronRight size={18} />

@@ -115,14 +115,14 @@ export default function Navbar({ locale: propLocale }: { locale?: string }) {
 
     return (
         <>
-            <nav className="fixed top-0 left-0 w-full z-[9999] px-3 sm:px-4 md:px-6 py-3 md:py-6 xl:py-8 flex justify-between items-center bg-[#010409]/80 backdrop-blur-md border-b border-white/5 min-h-[70px] md:min-h-[auto]">
+            <nav className="fixed top-0 left-0 w-full z-[9999] px-4 md:px-12 py-4 md:py-8 flex justify-between items-center bg-nautical-deep/70 backdrop-blur-2xl border-b border-white/5 transition-all duration-500 hover:bg-nautical-deep/90 min-h-[70px]">
                 <Link
                     href={`/${locale}`}
                     prefetch={false}
-                    className="flex items-center gap-2 md:gap-4 group transition-transform hover:scale-105 relative z-[110] max-w-[75%] sm:max-w-none"
+                    className="flex items-center gap-4 group transition-premium relative z-[110]"
                     onClick={() => setIsMenuOpen(false)}
                 >
-                    <div className="relative w-10 h-10 sm:w-16 sm:h-16 md:w-14 md:h-14 flex-shrink-0">
+                    <div className="relative w-12 h-12 md:w-16 md:h-16 flex-shrink-0 transition-premium group-hover:scale-110">
                         <Image
                             src="/images/LogoGetxoBelaEskola.webp"
                             alt="Getxo Bela Eskola"
@@ -131,27 +131,39 @@ export default function Navbar({ locale: propLocale }: { locale?: string }) {
                             priority
                         />
                     </div>
-                    <div className="flex flex-col min-w-0">
-                        <span className="font-display text-base sm:text-xl tracking-tight text-white leading-none truncate">
+                    <div className="flex flex-col">
+                        <span className="font-display text-lg md:text-2xl tracking-tight text-white leading-none uppercase">
                             GETXO <span className="italic font-light text-accent">BELA</span>
                         </span>
-                        <span className="text-[9px] sm:text-[10px] md:text-2xs uppercase tracking-[0.2em] sm:tracking-[0.4em] text-white/70 font-bold mt-1 truncate">Escuela Náutica</span>
+                        <span className="text-[9px] md:text-[10px] uppercase tracking-[0.5em] text-white/40 font-bold mt-1.5 transition-premium group-hover:text-white/70">Escuela Náutica</span>
                     </div>
                 </Link>
 
-                {/* Desktop Menu - Now visible from xl (1280px) */}
-                <div className="hidden xl:flex gap-6 xxl:gap-12 text-sm uppercase tracking-[0.2em] font-semibold">
-                    <Link href={`/${locale}/courses`} prefetch={false} className="hover:text-accent transition-colors text-white/90">{t('courses')}</Link>
-                    <Link href={`/${locale}/academy`} prefetch={false} className="hover:text-accent transition-colors text-white/90">{t('academy')}</Link>
-                    <Link href={`/${locale}/rental`} prefetch={false} className="hover:text-accent transition-colors text-white/90">{t('rental')}</Link>
-                    <Link href={`/${locale}/about`} prefetch={false} className="hover:text-accent transition-colors text-white/90">{t('about')}</Link>
-                    <Link href={`/${locale}/contact`} prefetch={false} className="hover:text-accent transition-colors text-white/90">{t('contact')}</Link>
+                {/* Desktop Menu - Premium Spacing & Typography */}
+                <div className="hidden xl:flex gap-12 items-center text-[10px] uppercase tracking-[0.4em] font-black">
+                    {[
+                        { href: 'courses', label: 'courses' },
+                        { href: 'academy', label: 'academy' },
+                        { href: 'rental', label: 'rental' },
+                        { href: 'about', label: 'about' },
+                        { href: 'contact', label: 'contact' }
+                    ].map((link) => (
+                        <Link
+                            key={link.href}
+                            href={`/${locale}/${link.href}`}
+                            prefetch={false}
+                            className={`relative py-2 text-white/40 hover:text-white transition-premium group/nav`}
+                        >
+                            {t(link.label)}
+                            <span className="absolute bottom-0 left-0 w-0 h-px bg-accent transition-premium group-hover/nav:w-full" />
+                        </Link>
+                    ))}
                 </div>
 
 
-                <div className="flex gap-2 sm:gap-4 items-center relative z-[110] flex-shrink-0 ml-auto sm:ml-0">
-                    {/* Language Selector - Desktop only from xl */}
-                    <div className="hidden xl:flex bg-white/5 border border-white/10 rounded-full p-1 group/lang relative items-center">
+                <div className="flex gap-4 items-center relative z-[110]">
+                    {/* Language Selector - Premium Glassmorphism */}
+                    <div className="hidden xl:flex bg-white/5 backdrop-blur-md border border-white/10 rounded-full p-1.5 transition-premium hover:border-white/20">
                         {[
                             { code: 'es', label: 'ES' },
                             { code: 'eu', label: 'EU' },
@@ -160,67 +172,63 @@ export default function Navbar({ locale: propLocale }: { locale?: string }) {
                             <button
                                 key={lang.code}
                                 onClick={() => handleLanguageSwitch(lang.code)}
-                                className={`px-3 py-1.5 rounded-full text-[10px] uppercase tracking-widest font-black transition-all duration-300 ${locale === lang.code ? 'bg-accent text-nautical-black shadow-lg shadow-accent/20 scale-105' : 'text-white/60 hover:text-white'}`}
+                                className={`px-4 py-2 rounded-full text-[9px] uppercase tracking-widest font-black transition-premium ${locale === lang.code ? 'bg-accent text-nautical-black shadow-xl shadow-accent/20 scale-105' : 'text-white/40 hover:text-white'}`}
                             >
                                 {lang.label}
                             </button>
                         ))}
-
-                        <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 opacity-0 group-hover/lang:opacity-100 transition-all pointer-events-none">
-                            <span className="text-2xs text-accent tracking-[0.3em] font-bold uppercase whitespace-nowrap">{t('language_selector')}</span>
-                        </div>
                     </div>
 
                     {loading ? (
-                        <div className="hidden xl:block w-32 h-10 bg-white/5 animate-pulse rounded-sm" />
+                        <div className="hidden xl:block w-32 h-10 bg-white/5 animate-pulse rounded-full" />
                     ) : user ? (
-                        <div className="hidden xl:flex gap-6 items-center">
-                            {/* Member Badge - Desktop */}
+                        <div className="hidden xl:flex gap-8 items-center">
+                            {/* Member Badge - More Subtle & Elegant */}
                             {user.status_socio === 'activo' && (
-                                <div className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-amber-100 via-yellow-300 to-amber-500 border border-yellow-200 shadow-[0_0_20px_rgba(252,211,77,0.6)] animate-pulse">
-                                    <Sparkles className="w-3 h-3 text-yellow-800" />
-                                    <span className="text-yellow-900 text-[10px] font-black uppercase tracking-[0.2em]">
-                                        Miembro
+                                <div className="flex items-center gap-2.5 px-5 py-2 rounded-full bg-white/5 border border-brass-gold/30 shadow-[0_0_20px_rgba(197,160,89,0.15)] transition-premium hover:border-brass-gold/60 group/member">
+                                    <Sparkles className="w-3.5 h-3.5 text-brass-gold transition-premium group-hover:rotate-45" />
+                                    <span className="text-brass-gold text-[9px] font-black uppercase tracking-[0.3em]">
+                                        MEMBER
                                     </span>
                                 </div>
                             )}
                             <Link
                                 href={user.rol === 'admin' || user.rol === 'instructor' ? `/${locale}/staff` : `/${locale}/student/dashboard`}
                                 prefetch={false}
-                                className="text-2xs uppercase tracking-[0.2em] font-black text-accent bg-accent/5 px-4 py-2 rounded-sm border border-accent/20 hover:bg-accent hover:text-nautical-black transition-all"
+                                className="text-[10px] uppercase tracking-[0.3em] font-black text-accent border border-accent/20 px-6 py-3 rounded-full hover:bg-accent hover:text-nautical-black shadow-lg shadow-accent/5 transition-premium"
                             >
                                 {user.rol === 'admin' || user.rol === 'instructor' ? t('admin_panel') : t('dashboard')}
                             </Link>
                             <button
                                 onClick={handleLogout}
-                                className="text-2xs uppercase tracking-[0.2em] font-black border-b border-white/40 pb-1 hover:text-red-500 hover:border-red-500 transition-all opacity-80 hover:opacity-100"
+                                className="text-[9px] uppercase tracking-[0.4em] font-black text-white/30 hover:text-red-500 transition-premium border-b border-transparent hover:border-red-500/30 pb-1"
                             >
                                 {t('logout')}
                             </button>
                         </div>
                     ) : (
-                        <Link href={`/${locale}/auth/login`} prefetch={false} className="hidden xl:block text-2xs uppercase tracking-[0.15em] font-black border border-white/20 px-6 py-2 rounded-sm hover:bg-white/5 transition-all text-white/90">
+                        <Link href={`/${locale}/auth/login`} prefetch={false} className="hidden xl:block text-[10px] uppercase tracking-[0.4em] font-black border border-white/20 px-8 py-3 rounded-full bg-white/5 hover:bg-white hover:text-nautical-black transition-premium">
                             {t('login')}
                         </Link>
                     )}
 
-                    {/* Hamburger Button - Robustified */}
+                    {/* Hamburger Button - Enhanced for Premium Look */}
                     <button
                         onClick={(e) => {
                             e.stopPropagation();
                             setIsMenuOpen(!isMenuOpen);
                         }}
-                        className="xl:hidden flex-shrink-0 w-12 h-12 flex flex-col items-center justify-center gap-1.5 bg-accent border border-accent/20 rounded-sm text-nautical-black active:scale-90 shadow-2xl relative z-[10000] pointer-events-auto"
+                        className="xl:hidden flex-shrink-0 w-14 h-14 flex items-center justify-center bg-accent text-nautical-black rounded-full shadow-2xl relative z-[10000] transition-premium hover:scale-110 active:scale-95 shadow-accent/30"
                         aria-pressed={isMenuOpen}
                     >
                         <span className="sr-only">{isMenuOpen ? t('close') : t('menu')}</span>
                         {isMenuOpen ? (
-                            <X size={28} strokeWidth={3} aria-hidden="true" />
+                            <X size={24} strokeWidth={3} />
                         ) : (
-                            <div className="flex flex-col gap-1.5 w-7" aria-hidden="true">
-                                <span className="block w-full h-1 bg-nautical-black rounded-full" />
-                                <span className="block w-full h-1 bg-nautical-black rounded-full" />
-                                <span className="block w-full h-1 bg-nautical-black rounded-full" />
+                            <div className="flex flex-col gap-1 w-6">
+                                <span className="block w-full h-0.5 bg-nautical-black rounded-full" />
+                                <span className="block w-3/4 h-0.5 bg-nautical-black rounded-full ml-auto" />
+                                <span className="block w-full h-0.5 bg-nautical-black rounded-full" />
                             </div>
                         )}
                     </button>
@@ -232,9 +240,9 @@ export default function Navbar({ locale: propLocale }: { locale?: string }) {
                 className={`fixed inset-0 z-[90] bg-nautical-deep transition-all duration-700 xl:hidden ${isMenuOpen ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-full pointer-events-none'}`}
             >
                 <div className="absolute inset-0 bg-maps opacity-5 pointer-events-none" />
-                <div className="flex flex-col h-full pt-32 pb-12 px-8">
+                <div className="flex flex-col h-full pt-32 pb-12 px-8 overflow-y-auto">
                     {/* Navigation Links */}
-                    <div className="flex flex-col gap-8 mb-auto">
+                    <div className="flex flex-col gap-8 mb-12">
                         {[
                             { href: 'courses', label: 'courses' },
                             { href: 'academy', label: 'academy' },
@@ -266,9 +274,9 @@ export default function Navbar({ locale: propLocale }: { locale?: string }) {
                             <div className="flex flex-col gap-4">
                                 {/* Member Badge - Mobile */}
                                 {user.status_socio === 'activo' && (
-                                    <div className="w-full flex items-center justify-center gap-2 px-6 py-3 rounded bg-gradient-to-r from-amber-100 via-yellow-300 to-amber-500 border border-yellow-200 shadow-[0_0_20px_rgba(252,211,77,0.4)] mb-2 animate-pulse">
-                                        <Sparkles className="w-4 h-4 text-yellow-900" />
-                                        <span className="text-yellow-900 text-xs font-black uppercase tracking-[0.3em]">
+                                    <div className="w-full flex items-center justify-center gap-2 px-6 py-4 rounded bg-white/5 border border-brass-gold/20 mb-2">
+                                        <Sparkles className="w-4 h-4 text-brass-gold" />
+                                        <span className="text-brass-gold text-xs font-black uppercase tracking-[0.3em]">
                                             Miembro Oficial
                                         </span>
                                     </div>
@@ -276,14 +284,14 @@ export default function Navbar({ locale: propLocale }: { locale?: string }) {
                                 <Link
                                     href={user.rol === 'admin' || user.rol === 'instructor' ? `/${locale}/staff` : `/${locale}/student/dashboard`}
                                     prefetch={false}
-                                    className="w-full text-center py-5 bg-accent text-nautical-black font-display italic text-xl shadow-xl shadow-accent/20"
+                                    className="w-full text-center py-6 bg-accent text-nautical-black font-display italic text-2xl shadow-xl shadow-accent/20"
                                     onClick={() => setIsMenuOpen(false)}
                                 >
                                     {user.rol === 'admin' || user.rol === 'instructor' ? t('admin_panel') : t('dashboard')}
                                 </Link>
                                 <button
                                     onClick={handleLogout}
-                                    className="w-full text-center py-4 text-white/40 uppercase text-2xs tracking-[0.4em] font-black hover:text-red-500 transition-colors"
+                                    className="w-full text-center py-4 text-white/40 uppercase text-[10px] tracking-[0.4em] font-black hover:text-red-500 transition-colors"
                                 >
                                     {t('logout')}
                                 </button>
@@ -292,7 +300,7 @@ export default function Navbar({ locale: propLocale }: { locale?: string }) {
                             <Link
                                 href={`/${locale}/auth/login`}
                                 prefetch={false}
-                                className="w-full block text-center py-5 border border-white/20 text-white font-display italic text-xl bg-white/5 active:bg-white/10 transition-all"
+                                className="w-full block text-center py-6 border border-white/20 text-white font-display italic text-2xl bg-white/5 active:bg-white/10 transition-all"
                                 onClick={() => setIsMenuOpen(false)}
                             >
                                 {t('login')}
@@ -300,9 +308,9 @@ export default function Navbar({ locale: propLocale }: { locale?: string }) {
                         )}
 
                         {/* Language Selector Mobile */}
-                        <div className="flex flex-col gap-3">
+                        <div className="flex flex-col gap-4 pb-12">
                             <span className="text-[10px] uppercase tracking-[0.4em] font-black text-white/30 ml-4">{t('language_selector')}</span>
-                            <div className="grid grid-cols-3 gap-2 bg-white/5 border border-white/10 rounded-2xl p-2">
+                            <div className="grid grid-cols-3 gap-3 bg-white/5 border border-white/10 rounded-2xl p-2">
                                 {[
                                     { code: 'es', label: 'Castellano' },
                                     { code: 'eu', label: 'Euskara' },
@@ -311,7 +319,7 @@ export default function Navbar({ locale: propLocale }: { locale?: string }) {
                                     <button
                                         key={lang.code}
                                         onClick={() => handleLanguageSwitch(lang.code)}
-                                        className={`py-3 rounded-xl text-[10px] uppercase tracking-widest font-black transition-all duration-300 ${locale === lang.code ? 'bg-white text-nautical-black shadow-xl shadow-white/10 scale-[1.02]' : 'text-white/40'}`}
+                                        className={`py-4 rounded-xl text-[10px] uppercase tracking-widest font-black transition-all duration-300 ${locale === lang.code ? 'bg-white text-nautical-black shadow-xl shadow-white/10' : 'text-white/40'}`}
                                     >
                                         {lang.label.substring(0, 3)}
                                     </button>

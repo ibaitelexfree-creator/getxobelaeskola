@@ -2,21 +2,27 @@
 const { createClient } = require('@supabase/supabase-js');
 const fs = require('fs');
 const path = require('path');
+require('dotenv').config({ path: '.env' });
 
 // Configuration
-const NOTION_TOKEN = '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';
-const SUPABASE_URL = 'https://xbledhifomblirxurtyv.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhibGVkaGlmb21ibGlyeHVydHl2Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MDYyMjE5NywiZXhwIjoyMDg2MTk4MTk3fQ.tynAhTsdBLSv_FI4CbGhWfHLjmfmsl8SJaeiTRDsd_A';
+const NOTION_TOKEN = process.env.NOTION_TOKEN;
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-const MAPPING = {
-    'profiles': '30c31210-b1a1-81dc-b024-f10ba9ab4221',
-    'embarcaciones': '30c31210-b1a1-813b-a949-d7ddf66d84c9',
-    'mensajes_contacto': '30c31210-b1a1-8114-a87f-e69aa8111223',
-    'inscripciones': '30c31210-b1a1-817a-8b77-fe8eb4c4551d',
-    'mantenimiento_logs': '30c31210-b1a1-8107-aea1-fd37d1fa3708'
-};
+const MAP_FILE = 'scripts/table_to_notion_map.json';
+let MAPPING = {};
+
+try {
+    if (fs.existsSync(MAP_FILE)) {
+        MAPPING = JSON.parse(fs.readFileSync(MAP_FILE, 'utf8'));
+    } else {
+        console.warn(`Warning: Map file ${MAP_FILE} not found. Using default empty mapping.`);
+    }
+} catch (e) {
+    console.error("Error reading map file:", e);
+}
 
 /**
  * Utility to call Notion API using fetch
@@ -70,16 +76,24 @@ function mapRowToProperties(tableName, row) {
         props['rol'] = { rich_text: [{ text: { content: row.rol || 'student' } }] };
         props['total_xp'] = { number: row.total_xp || 0 };
     } else if (tableName === 'embarcaciones') {
-        props['Nombre'] = { title: [{ text: { content: row.nombre || 'Barco sin nombre' } }] }; // Fixed Title prop name for this DB
+        props['Nombre'] = { title: [{ text: { content: row.nombre || 'Barco sin nombre' } }] };
         props['Tipo'] = { select: { name: row.tipo || 'crucero' } };
         props['Estado'] = { select: { name: row.estado || 'disponible' } };
         if (row.ultima_revision) props['Ultima_Revision'] = { date: { start: new Date(row.ultima_revision).toISOString().split('T')[0] } };
+    } else if (tableName === 'reservas_alquiler') {
+        const clientName = row.profiles ? `${row.profiles.nombre} ${row.profiles.apellidos || ''}` : 'Cliente Desconocido';
+        const serviceName = row.servicios_alquiler ? row.servicios_alquiler.nombre_es : 'Servicio';
+
+        props['Reserva'] = { title: [{ text: { content: `${clientName} - ${serviceName}` } }] };
+        props['Monto'] = { number: Number(row.monto_total) || 0 };
+        props['Estado Pago'] = { select: { name: row.estado_pago || 'pendiente' } };
+        props['Estado Entrega'] = { select: { name: row.estado_entrega || 'pendiente' } };
+        props['Fecha'] = { date: { start: row.fecha_reserva || new Date().toISOString().split('T')[0] } };
     } else if (tableName === 'mensajes_contacto') {
         props['Asunto'] = { title: [{ text: { content: row.asunto || 'Sin asunto' } }] };
         props['Remitente'] = { email: row.email };
         props['Estado'] = { select: { name: row.leido ? 'Atendido' : 'Nuevo' } };
     } else {
-        // Fallback for Title
         props['Title'] = { title: [{ text: { content: row.nombre || row.titulo || row.id } }] };
     }
 
@@ -88,16 +102,13 @@ function mapRowToProperties(tableName, row) {
 
 async function syncTable(tableName) {
     const databaseId = MAPPING[tableName];
-    if (!databaseId) {
-        console.error(`No mapping for table ${tableName}`);
-        return;
-    }
+    if (!databaseId) return;
 
     console.log(`\n🚀 Syncing table: ${tableName}...`);
 
     const { data: rows, error } = await supabase.from(tableName).select('*');
     if (error) {
-        console.error(`Error fetching ${tableName} from Supabase:`, error);
+        console.error(`Error fetching ${tableName}:`, error);
         return;
     }
 
@@ -105,6 +116,14 @@ async function syncTable(tableName) {
 
     for (const row of rows) {
         try {
+            // Manual Hydration for complex tables
+            if (tableName === 'reservas_alquiler') {
+                const { data: profile } = await supabase.from('profiles').select('nombre, apellidos').eq('id', row.perfil_id).single();
+                const { data: service } = await supabase.from('servicios_alquiler').select('nombre_es').eq('id', row.servicio_id).single();
+                row.profiles = profile;
+                row.servicios_alquiler = service;
+            }
+
             const existingPage = await findNotionPage(databaseId, row.id);
             const properties = mapRowToProperties(tableName, row);
 
@@ -118,8 +137,7 @@ async function syncTable(tableName) {
                     properties
                 });
             }
-            // Small sleep to avoid rate limits
-            await new Promise(r => setTimeout(r, 300));
+            await new Promise(r => setTimeout(r, 200));
         } catch (e) {
             console.error(`Failed to sync row ${row.id}:`, e.message);
         }
@@ -127,11 +145,12 @@ async function syncTable(tableName) {
 }
 
 async function main() {
+    // Only sync selected or all
     const tables = Object.keys(MAPPING);
     for (const table of tables) {
         await syncTable(table);
     }
-    console.log('\n✅ Sync completed!');
+    console.log('\n✅ Master Sync completed!');
 }
 
 main().catch(console.error);

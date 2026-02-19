@@ -1,5 +1,6 @@
 
 import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
 import { NextResponse } from 'next/server';
 import { requireAuth } from '@/lib/auth-guard';
 import { verifyModuleAccess } from '@/lib/academy/enrollment';
@@ -10,26 +11,36 @@ export async function GET(
     request: Request,
     { params }: { params: { id: string } }
 ) {
+    console.log('[API-DEBUG] Hit module route for ID:', params);
     try {
-        const { user, error } = await requireAuth();
+        // 1. AUTHENTICATION
+        const authResult = await requireAuth();
+        const { user, error } = authResult;
+
         if (error || !user) {
+            console.error('[API-DEBUG] Auth failed:', error);
             return NextResponse.json(
                 { error: 'Unauthorized' },
                 { status: 401 }
             );
         }
 
+        console.log('[API] Checking access for user:', user.id, 'module:', params.id);
         const hasAccess = await verifyModuleAccess(user.id, params.id);
+        console.log('[API] verifyModuleAccess result:', hasAccess);
 
         if (!hasAccess) {
-            // Standardizes on generic "Resource not found" to mask existence
+            // Debugging: Explicit error
             return NextResponse.json(
-                { error: 'Resource not found' },
-                { status: 404 }
+                { error: 'Access Denied' },
+                { status: 403 }
             );
         }
 
-        const supabase = createClient();
+        // We verified access logic above, so we can use Admin Client to bypass RLS limitations
+        const supabase = createAdminClient();
+        console.log('[API-DEBUG] Admin Client created. Key present:', !!process.env.SUPABASE_SERVICE_ROLE_KEY);
+
         const { data: modulo, error: moduloError } = await supabase
             .from('modulos')
             .select(`
@@ -58,8 +69,8 @@ export async function GET(
             .single();
 
         if (moduloError || !modulo) {
+            console.error('[API-DEBUG] Module fetch failed:', moduloError);
             return NextResponse.json(
-                // Same message as above
                 { error: 'Resource not found' },
                 { status: 404 }
             );

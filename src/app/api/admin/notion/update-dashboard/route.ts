@@ -3,12 +3,11 @@ import { NextResponse } from 'next/server';
 import { exec } from 'child_process';
 import path from 'path';
 
-export async function POST(req: Request) {
-    const { direction = 'pull', table } = await req.json();
-
+export async function POST() {
     return new Promise((resolve) => {
-        const scriptPath = path.join(process.cwd(), 'scripts', 'supabase-notion-bridge.js');
-        const command = `node ${scriptPath} ${direction} ${table || ''}`;
+        const scriptPath = path.join(process.cwd(), 'scripts', 'notion-premium-dashboard.js');
+        // Child process inherits env, but we make sure NOTION_TOKEN is there
+        const command = `node ${scriptPath}`;
 
         exec(command, {
             env: {
@@ -18,11 +17,11 @@ export async function POST(req: Request) {
             }
         }, (error, stdout, stderr) => {
             if (error) {
-                console.error('Sync Error:', stderr);
-                resolve(NextResponse.json({ error: stderr || error.message }, { status: 500 }));
+                console.error('Dashboard Update Error:', stderr);
+                resolve(NextResponse.json({ error: stderr || 'Execution failed' }, { status: 500 }));
                 return;
             }
-            resolve(NextResponse.json({ output: stdout }));
+            resolve(NextResponse.json({ success: true, output: stdout }));
         });
     });
 }

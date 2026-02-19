@@ -227,7 +227,7 @@ export default function UnitReaderMain({
         return (
             <div className="min-h-screen bg-nautical-black flex items-center justify-center">
                 <div className="text-center">
-                    <p className="text-white/60 text-xl">Unidad no encontrada</p>
+                    <p className="text-white/80 text-xl">Unidad no encontrada</p>
                     <Link href={`/${params.locale}/academy`} className="text-accent underline mt-4 inline-block">Volver al Mapa</Link>
                 </div>
             </div>
@@ -243,7 +243,7 @@ export default function UnitReaderMain({
                 <div className="text-center p-8 bg-white/5 rounded-lg border border-white/10 max-w-md">
                     <div className="text-6xl mb-4">🔒</div>
                     <h1 className="text-2xl font-display italic text-white mb-2">Contenido Bloqueado</h1>
-                    <p className="text-white/60 mb-6">Debes completar las unidades anteriores.</p>
+                    <p className="text-white/80 mb-6">Debes completar las unidades anteriores.</p>
                     <Link
                         href={`/${params.locale}/academy/module/${unidad.modulo.id}`}
                         className="inline-block px-6 py-2 bg-accent text-nautical-black font-bold rounded-sm hover:bg-accent/90"
@@ -278,7 +278,7 @@ export default function UnitReaderMain({
                                 ]}
                             />
                             <div className="flex items-center gap-4">
-                                <span className="text-xs text-white/60">{navegacion?.posicion} de {navegacion?.total}</span>
+                                <span className="text-xs text-white/80" aria-label={`Página ${navegacion?.posicion} de ${navegacion?.total}`}>{navegacion?.posicion} de {navegacion?.total}</span>
                                 {isCompletada && (
                                     <span className="px-3 py-1 bg-accent/20 text-accent text-[8px] uppercase tracking-widest font-black rounded-full border border-accent/30">
                                         ✓ Completada
@@ -294,10 +294,12 @@ export default function UnitReaderMain({
             {/* Zen Mode Toggle (Floating) */}
             <button
                 onClick={() => setZenMode(!zenMode)}
-                className={`fixed top-4 right-4 z-[60] w-10 h-10 rounded-full flex items-center justify-center transition-all ${zenMode ? 'bg-white/10 text-white hover:bg-white/20' : 'bg-transparent text-white/30 hover:text-white'}`}
+                className={`fixed top-4 right-4 z-[60] w-10 h-10 rounded-full flex items-center justify-center transition-all focus-ring ${zenMode ? 'bg-white/10 text-white hover:bg-white/20' : 'bg-transparent text-white/50 hover:text-white'}`}
                 title={zenMode ? "Salir de Modo Zen" : "Modo Zen (Lectura sin distracciones)"}
+                aria-label={zenMode ? "Salir de Modo Zen" : "Activar Modo Zen"}
+                aria-pressed={zenMode}
             >
-                {zenMode ? '✕' : '👁️'}
+                <span role="img" aria-hidden="true">{zenMode ? '✕' : '👁️'}</span>
             </button>
 
             {/* Contenido principal */}
@@ -318,49 +320,67 @@ export default function UnitReaderMain({
                             </div>
 
                             {unidad.objetivos_es && unidad.objetivos_es.length > 0 && (
-                                <div className="bg-white/5 border border-white/10 rounded-sm p-6">
-                                    <h3 className="text-[10px] uppercase tracking-widest text-accent font-black mb-4">🎯 Objetivos</h3>
+                                <section className="bg-white/5 border border-white/10 rounded-sm p-6" aria-labelledby="objetivos-title">
+                                    <h2 id="objetivos-title" className="text-[10px] uppercase tracking-widest text-accent font-black mb-4">
+                                        <span className="mr-2" role="img" aria-hidden="true">🎯</span>
+                                        Objetivos
+                                    </h2>
                                     <ul className="space-y-2">
                                         {(params.locale === 'eu' ? unidad.objetivos_eu : unidad.objetivos_es).map((objetivo: string, i: number) => (
                                             <li key={i} className="flex items-start gap-3">
-                                                <span className="text-accent mt-0.5">→</span>
-                                                <span className="text-white/80 text-sm">{objetivo}</span>
+                                                <span className="text-accent mt-0.5" aria-hidden="true">→</span>
+                                                <span className="text-white/90 text-sm">{objetivo}</span>
                                             </li>
                                         ))}
                                     </ul>
-                                </div>
+                                </section>
                             )}
                         </div>
 
                         <div className="mb-8">
-                            <div className="flex flex-wrap gap-3">
+                            <div className="flex flex-wrap gap-3" role="tablist" aria-label="Secciones de la unidad">
                                 <button
+                                    role="tab"
+                                    id="tab-teoria"
+                                    aria-selected={activeTab === 'teoria'}
+                                    aria-controls="panel-teoria"
                                     onClick={() => setActiveTab('teoria')}
-                                    className={`px-6 py-3 rounded-full text-xs uppercase tracking-widest transition-all duration-300 ${activeTab === 'teoria'
+                                    className={`px-6 py-3 rounded-full text-xs uppercase tracking-widest transition-all duration-300 focus-ring ${activeTab === 'teoria'
                                         ? 'bg-accent text-nautical-black font-bold shadow-lg shadow-accent/20 transform scale-105'
-                                        : 'bg-white/5 text-white/60 hover:bg-white/10 hover:text-white'
+                                        : 'bg-white/5 text-white/70 hover:bg-white/10 hover:text-white'
                                         }`}
                                 >
-                                    📚 Teoría
+                                    <span role="img" aria-hidden="true" className="mr-2">📚</span>
+                                    Teoría
                                 </button>
                                 <button
+                                    role="tab"
+                                    id="tab-practica"
+                                    aria-selected={activeTab === 'practica'}
+                                    aria-controls="panel-practica"
                                     onClick={() => setActiveTab('practica')}
-                                    className={`px-6 py-3 rounded-full text-xs uppercase tracking-widest transition-all duration-300 ${activeTab === 'practica'
+                                    className={`px-6 py-3 rounded-full text-xs uppercase tracking-widest transition-all duration-300 focus-ring ${activeTab === 'practica'
                                         ? 'bg-accent text-nautical-black font-bold shadow-lg shadow-accent/20 transform scale-105'
-                                        : 'bg-white/5 text-white/60 hover:bg-white/10 hover:text-white'
+                                        : 'bg-white/5 text-white/70 hover:bg-white/10 hover:text-white'
                                         }`}
                                 >
-                                    ⛵ Práctica
+                                    <span role="img" aria-hidden="true" className="mr-2">⛵</span>
+                                    Práctica
                                 </button>
                                 {unidad.errores_comunes_es && unidad.errores_comunes_es.length > 0 && (
                                     <button
+                                        role="tab"
+                                        id="tab-errores"
+                                        aria-selected={activeTab === 'errores'}
+                                        aria-controls="panel-errores"
                                         onClick={() => setActiveTab('errores')}
-                                        className={`px-6 py-3 rounded-full text-xs uppercase tracking-widest transition-all duration-300 ${activeTab === 'errores'
+                                        className={`px-6 py-3 rounded-full text-xs uppercase tracking-widest transition-all duration-300 focus-ring ${activeTab === 'errores'
                                             ? 'bg-red-500 text-white font-bold shadow-lg shadow-red-500/20 transform scale-105'
-                                            : 'bg-white/5 text-white/60 hover:bg-white/10 hover:text-white'
+                                            : 'bg-white/5 text-white/70 hover:bg-white/10 hover:text-white'
                                             }`}
                                     >
-                                        ⚠️ Errores
+                                        <span role="img" aria-hidden="true" className="mr-2">⚠️</span>
+                                        Errores
                                     </button>
                                 )}
                             </div>
@@ -387,56 +407,85 @@ export default function UnitReaderMain({
                         )}
 
                         <div className="prose prose-invert prose-lg max-w-none">
-                            {activeTab === 'teoria' && (
-                                <div className="space-y-8">
-                                    <div className="bg-white/5 border border-white/10 rounded-sm p-8">
-                                        <div className="text-white/80 leading-relaxed whitespace-pre-wrap"
-                                            dangerouslySetInnerHTML={{ __html: params.locale === 'eu' ? unidad.contenido_teorico_eu || '' : unidad.contenido_teorico_es || '' }}
+                            <div
+                                role="tabpanel"
+                                id="panel-teoria"
+                                aria-labelledby="tab-teoria"
+                                hidden={activeTab !== 'teoria'}
+                                tabIndex={0}
+                                className="focus:outline-none focus:ring-2 focus:ring-accent/50 rounded-sm"
+                            >
+                                {activeTab === 'teoria' && (
+                                    <div className="space-y-8">
+                                        <div className="bg-white/5 border border-white/10 rounded-sm p-8">
+                                            <div className="text-white/90 leading-relaxed whitespace-pre-wrap"
+                                                dangerouslySetInnerHTML={{ __html: params.locale === 'eu' ? unidad.contenido_teorico_eu || '' : unidad.contenido_teorico_es || '' }}
+                                            />
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+
+                            <div
+                                role="tabpanel"
+                                id="panel-practica"
+                                aria-labelledby="tab-practica"
+                                hidden={activeTab !== 'practica'}
+                                tabIndex={0}
+                                className="focus:outline-none focus:ring-2 focus:ring-accent/50 rounded-sm"
+                            >
+                                {activeTab === 'practica' && (
+                                    <div className="bg-accent/5 border border-accent/20 rounded-sm p-8">
+                                        <div className="text-white/90 leading-relaxed whitespace-pre-wrap"
+                                            dangerouslySetInnerHTML={{ __html: params.locale === 'eu' ? unidad.contenido_practico_eu || '' : unidad.contenido_practico_es || '' }}
                                         />
                                     </div>
-                                </div>
-                            )}
-                            {activeTab === 'practica' && (
-                                <div className="bg-accent/5 border border-accent/20 rounded-sm p-8">
-                                    <div className="text-white/80 leading-relaxed whitespace-pre-wrap"
-                                        dangerouslySetInnerHTML={{ __html: params.locale === 'eu' ? unidad.contenido_practico_eu || '' : unidad.contenido_practico_es || '' }}
-                                    />
-                                </div>
-                            )}
-                            {activeTab === 'errores' && (
-                                <div className="bg-red-500/5 border border-red-500/20 rounded-sm p-8 text-white/80">
-                                    <ul className="space-y-4">
-                                        {(params.locale === 'eu' ? unidad.errores_comunes_eu : unidad.errores_comunes_es).map((error: string, i: number) => (
-                                            <li key={i} className="flex items-start gap-3">
-                                                <span className="text-red-400 text-xl mt-0.5">⚠️</span>
-                                                <span>{error}</span>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </div>
-                            )}
+                                )}
+                            </div>
+
+                            <div
+                                role="tabpanel"
+                                id="panel-errores"
+                                aria-labelledby="tab-errores"
+                                hidden={activeTab !== 'errores'}
+                                tabIndex={0}
+                                className="focus:outline-none focus:ring-2 focus:ring-accent/50 rounded-sm"
+                            >
+                                {activeTab === 'errores' && (
+                                    <div className="bg-red-500/5 border border-red-500/20 rounded-sm p-8 text-white/90">
+                                        <ul className="space-y-4">
+                                            {(params.locale === 'eu' ? unidad.errores_comunes_eu : unidad.errores_comunes_es).map((error: string, i: number) => (
+                                                <li key={i} className="flex items-start gap-3">
+                                                    <span className="text-red-400 text-xl mt-0.5" aria-hidden="true">⚠️</span>
+                                                    <span>{error}</span>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                )}
+                            </div>
                         </div>
 
                         <div className="mt-12 border-t border-white/10 pt-12">
                             {isExplorationMode && !isCompletada ? (
                                 <div className="bg-blue-500/10 border border-blue-500/20 rounded-sm p-8 text-center">
-                                    <h3 className="text-xl font-display italic text-blue-200 mb-2">Modo Exploración</h3>
-                                    <p className="text-white/60 text-sm">Estás explorando libremente. Para realizar el quiz y guardar tu progreso, debes desbloquear esta unidad en el modo estructurado.</p>
+                                    <h2 className="text-xl font-display italic text-blue-200 mb-2">Modo Exploración</h2>
+                                    <p className="text-white/80 text-sm">Estás explorando libremente. Para realizar el quiz y guardar tu progreso, debes desbloquear esta unidad en el modo estructurado.</p>
                                 </div>
                             ) : (
                                 !mostrandoQuiz ? (
                                     <div className="bg-accent/5 border border-accent/20 rounded-sm p-8 text-center">
-                                        <h3 className="text-2xl font-display italic text-white mb-3">Quiz de Evaluación</h3>
-                                        <p className="text-white/70 mb-6">Demuestra lo que has aprendido.</p>
+                                        <h2 className="text-2xl font-display italic text-white mb-3">Quiz de Evaluación</h2>
+                                        <p className="text-white/80 mb-6">Demuestra lo que has aprendido.</p>
                                         <button
                                             onClick={() => setMostrandoQuiz(true)}
                                             disabled={!puedeCompletar && !isCompletada}
-                                            className="px-8 py-4 bg-accent text-nautical-black font-black text-sm uppercase tracking-wider rounded-sm hover:bg-accent/90 disabled:opacity-30 transition-all"
+                                            className="px-8 py-4 bg-accent text-nautical-black font-black text-sm uppercase tracking-wider rounded-sm hover:bg-accent/90 disabled:opacity-30 transition-all focus-ring"
                                         >
                                             {isCompletada ? '🔄 Repetir Quiz' : '▶️ Comenzar Quiz'}
                                         </button>
                                         {!puedeCompletar && !isCompletada && (
-                                            <p className="text-xs text-white/40 mt-2">{mensajeRequisito}</p>
+                                            <p className="text-xs text-white/70 mt-2">{mensajeRequisito}</p>
                                         )}
                                     </div>
                                 ) : (
@@ -460,10 +509,16 @@ export default function UnitReaderMain({
                 </div>
             </div>
 
-            <div className={`fixed bottom-0 left-0 right-0 bg-nautical-black/95 backdrop-blur-md border-t border-white/10 transition-transform duration-300 ${zenMode ? 'translate-y-full' : 'translate-y-0'}`}>
+            <nav className={`fixed bottom-0 left-0 right-0 bg-nautical-black/95 backdrop-blur-md border-t border-white/10 transition-transform duration-300 ${zenMode ? 'translate-y-full' : 'translate-y-0'}`} aria-label="Navegación de unidades">
                 <div className="container mx-auto px-6 py-6 flex items-center justify-between max-w-4xl mx-auto">
                     {navegacion?.anterior ? (
-                        <Link href={`/${params.locale}/academy/unit/${navegacion.anterior.id}`} className="px-6 py-3 bg-white/5 border border-white/10 rounded-sm text-sm">← Anterior</Link>
+                        <Link
+                            href={`/${params.locale}/academy/unit/${navegacion.anterior.id}`}
+                            className="px-6 py-3 bg-white/5 border border-white/10 rounded-sm text-sm hover:bg-white/10 focus-ring"
+                            aria-label={`Unidad anterior: ${params.locale === 'eu' ? navegacion.anterior.nombre_eu : navegacion.anterior.nombre_es}`}
+                        >
+                            ← Anterior
+                        </Link>
                     ) : <div />}
 
                     {/* Hide complete button in exploration mode if not completed */}
@@ -473,22 +528,29 @@ export default function UnitReaderMain({
                             onClick={marcarComoCompletada}
                             disabled={completando || (unidad.recursos_json?.tipo_contenido && !isMissionComplete)}
                             className={`
-                                px-8 py-3 font-black uppercase text-sm rounded-sm transition-all
+                                px-8 py-3 font-black uppercase text-sm rounded-sm transition-all focus-ring
                                 ${unidad.recursos_json?.tipo_contenido && !isMissionComplete
-                                    ? 'bg-white/10 text-white/30 cursor-not-allowed border border-white/5'
+                                    ? 'bg-white/10 text-white/40 cursor-not-allowed border border-white/5'
                                     : 'bg-accent text-nautical-black hover:bg-white'}
                             `}
                             title={unidad.recursos_json?.tipo_contenido && !isMissionComplete ? "Completa la misión primero" : ""}
+                            aria-label={unidad.recursos_json?.tipo_contenido && !isMissionComplete ? "Completar unidad (bloqueado, misión pendiente)" : "Marcar unidad como completada"}
                         >
                             {completando ? 'Guardando...' : (unidad.recursos_json?.tipo_contenido && !isMissionComplete ? 'Misión Pendiente 🔒' : '✓ Completar')}
                         </button>
                     )}
 
                     {navegacion?.siguiente ? (
-                        <Link href={`/${params.locale}/academy/unit/${navegacion.siguiente.id}`} className="px-8 py-3 bg-accent/20 border border-accent/40 text-accent rounded-sm text-sm">Siguiente →</Link>
+                        <Link
+                            href={`/${params.locale}/academy/unit/${navegacion.siguiente.id}`}
+                            className="px-8 py-3 bg-accent/20 border border-accent/40 text-accent rounded-sm text-sm hover:bg-accent/30 focus-ring"
+                            aria-label={`Siguiente unidad: ${params.locale === 'eu' ? navegacion.siguiente.nombre_eu : navegacion.siguiente.nombre_es}`}
+                        >
+                            Siguiente →
+                        </Link>
                     ) : <div />}
                 </div>
-            </div>
+            </nav>
         </div >
     );
 }

@@ -54,13 +54,22 @@ export default function ModuleDetailMain({
     const [unlockStatus, setUnlockStatus] = useState<UnlockStatusResponse | null>(null);
     const [loading, setLoading] = useState(true);
     const [mostrandoExamen, setMostrandoExamen] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         async function fetchData() {
+            setLoading(true);
+            setError(null);
+            console.log('[ModuleDetailMain] Fetching data for module:', params.id);
             try {
                 const res = await fetch(apiUrl(`/api/academy/module/${params.id}`));
                 const data = await res.json();
-                if (!data.error) {
+
+                if (data.error) {
+                    setError(data.error);
+                } else if (!data.modulo) {
+                    setError('Respuesta inválida del servidor');
+                } else {
                     setModulo(data.modulo);
                     setUnidades(data.unidades || []);
                     setProgreso(data.progreso);
@@ -69,9 +78,16 @@ export default function ModuleDetailMain({
                         const resStatus = await fetch(apiUrl('/api/unlock-status'));
                         const dataStatus = await resStatus.json();
                         setUnlockStatus(dataStatus || null);
-                    } catch (e) { console.error(e); }
+                    } catch (e) {
+                        console.error('Unlock status fail', e);
+                    }
                 }
-            } catch (error) { console.error(error); } finally { setLoading(false); }
+            } catch (err: any) {
+                console.error(err);
+                setError(err.message || 'Error desconocido');
+            } finally {
+                setLoading(false);
+            }
         }
         fetchData();
     }, [params.id]);
@@ -81,7 +97,7 @@ export default function ModuleDetailMain({
             <div className="min-h-screen bg-nautical-black flex items-center justify-center" aria-live="polite">
                 <div className="text-center">
                     <div className="text-6xl mb-4 animate-bounce-slow" aria-hidden="true">⚓</div>
-                    <p className="text-white/60 text-lg font-display italic">Navegando el módulo...</p>
+                    <p className="text-white/80 text-lg font-display italic">Navegando el módulo...</p>
                 </div>
             </div>
         );
@@ -91,7 +107,8 @@ export default function ModuleDetailMain({
         return (
             <div className="min-h-screen bg-nautical-black flex items-center justify-center text-white">
                 <div className="text-center">
-                    <p className="text-xl font-display italic text-white/60 mb-8">Módulo no encontrado</p>
+                    <p className="text-xl font-display italic text-white/80 mb-2">Módulo no encontrado</p>
+                    {error && <p className="text-red-400 mb-6 font-mono text-sm">Error: {error}</p>}
                     <Link href={`/${params.locale}/academy`} className="btn">
                         Volver a la Academia
                     </Link>
@@ -121,7 +138,7 @@ export default function ModuleDetailMain({
         <div className="min-h-screen bg-premium-mesh text-white pb-32">
             {/* Breadcrumb / Context */}
             <nav className="container mx-auto px-6 py-8" aria-label="Breadcrumb">
-                <div className="flex flex-wrap items-center gap-4 text-[10px] uppercase tracking-[0.3em] font-bold text-white/40">
+                <div className="flex flex-wrap items-center gap-4 text-[10px] uppercase tracking-[0.3em] font-bold text-white/70">
                     <Link href={`/${params.locale}/academy`} className="hover:text-accent transition-colors">Academia</Link>
                     <span aria-hidden="true">/</span>
                     <Link href={`/${params.locale}/academy/level/${modulo.curso.nivel_formacion.slug}`} className="hover:text-accent transition-colors">
@@ -145,7 +162,7 @@ export default function ModuleDetailMain({
                     <h1 className="text-4xl md:text-8xl font-display italic text-white mb-8 leading-tight">
                         {params.locale === 'eu' ? modulo.nombre_eu : modulo.nombre_es}
                     </h1>
-                    <p className="text-xl lg:text-2xl text-white/60 font-light leading-relaxed max-w-3xl">
+                    <p className="text-xl lg:text-2xl text-white/80 font-light leading-relaxed max-w-3xl">
                         {params.locale === 'eu' ? modulo.descripcion_eu : modulo.descripcion_es}
                     </p>
                 </div>
@@ -156,7 +173,7 @@ export default function ModuleDetailMain({
                 <div className="max-w-4xl mx-auto space-y-4">
                     <header className="flex justify-between items-end border-b border-white/10 pb-6 mb-10">
                         <h2 className="text-3xl font-display italic text-white">Unidades Didácticas</h2>
-                        <div className="text-[10px] tracking-widest text-white/30 font-black uppercase">
+                        <div className="text-[10px] tracking-widest text-white/70 font-black uppercase">
                             {unidadesCompletadas} / {unidades.length} Completadas
                         </div>
                     </header>
@@ -194,7 +211,7 @@ export default function ModuleDetailMain({
                                             <h3 className="text-2xl font-display italic text-white group-hover:text-accent transition-colors leading-tight">
                                                 {params.locale === 'eu' ? unidad.nombre_eu : unidad.nombre_es}
                                             </h3>
-                                            <div className="flex gap-4 mt-1 text-[8px] uppercase tracking-widest text-white/30 font-bold">
+                                            <div className="flex gap-4 mt-1 text-[8px] uppercase tracking-widest text-white/60 font-bold">
                                                 <span>{unidad.duracion_estimada_min} mins de lectura</span>
                                             </div>
                                         </div>
@@ -217,7 +234,7 @@ export default function ModuleDetailMain({
                         <div className="relative z-10">
                             <span className="text-accent uppercase tracking-[0.5em] text-[9px] font-black block mb-6">Contenido Finalizado</span>
                             <h2 className="text-4xl lg:text-5xl font-display italic text-white mb-8">Examen de Conocimientos</h2>
-                            <p className="text-white/60 font-light text-lg mb-10 max-w-xl mx-auto">
+                            <p className="text-white/80 font-light text-lg mb-10 max-w-xl mx-auto">
                                 Has navegado por todas las unidades de este módulo. Realiza el examen para validar tu aprendizaje y continuar tu formación.
                             </p>
                             <button

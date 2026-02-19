@@ -81,12 +81,15 @@ interface OverviewTabProps {
     notionMetrics?: any;
     isSyncing?: boolean;
     onTriggerSync?: () => void;
+    isUpdatingDashboard?: boolean;
+    onUpdateDashboard?: () => void;
 }
 
 export default function OverviewTab({
     isAdmin, locale, displayStats, rentals, globalLogs, auditLogs, staffProfiles,
     staffNote, setStaffNote, setEditingLog, onViewReports,
-    notionMetrics, isSyncing, onTriggerSync
+    notionMetrics, isSyncing, onTriggerSync,
+    isUpdatingDashboard, onUpdateDashboard
 }: OverviewTabProps) {
     const t = useTranslations('staff_panel');
     const [mounted, setMounted] = useState(false);
@@ -243,89 +246,139 @@ export default function OverviewTab({
                 <div className="space-y-8">
                     <WeatherPremium />
 
-                    {/* Notion Intelligence Hub */}
+                    {/* Notion Intelligence Hub - Rediseño Premium V3 (Restored) */}
                     {isAdmin && (
-                        <div className="glass-card p-8 rounded-sm space-y-8 border-accent/20">
-                            <div className="flex justify-between items-center">
-                                <div className="space-y-1">
-                                    <span className="text-3xs uppercase tracking-[0.3em] font-bold text-accent italic">Notion Hub</span>
-                                    <h3 className="text-2xl font-display text-white italic">Business Intel</h3>
-                                </div>
-                                <div className={`w-3 h-3 rounded-full ${notionMetrics ? 'bg-sea-foam animate-pulse' : 'bg-white/10'}`} />
-                            </div>
+                        <div className="glass-card p-10 rounded-sm space-y-10 border-accent/20 relative overflow-hidden group/notion">
+                            {/* Ambient Glow */}
+                            <div className="absolute top-0 right-0 w-40 h-40 bg-accent/5 -mr-20 -mt-20 rounded-full blur-[100px] group-hover/notion:bg-accent/10 transition-all pointer-events-none" />
 
-                            {notionMetrics ? (
-                                <div className="space-y-6">
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div className="p-4 bg-white/5 border border-white/5 rounded-sm">
-                                            <p className="text-3xs text-white/40 uppercase mb-1">ROI Promedio</p>
-                                            <p className="text-2xl font-display text-sea-foam">{notionMetrics.avgROI}%</p>
+                            <div className="relative z-10">
+                                <header className="flex justify-between items-start mb-10">
+                                    <div className="space-y-1">
+                                        <div className="flex items-center gap-2">
+                                            <span className="w-2 h-2 bg-accent rounded-full animate-pulse" />
+                                            <span className="text-[10px] uppercase tracking-[0.4em] font-black text-white/30">Intelligence Hub</span>
                                         </div>
-                                        <div className="p-4 bg-white/5 border border-white/5 rounded-sm">
-                                            <p className="text-3xs text-white/40 uppercase mb-1">Alertas Flota</p>
-                                            <p className={`text-2xl font-display ${notionMetrics.activeAlerts > 0 ? 'text-red-500' : 'text-green-500'}`}>
-                                                {notionMetrics.activeAlerts}
+                                        <h3 className="text-3xl font-display text-white italic tracking-tight">Notion <span className="text-accent underline underline-offset-8 decoration-accent/20">Dashboard</span></h3>
+                                    </div>
+                                    <div className="flex flex-col items-end opacity-40">
+                                        <span className="text-[9px] font-mono text-white uppercase tracking-widest">Active Link</span>
+                                        <span className="text-[9px] font-mono text-accent">SUPABASE ⇄ NOTION</span>
+                                    </div>
+                                </header>
+
+                                {notionMetrics ? (
+                                    <div className="space-y-8">
+                                        <div className="grid grid-cols-2 gap-6">
+                                            <div className="p-6 bg-white/[0.02] border border-white/5 rounded-sm hover:border-accent/30 transition-all relative group/stat">
+                                                <p className="text-[10px] text-white/30 uppercase font-black tracking-widest mb-3 group-hover/stat:text-accent transition-colors">Rendimiento ROI</p>
+                                                <div className="flex items-baseline gap-2">
+                                                    <p className="text-4xl font-display text-sea-foam italic tracking-tighter">{notionMetrics.avgROI}%</p>
+                                                    <span className="text-sea-foam/40 text-sm animate-bounce">↑</span>
+                                                </div>
+                                            </div>
+                                            <div className="p-6 bg-white/[0.02] border border-white/5 rounded-sm hover:border-accent/30 transition-all relative group/alert">
+                                                <p className="text-[10px] text-white/30 uppercase font-black tracking-widest mb-3 group-hover/alert:text-red-500 transition-colors">Alertas Activas</p>
+                                                <p className={`text-4xl font-display ${notionMetrics.activeAlerts > 0 ? 'text-red-500 text-shadow-glow-red' : 'text-accent'}`}>
+                                                    {notionMetrics.activeAlerts.toString().padStart(2, '0')}
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        <div className="p-6 bg-accent/[0.03] border border-accent/10 rounded-sm group/finance hover:bg-accent/5 transition-all">
+                                            <div className="flex justify-between items-center mb-6">
+                                                <div className="flex flex-col">
+                                                    <span className="text-[10px] text-accent font-black uppercase tracking-widest">Balance Neto Flota</span>
+                                                    <span className="text-[10px] text-white/20 font-mono">Consolidado desde Notion Database</span>
+                                                </div>
+                                                <span className="text-2xl font-display text-white italic tracking-tighter">{(notionMetrics.netProfit || 0).toLocaleString()}€</span>
+                                            </div>
+                                            <div className="grid grid-cols-2 gap-6 py-4 border-t border-white/5">
+                                                <div className="space-y-1">
+                                                    <p className="text-[9px] text-white/20 font-black tracking-widest uppercase">INGRESOS</p>
+                                                    <p className="text-sm font-mono text-white/80">{(notionMetrics.totalRevenue || 0).toLocaleString()}€</p>
+                                                </div>
+                                                <div className="space-y-1 text-right">
+                                                    <p className="text-[9px] text-white/20 font-black tracking-widest uppercase">GASTOS</p>
+                                                    <p className="text-sm font-mono text-white/80">{(notionMetrics.totalExpenses || 0).toLocaleString()}€</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="space-y-6">
+                                        <div className="grid grid-cols-2 gap-6">
+                                            <div className="h-24 bg-white/5 rounded-sm animate-pulse" />
+                                            <div className="h-24 bg-white/5 rounded-sm animate-pulse" />
+                                        </div>
+                                        <div className="h-28 bg-white/5 rounded-sm animate-pulse" />
+                                    </div>
+                                )}
+
+                                <div className="space-y-4 mt-10">
+                                    <button
+                                        onClick={onUpdateDashboard}
+                                        disabled={isUpdatingDashboard}
+                                        className={`w-full group/cmd py-6 px-8 rounded-sm transition-all border relative overflow-hidden flex items-center justify-between ${isUpdatingDashboard
+                                                ? 'bg-brass-gold/10 border-brass-gold/30 text-brass-gold cursor-wait'
+                                                : 'bg-white/5 border-white/10 text-white/60 hover:border-accent hover:bg-accent hover:text-nautical-black'
+                                            }`}
+                                    >
+                                        <div className="relative z-10 text-left">
+                                            <div className="flex items-center gap-3 mb-1">
+                                                <span className={`w-1.5 h-1.5 rounded-full ${isUpdatingDashboard ? 'bg-brass-gold animate-ping' : 'bg-accent group-hover/cmd:bg-nautical-black'}`} />
+                                                <span className="text-[10px] font-black uppercase tracking-[0.3em]">Comando de Sistema</span>
+                                            </div>
+                                            <p className="text-lg font-display italic tracking-wide group-hover/cmd:text-nautical-black">
+                                                {isUpdatingDashboard ? 'Sincronizando Notion Premium...' : 'Actualizar Premium Dashboard'}
                                             </p>
                                         </div>
-                                    </div>
 
-                                    <div className="space-y-3">
-                                        <div className="flex justify-between text-2xs uppercase tracking-widest text-white/40">
-                                            <span>Salud de Flota</span>
-                                            <span>{notionMetrics.fleetSize} Embarcaciones</span>
+                                        <div className="relative z-10">
+                                            {isUpdatingDashboard ? (
+                                                <div className="w-6 h-6 border-2 border-brass-gold border-t-transparent rounded-full animate-spin" />
+                                            ) : (
+                                                <span className="text-3xl transition-transform group-hover/cmd:translate-x-2">🧭</span>
+                                            )}
                                         </div>
-                                        <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
-                                            <div
-                                                className="h-full bg-accent transition-all duration-1000"
-                                                style={{ width: `${Math.max(20, 100 - (notionMetrics.activeAlerts * 25))}%` }}
-                                            />
-                                        </div>
-                                    </div>
 
-                                    <div className="p-4 bg-accent/5 border border-accent/10 rounded-sm">
-                                        <div className="flex justify-between items-center mb-2">
-                                            <span className="text-3xs text-accent">Beneficio Neto (Flota)</span>
-                                            <span className="text-sm font-mono text-white">{notionMetrics.netProfit?.toLocaleString()}€</span>
-                                        </div>
-                                        <div className="flex justify-between text-[10px] text-white/20">
-                                            <span>Ingresos: {notionMetrics.totalRevenue?.toLocaleString()}€</span>
-                                            <span>Gastos: {notionMetrics.totalExpenses?.toLocaleString()}€</span>
-                                        </div>
-                                    </div>
+                                        {!isUpdatingDashboard && (
+                                            <div className="absolute inset-0 bg-gradient-to-r from-accent to-accent/90 opacity-0 group-hover/cmd:opacity-100 transition-opacity" />
+                                        )}
+                                    </button>
+
+                                    <button
+                                        onClick={onTriggerSync}
+                                        disabled={isSyncing}
+                                        className={`w-full py-4 text-[10px] font-black uppercase tracking-[0.4em] transition-all border border-dashed rounded-sm ${isSyncing
+                                                ? 'border-accent/50 text-accent animate-pulse'
+                                                : 'border-white/5 text-white/20 hover:text-accent hover:border-accent/40'
+                                            }`}
+                                    >
+                                        {isSyncing ? 'Ejecutando Puente de Datos...' : 'Refrescar Sincronización Supabase'}
+                                    </button>
                                 </div>
-                            ) : (
-                                <div className="space-y-4 animate-pulse">
-                                    <div className="h-20 bg-white/5 rounded-sm" />
-                                    <div className="h-20 bg-white/5 rounded-sm" />
-                                </div>
-                            )}
 
-                            <button
-                                onClick={onTriggerSync}
-                                disabled={isSyncing}
-                                className={`w-full py-4 border transition-all text-[10px] uppercase font-bold tracking-[0.2em] relative overflow-hidden group ${isSyncing ? 'border-accent/50 text-accent cursor-wait' : 'border-white/10 text-white/40 hover:border-accent hover:text-accent'}`}
-                            >
-                                {isSyncing ? (
-                                    <>
-                                        <span className="relative z-10 flex items-center justify-center gap-3">
-                                            <div className="w-3 h-3 border-2 border-accent border-t-transparent rounded-full animate-spin" />
-                                            Sincronizando Notion...
-                                        </span>
-                                        <div className="absolute inset-0 bg-accent/5 animate-pulse" />
-                                    </>
-                                ) : (
-                                    'Sincronizar Supabase → Notion'
-                                )}
-                            </button>
+                                <footer className="mt-10 pt-10 border-t border-white/5 flex flex-col items-center gap-6">
+                                    <a
+                                        href="https://notion.so"
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        className="inline-flex items-center gap-3 text-[10px] text-white/20 hover:text-accent transition-all group/link"
+                                    >
+                                        <span className="uppercase tracking-[0.3em] font-black">Acceder a Notion Workspace</span>
+                                        <span className="group-hover/link:translate-x-1 group-hover/link:-translate-y-1 transition-transform">↗</span>
+                                    </a>
 
-                            <a
-                                href="https://notion.so"
-                                target="_blank"
-                                rel="noreferrer"
-                                className="block text-center text-[10px] text-white/20 hover:text-white transition-opacity italic"
-                            >
-                                Abrir Notion Dashboard ↗
-                            </a>
+                                    <div className="flex flex-col items-center gap-2">
+                                        <div className="flex gap-4 opacity-10 pointer-events-none grayscale">
+                                            <span className="text-[7px] font-mono tracking-widest text-white uppercase">Sync Status: Active</span>
+                                            <span className="text-[7px] font-mono tracking-widest text-white uppercase">Last Sync: {new Date().toLocaleTimeString()}</span>
+                                        </div>
+                                        <p className="text-[7px] font-mono text-white/5 uppercase tracking-[0.3em]">Operational Dashboard v3.0 // Gold Edition</p>
+                                    </div>
+                                </footer>
+                            </div>
                         </div>
                     )}
                 </div>

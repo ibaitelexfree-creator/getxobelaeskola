@@ -36,27 +36,32 @@ export default function Newsletter({ locale }: { locale: string }) {
     };
 
     return (
-        <section className="py-24 relative overflow-hidden bg-nautical-deep selection:bg-accent selection:text-nautical-black">
-            {/* Background Decor */}
-            <div className="absolute top-0 right-0 w-96 h-96 bg-accent/5 blur-[100px] rounded-full -translate-y-12 translate-x-12 pointer-events-none" />
-            <div className="absolute bottom-0 left-0 w-64 h-64 bg-brass-gold/5 blur-[80px] rounded-full translate-y-12 -translate-x-12 pointer-events-none" />
+        <section className="py-32 relative overflow-hidden bg-nautical-deep selection:bg-accent selection:text-nautical-black">
+            {/* Ambient Background Glows */}
+            <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-accent/5 blur-[120px] rounded-full -translate-y-1/2 translate-x-1/2 pointer-events-none" />
+            <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-brass-gold/5 blur-[100px] rounded-full translate-y-1/2 -translate-x-1/2 pointer-events-none" />
 
             <div className="container mx-auto px-6 relative z-10">
-                <div className="max-w-4xl mx-auto glass-panel p-12 md:p-20 text-center border-white/5 bg-white/[0.02]">
-                    <header className="mb-12">
-                        <span className="text-accent uppercase tracking-[0.4em] text-sm font-bold mb-6 block">
-                            Newsletter
-                        </span>
-                        <h2 className="text-4xl md:text-6xl font-display text-white mb-6">
+                <div className="max-w-5xl mx-auto glass-card p-12 md:p-24 text-center border-white/5 bg-white/[0.01] rounded-[2rem] overflow-hidden relative">
+                    <header className="mb-16 relative z-10">
+                        <div className="flex items-center justify-center gap-4 mb-8">
+                            <div className="w-8 h-[1px] bg-accent/30" />
+                            <span className="text-accent uppercase tracking-[0.5em] text-[10px] font-black">
+                                Join the fleet
+                            </span>
+                            <div className="w-8 h-[1px] bg-accent/30" />
+                        </div>
+
+                        <h2 className="text-4xl md:text-7xl font-display text-white mb-8 tracking-tight">
                             {t('title')}
                         </h2>
-                        <p className="text-white/80 font-medium text-xl max-w-2xl mx-auto leading-relaxed">
+                        <p className="text-white/60 font-light text-lg md:text-2xl max-w-2xl mx-auto leading-relaxed italic">
                             {t('subtitle')}
                         </p>
                     </header>
 
-                    <form onSubmit={handleSubmit} className="max-w-md mx-auto">
-                        <div className="flex flex-col sm:flex-row gap-4">
+                    <form onSubmit={handleSubmit} className="max-w-xl mx-auto relative z-10">
+                        <div className="flex flex-col sm:flex-row gap-4 p-2 bg-white/5 border border-white/10 rounded-2xl focus-within:border-accent/40 transition-premium backdrop-blur-md">
                             <input
                                 type="email"
                                 value={email}
@@ -64,26 +69,29 @@ export default function Newsletter({ locale }: { locale: string }) {
                                 placeholder={t('email_placeholder')}
                                 required
                                 aria-label={t('email_aria_label')}
-                                className="flex-grow bg-white/5 border border-white/10 px-6 py-4 text-white text-lg placeholder:text-white/40 focus:outline-none focus:border-accent/40 transition-all rounded-sm font-sans"
+                                className="flex-grow bg-transparent px-6 py-4 text-white text-lg placeholder:text-white/20 focus:outline-none font-sans"
                             />
                             <button
                                 type="submit"
                                 disabled={status === 'loading'}
-                                className="bg-accent px-8 py-4 text-nautical-black text-sm uppercase tracking-[0.2em] font-black hover:bg-white hover:text-nautical-black transition-all duration-500 disabled:opacity-50 disabled:cursor-not-allowed shadow-xl shadow-accent/10 rounded-sm"
+                                className="bg-accent px-10 py-4 text-nautical-black text-[11px] uppercase tracking-[0.3em] font-black hover:bg-white transition-premium disabled:opacity-50 disabled:cursor-not-allowed shadow-2xl shadow-accent/20 rounded-xl"
                             >
                                 {status === 'loading' ? '...' : t('button')}
                             </button>
                         </div>
 
-                        {/* Status Messages */}
-                        <div className="mt-6 h-6">
+                        {/* Status Messages - Refined */}
+                        <div className="mt-8 h-6 flex justify-center">
                             {status === 'success' && (
-                                <p className="text-accent text-2xs uppercase tracking-widest font-bold animate-fade-in">
-                                    {t('success')}
-                                </p>
+                                <div className="flex items-center gap-3 animate-fade-in">
+                                    <div className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
+                                    <p className="text-accent text-[10px] uppercase tracking-[0.4em] font-black">
+                                        {t('success')}
+                                    </p>
+                                </div>
                             )}
                             {status === 'error' && (
-                                <p className="text-red-400 text-2xs uppercase tracking-widest font-bold animate-fade-in">
+                                <p className="text-red-500 text-[10px] uppercase tracking-[0.4em] font-black animate-fade-in shadow-red-500/20">
                                     {t('error')}
                                 </p>
                             )}
