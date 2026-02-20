@@ -3,15 +3,19 @@
 import { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { createClient } from '@/lib/supabase/client';
 import { getApiUrl } from '@/lib/platform';
 import { ChevronRight, Calendar, Clock, Anchor } from 'lucide-react';
 import LegalConsentModal from '@/components/shared/LegalConsentModal';
+import StaggeredEntrance from '@/components/shared/StaggeredEntrance';
 
 interface RentalService {
     id: string;
     nombre_es: string;
     nombre_eu: string;
+    nombre_en?: string;
+    nombre_fr?: string;
     categoria: string;
     slug: string;
     precio_base: number;
@@ -26,6 +30,8 @@ export default function MobileRentalList({
     services: RentalService[],
     locale: string
 }) {
+    const t = useTranslations('rental_page');
+    const tLegal = useTranslations('legal');
     const router = useRouter();
     const [selectedService, setSelectedService] = useState<RentalService | null>(null);
     const [selectedDate, setSelectedDate] = useState('');
@@ -55,6 +61,13 @@ export default function MobileRentalList({
     const times = ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00'];
     const today = new Date().toISOString().split('T')[0];
 
+    const getServiceName = (service: RentalService) => {
+        if (locale === 'eu') return service.nombre_eu || service.nombre_es;
+        if (locale === 'en') return service.nombre_en || service.nombre_es;
+        if (locale === 'fr') return service.nombre_fr || service.nombre_es;
+        return service.nombre_es;
+    };
+
     const openBooking = (service: RentalService) => {
         setSelectedService(service);
         setSelectedOption(null);
@@ -82,7 +95,7 @@ export default function MobileRentalList({
                     fullName: legalData.fullName,
                     email: legalData.email,
                     dni: legalData.dni,
-                    legalText: 'Acepto las condiciones de contratación',
+                    legalText: tLegal('consent_acceptance'),
                     consentType: 'rental',
                     referenceId: selectedService.id
                 })
@@ -105,11 +118,11 @@ export default function MobileRentalList({
 
             const data = await response.json();
             if (data.url) window.location.href = data.url;
-            else alert(data.error || 'Error al reservar');
+            else alert(data.error || t('booking.booking_error'));
 
         } catch (error) {
             console.error(error);
-            alert('Error de conexión');
+            alert(t('booking.booking_error'));
         } finally {
             setLoading(false);
             setIsSheetOpen(false);
@@ -130,24 +143,24 @@ export default function MobileRentalList({
     return (
         <div className="pb-32">
             {/* Header */}
-            <div className="px-6 py-6 sticky top-0 bg-nautical-black/80 backdrop-blur-xl z-10 border-b border-white/5">
-                <h1 className="text-2xl font-display text-white">Alquiler de Material</h1>
-                <p className="text-white/40 text-xs mt-1">Reserva tu equipo al instante</p>
+            <div className="px-6 py-6 sticky top-0 bg-nautical-black/80 backdrop-blur-xl z-20 border-b border-white/5">
+                <h1 className="text-2xl font-display text-white">{t('title_prefix')} {t('title_highlight')}</h1>
+                <p className="text-white/40 text-xs mt-1">{t('description').split('.')[0]}</p>
             </div>
 
             {/* List */}
-            <div className="px-6 grid gap-4 mt-6">
+            <StaggeredEntrance className="px-6 grid gap-4 mt-6" type="recombine">
                 {services.map((service) => (
                     <button
                         key={service.id}
                         onClick={() => openBooking(service)}
-                        className="bg-nautical-black border border-white/10 rounded-2xl overflow-hidden active:scale-[0.98] transition-transform text-left"
+                        className="bg-nautical-black border border-white/10 rounded-2xl overflow-hidden active:scale-[0.98] transition-all duration-300 text-left"
                     >
                         <div className="h-40 relative bg-white/5">
                             {service.imagen_url ? (
                                 <img
                                     src={service.imagen_url}
-                                    alt={service.nombre_es}
+                                    alt={getServiceName(service)}
                                     className="w-full h-full object-cover"
                                 />
                             ) : (
@@ -159,16 +172,16 @@ export default function MobileRentalList({
                         </div>
                         <div className="p-5">
                             <h3 className="text-lg font-display text-white mb-1">
-                                {locale === 'es' ? service.nombre_es : service.nombre_eu}
+                                {getServiceName(service)}
                             </h3>
                             <div className="flex items-center gap-2 mt-2">
-                                <span className="text-[10px] uppercase tracking-widest text-accent font-bold">Reservar ahora</span>
+                                <span className="text-[10px] uppercase tracking-widest text-accent font-bold">{t('booking.book_now')}</span>
                                 <ChevronRight className="w-3 h-3 text-accent" />
                             </div>
                         </div>
                     </button>
                 ))}
-            </div>
+            </StaggeredEntrance>
 
             {/* Booking Sheet (Simple overlay) */}
             {isSheetOpen && selectedService && (
@@ -178,12 +191,12 @@ export default function MobileRentalList({
                         <div className="w-12 h-1 bg-white/10 rounded-full mx-auto mb-6" />
 
                         <h2 className="text-xl font-display text-white mb-6">
-                            {locale === 'es' ? selectedService.nombre_es : selectedService.nombre_eu}
+                            {getServiceName(selectedService)}
                         </h2>
 
                         <div className="space-y-6">
                             <div className="space-y-2">
-                                <label className="text-xs uppercase tracking-widest text-accent font-bold block">Fecha</label>
+                                <label className="text-xs uppercase tracking-widest text-accent font-bold block">{t('booking.date_label')}</label>
                                 <div className="relative">
                                     <input
                                         type="date"
@@ -197,14 +210,14 @@ export default function MobileRentalList({
                             </div>
 
                             <div className="space-y-2">
-                                <label className="text-xs uppercase tracking-widest text-accent font-bold block">Hora</label>
+                                <label className="text-xs uppercase tracking-widest text-accent font-bold block">{t('booking.time_label')}</label>
                                 <div className="relative">
                                     <select
                                         value={selectedTime}
                                         onChange={(e) => setSelectedTime(e.target.value)}
                                         className="w-full h-12 bg-white/5 border border-white/10 rounded-xl px-4 text-white outline-none focus:border-accent appearance-none"
                                     >
-                                        <option value="">Selecciona hora</option>
+                                        <option value="">{t('booking.no_times_available')?.includes('hoy') ? 'Selecciona hora' : t('booking.date_label')}</option>
                                         {times.map(t => (
                                             <option key={t} value={t} className="bg-nautical-black">{t}</option>
                                         ))}
@@ -215,7 +228,7 @@ export default function MobileRentalList({
 
                             {selectedService.opciones?.length > 0 && (
                                 <div className="space-y-2">
-                                    <label className="text-xs uppercase tracking-widest text-accent font-bold block">Extras</label>
+                                    <label className="text-xs uppercase tracking-widest text-accent font-bold block">{t('booking.extra_option')}</label>
                                     <div className="grid gap-2">
                                         {selectedService.opciones.map((opt, idx) => (
                                             <button
@@ -239,7 +252,7 @@ export default function MobileRentalList({
                                 disabled={!selectedDate || !selectedTime || loading}
                                 className="w-full h-14 bg-accent text-nautical-black font-black uppercase tracking-widest rounded-xl disabled:opacity-50 mt-4"
                             >
-                                {loading ? 'Procesando...' : `Confirmar Reserva (${selectedService.precio_base + (selectedOption !== null ? selectedService.opciones[selectedOption].extra : 0)}€)`}
+                                {loading ? t('booking.processing') || 'Procesando...' : `${t('booking.confirm')} (${selectedService.precio_base + (selectedOption !== null ? selectedService.opciones[selectedOption].extra : 0)}€)`}
                             </button>
                         </div>
                     </div>
@@ -256,8 +269,9 @@ export default function MobileRentalList({
                     email: user.email,
                     dni: profile?.dni
                 } : undefined}
-                legalText="Acepto las condiciones de contratación y política de privacidad."
+                legalText={tLegal('rental_contract')}
             />
         </div>
     );
 }
+

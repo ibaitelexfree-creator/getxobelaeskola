@@ -26,7 +26,10 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: 'Bono not found' }, { status: 404 });
         }
 
-        // 3. Create Stripe Session
+        const host = req.headers.get('host') || 'localhost:3000';
+        const protocol = req.headers.get('x-forwarded-proto') || (host.includes('localhost') ? 'http' : 'https');
+        const origin = req.headers.get('origin') || `${protocol}://${host}`;
+
         const session = await stripe.checkout.sessions.create({
             payment_method_types: ['card'],
             customer_email: user.email,
@@ -50,8 +53,8 @@ export async function POST(req: Request) {
                 },
             ],
             mode: 'payment',
-            success_url: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/${locale}/student/dashboard?checkout_success=true&bono_id=${bono.id}`,
-            cancel_url: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/${locale}/student/dashboard?checkout_cancel=true`,
+            success_url: `${origin}/${locale}/student/dashboard?checkout_success=true&bono_id=${bono.id}`,
+            cancel_url: `${origin}/${locale}/student/dashboard?checkout_cancel=true`,
             metadata: {
                 purchase_type: 'bono_horas',
                 user_id: user.id,

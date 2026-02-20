@@ -96,6 +96,26 @@
       "booking_error": "Errorea erreserba prozesatzean. Mesedez, saiatu berriro."
     }
   },
+  "experiences_page": {
+    "header_eyebrow": "Bizi Itsasoa",
+    "title_prefix": "Gure",
+    "title_highlight": "Esperientziak",
+    "description": "Urtebetetzeak, nabigazio bonuak, atrakeak eta jarduera bereziak. Bizi Kantauria modu bakarra batean.",
+    "from": "tik aurrera",
+    "per_person": "/pertsona",
+    "per_month": "/hilabete",
+    "per_session": "/saio",
+    "book_now": "Erreserbatu",
+    "more_info": "Informazio gehiago",
+    "footer_note": "Gure esperientzia guztiak baldintza meteorologikoen eta erabilgarritasunaren mende daude. Erreserbatu aldez aurretik lekua ziurtatzeko.",
+    "all": "Guztia",
+    "evento": "Ekitaldiak",
+    "taller": "Tailerrak",
+    "cumpleanos": "Urtebetetzeak",
+    "atraque": "Atrakak",
+    "bono": "Bonoak",
+    "visita": "Bisitak"
+  },
   "home": {
     "hero": {
       "slide1_title": "Dotoretasuna Itsasoan",
@@ -708,6 +728,11 @@
       "water_map": "Uren Mapa",
       "my_fleet": "Nire Flota",
       "personal_diary": "Egunkari Pertsonala"
+    },
+    "connection_error": {
+      "title": "Konexio Errorea",
+      "message": "Ezin izan dugu bitakora akademikoarekin komunikaziorik ezarri. Mesedez, egiaztatu konexioa eta saiatu berriro.",
+      "retry": "Bitakora Birkargatu ⚓"
     }
   },
   "errors": {
@@ -832,7 +857,9 @@
   "legal": {
     "rental_contract": "MATERIAL NAUTIKOA ALOKATZEKO KONTRATUA - GETXO BELA ESKOLA\n\n1. ERRENTATSAILEAREN BALDINTZAK: Bezeroak adierazten du alokatutako materiala modu seguruan erabiltzeko beharrezko ezagutza teknikoak dituela. Aisialdiko belaontzien kasuan, dagokion gutxieneko titulazioa beharrezkoa da.\n\n2. EGOERA ETA ITZULTZEA: Materiala funtzionamendu-egoera egokian entregatzen da. Bezeroak egoera berean itzultzeko konpromisoa hartzen du. Ardura gabekeriagatik sortutako edozein kalte bezeroaren ardura esklusiboa izango da.\n\n3. NABIGAZIO EREMUAK: Nabigazioa baimendutako eremuetara eta adostutako denborara mugatuko da. Bezeroak Getxoko Kirol Portuko arauak eta Itsas Kapaintzaren araudia errespetatzeko konpromisoa hartzen du.\n\n4. SEGURTASUNA: Salbamendu-txalekoa erabiltzea nahitaezkoa eta pertsonala da uretan geratzen den denbora guztian.\n\n5. RESKATEA ETA LAGUNTZA: Bezeroak zuhurtzia faltagatik edo baimendutako eremuetatik kanpo ateratzeagatik laguntza edo erreskatea behar badu, sor daitezkeen gastuak bere kontu izango dira.\n\n6. SINADURA DIGITALA: Onarpen-laukia markatzean, bezeroak berresten du aurreko puntu guztiak ulertu dituela eta bere legezko erantzukizuna onartzen duela.",
     "consent_acceptance": "Goian zehaztutako legezko baldintzak irakurri eta berariaz onartzen ditut. Ulertzen dut onarpen honek sinadura digital lotesle baten balioa duela.",
-    "error_log_consent": "Ezin izan da legezko sinadura erregistratu. Saiatu berriro."
+    "error_log_consent": "Ezin izan da legezko sinadura erregistratu. Saiatu berriro.",
+    "privacy_title": "Pribatutasun Politika",
+    "cookies_title": "Cookien Politika"
   },
   "legal_modal": {
     "viewing_doc": "Dokumentua Ikusten",

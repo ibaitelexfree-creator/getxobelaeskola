@@ -1,9 +1,11 @@
-import { useState } from 'react';
+'use client';
+
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { BookOpen, Sailboat, GraduationCap, User, Trophy, Calendar, ChevronRight, Anchor, Compass, Book } from 'lucide-react';
 import DailyNauticalQuote from '@/components/student/DailyNauticalQuote';
-
+import StaggeredEntrance from '@/components/shared/StaggeredEntrance';
 
 interface MobileStudentHubProps {
     profile: any;
@@ -64,7 +66,7 @@ export default function MobileStudentHub({
     };
 
     return (
-        <div className="flex flex-col gap-8 pb-24">
+        <StaggeredEntrance className="flex flex-col gap-8 pb-24" type="recombine">
             {/* Header Greeting */}
             <header className="px-6 pt-8 relative z-[100]">
                 <div className="flex items-center justify-between mb-2">
@@ -138,7 +140,7 @@ export default function MobileStudentHub({
                     </div>
 
                     <div className="flex gap-4 overflow-x-auto pb-8 pr-6 snap-x snap-mandatory scrollbar-hide">
-                        {upcomingInscripciones.map((ins, i) => {
+                        {upcomingInscripciones.map((ins: any, i: number) => {
                             const date = ins.ediciones_curso?.fecha_inicio || ins.metadata?.start_date;
                             const name = ins.cursos?.nombre_es || 'Curso de Vela';
                             return (
@@ -160,7 +162,7 @@ export default function MobileStudentHub({
                             );
                         })}
 
-                        {upcomingRentals.map((rent, i) => {
+                        {upcomingRentals.map((rent: any, i: number) => {
                             const date = rent.fecha_reserva;
                             return (
                                 <div key={`rental-${i}`} className="min-w-[85%] sm:min-w-[300px] snap-center bg-nautical-black border border-white/10 rounded-2xl p-5 relative overflow-hidden h-32 flex flex-col justify-between">
@@ -203,6 +205,6 @@ export default function MobileStudentHub({
                     </div>
                 </Link>
             </section>
-        </div>
+        </StaggeredEntrance>
     );
 }

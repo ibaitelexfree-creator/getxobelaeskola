@@ -185,37 +185,7 @@ export function useEvaluation({ evaluacionId, onComplete, onError }: UseEvaluati
                 }
             }));
 
-            // TRIGGER FEEDBACK: Logros y Habilidades
-            if (data.nuevos_logros && data.nuevos_logros.length > 0) {
-                data.nuevos_logros.forEach((logro: any) => {
-                    addNotification({
-                        type: 'achievement',
-                        title: logro.nombre_es,
-                        message: logro.descripcion_es || '¡Logro desbloqueado!',
-                        icon: logro.icono || '🏆',
-                        duration: 7000,
-                        data: {
-                            rareza: logro.rareza,
-                            puntos: logro.puntos
-                        }
-                    });
-                });
-            }
 
-            if (data.nuevas_habilidades && data.nuevas_habilidades.length > 0) {
-                data.nuevas_habilidades.forEach((habilidad: any) => {
-                    addNotification({
-                        type: 'skill',
-                        title: habilidad.name,
-                        message: habilidad.description || '¡Nueva habilidad dominada!',
-                        icon: habilidad.icon || '⚡',
-                        duration: 0, // Manual close for skills
-                        data: {
-                            category: habilidad.category
-                        }
-                    });
-                });
-            }
 
             if (data.aprobado) {
                 onComplete?.();

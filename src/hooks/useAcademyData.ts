@@ -62,11 +62,17 @@ export function useAcademyData() {
                 // Levels is critical
                 if (!resNiveles.ok) {
                     const errData = await resNiveles.json().catch(() => ({}));
+                    console.error('CRITICAL ERROR: Failed to fetch levels', resNiveles.status, errData);
                     throw new Error(errData.error || `Failed to fetch levels: ${resNiveles.status}`);
                 }
 
                 const dataNiveles = await resNiveles.json();
-                const dataCursos = await resCursos.json().catch(() => ({ cursos: [] }));
+
+                // Cursos is important but not fatal
+                let dataCursos = { cursos: [] };
+                if (resCursos.ok) {
+                    dataCursos = await resCursos.json().catch(() => ({ cursos: [] }));
+                }
 
                 let dataEnrollments: string[] = [];
                 if (resEnrollments.ok) {
@@ -106,7 +112,7 @@ export function useAcademyData() {
             } catch (err) {
                 if (isMounted) {
                     const errorMessage = err instanceof Error ? err.message : 'Error desconocido';
-                    setError(`Error al cargar academia: ${errorMessage}`);
+                    setError(errorMessage); // Cleaner error message for UI
                     console.error('Error in useAcademyData:', err);
                 }
             } finally {

@@ -13,8 +13,15 @@ export interface PushNotificationState {
 export const usePushNotifications = () => {
     const [state, setState] = useState<PushNotificationState>({
         permission: 'prompt',
-        isNative: Capacitor.isNativePlatform(),
+        isNative: false, // Start as false for SSR compatibility
     });
+
+    // Handle isNative check on mount
+    useEffect(() => {
+        if (typeof window !== 'undefined' && Capacitor.isNativePlatform()) {
+            setState(prev => ({ ...prev, isNative: true }));
+        }
+    }, []);
 
     // Check current permission status
     const checkPermissions = useCallback(async () => {

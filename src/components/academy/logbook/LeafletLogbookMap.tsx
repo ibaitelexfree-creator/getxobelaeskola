@@ -18,13 +18,23 @@ interface LeafletLogbookMapProps {
     sessions: NavigationPoint[];
     selectedPoint: NavigationPoint | null;
     setSelectedPoint: (p: NavigationPoint | null) => void;
+    activePoints?: { lat: number, lng: number }[];
+    isTracking?: boolean;
 }
 
-export default function LeafletLogbookMap({ sessions, selectedPoint, setSelectedPoint }: LeafletLogbookMapProps) {
+export default function LeafletLogbookMap({
+    sessions,
+    selectedPoint,
+    setSelectedPoint,
+    activePoints = [],
+    isTracking = false
+}: LeafletLogbookMapProps) {
     const mapRef = useRef<L.Map | null>(null);
     const containerRef = useRef<HTMLDivElement>(null);
     const markersRef = useRef<L.LayerGroup | null>(null);
     const tracksRef = useRef<L.LayerGroup | null>(null);
+    const activeTrackRef = useRef<L.Polyline | null>(null);
+    const activeMarkerRef = useRef<L.CircleMarker | null>(null);
 
     // Initial map setup
     useEffect(() => {
@@ -56,6 +66,50 @@ export default function LeafletLogbookMap({ sessions, selectedPoint, setSelected
             mapRef.current = null;
         };
     }, []);
+
+    // Update real-time active track
+    useEffect(() => {
+        const map = mapRef.current;
+        if (!map) return;
+
+        // Remove old active track
+        if (activeTrackRef.current) {
+            activeTrackRef.current.remove();
+            activeTrackRef.current = null;
+        }
+        if (activeMarkerRef.current) {
+            activeMarkerRef.current.remove();
+            activeMarkerRef.current = null;
+        }
+
+        if (isTracking && activePoints.length > 0) {
+            const positions = activePoints.map(p => [p.lat, p.lng] as L.LatLngExpression);
+
+            // Draw polyline
+            activeTrackRef.current = L.polyline(positions, {
+                color: '#22c55e', // Green for active recording
+                weight: 4,
+                opacity: 0.8,
+                dashArray: '10, 10',
+                className: 'animate-pulse'
+            }).addTo(map);
+
+            // Draw marker at current position
+            const lastPoint = activePoints[activePoints.length - 1];
+            activeMarkerRef.current = L.circleMarker([lastPoint.lat, lastPoint.lng], {
+                radius: 6,
+                fillColor: '#22c55e',
+                color: 'white',
+                weight: 2,
+                fillOpacity: 1
+            }).addTo(map);
+
+            // Center map on last point if tracking
+            if (activePoints.length === 1 || (activePoints.length % 5 === 0)) {
+                map.panTo([lastPoint.lat, lastPoint.lng]);
+            }
+        }
+    }, [activePoints, isTracking]);
 
     // Update data (markers and tracks)
     useEffect(() => {
@@ -114,15 +168,9 @@ export default function LeafletLogbookMap({ sessions, selectedPoint, setSelected
                     }
                 }
             });
-
-            // Auto-fit if desired, but for now we keep the fixed center or fit bounds
-            /*
-            if (sessions.length > 0) {
-                 // logic to fitBounds
-            }
-            */
         }
     }, [sessions, selectedPoint, setSelectedPoint]);
+
 
     return (
         <div className="w-full h-full relative" style={{ minHeight: '400px', background: '#050b14' }}>

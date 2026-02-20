@@ -14,7 +14,12 @@ export default function GoogleAuthButton() {
         setLoading(true);
         try {
             const locale = window.location.pathname.split('/')[1] || 'es';
-            const appUrl = process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, '') || window.location.origin;
+
+            // Detect if we are on localhost to use the correct redirect URL
+            const isLocal = window.location.hostname === 'localhost';
+            const appUrl = isLocal
+                ? window.location.origin
+                : (process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, '') || window.location.origin);
 
             await supabase.auth.signInWithOAuth({
                 provider: 'google',

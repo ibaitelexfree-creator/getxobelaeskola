@@ -39,7 +39,7 @@ export default function RealtimeNotifications() {
                                 title: logro.nombre_es,
                                 message: logro.descripcion_es,
                                 icon: logro.icono || '🏆',
-                                duration: 8000,
+                                duration: 16000,
                                 data: {
                                     rareza: logro.rareza,
                                     puntos: logro.puntos

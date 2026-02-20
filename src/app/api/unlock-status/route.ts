@@ -3,18 +3,26 @@ import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
 import { requireAuth } from '@/lib/auth-guard';
 import { getUserEnrollments } from '@/lib/academy/enrollment';
+import { withCors, corsHeaders } from '@/lib/api-headers';
 
 export const dynamic = 'force-dynamic';
+
+export async function OPTIONS(request: Request) {
+    return new NextResponse(null, {
+        status: 204,
+        headers: corsHeaders(request)
+    });
+}
 
 export async function GET(request: Request) {
     try {
         // 1. AUTHENTICATION
         const { user, profile, error } = await requireAuth();
         if (error || !user) {
-            return NextResponse.json(
+            return withCors(NextResponse.json(
                 { error: 'Unauthorized' },
                 { status: 401 }
-            );
+            ), request);
         }
 
         const role = profile?.rol;
@@ -35,10 +43,10 @@ export async function GET(request: Request) {
 
         if (rpcError || !unlockStatus) {
             console.error('Error in unlock-status RPC:', rpcError || 'Returned null');
-            return NextResponse.json(
+            return withCors(NextResponse.json(
                 { error: 'Internal Server Error' },
                 { status: 500 }
-            );
+            ), request);
         }
 
         // 4. FILTER & HARDEN
@@ -54,12 +62,12 @@ export async function GET(request: Request) {
                 return newMap;
             };
 
-            return NextResponse.json({
+            return withCors(NextResponse.json({
                 niveles: unlockAll(unlockStatus.niveles || {}),
                 cursos: unlockAll(unlockStatus.cursos || {}),
                 modulos: unlockAll(unlockStatus.modulos || {}),
                 unidades: unlockAll(unlockStatus.unidades || {})
-            });
+            }), request);
         }
 
         const filteredLevels = { ...(unlockStatus.niveles || {}) };
@@ -83,19 +91,19 @@ export async function GET(request: Request) {
         // This is a safety measure in case the trigger didn't fire for some reason.
 
         // Final Response
-        return NextResponse.json({
+        return withCors(NextResponse.json({
             ...unlockStatus,
             niveles: filteredLevels,
             cursos: filteredCourses,
             modulos: filteredModules,
             unidades: filteredUnits
-        });
+        }), request);
 
     } catch (err) {
         console.error('Error in unlock-status endpoint:', err);
-        return NextResponse.json(
+        return withCors(NextResponse.json(
             { error: 'Internal Server Error' },
             { status: 500 }
-        );
+        ), request);
     }
 }

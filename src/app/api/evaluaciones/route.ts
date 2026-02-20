@@ -1,5 +1,15 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
+import { withCors, corsHeaders } from '@/lib/api-headers';
+
+export const dynamic = 'force-dynamic';
+
+export async function OPTIONS(request: Request) {
+    return new NextResponse(null, {
+        status: 204,
+        headers: corsHeaders(request)
+    });
+}
 
 export async function GET(request: Request) {
     try {
@@ -10,7 +20,7 @@ export async function GET(request: Request) {
         const entidadId = searchParams.get('entidad_id');
 
         if (!entidadTipo || !entidadId) {
-            return NextResponse.json({ error: 'Faltan parámetros' }, { status: 400 });
+            return withCors(NextResponse.json({ error: 'Faltan parámetros' }, { status: 400 }), request);
         }
 
         const { data, error } = await supabase
@@ -22,13 +32,13 @@ export async function GET(request: Request) {
             .single();
 
         if (error || !data) {
-            return NextResponse.json({ error: 'Evaluación no encontrada' }, { status: 404 });
+            return withCors(NextResponse.json({ error: 'Evaluación no encontrada' }, { status: 404 }), request);
         }
 
-        return NextResponse.json(data);
+        return withCors(NextResponse.json(data), request);
 
     } catch (error) {
         console.error('Error en GET /api/academy/evaluaciones:', error);
-        return NextResponse.json({ error: 'Error del servidor' }, { status: 500 });
+        return withCors(NextResponse.json({ error: 'Error del servidor' }, { status: 500 }), request);
     }
 }

@@ -39,7 +39,7 @@ export function useAcademyFeedback() {
             title: locale === 'eu' ? achievement.nombre_eu : achievement.nombre_es,
             message: (locale === 'eu' && achievement.descripcion_eu) ? achievement.descripcion_eu : achievement.descripcion_es,
             icon: achievement.icono,
-            duration: 6000,
+            duration: 16000,
             data: {
                 rareza: achievement.rareza,
                 puntos: achievement.puntos
@@ -89,10 +89,12 @@ export function useAcademyFeedback() {
             // Find new unlocked achievements
             const unlocked = newAchievements.filter(a => !prevIds.includes(a.id));
 
-            // Trigger notifications for new ones
+            // Trigger notifications for new ones (DISABLED to avoid duplication with RealtimeNotifications)
+            /*
             unlocked.forEach(achievement => {
                 showAchievement(achievement);
             });
+            */
 
             // Update localStorage with current list of IDs
             const currentIds = newAchievements.map(a => a.id);

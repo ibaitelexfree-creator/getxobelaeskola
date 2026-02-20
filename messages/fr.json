@@ -7,6 +7,7 @@
     "teams": "Équipes",
     "about": "L'École",
     "contact": "Contact",
+    "experiences": "Expériences",
     "login": "Connexion",
     "dashboard": "Mon Espace",
     "admin_panel": "Panneau Admin",
@@ -80,6 +81,26 @@
       "from": "À partir de",
       "book_now": "Réserver maintenant"
     }
+  },
+  "experiences_page": {
+    "header_eyebrow": "Vivez la Mer",
+    "title_prefix": "Nos",
+    "title_highlight": "Expériences",
+    "description": "Anniversaires, forfaits de navigation, mouillages et activités spéciales. Vivez le Cantabrique d'une manière unique.",
+    "from": "à partir de",
+    "per_person": "/personne",
+    "per_month": "/mois",
+    "per_session": "/session",
+    "book_now": "Réserver",
+    "more_info": "Plus d'info",
+    "footer_note": "Toutes nos expériences sont soumises à des conditions météorologiques et à la disponibilité. Réservez à l'avance pour garantir votre place.",
+    "all": "Tout",
+    "evento": "Événements",
+    "taller": "Ateliers",
+    "cumpleanos": "Anniversaires",
+    "atraque": "Mouillages",
+    "bono": "Forfaits",
+    "visita": "Visites"
   },
   "home": {
     "hero": {
@@ -282,7 +303,12 @@
       "La discipline est le meilleur gouvernail.",
       "L'océan est un livre dont chaque vague est une page.",
       "Le vent souffle en ta faveur si tu sais comment régler tes voiles."
-    ]
+    ],
+    "connection_error": {
+      "title": "Erreur de Connexion",
+      "message": "Nous n'avons pas pu établir de communication avec le journal de bord académique. Veuillez vérifier votre connexion et réessayer.",
+      "retry": "Recharger le Journal de Bord ⚓"
+    }
   },
   "auth_form": {
     "name": "Prénom",
@@ -315,7 +341,9 @@
   "legal": {
     "rental_contract": "CONTRAT DE LOCATION DE MATÉRIEL NAUTIQUE - GETXO BELA ESKOLA\n\n1. EXIGENCES DU LOCATAIRE : Le client déclare posséder les connaissances techniques nécessaires à la manipulation en toute sécurité du matériel loué. Dans le cas des voiliers de plaisance, la qualification minimale correspondante est requise.\n\n2. ÉTAT ET RETOUR : Le matériel est livré en parfait état de fonctionnement. Le client s'engage à le restituer dans le même état. Tout dommage causé par négligence sera de la responsabilité exclusive du client.\n\n3. ZONES DE NAVIGATION : La navigation sera limitée aux zones autorisées et aux horaires convenus. Le client s'engage à respecter les règles de la Marina de Getxo et les règlements de la Capitainerie Maritime.\n\n4. SÉCURITÉ : L'utilisation d'un gilet de sauvetage est obligatoire et personnelle à tout moment dans l'eau.\n\n5. SAUVETAGE ET ASSISTANCE : Si le client nécessite une assistance ou un sauvetage en raison d'une imprudence ou d'une sortie des zones autorisées, les frais en résultant seront à sa charge.\n\n6. SIGNATURE NUMÉRIQUE : En cochant la case d'acceptation, le client ratifie qu'il a compris tous les points précédents et assume sa responsabilité légale.",
     "consent_acceptance": "J'ai lu et j'accepte expressément les conditions légales détaillées ci-dessus. Je comprends que cette acceptation équivaut à une signature numérique contraignante.",
-    "error_log_consent": "Impossible d'enregistrer la signature légale. Veuillez réessayer."
+    "error_log_consent": "Impossible d'enregistrer la signature légale. Veuillez réessayer.",
+    "privacy_title": "Politique de Confidentialité",
+    "cookies_title": "Politique de Cookies"
   },
   "legal_modal": {
     "viewing_doc": "Visualisation du Document",
@@ -355,9 +383,13 @@
     "title": "Radar de Navigation \"Pont de Commandement\"",
     "location": "Arriluze Kaia — Getxo",
     "loading": "Chargement des Instruments...",
+    "live_status": "DIRECT",
+    "connecting_status": "CONNEXION...",
     "wind": "Vent Réel",
     "knots": "Noeuds",
     "aws": "Vitesse du Vent",
+    "syncing": "Synchronisation...",
+    "action_close": "Fermer l'historique",
     "gust": "Rafale",
     "twa": "Angle du Vent",
     "tide": "Marée Getxo",
@@ -366,6 +398,8 @@
     "falling": "Descendante",
     "stable": "Stable",
     "next_tide": "Prochaine: {time} ({type})",
+    "tide_high": "PM",
+    "tide_low": "BM",
     "temp": "Temp. Air",
     "pressure": "Pression",
     "visibility": "Visibilité",

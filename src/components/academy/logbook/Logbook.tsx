@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { apiUrl } from '@/lib/api';
 import { useAcademyFeedback } from '@/hooks/useAcademyFeedback';
+import { useSmartTracker } from '@/hooks/useSmartTracker';
 
 // Direct dynamic import with explicit default handling
 const LeafletMap = dynamic(
@@ -66,34 +67,71 @@ export default function Logbook() {
         }
     }
 
-    useEffect(() => {
-        async function loadData() {
-            setLoading(true);
-            try {
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
+    const {
+        isTracking,
+        points: trackedPoints,
+        startTracking,
+        stopTracking,
+        statusMessage: trackingStatus
+    } = useSmartTracker();
 
-                const res = await fetch(apiUrl('/api/academy/progress'), {
-                    signal: controller.signal
-                });
-                clearTimeout(timeoutId);
+    async function loadData() {
+        setLoading(true);
+        try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
 
-                if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+            const res = await fetch(apiUrl('/api/academy/progress'), {
+                signal: controller.signal
+            });
+            clearTimeout(timeoutId);
 
-                const data = await res.json();
-                console.log('Logbook Data Loaded:', data);
-                setOfficialData(data);
-            } catch (error) {
-                console.error('Error loading logbook:', error);
-                setOfficialData({ horas: [], estadisticas: { horas_totales: 0 }, user: { full_name: 'Invitado' } });
-            } finally {
-                setLoading(false);
-            }
+            if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+
+            const data = await res.json();
+            console.log('Logbook Data Loaded:', data);
+            setOfficialData(data);
+        } catch (error) {
+            console.error('Error loading logbook:', error);
+            setOfficialData({ horas: [], estadisticas: { horas_totales: 0 }, user: { full_name: 'Invitado' } });
+        } finally {
+            setLoading(false);
         }
+    }
 
+    useEffect(() => {
         loadData();
         loadSkills();
     }, []);
+
+    const handleToggleTracking = async () => {
+        if (isTracking) {
+            stopTracking();
+            // Trigger save after a small delay to ensure last points are captured
+            setTimeout(async () => {
+                if (trackedPoints.length >= 2) {
+                    try {
+                        const res = await fetch(apiUrl('/api/logbook/save-tracking'), {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ points: trackedPoints })
+                        });
+                        if (res.ok) {
+                            showMessage('Travesía Guardada', 'Tu recorrido ha sido registrado en la bitácora', 'success');
+                            loadData();
+                        }
+                    } catch (e) {
+                        console.error('Error saving track', e);
+                        showMessage('Error', 'No se pudo guardar el recorrido', 'error');
+                    }
+                }
+            }, 500);
+        } else {
+            await startTracking();
+            showMessage('Seguimiento Iniciado', 'Coge el timón, estamos grabando tu travesía', 'info');
+        }
+    };
+
 
     useEffect(() => {
         if (activeTab === 'diary') {
@@ -278,7 +316,41 @@ export default function Logbook() {
                             sessions={sessions}
                             selectedPoint={selectedPoint}
                             setSelectedPoint={setSelectedPoint}
+                            activePoints={trackedPoints}
+                            isTracking={isTracking}
                         />
+
+                        {/* Floating Tracker Controls */}
+                        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-[1000] flex flex-col items-center gap-4">
+                            {isTracking && (
+                                <div className="bg-black/80 backdrop-blur-xl border border-green-500/30 px-6 py-2 rounded-2xl flex items-center gap-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                                    <div className="w-2 h-2 bg-green-500 rounded-full animate-ping" />
+                                    <span className="text-[10px] uppercase tracking-[0.2em] font-black text-green-400">
+                                        {trackingStatus}
+                                    </span>
+                                    <div className="w-px h-4 bg-white/10" />
+                                    <span className="text-[10px] uppercase tracking-widest text-white/40">
+                                        {trackedPoints.length} Puntos
+                                    </span>
+                                </div>
+                            )}
+
+                            <button
+                                onClick={handleToggleTracking}
+                                className={`group relative px-10 py-5 rounded-[2rem] font-black uppercase tracking-[0.2em] text-[11px] transition-all duration-500 flex items-center gap-4 overflow-hidden
+                                    ${isTracking
+                                        ? 'bg-red-500 text-white shadow-[0_0_40px_rgba(239,68,68,0.3)] hover:scale-105'
+                                        : 'bg-accent text-nautical-black shadow-[0_0_40px_rgba(var(--accent-rgb),0.2)] hover:scale-110'
+                                    }`}
+                            >
+                                <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
+                                <span className="relative z-10 flex items-center gap-3">
+                                    {isTracking ? <div className="w-3 h-3 bg-white rounded-sm" /> : <Waves size={18} className="animate-bounce" />}
+                                    {isTracking ? 'Finalizar Travesía' : 'Empezar Travesía'}
+                                </span>
+                            </button>
+                        </div>
+
 
                         {selectedPoint && (
                             <div className="absolute inset-y-6 right-6 w-80 bg-[#0a1628]/95 backdrop-blur-2xl border border-accent/30 rounded-3xl p-8 shadow-2xl z-[1000] overflow-hidden">

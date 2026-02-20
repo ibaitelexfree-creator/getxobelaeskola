@@ -84,7 +84,7 @@ export default function LegalConsentModal({
     };
 
     return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-nautical-black/90 backdrop-blur-sm">
+        <div className="fixed inset-0 z-[100001] flex items-center justify-center p-4 bg-nautical-black/90 backdrop-blur-sm">
             <div className="bg-nautical-black border border-white/10 w-full max-w-4xl overflow-hidden flex flex-col max-h-[95vh] shadow-2xl">
                 {/* Header */}
                 <div className="p-6 border-b border-white/10 flex justify-between items-center bg-white/5">

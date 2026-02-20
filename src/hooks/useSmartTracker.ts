@@ -3,7 +3,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { Geolocation, Position } from '@capacitor/geolocation';
 import { Network, ConnectionStatus } from '@capacitor/network';
-import { Capacitor } from '@capacitor/core';
+// import { Capacitor } from '@capacitor/core';
+
 import { isPointInWater } from '@/lib/geospatial/water-check';
 
 export interface LocationPoint {
@@ -18,6 +19,9 @@ const SCHOOL_WIFI_SSID = '5B00';
 const BASE_CAR_SPEED_THRESHOLD = 12.86; // ~46 km/h (25 knots)
 const HIGH_WIND_CAR_THRESHOLD = 20.57; // ~74 km/h (40 knots) for foiling/high performance
 
+const SCHOOL_COORDS = { lat: 43.3424, lng: -3.0135 };
+const SCHOOL_RADIUS_METERS = 150; // Geofence radius
+
 export function useSmartTracker() {
     const [isTracking, setIsTracking] = useState(false);
     const [isAutoTracking, setIsAutoTracking] = useState(false);
@@ -26,12 +30,30 @@ export function useSmartTracker() {
     const [statusMessage, setStatusMessage] = useState<string>('Reposo');
     const [error, setError] = useState<string | null>(null);
     const [windSpeed, setWindSpeed] = useState<number>(0);
+    const [journeyEnded, setJourneyEnded] = useState(false); // New state to trigger logbook prompt
 
     const watchId = useRef<string | null>(null);
     const lastNetworkStatus = useRef<ConnectionStatus | null>(null);
+    const hasLeftSchool = useRef(false);
 
     // Dynamic threshold based on wind
     const currentSpeedThreshold = windSpeed > 18 ? HIGH_WIND_CAR_THRESHOLD : BASE_CAR_SPEED_THRESHOLD;
+
+    // Helper: Haversine distance
+    const getDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
+        const R = 6371e3; // metres
+        const φ1 = lat1 * Math.PI / 180;
+        const φ2 = lat2 * Math.PI / 180;
+        const Δφ = (lat2 - lat1) * Math.PI / 180;
+        const Δλ = (lon2 - lon1) * Math.PI / 180;
+
+        const a = Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+            Math.cos(φ1) * Math.cos(φ2) *
+            Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+        return R * c; // in metres
+    };
 
     // Fetch weather to adjust threshold
     useEffect(() => {
@@ -61,6 +83,7 @@ export function useSmartTracker() {
         if (watchId.current) return;
 
         try {
+            const { Capacitor } = await import('@capacitor/core');
             if (Capacitor.isNativePlatform()) {
                 const permissions = await Geolocation.checkPermissions();
                 if (permissions.location !== 'granted') {
@@ -72,6 +95,8 @@ export function useSmartTracker() {
             setIsAutoTracking(isAuto);
             setStatusMessage(isAuto ? 'Auto-Escaneando...' : 'Grabando...');
             setError(null);
+            setJourneyEnded(false);
+            hasLeftSchool.current = false;
 
             watchId.current = await Geolocation.watchPosition(
                 { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 },
@@ -102,7 +127,20 @@ export function useSmartTracker() {
                             return;
                         }
 
-                        // 2. Check for Location (Home vs Sea)
+                        // 2. Check for Geofence
+                        const distToSchool = getDistance(latitude, longitude, SCHOOL_COORDS.lat, SCHOOL_COORDS.lng);
+                        if (distToSchool > 500) {
+                            hasLeftSchool.current = true;
+                        }
+
+                        if (hasLeftSchool.current && distToSchool < SCHOOL_RADIUS_METERS) {
+                            setStatusMessage('Regreso a Escuela - Travesía Completada');
+                            stopTracking(true); // Stop but passing 'completed' hint
+                            setJourneyEnded(true);
+                            return;
+                        }
+
+                        // 3. Check for Location (Home vs Sea)
                         const atSea = isAtSea(latitude, longitude);
 
                         if (isAuto) {
@@ -113,7 +151,7 @@ export function useSmartTracker() {
                             } else {
                                 setStatusMessage('ZONA DE TIERRA - ESCANEANDO');
                                 // If we were recording and moved far away from sea, stop
-                                if (points.length > 5) {
+                                if (points.length > 5 && !hasLeftSchool.current) {
                                     setStatusMessage('Regreso a Tierra - Track Finalizado');
                                     stopTracking();
                                 }
@@ -146,14 +184,14 @@ export function useSmartTracker() {
         });
     };
 
-    const stopTracking = () => {
+    const stopTracking = (isSuccessEnd = false) => {
         if (watchId.current) {
             Geolocation.clearWatch({ id: watchId.current });
             watchId.current = null;
         }
         setIsTracking(false);
         setIsAutoTracking(false);
-        if (statusMessage === 'Grabando...') setStatusMessage('Completado');
+        if (statusMessage === 'Grabando...') setStatusMessage(isSuccessEnd ? 'Completado' : 'Detenido');
     };
 
     // --- NETWORK & WIFI MONITORING ---
@@ -193,8 +231,10 @@ export function useSmartTracker() {
         currentPosition,
         statusMessage,
         error,
+        journeyEnded,
         startTracking,
         stopTracking,
-        clearPoints: () => setPoints([])
+        clearPoints: () => setPoints([]),
+        dismissJourneyEnd: () => setJourneyEnded(false)
     };
 }

@@ -49,22 +49,24 @@ export default function MobileBottomNav() {
                             key={item.path}
                             href={`/${locale}${item.path}`}
                             prefetch={false}
-                            className={`flex flex-col items-center justify-center gap-1.5 flex-1 relative transition-premium ${active
-                                ? 'text-accent'
-                                : 'text-white/30 active:scale-90'
+                            aria-current={active ? 'page' : undefined}
+                            aria-label={getLabel(item)}
+                            className={`flex flex-col items-center justify-center gap-1.5 flex-1 relative transition-all duration-300 ${active
+                                ? 'text-accent scale-105'
+                                : 'text-white/30 active:scale-95'
                                 }`}
                         >
-                            <div className={`transition-premium ${active ? 'scale-110 drop-shadow-[0_0_8px_rgba(255,77,0,0.3)]' : 'group-hover:text-white/60'}`}>
+                            <div className={`transition-all duration-500 ${active ? 'drop-shadow-[0_0_10px_rgba(255,77,0,0.4)]' : 'group-hover:text-white/60'}`}>
                                 {item.icon}
                             </div>
-                            <span className={`text-[9px] uppercase tracking-[0.2em] font-black transition-premium ${active ? 'text-accent' : 'text-white/20'
+                            <span className={`text-[9px] uppercase tracking-[0.2em] font-black transition-all duration-300 ${active ? 'text-accent' : 'text-white/20'
                                 }`}>
                                 {getLabel(item)}
                             </span>
 
                             {/* Active Indicator Glow */}
                             {active && (
-                                <div className="absolute -bottom-4 w-12 h-1 bg-accent rounded-full shadow-[0_-4px_12px_rgba(255,77,0,0.5)] animate-fade-in" />
+                                <div className="absolute -bottom-4 w-12 h-1 bg-accent rounded-full shadow-[0_-4px_15px_rgba(255,77,0,0.6)] animate-in fade-in zoom-in duration-500" />
                             )}
                         </Link>
                     );

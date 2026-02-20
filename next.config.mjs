@@ -36,7 +36,23 @@ const nextConfig = {
     output: isCapacitor ? 'export' : 'standalone',
     staticPageGenerationTimeout: 300, // Increase timeout to 5 minutes
     experimental: {
+        serverExternalPackages: [
+            '@capacitor/core',
+            '@capacitor/android',
+            '@capacitor/ios',
+            '@capacitor/geolocation',
+            '@capacitor/network',
+            '@capacitor/push-notifications'
+        ],
     },
+    transpilePackages: [
+        '@capacitor/core',
+        '@capacitor/android',
+        '@capacitor/ios',
+        '@capacitor/geolocation',
+        '@capacitor/network',
+        '@capacitor/push-notifications'
+    ],
     async headers() {
         return [
             {

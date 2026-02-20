@@ -4,8 +4,16 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { NextResponse } from 'next/server';
 import { requireAuth } from '@/lib/auth-guard';
 import { verifyModuleAccess } from '@/lib/academy/enrollment';
+import { withCors, corsHeaders } from '@/lib/api-headers';
 
 export const dynamic = 'force-dynamic';
+
+export async function OPTIONS(request: Request) {
+    return new NextResponse(null, {
+        status: 204,
+        headers: corsHeaders(request)
+    });
+}
 
 export async function GET(
     request: Request,
@@ -19,10 +27,10 @@ export async function GET(
 
         if (error || !user) {
             console.error('[API-DEBUG] Auth failed:', error);
-            return NextResponse.json(
+            return withCors(NextResponse.json(
                 { error: 'Unauthorized' },
                 { status: 401 }
-            );
+            ), request);
         }
 
         console.log('[API] Checking access for user:', user.id, 'module:', params.id);
@@ -31,10 +39,10 @@ export async function GET(
 
         if (!hasAccess) {
             // Debugging: Explicit error
-            return NextResponse.json(
+            return withCors(NextResponse.json(
                 { error: 'Access Denied' },
                 { status: 403 }
-            );
+            ), request);
         }
 
         // We verified access logic above, so we can use Admin Client to bypass RLS limitations
@@ -70,10 +78,10 @@ export async function GET(
 
         if (moduloError || !modulo) {
             console.error('[API-DEBUG] Module fetch failed:', moduloError);
-            return NextResponse.json(
+            return withCors(NextResponse.json(
                 { error: 'Resource not found' },
                 { status: 404 }
-            );
+            ), request);
         }
 
         const { data: unidades, error: unidadesError } = await supabase
@@ -84,10 +92,10 @@ export async function GET(
 
         if (unidadesError) {
             console.error('Units fetch error:', unidadesError);
-            return NextResponse.json(
+            return withCors(NextResponse.json(
                 { error: 'Error loading units' },
                 { status: 500 }
-            );
+            ), request);
         }
 
         let progresoModulo = null;
@@ -113,18 +121,18 @@ export async function GET(
             }
         } catch { }
 
-        return NextResponse.json({
+        return withCors(NextResponse.json({
             modulo,
             unidades: unidades || [],
             progreso: progresoModulo,
             progreso_unidades: progresoUnidades
-        });
+        }), request);
 
     } catch (err) {
         console.error('Error fetching module:', err);
-        return NextResponse.json(
+        return withCors(NextResponse.json(
             { error: 'Internal Server Error' },
             { status: 500 }
-        );
+        ), request);
     }
 }

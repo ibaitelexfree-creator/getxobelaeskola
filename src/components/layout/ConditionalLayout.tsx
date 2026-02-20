@@ -1,7 +1,9 @@
 'use client';
 import { usePathname } from 'next/navigation';
 import { ReactNode, useEffect, useState } from 'react';
-import { Capacitor } from '@capacitor/core';
+// Capacitor will be dynamically checked in the effect to avoid SSR issues
+// import { Capacitor } from '@capacitor/core';
+
 import AcademyControls from '@/components/layout/AcademyControls';
 import MobileBottomNav from '@/components/layout/MobileBottomNav';
 import NotificationContainer from '@/components/academy/notifications/NotificationContainer';
@@ -26,9 +28,11 @@ export default function ConditionalLayout({ children, navbar, footer }: Conditio
 
     useEffect(() => {
         // Check if running in a native Capacitor environment (iOS/Android)
-        if (Capacitor.isNativePlatform()) {
-            setIsNativeApp(true);
-        }
+        import('@capacitor/core').then(({ Capacitor }) => {
+            if (Capacitor.isNativePlatform()) {
+                setIsNativeApp(true);
+            }
+        });
     }, []);
 
     // Academy mode — no nav, show academy controls

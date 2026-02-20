@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { Geolocation, Position } from '@capacitor/geolocation';
-import { Capacitor } from '@capacitor/core';
+// import { Capacitor } from '@capacitor/core';
+
 
 export interface LocationPoint {
     lat: number;
@@ -19,6 +20,7 @@ export function useGeolocation() {
 
     const startTracking = async () => {
         try {
+            const { Capacitor } = await import('@capacitor/core');
             if (Capacitor.isNativePlatform()) {
                 const permissions = await Geolocation.checkPermissions();
                 if (permissions.location !== 'granted') {

@@ -12,19 +12,21 @@ export async function generateStaticParams() {
 
 import { apiUrl } from '@/lib/api';
 
+
+const LEVEL_TITLES: Record<string, { es: string, eu: string }> = {
+    'licencia-navegacion': { es: 'Licencia de Navegación', eu: 'Nabigazio Lizentzia' },
+    'iniciacion-j80': { es: 'Iniciación J80', eu: 'J80 Hastapena' },
+    'perfeccionamiento-vela': { es: 'Perfeccionamiento Vela', eu: 'Bela Hobetzea' }
+};
+
 export async function generateMetadata({ params }: { params: { locale: string; slug: string } }) {
-    try {
-        const resNiveles = await fetch(apiUrl('/api/academy/levels'));
-        const dataNiveles = await resNiveles.json();
-        const nivel = dataNiveles.niveles?.find((n: any) => n.slug === params.slug);
+    const titles = LEVEL_TITLES[params.slug] || { es: 'Nivel de Formación', eu: 'Prestakuntza Maila' };
+    const title = params.locale === 'eu' ? titles.eu : titles.es;
 
-        if (!nivel) return { title: 'Nivel no encontrado' };
-
-        return {
-            title: `${params.locale === 'eu' ? nivel.nombre_eu : nivel.nombre_es} | Getxo Bela Eskola`,
-            description: params.locale === 'eu' ? nivel.descripcion_eu : nivel.descripcion_es,
-        };
-    } catch { return { title: 'Getxo Bela Eskola Academy' }; }
+    return {
+        title: `${title} | Getxo Bela Eskola`,
+        description: 'Tu viaje de formación náutica en Getxo.'
+    };
 }
 
 export default function LevelDetailPage({ params }: { params: { locale: string; slug: string } }) {

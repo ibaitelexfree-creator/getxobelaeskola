@@ -3,7 +3,7 @@
 import React from 'react';
 import Logbook from '@/components/academy/logbook/Logbook';
 
-export default function LogbookPage() {
+export default function LogbookPage({ params }: { params: { locale: string } }) {
     return (
         <div className="w-full min-h-screen bg-nautical-black flex flex-col pt-16 relative overflow-x-hidden">
             {/* Ambient Background */}
