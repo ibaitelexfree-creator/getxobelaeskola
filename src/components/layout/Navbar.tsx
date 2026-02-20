@@ -254,6 +254,9 @@ export default function Navbar({ locale: propLocale }: { locale?: string }) {
                             setIsMenuOpen(!isMenuOpen);
                             setMobileExpanded(null);
                         }}
+                        aria-label={isMenuOpen ? t('close') : t('menu')}
+                        aria-expanded={isMenuOpen}
+                        aria-controls="mobile-menu"
                         className="xl:hidden flex-shrink-0 w-14 h-14 flex items-center justify-center bg-accent text-nautical-black rounded-full shadow-2xl relative z-[10000] transition-premium hover:scale-110 active:scale-95 shadow-accent/30"
                     >
                         {isMenuOpen ? <X size={24} strokeWidth={3} /> : (
@@ -269,6 +272,8 @@ export default function Navbar({ locale: propLocale }: { locale?: string }) {
 
             {/* Mobile Menu Overlay */}
             <div
+                id="mobile-menu"
+                aria-hidden={!isMenuOpen}
                 className={`fixed inset-0 z-[90] bg-nautical-deep transition-all duration-700 xl:hidden ${isMenuOpen ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-full pointer-events-none'}`}
             >
                 <div className="absolute inset-0 bg-maps opacity-5 pointer-events-none" />
