@@ -20,6 +20,46 @@ describe('validateIdentityDocument', () => {
     it('detects missing value', () => {
         expect(validateIdentityDocument('').isValid).toBe(false);
     });
+
+    describe('auto-detection', () => {
+        it('auto-detects DNI', () => {
+            const result = validateIdentityDocument('12345678Z');
+            expect(result.isValid).toBe(true);
+            expect(result.type).toBe('DNI');
+        });
+
+        it('auto-detects NIE', () => {
+            const result = validateIdentityDocument('X1234567L');
+            expect(result.isValid).toBe(true);
+            expect(result.type).toBe('NIE');
+        });
+
+        it('auto-detects PASPORT', () => {
+            const result = validateIdentityDocument('A1234567');
+            expect(result.isValid).toBe(true);
+            expect(result.type).toBe('PASPORT');
+        });
+
+        it('handles invalid DNI auto-detection', () => {
+            const result = validateIdentityDocument('12345678A');
+            expect(result.isValid).toBe(false);
+            expect(result.type).toBe('DNI');
+            expect(result.message).toBe('DNI inválido.');
+        });
+
+        it('handles invalid NIE auto-detection', () => {
+            const result = validateIdentityDocument('X1234567A');
+            expect(result.isValid).toBe(false);
+            expect(result.type).toBe('NIE');
+            expect(result.message).toBe('NIE inválido.');
+        });
+
+        it('handles unrecognized document format', () => {
+            const result = validateIdentityDocument('ABC');
+            expect(result.isValid).toBe(false);
+            expect(result.message).toBe('Documento no reconocido.');
+        });
+    });
 });
 
 describe('validateEmail', () => {

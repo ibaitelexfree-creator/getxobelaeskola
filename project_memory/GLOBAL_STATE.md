@@ -10,6 +10,7 @@
 | ID | Agente | Tarea | Inicio | Estado |
 |----|--------|-------|--------|--------|
 | T-003 | ClawdBot | Fix carousel navbar overlap | 2026-02-20 | en_curso |
+| T-004 | Jules | Missing edge case test for document type auto-detection | 2026-02-20 | finalizado |
 
 ## Bloqueos / Conflictos
 Ninguno actualmente.
