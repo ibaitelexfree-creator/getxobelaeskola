@@ -2,7 +2,7 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { Bell, Volume2, X, ShieldAlert } from 'lucide-react';
+import { Bell, Volume2, X, ShieldAlert, History, Clock, Trash2 } from 'lucide-react';
 import { useSafetySettingsStore } from '@/lib/store/useSafetySettingsStore';
 
 interface SafetySettingsModalProps {
@@ -11,7 +11,14 @@ interface SafetySettingsModalProps {
 }
 
 export default function SafetySettingsModal({ isOpen, onClose }: SafetySettingsModalProps) {
-    const { notificationsEnabled, soundEnabled, setNotificationsEnabled, setSoundEnabled } = useSafetySettingsStore();
+    const {
+        notificationsEnabled,
+        soundEnabled,
+        alertHistory,
+        setNotificationsEnabled,
+        setSoundEnabled,
+        clearAlertHistory
+    } = useSafetySettingsStore();
     const [mounted, setMounted] = useState(false);
 
     useEffect(() => {
@@ -94,6 +101,61 @@ export default function SafetySettingsModal({ isOpen, onClose }: SafetySettingsM
                         <p className="text-[9px] text-accent/60 leading-relaxed uppercase tracking-wider font-bold italic">
                             * Las alertas sonoras críticas solo se activan en horario lectivo para administradores e instructores para evitar molestias innecesarias fuera del trabajo.
                         </p>
+                    </div>
+
+                    {/* Alert History Section */}
+                    <div className="space-y-4 pt-4 border-t border-white/5">
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2 text-white/40">
+                                <History size={14} />
+                                <h4 className="text-[10px] uppercase font-black tracking-widest">Historial de Alertas</h4>
+                            </div>
+                            {alertHistory && alertHistory.length > 0 && (
+                                <button
+                                    onClick={clearAlertHistory}
+                                    className="text-[9px] uppercase font-bold text-red-500/60 hover:text-red-500 transition-colors flex items-center gap-1"
+                                >
+                                    <Trash2 size={10} />
+                                    Limpiar
+                                </button>
+                            )}
+                        </div>
+
+                        <div className="max-h-[160px] overflow-y-auto pr-2 space-y-2 scrollbar-thin scrollbar-thumb-white/10">
+                            {!alertHistory || alertHistory.length === 0 ? (
+                                <div className="py-8 text-center border border-dashed border-white/5 rounded-sm">
+                                    <p className="text-[10px] uppercase tracking-widest text-white/20 font-bold italic">Sin alertas registradas</p>
+                                </div>
+                            ) : (
+                                alertHistory.map((alert) => (
+                                    <div
+                                        key={alert.id}
+                                        className={`p-3 rounded-sm border ${
+                                            alert.type === 'critical'
+                                                ? 'bg-red-500/5 border-red-500/20'
+                                                : 'bg-white/5 border-white/10'
+                                        } space-y-1`}
+                                    >
+                                        <div className="flex justify-between items-start gap-4">
+                                            <p className={`text-[10px] font-black uppercase tracking-wider ${
+                                                alert.type === 'critical' ? 'text-red-500' : 'text-accent'
+                                            }`}>
+                                                {alert.title}
+                                            </p>
+                                            <div className="flex items-center gap-1 text-white/30 whitespace-nowrap">
+                                                <Clock size={10} />
+                                                <span className="text-[9px] font-mono">
+                                                    {new Date(alert.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <p className="text-[11px] text-white/60 leading-relaxed font-medium">
+                                            {alert.message}
+                                        </p>
+                                    </div>
+                                ))
+                            )}
+                        </div>
                     </div>
                 </div>
 
