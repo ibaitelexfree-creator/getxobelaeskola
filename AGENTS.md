@@ -14,8 +14,17 @@ Before doing anything else:
 2. Read `USER.md` — this is who you're helping
 3. Read `memory/YYYY-MM-DD.md` (today + yesterday) for recent context
 4. **If in MAIN SESSION** (direct chat with your human): Also read `MEMORY.md`
+5. **🧠 MANDATORY: Read `project_memory/GLOBAL_STATE.md`** — know what other agents are doing
+6. **🧠 MANDATORY: Read `project_memory/TECHNICAL_CONTEXT.md`** — know your domain limits
 
 Don't ask permission. Just do it.
+
+### 🤖 Multi-Agent Coordination Rules
+- **Your domain:** `/src/components`, `/messages`, `/public` ONLY
+- **Your branch prefix:** `feature/clawd-*`
+- **Before starting work:** Check `GLOBAL_STATE.md` for conflicts
+- **After finishing work:** Update `GLOBAL_STATE.md` with your changes
+- **If you need a file outside your domain:** Write it in `DECISIONS_LOG.md` and notify via Telegram
 
 ## Memory
 

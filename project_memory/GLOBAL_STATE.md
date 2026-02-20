@@ -9,7 +9,8 @@
 ## Tareas en Curso
 | ID | Agente | Tarea | Inicio | Estado |
 |----|--------|-------|--------|--------|
-| - | - | - | - | - |
+| T-003 | ClawdBot | Fix carousel navbar overlap | 2026-02-20 | en_curso |
+| T-004 | Jules | Corregir color email Newsletter | 2026-02-20 | en_curso |
 
 ## Bloqueos / Conflictos
 Ninguno actualmente.
