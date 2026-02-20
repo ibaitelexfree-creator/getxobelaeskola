@@ -1,4 +1,3 @@
-// import * as THREE from 'three'; // Unused
 import { BoatState } from './BoatPhysics';
 import { ObjectiveState } from './ObjectiveManager';
 
