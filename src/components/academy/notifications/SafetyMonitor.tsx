@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useNotificationStore } from '@/lib/store/useNotificationStore';
 import { nuclearAlert } from '@/lib/safety/NuclearAlertSystem';
@@ -15,8 +15,8 @@ const WARNING_WIND_KNOTS = 18; // Warning above 18 knots
 
 export default function SafetyMonitor() {
     const { addNotification } = useNotificationStore();
-    const { notificationsEnabled, soundEnabled } = useSafetySettingsStore();
-    const { isTracking, currentPosition, statusMessage } = useSmartTracker();
+    const { notificationsEnabled, soundEnabled, addAlertToHistory } = useSafetySettingsStore();
+    const { statusMessage } = useSmartTracker();
     const supabase = createClient();
     const [userRole, setUserRole] = useState<string | null>(null);
     const [lastAlertId, setLastAlertId] = useState<string | null>(null);
@@ -52,7 +52,10 @@ export default function SafetyMonitor() {
     };
 
     // 3. Trigger Alert Logic
-    const triggerSafetyAlert = (title: string, message: string, color: 'critical' | 'warning') => {
+    const triggerSafetyAlert = useCallback((title: string, message: string, color: 'critical' | 'warning') => {
+        // Log to history even if notifications are disabled (so user can see what they missed)
+        addAlertToHistory({ title, message, type: color });
+
         if (!notificationsEnabled) return;
 
         const isAdminOrSupervisor = userRole === 'admin' || userRole === 'supervisor';
@@ -78,7 +81,7 @@ export default function SafetyMonitor() {
 
         // If on mobile, we could send a local notification here
         // (Assuming capacitor plugins are handled elsewhere or via Push API)
-    };
+    }, [notificationsEnabled, userRole, soundEnabled, addNotification, addAlertToHistory]);
 
     // 4. Monitoring Loop
     useEffect(() => {
@@ -155,7 +158,7 @@ export default function SafetyMonitor() {
             if (pollerRef.current) clearInterval(pollerRef.current);
             nuclearAlert.stop();
         };
-    }, [userRole, lastAlertId, statusMessage, isAlertingInWater]);
+    }, [userRole, lastAlertId, statusMessage, isAlertingInWater, triggerSafetyAlert]);
 
     return null;
 }
