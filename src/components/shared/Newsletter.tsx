@@ -69,7 +69,7 @@ export default function Newsletter({ locale }: { locale: string }) {
                                 placeholder={t('email_placeholder')}
                                 required
                                 aria-label={t('email_aria_label')}
-                                className="flex-grow bg-transparent px-6 py-4 text-white text-lg placeholder:text-white/20 focus:outline-none font-sans"
+                                className="flex-grow bg-transparent px-6 py-4 text-white text-lg placeholder:text-gray-200 focus:outline-none font-sans"
                             />
                             <button
                                 type="submit"
