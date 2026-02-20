@@ -130,9 +130,16 @@ export default function NauticalRadar({ userRankSlug, locale }: NauticalRadarPro
 
                     if (res.ok) {
                         const data = await res.json();
-                        if (data.history && Array.isArray(data.history)) {
-                            setHistory(data.history);
+                        // Support both data.history and data (if API returns array directly)
+                        const historyData = data.history || (Array.isArray(data) ? data : null);
+
+                        if (historyData && Array.isArray(historyData) && historyData.length > 0) {
+                            setHistory(historyData);
+                        } else {
+                            console.warn('API returned empty or invalid history, kept current fallback');
                         }
+                    } else {
+                        console.error('Weather history API returned error status:', res.status);
                     }
                 } catch (error) {
                     console.error('Error fetching history:', error);
@@ -148,16 +155,25 @@ export default function NauticalRadar({ userRankSlug, locale }: NauticalRadarPro
         <>
             <section className="relative overflow-hidden rounded-xl border border-blue-500/30 bg-[#050b14] shadow-[0_0_20px_rgba(30,58,138,0.2)]">
                 {/* Header: Bridge Command Style */}
-                <div className="bg-blue-900/40 border-b border-blue-500/30 px-4 py-2 flex justify-between items-center">
+                <div className="bg-blue-900/40 border-b border-blue-500/30 px-4 py-2 flex justify-between items-center relative z-20">
                     <div className="flex items-center gap-2">
                         <div className={`w-2 h-2 rounded-full ${isLoaded ? (weather.isLive ? 'bg-emerald-400 animate-pulse shadow-[0_0_8px_rgba(52,211,153,0.8)]' : 'bg-amber-400') : 'bg-blue-400 animate-ping'}`} />
                         <span className="text-[10px] font-black uppercase tracking-widest text-blue-300">
                             {t('title')}
-                            {isLoaded && weather.isLive && <span className="ml-2 px-1 rounded bg-emerald-500/20 text-emerald-400 text-[8px] border border-emerald-500/30">LIVE</span>}
-                            {!isLoaded && <span className="ml-2 text-[8px] opacity-40 animate-pulse">CONNECTING...</span>}
+                            {isLoaded && weather.isLive && <span className="ml-2 px-1 rounded bg-emerald-500/20 text-emerald-400 text-[8px] border border-emerald-500/30 font-black">{t('live_status')}</span>}
+                            {!isLoaded && <span className="ml-2 text-[8px] opacity-40 animate-pulse font-black">{t('connecting_status')}</span>}
                         </span>
                     </div>
-                    <span className="text-[10px] font-mono text-blue-400/60 font-bold uppercase tracking-tighter">{t('location')}</span>
+                    <div className="flex items-center gap-4">
+                        <button
+                            onClick={() => setShowHistory(true)}
+                            className="bg-accent/10 hover:bg-accent/20 border border-accent/30 rounded px-2 py-0.5 text-[9px] font-black text-accent uppercase tracking-tighter flex items-center gap-1.5 transition-all"
+                        >
+                            <BarChart3 className="w-3 h-3" />
+                            {t('action_history')}
+                        </button>
+                        <span className="text-[10px] font-mono text-blue-400/60 font-bold uppercase tracking-tighter hidden sm:inline-block">{t('location')}</span>
+                    </div>
                 </div>
 
                 <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
@@ -223,7 +239,7 @@ export default function NauticalRadar({ userRankSlug, locale }: NauticalRadarPro
                             </div>
                             <div className="flex items-baseline gap-1">
                                 <span className="text-3xl font-display italic text-white font-black">{weather.windSpeed || 0}</span>
-                                <span className="text-[10px] font-bold text-blue-400">AWS</span>
+                                <span className="text-[10px] font-black text-blue-400 uppercase">{t('aws')}</span>
                             </div>
                             <div className="flex justify-between mt-2 border-t border-white/5 pt-2">
                                 <div className="flex flex-col">
@@ -231,7 +247,7 @@ export default function NauticalRadar({ userRankSlug, locale }: NauticalRadarPro
                                     <span className="text-xs font-mono text-amber-400 font-bold">{weather.windGust || 0}</span>
                                 </div>
                                 <div className="flex flex-col text-right">
-                                    <span className="text-[10px] text-white/20 uppercase tracking-widest">TWA</span>
+                                    <span className="text-[10px] text-white/20 uppercase tracking-widest">{t('twa')}</span>
                                     <span className="text-xs font-mono text-blue-300 font-bold">{(weather.windDirection || 0)}°</span>
                                 </div>
                             </div>
@@ -249,7 +265,7 @@ export default function NauticalRadar({ userRankSlug, locale }: NauticalRadarPro
                                         ? Number(weather.tideHeight).toFixed(1)
                                         : '--.-'}
                                 </span>
-                                <span className="text-[10px] font-bold text-cyan-400">DEPTH</span>
+                                <span className="text-[10px] font-bold text-cyan-400 uppercase">{t('depth')}</span>
                             </div>
                             <div className="flex flex-col mt-2 border-t border-white/5 pt-2">
                                 <span className="text-[9px] font-black text-cyan-400/60 uppercase tracking-wider flex items-center gap-1">
@@ -257,7 +273,10 @@ export default function NauticalRadar({ userRankSlug, locale }: NauticalRadarPro
                                     {weather.tideStatus === 'rising' ? t('rising') : weather.tideStatus === 'falling' ? t('falling') : t('stable')}
                                 </span>
                                 <span className="text-[10px] text-white/30 font-mono mt-1">
-                                    {t('next_tide', { time: weather.nextTides[0]?.time || '--:--', type: weather.nextTides[0]?.type === 'high' ? 'H' : 'L' })}
+                                    {t('next_tide', {
+                                        time: weather.nextTides[0]?.time || '--:--',
+                                        type: weather.nextTides[0]?.type === 'high' ? t('tide_high') : t('tide_low')
+                                    })}
                                 </span>
                             </div>
                         </div>
@@ -298,14 +317,6 @@ export default function NauticalRadar({ userRankSlug, locale }: NauticalRadarPro
                         <div className="flex-1">
                             <div className="flex items-center justify-between mb-1">
                                 <span className="text-[10px] font-black uppercase tracking-[0.3em] opacity-40">{t('advisory')}</span>
-                                <button
-                                    onClick={() => setShowHistory(true)}
-                                    className="text-[10px] font-black text-accent hover:underline flex items-center gap-1"
-                                    aria-label={t('action_history')}
-                                >
-                                    <BarChart3 className="w-3 h-3" />
-                                    {t('action_history')}
-                                </button>
                             </div>
                             <p className={`text-[11px] font-bold uppercase tracking-wider leading-relaxed ${alert.type === 'ideal' ? 'text-emerald-400' :
                                 alert.type === 'caution' ? 'text-amber-400' :

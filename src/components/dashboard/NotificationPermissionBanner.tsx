@@ -4,28 +4,29 @@ import { usePushNotifications } from '@/hooks/usePushNotifications';
 import { Bell, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useState, useEffect } from 'react';
-import { Capacitor } from '@capacitor/core';
 
 export default function NotificationPermissionBanner() {
     const t = useTranslations('notifications');
-    const { permission, requestPermissions, checkPermissions } = usePushNotifications();
+    const { requestPermissions, checkPermissions } = usePushNotifications();
     const [isVisible, setIsVisible] = useState(false);
+    const [isNative, setIsNative] = useState(false);
 
     useEffect(() => {
-        if (!Capacitor.isNativePlatform()) return;
-
-        // Show banner if permission is NOT granted (denied or prompt)
-        // We might want to be less aggressive if it's 'prompt' (let the auto-init handle it),
-        // but if it's 'denied', we definitely want to show a way to re-enable (often needs settings).
-        // For now, let's show if it's explicitly likely to need user action.
-        checkPermissions().then((status) => {
-            if (status && status.receive !== 'granted') {
-                setIsVisible(true);
+        // SSR safe import
+        import('@capacitor/core').then(({ Capacitor }) => {
+            if (Capacitor.isNativePlatform()) {
+                setIsNative(true);
+                // Show banner if permission is NOT granted (denied or prompt)
+                checkPermissions().then((status) => {
+                    if (status && status.receive !== 'granted') {
+                        setIsVisible(true);
+                    }
+                });
             }
         });
     }, [checkPermissions]);
 
-    if (!isVisible || !Capacitor.isNativePlatform()) return null;
+    if (!isVisible || !isNative) return null;
 
     const handleEnable = async () => {
         await requestPermissions();

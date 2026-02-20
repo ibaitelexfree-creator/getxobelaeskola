@@ -15,6 +15,8 @@ const LeafletMap = dynamic(() => import('./LeafletMap'), {
     loading: () => <div className="w-full h-full bg-blue-950/20 animate-pulse flex items-center justify-center text-blue-400/30">Cargando Mapa...</div>
 });
 
+const JourneyCompletionModal = dynamic(() => import('../notifications/JourneyCompletionModal'), { ssr: false });
+
 export default function NavigationExperienceMap({ sessions }: { sessions: any[] }) {
     const params = useParams();
     const locale = (params?.locale as string) || 'es';
@@ -24,9 +26,11 @@ export default function NavigationExperienceMap({ sessions }: { sessions: any[] 
         points: livePoints,
         currentPosition,
         statusMessage,
+        journeyEnded,
         startTracking,
         stopTracking,
-        clearPoints
+        clearPoints,
+        dismissJourneyEnd
     } = useSmartTracker();
 
     const [isSaving, setIsSaving] = useState(false);
@@ -257,6 +261,12 @@ export default function NavigationExperienceMap({ sessions }: { sessions: any[] 
                 </div>
             </div>
 
+            {/* Logbook Prompt Modal */}
+            <JourneyCompletionModal
+                isOpen={journeyEnded}
+                onClose={dismissJourneyEnd}
+                onSaveSuccess={saveLiveTrack}
+            />
         </section>
     );
 }

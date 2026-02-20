@@ -11,12 +11,54 @@ function SuccessContent() {
     const sessionId = searchParams.get('session_id');
     const type = searchParams.get('type'); // course, rental, membership
     const [mounted, setMounted] = useState(false);
+    const [details, setDetails] = useState<any>(null);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         setMounted(true);
-        // We could verify the session here with an API call if we wanted to be super robust
-        // but since it's a success redirect from Stripe, it's mostly for UI.
-    }, []);
+        const fetchDetails = async () => {
+            if (!sessionId) {
+                setLoading(false);
+                return;
+            }
+
+            try {
+                // We'll use a public API route or direct supabase if we have it
+                // For now, let's try to find the reservation/subscription
+                const { createClient } = await import('@/lib/supabase/client');
+                const supabase = createClient();
+
+                if (type === 'rental') {
+                    const { data } = await supabase
+                        .from('reservas_alquiler')
+                        .select('*, servicios_alquiler(*)')
+                        .eq('stripe_session_id', sessionId)
+                        .maybeSingle();
+                    if (data) setDetails(data);
+                } else if (type === 'course') {
+                    const { data } = await supabase
+                        .from('inscripciones')
+                        .select('*, cursos(*)')
+                        .eq('stripe_session_id', sessionId)
+                        .maybeSingle();
+                    if (data) setDetails(data);
+                } else if (type === 'membership') {
+                    const { data } = await supabase
+                        .from('subscriptions')
+                        .select('*')
+                        .eq('stripe_session_id', sessionId)
+                        .maybeSingle();
+                    if (data) setDetails(data);
+                }
+            } catch (err) {
+                console.error('Error fetching success details:', err);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchDetails();
+    }, [sessionId, type]);
 
     if (!mounted) return null;
 
@@ -63,11 +105,11 @@ function SuccessContent() {
                         </p>
 
                         {/* Order Confirmation Mockup */}
-                        <div className="bg-white/5 border border-white/5 rounded-xl p-6 mb-12 text-left space-y-4 max-w-sm mx-auto relative overflow-hidden group">
+                        <div className="bg-white/5 border border-white/5 rounded-xl p-6 mb-12 text-left space-y-4 max-w-sm mx-auto relative overflow-hidden group transition-all hover:border-brass-gold/20">
                             <div className="absolute top-0 left-0 w-1 h-full bg-brass-gold transform -translate-x-full group-hover:translate-x-0 transition-transform duration-500" />
 
                             <div className="flex justify-between text-[10px] uppercase tracking-widest text-white/40 font-bold">
-                                <span>Transacción</span>
+                                <span>{loading ? 'Verificando...' : 'Transacción'}</span>
                                 <span>#{sessionId?.slice(-8).toUpperCase() || 'PAGO-OK'}</span>
                             </div>
 
@@ -76,14 +118,36 @@ function SuccessContent() {
                             <div className="space-y-1">
                                 <p className="text-2xs uppercase tracking-tighter text-brass-gold font-black">Estado</p>
                                 <p className="text-white text-sm font-medium flex items-center gap-2">
-                                    <span className="w-2 h-2 bg-sea-foam rounded-full shadow-[0_0_8px_#4fd1c5]" />
-                                    Completado y Verificado
+                                    <span className={`w-2 h-2 rounded-full shadow-[0_0_8px_#4fd1c5] ${loading ? 'bg-yellow-400 animate-pulse' : 'bg-sea-foam'}`} />
+                                    {loading ? 'Verificando con el banco...' : (details ? 'Completado y Verificado' : 'Procesando...')}
                                 </p>
                             </div>
 
+                            {details?.servicios_alquiler && (
+                                <div className="space-y-1 animate-in fade-in slide-in-from-left-4 duration-500">
+                                    <p className="text-2xs uppercase tracking-tighter text-brass-gold font-black">Servicio</p>
+                                    <p className="text-white text-sm font-medium">{details.servicios_alquiler.nombre_es}</p>
+                                    <p className="text-white/40 text-[10px] italic">
+                                        {details.fecha_reserva} - {details.hora_inicio.slice(0, 5)}
+                                    </p>
+                                </div>
+                            )}
+
+                            {details?.cursos && (
+                                <div className="space-y-1 animate-in fade-in slide-in-from-left-4 duration-500">
+                                    <p className="text-2xs uppercase tracking-tighter text-brass-gold font-black">Curso</p>
+                                    <p className="text-white text-sm font-medium">{details.cursos.nombre_es}</p>
+                                    {details.metadata?.start_date && (
+                                        <p className="text-white/40 text-[10px] italic">
+                                            Empieza: {new Date(details.metadata.start_date).toLocaleDateString()}
+                                        </p>
+                                    )}
+                                </div>
+                            )}
+
                             <div className="space-y-1">
-                                <p className="text-2xs uppercase tracking-tighter text-brass-gold font-black">Destino</p>
-                                <p className="text-white text-sm font-medium">Bela Eskola - Puerto de Getxo</p>
+                                <p className="text-2xs uppercase tracking-tighter text-brass-gold font-black">Referencia</p>
+                                <p className="text-white text-sm font-medium">Getxo Bela Eskola</p>
                             </div>
                         </div>
 
@@ -101,6 +165,18 @@ function SuccessContent() {
                             >
                                 Mi Panel Personal →
                             </Link>
+
+                            {/* Hidden Dev link to Supabase */}
+                            {details && (
+                                <a
+                                    href={`https://supabase.com/dashboard/project/ibaitelexfree-creator/editor/default/${isRental ? 'reservas_alquiler' : isCourse ? 'inscripciones' : 'subscriptions'}?filter=id%3Deq%3D${details.id}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="col-span-1 sm:col-span-2 text-[9px] uppercase tracking-widest text-white/10 hover:text-white/40 transition-colors mt-4 text-center block"
+                                >
+                                    Ver en Supabase (Admin)
+                                </a>
+                            )}
                         </div>
                     </div>
                 </div>

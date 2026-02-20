@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Search, ChevronRight, X, BookOpen } from 'lucide-react';
 import { getApiUrl } from '@/lib/platform';
+import StaggeredEntrance from '@/components/shared/StaggeredEntrance';
 
 interface Course {
     id: string;
@@ -162,7 +163,7 @@ export default function MobileCourseList({ locale }: { locale: string }) {
             </div>
 
             {/* Course Grid */}
-            <div className="px-6 pt-8 grid gap-6">
+            <StaggeredEntrance className="px-6 pt-8 grid gap-6" type="recombine">
                 {filteredCourses.length > 0 ? (
                     filteredCourses.map((course, idx) => {
                         const name = getName(course);
@@ -243,7 +244,7 @@ export default function MobileCourseList({ locale }: { locale: string }) {
                         </button>
                     </div>
                 )}
-            </div>
+            </StaggeredEntrance>
         </div>
     );
 }

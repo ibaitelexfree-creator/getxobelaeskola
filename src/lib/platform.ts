@@ -4,6 +4,16 @@ import { Capacitor } from '@capacitor/core';
  * Utility to identify the current platform and handle base URLs
  */
 export const getPlatform = () => {
+    // SSR safe check
+    if (typeof window === 'undefined') {
+        return {
+            isNative: false,
+            isAndroid: false,
+            isIOS: false,
+            isWeb: true,
+        };
+    }
+
     const isNative = Capacitor.isNativePlatform();
     const platform = Capacitor.getPlatform();
 

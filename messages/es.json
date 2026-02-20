@@ -97,6 +97,26 @@
       "booking_error": "Error al procesar la reserva. Por favor, inténtalo de nuevo."
     }
   },
+  "experiences_page": {
+    "header_eyebrow": "Vive el Mar",
+    "title_prefix": "Nuestras",
+    "title_highlight": "Experiencias",
+    "description": "Cumpleaños, bonos de navegación, atraques y actividades especiales. Vive el Cantábrico de una forma única.",
+    "from": "desde",
+    "per_person": "/persona",
+    "per_month": "/mes",
+    "per_session": "/sesión",
+    "book_now": "Reservar",
+    "more_info": "Más Información",
+    "footer_note": "Todas nuestras experiencias están sujetas a condiciones meteorológicas y disponibilidad. Reserva con antelación para garantizar tu plaza.",
+    "all": "Todo",
+    "evento": "Eventos",
+    "taller": "Talleres",
+    "cumpleanos": "Cumpleaños",
+    "atraque": "Atraques",
+    "bono": "Bonos",
+    "visita": "Visitas"
+  },
   "home": {
     "hero": {
       "slide1_title": "Elegancia en el Mar",
@@ -717,6 +737,11 @@
       "water_map": "Mapa de Aguas",
       "my_fleet": "Mi Flota",
       "personal_diary": "Diario Personal"
+    },
+    "connection_error": {
+      "title": "Error de Conexión",
+      "message": "No hemos podido establecer comunicación con la bitácora académica. Por favor, comprueba tu conexión y vuelve a intentarlo.",
+      "retry": "Recargar Bitácora ⚓"
     }
   },
   "errors": {
@@ -888,9 +913,13 @@
     "title": "Radar de Navegación \"Puente de Mando\"",
     "location": "Arriluze Kaia — Getxo",
     "loading": "Cargando Instrumentos...",
+    "live_status": "VIVO",
+    "connecting_status": "CONECTANDO...",
     "wind": "Viento Real",
     "knots": "Nudos",
     "aws": "Vel. Viento",
+    "syncing": "Sincronizando...",
+    "action_close": "Cerrar histórico",
     "gust": "Racha",
     "twa": "Ángulo Viento",
     "tide": "Marea Getxo",
@@ -899,6 +928,8 @@
     "falling": "Bajando",
     "stable": "Estable",
     "next_tide": "Próxima: {time} ({type})",
+    "tide_high": "P",
+    "tide_low": "B",
     "temp": "Temp. Aire",
     "pressure": "Presión",
     "visibility": "Visibilidad",

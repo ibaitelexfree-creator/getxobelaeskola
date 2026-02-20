@@ -1,10 +1,20 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
+import { withCors, corsHeaders } from '@/lib/api-headers';
 
 /**
  * Registra la lectura de una sección de una unidad (Teoría, Práctica o Errores)
  * y recalcula el progreso de la unidad.
  */
+export const dynamic = 'force-dynamic';
+
+export async function OPTIONS(request: Request) {
+    return new NextResponse(null, {
+        status: 204,
+        headers: corsHeaders(request)
+    });
+}
+
 export async function POST(request: Request) {
     try {
         const supabase = await createClient();
@@ -12,14 +22,14 @@ export async function POST(request: Request) {
         // 1. Verificar autenticación
         const { data: { user }, error: authError } = await supabase.auth.getUser();
         if (authError || !user) {
-            return NextResponse.json({ error: 'No autenticado' }, { status: 401 });
+            return withCors(NextResponse.json({ error: 'No autenticado' }, { status: 401 }), request);
         }
 
         const body = await request.json();
         const { unidad_id, seccion } = body; // seccion: 'teoria' | 'practica' | 'errores'
 
         if (!unidad_id || !seccion) {
-            return NextResponse.json({ error: 'Faltan datos requeridos (unidad_id, seccion)' }, { status: 400 });
+            return withCors(NextResponse.json({ error: 'Faltan datos requeridos (unidad_id, seccion)' }, { status: 400 }), request);
         }
 
         // --- HARDENING: VALIDAR ACCESO (Fase 6.5) ---
@@ -32,7 +42,7 @@ export async function POST(request: Request) {
 
         if (accessError || !tieneAcceso) {
             console.warn(`Intento de acceso no autorizado a unidad ${unidad_id} por usuario ${user.id}`);
-            return NextResponse.json({ error: 'Acceso denegado: La unidad está bloqueada.' }, { status: 403 });
+            return withCors(NextResponse.json({ error: 'Acceso denegado: La unidad está bloqueada.' }, { status: 403 }), request);
         }
         // ---------------------------------------------
 
@@ -68,7 +78,7 @@ export async function POST(request: Request) {
             });
 
         if (upsertError) {
-            return NextResponse.json({ error: upsertError.message }, { status: 500 });
+            return withCors(NextResponse.json({ error: upsertError.message }, { status: 500 }), request);
         }
 
         // 5. Llamar a la función RPC para recalcular y propagar
@@ -81,20 +91,20 @@ export async function POST(request: Request) {
 
         if (rpcError) {
             console.error('RPC recalcular_progreso_alumno failed:', rpcError);
-            return NextResponse.json({
+            return withCors(NextResponse.json({
                 success: true,
                 warning: 'Secciones guardadas pero fallo en recalculo automático',
                 secciones: seccionesVistas
-            });
+            }), request);
         }
 
-        return NextResponse.json({
+        return withCors(NextResponse.json({
             success: true,
             progreso: resultado
-        });
+        }), request);
 
     } catch (error) {
         console.error('Error in unit-read API:', error);
-        return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+        return withCors(NextResponse.json({ error: 'Internal Server Error' }, { status: 500 }), request);
     }
 }

@@ -36,12 +36,12 @@ export default function RadarHistoryModal({
                     <h3 className="text-white font-display italic uppercase tracking-widest text-sm flex items-center gap-2">
                         <BarChart3 className="w-4 h-4 text-accent" />
                         {t('history_title')}
-                        {historyLoading && <span className="ml-2 text-[8px] animate-pulse text-accent">SYNCING...</span>}
+                        {historyLoading && <span className="ml-2 text-[8px] animate-pulse text-accent uppercase">{t('syncing')}</span>}
                     </h3>
                     <button
                         onClick={() => setShowHistory(false)}
                         className="text-white/40 hover:text-white transition-colors p-2 bg-white/5 rounded-full"
-                        aria-label="Cerrar histórico"
+                        aria-label={t('action_close') || 'Cerrar'}
                     >
                         <X className="w-5 h-5" />
                     </button>
@@ -54,7 +54,7 @@ export default function RadarHistoryModal({
                             <div style={{ minWidth: history.length > 12 ? `${history.length * 60}px` : '100%' }}>
                                 {/* Hours Row */}
                                 <div className="flex border-b border-white/5 bg-white/5">
-                                    <div className="w-28 shrink-0 p-3 text-[10px] font-black uppercase text-white/40 flex items-center bg-black/20 sticky left-0 z-10 border-r border-white/5 backdrop-blur-md">TIME</div>
+                                    <div className="w-28 shrink-0 p-3 text-[10px] font-black uppercase text-white/40 flex items-center bg-black/20 sticky left-0 z-10 border-r border-white/5 backdrop-blur-md">{t('history_time')}</div>
                                     {history.map((h, i) => (
                                         <div key={i} className="flex-1 text-center p-3 text-[10px] font-mono text-white/60 border-l border-white/5">{h?.time || '--:--'}</div>
                                     ))}
@@ -62,7 +62,7 @@ export default function RadarHistoryModal({
 
                                 {/* Wind Speed Row */}
                                 <div className="flex border-b border-white/5">
-                                    <div className="w-28 shrink-0 p-3 text-[10px] font-black uppercase text-white/40 flex items-center bg-black/20 sticky left-0 z-10 border-r border-white/5 backdrop-blur-md">WIND (KT)</div>
+                                    <div className="w-28 shrink-0 p-3 text-[10px] font-black uppercase text-white/40 flex items-center bg-black/20 sticky left-0 z-10 border-r border-white/5 backdrop-blur-md">{t('history_wind')}</div>
                                     {history.map((h, i) => {
                                         const wind = h ? (typeof h.wind === 'number' ? h.wind : parseFloat(h.wind as any) || 0) : 0;
                                         return (
@@ -79,7 +79,7 @@ export default function RadarHistoryModal({
 
                                 {/* Wind Gusts */}
                                 <div className="flex border-b border-white/5">
-                                    <div className="w-28 shrink-0 p-3 text-[10px] font-black uppercase text-white/40 flex items-center bg-black/20 sticky left-0 z-10 border-r border-white/5 backdrop-blur-md">GUST (KT)</div>
+                                    <div className="w-28 shrink-0 p-3 text-[10px] font-black uppercase text-white/40 flex items-center bg-black/20 sticky left-0 z-10 border-r border-white/5 backdrop-blur-md">{t('history_gusts')}</div>
                                     {history.map((h, i) => (
                                         <div key={i} className="flex-1 text-center p-3 text-[10px] font-bold text-amber-500/80 border-l border-white/5">
                                             {h ? (typeof h.gust === 'number' ? Math.round(h.gust) : Math.round(parseFloat(h.gust as any) || 0)) : 0}
@@ -89,7 +89,7 @@ export default function RadarHistoryModal({
 
                                 {/* Wind Direction Arrows */}
                                 <div className="flex border-b border-white/5">
-                                    <div className="w-28 shrink-0 p-3 text-[10px] font-black uppercase text-white/40 flex items-center bg-black/20 sticky left-0 z-10 border-r border-white/5 backdrop-blur-md">DIRECTION</div>
+                                    <div className="w-28 shrink-0 p-3 text-[10px] font-black uppercase text-white/40 flex items-center bg-black/20 sticky left-0 z-10 border-r border-white/5 backdrop-blur-md">{t('history_direction')}</div>
                                     {history.map((h, i) => (
                                         <div key={i} className="flex-1 flex items-center justify-center p-3 border-l border-white/5 bg-blue-900/5">
                                             <ArrowDown

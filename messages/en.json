@@ -96,6 +96,26 @@
       "booking_error": "Error processing the booking. Please try again."
     }
   },
+  "experiences_page": {
+    "header_eyebrow": "Live the Sea",
+    "title_prefix": "Our",
+    "title_highlight": "Experiences",
+    "description": "Birthdays, sailing vouchers, moorings and special activities. Experience the Cantabrian Sea like never before.",
+    "from": "from",
+    "per_person": "/person",
+    "per_month": "/month",
+    "per_session": "/session",
+    "book_now": "Book Now",
+    "more_info": "More Info",
+    "footer_note": "All our experiences are subject to weather conditions and availability. Book in advance to guarantee your spot.",
+    "all": "All",
+    "evento": "Events",
+    "taller": "Workshops",
+    "cumpleanos": "Birthdays",
+    "atraque": "Moorings",
+    "bono": "Vouchers",
+    "visita": "Visitas"
+  },
   "home": {
     "hero": {
       "slide1_title": "Elegance at Sea",
@@ -716,6 +736,11 @@
       "water_map": "Water Map",
       "my_fleet": "My Fleet",
       "personal_diary": "Personal Diary"
+    },
+    "connection_error": {
+      "title": "Connection Error",
+      "message": "We could not establish communication with the academic logbook. Please check your connection and try again.",
+      "retry": "Reload Logbook ⚓"
     }
   },
   "errors": {
@@ -887,9 +912,13 @@
     "title": "Bridge Command Navigation Radar",
     "location": "Arriluze Kaia — Getxo",
     "loading": "Loading Instruments...",
+    "live_status": "LIVE",
+    "connecting_status": "CONNECTING...",
     "wind": "True Wind",
     "knots": "Knots",
     "aws": "Wind Speed",
+    "syncing": "Syncing...",
+    "action_close": "Close History",
     "gust": "Gust",
     "twa": "Wind Angle",
     "tide": "Getxo Tide",
@@ -898,6 +927,8 @@
     "falling": "Falling",
     "stable": "Stable",
     "next_tide": "Next: {time} ({type})",
+    "tide_high": "H",
+    "tide_low": "L",
     "temp": "Air Temp",
     "pressure": "Pressure",
     "visibility": "Visibility",

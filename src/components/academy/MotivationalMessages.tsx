@@ -23,7 +23,7 @@ export default function MotivationalMessages({ type, context }: MotivationalMess
 
         const timer = setTimeout(() => {
             setIsVisible(false);
-        }, 6000);
+        }, 12000);
 
         return () => clearTimeout(timer);
     }, [type, context]);

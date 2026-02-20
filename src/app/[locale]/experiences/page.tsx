@@ -1,11 +1,11 @@
 import React from 'react';
 import { createClient } from '@/lib/supabase/server';
-import RentalClient from '@/components/rental/RentalClient';
 import { getTranslations } from 'next-intl/server';
 import { Metadata } from 'next';
+import ExperiencesClient from '@/components/experiences/ExperiencesClient';
 
 export async function generateMetadata({ params: { locale } }: { params: { locale: string } }): Promise<Metadata> {
-    const t = await getTranslations({ locale, namespace: 'rental_page' });
+    const t = await getTranslations({ locale, namespace: 'experiences_page' });
     const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://getxobelaeskola.cloud';
 
     const title = `${t('title_prefix')} ${t('title_highlight')} | Getxo Bela Eskola`;
@@ -15,18 +15,17 @@ export async function generateMetadata({ params: { locale } }: { params: { local
         title,
         description,
         alternates: {
-            canonical: `${siteUrl}/${locale}/rental`,
+            canonical: `${siteUrl}/${locale}/experiences`,
             languages: {
-                'es': `${siteUrl}/es/rental`,
-                'eu': `${siteUrl}/eu/rental`,
-                'en': `${siteUrl}/en/rental`,
-                'fr': `${siteUrl}/fr/rental`,
+                'es': `${siteUrl}/es/experiences`,
+                'eu': `${siteUrl}/eu/experiences`,
+                'en': `${siteUrl}/en/experiences`,
             }
         },
         openGraph: {
             title,
             description,
-            url: `${siteUrl}/${locale}/rental`,
+            url: `${siteUrl}/${locale}/experiences`,
             images: [
                 {
                     url: '/images/home-hero-sailing-action.webp',
@@ -47,51 +46,73 @@ export async function generateMetadata({ params: { locale } }: { params: { local
 }
 
 export function generateStaticParams() {
-    return ['es', 'eu', 'en', 'fr'].map(locale => ({ locale }));
+    return ['es', 'eu', 'en'].map(locale => ({ locale }));
 }
 
-export default async function RentalPage({ params: { locale } }: { params: { locale: string } }) {
-    const t = await getTranslations({ locale, namespace: 'rental_page' });
+export default async function ExperiencesPage({ params: { locale } }: { params: { locale: string } }) {
+    const t = await getTranslations({ locale, namespace: 'experiences_page' });
     const supabase = createClient();
-    let services = [];
+    let experiences: any[] = [];
     const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://getxobelaeskola.cloud';
 
     try {
+        // Try to fetch from experiencias table
         const { data, error } = await supabase
-            .from('servicios_alquiler')
+            .from('experiencias')
             .select('*')
             .eq('activo', true)
-            .order('precio_base', { ascending: true });
+            .order('precio', { ascending: true })
+            .limit(50); // Performance: cap results
 
         if (error) {
-            console.error('Error fetching rental services:', error);
+            console.error('Error fetching experiences:', error.message);
+            // Fallback: fetch from servicios_alquiler with category eventos
+            const { data: fallbackData, error: fallbackError } = await supabase
+                .from('servicios_alquiler')
+                .select('*')
+                .eq('activo', true)
+                .in('categoria', ['eventos', 'cumpleanos', 'bono', 'atraque'])
+                .limit(50);
+
+            if (fallbackError) {
+                console.error('Fallback error:', fallbackError.message);
+            } else {
+                experiences = (fallbackData || []).map(item => ({
+                    id: item.id,
+                    nombre: item.nombre,
+                    nombre_eu: item.nombre_eu || item.nombre,
+                    nombre_en: item.nombre_en || item.nombre,
+                    slug: item.slug,
+                    descripcion: item.descripcion,
+                    descripcion_eu: item.descripcion_eu || item.descripcion,
+                    descripcion_en: item.descripcion_en || item.descripcion,
+                    categoria: item.categoria || 'evento',
+                    precio: item.precio_base || item.precio_hora,
+                    imagen_url: item.imagen_url || '/images/home-hero-sailing-action.webp',
+                    duracion: item.duracion_minutos ? `${item.duracion_minutos} min` : null,
+                    activo: true,
+                }));
+            }
         } else {
-            const priorityOrder = [
-                'alquiler-kayak-1',
-                'alquiler-kayak-2',
-                'alquiler-paddlesurf',
-                'alquiler-piragua-1',
-                'alquiler-piragua-2',
-                'alquiler-windsurf',
-                'alquiler-optimist',
-                'alquiler-laser',
-                'alquiler-j80',
-                'alquiler-raquero'
-            ];
-
-            services = (data || []).sort((a, b) => {
-                const indexA = priorityOrder.indexOf(a.slug);
-                const indexB = priorityOrder.indexOf(b.slug);
-
-                // If slug not in list, put at the end
-                const posA = indexA === -1 ? 999 : indexA;
-                const posB = indexB === -1 ? 999 : indexB;
-
-                return posA - posB;
-            });
+            experiences = (data || []).map(item => ({
+                id: item.id,
+                nombre: item.nombre_es,
+                nombre_eu: item.nombre_eu || item.nombre_es,
+                nombre_en: item.nombre_en || item.nombre_es,
+                slug: item.slug,
+                descripcion: item.descripcion_es,
+                descripcion_eu: item.descripcion_eu || item.descripcion_es,
+                descripcion_en: item.descripcion_en || item.descripcion_es,
+                categoria: item.tipo || 'evento',
+                precio: item.precio,
+                imagen_url: item.imagen_url || '/images/home-hero-sailing-action.webp',
+                duracion: item.duracion_h ? `${item.duracion_h}h` : null,
+                min_participantes: item.min_participantes || item.edad_minima, // Fallback to age or pax if needed
+                activo: true,
+            }));
         }
     } catch (err) {
-        console.error('Network error fetching services:', err);
+        console.error('Network error fetching experiences:', err);
     }
 
     // Structured Data (JSON-LD)
@@ -100,21 +121,21 @@ export default async function RentalPage({ params: { locale } }: { params: { loc
         '@type': 'ItemList',
         'name': `${t('title_prefix')} ${t('title_highlight')}`,
         'description': t('description'),
-        'numberOfItems': services.length,
-        'itemListElement': services.map((service, index) => ({
+        'numberOfItems': experiences.length,
+        'itemListElement': experiences.map((exp, index) => ({
             '@type': 'ListItem',
             'position': index + 1,
             'item': {
                 '@type': 'Product',
-                'name': locale === 'eu' ? (service.nombre_eu || service.nombre) : locale === 'en' ? (service.nombre_en || service.nombre) : service.nombre,
-                'description': locale === 'eu' ? (service.descripcion_eu || service.descripcion) : locale === 'en' ? (service.descripcion_en || service.descripcion) : service.descripcion,
-                'image': `${siteUrl}${service.imagen_url || '/images/home-hero-sailing-action.webp'}`,
+                'name': locale === 'eu' ? (exp.nombre_eu || exp.nombre) : locale === 'en' ? (exp.nombre_en || exp.nombre) : exp.nombre,
+                'description': locale === 'eu' ? (exp.descripcion_eu || exp.descripcion) : locale === 'en' ? (exp.descripcion_en || exp.descripcion) : exp.descripcion,
+                'image': `${siteUrl}${exp.imagen_url || '/images/home-hero-sailing-action.webp'}`,
                 'offers': {
                     '@type': 'Offer',
-                    'price': service.precio_base || service.precio_hora,
+                    'price': exp.precio,
                     'priceCurrency': 'EUR',
                     'availability': 'https://schema.org/InStock',
-                    'url': `${siteUrl}/${locale}/rental`
+                    'url': `${siteUrl}/${locale}/contact`
                 }
             }
         }))
@@ -127,9 +148,8 @@ export default async function RentalPage({ params: { locale } }: { params: { loc
                 dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
             />
 
-            {/* Cinematic Header Section */}
+            {/* Cinematic Header */}
             <section className="relative pt-48 pb-32 overflow-hidden">
-                {/* Background Decor */}
                 <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-accent/5 blur-[120px] rounded-full -translate-y-1/2 translate-x-1/2 pointer-events-none" />
                 <div className="absolute top-[20%] left-0 w-[400px] h-[400px] bg-brass-gold/5 blur-[100px] rounded-full -translate-x-1/2 pointer-events-none" />
 
@@ -149,13 +169,13 @@ export default async function RentalPage({ params: { locale } }: { params: { loc
                 </div>
             </section>
 
-            {/* Main Interactive Fleet Section */}
+            {/* Experiences Grid */}
             <section className="pb-48 relative">
                 <div className="container mx-auto px-6 relative z-10">
-                    <RentalClient services={services || []} locale={locale} />
+                    <ExperiencesClient experiences={experiences} locale={locale} />
                 </div>
 
-                {/* Bottom Note / Disclosure */}
+                {/* Bottom Note */}
                 <div className="container mx-auto px-6 mt-32">
                     <div className="relative group p-12 md:p-16 border border-white/5 bg-white/[0.02] backdrop-blur-sm overflow-hidden">
                         <div className="absolute top-0 left-0 w-1 h-0 bg-accent group-hover:h-full transition-all duration-700" />
@@ -166,7 +186,6 @@ export default async function RentalPage({ params: { locale } }: { params: { loc
                 </div>
             </section>
 
-            {/* Minimal Background Grid Signature */}
             <div className="fixed inset-0 bg-mesh opacity-10 pointer-events-none z-0" />
         </main>
     );
