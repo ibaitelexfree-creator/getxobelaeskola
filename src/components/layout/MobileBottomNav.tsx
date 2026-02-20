@@ -8,16 +8,17 @@ interface NavItem {
     label: string;
     labelEu: string;
     labelEn: string;
+    labelFr: string;
     icon: React.ReactNode;
     path: string;
 }
 
 const navItems: NavItem[] = [
-    { label: 'Inicio', labelEu: 'Hasiera', labelEn: 'Home', icon: <Home className="w-5 h-5" />, path: '/student/dashboard' },
-    { label: 'Cursos', labelEu: 'Ikastaroak', labelEn: 'Courses', icon: <BookOpen className="w-5 h-5" />, path: '/courses' },
-    { label: 'Alquiler', labelEu: 'Alokairuak', labelEn: 'Rentals', icon: <Sailboat className="w-5 h-5" />, path: '/rental' },
-    { label: 'Experiencias', labelEu: 'Esperientziak', labelEn: 'Experiences', icon: <Compass className="w-5 h-5" />, path: '/experiences' },
-    { label: 'Academia', labelEu: 'Akademia', labelEn: 'Academy', icon: <GraduationCap className="w-5 h-5" />, path: '/academy' },
+    { label: 'Inicio', labelEu: 'Hasiera', labelEn: 'Home', labelFr: 'Accueil', icon: <Home className="w-5 h-5" />, path: '/student/dashboard' },
+    { label: 'Cursos', labelEu: 'Ikastaroak', labelEn: 'Courses', labelFr: 'Cours', icon: <BookOpen className="w-5 h-5" />, path: '/courses' },
+    { label: 'Alquiler', labelEu: 'Alokairuak', labelEn: 'Rentals', labelFr: 'Location', icon: <Sailboat className="w-5 h-5" />, path: '/rental' },
+    { label: 'Experiencias', labelEu: 'Esperientziak', labelEn: 'Experiences', labelFr: 'Expériences', icon: <Compass className="w-5 h-5" />, path: '/experiences' },
+    { label: 'Academia', labelEu: 'Akademia', labelEn: 'Academy', labelFr: 'Académie', icon: <GraduationCap className="w-5 h-5" />, path: '/academy' },
 ];
 
 export default function MobileBottomNav() {
@@ -36,6 +37,7 @@ export default function MobileBottomNav() {
     const getLabel = (item: NavItem) => {
         if (locale === 'eu') return item.labelEu;
         if (locale === 'en') return item.labelEn;
+        if (locale === 'fr') return item.labelFr;
         return item.label;
     };
 
