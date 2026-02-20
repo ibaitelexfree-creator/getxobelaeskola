@@ -82,7 +82,7 @@ export default function MobileProfileClient({
         } else {
             path = `/${targetLocale}${path}`;
         }
-        window.location.assign(path);
+        router.push(path);
     };
 
     if (loading) {
@@ -363,6 +363,13 @@ export default function MobileProfileClient({
                         >
                             <span className={`text-[8px] font-black ${locale === 'en' ? 'text-accent' : 'text-white/40'}`}>EN</span>
                             <span className={`text-xs ${locale === 'en' ? 'text-white' : 'text-white/40'}`}>English</span>
+                        </button>
+                        <button
+                            onClick={() => handleLanguageSwitch('fr')}
+                            className={`flex-1 p-4 flex flex-col items-center gap-1 transition-colors ${locale === 'fr' ? 'bg-accent/10 border-b-2 border-b-accent' : 'active:bg-white/5'}`}
+                        >
+                            <span className={`text-[8px] font-black ${locale === 'fr' ? 'text-accent' : 'text-white/40'}`}>FR</span>
+                            <span className={`text-xs ${locale === 'fr' ? 'text-white' : 'text-white/40'}`}>Français</span>
                         </button>
                     </div>
                 </section>
