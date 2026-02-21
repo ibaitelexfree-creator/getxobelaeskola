@@ -42,7 +42,7 @@ export function stepPhysics(state: WindPhysicsState, dt: number = PHYSICS_CONSTA
     const safeSailAngle = Math.max(0, Math.min(90, Math.abs(state.sailAngle)));
 
     // AoA is the difference between where the wind comes from and where the sail is.
-    let aoa = absAwa - safeSailAngle;
+    const aoa = absAwa - safeSailAngle;
 
     // Dealing with "Backwinding" (sail on wrong side)
     // If AWA is 45 (Starboard) and Sail is -20 (Port), AoA is 65 (huge).

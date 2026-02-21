@@ -42,7 +42,7 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
         }
 
-        const { data, error } = await supabaseAdmin
+        const { data, error } = await (supabaseAdmin as any)
             .from('mantenimiento_logs')
             .insert({
                 embarcacion_id,
@@ -51,12 +51,29 @@ export async function POST(request: Request) {
                 coste: coste || 0,
                 estado: estado || 'pendiente',
                 notas,
-                realizado_por: user.id // Log the creator
+                realizado_por: user.id
             })
             .select()
             .single();
 
         if (error) throw error;
+
+        // --- NEW: SMART AUTO-UPDATE BOAT STATUS ---
+        // A boat should be 'mantenimiento' if ANY log is 'pendiente' or 'en_proceso'
+        const { data: activeLogs } = await (supabaseAdmin as any)
+            .from('mantenimiento_logs')
+            .select('id')
+            .eq('embarcacion_id', embarcacion_id)
+            .in('estado', ['pendiente', 'en_proceso']);
+
+        const hasActiveMaintenance = activeLogs && activeLogs.length > 0;
+        const newBoatStatus = hasActiveMaintenance ? 'mantenimiento' : 'disponible';
+
+        await (supabaseAdmin as any)
+            .from('embarcaciones')
+            .update({ estado: newBoatStatus })
+            .eq('id', embarcacion_id);
+        // -------------------------------------------
 
         return NextResponse.json({ success: true, log: data });
     } catch (error: unknown) {

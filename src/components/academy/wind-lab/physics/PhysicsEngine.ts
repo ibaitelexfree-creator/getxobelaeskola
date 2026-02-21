@@ -75,7 +75,7 @@ export class PhysicsEngine {
 
         // Apparent Wind Angle relative to Heading
         // Calculate Global AW Angle
-        let awDirGlobal = Math.atan2(vAwX, vAwY); // 0 is North (Y axis)
+        const awDirGlobal = Math.atan2(vAwX, vAwY); // 0 is North (Y axis)
 
         // Relative Angle (0 = Bow, 180 = Stern)
         // Adjust for Heading
@@ -156,7 +156,7 @@ export class PhysicsEngine {
         // If AWA = 45, Sail = 45 -> AoA = 0 (Luffing)
         // If AWA = 45, Sail = 60 -> AoA = -15 (Backwinded)
 
-        let aoa = absAwa - sailAngle;
+        const aoa = absAwa - sailAngle;
 
         let cl = 0; // Coefficient of Lift
         let cd = this.DRAG_COEFF_BASE; // Coefficient of Drag

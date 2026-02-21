@@ -95,7 +95,7 @@ export class WindEffectManager {
 
         for (let i = 0; i < this.count; i++) {
             let px = this.positions[i * 3];
-            let py = this.positions[i * 3 + 1];
+            const py = this.positions[i * 3 + 1];
             let pz = this.positions[i * 3 + 2];
 
             // Apply wind movement

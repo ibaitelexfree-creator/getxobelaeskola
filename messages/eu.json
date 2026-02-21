@@ -79,7 +79,8 @@
       "piragua": "Piragua",
       "membresias": "Bazkidetzak",
       "bonos": "Bonuak",
-      "eventos": "Ekitaldiak"
+      "eventos": "Ekitaldiak",
+      "alquileres": "Alokairuak"
     },
     "booking": {
       "from": "hemendik",
@@ -606,7 +607,40 @@
       "no_records": "Ez da aurkitu erregistrorik.",
       "various": "Hainbat",
       "reporting_scan": "Finantza Azterketa",
-      "week": "Azken Astea"
+      "week": "Azken Astea",
+      "search_placeholder": "Bezeroa edo zerbitzua bilatu...",
+      "filter_status": "Egoera",
+      "filter_service": "Zerbitzua",
+      "sort_by": "Ordenatu honekin",
+      "sort_date_desc": "Berrienak",
+      "sort_date_asc": "Zaharrenak",
+      "sort_amount_desc": "Zenbatekoa (Handienetik txikienera)",
+      "sort_amount_asc": "Zenbatekoa (Txikienetik handienera)",
+      "all": "Guztiak",
+      "paid": "Ordainduta",
+      "pending": "Zain",
+      "pagado": "Ordainduta",
+      "pendiente": "Zain",
+      "csv_filename": "finantzak.csv",
+      "coupon": "Kupoia",
+      "history_date": "Data",
+      "history_service": "Zerbitzua",
+      "history_status": "Egoera",
+      "history_amount": "Zenbatekoa",
+      "all_data": "Datu guztiak",
+      "edit_transaction": "Transakzioa aldatu",
+      "transaction_id": "Transakzio IDa",
+      "new_payment_date": "Ordainketa data berria",
+      "utc_date_hint": "Data UTC formatuan egon behar da",
+      "new_amount": "Zenbateko berria",
+      "new_payment_status": "Ordainketa egoera berria",
+      "paid_confirmed": "Ordainketa berretsia",
+      "pending_info": "Ordainketa kudeatzailearen zain dago.",
+      "cancelled_info": "Transakzioa bertan behera utzi da.",
+      "refunded_info": "Zenbatekoa itzuli da.",
+      "cancel": "Utzi",
+      "saving": "Gordetzen...",
+      "confirm_change": "Aldaketa berretsi"
     },
     "academia": {
       "title": "Online Akademia",
@@ -628,7 +662,8 @@
       "diplomas_count": "{count} Diploma",
       "official_cert": "ZIURTAGIRI OFIZIALA",
       "nautical_formation": "Nautika Prestakuntza",
-      "online_control": "Espediente online kontrola"
+      "online_control": "Espediente online kontrola",
+      "academic_progress": "Aurrerapen Akademikoa"
     },
     "maintenance_modal": {
       "update_status_title": "Gertakariaren Egoera Eguneratu",
@@ -727,13 +762,23 @@
       "skills": "Gaitasunak",
       "water_map": "Uren Mapa",
       "my_fleet": "Nire Flota",
-      "personal_diary": "Egunkari Pertsonala"
+      "personal_diary": "Egunkari Pertsonala",
+      "title": "Nabigazio Bitakora",
+      "nav_title": "Bitakora",
+      "subtitle": "Zure nabigazio esperientzien erregistroa",
+      "miles_total": "Milia guztiak",
+      "syncing": "Sinkronizatzen...",
+      "tabs": "Fitxak",
+      "official": "Ofiziala",
+      "map_tab": "Mapa",
+      "diary_tab": "Egunkaria"
     },
     "connection_error": {
       "title": "Konexio Errorea",
       "message": "Ezin izan dugu bitakora akademikoarekin komunikaziorik ezarri. Mesedez, egiaztatu konexioa eta saiatu berriro.",
       "retry": "Bitakora Birkargatu ⚓"
-    }
+    },
+    "tools": "Tresnak"
   },
   "errors": {
     "404": {
@@ -932,6 +977,12 @@
     "history_gusts": "Boladak",
     "history_direction": "Norabidea",
     "history_temp": "Tenp (ºC)",
-    "history_tide": "Marea (m)"
+    "history_tide": "Marea (m)",
+    "live_status": "BIZIRIK",
+    "connecting_status": "KONEKTATZEN...",
+    "syncing": "Sinkronizatzen...",
+    "action_close": "Itxi historikoa",
+    "tide_high": "G",
+    "tide_low": "B"
   }
 }

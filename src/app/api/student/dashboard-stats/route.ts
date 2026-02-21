@@ -65,11 +65,8 @@ export async function GET() {
             { data: horas },
             { data: userBonos }
         ] = await Promise.all([
-            // @ts-ignore
             supabase.from('progreso_alumno').select('id, tipo_entidad, estado').eq('alumno_id', user.id),
-            // @ts-ignore
             supabase.from('certificados').select('id').eq('alumno_id', user.id),
-            // @ts-ignore
             supabase.from('horas_navegacion').select('duracion_h').eq('alumno_id', user.id),
             supabase.from('bonos_usuario')
                 .select(`

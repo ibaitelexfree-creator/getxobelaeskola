@@ -189,7 +189,7 @@ export class SessionMonitor {
         // Get detailed status for each active session
         const detailed = await Promise.all(
             active.slice(0, 20).map(async (session) => {
-                const id = session.name?.split('/').pop() || session.id;
+                const id = session.name?.split('/')?.pop() || session.id;
                 try {
                     const details = await this.julesRequest('GET', `/sessions/${id}`);
                     return {

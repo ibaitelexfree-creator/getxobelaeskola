@@ -52,10 +52,10 @@ export default function DailyChallengeWidget({ locale }: DailyChallengeWidgetPro
             if (attempts && attempts.length > 0) {
                 // Calculate streak
                 let currentStreak = 0;
-                let today = new Date();
+                const today = new Date();
                 today.setHours(0, 0, 0, 0);
 
-                let checkDate = new Date(attempts[0].fecha);
+                const checkDate = new Date(attempts[0].fecha);
                 checkDate.setHours(0, 0, 0, 0);
 
                 // If last attempt was today or yesterday, check streak

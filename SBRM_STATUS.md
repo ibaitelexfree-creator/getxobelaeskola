@@ -10,4 +10,11 @@ Status: **Operational**
 - Local: ✅
 
 ### CI/CD Signal Path:
-`Bitbucket (Trigger) -> GitHub Actions (Heavy Compute)`
+`GitHub Fast Lane (Parallel Scan) -> GitHub Actions (Heavy Compute on Success)`
+### Central Orchestration (Maestro v3):
+- Status: **Ready (Fast Lane 2026)**
+- Execution: `Jules -> Gemini Flash -> ClawdBot`
+- Visual Relay: **Enabled (Browserless -> Telegram)**
+- Watchdog: **Active**
+
+*Ready for takeoff. Use `node orchestration/lib/maestro.js` to start.*
