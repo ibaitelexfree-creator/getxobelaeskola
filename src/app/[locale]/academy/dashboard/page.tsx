@@ -199,20 +199,6 @@ export default function DashboardPage({ params }: { params: { locale: string } }
                 icon: l.logro.icono,
                 data: { rareza: l.logro.rareza, puntos: l.logro.puntos }
             });
-
-            // Send push notification via server (via FCM)
-            fetch(apiUrl('/api/notifications/push'), {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    title: `¡Logro Desbloqueado: ${l.logro.nombre_es}!`,
-                    body: l.logro.descripcion_es,
-                    data: {
-                        type: 'achievement',
-                        achievementId: l.logro.id
-                    }
-                })
-            }).catch(err => console.error('Error sending push notification:', err));
         });
 
         if (newLogros.length > 0) {
@@ -405,10 +391,10 @@ export default function DashboardPage({ params }: { params: { locale: string } }
                             href: `/${params.locale}/academy/tools/wind-lab`
                         },
                         {
-                            id: 'meteo',
+                            id: 'meteo-simulator',
                             label: 'Meteo',
                             icon: <CloudRain className="w-5 h-5" />,
-                            color: 'text-indigo-400 bg-indigo-500/10 hover:bg-indigo-500/20',
+                            color: 'text-sky-400 bg-sky-500/10 hover:bg-sky-500/20',
                             href: `/${params.locale}/academy/tools/meteo-simulator`
                         },
                         {
