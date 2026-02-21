@@ -25,7 +25,7 @@ export default function RealtimeNotifications() {
                         table: 'logros_alumno',
                         filter: `alumno_id=eq.${user.id}`
                     },
-                    async (payload: any) => {
+                    async (payload: { new: { logro_id: string } }) => {
                         // Obtener detalles del logro
                         const { data: logro } = await supabase
                             .from('logros')
@@ -35,7 +35,7 @@ export default function RealtimeNotifications() {
 
                         if (logro) {
                             addNotification({
-                                type: 'achievement' as any,
+                                type: 'achievement',
                                 title: logro.nombre_es,
                                 message: logro.descripcion_es,
                                 icon: logro.icono || '🏆',
@@ -61,7 +61,7 @@ export default function RealtimeNotifications() {
                         table: 'student_skills',
                         filter: `student_id=eq.${user.id}`
                     },
-                    async (payload: any) => {
+                    async (payload: { new: { skill_id: string } }) => {
                         // Obtener detalles de la skill
                         const { data: skill } = await supabase
                             .from('skills')
@@ -71,7 +71,7 @@ export default function RealtimeNotifications() {
 
                         if (skill) {
                             addNotification({
-                                type: 'skill' as any,
+                                type: 'skill',
                                 title: skill.name,
                                 message: skill.description,
                                 icon: skill.icon || '⚡',
@@ -85,32 +85,36 @@ export default function RealtimeNotifications() {
                 )
                 .subscribe();
 
-            // Escuchar Feedback del Instructor
-            const feedbackSub = supabase
-                .channel('realtime_feedback')
+            // Escuchar Respuestas del Foro
+            const forumSub = supabase
+                .channel('realtime_forum')
                 .on(
                     'postgres_changes',
                     {
                         event: 'INSERT',
                         schema: 'public',
-                        table: 'instructor_feedback',
-                        filter: `student_id=eq.${user.id}`
+                        table: 'foro_respuestas'
                     },
-                    (payload: any) => {
-                        const newFeedback = payload.new;
-                        const contextTitle = newFeedback.context_type === 'logbook' ? 'Bitácora' : 'Evaluación';
+                    async (payload: { new: { pregunta_id: string; usuario_id: string } }) => {
+                        // No notificar si soy yo quien responde
+                        if (payload.new.usuario_id === user.id) return;
 
-                        addNotification({
-                            type: 'info' as any,
-                            title: 'Nuevo Feedback',
-                            message: `Tu instructor ha comentado en tu ${contextTitle}.`,
-                            icon: '💬',
-                            duration: 8000,
-                            data: {
-                                context_id: newFeedback.context_id,
-                                context_type: newFeedback.context_type
-                            }
-                        });
+                        // Verificar si la pregunta es mía
+                        const { data: question } = await supabase
+                            .from('foro_preguntas')
+                            .select('usuario_id, titulo')
+                            .eq('id', payload.new.pregunta_id)
+                            .single();
+
+                        if (question && question.usuario_id === user.id) {
+                            addNotification({
+                                type: 'info',
+                                title: 'Nueva respuesta en el foro',
+                                message: `Alguien ha respondido a tu pregunta: "${question.titulo}"`,
+                                icon: '💬',
+                                duration: 8000
+                            });
+                        }
                     }
                 )
                 .subscribe();
@@ -118,7 +122,7 @@ export default function RealtimeNotifications() {
             return () => {
                 supabase.removeChannel(logrosSub);
                 supabase.removeChannel(skillsSub);
-                supabase.removeChannel(feedbackSub);
+                supabase.removeChannel(forumSub);
             };
         }
 
