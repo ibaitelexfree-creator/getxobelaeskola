@@ -119,6 +119,46 @@ export async function POST(request: Request) {
             .eq('student_id', user.id)
             .gte('unlocked_at', bufferTime);
 
+        // 9. TRACK MISTAKES (Mochila de Dudas)
+        try {
+            // Always fetch correct answers to determine mistakes internally
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const questionIds = intento.preguntas_json as any[];
+
+            if (questionIds && questionIds.length > 0) {
+                const { data: allQuestions } = await supabaseAdmin
+                    .from('preguntas')
+                    .select('id, respuesta_correcta')
+                    .in('id', questionIds);
+
+                if (allQuestions) {
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    const mistakes: any[] = [];
+                    for (const q of allQuestions) {
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                        const userAnswer = (respuestasMerged as any)[q.id];
+                        // Check if answered and incorrect
+                        if (userAnswer !== undefined && userAnswer !== q.respuesta_correcta) {
+                            mistakes.push({
+                                alumno_id: user.id,
+                                pregunta_id: q.id,
+                                estado: 'pendiente',
+                                fecha_fallo: new Date().toISOString()
+                            });
+                        }
+                    }
+
+                    if (mistakes.length > 0) {
+                        await supabaseAdmin
+                            .from('errores_repaso')
+                            .upsert(mistakes, { onConflict: 'alumno_id, pregunta_id' });
+                    }
+                }
+            }
+        } catch (err) {
+            console.error('Error tracking mistakes:', err);
+        }
+
         // Obtener las respuestas correctas si está configurado
         let respuestasCorrectas = null;
         if (intento.evaluacion.mostrar_respuestas) {
@@ -149,4 +189,3 @@ export async function POST(request: Request) {
         );
     }
 }
-
