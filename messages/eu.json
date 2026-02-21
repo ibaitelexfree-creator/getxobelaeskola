@@ -34,7 +34,22 @@
     "bonos": "Bonuak",
     "space_rental": "Espazio Alokairua",
     "all_courses": "Ikastaro guztiak",
-    "all_rentals": "Alokairua guztiak"
+    "all_rentals": "Alokairua guztiak",
+    "glossary": "Glosarioa"
+  },
+  "glossary": {
+    "title": "Nautika Glosarioa",
+    "subtitle": "Itsas terminoen hiztegi osoa",
+    "search_placeholder": "Terminoa bilatu, definizioa...",
+    "filter_all": "Guztiak",
+    "filter_maniobras": "Maniobrak",
+    "filter_partes": "Ontziko zatiak",
+    "filter_meteo": "Meteorologia",
+    "filter_reglamento": "Araudia",
+    "filter_otros": "Bestelakoak",
+    "learn_more": "Ikastaroan gehiago ikasi",
+    "no_results": "Ez da terminorik aurkitu zure bilaketarako",
+    "back_to_top": "Gora itzuli"
   },
   "notifications": {
     "payment_success": "Ordainketa ondo burutu da",
