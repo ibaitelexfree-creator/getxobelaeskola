@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useCallback } from 'react';
 import { useMissionStore } from '@/store/useMissionStore';
-import { getHealth, getWatchdogStatus, getActiveSessions, getResourceStatus } from '@/lib/api';
+import { getHealth, getWatchdogStatus, getActiveSessions, getResourceStatus, getQueue } from '@/lib/api';
 
 
 export function usePolling() {
@@ -20,11 +20,12 @@ export function usePolling() {
 
     const poll = useCallback(async () => {
         try {
-            const [health, watchdog, sessions, resources] = await Promise.all([
+            const [health, watchdog, sessions, resources, queueData] = await Promise.all([
                 getHealth().catch(() => null),
                 getWatchdogStatus().catch(() => null),
                 getActiveSessions().catch(() => null),
                 getResourceStatus().catch(() => null),
+                getQueue().catch(() => null),
             ]);
 
 
@@ -67,6 +68,13 @@ export function usePolling() {
                     },
                 });
             }
+
+            if (queueData?.success && queueData.result) {
+                const { queue, history } = queueData.result;
+                if (queue) useMissionStore.getState().setQueue(queue);
+                if (history) useMissionStore.getState().setHistory(history);
+            }
+
             if (sessions?.activeSessions) {
                 const threads = sessions.activeSessions.map((s: any) => {
                     const executor = s.executor || (s.title?.toLowerCase().includes('flash') ? 'flash' : 'jules');
@@ -107,7 +115,7 @@ export function usePolling() {
         } catch {
             setConnected(false);
         }
-    }, [setConnected, updateServices, setLastSync]);
+    }, [setConnected, updateServices, setLastSync, updateActiveThreads, updatePower]);
 
     useEffect(() => {
         poll(); // Initial fetch

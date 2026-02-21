@@ -50,9 +50,11 @@ import mcpExecuteSchema from './schemas/mcp-execute-schema.js';
 import sessionCreateSchema from './schemas/session-create-schema.js';
 import { cacheMiddleware, invalidateCaches } from './middleware/cacheMiddleware.js';
 import { sendTelegramMessage } from './lib/telegram.js';
-import { readProjectMemory, writeProjectMemory, appendToProjectMemory, readAllContext } from './lib/project-memory.js';
+import { readProjectMemory, writeProjectMemory, appendToProjectMemory, readAllContext, getParsedTasks } from './lib/project-memory.js';
 import { setupTelegramInbound } from './lib/telegram-inbound.js';
 import * as resourceManager from './lib/resource-manager.js';
+import { handleRecoverySignal } from './lib/recovery-agent.js';
+
 
 
 dotenv.config();
@@ -580,6 +582,30 @@ app.post('/webhooks/render', async (req, res) => {
   }
 });
 
+// Self-Healing Endpoint (Receives alerts from Firebase/GitHub)
+app.post('/api/v1/alert-to-fix', async (req, res) => {
+  console.log('[Webhook] Received Alert-to-Fix signal');
+
+  // Basic API Key security
+  const apiKey = req.headers['x-api-key'];
+  if (apiKey !== process.env.ORCHESTRATOR_FIX_KEY) {
+    return res.status(401).json({ error: 'Unauthorized: Invalid Fix Key' });
+  }
+
+  try {
+    const result = await handleRecoverySignal(
+      req.body,
+      createJulesSession,
+      (sessionId, msg) => julesRequest('POST', `/sessions/${sessionId}:sendMessage`, msg)
+    );
+    res.status(result.success ? 200 : 500).json(result);
+  } catch (error) {
+    console.error('[RecoveryAgent] Critical failure:', error.message);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+
 // ============ RESOURCE MANAGEMENT ============
 
 // Get current resource status
@@ -932,7 +958,14 @@ function initializeToolRegistry() {
 
   // v2.5.0: Session Queue
   toolRegistry.set('jules_queue_session', (p) => ({ success: true, item: sessionQueue.add(p.config, p.priority) }));
-  toolRegistry.set('jules_get_queue', () => ({ queue: sessionQueue.list(), stats: sessionQueue.stats() }));
+  toolRegistry.set('jules_get_queue', () => {
+    const memoryTasks = getParsedTasks();
+    return {
+      queue: memoryTasks.queue,
+      history: memoryTasks.history,
+      stats: sessionQueue.stats()
+    };
+  });
   toolRegistry.set('jules_process_queue', () => processQueue());
   toolRegistry.set('jules_clear_queue', () => ({ success: true, cleared: sessionQueue.clear() }));
 
