@@ -242,8 +242,10 @@ export async function GET(request: Request) {
 
         return withCors(NextResponse.json({
             user: {
+                id: user.id,
                 full_name: profile?.nombre ? `${profile.nombre} ${profile.apellidos || ''}`.trim() : user.email,
-                avatar_url: profile?.avatar_url
+                avatar_url: profile?.avatar_url,
+                is_public: profile?.is_public || false
             },
             progreso: filteredProgress,
             habilidades: skills?.map((s: any) => ({

@@ -117,8 +117,10 @@ interface HabilidadItem {
 
 interface DashboardData {
     user: {
+        id: string;
         full_name: string;
         avatar_url: string;
+        is_public: boolean;
     };
     progreso: any[];
     habilidades: HabilidadItem[];
@@ -310,6 +312,16 @@ export default function DashboardPage({ params }: { params: { locale: string } }
                             <h1 className="text-4xl font-display italic text-white mb-2 leading-none">
                                 Hola, <span className="text-accent">{data.user?.full_name?.split(' ')[0] || 'Navegante'}</span>
                             </h1>
+
+                            <div className="flex items-center gap-4 mb-6 justify-center md:justify-start">
+                                <Link
+                                    href={`/${params.locale}/academy/perfil/${data.user.id}`}
+                                    className="px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-full text-[10px] font-black uppercase tracking-widest text-white transition-colors flex items-center gap-2"
+                                >
+                                    <span className={data.user.is_public ? "text-emerald-400" : "text-white/40"}>●</span>
+                                    Ver Perfil Público
+                                </Link>
+                            </div>
 
                             <div className="flex flex-col gap-2 mb-6">
                                 <div className="flex items-center gap-3">
