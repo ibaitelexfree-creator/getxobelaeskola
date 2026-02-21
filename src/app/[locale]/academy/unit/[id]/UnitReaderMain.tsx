@@ -14,8 +14,8 @@ import { useUnitProgress } from '@/hooks/useUnitProgress';
 import { checkAchievements } from '@/lib/gamification/AchievementEngine';
 import { useAcademyMode } from '@/lib/store/useAcademyMode';
 import { InteractiveMission, useMissionStore } from '@/components/academy/interactive-engine';
-import VideoWithCheckpoints from '@/components/academy/video/VideoWithCheckpoints';
 import { apiUrl } from '@/lib/api';
+import { offlineSyncManager } from '@/lib/offline/sync-manager';
 
 interface Unidad {
     id: string;
@@ -75,7 +75,7 @@ export default function UnitReaderMain({
     const [progreso, setProgreso] = useState<any>(null);
     const [unlockStatus, setUnlockStatus] = useState<Record<string, UnlockStatus>>({});
     const [loading, setLoading] = useState(true);
-    const [activeTab, setActiveTab] = useState<'teoria' | 'practica' | 'errores' | 'video'>('teoria');
+    const [activeTab, setActiveTab] = useState<'teoria' | 'practica' | 'errores'>('teoria');
     const [completando, setCompletando] = useState(false);
     const [mostrandoQuiz, setMostrandoQuiz] = useState(false);
     const [zenMode, setZenMode] = useState(false);
@@ -93,36 +93,6 @@ export default function UnitReaderMain({
                 if (data.error) {
                     console.error(data.error);
                 } else {
-                    // MOCK DATA FOR VIDEO TESTING
-                    // TODO: Remove this in production or when DB has real data
-                    if (!data.unidad.recursos_json?.video) {
-                        data.unidad.recursos_json = {
-                            ...data.unidad.recursos_json,
-                            video: {
-                                url: 'https://www.youtube.com/watch?v=dummy_video_id', // Placeholder, using a nature video for safe testing if needed: 'dQw4w9WgXcQ' is a classic but maybe 'LXb3EKWsInQ' (4K nature)
-                                // Let's use a sailing related video if possible or just a generic valid ID.
-                                // 'ScMzIvxBSi4' -> some video. Let's use a verified creative commons or generic one.
-                                // Using 'M7lc1UVf-VE' (YouTube Developers) for testing checkpoints
-                                url: 'https://www.youtube.com/watch?v=M7lc1UVf-VE',
-                                type: 'youtube',
-                                checkpoints: [
-                                    {
-                                        time: 5,
-                                        question: '¿Qué plataforma es esta?',
-                                        options: ['Vimeo', 'YouTube', 'Twitch'],
-                                        correctOptionIndex: 1
-                                    },
-                                    {
-                                        time: 15,
-                                        question: '¿Confirmas que estás prestando atención?',
-                                        options: ['No', 'Sí', 'Tal vez'],
-                                        correctOptionIndex: 1
-                                    }
-                                ]
-                            }
-                        };
-                    }
-
                     setUnidad(data.unidad);
                     setNavegacion(data.navegacion);
                     setProgreso(data.progreso);
@@ -205,6 +175,36 @@ export default function UnitReaderMain({
         setProgreso({ estado: 'completado', porcentaje: 100 });
 
         try {
+            if (typeof navigator !== 'undefined' && !navigator.onLine) {
+                offlineSyncManager.addToQueue(
+                    '/api/academy/progress/update',
+                    'POST',
+                    {
+                        tipo_entidad: 'unidad',
+                        entidad_id: unidad.id,
+                        estado: 'completado',
+                        porcentaje: 100
+                    }
+                );
+                addNotification({
+                    type: 'info',
+                    title: 'Guardado Offline',
+                    message: 'El progreso se sincronizará cuando recuperes la conexión.',
+                    icon: 'wifi-off'
+                });
+
+                // Trigger achievement check (optimistic)
+                checkForNewAchievements();
+
+                if (navegacion?.siguiente) {
+                    setTimeout(() => {
+                        router.push(`/${params.locale}/academy/unit/${navegacion.siguiente!.id}`);
+                    }, 1500);
+                }
+                setCompletando(false);
+                return;
+            }
+
             const res = await fetch(apiUrl('/api/academy/progress/update'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -372,22 +372,6 @@ export default function UnitReaderMain({
 
                         <div className="mb-8">
                             <div className="flex flex-wrap gap-3" role="tablist" aria-label="Secciones de la unidad">
-                                {unidad.recursos_json?.video && (
-                                    <button
-                                        role="tab"
-                                        id="tab-video"
-                                        aria-selected={activeTab === 'video'}
-                                        aria-controls="panel-video"
-                                        onClick={() => setActiveTab('video')}
-                                        className={`px-6 py-3 rounded-full text-xs uppercase tracking-widest transition-all duration-300 focus-ring ${activeTab === 'video'
-                                            ? 'bg-accent text-nautical-black font-bold shadow-lg shadow-accent/20 transform scale-105'
-                                            : 'bg-white/5 text-white/70 hover:bg-white/10 hover:text-white'
-                                            }`}
-                                    >
-                                        <span role="img" aria-hidden="true" className="mr-2">🎬</span>
-                                        Video
-                                    </button>
-                                )}
                                 <button
                                     role="tab"
                                     id="tab-teoria"
@@ -456,35 +440,6 @@ export default function UnitReaderMain({
                         )}
 
                         <div className="prose prose-invert prose-lg max-w-none">
-                            <div
-                                role="tabpanel"
-                                id="panel-video"
-                                aria-labelledby="tab-video"
-                                hidden={activeTab !== 'video'}
-                                tabIndex={0}
-                                className="focus:outline-none focus:ring-2 focus:ring-accent/50 rounded-sm"
-                            >
-                                {activeTab === 'video' && unidad.recursos_json?.video && (
-                                    <div className="bg-black/20 border border-white/10 rounded-sm p-4 lg:p-8">
-                                        <VideoWithCheckpoints
-                                            videoUrl={unidad.recursos_json.video.url}
-                                            videoType={unidad.recursos_json.video.type || 'youtube'}
-                                            checkpoints={unidad.recursos_json.video.checkpoints || []}
-                                            poster={unidad.recursos_json.video.poster}
-                                            onComplete={() => {
-                                                addNotification({
-                                                    type: 'success',
-                                                    title: 'Video Completado',
-                                                    message: 'Has visto todo el video.',
-                                                    icon: '🎬'
-                                                });
-                                                // Optional: Mark progress or trigger something
-                                            }}
-                                        />
-                                    </div>
-                                )}
-                            </div>
-
                             <div
                                 role="tabpanel"
                                 id="panel-teoria"

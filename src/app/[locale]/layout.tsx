@@ -9,9 +9,9 @@ const AcademyFeedbackProvider = dynamic(() => import('@/components/academy/Acade
 const PushNotificationInitializer = dynamic(() => import('@/components/academy/notifications/PushNotificationInitializer'), { ssr: false });
 import ConditionalLayout from '@/components/layout/ConditionalLayout';
 const ScrollUpButton = dynamic(() => import('@/components/shared/ScrollToTop'), { ssr: false });
+const OfflineSyncProvider = dynamic(() => import('@/components/offline/OfflineSyncProvider'), { ssr: false });
 import { Viewport } from 'next';
 import { Suspense } from 'react';
-import { ThemeProvider } from '@/components/providers/ThemeProvider';
 const StatusToast = dynamic(() => import('@/components/shared/StatusToast'), { ssr: false });
 
 export const viewport: Viewport = {
@@ -38,7 +38,6 @@ export default async function LocaleLayout({
   return (
     <html lang={locale} className={`${cormorantGaramond.variable} ${outfit.variable} ${jetbrainsMono.variable}`} suppressHydrationWarning>
       <head>
-        <link rel="manifest" href="/manifest.webmanifest" />
         <link rel="dns-prefetch" href="https://xbledhifomblirxurtyv.supabase.co" />
       </head>
       <body suppressHydrationWarning>
@@ -46,27 +45,26 @@ export default async function LocaleLayout({
           {locale === 'eu' ? 'Edukira jo' : locale === 'en' ? 'Skip to content' : locale === 'fr' ? 'Aller au contenu' : 'Saltar al contenido'}
         </a>
         <NextIntlClientProvider messages={messages} locale={locale} timeZone="Europe/Madrid">
-          <ThemeProvider attribute="class" defaultTheme="dark" themes={['dark', 'premium', 'light']}>
-            <AcademyFeedbackProvider>
-              <PushNotificationInitializer />
-              <div className="min-h-screen flex flex-col relative w-full overflow-x-hidden">
-                <ConditionalLayout
-                  locale={locale}
-                  navbar={<Navbar locale={locale} />}
-                  footer={<Footer locale={locale} />}
-                >
-                  <main id="main-content" className="flex-grow">
-                    {children}
-                  </main>
-                </ConditionalLayout>
-              </div>
-              <ScrollUpButton />
+          <AcademyFeedbackProvider>
+            <PushNotificationInitializer />
+            <OfflineSyncProvider />
+            <div className="min-h-screen flex flex-col relative w-full overflow-x-hidden">
+              <ConditionalLayout
+                locale={locale}
+                navbar={<Navbar locale={locale} />}
+                footer={<Footer locale={locale} />}
+              >
+                <main id="main-content" className="flex-grow">
+                  {children}
+                </main>
+              </ConditionalLayout>
+            </div>
+            <ScrollUpButton />
 
-              <Suspense fallback={null}>
-                <StatusToast />
-              </Suspense>
-            </AcademyFeedbackProvider>
-          </ThemeProvider>
+            <Suspense fallback={null}>
+              <StatusToast />
+            </Suspense>
+          </AcademyFeedbackProvider>
         </NextIntlClientProvider>
       </body>
     </html>
