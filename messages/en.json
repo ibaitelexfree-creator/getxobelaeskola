@@ -947,5 +947,21 @@
     "history_direction": "Direction",
     "history_temp": "Temp (ºC)",
     "history_tide": "Tide (m)"
+  },
+  "sea_state_widget": {
+    "title": "Sea State",
+    "subtitle": "Bilbao-Vizcaya Buoy (Getxo)",
+    "wave_height": "Wave Height",
+    "period": "Period",
+    "water_temp": "Water Temp",
+    "wind_speed": "Wind",
+    "simulated": "Simulated",
+    "simulated_desc": "Estimated data by model",
+    "real_time": "Real Time",
+    "meters": "m",
+    "seconds": "s",
+    "celsius": "°C",
+    "knots": "kn",
+    "loading": "Loading..."
   }
 }

@@ -948,5 +948,21 @@
     "history_direction": "Dirección",
     "history_temp": "Temp (ºC)",
     "history_tide": "Marea (m)"
+  },
+  "sea_state_widget": {
+    "title": "Estado del Mar",
+    "subtitle": "Boya Bilbao-Vizcaya (Getxo)",
+    "wave_height": "Altura Ola",
+    "period": "Período",
+    "water_temp": "Temp. Agua",
+    "wind_speed": "Viento",
+    "simulated": "Simulado",
+    "simulated_desc": "Datos estimados por modelo",
+    "real_time": "Tiempo Real",
+    "meters": "m",
+    "seconds": "s",
+    "celsius": "°C",
+    "knots": "kn",
+    "loading": "Cargando..."
   }
 }

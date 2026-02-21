@@ -3,12 +3,14 @@ import { NextRequest, NextResponse } from 'next/server';
 import { fetchWeatherData } from '@/lib/weather';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { fetchEuskalmetAlerts } from '@/lib/euskalmet';
+import { fetchSeaState } from '@/lib/puertos-del-estado';
 
 export const dynamic = 'force-dynamic';
 
 // In-memory cache for weather data (expires in 5 minutes)
 let cachedWeather: any = null;
 let cachedAlerts: any = null;
+let cachedSeaState: any = null;
 let lastFetchTime: number = 0;
 const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 
@@ -18,18 +20,21 @@ export async function GET(request: NextRequest) {
         const includeHistory = searchParams.get('history') === 'true';
 
         const now = Date.now();
-        let weather, alerts;
+        let weather, alerts, seaState;
 
-        if (cachedWeather && cachedAlerts && (now - lastFetchTime < CACHE_DURATION)) {
+        if (cachedWeather && cachedAlerts && cachedSeaState && (now - lastFetchTime < CACHE_DURATION)) {
             weather = cachedWeather;
             alerts = cachedAlerts;
+            seaState = cachedSeaState;
         } else {
-            [weather, alerts] = await Promise.all([
+            [weather, alerts, seaState] = await Promise.all([
                 fetchWeatherData(),
-                fetchEuskalmetAlerts()
+                fetchEuskalmetAlerts(),
+                fetchSeaState()
             ]);
             cachedWeather = weather;
             cachedAlerts = alerts;
+            cachedSeaState = seaState;
             lastFetchTime = now;
         }
 
@@ -143,6 +148,7 @@ export async function GET(request: NextRequest) {
 
         return NextResponse.json({
             weather,
+            seaState, // Added seaState to response
             fleet: fleetSub,
             alerts: warningAlerts,
             history

@@ -984,5 +984,21 @@
     "action_close": "Itxi historikoa",
     "tide_high": "G",
     "tide_low": "B"
+  },
+  "sea_state_widget": {
+    "title": "Itsasoaren Egoera",
+    "subtitle": "Bilbao-Bizcaya Buia (Getxo)",
+    "wave_height": "Olatu Altuera",
+    "period": "Periodoa",
+    "water_temp": "Ur Tenp.",
+    "wind_speed": "Haizea",
+    "simulated": "Simulatua",
+    "simulated_desc": "Eredu bidez estimatua",
+    "real_time": "Denbora Erreala",
+    "meters": "m",
+    "seconds": "s",
+    "celsius": "°C",
+    "knots": "kn",
+    "loading": "Kargatzen..."
   }
 }
