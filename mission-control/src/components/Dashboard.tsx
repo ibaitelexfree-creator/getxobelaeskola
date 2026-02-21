@@ -7,6 +7,8 @@ import {
     ArrowUpRight, ArrowDownRight, Activity, AlertTriangle
 } from 'lucide-react';
 import TacticalRadar from '@/components/TacticalRadar';
+import ResourceManager from '@/components/ResourceManager';
+
 
 const healthColor: Record<ServiceHealth, string> = {
     online: 'text-status-green',
@@ -165,7 +167,11 @@ export default function Dashboard() {
                 </div>
             </div>
 
+            {/* Resource Management Section */}
+            <ResourceManager />
+
             {/* Stats Bar */}
+
             <div className="grid grid-cols-3 gap-3">
                 {[
                     { label: 'Assigned', val: stats.assigned, clr: 'text-white' },

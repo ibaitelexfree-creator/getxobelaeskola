@@ -15,16 +15,17 @@ const nextConfig = {
     compress: true,
     poweredByHeader: false,
     output: isCapacitor ? 'export' : 'standalone',
-    experimental: {
-        serverExternalPackages: [
-            '@capacitor/core',
-            '@capacitor/android',
-            '@capacitor/haptics',
-            '@capacitor/network',
-            '@capacitor/push-notifications',
-            '@capacitor/status-bar',
-        ],
-    },
+    serverExternalPackages: [
+        '@capacitor/core',
+        '@capacitor/android',
+        '@capacitor/haptics',
+        '@capacitor/network',
+        '@capacitor/push-notifications',
+        '@capacitor/status-bar',
+        '@capacitor/browser',
+        '@capacitor/device',
+        '@capacitor/app'
+    ],
     transpilePackages: [
         '@capacitor/core',
         '@capacitor/android',
@@ -32,6 +33,9 @@ const nextConfig = {
         '@capacitor/network',
         '@capacitor/push-notifications',
         '@capacitor/status-bar',
+        '@capacitor/browser',
+        '@capacitor/device',
+        '@capacitor/app'
     ],
 };
 

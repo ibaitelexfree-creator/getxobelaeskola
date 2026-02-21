@@ -52,6 +52,8 @@ import { cacheMiddleware, invalidateCaches } from './middleware/cacheMiddleware.
 import { sendTelegramMessage } from './lib/telegram.js';
 import { readProjectMemory, writeProjectMemory, appendToProjectMemory, readAllContext } from './lib/project-memory.js';
 import { setupTelegramInbound } from './lib/telegram-inbound.js';
+import * as resourceManager from './lib/resource-manager.js';
+
 
 dotenv.config();
 
@@ -565,20 +567,52 @@ app.get('/api/releases/download/:assetId', async (req, res) => {
 // Render webhook for build failure auto-fix
 app.post('/webhooks/render', async (req, res) => {
   console.log('[Webhook] Received Render webhook');
-
   try {
     const result = await handleRenderWebhook(
       req,
       createJulesSession,
       (sessionId, msg) => julesRequest('POST', `/sessions/${sessionId}:sendMessage`, msg)
     );
-
     res.status(result.status || 200).json(result);
   } catch (error) {
     console.error('[Webhook] Error:', error.message);
     res.status(500).json({ error: error.message });
   }
 });
+
+// ============ RESOURCE MANAGEMENT ============
+
+// Get current resource status
+app.get('/api/resources/status', async (req, res) => {
+  try {
+    const status = await resourceManager.getResourceStatus();
+    res.json(status);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Set power mode (eco/performance)
+app.post('/api/resources/mode', express.json(), async (req, res) => {
+  const { mode } = req.body;
+  try {
+    const result = await resourceManager.setPowerMode(mode);
+    res.json(result);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+// Force start a service
+app.post('/api/resources/start/:service', async (req, res) => {
+  try {
+    await resourceManager.startService(req.params.service.toUpperCase());
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 
 // ============ MCP TOOLS ============
 
@@ -997,8 +1031,19 @@ app.post('/mcp/execute', validateRequest(mcpExecuteSchema), async (req, res) => 
 
   console.log('[MCP] Executing tool:', tool, parameters);
 
+  // Record activity for resource management
+  resourceManager.recordActivity();
+
+  // Auto-wake up relevant services for specific tools
+  if (tool.startsWith('ollama_')) {
+    await resourceManager.ensureServiceUp('OLLAMA');
+  } else if (tool.startsWith('jules_')) {
+    // Jules API is external (Google), but if we had a local component, we'd wake it here
+  }
+
   try {
     const result = await handler(parameters);
+
     console.log('[MCP] Tool', tool, 'completed successfully');
     res.json({ success: true, result });
   } catch (error) {
@@ -1593,7 +1638,11 @@ const server = app.listen(PORT, '0.0.0.0', () => {
   // Start Render webhook cleanup interval
   startRenderCleanupInterval();
 
+  // Start Resource Manager inactivity monitor
+  resourceManager.startInactivityMonitor();
+
   // Initialize modules after server starts
+
   batchProcessor = new BatchProcessor(julesRequest, createJulesSession);
   sessionMonitor = new SessionMonitor(julesRequest);
 
