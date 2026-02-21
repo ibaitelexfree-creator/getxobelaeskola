@@ -1,11 +1,14 @@
 
 import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 interface LogbookReportData {
     studentName: string;
     totalHours: number;
     totalMiles: number;
+    visitedMarinas: number;
     sessions: any[];
+    diaryEntries: any[];
 }
 
 /**
@@ -31,100 +34,201 @@ export const generateLogbookReportPDF = async (data: LogbookReportData): Promise
     doc.setFillColor(10, 22, 40); // Navy background for header
     doc.rect(0, 0, width, 40, 'F');
 
+    // Logo Placeholder or Text
     doc.setTextColor(255, 255, 255);
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(22);
-    doc.text('RESUMEN DE NAVEGACIÓN', margin, 20);
+    doc.text('BITÁCORA DE NAVEGACIÓN', margin, 20);
 
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(10);
     doc.setTextColor(200, 200, 200);
     doc.text('GETXO BELA ESKOLA - REGISTRO OFICIAL', margin, 28);
 
+    // Date on the right
+    doc.setFontSize(9);
+    doc.text(new Date().toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }), width - margin, 20, { align: 'right' });
+
     // 2. Información del Alumno
     doc.setTextColor(navy);
-    doc.setFontSize(14);
+    doc.setFontSize(12);
     doc.setFont('helvetica', 'bold');
-    doc.text('TITULAR:', margin, 55);
+    doc.text('TITULAR DE LA BITÁCORA:', margin, 55);
 
     doc.setFont('times', 'italic');
     doc.setFontSize(18);
-    doc.text(data.studentName, margin + 25, 55);
+    doc.text(data.studentName, margin + 60, 55);
 
-    // 3. Cuadro de Totales
-    doc.setDrawColor(200, 200, 200);
-    doc.setLineWidth(0.1);
-    doc.rect(margin, 65, width - (margin * 2), 25);
+    // 3. Cuadro de Totales (Estadísticas)
+    const statsY = 65;
+    const statBoxWidth = (width - (margin * 2)) / 3;
 
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(10);
-    doc.setTextColor(grey);
-    doc.text('TOTAL HORAS NAVEGACIÓN', margin + 10, 75);
-    doc.text('TOTAL MILLAS NÁUTICAS (est.)', margin + 80, 75);
+    // Draw background for stats
+    doc.setFillColor(248, 250, 252);
+    doc.setDrawColor(226, 232, 240);
+    doc.roundedRect(margin, statsY, width - (margin * 2), 25, 3, 3, 'FD');
 
-    doc.setTextColor(navy);
-    doc.setFontSize(24);
-    doc.setFont('helvetica', 'bold');
-    doc.text(`${data.totalHours.toFixed(1)} h`, margin + 10, 85);
-    doc.text(`${data.totalMiles.toFixed(1)} nm`, margin + 80, 85);
+    // Helper for stats
+    const drawStat = (label: string, value: string, x: number) => {
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(9);
+        doc.setTextColor(grey);
+        doc.text(label, x + (statBoxWidth / 2), statsY + 8, { align: 'center' });
 
-    // 4. Listado de Sesiones (Tabla Manual)
-    doc.setFontSize(12);
-    doc.text('DETALLE DE TRAVESÍAS Y PRÁCTICAS', margin, 105);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(14);
+        doc.setTextColor(navy);
+        doc.text(value, x + (statBoxWidth / 2), statsY + 18, { align: 'center' });
+    };
 
-    // Headers de tabla
-    const tableY = 115;
-    doc.setFillColor(240, 240, 240);
-    doc.rect(margin, tableY, width - (margin * 2), 8, 'F');
+    drawStat('TOTAL HORAS', `${data.totalHours.toFixed(1)} h`, margin);
+    drawStat('MILLAS (EST.)', `${data.totalMiles.toFixed(1)} nm`, margin + statBoxWidth);
+    drawStat('MARINAS VISITADAS', `${data.visitedMarinas}`, margin + (statBoxWidth * 2));
 
-    doc.setFontSize(9);
-    doc.setTextColor(navy);
-    doc.text('FECHA', margin + 2, tableY + 5);
-    doc.text('TIPO', margin + 30, tableY + 5);
-    doc.text('BARCO', margin + 70, tableY + 5);
-    doc.text('DURACIÓN', margin + 110, tableY + 5);
-    doc.text('ESTADO', margin + 140, tableY + 5);
+    // Separators
+    doc.setDrawColor(226, 232, 240);
+    doc.line(margin + statBoxWidth, statsY + 5, margin + statBoxWidth, statsY + 20);
+    doc.line(margin + (statBoxWidth * 2), statsY + 5, margin + (statBoxWidth * 2), statsY + 20);
 
-    let currentY = tableY + 15;
 
-    data.sessions.forEach((session, index) => {
-        if (currentY > height - 30) {
-            doc.addPage();
-            currentY = margin;
-        }
+    let currentY = 105;
 
-        const date = new Date(session.fecha).toLocaleDateString('es-ES');
-        const type = session.tipo || 'Práctica';
-        const boat = session.embarcacion || '---';
-        const duration = `${session.duracion_h}h`;
-        const status = session.verificado ? 'VERIFICADO' : 'PENDIENTE';
+    // 4. Diario de a Bordo (Diary Entries)
+    if (data.diaryEntries && data.diaryEntries.length > 0) {
+        doc.setFontSize(14);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(navy);
+        doc.text('DIARIO DE A BORDO', margin, currentY);
 
-        doc.setTextColor(0, 0, 0);
-        doc.text(date, margin + 2, currentY);
-        doc.text(type, margin + 30, currentY);
-        doc.text(boat, margin + 70, currentY);
-        doc.text(duration, margin + 110, currentY);
+        doc.setDrawColor(accent);
+        doc.setLineWidth(0.5);
+        doc.line(margin, currentY + 2, margin + 40, currentY + 2);
 
-        if (session.verificado) {
-            doc.setTextColor(0, 100, 0);
-        } else {
-            doc.setTextColor(150, 150, 0);
-        }
-        doc.text(status, margin + 140, currentY);
+        currentY += 15;
 
-        // Línea divisoria
-        doc.setDrawColor(230, 230, 230);
-        doc.line(margin, currentY + 3, width - margin, currentY + 3);
+        data.diaryEntries.forEach((entry) => {
+            // Check page break
+            if (currentY > height - 40) {
+                doc.addPage();
+                currentY = margin + 10;
+            }
+
+            // Entry Date
+            doc.setFontSize(10);
+            doc.setFont('helvetica', 'bold');
+            doc.setTextColor(navy);
+            const entryDate = new Date(entry.fecha).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
+            doc.text(entryDate, margin, currentY);
+
+            // Entry Content
+            doc.setFontSize(10);
+            doc.setFont('times', 'italic');
+            doc.setTextColor(50, 50, 50);
+
+            const splitContent = doc.splitTextToSize(`"${entry.contenido}"`, width - (margin * 2) - 10);
+            doc.text(splitContent, margin + 10, currentY + 6);
+
+            const contentHeight = splitContent.length * 5;
+
+            // Tags if present
+            if (entry.tags && entry.tags.length > 0) {
+                doc.setFont('helvetica', 'normal');
+                doc.setFontSize(8);
+                doc.setTextColor(grey);
+                const tagsText = entry.tags.map((t: string) => `#${t}`).join('  ');
+                doc.text(tagsText, margin + 10, currentY + 6 + contentHeight + 4);
+                currentY += 10;
+            }
+
+            // Connector line logic (visual only)
+            // doc.setDrawColor(200, 200, 200);
+            // doc.setLineWidth(0.1);
+            // doc.line(margin + 4, currentY + 2, margin + 4, currentY + 6 + contentHeight);
+
+            doc.setFillColor(202, 138, 4); // accent
+            doc.circle(margin + 2, currentY - 1, 1, 'F');
+
+            currentY += contentHeight + 15;
+        });
 
         currentY += 10;
+    }
+
+    // 5. Registro Oficial de Navegación (Sessions Table)
+    // Check page break before table
+    if (currentY > height - 60) {
+        doc.addPage();
+        currentY = margin + 10;
+    }
+
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(navy);
+    doc.text('REGISTRO OFICIAL DE NAVEGACIÓN', margin, currentY);
+
+    doc.setDrawColor(accent);
+    doc.setLineWidth(0.5);
+    doc.line(margin, currentY + 2, margin + 60, currentY + 2);
+
+    currentY += 10;
+
+    const tableBody = data.sessions.map(session => [
+        new Date(session.fecha).toLocaleDateString('es-ES'),
+        session.tipo || 'Práctica',
+        session.embarcacion || '---',
+        `${session.duracion_h}h`,
+        session.zona_nombre || '-',
+        session.verificado ? 'VERIFICADO' : 'PENDIENTE'
+    ]);
+
+    autoTable(doc, {
+        startY: currentY,
+        head: [['FECHA', 'TIPO', 'EMBARCACIÓN', 'DURACIÓN', 'ZONA', 'ESTADO']],
+        body: tableBody,
+        theme: 'grid',
+        headStyles: {
+            fillColor: [10, 22, 40], // navy
+            textColor: [255, 255, 255],
+            fontStyle: 'bold',
+            fontSize: 9,
+            halign: 'center'
+        },
+        bodyStyles: {
+            textColor: [50, 50, 50],
+            fontSize: 9
+        },
+        columnStyles: {
+            0: { cellWidth: 25 },
+            3: { halign: 'center' },
+            5: { halign: 'center', fontStyle: 'bold' }
+        },
+        alternateRowStyles: {
+            fillColor: [248, 250, 252]
+        },
+        didParseCell: (data) => {
+            if (data.section === 'body' && data.column.index === 5) {
+                const cell = data.cell;
+                if (cell.raw === 'VERIFICADO') {
+                    cell.styles.textColor = [22, 163, 74]; // green-600
+                } else {
+                    cell.styles.textColor = [202, 138, 4]; // yellow-600
+                }
+            }
+        }
     });
 
-    // 5. Pie de página
-    doc.setFontSize(8);
-    doc.setTextColor(grey);
-    const footerY = height - 15;
-    doc.text(`Generado el ${new Date().toLocaleString('es-ES')}`, margin, footerY);
-    doc.text('Este documento es un resumen informativo basado en los registros de Getxo Bela Eskola.', width - margin, footerY, { align: 'right' });
+    // 6. Pie de página y Notas
+    const pageCount = doc.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+        doc.setPage(i);
+        doc.setFontSize(8);
+        doc.setTextColor(grey);
+        const footerY = height - 10;
+
+        doc.line(margin, footerY - 5, width - margin, footerY - 5);
+        doc.text(`Generado el ${new Date().toLocaleString('es-ES')}`, margin, footerY);
+        doc.text(`Página ${i} de ${pageCount}`, width - margin, footerY, { align: 'right' });
+    }
 
     doc.save(`Bitacora_${data.studentName.replace(/\s+/g, '_')}.pdf`);
 };
