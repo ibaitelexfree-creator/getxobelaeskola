@@ -1,107 +1,139 @@
-'use client';
+import React, { useState, useMemo } from 'react';
+import { MontessoriTopic, InteractionResult, TopicCategory } from './types';
+import { TopicCard } from './TopicCard';
+import { RecommendationBanner } from './RecommendationBanner';
+import TopicStudyModal from './TopicStudyModal';
+import { Search, Filter } from 'lucide-react';
 
-import React, { useEffect, useState } from 'react';
-import { MontessoriGraph, MontessoriNode } from '@/lib/academy/montessori/types';
-import TopicNode from './TopicNode';
-import { Loader2, AlertTriangle, Compass } from 'lucide-react';
+interface MontessoriExplorerProps {
+    topics: MontessoriTopic[];
+    history: { topicId: string; result: InteractionResult; timestamp: number }[];
+    ability: number;
+    recommendedTopic: MontessoriTopic | null;
+    onRecordInteraction: (topicId: string, result: InteractionResult) => void;
+}
 
-export default function MontessoriExplorer() {
-    const [graph, setGraph] = useState<MontessoriGraph | null>(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
+const CATEGORIES: { id: TopicCategory | 'all'; label: string }[] = [
+    { id: 'all', label: 'Todo' },
+    { id: 'structure', label: 'Estructura' },
+    { id: 'rigging', label: 'Aparejo' },
+    { id: 'sails', label: 'Velas' },
+    { id: 'deck', label: 'Maniobra' },
+    { id: 'knots', label: 'Nudos' },
+    { id: 'lights', label: 'Luces' },
+    { id: 'flags', label: 'Banderas' },
+    { id: 'radio', label: 'Radio' }
+];
 
-    useEffect(() => {
-        fetch('/api/academy/montessori')
-            .then(res => {
-                if (!res.ok) throw new Error('Failed to load curriculum');
-                return res.json();
-            })
-            .then(data => {
-                setGraph(data);
-                setLoading(false);
-            })
-            .catch(err => {
-                console.error(err);
-                setError(err.message);
-                setLoading(false);
-            });
-    }, []);
+export const MontessoriExplorer: React.FC<MontessoriExplorerProps> = ({
+    topics,
+    history,
+    ability,
+    recommendedTopic,
+    onRecordInteraction
+}) => {
+    const [selectedCategory, setSelectedCategory] = useState<TopicCategory | 'all'>('all');
+    const [searchQuery, setSearchQuery] = useState('');
+    const [selectedTopic, setSelectedTopic] = useState<MontessoriTopic | null>(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
-    const handleNodeClick = (node: MontessoriNode) => {
-        // Navigate to the unit or show details
-        alert(`Iniciando módulo: ${node.title}\n(Simulación de navegación)`);
+    // Filter topics
+    const filteredTopics = useMemo(() => {
+        return topics.filter(topic => {
+            const matchesCategory = selectedCategory === 'all' || topic.category === selectedCategory;
+            const matchesSearch = topic.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                                  topic.description.toLowerCase().includes(searchQuery.toLowerCase());
+            return matchesCategory && matchesSearch;
+        });
+    }, [topics, selectedCategory, searchQuery]);
+
+    const handleTopicClick = (topic: MontessoriTopic) => {
+        setSelectedTopic(topic);
+        setIsModalOpen(true);
     };
 
-    if (loading) {
-        return (
-            <div className="flex flex-col items-center justify-center min-h-[400px] text-white/40">
-                <Loader2 className="w-8 h-8 animate-spin mb-4" />
-                <p>Cargando mapa de exploración...</p>
-            </div>
-        );
-    }
+    const handleRecordResult = (result: InteractionResult) => {
+        if (selectedTopic) {
+            onRecordInteraction(selectedTopic.id, result);
+        }
+    };
 
-    if (error || !graph) {
-        return (
-            <div className="flex flex-col items-center justify-center min-h-[400px] text-red-400">
-                <AlertTriangle className="w-12 h-12 mb-4" />
-                <p>Error al cargar el mapa.</p>
-                <button onClick={() => window.location.reload()} className="mt-4 text-sm underline">Reintentar</button>
-            </div>
-        );
-    }
+    const getTopicStatus = (topicId: string) => {
+        // Check if mastered (last result was success)
+        // Or if viewed (exists in history)
+        // For simplicity, just check if last interaction was success
+        const interactions = history.filter(h => h.topicId === topicId).sort((a, b) => b.timestamp - a.timestamp);
+        if (interactions.length > 0) {
+            return interactions[0].result === 'success' ? 'mastered' : 'available';
+        }
+        return 'available'; // Default to available
+    };
 
     return (
-        <div className="w-full max-w-6xl mx-auto p-4 md:p-8">
-            <header className="mb-12 text-center md:text-left">
-                <div className="flex items-center gap-3 mb-2 justify-center md:justify-start">
-                    <Compass className="w-6 h-6 text-accent animate-pulse-slow" />
-                    <span className="text-xs font-black uppercase tracking-widest text-accent">Modo Exploración</span>
-                </div>
-                <h1 className="text-3xl md:text-4xl font-display text-white mb-4">
-                    Tu Ruta de Aprendizaje
-                </h1>
-                <p className="text-white/60 max-w-2xl">
-                    Explora los temas a tu propio ritmo. El sistema te sugerirá el siguiente paso basándose en tus fortalezas.
-                </p>
-            </header>
+        <div className="space-y-8 animate-fade-in">
+            {/* Recommendation Banner */}
+            {recommendedTopic && (
+                <RecommendationBanner
+                    topic={recommendedTopic}
+                    onStart={() => handleTopicClick(recommendedTopic)}
+                />
+            )}
 
-            <div className="relative bg-nautical-panel/30 border border-white/5 rounded-3xl p-8 md:p-12 overflow-x-auto">
-                <div className="min-w-[600px] grid grid-cols-3 gap-8 md:gap-12 justify-items-center">
-                    {graph.nodes.map(node => {
-                        const style = node.position ? {
-                            gridColumn: node.position.x + 1,
-                            gridRow: node.position.y + 1
-                        } : {};
-
-                        const isRecommended = graph.recommendedNodeId === node.id;
-                        const progress = graph.userProgress[node.id];
-
-                        return (
-                            <div
-                                key={node.id}
-                                style={style}
-                                className="flex justify-center w-full"
-                            >
-                                <TopicNode
-                                    node={node}
-                                    progress={progress}
-                                    isRecommended={isRecommended}
-                                    onClick={handleNodeClick}
-                                />
-                            </div>
-                        );
-                    })}
+            {/* Filters & Search */}
+            <div className="flex flex-col md:flex-row gap-4 items-center justify-between sticky top-24 z-20 bg-nautical-deep/90 backdrop-blur py-4 border-b border-white/5">
+                <div className="flex items-center gap-2 overflow-x-auto max-w-full pb-2 md:pb-0 scrollbar-hide">
+                    {CATEGORIES.map(cat => (
+                        <button
+                            key={cat.id}
+                            onClick={() => setSelectedCategory(cat.id)}
+                            className={`px-4 py-2 rounded-full text-xs font-black uppercase tracking-widest whitespace-nowrap transition-all ${
+                                selectedCategory === cat.id
+                                    ? 'bg-accent text-nautical-black'
+                                    : 'bg-white/5 text-white/60 hover:bg-white/10'
+                            }`}
+                        >
+                            {cat.label}
+                        </button>
+                    ))}
                 </div>
 
-                <div className="absolute inset-0 pointer-events-none">
-                     {/* SVG lines could be drawn here based on coords */}
+                <div className="relative w-full md:w-64">
+                    <input
+                        type="text"
+                        placeholder="Buscar concepto..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="w-full bg-white/5 border border-white/10 rounded-full py-2 pl-10 pr-4 text-sm text-white focus:outline-none focus:border-accent/50 transition-colors placeholder:text-white/20"
+                    />
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
                 </div>
             </div>
 
-            <div className="mt-8 text-center text-white/20 text-xs">
-                * Las sugerencias se actualizan automáticamente según tu desempeño.
+            {/* Topics Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 pb-24">
+                {filteredTopics.map(topic => (
+                    <TopicCard
+                        key={topic.id}
+                        topic={topic}
+                        status={getTopicStatus(topic.id)}
+                        onClick={() => handleTopicClick(topic)}
+                    />
+                ))}
+
+                {filteredTopics.length === 0 && (
+                    <div className="col-span-full py-20 text-center text-white/40">
+                        <p className="text-sm uppercase tracking-widest">No se encontraron temas</p>
+                    </div>
+                )}
             </div>
+
+            {/* Study Modal */}
+            <TopicStudyModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                topic={selectedTopic}
+                onRecordResult={handleRecordResult}
+            />
         </div>
     );
-}
+};
