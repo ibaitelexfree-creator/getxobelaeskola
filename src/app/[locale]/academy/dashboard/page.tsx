@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
-import { X, Book, Ship, Globe, Anchor, Wind, Shield, ChevronRight, Trophy } from 'lucide-react';
+import { X, Book, Ship, Globe, Anchor, Wind, Shield, ChevronRight } from 'lucide-react';
 import { useNotificationStore } from '@/lib/store/useNotificationStore';
 import dynamic from 'next/dynamic';
 
@@ -19,6 +19,7 @@ const CareerAdvisor = dynamic(() => import('@/components/academy/dashboard/Caree
 const NavigationExperienceMap = dynamic(() => import('@/components/academy/dashboard/NavigationExperienceMap'), { ssr: false });
 const DailyChallengeWidget = dynamic(() => import('@/components/academy/dashboard/DailyChallengeWidget'), { ssr: false });
 const AchievementsWidget = dynamic(() => import('@/components/academy/dashboard/AchievementsWidget'), { ssr: false });
+const WelcomeWizard = dynamic(() => import('@/components/academy/onboarding/WelcomeWizard'), { ssr: false });
 
 import AcademySkeleton from '@/components/academy/AcademySkeleton';
 import { getRank, calculateEstimatedXP } from '@/lib/gamification/ranks';
@@ -119,6 +120,7 @@ interface DashboardData {
     user: {
         full_name: string;
         avatar_url: string;
+        onboarding_completed?: boolean;
     };
     progreso: any[];
     habilidades: HabilidadItem[];
@@ -137,6 +139,7 @@ export default function DashboardPage({ params }: { params: { locale: string } }
     const [data, setData] = useState<DashboardData | null>(null);
     const [cursos, setCursos] = useState<Curso[]>([]);
     const [loading, setLoading] = useState(true);
+    const [showOnboarding, setShowOnboarding] = useState(false);
     const { addNotification, clearNotifications } = useNotificationStore();
 
     let MOTIVATIONAL_QUOTES: string[] = [];
@@ -183,6 +186,12 @@ export default function DashboardPage({ params }: { params: { locale: string } }
         }
         fetchData();
     }, []);
+
+    useEffect(() => {
+        if (data && data.user && data.user.onboarding_completed === false) {
+            setShowOnboarding(true);
+        }
+    }, [data]);
 
     useEffect(() => {
         if (!data) return;
@@ -293,6 +302,17 @@ export default function DashboardPage({ params }: { params: { locale: string } }
     return (
         <div className="min-h-screen bg-gradient-to-b from-nautical-black via-nautical-black to-[#0a1628] text-white pb-20">
             <h1 className="sr-only">Dashboard de Academia | Getxo Bela Eskola</h1>
+
+            {showOnboarding && data?.user && (
+                <WelcomeWizard
+                    userName={data.user.full_name.split(' ')[0]}
+                    onComplete={() => {
+                        setShowOnboarding(false);
+                        window.location.reload();
+                    }}
+                />
+            )}
+
             <NotificationContainer />
             <AchievementToast />
             <SkillUnlockedModal />
@@ -396,13 +416,6 @@ export default function DashboardPage({ params }: { params: { locale: string } }
                             icon: <Shield className="w-5 h-5" />,
                             color: 'text-red-400 bg-red-500/10 hover:bg-red-500/20',
                             href: `/${params.locale}/academy/skills`
-                        },
-                        {
-                            id: 'leaderboard',
-                            label: 'Clasificación',
-                            icon: <Trophy className="w-5 h-5" />,
-                            color: 'text-yellow-400 bg-yellow-500/10 hover:bg-yellow-500/20',
-                            href: `/${params.locale}/academy/leaderboard`
                         }
                     ].map((tool) => (
                         <Link
