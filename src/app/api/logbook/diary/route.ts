@@ -1,3 +1,4 @@
+
 import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
 import { requireAuth } from '@/lib/auth-guard';
@@ -21,7 +22,26 @@ export async function GET() {
 
         if (dbError) throw dbError;
 
-        return NextResponse.json(data);
+        // Fetch Feedback
+        const entryIds = data?.map((e: any) => e.id) || [];
+        let feedback: any[] = [];
+
+        if (entryIds.length > 0) {
+            const { data: fbData } = await supabase
+                .from('instructor_feedback')
+                .select('*')
+                .in('context_id', entryIds)
+                .eq('context_type', 'logbook');
+            feedback = fbData || [];
+        }
+
+        // Merge
+        const entriesWithFeedback = data?.map((entry: any) => ({
+            ...entry,
+            feedback: feedback.filter((f: any) => f.context_id === entry.id) || []
+        })) || [];
+
+        return NextResponse.json(entriesWithFeedback);
     } catch (err) {
         console.error('Error fetching diary entries:', err);
         return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
@@ -37,35 +57,21 @@ export async function POST(req: Request) {
         }
 
         const body = await req.json();
-        const {
-            contenido,
-            estado_animo,
-            tags,
-            marina_salida,
-            tripulacion,
-            condiciones_viento,
-            maniobras,
-            observaciones,
-            fecha
-        } = body;
+        const { contenido, estado_animo, tags } = body;
 
-        // Ensure contenido is not null (legacy field support)
-        const finalContenido = contenido || observaciones || 'Sin observaciones';
+        if (!contenido) {
+            return NextResponse.json({ error: 'Contenido es requerido' }, { status: 400 });
+        }
 
         const supabase = createClient();
         const { data, error: dbError } = await supabase
             .from('bitacora_personal')
             .insert({
                 alumno_id: user.id,
-                contenido: finalContenido,
+                contenido,
                 estado_animo: estado_animo || 'discovery',
                 tags: tags || [],
-                fecha: fecha ? new Date(fecha).toISOString() : new Date().toISOString(),
-                marina_salida,
-                tripulacion,
-                condiciones_viento: condiciones_viento || {},
-                maniobras: maniobras || [],
-                observaciones
+                fecha: new Date().toISOString()
             })
             .select()
             .single();

@@ -25,7 +25,7 @@ export default function RealtimeNotifications() {
                         table: 'logros_alumno',
                         filter: `alumno_id=eq.${user.id}`
                     },
-                    async (payload: { new: { logro_id: string } }) => {
+                    async (payload: any) => {
                         // Obtener detalles del logro
                         const { data: logro } = await supabase
                             .from('logros')
@@ -35,7 +35,7 @@ export default function RealtimeNotifications() {
 
                         if (logro) {
                             addNotification({
-                                type: 'achievement',
+                                type: 'achievement' as any,
                                 title: logro.nombre_es,
                                 message: logro.descripcion_es,
                                 icon: logro.icono || '🏆',
@@ -61,7 +61,7 @@ export default function RealtimeNotifications() {
                         table: 'student_skills',
                         filter: `student_id=eq.${user.id}`
                     },
-                    async (payload: { new: { skill_id: string } }) => {
+                    async (payload: any) => {
                         // Obtener detalles de la skill
                         const { data: skill } = await supabase
                             .from('skills')
@@ -71,7 +71,7 @@ export default function RealtimeNotifications() {
 
                         if (skill) {
                             addNotification({
-                                type: 'skill',
+                                type: 'skill' as any,
                                 title: skill.name,
                                 message: skill.description,
                                 icon: skill.icon || '⚡',
@@ -85,9 +85,40 @@ export default function RealtimeNotifications() {
                 )
                 .subscribe();
 
+            // Escuchar Feedback del Instructor
+            const feedbackSub = supabase
+                .channel('realtime_feedback')
+                .on(
+                    'postgres_changes',
+                    {
+                        event: 'INSERT',
+                        schema: 'public',
+                        table: 'instructor_feedback',
+                        filter: `student_id=eq.${user.id}`
+                    },
+                    (payload: any) => {
+                        const newFeedback = payload.new;
+                        const contextTitle = newFeedback.context_type === 'logbook' ? 'Bitácora' : 'Evaluación';
+
+                        addNotification({
+                            type: 'info' as any,
+                            title: 'Nuevo Feedback',
+                            message: `Tu instructor ha comentado en tu ${contextTitle}.`,
+                            icon: '💬',
+                            duration: 8000,
+                            data: {
+                                context_id: newFeedback.context_id,
+                                context_type: newFeedback.context_type
+                            }
+                        });
+                    }
+                )
+                .subscribe();
+
             return () => {
                 supabase.removeChannel(logrosSub);
                 supabase.removeChannel(skillsSub);
+                supabase.removeChannel(feedbackSub);
             };
         }
 

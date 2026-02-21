@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { EvaluationResult } from './types';
 import MotivationalMessages from '@/components/academy/MotivationalMessages';
+import FeedbackDisplay from '@/components/shared/feedback/FeedbackDisplay';
 
 interface ResultScreenProps {
     result: EvaluationResult;
@@ -9,6 +10,7 @@ interface ResultScreenProps {
     onClose: () => void;
     maxAttemptsExceeded?: boolean;
     cooldownActive?: boolean;
+    attemptId?: string;
 }
 
 /**
@@ -40,10 +42,25 @@ export default function ResultScreen({
     onRetry,
     onClose,
     maxAttemptsExceeded = false,
-    cooldownActive = false
+    cooldownActive = false,
+    attemptId
 }: ResultScreenProps) {
     const isPassing = result.passed;
     const [showDetails, setShowDetails] = useState(false);
+    const [instructorFeedback, setInstructorFeedback] = useState<any[]>([]);
+
+    useEffect(() => {
+        if (attemptId) {
+            fetch(`/api/feedback?context_id=${attemptId}&context_type=evaluation`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.feedback) {
+                        setInstructorFeedback(data.feedback);
+                    }
+                })
+                .catch(err => console.error('Error fetching feedback', err));
+        }
+    }, [attemptId]);
 
     return (
         <>
@@ -103,6 +120,14 @@ export default function ResultScreen({
                             {result.feedback}
                         </p>
                     </div>
+
+                    {/* INSTRUCTOR FEEDBACK */}
+                    {instructorFeedback.length > 0 && (
+                        <div className="w-full max-w-2xl mx-auto animate-in slide-in-from-bottom-4">
+                            <FeedbackDisplay feedback={instructorFeedback} />
+                        </div>
+                    )}
+
 
                     {/* Detailed Review Section */}
                     {result.details && result.details.length > 0 && (
@@ -198,4 +223,3 @@ export default function ResultScreen({
         </>
     );
 }
-

@@ -1,70 +1,16 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import dynamic from 'next/dynamic';
-
+import { useParams } from 'next/navigation';
 import {
     Book, MapPin, Award, Ship, Waves, Wind,
-    Anchor, Calendar, Download, Plus, Trash2, Layers, HelpCircle
+    ChevronRight, Anchor, Calendar, Download, Plus, Trash2, Smile, Layers, HelpCircle
 } from 'lucide-react';
 import { apiUrl } from '@/lib/api';
 import { useAcademyFeedback } from '@/hooks/useAcademyFeedback';
 import { useSmartTracker } from '@/hooks/useSmartTracker';
-import jsPDF from 'jspdf';
-import autoTable from 'jspdf-autotable';
-
-
-interface WindConditions {
-    nudos: string;
-    direccion: string;
-}
-
-interface DiaryEntry {
-    id: string;
-    fecha: string;
-    marina_salida?: string;
-    tripulacion?: string;
-    condiciones_viento?: WindConditions;
-    maniobras?: string[];
-    observaciones?: string;
-    contenido?: string;
-    tags?: string[];
-}
-
-interface Session {
-    id: string;
-    fecha: string;
-    tipo: string;
-    embarcacion: string;
-    duracion_h: number;
-    verificado: boolean;
-}
-
-interface Statistics {
-    horas_totales: number;
-}
-
-interface UserProfile {
-    full_name: string;
-}
-
-interface OfficialData {
-    horas: Session[];
-    estadisticas: Statistics;
-    user: UserProfile;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    habilidades?: any[];
-}
-
-interface Skill {
-    id: string;
-    nombre_es: string;
-    descripcion_es: string;
-    icono: string;
-    categoria: string;
-    obtenida?: boolean;
-    fecha_obtencion?: string;
-}
+import FeedbackDisplay from '@/components/shared/feedback/FeedbackDisplay';
 
 // Direct dynamic import with explicit default handling
 const LeafletMap = dynamic(
@@ -84,21 +30,15 @@ const LeafletMap = dynamic(
 
 export default function Logbook() {
     const [activeTab, setActiveTab] = useState<'official' | 'map' | 'skills' | 'diary'>('official');
-    const [officialData, setOfficialData] = useState<OfficialData | null>(null);
-    const [diaryEntries, setDiaryEntries] = useState<DiaryEntry[]>([]);
-    const [allSkills, setAllSkills] = useState<Skill[]>([]);
+    const [officialData, setOfficialData] = useState<any>(null);
+    const [diaryEntries, setDiaryEntries] = useState<any[]>([]);
+    const [allSkills, setAllSkills] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [loadingDiary, setLoadingDiary] = useState(false);
     const [isSavingDiary, setIsSavingDiary] = useState(false);
-    const [newDate, setNewDate] = useState(new Date().toISOString().split('T')[0]);
-    const [marinaSalida, setMarinaSalida] = useState('');
-    const [tripulacion, setTripulacion] = useState('');
-    const [vientoNudos, setVientoNudos] = useState('');
-    const [vientoDireccion, setVientoDireccion] = useState('');
-    const [maniobras, setManiobras] = useState('');
-    const [observaciones, setObservaciones] = useState('');
-    const [selectedPoint, setSelectedPoint] = useState<OfficialData | null>(null);
-
+    const [newDiaryContent, setNewDiaryContent] = useState('');
+    const [selectedPoint, setSelectedPoint] = useState<any>(null);
+    const params = useParams();
     const { showMessage } = useAcademyFeedback();
 
     async function loadDiary() {
@@ -200,77 +140,19 @@ export default function Logbook() {
         }
     }, [activeTab]);
 
-        const exportToPDF = () => {
-        const doc = new jsPDF();
-
-        // Title
-        doc.setFontSize(18);
-        doc.text('Cuaderno de Bitácora - Getxo Bela Eskola', 14, 22);
-
-        // Subtitle with user name
-        doc.setFontSize(12);
-        doc.text(`Alumno: ${officialData?.user?.full_name || 'N/A'}`, 14, 32);
-        doc.text(`Fecha de exportación: ${new Date().toLocaleDateString()}`, 14, 38);
-
-        // Table Data
-        const tableData = diaryEntries.map(entry => [
-            new Date(entry.fecha).toLocaleDateString(),
-            entry.marina_salida || '-',
-            entry.tripulacion || '-',
-            entry.condiciones_viento ? `${entry.condiciones_viento.nudos || '-'} kn ${entry.condiciones_viento.direccion || ''}` : '-',
-            entry.maniobras ? entry.maniobras.join(', ') : '-',
-            entry.observaciones || entry.contenido || '-'
-        ]);
-
-        autoTable(doc, {
-            head: [['Fecha', 'Marina', 'Tripulación', 'Viento', 'Maniobras', 'Observaciones']],
-            body: tableData,
-            startY: 45,
-            styles: { fontSize: 8, cellPadding: 2 },
-            headStyles: { fillColor: [41, 128, 185] }, // Blue color
-            columnStyles: {
-                0: { cellWidth: 20 }, // Fecha
-                1: { cellWidth: 25 }, // Marina
-                2: { cellWidth: 30 }, // Tripulacion
-                3: { cellWidth: 20 }, // Viento
-                4: { cellWidth: 40 }, // Maniobras
-                5: { cellWidth: 'auto' } // Observaciones
-            }
-        });
-
-        doc.save('bitacora_getxo_bela_eskola.pdf');
-    };
-
-const handleAddDiaryEntry = async () => {
-        if (!observaciones.trim() && !marinaSalida.trim()) return;
+    const handleAddDiaryEntry = async () => {
+        if (!newDiaryContent.trim()) return;
 
         setIsSavingDiary(true);
         try {
             const res = await fetch(apiUrl('/api/logbook/diary'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    fecha: newDate,
-                    marina_salida: marinaSalida,
-                    tripulacion: tripulacion,
-                    condiciones_viento: {
-                        nudos: vientoNudos,
-                        direccion: vientoDireccion
-                    },
-                    maniobras: maniobras.split('\n').filter(m => m.trim()),
-                    observaciones: observaciones,
-                    contenido: observaciones
-                })
+                body: JSON.stringify({ contenido: newDiaryContent })
             });
 
             if (res.ok) {
-                setObservaciones('');
-                setMarinaSalida('');
-                setTripulacion('');
-                setVientoNudos('');
-                setVientoDireccion('');
-                setManiobras('');
-                setNewDate(new Date().toISOString().split('T')[0]);
+                setNewDiaryContent('');
                 loadDiary();
                 showMessage('Éxito', 'Entrada guardada en tu diario', 'success');
             } else {
@@ -342,7 +224,7 @@ const handleAddDiaryEntry = async () => {
                 ].map((tab) => (
                     <button
                         key={tab.id}
-                        onClick={() => setActiveTab(tab.id as "official" | "map" | "skills" | "diary")}
+                        onClick={() => setActiveTab(tab.id as any)}
                         className={`flex items-center gap-2 px-6 py-3 rounded-full text-[10px] font-black uppercase tracking-widest transition-all
                             ${activeTab === tab.id
                                 ? 'bg-accent text-nautical-black shadow-lg shadow-accent/20 scale-105'
@@ -382,7 +264,7 @@ const handleAddDiaryEntry = async () => {
 
                         <div className="grid grid-cols-1 gap-6">
                             {sessions.length > 0 ? (
-                                sessions.map((session: Session) => (
+                                sessions.map((session: any) => (
                                     <div key={session.id} className="group bg-white/[0.03] hover:bg-white/[0.07] border border-white/10 rounded-3xl p-8 transition-all duration-500">
                                         <div className="flex flex-col md:flex-row md:items-center justify-between gap-8">
                                             <div className="flex items-center gap-8">
@@ -526,7 +408,7 @@ const handleAddDiaryEntry = async () => {
                         </header>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {(allSkills.length > 0 ? allSkills : (officialData?.habilidades || [])).map((h: unknown) => {
+                            {(allSkills.length > 0 ? allSkills : (officialData?.habilidades || [])).map((h: any) => {
                                 const skill = h.habilidad || h;
                                 const isObtained = h.obtenida || !!h.fecha_obtencion;
 
@@ -568,92 +450,31 @@ const handleAddDiaryEntry = async () => {
                                 </div>
                                 <div>
                                     <h3 className="text-xl font-bold text-white italic">Nueva Entrada de Diario</h3>
-                                    <p className="text-white/40 text-[10px] uppercase tracking-widest">Registra tu experiencia náutica</p>
+                                    <p className="text-white/40 text-[10px] uppercase tracking-widest">Tus reflexiones personales de mar</p>
                                 </div>
                             </div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                                <div>
-                                    <label className="text-[10px] uppercase tracking-widest text-white/40 mb-2 block">Fecha</label>
-                                    <input
-                                        type="date"
-                                        value={newDate}
-                                        onChange={(e) => setNewDate(e.target.value)}
-                                        className="w-full bg-black/40 border border-white/5 rounded-2xl p-4 text-white text-sm focus:outline-none focus:border-accent/40"
-                                    />
+                            <textarea
+                                value={newDiaryContent}
+                                onChange={(e) => setNewDiaryContent(e.target.value)}
+                                placeholder="Hoy la mar estaba brava... Mis sensaciones al timón fueron..."
+                                className="w-full bg-black/40 border border-white/5 rounded-3xl p-6 text-white text-sm focus:outline-none focus:border-accent/40 min-h-[150px] transition-all resize-none mb-6"
+                            />
+
+                            <div className="flex items-center justify-between">
+                                <div className="flex gap-2">
+                                    <button className="w-10 h-10 bg-white/5 hover:bg-white/10 rounded-full flex items-center justify-center text-white/40 transition-colors">
+                                        <Smile size={18} />
+                                    </button>
+                                    <button className="w-10 h-10 bg-white/5 hover:bg-white/10 rounded-full flex items-center justify-center text-white/40 transition-colors">
+                                        <MapPin size={18} />
+                                    </button>
                                 </div>
-                                <div>
-                                    <label className="text-[10px] uppercase tracking-widest text-white/40 mb-2 block">Marina de Salida</label>
-                                    <input
-                                        type="text"
-                                        value={marinaSalida}
-                                        onChange={(e) => setMarinaSalida(e.target.value)}
-                                        placeholder="Ej. Real Club Marítimo"
-                                        className="w-full bg-black/40 border border-white/5 rounded-2xl p-4 text-white text-sm focus:outline-none focus:border-accent/40"
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="mb-6">
-                                <label className="text-[10px] uppercase tracking-widest text-white/40 mb-2 block">Tripulación</label>
-                                <input
-                                    type="text"
-                                    value={tripulacion}
-                                    onChange={(e) => setTripulacion(e.target.value)}
-                                    placeholder="Nombres de los tripulantes..."
-                                    className="w-full bg-black/40 border border-white/5 rounded-2xl p-4 text-white text-sm focus:outline-none focus:border-accent/40"
-                                />
-                            </div>
-
-                            <div className="grid grid-cols-2 gap-6 mb-6">
-                                <div>
-                                    <label className="text-[10px] uppercase tracking-widest text-white/40 mb-2 block">Viento (Nudos)</label>
-                                    <input
-                                        type="number"
-                                        value={vientoNudos}
-                                        onChange={(e) => setVientoNudos(e.target.value)}
-                                        placeholder="Ej. 12"
-                                        className="w-full bg-black/40 border border-white/5 rounded-2xl p-4 text-white text-sm focus:outline-none focus:border-accent/40"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="text-[10px] uppercase tracking-widest text-white/40 mb-2 block">Dirección Viento</label>
-                                    <input
-                                        type="text"
-                                        value={vientoDireccion}
-                                        onChange={(e) => setVientoDireccion(e.target.value)}
-                                        placeholder="Ej. NW"
-                                        className="w-full bg-black/40 border border-white/5 rounded-2xl p-4 text-white text-sm focus:outline-none focus:border-accent/40"
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="mb-6">
-                                <label className="text-[10px] uppercase tracking-widest text-white/40 mb-2 block">Maniobras Practicadas</label>
-                                <textarea
-                                    value={maniobras}
-                                    onChange={(e) => setManiobras(e.target.value)}
-                                    placeholder="Viradas, trasluchadas, rizos..."
-                                    className="w-full bg-black/40 border border-white/5 rounded-2xl p-4 text-white text-sm focus:outline-none focus:border-accent/40 min-h-[100px] resize-none"
-                                />
-                            </div>
-
-                            <div className="mb-6">
-                                <label className="text-[10px] uppercase tracking-widest text-white/40 mb-2 block">Observaciones</label>
-                                <textarea
-                                    value={observaciones}
-                                    onChange={(e) => setObservaciones(e.target.value)}
-                                    placeholder="Reflexiones sobre la navegación, estado del mar..."
-                                    className="w-full bg-black/40 border border-white/5 rounded-2xl p-4 text-white text-sm focus:outline-none focus:border-accent/40 min-h-[150px] resize-none"
-                                />
-                            </div>
-
-                            <div className="flex items-center justify-end">
                                 <button
                                     onClick={handleAddDiaryEntry}
-                                    disabled={isSavingDiary || (!observaciones.trim() && !marinaSalida.trim())}
+                                    disabled={isSavingDiary || !newDiaryContent.trim()}
                                     className={`px-8 py-3 rounded-full text-[10px] font-black uppercase tracking-widest transition-all
-                                        ${(observaciones.trim() || marinaSalida.trim())
+                                        ${newDiaryContent.trim()
                                             ? 'bg-accent text-nautical-black shadow-lg shadow-accent/20 hover:scale-105'
                                             : 'bg-white/5 text-white/20'
                                         }`}
@@ -665,22 +486,14 @@ const handleAddDiaryEntry = async () => {
 
                         {/* Recent Entries */}
                         <div className="space-y-6">
-                            <div className="flex items-center justify-between ml-4 mb-4">
-                                <h4 className="text-[10px] uppercase tracking-widest text-white/20 font-black">Entradas Recientes</h4>
-                                <button
-                                    onClick={exportToPDF}
-                                    className="text-[10px] uppercase tracking-widest text-accent hover:text-white transition-colors flex items-center gap-2"
-                                >
-                                    <Download size={14} /> Exportar PDF
-                                </button>
-                            </div>
+                            <h4 className="text-[10px] uppercase tracking-widest text-white/20 font-black ml-4">Entradas Recientes</h4>
 
                             {loadingDiary ? (
                                 <div className="py-12 flex justify-center">
                                     <div className="animate-spin rounded-full h-8 w-8 border-2 border-accent border-t-transparent"></div>
                                 </div>
                             ) : diaryEntries.length > 0 ? (
-                                diaryEntries.map((entry: DiaryEntry) => (
+                                diaryEntries.map((entry: any) => (
                                     <div key={entry.id} className="group bg-white/[0.02] hover:bg-white/[0.04] border border-white/5 rounded-[2.2rem] p-8 transition-all relative overflow-hidden">
                                         <div className="relative z-10">
                                             <div className="flex items-center justify-between mb-4">
@@ -697,62 +510,16 @@ const handleAddDiaryEntry = async () => {
                                                     <Trash2 size={14} />
                                                 </button>
                                             </div>
+                                            <p className="text-white/70 leading-relaxed italic font-serif">
+                                                "{entry.contenido}"
+                                            </p>
 
-                                            {/* Logbook Details Grid */}
-                                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 border-b border-white/5 pb-6">
-                                                {entry.marina_salida && (
-                                                    <div>
-                                                        <span className="text-[8px] uppercase tracking-widest text-white/20 block mb-1">Salida</span>
-                                                        <span className="text-xs text-white/70">{entry.marina_salida}</span>
-                                                    </div>
-                                                )}
-                                                {entry.tripulacion && (
-                                                    <div>
-                                                        <span className="text-[8px] uppercase tracking-widest text-white/20 block mb-1">Tripulación</span>
-                                                        <span className="text-xs text-white/70 truncate">{entry.tripulacion}</span>
-                                                    </div>
-                                                )}
-                                                {entry.condiciones_viento?.nudos && (
-                                                    <div>
-                                                        <span className="text-[8px] uppercase tracking-widest text-white/20 block mb-1">Viento</span>
-                                                        <span className="text-xs text-white/70">{entry.condiciones_viento.nudos} kn {entry.condiciones_viento.direccion}</span>
-                                                    </div>
-                                                )}
-                                                {entry.maniobras && entry.maniobras.length > 0 && (
-                                                    <div>
-                                                        <span className="text-[8px] uppercase tracking-widest text-white/20 block mb-1">Maniobras</span>
-                                                        <span className="text-xs text-white/70">{entry.maniobras.length} registradas</span>
-                                                    </div>
-                                                )}
-                                            </div>
-
-                                            {entry.observaciones && (
-                                                <div className="mb-4">
-                                                    <span className="text-[8px] uppercase tracking-widest text-white/20 block mb-2">Observaciones</span>
-                                                    <p className="text-white/70 leading-relaxed italic font-serif text-sm">
-                                                        &quot;{entry.observaciones}&quot;
-                                                    </p>
-                                                </div>
+                                            {/* FEEDBACK DISPLAY */}
+                                            {entry.feedback && entry.feedback.length > 0 && (
+                                                <FeedbackDisplay feedback={entry.feedback} />
                                             )}
 
-                                            {!entry.observaciones && entry.contenido && (
-                                                 <p className="text-white/70 leading-relaxed italic font-serif text-sm">
-                                                    &quot;{entry.contenido}&quot;
-                                                </p>
-                                            )}
-
-                                            {entry.maniobras && entry.maniobras.length > 0 && (
-                                                <div className="flex flex-wrap gap-2 mt-4">
-                                                    {entry.maniobras.map((m: string, idx: number) => (
-                                                        <span key={idx} className="text-[8px] uppercase tracking-tighter bg-white/5 px-2 py-0.5 rounded text-white/20 font-black">
-                                                            {m}
-                                                        </span>
-                                                    ))}
-                                                </div>
-                                            )}
-
-                                            {/* Legacy tags support if any */}
-                                            {(!entry.maniobras || entry.maniobras.length === 0) && entry.tags && entry.tags.length > 0 && (
+                                            {entry.tags && entry.tags.length > 0 && (
                                                 <div className="flex gap-2 mt-4">
                                                     {entry.tags.map((tag: string) => (
                                                         <span key={tag} className="text-[8px] uppercase tracking-tighter bg-white/5 px-2 py-0.5 rounded text-white/20 font-black">
