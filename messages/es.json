@@ -951,5 +951,9 @@
     "history_direction": "Dirección",
     "history_temp": "Temp (ºC)",
     "history_tide": "Marea (m)"
+  },
+  "lab": {
+    "title": "Mareas y Corrientes",
+    "subtitle": "Simulación Interactiva"
   }
 }
