@@ -909,6 +909,52 @@
     "loading": "Cargando...",
     "portal_error": "Error al abrir el portal de pagos"
   },
+  "tools": {
+    "index": {
+      "eyebrow": "Herramientas Náuticas",
+      "title": "Puente Digital",
+      "description": "Una colección de herramientas esenciales para la navegación, planificación y seguridad en el mar. Diseñado por navegantes para navegantes.",
+      "converter": {
+        "title": "Convertidor Náutico",
+        "description": "Convertidor profesional de unidades para velocidad, distancia, profundidad y presión. Incluye historial y preajustes rápidos.",
+        "cta": "Lanzar Convertidor"
+      },
+      "plotter": {
+        "title": "Plotter de Cartas",
+        "description": "Practica tus habilidades de navegación con nuestro plotter interactivo. Traza rumbos, mide distancias y más.",
+        "cta": "Abrir Plotter"
+      }
+    },
+    "nautical_converter": {
+      "eyebrow": "Utilidad",
+      "title": "Convertidor Náutico",
+      "description": "Herramienta de precisión para convertir entre unidades marítimas y estándar.",
+      "input": "Valor de Entrada",
+      "result": "Resultado",
+      "history": "Conversiones Recientes",
+      "clear_history": "Borrar Historial",
+      "speed": "Velocidad",
+      "distance": "Distancia",
+      "depth": "Profundidad",
+      "temperature": "Temp",
+      "pressure": "Presión",
+      "units": {
+        "knots": "Nudos",
+        "kmh": "km/h",
+        "ms": "m/s",
+        "meters": "Metros",
+        "feet": "Pies",
+        "nautical_miles": "Millas Náuticas",
+        "km": "Kilómetros",
+        "fathoms": "Brazas",
+        "celsius": "Celsius",
+        "fahrenheit": "Fahrenheit",
+        "hpa": "hPa",
+        "mb": "Milibares",
+        "inhg": "inHg"
+      }
+    }
+  },
   "nautical_radar": {
     "title": "Radar de Navegación \"Puente de Mando\"",
     "location": "Arriluze Kaia — Getxo",

@@ -908,6 +908,52 @@
     "loading": "Loading...",
     "portal_error": "Error opening payment portal"
   },
+  "tools": {
+    "index": {
+      "eyebrow": "Nautical Tools",
+      "title": "Digital Bridge",
+      "description": "A collection of essential tools for navigation, planning, and safety at sea. Designed for sailors by sailors.",
+      "converter": {
+        "title": "Nautical Converter",
+        "description": "Professional unit converter for speed, distance, depth, and pressure. Includes history and quick presets.",
+        "cta": "Launch Converter"
+      },
+      "plotter": {
+        "title": "Chart Plotter",
+        "description": "Practice your navigation skills with our interactive chart plotter. Plot courses, measure distances, and more.",
+        "cta": "Open Plotter"
+      }
+    },
+    "nautical_converter": {
+      "eyebrow": "Utility",
+      "title": "Nautical Converter",
+      "description": "Precision tool for converting between maritime and standard units.",
+      "input": "Input Value",
+      "result": "Result",
+      "history": "Recent Conversions",
+      "clear_history": "Clear History",
+      "speed": "Speed",
+      "distance": "Distance",
+      "depth": "Depth",
+      "temperature": "Temp",
+      "pressure": "Pressure",
+      "units": {
+        "knots": "Knots",
+        "kmh": "km/h",
+        "ms": "m/s",
+        "meters": "Meters",
+        "feet": "Feet",
+        "nautical_miles": "Nautical Miles",
+        "km": "Kilometers",
+        "fathoms": "Fathoms",
+        "celsius": "Celsius",
+        "fahrenheit": "Fahrenheit",
+        "hpa": "hPa",
+        "mb": "Millibars",
+        "inhg": "inHg"
+      }
+    }
+  },
   "nautical_radar": {
     "title": "Bridge Command Navigation Radar",
     "location": "Arriluze Kaia — Getxo",
