@@ -8,7 +8,7 @@ import { KnotMission } from './missions/KnotMission';
 import { InventoryMission } from './missions/InventoryMission';
 import { SimulatorEmbedMission } from './missions/SimulatorEmbedMission';
 import { HotspotMission } from './missions/HotspotMission';
-import BranchingMission from './missions/BranchingMission';
+import { BranchingScenarioMission } from './missions/BranchingScenarioMission';
 
 // Registry Map
 export const MISSION_REGISTRY: Record<MissionType, React.ComponentType<any>> = {
@@ -17,7 +17,7 @@ export const MISSION_REGISTRY: Record<MissionType, React.ComponentType<any>> = {
     'inventario': InventoryMission,
     'simulador': SimulatorEmbedMission,
     'hotspot': HotspotMission,
-    'interactive_branching': BranchingMission
+    'mision_ramificada': BranchingScenarioMission // New mission type
 };
 
 export const getMissionComponent = (type: MissionType) => {

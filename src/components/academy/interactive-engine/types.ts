@@ -7,51 +7,39 @@ export type MissionType =
     | 'inventario'
     | 'simulador'
     | 'hotspot'
-    | 'interactive_branching';
+    | 'mision_ramificada';
 
-// --- Branching Mission Interfaces ---
+export interface MissionData {
+    id: string; // Unique identifier for persistence
+    tipo_contenido: MissionType;
+    titulo?: string;
+    descripcion?: string;
+    config?: any;
+    // Flexible payload for specific mission config
+    [key: string]: any;
+}
 
-export interface BranchOption {
+// Graph/Branching Structures
+export interface MissionOption {
+    id: string;
     label: string;
-    next_step_id: string;
-    score_delta?: number;
+    next_step_id: string | null; // null usually implies end of branch or mission completion
+    score_impact?: number;
     feedback?: string;
-    required_condition?: any; // For future complex logic
+    is_correct?: boolean;
 }
 
 export interface MissionStep {
     id: string;
-    mission_id: string;
-    type: 'info' | 'question' | 'video' | 'challenge' | 'summary';
-    content: {
-        title?: string;
-        body?: string;
-        media_url?: string;
-        [key: string]: any;
-    };
-    options?: BranchOption[];
-    position?: number;
+    type?: 'question' | 'info' | 'challenge';
+    content: string; // Description or question text
+    media_url?: string; // Optional image/video
+    options: MissionOption[];
 }
 
-export interface BranchingMissionData extends MissionData {
-    tipo_contenido: 'interactive_branching';
-    id: string;
-    slug: string;
+export interface GraphMissionData extends MissionData {
     initial_step_id: string;
-    steps?: MissionStep[]; // Can be populated if fetching all at once
-    settings?: {
-        allow_retry?: boolean;
-        show_feedback?: boolean;
-        [key: string]: any;
-    };
-}
-
-export interface MissionData {
-    tipo_contenido: MissionType;
-    titulo?: string;
-    descripcion?: string;
-    // Flexible payload for specific mission config
-    [key: string]: any;
+    steps: Record<string, MissionStep>; // Map step_id -> MissionStep
 }
 
 export interface MissionState {
@@ -59,26 +47,12 @@ export interface MissionState {
     score: number;
     maxScore: number;
     currentStep: number;
+    currentStepId: string | null; // Added for graph/branching
+    history: string[]; // Added for history tracking
     totalSteps: number;
     errors: number;
     feedbackMessage: string | null;
     feedbackType: 'success' | 'error' | 'info' | null;
-}
-
-export interface MissionProgress {
-    id?: string;
-    user_id: string;
-    mission_id: string;
-    current_step_id: string;
-    status: MissionStatus;
-    score: number;
-    history: {
-        step_id: string;
-        answer_idx?: number; // Index in options array
-        score_delta?: number;
-        timestamp: string;
-    }[];
-    updated_at: string;
 }
 
 export interface MissionActions {

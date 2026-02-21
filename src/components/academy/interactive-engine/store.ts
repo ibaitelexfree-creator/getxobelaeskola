@@ -17,6 +17,8 @@ interface MissionState {
     status: MissionStatus;
     score: number;
     currentStep: number;
+    currentStepId: string | null; // For graph/branching missions
+    history: string[]; // Track path taken
     totalSteps: number;
     errors: number;
     isComplete: boolean; // Gating flag
@@ -29,8 +31,9 @@ interface MissionActions {
     /** 
      * Initialize and start a new mission 
      * @param totalSteps Number of steps/scenarios in this mission
+     * @param initialStepId Optional starting step ID for graph missions
      */
-    startMission: (totalSteps?: number) => void;
+    startMission: (totalSteps?: number, initialStepId?: string) => void;
 
     /**
      * Process an answer submission
@@ -42,6 +45,9 @@ interface MissionActions {
     /** Move to the next step (e.g., next slide/scenario) */
     nextStep: () => void;
 
+    /** Move to a specific step ID (for branching) */
+    goToStep: (stepId: string) => void;
+
     /** Fail the mission immediately */
     failMission: (reason?: string) => void;
 
@@ -50,6 +56,9 @@ interface MissionActions {
 
     /** Reset state to retry the mission */
     retryMission: () => void;
+
+    /** Restore saved progress from persistence */
+    restoreProgress: (savedState: Partial<MissionState>) => void;
 
     /** Show feedback message (toast/overlay) */
     setFeedback: (message: string | null, type?: FeedbackType) => void;
@@ -66,6 +75,8 @@ const initialState: MissionState = {
     status: 'idle',
     score: 0,
     currentStep: 0,
+    currentStepId: null,
+    history: [],
     totalSteps: 1,
     errors: 0,
     isComplete: false,
@@ -80,18 +91,12 @@ const initialState: MissionState = {
 export const useMissionStore = create<MissionStore>((set, get) => ({
     ...initialState,
 
-    startMission: (totalSteps = 1) => set({
+    startMission: (totalSteps = 1, initialStepId) => set({
         ...initialState,
         status: 'playing',
         totalSteps,
-        // Preserve isComplete if replaying an already completed mission? 
-        // Usually we want to allow re-playing but maybe keep isComplete true if it was ever true.
-        // For now, let's reset isComplete on start to force a fresh "run", 
-        // OR keeps it true if we want the "next" button to remain enabled.
-        // Let's keep isComplete from previous state if strictly needed, but 
-        // usually a generic reset is safer for game logic.
-        // If we want to persist "Unlock" state, we should rely on the parent component's fetched progress,
-        // not just this ephemeral store. But for this specific requirement:
+        currentStepId: initialStepId || null,
+        history: initialStepId ? [initialStepId] : [],
         isComplete: false
     }),
 
@@ -104,6 +109,19 @@ export const useMissionStore = create<MissionStore>((set, get) => ({
         currentStep: Math.min(state.currentStep + 1, state.totalSteps - 1),
         feedback: { message: null, type: null }
     })),
+
+    goToStep: (stepId) => set((state) => {
+        // Only add to history if it's new (prevent loops or verify logic in component)
+        // Usually we track the path.
+        const newHistory = [...state.history, stepId];
+        return {
+            currentStepId: stepId,
+            history: newHistory,
+            // Increment linear step count for progress bar visualization if applicable
+            currentStep: state.currentStep + 1,
+            feedback: { message: null, type: null }
+        };
+    }),
 
     failMission: (reason) => set((state) => ({
         status: 'failed',
@@ -130,6 +148,13 @@ export const useMissionStore = create<MissionStore>((set, get) => ({
         ...initialState,
         status: 'playing',
         totalSteps: state.totalSteps
+    })),
+
+    restoreProgress: (savedState) => set((state) => ({
+        ...state,
+        ...savedState,
+        // Ensure status is valid if needed
+        status: savedState.status || state.status
     })),
 
     setFeedback: (message, type = 'info') => set({
