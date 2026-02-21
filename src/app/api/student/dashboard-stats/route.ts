@@ -65,7 +65,7 @@ export async function GET() {
             { data: horas },
             { data: userBonos }
         ] = await Promise.all([
-            supabase.from('progreso_alumno').select('id, tipo_entidad, estado').eq('alumno_id', user.id),
+            supabase.from('progreso_alumno').select('id, tipo_entidad, estado, updated_at, created_at').eq('alumno_id', user.id),
             supabase.from('certificados').select('id').eq('alumno_id', user.id),
             supabase.from('horas_navegacion').select('duracion_h').eq('alumno_id', user.id),
             supabase.from('bonos_usuario')
@@ -77,11 +77,62 @@ export async function GET() {
                 .in('estado', ['activo', 'agotado'])
         ]);
 
+        // Fetch Total Modules for enrolled courses
+        const enrolledCourseIds = enrichedInscriptions
+            .map(ins => ins.curso_id)
+            .filter(Boolean);
+
+        const { count: totalModules } = await supabase
+            .from('modulos')
+            .select('*', { count: 'exact', head: true })
+            .in('curso_id', enrolledCourseIds);
+
         const totalHours = horas?.reduce((acc, curr) => acc + Number(curr.duracion_h), 0) || 0;
         const totalMiles = totalHours * 5.2;
         const academyLevels = progress?.filter(p => p.tipo_entidad === 'nivel' && p.estado === 'completado').length || 0;
         const academyCerts = certs?.length || 0;
         const hasAcademyActivity = (progress?.length || 0) > 0;
+
+        // Streak Calculation
+        const activityDates = (progress || [])
+            .map(p => {
+                const dateStr = p.updated_at || p.created_at;
+                return dateStr ? new Date(dateStr).toISOString().split('T')[0] : null;
+            })
+            .filter((d): d is string => Boolean(d))
+            .sort((a, b) => b.localeCompare(a));
+
+        const uniqueDates = [...new Set(activityDates)];
+
+        let currentStreak = 0;
+        const today = new Date().toISOString().split('T')[0];
+        const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+
+        if (uniqueDates.length > 0) {
+            // Check if the streak is active (today or yesterday has activity)
+            if (uniqueDates[0] === today || uniqueDates[0] === yesterday) {
+                currentStreak = 1;
+                let lastDate = new Date(uniqueDates[0]);
+
+                for (let i = 1; i < uniqueDates.length; i++) {
+                    const currentDate = new Date(uniqueDates[i]);
+                    const diffTime = Math.abs(lastDate.getTime() - currentDate.getTime());
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+                    if (diffDays === 1) {
+                        currentStreak++;
+                        lastDate = currentDate;
+                    } else {
+                        break;
+                    }
+                }
+            }
+        }
+
+        // Global Progress Calculation
+        const completedModules = (progress || []).filter(p => p.tipo_entidad === 'modulo' && p.estado === 'completado').length;
+        const safeTotalModules = totalModules || 1; // Prevent division by zero
+        const globalProgress = Math.min(100, Math.round((completedModules / safeTotalModules) * 100));
 
         return NextResponse.json({
             profile: profile || null,
@@ -97,7 +148,11 @@ export async function GET() {
                 totalMiles: Math.round(totalMiles),
                 academyLevels,
                 academyCerts,
-                hasAcademyActivity
+                hasAcademyActivity,
+                currentStreak,
+                globalProgress,
+                completedModules,
+                totalModules: totalModules || 0
             }
         });
 

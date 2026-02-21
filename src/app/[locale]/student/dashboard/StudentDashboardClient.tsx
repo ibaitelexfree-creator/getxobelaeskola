@@ -3,9 +3,10 @@
 import dynamic from 'next/dynamic';
 import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { getApiUrl } from '@/lib/platform';
-import { Menu, X, ChevronRight, Sparkles } from 'lucide-react';
+import { Menu, X, ChevronRight, Sparkles, Flame } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { motion } from 'framer-motion';
 import { createClient } from '@/lib/supabase/client';
 import DashboardSkeleton from '@/components/student/DashboardSkeleton';
 
@@ -105,7 +106,11 @@ export default function StudentDashboardClient({
         totalMiles = 0,
         academyLevels = 0,
         academyCerts = 0,
-        hasAcademyActivity = false
+        hasAcademyActivity = false,
+        currentStreak = 0,
+        globalProgress = 0,
+        completedModules = 0,
+        totalModules = 0
     } = academyStats;
 
     const hasAnyData = inscripciones.length > 0 || rentals.length > 0;
@@ -247,6 +252,21 @@ export default function StudentDashboardClient({
                                     <div className="absolute top-0 right-0 p-8 opacity-[0.03] text-9xl pointer-events-none group-hover:scale-110 group-hover:opacity-[0.07] transition-all duration-1000">🎓</div>
 
                                     <div className="bg-[#050c18] p-8 rounded-[1px] relative z-10">
+                                        {/* Streak Widget */}
+                                        {currentStreak > 0 && (
+                                            <div className="absolute top-6 right-6 flex items-center gap-2 bg-orange-500/10 border border-orange-500/20 px-3 py-1.5 rounded-full backdrop-blur-sm">
+                                                <motion.div
+                                                    animate={{ scale: [1, 1.2, 1] }}
+                                                    transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+                                                >
+                                                    <Flame size={14} className="text-orange-500 fill-orange-500" />
+                                                </motion.div>
+                                                <span className="text-[10px] font-bold text-orange-200 uppercase tracking-wider">
+                                                    {currentStreak} {currentStreak === 1 ? 'Día' : 'Días'} Racha
+                                                </span>
+                                            </div>
+                                        )}
+
                                         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-10">
                                             <div className="flex-1">
                                                 <div className="flex items-center gap-3 mb-4">
@@ -260,7 +280,7 @@ export default function StudentDashboardClient({
                                                     {hasAcademyActivity ? t.academy_widget.card_desc_active : t.academy_widget.card_desc_inactive}
                                                 </p>
 
-                                                <div className="grid grid-cols-3 gap-4 lg:gap-8">
+                                                <div className="grid grid-cols-3 gap-4 lg:gap-8 mb-8">
                                                     <div className="space-y-1">
                                                         <div className="text-3xl font-black text-white italic tracking-tighter leading-none">{totalMiles}</div>
                                                         <div className="text-[8px] uppercase tracking-[0.2em] text-accent/60 font-medium">Millas</div>
@@ -272,6 +292,26 @@ export default function StudentDashboardClient({
                                                     <div className="space-y-1">
                                                         <div className="text-3xl font-black text-white italic tracking-tighter leading-none">{academyCerts}</div>
                                                         <div className="text-[8px] uppercase tracking-[0.2em] text-accent/60 font-medium">{t.academy_widget.stats_certs}</div>
+                                                    </div>
+                                                </div>
+
+                                                {/* Global Progress Bar */}
+                                                <div className="space-y-2 group relative">
+                                                    <div className="flex justify-between items-end">
+                                                        <span className="text-[9px] uppercase tracking-widest text-white/40 font-semibold">Progreso Global</span>
+                                                        <span className="text-[10px] font-mono text-accent">{globalProgress}%</span>
+                                                    </div>
+                                                    <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
+                                                        <div
+                                                            className="h-full bg-accent rounded-full transition-all duration-1000 ease-out"
+                                                            style={{ width: `${globalProgress}%` }}
+                                                        />
+                                                    </div>
+
+                                                    {/* Tooltip */}
+                                                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 bg-black/90 border border-white/10 rounded text-[10px] text-white whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-20 shadow-xl">
+                                                        {completedModules} / {totalModules} Módulos completados
+                                                        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 rotate-45 w-2 h-2 bg-black border-r border-b border-white/10"></div>
                                                     </div>
                                                 </div>
                                             </div>
