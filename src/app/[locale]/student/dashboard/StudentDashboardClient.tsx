@@ -3,11 +3,12 @@
 import dynamic from 'next/dynamic';
 import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { getApiUrl } from '@/lib/platform';
-import { Menu, X, ChevronRight, Sparkles, Flame } from 'lucide-react';
+import { Menu, X, ChevronRight, Sparkles } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import DashboardSkeleton from '@/components/student/DashboardSkeleton';
+import OnboardingWizard from '@/components/student/onboarding/OnboardingWizard';
 
 // Dynamic Imports for Optimization
 const StudentProfileSidebar = dynamic(() => import('@/components/student/StudentProfileSidebar'));
@@ -105,11 +106,7 @@ export default function StudentDashboardClient({
         totalMiles = 0,
         academyLevels = 0,
         academyCerts = 0,
-        hasAcademyActivity = false,
-        currentStreak = 0,
-        globalProgress = 0,
-        totalModules = 0,
-        completedModules = 0
+        hasAcademyActivity = false
     } = academyStats;
 
     const hasAnyData = inscripciones.length > 0 || rentals.length > 0;
@@ -175,14 +172,12 @@ export default function StudentDashboardClient({
         return <DashboardSkeleton />;
     }
 
-    const streakLabel = locale === 'eu' ? 'Bolada' : (locale === 'en' ? 'Streak' : 'Racha');
-    const daysLabel = locale === 'eu' ? 'Egun' : (locale === 'en' ? 'Days' : 'Días');
-    const progressLabel = locale === 'eu' ? 'Aurrerapena' : (locale === 'en' ? 'Progress' : 'Progreso');
-    const modulesLabel = locale === 'eu' ? 'Moduluak' : (locale === 'en' ? 'Modules' : 'Módulos');
-
     return (
         <div className="relative min-h-screen bg-nautical-black">
             <div className="bg-mesh" />
+
+            {/* Interactive Onboarding Wizard */}
+            {user?.id && <OnboardingWizard userId={user.id} />}
 
             {/* Mobile View - Visible only on small screens */}
             <div className="md:hidden">
@@ -200,7 +195,9 @@ export default function StudentDashboardClient({
 
             {/* Desktop View - Hidden on mobile */}
             <div className="hidden md:flex flex-col lg:flex-row gap-8 p-4 lg:p-8 pt-44 lg:pt-48 max-w-[1600px] mx-auto relative z-10">
-                <StudentProfileSidebar profile={profile} email={user?.email || ''} locale={locale} />
+                <div id="dashboard-profile-sidebar">
+                    <StudentProfileSidebar profile={profile} email={user?.email || ''} locale={locale} />
+                </div>
 
                 <main className="flex-1 space-y-12 max-w-5xl">
                     <NotificationPermissionBanner />
@@ -244,7 +241,7 @@ export default function StudentDashboardClient({
                                 locale={locale}
                             />
 
-                            <section>
+                            <section id="dashboard-academy-widget">
                                 <div className="flex justify-between items-end mb-8">
                                     <h2 className="text-xs uppercase tracking-widest text-accent font-bold">{t.academy_widget.title}</h2>
                                     <Link href={`/${locale}/academy/dashboard`} className="text-[10px] uppercase tracking-widest text-foreground/40 hover:text-accent transition-colors">
@@ -269,14 +266,7 @@ export default function StudentDashboardClient({
                                                     {hasAcademyActivity ? t.academy_widget.card_desc_active : t.academy_widget.card_desc_inactive}
                                                 </p>
 
-                                                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-8">
-                                                    <div className="space-y-1">
-                                                        <div className="text-3xl font-black text-white italic tracking-tighter leading-none flex items-center gap-2">
-                                                            {currentStreak}
-                                                            <Flame className="w-5 h-5 text-orange-500 animate-pulse fill-orange-500/50" />
-                                                        </div>
-                                                        <div className="text-[8px] uppercase tracking-[0.2em] text-accent/60 font-medium">{streakLabel} ({daysLabel})</div>
-                                                    </div>
+                                                <div className="grid grid-cols-3 gap-4 lg:gap-8">
                                                     <div className="space-y-1">
                                                         <div className="text-3xl font-black text-white italic tracking-tighter leading-none">{totalMiles}</div>
                                                         <div className="text-[8px] uppercase tracking-[0.2em] text-accent/60 font-medium">Millas</div>
@@ -290,27 +280,6 @@ export default function StudentDashboardClient({
                                                         <div className="text-[8px] uppercase tracking-[0.2em] text-accent/60 font-medium">{t.academy_widget.stats_certs}</div>
                                                     </div>
                                                 </div>
-
-                                                {/* Global Progress Bar */}
-                                                {totalModules > 0 && (
-                                                    <div className="mt-8 space-y-2 group/progress cursor-help">
-                                                        <div className="flex justify-between items-end">
-                                                            <span className="text-[9px] uppercase tracking-widest text-white/40 font-bold">{progressLabel}</span>
-                                                            <span className="text-xs font-mono text-accent">{globalProgress}%</span>
-                                                        </div>
-                                                        <div className="h-1.5 bg-white/5 rounded-full overflow-hidden relative">
-                                                            <div
-                                                                className="absolute top-0 left-0 h-full bg-accent transition-all duration-1000 ease-out"
-                                                                style={{ width: `${globalProgress}%` }}
-                                                            />
-                                                        </div>
-
-                                                        {/* Tooltip */}
-                                                        <div className="opacity-0 group-hover/progress:opacity-100 transition-opacity absolute bg-nautical-black border border-white/10 px-3 py-2 rounded shadow-xl text-xs text-white/80 pointer-events-none transform translate-y-2 z-20">
-                                                            {completedModules} / {totalModules} {modulesLabel}
-                                                        </div>
-                                                    </div>
-                                                )}
                                             </div>
 
                                             <div className="flex flex-col items-center gap-6 w-full md:w-auto">
@@ -353,7 +322,7 @@ export default function StudentDashboardClient({
                                 </div>
                             </section>
 
-                            <section>
+                            <section id="dashboard-courses-section">
                                 <h2 className="text-xs uppercase tracking-widest text-accent mb-8 font-bold">{t.courses_section.title}</h2>
                                 {upcomingInscripciones.length > 0 ? (
                                     <div className="space-y-6">
@@ -385,7 +354,7 @@ export default function StudentDashboardClient({
                                 )}
                             </section>
 
-                            <section>
+                            <section id="dashboard-rentals-section">
                                 <div className="flex justify-between items-end mb-8">
                                     <h2 className="text-xs uppercase tracking-widest text-accent font-bold">{t.rentals_section.title}</h2>
                                     <Link href={`/${locale}/rental`} className="text-[10px] uppercase tracking-widest text-foreground/40 hover:text-accent transition-colors">

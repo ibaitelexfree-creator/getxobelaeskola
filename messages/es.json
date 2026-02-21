@@ -949,15 +949,54 @@
     "history_temp": "Temp (ºC)",
     "history_tide": "Marea (m)"
   },
-  "sea_state": {
-    "title": "Estado del Mar",
-    "subtitle": "Condiciones Actuales en Getxo",
-    "wave_height": "Altura Ola",
-    "wave_period": "Período",
-    "water_temp": "Temp. Agua",
-    "wind_speed": "Vel. Viento",
-    "wind_dir": "Dir. Viento",
-    "last_update": "Última actualización: {time}",
-    "source": "Fuente: Puertos del Estado"
+  "onboarding": {
+    "welcome": {
+      "title": "¡Bienvenido a Bordo!",
+      "subtitle": "Prepárate para zarpar. Vamos a configurar tu perfil de navegante en unos sencillos pasos.",
+      "start_btn": "Comenzar Travesía"
+    },
+    "level_test": {
+      "title": "Test de Nivel Inicial",
+      "subtitle": "Ayúdanos a entender tu experiencia previa.",
+      "q1": "¿Has navegado alguna vez?",
+      "a1_yes": "Sí, tengo experiencia",
+      "a1_no": "No, es mi primera vez",
+      "q2": "¿Sabes hacer un as de guía?",
+      "a2_yes": "¡Por supuesto!",
+      "a2_no": "¿Un as de qué?",
+      "q3": "¿Conoces las preferencias de paso?",
+      "a3_yes": "Sí, las domino",
+      "a3_no": "No estoy seguro",
+      "next_btn": "Siguiente"
+    },
+    "goals": {
+      "title": "Configura tu Rumbo",
+      "subtitle": "¿Cuándo te gustaría obtener tu titulación?",
+      "label_date": "Fecha objetivo para titularte",
+      "next_btn": "Fijar Rumbo"
+    },
+    "tour": {
+      "step_sidebar": "Tu Perfil",
+      "desc_sidebar": "Aquí puedes ver tu estado de socio, editar tus datos y gestionar tu suscripción.",
+      "step_academy": "Academia Digital",
+      "desc_academy": "Accede a cursos online, tests y sigue tu progreso milla a milla.",
+      "step_courses": "Próximos Cursos",
+      "desc_courses": "Consulta tus próximas clases prácticas y salidas programadas.",
+      "step_rentals": "Alquileres",
+      "desc_rentals": "Reserva material, desde kayaks hasta veleros J80, directamente desde aquí.",
+      "next_btn": "Siguiente",
+      "finish_btn": "Terminar Tour"
+    },
+    "mission": {
+      "title": "Tu Primera Misión",
+      "subtitle": "Antes de soltar amarras, todo buen marino debe conocer el código.",
+      "manifesto": "El mar es un lugar de respeto, aventura y camaradería. En Getxo Bela Eskola formamos navegantes que cuidan del entorno y de su tripulación. Tu viaje comienza hoy.",
+      "action_btn": "Acepto el Código"
+    },
+    "badge": {
+      "title": "¡Enhorabuena, Marino Novel!",
+      "subtitle": "Has completado tu onboarding. Tu aventura comienza ahora.",
+      "close_btn": "Ir al Dashboard"
+    }
   }
 }
