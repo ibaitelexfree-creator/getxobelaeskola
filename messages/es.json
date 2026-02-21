@@ -949,16 +949,25 @@
     "history_temp": "Temp (ºC)",
     "history_tide": "Marea (m)"
   },
-  "glossary": {
-    "title": "Glosario Náutico",
-    "subtitle": "Diccionario completo de términos náuticos, maniobras y partes del barco.",
-    "description": "Domina el lenguaje del mar. Encuentra definiciones precisas de maniobras, partes del barco, meteorología y reglamento.",
-    "search_placeholder": "Buscar término (ej: babor, virada, barómetro...)",
-    "all": "Todos",
-    "view_in_module": "Ver en el módulo",
-    "no_results": "No se encontraron términos",
-    "no_results_desc": "Intenta con otra búsqueda o cambia los filtros.",
-    "clear_filters": "Limpiar filtros",
-    "showing_results": "Mostrando {count} de {total} términos náuticos"
+  "profile": {
+    "title": "Perfil de Alumno",
+    "share": "Compartir",
+    "public_toggle": "Perfil Público",
+    "public_desc": "Permite que otros vean tus logros y estadísticas.",
+    "stats": "Estadísticas",
+    "badges": "Insignias",
+    "logbook": "Bitácora",
+    "certificates": "Certificados",
+    "private_profile": "Este perfil es privado.",
+    "not_found": "Perfil no encontrado.",
+    "copy_link": "Copiar Enlace",
+    "link_copied": "¡Enlace copiado!",
+    "share_error": "No se pudo compartir",
+    "edit_visibility": "Editar Visibilidad",
+    "hours_sailed": "Millas Navegadas",
+    "level": "Nivel",
+    "total_points": "Puntos",
+    "ranking": "Ranking",
+    "since": "Desde"
   }
 }
