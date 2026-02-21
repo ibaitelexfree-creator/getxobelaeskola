@@ -19,6 +19,11 @@ interface MissionState {
         thermal: { label: string; level: number };
         watchdog: { state: string; loops: number; stalls: number; crashes: number };
     };
+    power: {
+        mode: 'eco' | 'performance';
+        lastActivity: string;
+        services: Record<string, { name: string; running: boolean; type: string }>;
+    };
 
     // Stats
     stats: { assigned: number; completed: number; failed: number };
@@ -66,6 +71,7 @@ interface MissionState {
     updateActiveThreads: (threads: MissionState['activeThreads']) => void;
     setAutoRefresh: (ms: number) => void;
     setLastSync: (ts: number) => void;
+    updatePower: (power: Partial<MissionState['power']>) => void;
 }
 
 const STORAGE_KEY = 'mc_server_url';
@@ -86,6 +92,12 @@ export const useMissionStore = create<MissionState>((set, get) => ({
         thermal: { label: 'Unknown', level: 0 },
         watchdog: { state: 'UNKNOWN', loops: 0, stalls: 0, crashes: 0 },
     },
+    power: {
+        mode: 'eco',
+        lastActivity: '',
+        services: {},
+    },
+
 
     stats: { assigned: 0, completed: 0, failed: 0 },
     queue: [],
@@ -124,5 +136,7 @@ export const useMissionStore = create<MissionState>((set, get) => ({
     updateActiveThreads: (activeThreads) => set({ activeThreads }),
     setAutoRefresh: (autoRefreshMs) => set({ autoRefreshMs }),
     setLastSync: (lastSync) => set({ lastSync }),
+    updatePower: (partial) => set((state) => ({ power: { ...state.power, ...partial } })),
 }));
+
 

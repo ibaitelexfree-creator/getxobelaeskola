@@ -104,6 +104,22 @@ export const watchdogAction = (action: string, message?: string) =>
 export const registerDevice = (token: string, platform: string, deviceId: string) =>
     request<{ success: boolean }>('POST', '/watchdog/register-device', { token, platform, deviceId });
 
+// ─── Resource Management ───
+
+export interface ResourceStatus {
+    powerMode: 'eco' | 'performance';
+    lastActivity: string;
+    services: Record<string, {
+        name: string;
+        running: boolean;
+        type: 'docker' | 'process';
+    }>;
+}
+
+export const getResourceStatus = () => request<ResourceStatus>('GET', '/api/resources/status');
+export const setPowerMode = (mode: 'eco' | 'performance') => request<{ success: boolean, mode: string }>('POST', '/api/resources/mode', { mode });
+export const startService = (service: string) => request<{ success: boolean }>('POST', `/api/resources/start/${service}`);
+
 // ─── MCP Execute (proxy to Maestro commands) ───
 
 export interface MCPResult {
