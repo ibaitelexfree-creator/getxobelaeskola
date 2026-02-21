@@ -5,11 +5,14 @@ import dynamic from 'next/dynamic';
 import { useParams } from 'next/navigation';
 import {
     Book, MapPin, Award, Ship, Waves, Wind,
-    ChevronRight, Anchor, Calendar, Download, Plus, Trash2, Smile, Layers, HelpCircle
+    ChevronRight, Anchor, Calendar, Download, Plus, Trash2, Smile, Layers, HelpCircle, Camera as CameraIcon, X
 } from 'lucide-react';
 import { apiUrl } from '@/lib/api';
 import { useAcademyFeedback } from '@/hooks/useAcademyFeedback';
 import { useSmartTracker } from '@/hooks/useSmartTracker';
+import { Camera, CameraResultType } from '@capacitor/camera';
+import { defineCustomElements } from '@ionic/pwa-elements/loader';
+import { createClient } from '@/lib/supabase/client';
 
 // Direct dynamic import with explicit default handling
 const LeafletMap = dynamic(
@@ -36,9 +39,16 @@ export default function Logbook() {
     const [loadingDiary, setLoadingDiary] = useState(false);
     const [isSavingDiary, setIsSavingDiary] = useState(false);
     const [newDiaryContent, setNewDiaryContent] = useState('');
+    const [newDiaryPhotos, setNewDiaryPhotos] = useState<string[]>([]);
+    const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
     const [selectedPoint, setSelectedPoint] = useState<any>(null);
     const params = useParams();
     const { showMessage } = useAcademyFeedback();
+
+    useEffect(() => {
+        // Initialize PWA elements for camera support in web view
+        defineCustomElements(window);
+    }, []);
 
     async function loadDiary() {
         setLoadingDiary(true);
@@ -139,19 +149,67 @@ export default function Logbook() {
         }
     }, [activeTab]);
 
+    const handleTakePhoto = async () => {
+        try {
+            const image = await Camera.getPhoto({
+                quality: 60,
+                allowEditing: false,
+                resultType: CameraResultType.Uri
+            });
+
+            if (image.webPath) {
+                setIsUploadingPhoto(true);
+                // Fetch the blob from the webPath
+                const response = await fetch(image.webPath);
+                const blob = await response.blob();
+
+                const supabase = createClient();
+                // Ensure we have a user ID or use a fallback for path structure (server will enforce auth)
+                const userId = officialData?.user?.id || 'temp';
+                const fileName = `logbook-photos/${userId}/${Date.now()}.jpg`;
+
+                const { error } = await supabase.storage
+                    .from('academy-assets')
+                    .upload(fileName, blob);
+
+                if (error) throw error;
+
+                const { data: { publicUrl } } = supabase.storage
+                    .from('academy-assets')
+                    .getPublicUrl(fileName);
+
+                setNewDiaryPhotos(prev => [...prev, publicUrl]);
+                showMessage('Foto subida', 'Imagen añadida a tu entrada', 'success');
+            }
+        } catch (error) {
+            console.error('Error taking photo:', error);
+            // Don't show error if user cancelled or dismissed
+        } finally {
+            setIsUploadingPhoto(false);
+        }
+    };
+
+    const handleRemovePhoto = (urlToRemove: string) => {
+        setNewDiaryPhotos(prev => prev.filter(url => url !== urlToRemove));
+    };
+
     const handleAddDiaryEntry = async () => {
-        if (!newDiaryContent.trim()) return;
+        if (!newDiaryContent.trim() && newDiaryPhotos.length === 0) return;
 
         setIsSavingDiary(true);
         try {
             const res = await fetch(apiUrl('/api/logbook/diary'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ contenido: newDiaryContent })
+                body: JSON.stringify({
+                    contenido: newDiaryContent,
+                    fotos: newDiaryPhotos
+                })
             });
 
             if (res.ok) {
                 setNewDiaryContent('');
+                setNewDiaryPhotos([]);
                 loadDiary();
                 showMessage('Éxito', 'Entrada guardada en tu diario', 'success');
             } else {
@@ -460,8 +518,33 @@ export default function Logbook() {
                                 className="w-full bg-black/40 border border-white/5 rounded-3xl p-6 text-white text-sm focus:outline-none focus:border-accent/40 min-h-[150px] transition-all resize-none mb-6"
                             />
 
+                            {/* Photo Preview */}
+                            {newDiaryPhotos.length > 0 && (
+                                <div className="mb-6 flex gap-3 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-white/10">
+                                    {newDiaryPhotos.map((photo, idx) => (
+                                        <div key={idx} className="relative w-24 h-24 shrink-0 rounded-xl overflow-hidden border border-white/10 group">
+                                            <img src={photo} alt="Preview" className="w-full h-full object-cover" />
+                                            <button
+                                                onClick={() => handleRemovePhoto(photo)}
+                                                className="absolute top-1 right-1 bg-black/60 rounded-full p-1 text-white opacity-0 group-hover:opacity-100 transition-all hover:bg-red-500"
+                                            >
+                                                <X size={12} />
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+
                             <div className="flex items-center justify-between">
                                 <div className="flex gap-2">
+                                    <button
+                                        onClick={handleTakePhoto}
+                                        disabled={isUploadingPhoto}
+                                        className={`w-10 h-10 bg-white/5 hover:bg-white/10 rounded-full flex items-center justify-center transition-colors ${isUploadingPhoto ? 'animate-pulse text-accent' : 'text-white/40'}`}
+                                        title="Añadir Foto"
+                                    >
+                                        <CameraIcon size={18} />
+                                    </button>
                                     <button className="w-10 h-10 bg-white/5 hover:bg-white/10 rounded-full flex items-center justify-center text-white/40 transition-colors">
                                         <Smile size={18} />
                                     </button>
@@ -471,9 +554,9 @@ export default function Logbook() {
                                 </div>
                                 <button
                                     onClick={handleAddDiaryEntry}
-                                    disabled={isSavingDiary || !newDiaryContent.trim()}
+                                    disabled={isSavingDiary || (!newDiaryContent.trim() && newDiaryPhotos.length === 0)}
                                     className={`px-8 py-3 rounded-full text-[10px] font-black uppercase tracking-widest transition-all
-                                        ${newDiaryContent.trim()
+                                        ${newDiaryContent.trim() || newDiaryPhotos.length > 0
                                             ? 'bg-accent text-nautical-black shadow-lg shadow-accent/20 hover:scale-105'
                                             : 'bg-white/5 text-white/20'
                                         }`}
@@ -512,6 +595,24 @@ export default function Logbook() {
                                             <p className="text-white/70 leading-relaxed italic font-serif">
                                                 "{entry.contenido}"
                                             </p>
+
+                                            {/* Photo Gallery for Entry */}
+                                            {entry.fotos && entry.fotos.length > 0 && (
+                                                <div className="mt-6 grid grid-cols-2 md:grid-cols-3 gap-3">
+                                                    {entry.fotos.map((foto: string, idx: number) => (
+                                                        <div key={idx} className="relative aspect-square rounded-2xl overflow-hidden border border-white/10 group/img cursor-pointer transition-transform hover:scale-[1.02]">
+                                                            <img
+                                                                src={foto}
+                                                                alt={`Foto ${idx + 1}`}
+                                                                className="w-full h-full object-cover"
+                                                                loading="lazy"
+                                                            />
+                                                            <div className="absolute inset-0 bg-black/0 group-hover/img:bg-black/20 transition-colors" />
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            )}
+
                                             {entry.tags && entry.tags.length > 0 && (
                                                 <div className="flex gap-2 mt-4">
                                                     {entry.tags.map((tag: string) => (

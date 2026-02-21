@@ -38,7 +38,7 @@ export async function POST(req: Request) {
         }
 
         const body = await req.json();
-        const { contenido, estado_animo, tags } = body;
+        const { contenido, estado_animo, tags, fotos } = body;
 
         if (!contenido) {
             return NextResponse.json({ error: 'Contenido es requerido' }, { status: 400 });
@@ -52,6 +52,7 @@ export async function POST(req: Request) {
                 contenido,
                 estado_animo: estado_animo || 'discovery',
                 tags: tags || [],
+                fotos: fotos || [],
                 fecha: new Date().toISOString()
             })
             .select()
