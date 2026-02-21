@@ -193,8 +193,44 @@ export default function BoatsTab({ userRole }: BoatsTabProps) {
         return <div className="p-8 text-white/50 animate-pulse">{t('boats.loading')}</div>;
     }
 
+    const stats = {
+        total: boats.length,
+        available: boats.filter(b => b.estado === 'disponible').length,
+        maintenance: boats.filter(b => b.estado === 'mantenimiento').length,
+        broken: boats.filter(b => b.estado === 'averiado').length,
+        operativity: Math.round((boats.filter(b => b.estado === 'disponible').length / (boats.length || 1)) * 100)
+    };
+
     return (
-        <div className="space-y-6 animate-fade-in">
+        <div className="space-y-8 animate-fade-in">
+            {/* Fleet Status Summary */}
+            <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
+                <div className="bg-white/5 p-4 border border-white/5 rounded-sm">
+                    <span className="text-[10px] uppercase tracking-widest text-white/30 block mb-1">Flota Total</span>
+                    <span className="text-3xl font-display text-white italic">{stats.total}</span>
+                </div>
+                <div className="bg-white/5 p-4 border border-white/5 rounded-sm">
+                    <span className="text-[10px] uppercase tracking-widest text-white/30 block mb-1">Disponibles</span>
+                    <span className="text-3xl font-display text-green-500 italic">{stats.available}</span>
+                </div>
+                <div className="bg-white/5 p-4 border border-white/5 rounded-sm">
+                    <span className="text-[10px] uppercase tracking-widest text-white/30 block mb-1">Mantenimiento</span>
+                    <span className="text-3xl font-display text-yellow-500 italic">{stats.maintenance}</span>
+                </div>
+                <div className="bg-white/5 p-4 border border-white/5 rounded-sm">
+                    <span className="text-[10px] uppercase tracking-widest text-white/30 block mb-1">Averiados</span>
+                    <span className="text-3xl font-display text-red-500 italic">{stats.broken}</span>
+                </div>
+                <div className="bg-white/5 p-4 border border-white/5 rounded-sm col-span-2 lg:col-span-1 border-l-accent/20">
+                    <span className="text-[10px] uppercase tracking-widest text-accent block mb-1 italic">Operatividad</span>
+                    <div className="flex items-end gap-2">
+                        <span className="text-3xl font-display text-accent italic">{stats.operativity}%</span>
+                        <div className="h-2 w-full bg-white/5 rounded-full mb-2 overflow-hidden">
+                            <div className="h-full bg-accent transition-all duration-1000" style={{ width: `${stats.operativity}%` }}></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
             {/* Extended Header with Filters */}
             <header className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-8 border-b border-white/10 pb-8">
                 <div className="space-y-2 min-w-fit">

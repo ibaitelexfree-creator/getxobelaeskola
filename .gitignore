@@ -50,3 +50,11 @@ debug_*.js
 !robots.txt
 !LICENSE.txt
 
+# local toolings
+antigravity/
+mapping_data.json
+gen_ssh.ps1
+*.ps1
+!scripts/*.ps1
+!deploy.ps1
+!vuela.ps1

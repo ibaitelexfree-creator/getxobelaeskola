@@ -1,7 +1,9 @@
 import { readFileSync, writeFileSync, appendFileSync, existsSync, mkdirSync } from 'fs';
-import { join, resolve } from 'path';
+import { join, resolve, dirname } from 'path';
+import { fileURLToPath } from 'url';
 
-const PROJECT_ROOT = resolve(process.cwd(), '..');
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const PROJECT_ROOT = resolve(__dirname, '../..');
 const MEMORY_DIR = join(PROJECT_ROOT, 'project_memory');
 
 function getFilePath(file) {

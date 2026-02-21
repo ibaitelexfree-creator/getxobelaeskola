@@ -39,7 +39,7 @@ export function cartesianToPolar(v: Vector2D): { magnitude: number; angle: numbe
     // atan2(x, -y) achieves this (swapping axes logic)
     // x is easting, -y is northing (because y is down)
 
-    let angleRad = Math.atan2(v.x, -v.y);
+    const angleRad = Math.atan2(v.x, -v.y);
     let angleDeg = rad2deg(angleRad);
 
     // Normalize to 0-360

@@ -70,9 +70,9 @@ function isValidDNI(dni: string): boolean {
  * Valida el dígito de control del NIE español.
  */
 function isValidNIE(nie: string): boolean {
-    let niePrefix = nie.charAt(0);
-    let numberPartStr = nie.substring(1, nie.length - 1);
-    let letterPart = nie.substring(nie.length - 1);
+    const niePrefix = nie.charAt(0);
+    const numberPartStr = nie.substring(1, nie.length - 1);
+    const letterPart = nie.substring(nie.length - 1);
 
     let prefixValue = '';
     if (niePrefix === 'X') prefixValue = '0';
