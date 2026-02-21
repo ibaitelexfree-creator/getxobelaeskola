@@ -21,6 +21,8 @@ export default function MembershipCardPage({ params: { locale } }: { params: { l
     const mouseYSpring = useSpring(y);
     const rotateX = useTransform(mouseYSpring, [-0.5, 0.5], ["10deg", "-10deg"]);
     const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], ["-10deg", "10deg"]);
+    const shineX = useTransform(x, [-0.5, 0.5], ["-50%", "50%"]);
+    const shineY = useTransform(y, [-0.5, 0.5], ["-50%", "50%"]);
 
     const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
         if (!cardRef.current) return;
@@ -158,8 +160,8 @@ export default function MembershipCardPage({ params: { locale } }: { params: { l
                         <motion.div
                             style={{
                                 background: "radial-gradient(circle at center, rgba(255,255,255,0.15) 0%, transparent 70%)",
-                                x: useTransform(x, [-0.5, 0.5], ["-50%", "50%"]),
-                                y: useTransform(y, [-0.5, 0.5], ["-50%", "50%"]),
+                                x: shineX,
+                                y: shineY,
                             }}
                             className="absolute inset-0 pointer-events-none mix-blend-overlay"
                         />

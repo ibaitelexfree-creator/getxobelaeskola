@@ -92,7 +92,7 @@ function updatePhysics(dt: number) {
     // 4. Heel Physics
     const targetHeel = Math.min(45, physics.heelForce * 20);
     const heelDiff = targetHeel - state.heelAngle;
-    let newHeel = state.heelAngle + (heelDiff * deltaTime * 2.0);
+    const newHeel = state.heelAngle + (heelDiff * deltaTime * 2.0);
 
     state = {
         ...state,
@@ -132,11 +132,12 @@ function renderSea(t: number) {
     const offsetX = flowX % gridSize;
     const offsetY = flowY % gridSize;
 
+    ctx.beginPath();
     for (let i = -1; i < cols; i++) {
         for (let j = -1; j < rows; j++) {
             const x = (i * gridSize) + offsetX - canvas.width / 2;
             const y = (j * gridSize) + offsetY - canvas.height / 2;
-            ctx.beginPath();
+
             for (let k = 0; k < gridSize; k += 10) {
                 const wx = x + k;
                 const waveY = Math.sin((wx + (t * 0.001) * 50) * 0.05) * 5;
@@ -144,9 +145,9 @@ function renderSea(t: number) {
                 if (k === 0) ctx.moveTo(wx, wy);
                 else ctx.lineTo(wx, wy);
             }
-            ctx.stroke();
         }
     }
+    ctx.stroke();
 
     ctx.rotate(angleRad);
     if (currentSeaSpeed > 1) {

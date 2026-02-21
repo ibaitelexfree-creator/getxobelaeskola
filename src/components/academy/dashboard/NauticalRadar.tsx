@@ -166,6 +166,7 @@ export default function NauticalRadar({ userRankSlug, locale }: NauticalRadarPro
                     </div>
                     <div className="flex items-center gap-4">
                         <button
+                            type="button"
                             onClick={() => setShowHistory(true)}
                             className="bg-accent/10 hover:bg-accent/20 border border-accent/30 rounded px-2 py-0.5 text-[9px] font-black text-accent uppercase tracking-tighter flex items-center gap-1.5 transition-all"
                         >

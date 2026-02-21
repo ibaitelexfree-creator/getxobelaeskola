@@ -40,6 +40,7 @@ import {
   clearCache as clearSuggestedTasksCache,
   generateFixPrompt as generateSuggestedTaskFixPrompt,
 } from './lib/suggested-tasks.js';
+import { AgentWatchdog } from './lib/watchdog.js';
 import compressionMiddleware from './middleware/compressionMiddleware.js';
 import validateRequest from './middleware/validateRequest.js';
 import mcpExecuteSchema from './schemas/mcp-execute-schema.js';
@@ -239,6 +240,7 @@ app.use('/mcp/', (req, res, next) => {
 // Initialize modules
 let batchProcessor = null;
 let sessionMonitor = null;
+const agentWatchdog = new AgentWatchdog();
 
 // CORS - Secure whitelist configuration (no wildcard fallback)
 const DEFAULT_ORIGINS = [
@@ -363,6 +365,39 @@ app.get('/api/sessions/:id/timeline', async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
+});
+
+// ============ WATCHDOG ENDPOINTS ============
+
+// Get watchdog status (used by watchdog.ps1)
+app.get('/watchdog/status', (req, res) => {
+  res.json(agentWatchdog.getStatus());
+});
+
+// Perform watchdog action
+app.post('/watchdog/action', express.json(), (req, res) => {
+  const { action } = req.body || {};
+  switch (action) {
+    case 'pause':
+      agentWatchdog.pause();
+      res.json({ success: true, state: 'PAUSED' });
+      break;
+    case 'resume':
+      agentWatchdog.resume();
+      res.json({ success: true, state: 'ACTIVE' });
+      break;
+    case 'feed':
+      agentWatchdog.feedOutput(req.body.message || '');
+      res.json({ success: true });
+      break;
+    default:
+      res.status(400).json({ error: 'Unknown action. Use: pause, resume, feed' });
+  }
+});
+
+// Get watchdog intervention history
+app.get('/watchdog/history', (req, res) => {
+  res.json({ history: agentWatchdog.getFullHistory() });
 });
 
 // ============ WEBHOOKS ============
@@ -969,7 +1004,7 @@ async function createJulesSession(config) {
 
   // Notify Telegram (Async, do not block response)
   if (session && session.name) {
-    const sessionId = session.name.split('/').pop();
+    const sessionId = session.name.split('/')?.pop() || 'unknown';
     const title = session.title || sessionData.title || 'Nueva tarea';
     sendTelegramMessage(`🚀 *Sesión de Jules Iniciada*\n\n*ID:* \`${sessionId}\`\n*Tarea:* ${title}\n*Origen:* \`${config.source}\`\n\n[Ver en el navegador](${session.url})`)
       .catch(err => console.error('[Telegram] Notification failed:', err.message));
@@ -1097,7 +1132,7 @@ async function cancelAllActiveSessions(confirm) {
   if (!confirm) throw new Error('Must pass confirm: true to cancel all sessions');
   const sessions = await sessionMonitor.getActiveSessions();
   const results = await Promise.all(sessions.map(async (s) => {
-    const id = s.name?.split('/').pop() || s.id;
+    const id = s.name?.split('/')?.pop() || s.id;
     try { await julesRequest('POST', `/sessions/${id}:cancel`, {}); return { id, cancelled: true }; }
     catch (error) { return { id, cancelled: false, error: error.message }; }
   }));
@@ -1275,7 +1310,7 @@ async function processQueue() {
   sessionQueue.markProcessing(next.id);
   try {
     const session = await createJulesSession(next.config);
-    const sessionId = session.name?.split('/').pop() || session.id;
+    const sessionId = session.name?.split('/')?.pop() || session.id;
     sessionQueue.markComplete(next.id, sessionId);
     return { processed: true, queueId: next.id, sessionId, session };
   } catch (error) {
