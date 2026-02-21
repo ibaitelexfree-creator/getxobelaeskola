@@ -1,195 +1,254 @@
 'use client';
 
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { ArrowDown, Wind } from 'lucide-react';
+import { useTranslations } from 'next-intl';
+import { Wind } from 'lucide-react';
 
 interface WindRoseProps {
-  angle: number; // 0-360, where 0 is North (Head to Wind)
-  speed: number; // Knots
-  onChange: (angle: number, speed: number) => void;
-  className?: string;
+  initialAngle?: number;
 }
 
-export default function WindRose({ angle, speed, onChange, className = '' }: WindRoseProps) {
+export default function WindRose({ initialAngle = 45 }: WindRoseProps) {
+  const t = useTranslations('wind_lab.interactive_rose');
   const svgRef = useRef<SVGSVGElement>(null);
+
+  const [windAngle, setWindAngle] = useState(initialAngle); // Degrees, 0 = North
   const [isDragging, setIsDragging] = useState(false);
+  const [boatSpeed, setBoatSpeed] = useState(0);
+  const [vmg, setVmg] = useState(0);
+  // Constants for display, could be state if dynamic
+  const bestUpwind = 45;
+  const bestDownwind = 150;
 
-  // Convert angle (degrees) to radians for calculation
-  // Angle 0 = Top (North).
-  // Standard Math: 0 = Right (East).
-  // SVG Coords: Y is down.
-  // To place an element at `angle` degrees from center:
-  // x = cx + r * sin(angle)
-  // y = cy - r * cos(angle)
-  const toRad = (deg: number) => (deg * Math.PI) / 180;
+  const calculatePhysics = useCallback((angle: number) => {
+    // Normalize angle to 0-180 for symmetric polar (TWA)
+    let twa = angle % 360;
+    if (twa < 0) twa += 360;
+    if (twa > 180) twa = 360 - twa;
 
-  const cx = 150;
-  const cy = 150;
-  const maxRadius = 120; // Max radius for speed = 40kn? Or just fixed visual radius
+    // Simple Polar Model
+    const maxSpeed = 8.0; // knots
+    let speed = 0;
 
-  // Visual representation of the wind vector source
-  // We place a handle at the "source" of the wind.
-  // Distance from center could represent speed, or just be fixed on the ring.
-  // Let's make distance represent speed (0-40 knots map to 20-120px radius)
-  const speedToRadius = (s: number) => Math.min(Math.max(s, 0) * 3 + 20, maxRadius);
-  const radiusToSpeed = (r: number) => Math.max(0, Math.round((r - 20) / 3));
+    if (twa < 30) {
+      speed = 0;
+    } else if (twa < 45) {
+      speed = maxSpeed * 0.6 * ((twa - 30) / 15);
+    } else if (twa < 100) {
+      speed = maxSpeed * (0.6 + 0.4 * ((twa - 45) / 55));
+    } else if (twa < 150) {
+       // Broad reach is fastest usually
+      speed = maxSpeed;
+    } else {
+      // Run
+      speed = maxSpeed * (1 - 0.3 * ((twa - 150) / 30));
+    }
 
-  const currentRadius = speedToRadius(speed);
-  const handleX = cx + currentRadius * Math.sin(toRad(angle));
-  const handleY = cy - currentRadius * Math.cos(toRad(angle));
+    setBoatSpeed(parseFloat(speed.toFixed(1)));
+
+    // VMG = Speed * cos(TWA)
+    const rad = (twa * Math.PI) / 180;
+    const calculatedVmg = speed * Math.cos(rad);
+    setVmg(parseFloat(calculatedVmg.toFixed(1)));
+
+  }, []);
+
+  useEffect(() => {
+    calculatePhysics(windAngle);
+  }, [windAngle, calculatePhysics]);
+
+  const updateAngle = useCallback((e: React.PointerEvent | MouseEvent | TouchEvent | { clientX: number, clientY: number }) => {
+    if (!svgRef.current) return;
+    const rect = svgRef.current.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+
+    // Client coordinates
+    let clientX = 0;
+    let clientY = 0;
+
+    if ('touches' in e && (e as TouchEvent).touches && (e as TouchEvent).touches.length > 0) {
+        clientX = (e as TouchEvent).touches[0].clientX;
+        clientY = (e as TouchEvent).touches[0].clientY;
+    } else if ('clientX' in e) {
+        clientX = (e as React.PointerEvent).clientX;
+        clientY = (e as React.PointerEvent).clientY;
+    }
+
+    const dx = clientX - centerX;
+    const dy = clientY - centerY;
+
+    // Calculate angle in degrees
+    const rad = Math.atan2(dy, dx);
+    const deg = (rad * 180) / Math.PI;
+
+    // Rotate so -90 (North in math) becomes 0
+    let navAngle = deg + 90;
+    if (navAngle < 0) navAngle += 360;
+
+    setWindAngle(Math.round(navAngle));
+  }, []);
 
   const handlePointerDown = (e: React.PointerEvent) => {
+    e.preventDefault();
     setIsDragging(true);
-    // Capture pointer to ensure we receive events outside the SVG
-    (e.target as Element).setPointerCapture(e.pointerId);
-    handlePointerMove(e);
+    updateAngle(e);
   };
 
-  const handlePointerMove = useCallback((e: React.PointerEvent) => {
-    if (!isDragging || !svgRef.current) return;
-
-    const rect = svgRef.current.getBoundingClientRect();
-    const x = e.clientX - rect.left - cx;
-    const y = e.clientY - rect.top - cy;
-
-    // Calculate Angle
-    // atan2(y, x) gives angle from X axis (Right).
-    // We want 0 at Top (Negative Y).
-    // atan2(y, x) -> Right=0, Down=90, Left=180, Up=-90.
-    // We want Up=0, Right=90, Down=180, Left=270.
-    // Conversion: degrees = atan2(y, x) * 180 / PI + 90.
-    let newAngle = (Math.atan2(y, x) * 180) / Math.PI + 90;
-    if (newAngle < 0) newAngle += 360;
-
-    // Calculate Speed (Distance from center)
-    const dist = Math.sqrt(x * x + y * y);
-    // Clamp distance to visual limits
-    const clampedDist = Math.min(Math.max(dist, 20), maxRadius);
-    const newSpeed = radiusToSpeed(clampedDist);
-
-    onChange(Math.round(newAngle), newSpeed);
-  }, [isDragging, onChange]);
-
-  const handlePointerUp = (e: React.PointerEvent) => {
+  const handlePointerUp = useCallback(() => {
     setIsDragging(false);
-    (e.target as Element).releasePointerCapture(e.pointerId);
+  }, []);
+
+  // Add global event listeners for dragging outside SVG
+  useEffect(() => {
+    if (isDragging) {
+      window.addEventListener('pointermove', updateAngle);
+      window.addEventListener('pointerup', handlePointerUp);
+      // Add touch events support for mobile if pointer events fail (though pointermove usually covers it)
+      window.addEventListener('touchmove', updateAngle, { passive: false });
+      window.addEventListener('touchend', handlePointerUp);
+    } else {
+      window.removeEventListener('pointermove', updateAngle);
+      window.removeEventListener('pointerup', handlePointerUp);
+      window.removeEventListener('touchmove', updateAngle);
+      window.removeEventListener('touchend', handlePointerUp);
+    }
+    return () => {
+      window.removeEventListener('pointermove', updateAngle);
+      window.removeEventListener('pointerup', handlePointerUp);
+      window.removeEventListener('touchmove', updateAngle);
+      window.removeEventListener('touchend', handlePointerUp);
+    };
+  }, [isDragging, updateAngle, handlePointerUp]);
+
+
+  // Helper to polar to cartesian
+  const p2c = (angleDeg: number, radius: number) => {
+    const angleRad = (angleDeg - 90) * (Math.PI / 180);
+    return {
+      x: 150 + radius * Math.cos(angleRad),
+      y: 150 + radius * Math.sin(angleRad)
+    };
   };
+
+  const windPos = p2c(windAngle, 120);
 
   return (
-    <div className={`relative flex flex-col items-center select-none ${className}`}>
-      <svg
-        ref={svgRef}
-        width="300"
-        height="300"
-        viewBox="0 0 300 300"
-        className="touch-none cursor-pointer"
-        onPointerDown={handlePointerDown}
-        onPointerMove={handlePointerMove}
-        onPointerUp={handlePointerUp}
-        onPointerLeave={handlePointerUp}
-      >
-        {/* Background Circle / Compass Rose */}
-        <circle cx={cx} cy={cy} r={maxRadius} fill="#f8fafc" stroke="#e2e8f0" strokeWidth="1" />
-        <circle cx={cx} cy={cy} r={maxRadius * 0.66} fill="none" stroke="#f1f5f9" strokeWidth="1" strokeDasharray="4 4" />
-        <circle cx={cx} cy={cy} r={maxRadius * 0.33} fill="none" stroke="#f1f5f9" strokeWidth="1" strokeDasharray="4 4" />
+    <div className="w-full max-w-4xl mx-auto p-4 flex flex-col md:flex-row gap-8 items-center justify-center">
 
-        {/* Compass Marks */}
-        {[0, 45, 90, 135, 180, 225, 270, 315].map((deg) => (
-          <line
-            key={deg}
-            x1={cx + (maxRadius - 10) * Math.sin(toRad(deg))}
-            y1={cy - (maxRadius - 10) * Math.cos(toRad(deg))}
-            x2={cx + maxRadius * Math.sin(toRad(deg))}
-            y2={cy - maxRadius * Math.cos(toRad(deg))}
-            stroke="#94a3b8"
-            strokeWidth={deg % 90 === 0 ? 2 : 1}
-          />
-        ))}
+      {/* Visualizer */}
+      <div className="relative w-[300px] h-[300px] md:w-[400px] md:h-[400px] select-none touch-none">
+        <svg
+          ref={svgRef}
+          viewBox="0 0 300 300"
+          className="w-full h-full drop-shadow-xl cursor-crosshair"
+          onPointerDown={handlePointerDown}
+        >
+          {/* Background Circle */}
+          <circle cx="150" cy="150" r="140" fill="#f8fafc" stroke="#e2e8f0" strokeWidth="2" />
 
-        {/* Labels */}
-        <text x={cx} y={cy - maxRadius - 15} textAnchor="middle" className="text-xs fill-slate-500 font-bold">N</text>
-        <text x={cx + maxRadius + 15} y={cy + 4} textAnchor="middle" className="text-xs fill-slate-500 font-bold">E</text>
-        <text x={cx} y={cy + maxRadius + 20} textAnchor="middle" className="text-xs fill-slate-500 font-bold">S</text>
-        <text x={cx - maxRadius - 15} y={cy + 4} textAnchor="middle" className="text-xs fill-slate-500 font-bold">W</text>
+          {/* Compass Marks */}
+          {[0, 45, 90, 135, 180, 225, 270, 315].map(ang => {
+            const pos1 = p2c(ang, 130);
+            const pos2 = p2c(ang, 140);
+            return (
+              <line
+                key={ang}
+                x1={pos1.x} y1={pos1.y}
+                x2={pos2.x} y2={pos2.y}
+                stroke="#94a3b8"
+                strokeWidth={ang % 90 === 0 ? 3 : 1}
+              />
+            );
+          })}
+          <text x="150" y="25" textAnchor="middle" className="text-xs font-bold fill-slate-400">N</text>
+          <text x="275" y="155" textAnchor="middle" className="text-xs font-bold fill-slate-400">E</text>
+          <text x="150" y="285" textAnchor="middle" className="text-xs font-bold fill-slate-400">S</text>
+          <text x="25" y="155" textAnchor="middle" className="text-xs font-bold fill-slate-400">W</text>
 
-        {/* Boat in Center */}
-        <g transform={`translate(${cx}, ${cy})`}>
-          {/* Simple Boat Shape */}
-          <path
-            d="M0 -20 L10 10 L0 25 L-10 10 Z"
-            fill="#0a1628" // Navy
-            stroke="none"
-          />
-          <path
-            d="M0 -15 L0 15"
-            stroke="white"
-            strokeWidth="2"
-          />
-        </g>
+          {/* Zones */}
+          {/* No Go Zone (30 deg each side) */}
+          <path d={`M 150 150 L ${p2c(-30, 140).x} ${p2c(-30, 140).y} A 140 140 0 0 1 ${p2c(30, 140).x} ${p2c(30, 140).y} Z`} fill="rgba(239, 68, 68, 0.1)" />
 
-        {/* No Go Zone Area (red transparent wedge at top) */}
-        {/* Arc from -45 to +45 */}
-        <path
-            d={`M ${cx} ${cy} L ${cx + maxRadius * Math.sin(toRad(-45))} ${cy - maxRadius * Math.cos(toRad(-45))} A ${maxRadius} ${maxRadius} 0 0 1 ${cx + maxRadius * Math.sin(toRad(45))} ${cy - maxRadius * Math.cos(toRad(45))} Z`}
-            fill="rgba(239, 68, 68, 0.1)" // Red-500 with low opacity
-            pointerEvents="none"
-        />
+          {/* Optimal Upwind Lines (45 deg) */}
+          <line x1="150" y1="150" x2={p2c(bestUpwind, 140).x} y2={p2c(bestUpwind, 140).y} stroke="rgba(34, 197, 94, 0.5)" strokeDasharray="4 2" />
+          <line x1="150" y1="150" x2={p2c(360 - bestUpwind, 140).x} y2={p2c(360 - bestUpwind, 140).y} stroke="rgba(34, 197, 94, 0.5)" strokeDasharray="4 2" />
 
-        {/* Wind Vector (Arrow pointing to center) */}
-        {/* We draw a line from the handle to the center? Or an arrow at the center? */}
-        {/* Let's draw an arrow from the handle pointing towards the center to visualize "Wind From" */}
-        <defs>
-          <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
-            <polygon points="0 0, 10 3.5, 0 7" fill="#ca8a04" />
-          </marker>
-        </defs>
+          {/* Boat (Fixed Heading North) */}
+          <g transform="translate(150, 150)">
+             {/* Simple Boat Shape */}
+             <path d="M 0 -20 Q 10 0 10 20 L -10 20 Q -10 0 0 -20" fill="#0f172a" />
+          </g>
 
-        <line
-            x1={handleX}
-            y1={handleY}
-            x2={cx + 25 * Math.sin(toRad(angle))} // Don't go all the way to center so we see the boat
-            y2={cy - 25 * Math.cos(toRad(angle))}
-            stroke="#ca8a04" // Accent Gold
-            strokeWidth="3"
-            markerEnd="url(#arrowhead)"
-            pointerEvents="none"
-        />
+          {/* Wind Vector (Draggable) */}
+          {/* Arrow pointing to center from windPos */}
+          <g
+            transform={`translate(${windPos.x}, ${windPos.y}) rotate(${windAngle + 180})`}
+            className="cursor-pointer hover:scale-110 transition-transform"
+          >
+             <circle r="15" fill="rgba(59, 130, 246, 0.2)" />
+             <line x1="0" y1="0" x2="0" y2="40" stroke="#3b82f6" strokeWidth="3" markerEnd="url(#arrowhead)" />
+             {/* Drag Handle */}
+             <circle r="20" fill="transparent" />
+          </g>
 
-        {/* Draggable Handle (Wind Source) */}
-        <circle
-            cx={handleX}
-            cy={handleY}
-            r="12"
-            fill="#ca8a04"
-            className="cursor-grab active:cursor-grabbing hover:scale-110 transition-transform"
-            stroke="white"
-            strokeWidth="2"
-        />
+           <defs>
+            <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="0" refY="3.5" orient="auto">
+              <polygon points="0 0, 10 3.5, 0 7" fill="#3b82f6" />
+            </marker>
+          </defs>
 
-        {/* Text showing current values near handle */}
-        {isDragging && (
-           <g>
-               <rect
-                 x={handleX + 15}
-                 y={handleY - 15}
-                 width="80"
-                 height="40"
-                 rx="4"
-                 fill="rgba(0,0,0,0.8)"
-               />
-               <text x={handleX + 25} y={handleY + 5} fill="white" fontSize="12">
-                   {angle}°
-               </text>
-               <text x={handleX + 25} y={handleY + 20} fill="white" fontSize="12" fontWeight="bold">
-                   {speed} kn
-               </text>
-           </g>
-        )}
-
-      </svg>
-      <div className="text-center mt-2 text-sm text-slate-500">
-        Arrastra el punto amarillo para cambiar viento y velocidad
+        </svg>
+        <div className="absolute top-2 left-2 text-xs text-slate-500 bg-white/80 p-1 rounded backdrop-blur-sm pointer-events-none">
+          {t('drag_instruction')}
+        </div>
       </div>
+
+      {/* Data Panel */}
+      <div className="bg-white p-6 rounded-xl shadow-lg border border-slate-100 w-full max-w-sm">
+        <h3 className="text-xl font-bold mb-4 text-slate-800 flex items-center gap-2">
+          <Wind className="w-5 h-5" />
+          {t('title')}
+        </h3>
+
+        <div className="space-y-4">
+          <div className="flex justify-between items-center border-b pb-2">
+            <span className="text-slate-500">{t('twa')}</span>
+            <span className="text-2xl font-mono font-bold text-blue-600">{windAngle}°</span>
+          </div>
+
+          <div className="flex justify-between items-center border-b pb-2">
+             <span className="text-slate-500">{t('boat_heading')}</span>
+             <span className="text-lg font-mono font-bold text-slate-800">000° (N)</span>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+             <div className="bg-slate-50 p-3 rounded-lg">
+                <div className="text-xs text-slate-500 uppercase mb-1">{t('speed')}</div>
+                <div className="text-xl font-bold text-slate-700">{boatSpeed} kn</div>
+             </div>
+             <div className="bg-slate-50 p-3 rounded-lg">
+                <div className="text-xs text-slate-500 uppercase mb-1">{t('vmg')}</div>
+                <div className={`text-xl font-bold ${vmg > 0 ? 'text-green-600' : 'text-orange-500'}`}>
+                  {vmg} kn
+                </div>
+             </div>
+          </div>
+
+          <div className="pt-2">
+            <div className="text-xs font-bold text-slate-400 mb-2 uppercase">{t('optimal_angle')}</div>
+            <div className="flex justify-between text-sm">
+               <span>{t('close_hauled')}:</span>
+               <span className="font-mono">{bestUpwind}° / {360 - bestUpwind}°</span>
+            </div>
+             <div className="flex justify-between text-sm mt-1">
+               <span>Downwind:</span>
+               <span className="font-mono">{bestDownwind}° / {360 - bestDownwind}°</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div>
   );
 }
