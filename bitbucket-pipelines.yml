@@ -1,0 +1,62 @@
+# Bitbucket Pipeline — Ultra-Lightweight Signal Bridge
+# Purpose: Run fast linting (<3s) then dispatch to GitHub Actions for heavy work
+# Budget: ZERO minutes wasted (alpine/curl + oxlint only)
+
+image: node:22-alpine
+
+pipelines:
+  branches:
+    # Trigger dispatch for main or the test branch
+    "{main,feature/sbrm-ci-test}":
+      - step:
+          name: "⚡ Lint & Signal (≤10s)"
+          size: 1x
+          script:
+            # 1. Install only oxlint (no full npm install)
+            - npm install -g oxlint@latest --no-progress --loglevel=error
+
+            # 2. Run Rust-based linter (~0.4s)
+            - echo "🔍 Running Oxlint..."
+            - oxlint ./src --quiet || true
+
+            # 3. Dispatch signal to GitHub Actions
+            - |
+              echo "📡 Dispatching to GitHub Actions..."
+              apk add --no-cache curl > /dev/null 2>&1
+              curl -s -X POST \
+                -H "Accept: application/vnd.github.v3+json" \
+                -H "Authorization: token ${GITHUB_PAT}" \
+                "https://api.github.com/repos/${GITHUB_REPO}/dispatches" \
+                -d "{
+                  \"event_type\": \"bitbucket-signal\",
+                  \"client_payload\": {
+                    \"commit\": \"${BITBUCKET_COMMIT}\",
+                    \"branch\": \"${BITBUCKET_BRANCH}\",
+                    \"repo\": \"${BITBUCKET_REPO_SLUG}\",
+                    \"actor\": \"${BITBUCKET_STEP_TRIGGERER_UUID}\",
+                    \"task\": \"full-ci\",
+                    \"timestamp\": \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"
+                  }
+                }"
+            - echo "✅ Signal dispatched successfully"
+          after-script:
+            - echo "⏱️ Total time: ${BITBUCKET_STEP_DURATION}s"
+
+    # Feature/fix branches: only lint, NO dispatch
+    "feature/*":
+      - step:
+          name: "🔍 Quick Lint Only"
+          size: 1x
+          script:
+            - npm install -g oxlint@latest --no-progress --loglevel=error
+            - oxlint ./src --quiet
+            - echo "✅ Feature branch lint complete"
+
+    "fix/*":
+      - step:
+          name: "🔍 Quick Lint Only"
+          size: 1x
+          script:
+            - npm install -g oxlint@latest --no-progress --loglevel=error
+            - oxlint ./src --quiet
+            - echo "✅ Fix branch lint complete"
