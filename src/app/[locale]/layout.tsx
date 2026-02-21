@@ -7,6 +7,7 @@ import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 const AcademyFeedbackProvider = dynamic(() => import('@/components/academy/AcademyFeedbackProvider'), { ssr: false });
 const PushNotificationInitializer = dynamic(() => import('@/components/academy/notifications/PushNotificationInitializer'), { ssr: false });
+const SmartNotificationManager = dynamic(() => import('@/components/academy/notifications/SmartNotificationManager'), { ssr: false });
 import ConditionalLayout from '@/components/layout/ConditionalLayout';
 const ScrollUpButton = dynamic(() => import('@/components/shared/ScrollToTop'), { ssr: false });
 import { Viewport } from 'next';
@@ -48,6 +49,7 @@ export default async function LocaleLayout({
           <AcademyFeedbackProvider>
             <PushNotificationInitializer />
             <OfflineIndicator />
+            <SmartNotificationManager />
             <div className="min-h-screen flex flex-col relative w-full overflow-x-hidden">
               <ConditionalLayout
                 locale={locale}
