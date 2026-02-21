@@ -7,21 +7,63 @@ function getBaseUrl(): string {
     return DEFAULT_BASE;
 }
 
-async function request<T>(method: string, path: string, body?: unknown): Promise<T> {
+const TIMEOUT_MS = 15000;
+const MAX_RETRIES = 3;
+
+async function fetchWithTimeout(url: string, options: RequestInit & { timeout?: number }): Promise<Response> {
+    const { timeout = TIMEOUT_MS } = options;
+    const controller = new AbortController();
+    const id = setTimeout(() => controller.abort(), timeout);
+    try {
+        const response = await fetch(url, {
+            ...options,
+            signal: controller.signal,
+        });
+        clearTimeout(id);
+        return response;
+    } catch (error) {
+        clearTimeout(id);
+        throw error;
+    }
+}
+
+async function request<T>(method: string, path: string, body?: unknown, retries = MAX_RETRIES): Promise<T> {
     const url = `${getBaseUrl()}${path}`;
     const opts: RequestInit = {
         method,
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'MissionControlV3'
+        },
     };
     if (body) opts.body = JSON.stringify(body);
 
-    const res = await fetch(url, opts);
-    if (!res.ok) {
-        const text = await res.text().catch(() => 'Unknown error');
-        throw new Error(`API ${method} ${path}: ${res.status} — ${text}`);
+    try {
+        const res = await fetchWithTimeout(url, opts);
+
+        if (!res.ok) {
+            if (res.status >= 500 && retries > 0) {
+                console.warn(`Retrying ${method} ${path}... attempts left: ${retries}`);
+                await new Promise(r => setTimeout(r, 1000 * (MAX_RETRIES - retries + 1)));
+                return request(method, path, body, retries - 1);
+            }
+            const text = await res.text().catch(() => 'Unknown error');
+            throw new Error(`API ${method} ${path}: ${res.status} — ${text}`);
+        }
+        return res.json();
+    } catch (error: any) {
+        if (error.name === 'AbortError') {
+            throw new Error(`API Timeout: ${method} ${path} after ${TIMEOUT_MS}ms`);
+        }
+        if (retries > 0) {
+            console.warn(`Connection error, retrying... attempts left: ${retries}`);
+            await new Promise(r => setTimeout(r, 1000 * (MAX_RETRIES - retries + 1)));
+            return request(method, path, body, retries - 1);
+        }
+        throw error;
     }
-    return res.json();
 }
+
 
 // ─── Health & Info ───
 
@@ -35,6 +77,8 @@ export interface HealthResponse {
 }
 
 export const getHealth = () => request<HealthResponse>('GET', '/health');
+
+export const getActiveSessions = () => request<{ activeSessions: any[], activeCount: number }>('GET', '/api/sessions/active');
 
 // ─── Watchdog ───
 
@@ -56,6 +100,9 @@ export interface WatchdogStatus {
 export const getWatchdogStatus = () => request<WatchdogStatus>('GET', '/watchdog/status');
 export const watchdogAction = (action: string, message?: string) =>
     request<{ success: boolean }>('POST', '/watchdog/action', { action, message });
+
+export const registerDevice = (token: string, platform: string, deviceId: string) =>
+    request<{ success: boolean }>('POST', '/watchdog/register-device', { token, platform, deviceId });
 
 // ─── MCP Execute (proxy to Maestro commands) ───
 

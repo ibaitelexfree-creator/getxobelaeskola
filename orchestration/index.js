@@ -1,6 +1,9 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import https from 'https';
+import fs from 'fs';
+import path from 'path';
+import admin from 'firebase-admin';
 import { getIssue, getIssuesByLabel, formatIssueForPrompt } from './lib/github.js';
 import { BatchProcessor } from './lib/batch.js';
 import { SessionMonitor } from './lib/monitor.js';
@@ -242,6 +245,39 @@ let batchProcessor = null;
 let sessionMonitor = null;
 const agentWatchdog = new AgentWatchdog();
 
+// Initialize Firebase Admin (V1 SDK)
+try {
+  const serviceAccountPath = path.join(process.cwd(), 'firebase-auth.json');
+  if (fs.existsSync(serviceAccountPath)) {
+    const serviceAccount = JSON.parse(fs.readFileSync(serviceAccountPath, 'utf8'));
+    admin.initializeApp({
+      credential: admin.credential.cert(serviceAccount)
+    });
+    console.log('[Firebase] Admin SDK initialized successfully');
+  } else {
+    console.warn('[Firebase] Skip init: firebase-auth.json not found');
+  }
+} catch (error) {
+  console.error('[Firebase] Failed to initialize:', error.message);
+}
+
+// Connect Watchdog events to Push Notifications
+agentWatchdog.on('loopDetected', (e) => {
+  sendPushToAll('⚠️ Bucle Detectado', `Antigravity está repitiendo comandos (${e.repeatCount}x). Interviniendo...`, { priority: 'high', type: 'loop' });
+});
+
+agentWatchdog.on('stallDetected', (e) => {
+  sendPushToAll('⏸️ Agente Estancado', `No hay salida de Antigravity hace ${Math.round(e.silentForMs / 1000)}s. Intentando continuar...`, { type: 'stall' });
+});
+
+agentWatchdog.on('crashDetected', () => {
+  sendPushToAll('🔥 Crash de Antigravity', 'El proceso de Antigravity/Cursor no responde. Reiniciando...', { priority: 'high', type: 'crash' });
+});
+
+agentWatchdog.on('autoContinueSent', (e) => {
+  sendPushToAll('▶️ Auto-Continuar', `Enviado ENTER a la consola (Intento ${e.attempt}).`, { type: 'auto-continue' });
+});
+
 // CORS - Secure whitelist configuration (no wildcard fallback)
 const DEFAULT_ORIGINS = [
   'http://localhost:3000',
@@ -369,10 +405,93 @@ app.get('/api/sessions/:id/timeline', async (req, res) => {
 
 // ============ WATCHDOG ENDPOINTS ============
 
+const DEVICES_FILE = join(process.cwd(), 'logs', 'devices.json');
+let registeredDevices = [];
+
+// Load devices on startup
+try {
+  if (existsSync(DEVICES_FILE)) {
+    registeredDevices = JSON.parse(readFileSync(DEVICES_FILE, 'utf-8'));
+    console.log(`[Watchdog] Loaded ${registeredDevices.length} registered devices`);
+  }
+} catch (e) {
+  console.error('[Watchdog] Failed to load devices:', e.message);
+}
+
 // Get watchdog status (used by watchdog.ps1)
 app.get('/watchdog/status', (req, res) => {
   res.json(agentWatchdog.getStatus());
 });
+
+// Register device for push notifications
+app.post('/watchdog/register-device', express.json(), (req, res) => {
+  const { token, platform, deviceId } = req.body || {};
+  if (!token) return res.status(400).json({ error: 'Token required' });
+
+  const existingIdx = registeredDevices.findIndex(d => d.deviceId === deviceId || d.token === token);
+  const deviceEntry = { token, platform: platform || 'unknown', deviceId: deviceId || 'unknown', registeredAt: new Date().toISOString() };
+
+  if (existingIdx >= 0) {
+    registeredDevices[existingIdx] = deviceEntry;
+  } else {
+    registeredDevices.push(deviceEntry);
+  }
+
+  // Persist
+  try {
+    const logsDir = join(process.cwd(), 'logs');
+    if (!existsSync(logsDir)) mkdirSync(logsDir, { recursive: true });
+    writeFileSync(DEVICES_FILE, JSON.stringify(registeredDevices, null, 2));
+  } catch (e) {
+    console.error('[Watchdog] Failed to save devices:', e.message);
+  }
+
+  structuredLog('info', 'Device registered for push', { platform, deviceId });
+  res.json({ success: true, count: registeredDevices.length });
+});
+
+// Helper to send push notifications to all registered devices
+async function sendPushToAll(title, body, data = {}) {
+  if (registeredDevices.length === 0) return;
+
+  // Check if Firebase is initialized
+  const isFirebaseReady = admin.apps.length > 0;
+
+  if (!isFirebaseReady) {
+    structuredLog('info', 'Push simulated (Firebase not initialized)', { count: registeredDevices.length, title });
+    return registeredDevices.map(d => ({ device: d.deviceId, success: true, simulated: true }));
+  }
+
+  console.log(`[Push] Sending V1 to ${registeredDevices.length} devices: ${title}`);
+
+  const results = await Promise.all(registeredDevices.map(async (device) => {
+    try {
+      const message = {
+        notification: { title, body },
+        data: {
+          ...data,
+          priority: data.priority || 'high'
+        },
+        token: device.token,
+        android: {
+          priority: 'high',
+          notification: {
+            sound: 'default',
+            clickAction: 'FCM_PLUGIN_ACTIVITY'
+          }
+        }
+      };
+
+      const response = await admin.messaging().send(message);
+      return { device: device.deviceId, success: true, messageId: response };
+    } catch (error) {
+      console.error(`[Push] Error sending to ${device.deviceId}:`, error.message);
+      return { device: device.deviceId, success: false, error: error.message };
+    }
+  }));
+
+  return results;
+}
 
 // Perform watchdog action
 app.post('/watchdog/action', express.json(), (req, res) => {

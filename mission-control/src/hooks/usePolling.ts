@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useCallback } from 'react';
 import { useMissionStore } from '@/store/useMissionStore';
-import { getHealth, getWatchdogStatus } from '@/lib/api';
+import { getHealth, getWatchdogStatus, getActiveSessions } from '@/lib/api';
 
 export function usePolling() {
     const intervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -12,13 +12,15 @@ export function usePolling() {
         updateServices,
         updateStats,
         setLastSync,
+        updateActiveThreads,
     } = useMissionStore();
 
     const poll = useCallback(async () => {
         try {
-            const [health, watchdog] = await Promise.all([
+            const [health, watchdog, sessions] = await Promise.all([
                 getHealth().catch(() => null),
                 getWatchdogStatus().catch(() => null),
+                getActiveSessions().catch(() => null),
             ]);
 
             if (health) {
@@ -59,6 +61,34 @@ export function usePolling() {
                         crashes: watchdog.stats.crashesRecovered,
                     },
                 });
+            }
+            if (sessions?.activeSessions) {
+                const threads = sessions.activeSessions.map((s: any) => {
+                    const executor = s.executor || (s.title?.toLowerCase().includes('flash') ? 'flash' : 'jules');
+                    const layer = (executor === 'jules' ? 1 : (executor === 'flash' ? 2 : 3)) as 1 | 2 | 3;
+                    return {
+                        id: s.id,
+                        label: s.title || 'Untitled Task',
+                        executor: executor,
+                        layer: layer,
+                        progress: s.progress || 0,
+                        status: s.state,
+                    };
+                });
+
+                // Add Antigravity if it's active in watchdog
+                if (watchdog && watchdog.state === 'ACTIVE') {
+                    threads.push({
+                        id: 'antigravity-core',
+                        label: 'Antigravity Main Loop',
+                        executor: 'antigravity',
+                        layer: 1,
+                        progress: 100,
+                        status: 'RUNNING',
+                    });
+                }
+
+                updateActiveThreads(threads);
             }
         } catch {
             setConnected(false);

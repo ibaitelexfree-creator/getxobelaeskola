@@ -1,7 +1,8 @@
 import { create } from 'zustand';
+import { Haptics, ImpactStyle } from '@capacitor/haptics';
 
 export type ServiceHealth = 'online' | 'offline' | 'degraded' | 'unknown';
-export type Tab = 'dashboard' | 'tasks' | 'queue' | 'control';
+export type Tab = 'dashboard' | 'tasks' | 'queue' | 'control' | 'visual' | 'settings';
 
 interface MissionState {
     // Connection
@@ -30,10 +31,21 @@ interface MissionState {
     history: Array<{
         id: string;
         title: string;
-        executor: 'jules' | 'flash' | 'clawdbot';
+        executor: 'jules' | 'flash' | 'clawdbot' | 'antigravity';
         status: 'completed' | 'failed' | 'queued' | 'running';
         latencyMs?: number;
         timestamp: number;
+        layer?: 1 | 2 | 3;
+    }>;
+
+    // Active Threads (Radar Contacts)
+    activeThreads: Array<{
+        id: string;
+        label: string;
+        executor: 'jules' | 'flash' | 'clawdbot' | 'antigravity';
+        layer: 1 | 2 | 3;
+        progress: number;
+        status: string;
     }>;
 
     // Navigation
@@ -51,14 +63,17 @@ interface MissionState {
     setPendingApproval: (approval: MissionState['pendingApproval']) => void;
     addToHistory: (entry: MissionState['history'][0]) => void;
     setActiveTab: (tab: Tab) => void;
+    updateActiveThreads: (threads: MissionState['activeThreads']) => void;
     setAutoRefresh: (ms: number) => void;
     setLastSync: (ts: number) => void;
 }
 
-export const useMissionStore = create<MissionState>((set) => ({
+const STORAGE_KEY = 'mc_server_url';
+
+export const useMissionStore = create<MissionState>((set, get) => ({
     // Initial state
     serverUrl: typeof window !== 'undefined'
-        ? localStorage.getItem('mc_server_url') || 'http://localhost:3323'
+        ? localStorage.getItem(STORAGE_KEY) || 'http://localhost:3323'
         : 'http://localhost:3323',
     connected: false,
     lastSync: null,
@@ -76,12 +91,13 @@ export const useMissionStore = create<MissionState>((set) => ({
     queue: [],
     pendingApproval: null,
     history: [],
+    activeThreads: [],
     activeTab: 'dashboard',
     autoRefreshMs: 10_000,
 
     // Actions
     setServerUrl: (url) => {
-        if (typeof window !== 'undefined') localStorage.setItem('mc_server_url', url);
+        if (typeof window !== 'undefined') localStorage.setItem(STORAGE_KEY, url);
         set({ serverUrl: url });
     },
     setConnected: (connected) => set({ connected }),
@@ -90,10 +106,23 @@ export const useMissionStore = create<MissionState>((set) => ({
     updateStats: (partial) =>
         set((state) => ({ stats: { ...state.stats, ...partial } })),
     setQueue: (queue) => set({ queue }),
-    setPendingApproval: (pendingApproval) => set({ pendingApproval }),
+    setPendingApproval: (pendingApproval) => {
+        const current = get().pendingApproval;
+        // Trigger haptics only when a NEW approval arrives
+        if (pendingApproval && !current) {
+            Haptics.impact({ style: ImpactStyle.Heavy }).catch(() => { });
+            // Double vibration for urgency
+            setTimeout(() => {
+                Haptics.impact({ style: ImpactStyle.Heavy }).catch(() => { });
+            }, 200);
+        }
+        set({ pendingApproval });
+    },
     addToHistory: (entry) =>
         set((state) => ({ history: [entry, ...state.history].slice(0, 100) })),
     setActiveTab: (activeTab) => set({ activeTab }),
+    updateActiveThreads: (activeThreads) => set({ activeThreads }),
     setAutoRefresh: (autoRefreshMs) => set({ autoRefreshMs }),
     setLastSync: (lastSync) => set({ lastSync }),
 }));
+
