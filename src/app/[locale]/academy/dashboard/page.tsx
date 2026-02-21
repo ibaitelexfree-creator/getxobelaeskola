@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
-import { X, Book, Ship, Globe, Anchor, Wind, Shield, ChevronRight, CloudRain } from 'lucide-react';
+import { X, Book, Ship, Globe, Anchor, Wind, Shield, ChevronRight, Backpack } from 'lucide-react';
 import { useNotificationStore } from '@/lib/store/useNotificationStore';
 import dynamic from 'next/dynamic';
 
@@ -356,6 +356,13 @@ export default function DashboardPage({ params }: { params: { locale: string } }
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
                     {[
                         {
+                            id: 'mochila',
+                            label: 'Mochila',
+                            icon: <Backpack className="w-5 h-5" />,
+                            color: 'text-pink-400 bg-pink-500/10 hover:bg-pink-500/20',
+                            href: `/${params.locale}/academy/mochila`
+                        },
+                        {
                             id: 'logbook',
                             label: 'Bitácora',
                             icon: <Book className="w-5 h-5" />,
@@ -389,13 +396,6 @@ export default function DashboardPage({ params }: { params: { locale: string } }
                             icon: <Wind className="w-5 h-5" />,
                             color: 'text-cyan-400 bg-cyan-500/10 hover:bg-cyan-500/20',
                             href: `/${params.locale}/academy/tools/wind-lab`
-                        },
-                        {
-                            id: 'meteo-simulator',
-                            label: 'Meteo',
-                            icon: <CloudRain className="w-5 h-5" />,
-                            color: 'text-sky-400 bg-sky-500/10 hover:bg-sky-500/20',
-                            href: `/${params.locale}/academy/tools/meteo-simulator`
                         },
                         {
                             id: 'skills',

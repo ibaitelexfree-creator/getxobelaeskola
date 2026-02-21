@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { NextResponse } from 'next/server';
+import { identifyFailedQuestions } from '@/lib/academy/evaluation';
 
 export async function POST(request: Request) {
     try {
@@ -119,6 +120,41 @@ export async function POST(request: Request) {
             .eq('student_id', user.id)
             .gte('unlocked_at', bufferTime);
 
+        // 9. LOG FAILED QUESTIONS FOR REVIEW (Mochila de Dudas)
+        try {
+            if (intento.preguntas_json && intento.preguntas_json.length > 0) {
+                const { data: allQuestions } = await supabaseAdmin
+                    .from('preguntas')
+                    .select('id, respuesta_correcta')
+                    .in('id', intento.preguntas_json);
+
+                if (allQuestions) {
+                    const failedIds = identifyFailedQuestions(allQuestions, respuestasMerged);
+
+                    if (failedIds.length > 0) {
+                        const failuresToUpsert = failedIds.map(qid => ({
+                            alumno_id: user.id,
+                            pregunta_id: qid,
+                            estado: 'pendiente',
+                            updated_at: new Date().toISOString()
+                        }));
+
+                        const { error: upsertError } = await supabase
+                            .from('repaso_errores')
+                            .upsert(failuresToUpsert, {
+                                onConflict: 'alumno_id, pregunta_id'
+                            });
+
+                        if (upsertError) {
+                            console.error('Error logging failed questions:', upsertError);
+                        }
+                    }
+                }
+            }
+        } catch (e) {
+            console.error('Error in error review logging:', e);
+        }
+
         // Obtener las respuestas correctas si está configurado
         let respuestasCorrectas = null;
         if (intento.evaluacion.mostrar_respuestas) {
@@ -149,4 +185,3 @@ export async function POST(request: Request) {
         );
     }
 }
-

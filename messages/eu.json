@@ -740,6 +740,19 @@
       "view_requirements": "Desblokeatzeko baldintzak ikusi",
       "go_to_academy": "Akademiara Itzuli"
     },
+    "mochila": {
+      "title": "Zalantzen Motxila",
+      "subtitle": "Berrikusi zure akatsak eta gaia menderatu",
+      "empty": "Zorionak! Ez duzu zalantzarik.",
+      "empty_desc": "Aurretik huts egindako galdera guztiak menderatu dituzu.",
+      "mastered": "Menderatuta!",
+      "reveal": "Erantzuna Erakutsi",
+      "next": "Hurrengo Galdera",
+      "loading": "Zure zalantzak kargatzen...",
+      "question": "Galdera",
+      "answer": "Erantzun Zuzena",
+      "explanation": "Azalpena"
+    },
     "motivational_quotes": [
       "Nora nabigatu nahi duen ez dakienari, ez zaio sekula haizea alde jarriko.",
       "Itsaso bareak ez du inoiz nabigatzaile treberik egin.",
