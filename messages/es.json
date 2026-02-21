@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 {
   "nav": {
     "home": "Inicio",
@@ -854,6 +855,16 @@
       "save_btn": "GUARDAR",
       "ranking_title": "RANKING - TOP 10",
       "restart_btn": "VOLVER A JUGAR"
+    },
+    "interactive_rose": {
+      "title": "Roseta Interactiva",
+      "drag_instruction": "Arrastra el indicador de viento (flecha azul) para ver cómo cambia la navegación.",
+      "close_hauled": "Ceñida",
+      "optimal_angle": "Ángulo Óptimo",
+      "vmg": "VMG",
+      "boat_heading": "Rumbo Barco",
+      "twa": "Ángulo Viento Real",
+      "speed": "Velocidad"
     }
   },
   "validation": {
@@ -1000,4 +1011,1129 @@
       "close_btn": "Ir al Dashboard"
     }
   }
+=======
+{
+  "nav": {
+    "home": "Inicio",
+    "courses": "Cursos",
+    "academy": "Academia",
+    "rental": "Alquileres",
+    "partners": "Socios",
+    "experiences": "Experiencias",
+    "teams": "Equipos",
+    "about": "La Escuela",
+    "contact": "Contacto",
+    "login": "Acceso",
+    "dashboard": "Mi Área",
+    "admin_panel": "Panel de Control",
+    "logout": "Cerrar Sesión",
+    "language_selector": "Cambiar Idioma",
+    "menu": "Menú",
+    "close": "Cerrar",
+    "kids": "Infantiles",
+    "adults": "Adultos",
+    "windsurf": "Windsurf",
+    "sailboats": "Veleros",
+    "kayak_paddle": "Kayak & Paddle",
+    "mooring": "Atraques",
+    "membership": "Socias",
+    "events": "Eventos",
+    "summer_camp": "Campus de Verano",
+    "adult_initiation": "Iniciación Adultos",
+    "adult_advanced": "Tecnificación",
+    "windsurf_courses": "Cursos Windsurf",
+    "sailboat_rental": "Alquiler Veleros",
+    "small_craft_rental": "Kayak / Paddle / Piragua",
+    "birthdays": "Cumpleaños",
+    "bonos": "Bonos",
+    "space_rental": "Alquiler Espacio",
+    "all_courses": "Todos los cursos",
+    "all_rentals": "Todos los alquileres",
+    "glossary": "Glosario"
+  },
+  "glossary": {
+    "title": "Glosario Náutico",
+    "subtitle": "Diccionario completo de términos marineros",
+    "description": "Diccionario completo de términos marineros",
+    "search_placeholder": "Buscar término, definición...",
+    "filter_all": "Todos",
+    "filter_maniobras": "Maniobras",
+    "filter_partes": "Partes del barco",
+    "filter_meteo": "Meteorología",
+    "filter_reglamento": "Reglamento",
+    "filter_otros": "Otros",
+    "learn_more": "Aprender más en el curso",
+    "no_results": "No se encontraron términos para tu búsqueda",
+    "back_to_top": "Volver arriba"
+  },
+  "notifications": {
+    "payment_success": "Pago realizado con éxito",
+    "payment_success_desc": "Gracias por tu confianza. Ya tienes acceso a tu reserva en Mi Área.",
+    "payment_canceled": "Pago cancelado",
+    "payment_canceled_desc": "El proceso de pago se ha interrumpido y no se ha realizado ningún cargo.",
+    "payment_error": "Error en el pago",
+    "payment_error_desc": "Ha ocurrido un problema al procesar tu pago. Por favor, inténtalo de nuevo.",
+    "enable_notifications_title": "Activar Notificaciones",
+    "enable_notifications_desc": "Habilita las notificaciones para recibir avisos sobre el estado de tus reservas, cambios en las clases y alertas meteorológicas importantes.",
+    "enable_btn": "ACTIVAR AVISOS",
+    "later_btn": "LUEGO"
+  },
+  "hero": {
+    "title": "Elegancia en el mar",
+    "subtitle": "Formación náutica premium en Getxo"
+  },
+  "courses": {
+    "title": "Cursos de Navegación",
+    "duration": "Duración",
+    "view_more": "Ver Detalles",
+    "levels": {
+      "iniciacion": "Iniciación",
+      "intermedio": "Perfeccionamiento",
+      "avanzado": "Avanzado",
+      "profesional": "Profesional"
+    },
+    "back_to_catalog": "Volver al catálogo"
+  },
+  "rental_page": {
+    "header_eyebrow": "Equipamiento y Flota",
+    "title_prefix": "Alquiler de",
+    "title_highlight": "Material",
+    "description": "Optimist, Laser, J80, Paddle Surf con turbina, Windsurf y más. Todo el material necesario para tu aventura en el mar.",
+    "crew_label": "Tripulación",
+    "footer_note": "* El alquiler de veleros requiere titulación mínima. Para Paddle Surf con turbina se incluye formación básica de manejo.",
+    "categories": {
+      "all": "Todos",
+      "alquileres": "Alquileres",
+      "veleros": "Veleros",
+      "windsurf": "Windsurf",
+      "paddlesurf": "Paddle Surf",
+      "kayak": "Kayak",
+      "piragua": "Piragua",
+      "membresias": "Membresías",
+      "bonos": "Bonos",
+      "eventos": "Eventos"
+    },
+    "booking": {
+      "from": "desde",
+      "date_label": "Fecha de Reserva",
+      "time_label": "Hora",
+      "extra_option": "Opción Extra:",
+      "cancel": "Cancelar",
+      "confirm": "Confirmar Reserva",
+      "book_now": "Reservar Ahora",
+      "image_placeholder": "Imagen de",
+      "invalid_date": "Por favor, completa la fecha correctamente (DD/MM/AAAA)",
+      "no_times_available": "No hay horarios disponibles para hoy",
+      "no_times_selected_date": "No hay horarios disponibles para la fecha seleccionada",
+      "booking_error": "Error al procesar la reserva. Por favor, inténtalo de nuevo."
+    }
+  },
+  "experiences_page": {
+    "header_eyebrow": "Vive el Mar",
+    "title_prefix": "Nuestras",
+    "title_highlight": "Experiencias",
+    "description": "Cumpleaños, bonos de navegación, atraques y actividades especiales. Vive el Cantábrico de una forma única.",
+    "from": "desde",
+    "per_person": "/persona",
+    "per_month": "/mes",
+    "per_session": "/sesión",
+    "book_now": "Reservar",
+    "more_info": "Más Información",
+    "footer_note": "Todas nuestras experiencias están sujetas a condiciones meteorológicas y disponibilidad. Reserva con antelación para garantizar tu plaza.",
+    "all": "Todo",
+    "evento": "Eventos",
+    "taller": "Talleres",
+    "cumpleanos": "Cumpleaños",
+    "atraque": "Atraques",
+    "bono": "Bonos",
+    "visita": "Visitas",
+    "premium_experience": "Experiencia Premium"
+  },
+  "home": {
+    "hero": {
+      "slide1_title": "Elegancia en el Mar",
+      "slide1_subtitle": "Formación náutica de élite en la Bahía de Getxo con nuestra flota de J80.",
+      "slide1_action": "Explorar Cursos",
+      "slide2_title": "Libertad sobre Olas",
+      "slide2_subtitle": "Mejora tu técnica y táctica de navegación con instructores profesionales.",
+      "slide2_action": "Ver Flota",
+      "slide3_title": "Tu Propio Rumbo",
+      "slide3_subtitle": "Obtén tu Licencia de Navegación en una sola jornada y comienza a navegar.",
+      "slide3_action": "Saber Más",
+      "slide4_title": "Futuros Navegantes",
+      "slide4_subtitle": "Cursos de Vela Ligera para todas las edades. El comienzo de una pasión.",
+      "slide4_action": "Ver Vela Ligera",
+      "scroll": "Desplazar"
+    },
+    "stats": {
+      "pasion": "Años de Pasión",
+      "alumnos": "Alumnos Formados",
+      "flota": "Barcos en Flota",
+      "clases": "Clases Semanales"
+    },
+    "programs": {
+      "badge": "Formación de Élite",
+      "title": "Nuestros Programas",
+      "learn_more": "Saber más",
+      "licencia_title": "Licencia de Navegación",
+      "licencia_price": "120€",
+      "licencia_desc": "La puerta de entrada al mar. Sin examen y en un solo día.",
+      "j80_title": "Iniciación J80",
+      "j80_price": "150€",
+      "j80_desc": "Domina los conceptos básicos en el velero más divertido del Cantábrico.",
+      "rental_title": "Alquiler de Flota",
+      "rental_desc": "Libertad total para navegantes titulados con nuestra flota J80.",
+      "price_rental": "Desde 80€"
+    },
+    "fleet_cta": {
+      "title": "Nuestra Flota",
+      "highlight": "Exclusiva",
+      "action": "Explorar J80"
+    },
+    "experience": {
+      "filosofia": "Nuestra Filosofía",
+      "lifestyle_title": "Más que una Escuela,",
+      "lifestyle_subtitle": "Un Estilo de Vida",
+      "desc1": "En Getxo Bela Eskola no solo enseñamos a navegar. Ofrecemos la llave para conectar con el Cantábrico desde un prisma de excelencia, respeto y tradición.",
+      "desc2": "Nuestra flota de J80, ubicada en el prestigioso Puerto Deportivo de Getxo, es el escenario donde forjamos navegantes apasionados bajo los más altos estándares de seguridad y confort.",
+      "about_link": "Descubre nuestra Escuela",
+      "live": "Vive",
+      "the": "la",
+      "passion": "Pasión"
+    },
+    "features": {
+      "title": "Por qué elegirnos",
+      "cert_title": "Certificación Oficial",
+      "cert_desc": "Titulaciones reconocidas para navegar en cualquier mar.",
+      "staff_title": "Instructores Expertos",
+      "staff_desc": "Aprende de navegantes con miles de millas de experiencia.",
+      "comm_title": "Comunidad Activa",
+      "comm_desc": "Únete a un club de apasionados por la vela y el Cantábrico."
+    }
+  },
+  "courses_page": {
+    "header_badge": "Nuestra Oferta",
+    "header_title": "Cursos de",
+    "header_highlight": "Navegación",
+    "header_desc": "Desde los primeros pasos en la vela ligera hasta las titulaciones de recreo más avanzadas. En nuestra escuela en Getxo, cada curso es una experiencia diseñada para la excelencia.",
+    "duration": "h",
+    "price_from": "Desde"
+  },
+  "about_page": {
+    "header_badge": "Getxo Bela Eskola",
+    "header_title": "Nuestra Pasión es el",
+    "header_highlight": "Mar",
+    "header_suffix": "Excelencia Náutica en Arriluze",
+    "since": "Fundada en Getxo",
+    "desc1": "Getxo Bela Eskola nace con el propósito de acercar el mundo de la vela a todas aquellas personas que deseen disfrutar del Cantábrico de una forma diferente. Ubicada en el Muelle Arriluzea, contamos con unas instalaciones privilegiadas para que tu experiencia sea completa.",
+    "desc2": "Desde la navegación recreativa hasta la competición y la vida a bordo, nuestra metodología se basa en la práctica constante y el respeto por el medio marino. Formamos tripulaciones, no solo navegantes.",
+    "values": {
+      "v1_title": "Nuestras Instalaciones",
+      "v1_desc": "Visítanos en el Muelle Arriluzea. Disponemos de aulas para clases teóricas, sala de audiovisuales, pañol, taller y vestuarios con acceso privado al puerto.",
+      "v2_title": "Equipo Humano",
+      "v2_desc": "Un grupo apasionado que incluye educadores sociales, biólogos marinos y técnicos expertos en mantenimiento naval.",
+      "v3_title": "Filosofía y Vida",
+      "v3_desc": "Entendemos la navegación como un viaje de crecimiento personal, basado en la máxima preparación técnica y el respeto al mar."
+    },
+    "team_section_title": "La Tripulación",
+    "team": {
+      "member1_name": "Angharad Arambalza",
+      "member1_role": "Coordinadora de Tierra",
+      "member1_desc": "Educadora social y amante del mar. Su empatía y energía son el corazón de nuestra logística en tierra.",
+      "member2_name": "Urko Santillán",
+      "member2_role": "Jefe Técnico",
+      "member2_desc": "Nuestro experto en mantenimiento. Se asegura de que cada embarcación de la flota esté en estado impecable.",
+      "member3_name": "Ana de Lara",
+      "member3_role": "Bióloga Marina",
+      "member3_desc": "Científica y buceadora. Nos asesora sobre la biodiversidad del Cantábrico y la geografía de nuestra costa."
+    },
+    "commitment_title": "Comprometidos con la",
+    "commitment_highlight": "Cultura del Mar",
+    "define_badge": "Nuestra Esencia",
+    "define_title": "Lo que nos define",
+    "cta_title": "¿Listo para zarpar?",
+    "cta_desc": "Únete a nuestra escuela y descubre por qué somos el referente de navegación en el Cantábrico.",
+    "cta_button": "Ver Cursos Disponibles"
+  },
+  "contact_page": {
+    "header_badge": "Contacto",
+    "header_title": "Hablemos de",
+    "header_highlight": "Navegar",
+    "location_label": "Ubicación",
+    "location_val": "Muelle Arriluzea, s/n\n48990 Getxo, Vizcaya",
+    "contact_label": "Email & Teléfono",
+    "hours_label": "Horario",
+    "hours_val": "Lunes a Domingo\n09:00 — 20:00"
+  },
+  "newsletter": {
+    "title": "Suscríbete a la Newsletter",
+    "subtitle": "Recibe noticias, ofertas exclusivas y consejos de navegación en tu correo.",
+    "email_placeholder": "tu@correo.com",
+    "email_aria_label": "Introduce tu correo electrónico",
+    "button": "Suscribirse",
+    "success": "¡Te has suscrito correctamente!",
+    "error": "Error al suscribirse. Inténtalo de nuevo."
+  },
+  "contact_form": {
+    "name": "Nombre",
+    "name_placeholder": "Tu nombre completo",
+    "apellidos": "Apellidos",
+    "email": "Email",
+    "email_placeholder": "ejemplo@correo.com",
+    "phone": "Teléfono (Opcional)",
+    "phone_placeholder": "+34 000 000 000",
+    "subject": "Asunto",
+    "subject_placeholder": "¿En qué podemos ayudarte?",
+    "message": "Mensaje",
+    "message_placeholder": "Escribe aquí tu consulta...",
+    "send": "Enviar Mensaje",
+    "sending": "Enviando...",
+    "success_title": "¡Mensaje Enviado!",
+    "success_desc": "Gracias por contactar con Getxo Bela Eskola. Te responderemos lo antes posible.",
+    "send_another": "Enviar otro mensaje",
+    "error": "Hubo un error al enviar el mensaje. Por favor, inténtalo de nuevo."
+  },
+  "auth": {
+    "login_title": "Bienvenido",
+    "login_desc": "Accede a tu zona de alumno para gestionar tus cursos.",
+    "hero_text": "El mar te espera.",
+    "no_account": "¿No tienes cuenta?",
+    "create_one": "Crea una aquí",
+    "register_title": "Únete a la Escuela",
+    "register_desc": "Crea tu cuenta para comenzar tu formación náutica.",
+    "has_account": "¿Ya tienes cuenta?",
+    "login_here": "Inicia sesión aquí",
+    "forgot_password_title": "Recuperar Acceso",
+    "forgot_password_desc": "Introduce tu email para recibir un enlace de recuperación.",
+    "reset_password_title": "Nueva Contraseña",
+    "reset_password_desc": "Crea una contraseña segura para tu cuenta."
+  },
+  "auth_form": {
+    "name": "Nombre",
+    "apellidos": "Apellidos",
+    "email": "Email",
+    "password": "Contraseña",
+    "login_btn": "Iniciar Sesión",
+    "logging_in": "Accediendo...",
+    "invalid_creds": "Credenciales incorrectas",
+    "try_reset": "¿Quieres restablecer tu contraseña?",
+    "register_btn": "Registrarse",
+    "registering": "Creando cuenta...",
+    "confirm_password": "Confirmar Contraseña",
+    "password_mismatch": "Las contraseñas no coinciden",
+    "newsletter_checkbox": "Estar al tanto de eventos y novedades de la escuela",
+    "forgot_password": "¿Olvidaste tu contraseña?",
+    "send_recovery": "Enviar Instrucciones",
+    "sending_recovery": "Enviando...",
+    "recovery_sent": "Email enviado. Revisa tu bandeja de entrada.",
+    "update_password": "Actualizar Contraseña",
+    "updating_password": "Actualizando...",
+    "password_updated": "Contraseña actualizada correctamente",
+    "show_password": "Mostrar contraseña",
+    "email_not_confirmed": "Email no confirmado. Por favor, revisa tu bandeja de entrada.",
+    "resend_email": "Reenviar",
+    "resend_success": "Email reenviado correctamente.",
+    "google_btn": "Continuar con Google",
+    "rate_limit": "Has excedido el límite de intentos. Por favor, espera unos minutos antes de intentar de nuevo."
+  },
+  "booking": {
+    "select_date": "Selecciona una fecha",
+    "from_date": "Del",
+    "to_date": "Al",
+    "full": "Completo",
+    "seats": "Plazas",
+    "no_dates_available": "No hay fechas programadas actualmente.",
+    "processing": "Procesando...",
+    "book_for": "Reservar por",
+    "online_course_instant": "Curso Online - Acceso Inmediato",
+    "no_dates_needed": "No es necesario seleccionar fechas. Empieza ahora mismo.",
+    "error_generic": "Algo salió mal",
+    "payment_gateway_error": "Error al conectar con la pasarela de pago"
+  },
+  "staff_panel": {
+    "tabs": {
+      "overview": "Resumen",
+      "rentals": "Salidas",
+      "courses": "Gestión Cursos",
+      "academia": "Academia Online",
+      "communication": "Comunicación",
+      "staff_mgmt": "Gestión de Equipo"
+    },
+    "overview": {
+      "title": "Panel de Administración",
+      "subtitle": "Control Administrativo Getxo Bela",
+      "activity_log": "Bitácora de Actividad",
+      "fleet_monitor": "Monitor Flota",
+      "weather_note": "Nota Meteorológica",
+      "wind_title": "Viento Hoy",
+      "knots": "NUDOS",
+      "loading_weather": "Cargando información meteorológica...",
+      "stats": {
+        "in_water": "Agua",
+        "returned": "Retorno",
+        "pending": "Pend.",
+        "revenue_today": "Caja Hoy",
+        "this_month": "Este Mes",
+        "yearly": "Anual",
+        "partners": "Socios",
+        "students": "Alumnos",
+        "students_water": "Alumnos Agua",
+        "individuals": "Particulares",
+        "tooltips": {
+          "revenue_today": "Ingresos totales registrados durante el día de hoy.",
+          "this_month": "Acumulado de ingresos en el mes natural actual.",
+          "yearly": "Total de ingresos contabilizados en el último año.",
+          "partners": "Número total de usuarios registrados con cuota de socio activa.",
+          "students": "Alumnos totales registrados en la base de datos de la escuela.",
+          "students_water": "Alumnos que tienen actualmente una reserva o actividad en el agua.",
+          "individuals": "Clientes ocasionales o particulares sin vinculación de socio o alumno regular."
+        }
+      },
+      "recent_ops": "Control de Operaciones",
+      "today": "Hoy",
+      "operator": "Operador",
+      "operator_label": "OPERADOR",
+      "subject": "Sujeto",
+      "notice": "Aviso",
+      "system": "SISTEMA",
+      "rental": "ALQUILER",
+      "service": "Servicio",
+      "no_notes": "Sin observaciones",
+      "no_activity": "Sin actividad reciente",
+      "no_ops_recorded": "No hay operaciones registradas todavía.",
+      "real_time_audit": "Auditoría en Tiempo Real",
+      "sync_log": "Sincronizar Bitácora"
+    },
+    "boats": {
+      "title": "Gestión de Flota",
+      "subtitle": "Administra las embarcaciones disponibles",
+      "new_boat_btn": "+ Nueva Embarcación",
+      "search_placeholder": "Buscar barco...",
+      "loading": "Cargando flota...",
+      "no_boats": "No hay embarcaciones registradas.",
+      "edit_btn": "Editar",
+      "maintenance_btn": "Mantenimiento",
+      "delete_confirm": "¿Estás seguro de que quieres eliminar esta embarcación? Esta acción no se puede deshacer.",
+      "delete_error": "Error al eliminar",
+      "save_error": "Error al guardar",
+      "matricula": "Sin matrícula",
+      "capacity": "Capacidad",
+      "status": {
+        "available": "Disponible",
+        "maintenance": "Mantenimiento",
+        "broken": "Averiado",
+        "in_use": "En Uso"
+      },
+      "types": {
+        "sailing_light": "Vela Ligera",
+        "cruiser": "Crucero",
+        "motor": "Motor/Seguridad",
+        "kayak": "Kayak/Paddle",
+        "other": "Otro"
+      },
+      "modal": {
+        "edit_title": "Editar Embarcación",
+        "new_title": "Nueva Embarcación",
+        "name_label": "Nombre",
+        "plate_label": "Matrícula",
+        "type_label": "Tipo",
+        "capacity_label": "Capacidad",
+        "status_label": "Estado",
+        "notes_label": "Notas / Observaciones",
+        "notes_placeholder": "Detalles sobre averías, mantenimiento o equipamiento especial...",
+        "image_label": "Imagen URL (Opcional)",
+        "cancel_btn": "Cancelar",
+        "save_btn": "Guardar Barco",
+        "saving_btn": "Guardando..."
+      }
+    },
+    "rentals": {
+      "title": "Control de Salidas",
+      "active_departures": "Salidas Activas",
+      "search_placeholder": "Buscar por cliente o equipo...",
+      "fleet_scan": "Escaneo de Flota",
+      "status_filter": {
+        "all": "TODOS LOS ESTADOS",
+        "pending": "PENDIENTE",
+        "in_water": "EN EL AGUA",
+        "finished": "FINALIZADOS"
+      },
+      "no_results": "No hay salidas que coincidan con los filtros.",
+      "history_btn": "HISTORIAL ✍︎",
+      "status": {
+        "pending": "pendiente",
+        "in_water": "entregado",
+        "returned": "devuelto"
+      },
+      "status_modal": {
+        "title": "Control de Flota",
+        "change_to": "Cambiar a {status}",
+        "note_placeholder": "Nota opcional...",
+        "confirm": "Confirmar"
+      }
+    },
+    "courses": {
+      "title": "Académico",
+      "subtitle": "Gestión de expedientes y alumnos",
+      "search_placeholder": "Buscar por nombre o apellido...",
+      "base_scan": "Escaneo de Base 🔍",
+      "record": "EXPEDIENTE",
+      "history": "Historial Académico",
+      "no_history": "No hay registros en la bitácora académica.",
+      "officer": "Oficial de Cargo",
+      "close_log": "Cerrar Bitácora",
+      "update_payment": "Actualizar Pago",
+      "payment_modal": {
+        "title": "Gestión Académica",
+        "change_to": "Cambiar Pago a {status}",
+        "reason_placeholder": "Razón del cambio...",
+        "confirm": "Actualizar Estado"
+      },
+      "edit_profile": {
+        "title": "Expediente Activo",
+        "edit_btn": "Editar Datos",
+        "cancel_btn": "Cancelar",
+        "close_btn": "Cerrar",
+        "name": "Nombre",
+        "last_name": "Apellidos",
+        "phone": "Teléfono",
+        "save_btn": "Guardar Cambios ⚓",
+        "saving": "Guardando...",
+        "role": {
+          "student": "Alumno",
+          "partner": "Socio",
+          "instructor": "Instructor",
+          "admin": "Admin"
+        }
+      },
+      "inscriptions_title": "Inscripciones y Cursos",
+      "equipment_rental": "Reserva de Equipo",
+      "delete_confirm": "¿Eliminar esta inscripción?",
+      "delete_error": "Error al borrar",
+      "delete_btn": "— Eliminar",
+      "view_logbook": "Ver historial de cambios",
+      "select_student_hint": "Selecciona un alumno para consultar sus inscripciones y material"
+    },
+    "communication": {
+      "title": "Central de Comunicaciones",
+      "subtitle": "Newsletter y Avisos a Alumnos",
+      "new_message": "Redactar Nuevo Mensaje",
+      "subject": "Asunto del Correo",
+      "content": "Contenido del Mensaje",
+      "schedule": "Programar Envío (Opcional)",
+      "save_schedule": "GUARDAR Y PROGRAMAR ⚓",
+      "processing": "PROCESANDO...",
+      "history": "Historial de Comunicaciones",
+      "messages_count": "Mensajes",
+      "no_messages": "No hay comunicaciones registradas.",
+      "scheduled_for": "PROGRAMADO PARA"
+    },
+    "staff_mgmt": {
+      "title": "Gestión de Equipo",
+      "subtitle": "Instructores y personal Getxo Bela",
+      "search_placeholder": "Buscar instructor...",
+      "team_scan": "Escaneo de Equipo",
+      "instructors_list": "Instructores del Centro",
+      "loading_staff": "Cargando lista de instructores...",
+      "view_activity": "Ver Actividad",
+      "edit_data": "Editar Datos",
+      "remove_staff": "Dar de baja",
+      "confirm_remove": "¿Estás seguro de que quieres dar de baja a {name}?",
+      "loading": "Cargando lista de instructores...",
+      "register_instructor": "Dar de Alta Instructor",
+      "invite_staff_subtitle": "Invitar nuevo personal al panel de gestión",
+      "invite_success": "Instructor invitado correctamente. Recibirá un email de acceso.",
+      "error": "Error: ",
+      "connection_error": "Error de conexión",
+      "name_placeholder": "Nombre",
+      "last_name_placeholder": "Apellidos",
+      "phone_placeholder": "Teléfono",
+      "email_placeholder": "Email profesional",
+      "send_invitation": "Enviar Invitación de Acceso ⚓",
+      "active_staff": "Plantilla Activa",
+      "instructors_count": "Instructores",
+      "filtered": "Filtrado",
+      "search_instructor_placeholder": "Buscar instructor...",
+      "team_label": "Equipo",
+      "edit_modal": {
+        "title": "Perfil de Staff",
+        "edit_profile": "Editar Perfil",
+        "id": "ID",
+        "name": "Nombre",
+        "last_name": "Apellidos",
+        "email": "Email (Acceso)",
+        "phone": "Teléfono",
+        "discard": "Descartar",
+        "apply_changes": "Aplicar Cambios ⚓",
+        "saving": "Guardando..."
+      }
+    },
+    "audit_editor": {
+      "title": "Modificar Historial",
+      "header": "Editor de Auditoría",
+      "description": "Descripción del Evento",
+      "target_id": "ID Objetivo",
+      "target_type": "Tipo Objetivo",
+      "metadata_json": "Metadata (JSON)",
+      "cancel": "Cancelar",
+      "update": "Actualizar Registro ⚓",
+      "saving": "Guardando...",
+      "edit_btn": "[ EDITAR ]"
+    },
+    "activity_page": {
+      "back": "← Volver al Panel",
+      "title": "Actividad de",
+      "search_label": "Buscar Término",
+      "search_placeholder": "Ej: Windsurf, entregado...",
+      "from": "Desde",
+      "to": "Hasta",
+      "action_type": "Tipo de Acción",
+      "status_rental": "Estado (Alquiler)",
+      "sort_by": "Ordenar Por",
+      "apply_btn": "EJECUTAR BÚSQUEDA 🔍",
+      "results_found": "Resultados encontrados",
+      "filter_active": "Filtro activo: {term}",
+      "no_results": "No se han encontrado registros con esos criterios.",
+      "clear_filters": "Limpiar Filtros",
+      "responsible": "Responsable (Instructor)",
+      "subject": "Sujeto (Cliente/Alumno)",
+      "tech_ref": "Referencia Técnica",
+      "process_metadata": "Metadata del Proceso:",
+      "operator": "Operador",
+      "ref_system": "SISTEMA",
+      "ref_rental": "ALQUILER",
+      "sort": {
+        "newest": "MÁS RECIENTES ↓",
+        "oldest": "MÁS ANTIGUOS ↑",
+        "type_az": "TIPO (A-Z)",
+        "type_za": "TIPO (Z-A)"
+      },
+      "status": {
+        "all": "TODAS",
+        "all_statuses": "TODOS LOS ESTADOS",
+        "pending": "PENDIENTE",
+        "delivered": "ENTREGADO",
+        "returned": "DEVUELTO (COMPLETADO)"
+      },
+      "update_error": "Error al actualizar el registro",
+      "connection_error": "Error de conexión"
+    },
+    "financials": {
+      "today": "Hoy",
+      "week": "Última Sem.",
+      "month": "Este Mes",
+      "year": "Anual",
+      "from": "Desde",
+      "to": "Hasta",
+      "total_revenue": "Total Ingresos",
+      "chart_title": "Gráfica de Rendimiento",
+      "download_report": "Descargar Reporte Completo",
+      "loading_chart": "Cargando gráfica...",
+      "no_data": "No hay datos para el periodo seleccionado ({count} registros totales)",
+      "initializing": "Inicializando filtros...",
+      "trans_details": "Detalle de Transacciones",
+      "date": "Fecha",
+      "client": "Cliente",
+      "service": "Servicio",
+      "status_payment": "Estado Pago",
+      "amount": "Monto",
+      "total_sum": "Suma Total",
+      "no_records": "No se han encontrado registros.",
+      "various": "Varios",
+      "reporting_scan": "Análisis Financiero",
+      "search_placeholder": "Buscar por cliente o servicio...",
+      "filter_status": "Estado",
+      "filter_service": "Servicio",
+      "sort_by": "Ordenar por",
+      "sort_date_desc": "Más recientes",
+      "sort_date_asc": "Más antiguos",
+      "sort_amount_desc": "Monto (Mayor a menor)",
+      "sort_amount_asc": "Monto (Menor a mayor)"
+    },
+    "academia": {
+      "title": "Academia Online",
+      "subtitle": "Seguimiento de progreso y certificaciones",
+      "search_student": "Buscar alumno para ver expediente...",
+      "academic_progress": "Progreso Académico",
+      "skills": "Habilidades Obtenidas",
+      "logros": "Logros y Medallas",
+      "certificates": "Certificaciones Emitidas",
+      "no_data": "Selecciona un alumno para cargar su expediente académico.",
+      "unidades_leidas": "Lecciones Completadas",
+      "quizzes_aprobados": "Quizzes Superados",
+      "download_certificate": "Descargar PDF",
+      "no_certificates": "Sin certificados emitidos.",
+      "progress_details": "Detalle de Avance",
+      "no_records": "Sin actividad registrada aún.",
+      "skills_count": "{count} Habilidades",
+      "diplomas_count": "{count} Diplomas",
+      "official_cert": "CERTIFICADO OFICIAL",
+      "nautical_formation": "Formación Náutica",
+      "loading_record": "Cargando Expediente...",
+      "found_no_students": "No se encontraron navegantes para \"{query}\"",
+      "online_control": "Control de Expedientes Online"
+    },
+    "maintenance_modal": {
+      "update_status_title": "Actualizar Estado de Incidencia",
+      "original_incident": "Incidencia Original",
+      "new_status": "Nuevo Estado",
+      "notes_placeholder": "Descripción / Notas de Actualización",
+      "cost_updated": "Coste Actualizado ()",
+      "confirm_update": "Confirmar Actualización",
+      "maintenance_title_suffix": "Mantenimiento",
+      "new_incident_tab": "Nueva Incidencia",
+      "history_tab": "Historial",
+      "type_label": "Tipo",
+      "initial_status_label": "Estado Inicial",
+      "description_label": "Descripción de la incidencia",
+      "description_placeholder": "Describe el problema o trabajo necesario...",
+      "estimated_cost": "Coste Estimado ()",
+      "register_btn": "Registrar Mantenimiento",
+      "loading_history": "Cargando historial...",
+      "no_records": "No hay registros de mantenimiento.",
+      "registered_by": "Registrado por:",
+      "types": {
+        "correctivo": "Correctivo (Avería)",
+        "preventivo": "Preventivo (Revisión)",
+        "mejora": "Mejora / Upgrade"
+      },
+      "status": {
+        "pendiente": "Pendiente",
+        "en_proceso": "En Proceso",
+        "completado": "Completado"
+      }
+    }
+  },
+  "footer": {
+    "courses": "Cursos",
+    "rental": "Alquiler",
+    "school": "La Escuela",
+    "contact": "Contacto",
+    "privacy": "Privacidad",
+    "cookies": "Cookies",
+    "copyright": "© 2026 Getxo Bela Eskola · Experiencia Náutica Premium",
+    "slogan": "Getxo Bela Eskola  Experiencia náutica por excelencia en el Puerto Deportivo de Getxo."
+  },
+  "academy": {
+    "title": "Academia Digital",
+    "subtitle": "Tu viaje de formación náutica",
+    "loading": "Cargando Academia...",
+    "map": {
+      "eyebrow": "Escuela Náutica Digital",
+      "title_prefix": "Tu Viaje de",
+      "title_highlight": "Formación",
+      "description": "Navega por los 7 niveles de formación náutica. Cada nivel te prepara para el siguiente, desde marinero principiante hasta capitán experimentado.",
+      "theory_hours": "h teoría",
+      "practice_hours": "h práctica",
+      "view_courses": "Ver Cursos →",
+      "transversal": "Transversal",
+      "title_suffix": ""
+    },
+    "status": {
+      "completed": "✓ Completado",
+      "in_progress": "En Progreso",
+      "locked": "🔒 Bloqueado",
+      "available": "Disponible"
+    },
+    "levels": {
+      "level": "Nivel"
+    },
+    "access_denied": {
+      "title": "Travesía Interrumpida",
+      "subtitle": "No tienes permiso para navegar esta sección",
+      "reason_parent_locked": "Esta sección está bloqueada porque el nivel, curso o módulo superior aún no ha sido desbloqueado.",
+      "reason_insufficient_progress": "Debes completar los requisitos anteriores y alcanzar el nivel de experiencia necesario.",
+      "back_to_dashboard": "Volver al Dashboard",
+      "view_requirements": "Ver Requisitos de Desbloqueo",
+      "go_to_academy": "Volver a la Academia"
+    },
+    "mochila": {
+      "title": "Mochila de Dudas",
+      "subtitle": "Repasa tus errores y domina el temario",
+      "empty": "¡Enhorabuena! No tienes dudas pendientes.",
+      "empty_desc": "Has dominado todas las preguntas que has fallado anteriormente.",
+      "mastered": "¡Dominada!",
+      "reveal": "Mostrar Respuesta",
+      "next": "Siguiente Pregunta",
+      "loading": "Cargando tus dudas...",
+      "question": "Pregunta",
+      "answer": "Respuesta Correcta",
+      "explanation": "Explicación"
+    },
+    "motivational_quotes": [
+      "El que no sabe a qué puerto quiere navegar, nunca tiene viento a favor.",
+      "Un mar tranquilo nunca hizo un navegante habilidoso.",
+      "Ajusta tus velas para aprovechar cada racha de viento.",
+      "La mejor forma de navegar es con el corazón y la técnica.",
+      "Cada nudo de experiencia cuenta en tu bitácora."
+    ],
+    "logbook": {
+      "moods": {
+        "discovery": "Descubrimiento",
+        "confident": "Seguro",
+        "challenging": "Desafiante"
+      },
+      "save_private": "Guardar Privado",
+      "new_entry": "Nueva Entrada",
+      "reflections": "Mis Reflexiones Náuticas",
+      "discard": "Descartar",
+      "placeholder": "Escribe tus reflexiones sobre la jornada de hoy...",
+      "official_history": "Historial Oficial",
+      "skills": "Habilidades",
+      "water_map": "Mapa de Aguas",
+      "my_fleet": "Mi Flota",
+      "personal_diary": "Diario Personal"
+    },
+    "connection_error": {
+      "title": "Error de Conexión",
+      "message": "No hemos podido establecer comunicación con la bitácora académica. Por favor, comprueba tu conexión y vuelve a intentarlo.",
+      "retry": "Recargar Bitácora ⚓"
+    }
+  },
+  "chatbot": {
+    "title": "El Piloto",
+    "placeholder": "Pregunta sobre vela, reglamento...",
+    "initial_greeting": "¡Hola! Soy El Piloto. Pregúntame sobre el curso, maniobras o reglamento.",
+    "thinking": "Consultando carta náutica...",
+    "error": "Parece que hay interferencias en la radio. Inténtalo de nuevo.",
+    "sources": "Fuentes del curso:"
+  },
+  "errors": {
+    "404": {
+      "code": "ERROR 404",
+      "title": "Rumbo Perdido",
+      "subtitle": "No hemos encontrado la página.",
+      "description": "Parece que has navegado hacia aguas desconocidas. Regresa a puerto seguro para recalibrar.",
+      "back_button": "VOLVER A PUERTO ⚓"
+    },
+    "500": {
+      "code": "ERROR 500",
+      "title": "Tormenta Inesperada",
+      "subtitle": "Problema técnico en la sala de máquinas.",
+      "description": "Nuestro equipo de ingeniería ya está trabajando para restablecer el servicio. Por favor, inténtalo de nuevo en unos momentos.",
+      "retry_button": "INTENTAR DE NUEVO ⟳",
+      "home_button": "VOLVER A CASA ⚓"
+    },
+    "403": {
+      "title": "Acceso Restringido",
+      "description": "No tienes los permisos necesarios para navegar estas aguas. Por favor, regresa a puerto seguro."
+    }
+  },
+  "student_dashboard": {
+    "eyebrow": "Área de Alumno",
+    "welcome": "Hola, {name}",
+    "subtitle": "Gestiona tus cursos y certificaciones.",
+    "academy_widget": {
+      "title": "Campus Virtual",
+      "go_to_panel": "Ir al Panel Académico +",
+      "card_title": "Academia Digital",
+      "card_desc_active": "Continúa tu formación online, completa unidades y obtén certificaciones oficiales.",
+      "card_desc_inactive": "Accede a cursos teóricos online, exámenes oficiales y simulacros de navegación.",
+      "stats_levels": "Niveles",
+      "stats_certs": "Certificados",
+      "leaderboard": "Ver Ranking",
+      "btn_continue": "Continuar Aprendiendo",
+      "btn_start": "Empezar Ahora"
+    },
+    "courses_section": {
+      "title": "Tus Próximos Cursos Presenciales",
+      "empty_title": "Aún no tienes cursos,",
+      "empty_subtitle": "¡empieza tu aventura aquí!",
+      "btn_explore": "Explorar Catálogo"
+    },
+    "rentals_section": {
+      "title": "Próximos Alquileres",
+      "new_rental": "Nuevo Alquiler +",
+      "empty_title": "No tienes alquileres próximos,",
+      "empty_subtitle": "la bahía te está esperando.",
+      "btn_reserve": "Reservar Material"
+    },
+    "history_section": {
+      "title": "Historial Reciente",
+      "completed": "Completado"
+    },
+    "micro_lessons": {
+      "title": "Micro-Lecciones"
+    },
+    "daily_challenge": {
+      "title": "Desafío del Día",
+      "subtitle": "Micro-Aprende algo nuevo hoy",
+      "reward": "+{xp} XP",
+      "submit": "Verificar Respuesta",
+      "correct": "¡Excelente! Has ganado {xp} XP.",
+      "wrong": "No es correcto. La respuesta era: {answer}",
+      "already_done": "Ya has completado tu desafío diario.",
+      "come_back": "Vuelve mañana para seguir sumando.",
+      "explanation": "Sabías que..."
+    }
+  },
+  "wind_lab": {
+    "title": "Laboratorio de Viento",
+    "subtitle": "Dinámica de Fluidos",
+    "audio_on": "🔊 Audio On",
+    "audio_off": "🔇 Audio Off",
+    "ghost_on": "Fantasma On",
+    "ghost_off": "Fantasma Off",
+    "forces_on": "Fuerzas On",
+    "forces_off": "Fuerzas Off",
+    "controls": {
+      "mainsheet": "Escota Mayor",
+      "rudder": "Timón",
+      "wind_direction": "Dirección Viento",
+      "wind_speed": "Velocidad Viento",
+      "port": "Babor",
+      "stbd": "Estribor",
+      "knots": "NUDOS"
+    },
+    "telemetry": {
+      "true_wind": "Viento Real",
+      "apparent_wind": "Viento Aparente",
+      "boat_speed": "Velocidad Barco",
+      "heel_angle": "Escora",
+      "efficiency": "Eficiencia",
+      "aoa": "Ángulo Ataque"
+    },
+    "forces": {
+      "lift": "SUSTENTACIÓN",
+      "drag": "RESISTENCIA",
+      "aw": "VA"
+    },
+    "feedback": {
+      "perfect": "PERFECTO",
+      "good": "BUENO",
+      "poor": "MAL TRIMADO",
+      "stall": "PÉRDIDA",
+      "label": "Calidad Trimado",
+      "accuracy": "Precisión",
+      "optimal_trim": "Trimado Óptimo"
+    },
+    "game_over": {
+      "title": "REGATA COMPLETADA",
+      "buoys_collected": "Has recogido todas las boyas!",
+      "final_score": "Puntuación Final",
+      "name_placeholder": "Introduce tu nombre",
+      "save_btn": "GUARDAR",
+      "ranking_title": "RANKING - TOP 10",
+      "restart_btn": "VOLVER A JUGAR"
+    },
+    "interactive_rose": {
+      "title": "Roseta Interactiva",
+      "drag_instruction": "Arrastra el indicador de viento (flecha azul) para ver cómo cambia la navegación.",
+      "close_hauled": "Ceñida",
+      "optimal_angle": "Ángulo Óptimo",
+      "vmg": "VMG",
+      "boat_heading": "Rumbo Barco",
+      "twa": "Ángulo Viento Real",
+      "speed": "Velocidad"
+    }
+  },
+  "tools": {
+    "index": {
+      "eyebrow": "Herramientas Náuticas",
+      "title": "Puente Digital",
+      "description": "Una colección de herramientas esenciales para la navegación, planificación y seguridad en el mar. Diseñado por navegantes para navegantes.",
+      "converter": {
+        "title": "Convertidor Náutico",
+        "description": "Convertidor profesional de unidades para velocidad, distancia, profundidad y presión. Incluye historial y preajustes rápidos.",
+        "cta": "Lanzar Convertidor"
+      },
+      "plotter": {
+        "title": "Plotter de Cartas",
+        "description": "Practica tus habilidades de navegación con nuestro plotter interactivo. Traza rumbos, mide distancias y más.",
+        "cta": "Abrir Plotter"
+      }
+    },
+    "nautical_converter": {
+      "eyebrow": "Utilidad",
+      "title": "Convertidor Náutico",
+      "description": "Herramienta de precisión para convertir entre unidades marítimas y estándar.",
+      "input": "Valor de Entrada",
+      "result": "Resultado",
+      "history": "Conversiones Recientes",
+      "clear_history": "Borrar Historial",
+      "speed": "Velocidad",
+      "distance": "Distancia",
+      "depth": "Profundidad",
+      "temperature": "Temp",
+      "pressure": "Presión",
+      "units": {
+        "knots": "Nudos",
+        "kmh": "km/h",
+        "ms": "m/s",
+        "meters": "Metros",
+        "feet": "Pies",
+        "nautical_miles": "Millas Náuticas",
+        "km": "Kilómetros",
+        "fathoms": "Brazas",
+        "celsius": "Celsius",
+        "fahrenheit": "Fahrenheit",
+        "hpa": "hPa",
+        "mb": "Milibares",
+        "inhg": "inHg"
+      }
+    }
+  },
+  "validation": {
+    "name_short": "Nombre demasiado corto",
+    "last_name_short": "Apellidos demasiado cortos",
+    "email_invalid": "Email no válido",
+    "password_short": "Mínimo 6 caracteres",
+    "subject_short": "Asunto demasiado corto",
+    "message_short": "El mensaje es demasiado corto"
+  },
+  "legal": {
+    "privacy_title": "Política de Privacidad",
+    "cookies_title": "Política de Cookies",
+    "rental_contract": "CONTRATO DE ARRENDAMIENTO DE MATERIAL NÁUTICO - GETXO BELA ESKOLA\n\n1. REQUISITOS DEL ARRENDATARIO: El cliente declara poseer los conocimientos técnicos necesarios para el manejo seguro del material alquilado. En caso de veleros de recreo, se requiere la titulación mínima correspondiente.\n\n2. ESTADO Y DEVOLUCIÓN: El material se entrega en perfecto estado de funcionamiento. El cliente se compromete a devolverlo en el mismo estado. Cualquier daño causado por negligencia será responsabilidad exclusiva del cliente.\n\n3. ZONAS DE NAVEGACIÓN: La navegación se limitará a las zonas autorizadas y tiempos acordados. El cliente se compromete a respetar las normas del Puerto Deportivo de Getxo y la normativa de Capitanía Marítima.\n\n4. SEGURIDAD: El uso del chaleco salvavidas es obligatorio y personal durante todo el tiempo que se permanezca en el agua.\n\n5. RESCATE Y ASISTENCIA: Si el cliente requiere asistencia o rescate por imprudencia o salida de las zonas permitidas, los costes derivados correrán a su cargo.\n\n6. FIRMA DIGITAL: Al marcar la casilla de aceptación, el cliente ratifica que ha comprendido todos los puntos anteriores y asume su responsabilidad legal.",
+    "consent_acceptance": "He leído y acepto expresamente las condiciones legales detalladas anteriormente. Entiendo que esta aceptación equivale a una firma digital vinculante.",
+    "error_log_consent": "No se pudo registrar la firma legal. Inténtalo de nuevo."
+  },
+  "legal_modal": {
+    "viewing_doc": "Visualizando Documento",
+    "terms_title": "Términos de Inscripción",
+    "rental_title": "Condiciones de Alquiler",
+    "back": "Volver",
+    "mandatory_docs": "Documentos Legales Obligatorios",
+    "click_to_read": "* Haz clic en cada documento para leerlo online desde aquí mismo.",
+    "full_name": "Nombre Completo",
+    "identity_doc": "Documento de Identidad",
+    "email_label": "Email de Registro",
+    "confirmation_checkbox": "Confirmo que he leído y acepto expresamente los documentos PDF arriba indicados, así como las condiciones detalladas en este formulario. Entiendo que esta aceptación equivale a una firma digital vinculante.",
+    "sign_and_continue": "Firmar y Continuar al Pago",
+    "cancel": "Cancelar",
+    "processing": "Procesando..."
+  },
+  "profile_modal": {
+    "title": "Editar Perfil",
+    "subtitle": "Actualiza tus datos personales",
+    "name": "Nombre",
+    "last_name": "Apellidos",
+    "phone": "Teléfono",
+    "cancel": "Cancelar",
+    "save": "Guardar Cambios",
+    "saving": "Guardando...",
+    "error_updating": "Error al actualizar perfil",
+    "connection_error": "Error de conexión"
+  },
+  "profile_sidebar": {
+    "verified_member": "Miembro verificado",
+    "official_partner": "Socio Oficial",
+    "account_info": "Información de Cuenta",
+    "role": "Rol",
+    "student": "Estudiante",
+    "edit_profile": "Editar Perfil",
+    "managing_subscription": "Gestionar Suscripción",
+    "membership_card": "Mi Carnet de Socio",
+    "loading": "Cargando...",
+    "portal_error": "Error al abrir el portal de pagos"
+  },
+  "nautical_radar": {
+    "title": "Radar de Navegación \"Puente de Mando\"",
+    "location": "Arriluze Kaia — Getxo",
+    "loading": "Cargando Instrumentos...",
+    "live_status": "VIVO",
+    "connecting_status": "CONECTANDO...",
+    "wind": "Viento Real",
+    "knots": "Nudos",
+    "aws": "Vel. Viento",
+    "syncing": "Sincronizando...",
+    "action_close": "Cerrar histórico",
+    "gust": "Racha",
+    "twa": "Ángulo Viento",
+    "tide": "Marea Getxo",
+    "depth": "Profundidad",
+    "rising": "Subiendo",
+    "falling": "Bajando",
+    "stable": "Estable",
+    "next_tide": "Próxima: {time} ({type})",
+    "tide_high": "P",
+    "tide_low": "B",
+    "temp": "Temp. Aire",
+    "pressure": "Presión",
+    "visibility": "Visibilidad",
+    "advisory": "Análisis de Condiciones",
+    "action_history": "Ver Histórico →",
+    "history_title": "Historial Meteorológico — Getxo",
+    "wind_chart_title": "Evolución del Viento (Nudos)",
+    "wind_chart_wind_label": "Viento Real",
+    "wind_chart_gust_label": "Rachas",
+    "tide_chart_title": "Ciclo de Mareas (Metros)",
+    "tide_chart_tide_label": "Nivel Marea",
+    "history_footer": "Datos registrados cada hora — Arriluze Kaia",
+    "history_time": "Hora",
+    "history_wind": "Viento (kn)",
+    "history_gusts": "Rachas",
+    "history_direction": "Dirección",
+    "history_temp": "Temp (ºC)",
+    "history_tide": "Marea (m)"
+  },
+  "onboarding": {
+    "welcome": {
+      "title": "¡Bienvenido a Bordo!",
+      "subtitle": "Prepárate para zarpar. Vamos a configurar tu perfil de navegante en unos sencillos pasos.",
+      "start_btn": "Comenzar Travesía"
+    },
+    "level_test": {
+      "title": "Test de Nivel Inicial",
+      "subtitle": "Ayúdanos a entender tu experiencia previa.",
+      "q1": "¿Has navegado alguna vez?",
+      "a1_yes": "Sí, tengo experiencia",
+      "a1_no": "No, es mi primera vez",
+      "q2": "¿Sabes hacer un as de guía?",
+      "a2_yes": "¡Por supuesto!",
+      "a2_no": "¿Un as de qué?",
+      "q3": "¿Conoces las preferencias de paso?",
+      "a3_yes": "Sí, las domino",
+      "a3_no": "No estoy seguro",
+      "next_btn": "Siguiente"
+    },
+    "goals": {
+      "title": "Configura tu Rumbo",
+      "subtitle": "¿Cuándo te gustaría obtener tu titulación?",
+      "label_date": "Fecha objetivo para titularte",
+      "next_btn": "Fijar Rumbo"
+    },
+    "tour": {
+      "step_sidebar": "Tu Perfil",
+      "desc_sidebar": "Aquí puedes ver tu estado de socio, editar tus datos y gestionar tu suscripción.",
+      "step_academy": "Academia Digital",
+      "desc_academy": "Accede a cursos online, tests y sigue tu progreso milla a milla.",
+      "step_courses": "Próximos Cursos",
+      "desc_courses": "Consulta tus próximas clases prácticas y salidas programadas.",
+      "step_rentals": "Alquileres",
+      "desc_rentals": "Reserva material, desde kayaks hasta veleros J80, directamente desde aquí.",
+      "next_btn": "Siguiente",
+      "finish_btn": "Terminar Tour"
+    },
+    "mission": {
+      "title": "Tu Primera Misión",
+      "subtitle": "Antes de soltar amarras, todo buen marino debe conocer el código.",
+      "manifesto": "El mar es un lugar de respeto, aventura y camaradería. En Getxo Bela Eskola formamos navegantes que cuidan del entorno y de su tripulación. Tu viaje comienza hoy.",
+      "action_btn": "Acepto el Código"
+    },
+    "badge": {
+      "title": "¡Enhorabuena, Marino Novel!",
+      "subtitle": "Has completado tu onboarding. Tu aventura comienza ahora.",
+      "close_btn": "Ir al Dashboard"
+    }
+  },
+  "leaderboard": {
+    "title": "Ranking Global",
+    "subtitle": "Descubre quién lidera la flota de la academia",
+    "my_position": "Mi Posición",
+    "xp": "XP",
+    "streak": "Racha (Días)",
+    "modules": "Módulos",
+    "privacy_title": "Privacidad del Ranking",
+    "privacy_desc": "Elige cómo quieres que los demás te vean.",
+    "public": "Público",
+    "private": "Privado",
+    "anonymous": "Anónimo",
+    "anonymous_user": "Timonel Anónimo",
+    "empty_state": "Nadie ha zarpado todavía. ¡Sé el primero en ganar XP!",
+    "rank": "Rango",
+    "sailor": "Navegante",
+    "level": "Nivel"
+  }
+>>>>>>> 4d18bac (100 pull requests into main)
 }
