@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
-import { X, Book, Ship, Globe, Anchor, Wind, Shield, ChevronRight } from 'lucide-react';
+import { X, Book, Ship, Globe, Anchor, Wind, Shield, ChevronRight, CloudRain } from 'lucide-react';
 import { useNotificationStore } from '@/lib/store/useNotificationStore';
 import dynamic from 'next/dynamic';
 
@@ -403,6 +403,13 @@ export default function DashboardPage({ params }: { params: { locale: string } }
                             icon: <Wind className="w-5 h-5" />,
                             color: 'text-cyan-400 bg-cyan-500/10 hover:bg-cyan-500/20',
                             href: `/${params.locale}/academy/tools/wind-lab`
+                        },
+                        {
+                            id: 'meteo',
+                            label: 'Meteo',
+                            icon: <CloudRain className="w-5 h-5" />,
+                            color: 'text-indigo-400 bg-indigo-500/10 hover:bg-indigo-500/20',
+                            href: `/${params.locale}/academy/tools/meteo-simulator`
                         },
                         {
                             id: 'skills',
