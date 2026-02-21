@@ -4,7 +4,7 @@
  */
 
 const DEFAULT_MAESTRO = 'http://localhost:3323';
-const TIMEOUT_MS = 15000;
+const TIMEOUT_MS = 45000;
 const MAX_RETRIES = 2;
 
 function getMaestroUrl(): string {

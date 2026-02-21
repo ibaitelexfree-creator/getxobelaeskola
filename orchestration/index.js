@@ -54,6 +54,7 @@ import { readProjectMemory, writeProjectMemory, appendToProjectMemory, readAllCo
 import { setupTelegramInbound } from './lib/telegram-inbound.js';
 import * as resourceManager from './lib/resource-manager.js';
 import { handleRecoverySignal } from './lib/recovery-agent.js';
+import { tasks as dbTasks, logs as dbLogs } from './lib/db.js';
 
 
 
@@ -68,9 +69,25 @@ const julesAgent = new https.Agent({
 });
 
 const PORT = process.env.PORT || 3323;
-const JULES_API_KEY = process.env.JULES_API_KEY;
+
+// Jules API Key Pool (rotativo entre 3 cuentas)
+const JULES_API_KEYS = [
+  process.env.JULES_API_KEY,
+  process.env.JULES_API_KEY_2,
+  process.env.JULES_API_KEY_3,
+].filter(Boolean);
+let _julesKeyIndex = 0;
+function getJulesApiKey() {
+  const key = JULES_API_KEYS[_julesKeyIndex % JULES_API_KEYS.length];
+  _julesKeyIndex++;
+  return key;
+}
+// Backward compat: primary key
+const JULES_API_KEY = JULES_API_KEYS[0] || null;
+
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN || null;
 const VERSION = '2.6.0';
+console.log(`[Jules] Pool de ${JULES_API_KEYS.length} cuenta(s) configurada(s)`);
 
 // ============ v2.5.0 INFRASTRUCTURE ============
 
@@ -163,6 +180,18 @@ async function retryWithBackoff(fn, options = {}) {
 }
 
 const app = express();
+
+// Simple CORS middleware
+app.use((req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+  res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(200);
+  }
+  next();
+});
 app.use(compressionMiddleware());
 app.use(cacheMiddleware);
 // Preserve raw body for webhook signature verification
@@ -266,20 +295,24 @@ try {
   console.error('[Firebase] Failed to initialize:', error.message);
 }
 
-// Connect Watchdog events to Push Notifications
+// Connect Watchdog events to Push Notifications and DB Logs
 agentWatchdog.on('loopDetected', (e) => {
+  dbLogs.add('watchdog', 'LOOP_DETECTED', e);
   sendPushToAll('⚠️ Bucle Detectado', `Antigravity está repitiendo comandos (${e.repeatCount}x). Interviniendo...`, { priority: 'high', type: 'loop' });
 });
 
 agentWatchdog.on('stallDetected', (e) => {
+  dbLogs.add('watchdog', 'STALL_DETECTED', e);
   sendPushToAll('⏸️ Agente Estancado', `No hay salida de Antigravity hace ${Math.round(e.silentForMs / 1000)}s. Intentando continuar...`, { type: 'stall' });
 });
 
 agentWatchdog.on('crashDetected', () => {
+  dbLogs.add('watchdog', 'CRASH_DETECTED', {});
   sendPushToAll('🔥 Crash de Antigravity', 'El proceso de Antigravity/Cursor no responde. Reiniciando...', { priority: 'high', type: 'crash' });
 });
 
 agentWatchdog.on('autoContinueSent', (e) => {
+  dbLogs.add('watchdog', 'AUTO_CONTINUE', e);
   sendPushToAll('▶️ Auto-Continuar', `Enviado ENTER a la consola (Intento ${e.attempt}).`, { type: 'auto-continue' });
 });
 
@@ -426,7 +459,9 @@ try {
 
 // Get watchdog status (used by watchdog.ps1)
 app.get('/watchdog/status', (req, res) => {
-  res.json(agentWatchdog.getStatus());
+  const status = agentWatchdog.getStatus();
+  status.recentLogs = dbLogs.getRecent(5);
+  res.json(status);
 });
 
 // Register device for push notifications
@@ -636,6 +671,58 @@ app.post('/api/resources/start/:service', async (req, res) => {
   try {
     await resourceManager.startService(req.params.service.toUpperCase());
     res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Force stop a service
+app.post('/api/resources/stop/:service', async (req, res) => {
+  try {
+    await resourceManager.stopService(req.params.service.toUpperCase());
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Reset a service
+app.post('/api/resources/reset/:service', async (req, res) => {
+  try {
+    await resourceManager.resetService(req.params.service.toUpperCase());
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get live preview configuration (VPN / Tunnel)
+app.get('/api/config/live-preview', async (req, res) => {
+  try {
+    const tunnelPath = path.join(process.cwd(), '..', 'antigravity', 'last_tunnel_url.txt');
+    let url = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+    let source = 'environment';
+    let password = null;
+
+    if (fs.existsSync(tunnelPath)) {
+      try {
+        const tunnelData = JSON.parse(fs.readFileSync(tunnelPath, 'utf-8'));
+        if (tunnelData.url) {
+          url = tunnelData.url;
+          source = 'antigravity_tunnel';
+          password = tunnelData.password || null;
+        }
+      } catch (e) {
+        console.warn('[Orchestrator] Error reading tunnel file:', e.message);
+      }
+    }
+
+    res.json({
+      url,
+      source,
+      password,
+      timestamp: new Date().toISOString()
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -959,17 +1046,69 @@ function initializeToolRegistry() {
   toolRegistry.set('jules_add_pr_comment', (p) => addPrComment(p.owner, p.repo, p.prNumber, p.comment));
 
   // v2.5.0: Session Queue
-  toolRegistry.set('jules_queue_session', (p) => ({ success: true, item: sessionQueue.add(p.config, p.priority) }));
-  toolRegistry.set('jules_get_queue', () => {
-    const memoryTasks = getParsedTasks();
+  toolRegistry.set('jules_queue_session', async (p) => {
+    const id = `T-${Date.now().toString(36).toUpperCase()}`;
+    dbTasks.add({
+      id,
+      title: p.config.title || p.config.prompt.substring(0, 100),
+      executor: p.config.executor || 'jules',
+      status: 'pending',
+      priority: p.priority || 3
+    });
+    await syncTasksToMarkdown();
+    return { success: true, id };
+  });
+
+  toolRegistry.set('jules_get_queue', async () => {
+    const pendingBefore = dbTasks.getPending();
+
+    // Auto-reconcile running tasks
+    const running = pendingBefore.filter(t => t.status === 'running' || t.status === 'en_curso');
+    for (const t of running) {
+      if (!t.external_id.startsWith('T-')) {
+        try {
+          const session = await julesRequest('GET', `/sessions/${t.external_id}`);
+          if (session.state === 'COMPLETED') {
+            dbTasks.updateStatus(t.external_id, 'completed', 'Task finished successfully');
+            await syncTasksToMarkdown();
+          } else if (session.state === 'FAILED' || session.state === 'CANCELLED') {
+            dbTasks.updateStatus(t.external_id, 'failed', `Session ${session.state}`);
+            await syncTasksToMarkdown();
+          }
+        } catch (e) { /* ignore */ }
+      }
+    }
+
+    const pending = dbTasks.getPending();
+    const history = dbTasks.getCompleted();
+
     return {
-      queue: memoryTasks.queue,
-      history: memoryTasks.history,
+      queue: pending.map(t => ({
+        id: t.external_id,
+        title: t.title,
+        priority: t.priority,
+        executor: t.executor,
+        status: t.status,
+        createdAt: new Date(t.created_at).getTime(),
+        position: 0
+      })),
+      history: history.map(t => ({
+        id: t.external_id,
+        title: t.title,
+        executor: t.executor,
+        status: t.status === 'completado' || t.status === 'completed' ? 'completed' : 'failed',
+        result: t.result,
+        timestamp: new Date(t.updated_at).getTime()
+      })),
       stats: sessionQueue.stats()
     };
   });
   toolRegistry.set('jules_process_queue', () => processQueue());
-  toolRegistry.set('jules_clear_queue', () => ({ success: true, cleared: sessionQueue.clear() }));
+  toolRegistry.set('jules_clear_queue', async () => {
+    dbTasks.clear();
+    await syncTasksToMarkdown();
+    return { success: true };
+  });
 
   // v2.5.0: Batch Retry & Analytics
   toolRegistry.set('jules_batch_retry_failed', (p) => batchRetryFailed(p.batchId));
@@ -1104,7 +1243,7 @@ function julesRequest(method, path, body = null) {
       method: method,
       agent: julesAgent, // Connection pooling for 25-30% latency reduction
       headers: {
-        'X-Goog-Api-Key': JULES_API_KEY,
+        'X-Goog-Api-Key': getJulesApiKey(), // Rotativo entre las 3 cuentas
         'Content-Type': 'application/json'
       }
     };
@@ -1138,11 +1277,11 @@ function julesRequest(method, path, body = null) {
       });
     });
 
-    // 30 second timeout to prevent hanging requests
-    req.setTimeout(30000, () => {
+    // 45 second timeout to prevent hanging requests
+    req.setTimeout(45000, () => {
       req.destroy();
       circuitBreaker.recordFailure();
-      reject(new Error('Request timeout after 30 seconds'));
+      reject(new Error('Request timeout after 45 seconds'));
     });
 
     req.on('error', (err) => {
@@ -1192,21 +1331,26 @@ async function createJulesSession(config) {
 
   // If no branch specified, fetch the default branch from source info
   if (!startingBranch) {
-    console.log('[Jules API] No branch specified, fetching default branch from source...');
-    try {
-      const sources = await julesRequest('GET', '/sources');
-      const source = sources.sources?.find(s => s.name === config.source);
-      if (source?.githubRepo?.defaultBranch?.displayName) {
-        startingBranch = source.githubRepo.defaultBranch.displayName;
-        console.log('[Jules API] Using default branch:', startingBranch);
-      } else {
-        // Fallback to common defaults
-        startingBranch = 'main';
-        console.log('[Jules API] No default branch found, using fallback:', startingBranch);
-      }
-    } catch (err) {
-      console.error('[Jules API] Failed to fetch source info:', err.message);
+    if (config.source === 'sources/github/ibaitelexfree-creator/getxobelaeskola') {
       startingBranch = 'main';
+      console.log('[Jules API] Using hardcoded default branch for project repo: main');
+    } else {
+      console.log('[Jules API] No branch specified, fetching default branch from source...');
+      try {
+        const sources = await julesRequest('GET', '/sources');
+        const source = sources.sources?.find(s => s.name === config.source);
+        if (source?.githubRepo?.defaultBranch?.displayName) {
+          startingBranch = source.githubRepo.defaultBranch.displayName;
+          console.log('[Jules API] Using default branch:', startingBranch);
+        } else {
+          // Fallback to common defaults
+          startingBranch = 'main';
+          console.log('[Jules API] No default branch found, using fallback:', startingBranch);
+        }
+      } catch (err) {
+        console.error('[Jules API] Failed to fetch source info:', err.message);
+        startingBranch = 'main';
+      }
     }
   }
 
@@ -1242,6 +1386,19 @@ async function createJulesSession(config) {
   const session = await julesRequest('POST', '/sessions', sessionData);
   invalidateCaches();
 
+  // Record in DB
+  if (session && session.name) {
+    const sessionId = session.name.split('/')?.pop() || 'unknown';
+    dbTasks.add({
+      id: sessionId,
+      title: config.title || config.prompt.substring(0, 100),
+      executor: config.executor || 'jules',
+      status: 'running',
+      priority: config.priority || 3
+    });
+    await syncTasksToMarkdown();
+  }
+
   // Notify Telegram (Async, do not block response)
   if (session && session.name) {
     const sessionId = session.name.split('/')?.pop() || 'unknown';
@@ -1251,6 +1408,36 @@ async function createJulesSession(config) {
   }
 
   return session;
+}
+
+/**
+ * Sync DB state to Markdown for agent visibility
+ */
+async function syncTasksToMarkdown() {
+  try {
+    const pending = dbTasks.getPending();
+    const completed = dbTasks.getCompleted();
+
+    let content = '# Tareas de Agentes\n\n## Cola de Tareas Pendientes\n';
+    content += '| ID | Prioridad | Agente | Tarea | Estado | Fecha |\n|----|-----------|--------|-------|--------|-------|\n';
+    pending.forEach(t => {
+      const date = t.created_at ? t.created_at.split(' ')[0] : new Date().toISOString().split('T')[0];
+      content += `| ${t.external_id} | ${t.priority} | ${t.executor} | ${t.title} | ${t.status} | ${date} |\n`;
+    });
+
+    content += '\n## Tareas Completadas\n';
+    content += '| ID | Agente | Tarea | Resultado | Fecha |\n|----|--------|-------|-----------|-------|\n';
+    completed.forEach(t => {
+      const date = t.updated_at ? t.updated_at.split(' ')[0] : new Date().toISOString().split('T')[0];
+      content += `| ${t.external_id} | ${t.executor} | ${t.title} | ${t.result || 'completado'} | ${date} |\n`;
+    });
+
+    content += '\n## Reglas\n- **Prioridad:** 1 (crítico) → 5 (nice-to-have)\n- **Estado:** `pendiente` → `en_curso` → `review` → `completada`\n- Solo Ibai o Antigravity pueden asignar tareas\n- El agente asignado actualiza su estado aquí';
+
+    writeProjectMemory('AGENT_TASKS.md', content);
+  } catch (err) {
+    console.error('[DB Sync] Failed to sync to Markdown:', err.message);
+  }
 }
 
 // Create session from GitHub issue
@@ -1685,10 +1872,108 @@ const server = app.listen(PORT, '0.0.0.0', () => {
   initializeToolRegistry();
   console.log('Modules initialized: BatchProcessor, SessionMonitor, ToolRegistry (' + toolRegistry.size + ' tools)');
 
+  // ── BOOTSTRAP: Import tasks from AGENT_TASKS.md → SQLite ───────────
+  // Ensures tasks written manually in the markdown are picked up by the auto-dispatcher.
+  try {
+    const parsed = getParsedTasks();
+    const existingIds = new Set(dbTasks.getAll().map(t => t.external_id));
+    let imported = 0;
+    for (const task of parsed.queue) {
+      if (task.id && !existingIds.has(task.id)) {
+        dbTasks.add({
+          id: task.id,
+          title: task.title,
+          executor: task.executor || 'jules',
+          status: 'pending',
+          priority: task.priority || 3,
+        });
+        imported++;
+      }
+    }
+    if (imported > 0) {
+      console.log(`[Bootstrap] Imported ${imported} task(s) from AGENT_TASKS.md → SQLite`);
+    }
+  } catch (err) {
+    console.warn('[Bootstrap] Could not sync tasks from markdown:', err.message);
+  }
+
   // Initialize Telegram Inbound Polling
   if (process.env.TELEGRAM_BOT_TOKEN && process.env.TELEGRAM_CHAT_ID) {
     setupTelegramInbound(process.env.TELEGRAM_BOT_TOKEN, process.env.TELEGRAM_CHAT_ID);
   }
+
+  // ── AUTO-DISPATCH LOOP ──────────────────────────────────────────────
+  // Reads pending tasks from SQLite and dispatches them to Jules automatically.
+  // This bridges the gap between the task queue (DB/Markdown) and actual Jules sessions.
+  let autoDispatchRunning = false;
+
+  async function autoDispatchPendingTasks() {
+    if (autoDispatchRunning) return; // prevent overlap
+    if (!JULES_API_KEY) return;      // only if Jules is configured
+    if (circuitBreaker.isOpen()) {
+      console.log('[AutoDispatch] Circuit breaker open — skipping dispatch cycle');
+      return;
+    }
+
+    autoDispatchRunning = true;
+    try {
+      const pending = dbTasks.getPending().filter(t =>
+        t.executor?.toLowerCase() === 'jules' &&
+        (t.status === 'pending' || t.status === 'queued')
+      );
+
+      if (pending.length === 0) {
+        autoDispatchRunning = false;
+        return;
+      }
+
+      console.log(`[AutoDispatch] Found ${pending.length} pending Jules task(s) — dispatching...`);
+
+      for (const task of pending) {
+        try {
+          // Mark as running first to avoid double-dispatch
+          dbTasks.updateStatus(task.external_id, 'running');
+
+          const session = await createJulesSession({
+            prompt: task.title,
+            source: process.env.JULES_DEFAULT_SOURCE || 'sources/github/ibaitelexfree-creator/getxobelaeskola',
+            title: task.title,
+            automationMode: 'AUTO_CREATE_PR',
+          }).catch(err => {
+            // If dispatch fails, revert to pending
+            dbTasks.updateStatus(task.external_id, 'pending');
+            throw err;
+          });
+
+          const sessionId = session?.name?.split('/')?.pop() || session?.id || 'unknown';
+          dbTasks.updateStatus(task.external_id, 'running', `Jules session: ${sessionId}`);
+          await syncTasksToMarkdown();
+
+          console.log(`[AutoDispatch] ✅ Task "${task.title}" → Jules session ${sessionId}`);
+
+          sendTelegramMessage(
+            `🤖 *Auto-Dispatch*\n\n*Tarea:* ${task.title}\n*Jules ID:* \`${sessionId}\`\n*Prioridad:* ${task.priority}`
+          ).catch(() => { });
+
+        } catch (err) {
+          console.error(`[AutoDispatch] ❌ Failed to dispatch "${task.title}":`, err.message);
+        }
+
+        // Stagger dispatches by 3 seconds to avoid rate limits
+        await new Promise(r => setTimeout(r, 3000));
+      }
+    } finally {
+      autoDispatchRunning = false;
+    }
+  }
+
+  // Run immediately on startup (after 10s warmup), then every 90 seconds
+  setTimeout(() => {
+    autoDispatchPendingTasks();
+    setInterval(autoDispatchPendingTasks, 90_000);
+  }, 10_000);
+
+  console.log('[AutoDispatch] Loop scheduled — will check for pending Jules tasks every 90s');
 });
 
 process.on('SIGTERM', () => {

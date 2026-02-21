@@ -18,6 +18,17 @@ const statusIcon: Record<string, React.ReactNode> = {
     queued: <Clock size={14} className="text-white/30" />,
 };
 
+function formatRelativeTime(timestamp: number) {
+    const diff = Date.now() - timestamp;
+    const seconds = Math.floor(diff / 1000);
+    const minutes = Math.floor(seconds / 60);
+
+    if (seconds < 10) return 'Justo ahora';
+    if (seconds < 60) return `Hace ${seconds}s`;
+    if (minutes < 60) return `Hace ${minutes}m`;
+    return new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+}
+
 export default function QueueHistory() {
     const { queue, history } = useMissionStore();
 
@@ -49,7 +60,7 @@ export default function QueueHistory() {
                                 <div className="flex-1 min-w-0">
                                     <p className="text-sm text-white/70 truncate">{item.title}</p>
                                     <p className="text-2xs text-white/20">
-                                        {new Date(item.createdAt).toLocaleTimeString()}
+                                        {formatRelativeTime(item.createdAt)}
                                     </p>
                                 </div>
                                 <Clock size={12} className="text-white/20" />
@@ -97,7 +108,7 @@ export default function QueueHistory() {
                                         <p className="text-sm text-white/70 truncate">{entry.title}</p>
                                         <div className="flex items-center gap-2 mt-0.5">
                                             <span className="text-2xs text-white/20">
-                                                {new Date(entry.timestamp).toLocaleTimeString()}
+                                                {formatRelativeTime(entry.timestamp)}
                                             </span>
                                             {entry.latencyMs && (
                                                 <span className="text-2xs text-status-amber">{entry.latencyMs}ms</span>

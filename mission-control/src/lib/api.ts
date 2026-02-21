@@ -7,7 +7,7 @@ function getBaseUrl(): string {
     return DEFAULT_BASE;
 }
 
-const TIMEOUT_MS = 15000;
+const TIMEOUT_MS = 45000;
 const MAX_RETRIES = 3;
 
 async function fetchWithTimeout(url: string, options: RequestInit & { timeout?: number }): Promise<Response> {
@@ -112,13 +112,17 @@ export interface ResourceStatus {
     services: Record<string, {
         name: string;
         running: boolean;
-        type: 'docker' | 'process';
+        type: 'docker' | 'process' | 'cloud';
+        used?: number;
+        limit?: number;
     }>;
 }
 
 export const getResourceStatus = () => request<ResourceStatus>('GET', '/api/resources/status');
 export const setPowerMode = (mode: 'eco' | 'performance') => request<{ success: boolean, mode: string }>('POST', '/api/resources/mode', { mode });
 export const startService = (service: string) => request<{ success: boolean }>('POST', `/api/resources/start/${service}`);
+export const stopService = (service: string) => request<{ success: boolean }>('POST', `/api/resources/stop/${service}`);
+export const resetService = (service: string) => request<{ success: boolean }>('POST', `/api/resources/reset/${service}`);
 
 // ─── MCP Execute (proxy to Maestro commands) ───
 
@@ -141,5 +145,7 @@ export const processQueue = () => executeTool('jules_process_queue');
 
 export const getCacheStats = () => executeTool('jules_cache_stats');
 export const clearCache = () => executeTool('jules_clear_cache');
+
+export const getLivePreviewConfig = () => request<{ url: string; source: string; password?: string }>('GET', '/api/config/live-preview');
 
 export { getBaseUrl, DEFAULT_BASE };
