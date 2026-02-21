@@ -8,6 +8,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import DashboardSkeleton from '@/components/student/DashboardSkeleton';
+import OnboardingWizard from '@/components/student/onboarding/OnboardingWizard';
 
 // Dynamic Imports for Optimization
 const StudentProfileSidebar = dynamic(() => import('@/components/student/StudentProfileSidebar'));
@@ -175,6 +176,9 @@ export default function StudentDashboardClient({
         <div className="relative min-h-screen bg-nautical-black">
             <div className="bg-mesh" />
 
+            {/* Interactive Onboarding Wizard */}
+            {user?.id && <OnboardingWizard userId={user.id} />}
+
             {/* Mobile View - Visible only on small screens */}
             <div className="md:hidden">
                 <div className="absolute top-0 right-0 w-64 h-64 bg-accent/5 blur-[80px] rounded-full pointer-events-none" />
@@ -191,7 +195,9 @@ export default function StudentDashboardClient({
 
             {/* Desktop View - Hidden on mobile */}
             <div className="hidden md:flex flex-col lg:flex-row gap-8 p-4 lg:p-8 pt-44 lg:pt-48 max-w-[1600px] mx-auto relative z-10">
-                <StudentProfileSidebar profile={profile} email={user?.email || ''} locale={locale} />
+                <div id="dashboard-profile-sidebar">
+                    <StudentProfileSidebar profile={profile} email={user?.email || ''} locale={locale} />
+                </div>
 
                 <main className="flex-1 space-y-12 max-w-5xl">
                     <NotificationPermissionBanner />
@@ -235,7 +241,7 @@ export default function StudentDashboardClient({
                                 locale={locale}
                             />
 
-                            <section>
+                            <section id="dashboard-academy-widget">
                                 <div className="flex justify-between items-end mb-8">
                                     <h2 className="text-xs uppercase tracking-widest text-accent font-bold">{t.academy_widget.title}</h2>
                                     <Link href={`/${locale}/academy/dashboard`} className="text-[10px] uppercase tracking-widest text-foreground/40 hover:text-accent transition-colors">
@@ -316,7 +322,7 @@ export default function StudentDashboardClient({
                                 </div>
                             </section>
 
-                            <section>
+                            <section id="dashboard-courses-section">
                                 <h2 className="text-xs uppercase tracking-widest text-accent mb-8 font-bold">{t.courses_section.title}</h2>
                                 {upcomingInscripciones.length > 0 ? (
                                     <div className="space-y-6">
@@ -348,7 +354,7 @@ export default function StudentDashboardClient({
                                 )}
                             </section>
 
-                            <section>
+                            <section id="dashboard-rentals-section">
                                 <div className="flex justify-between items-end mb-8">
                                     <h2 className="text-xs uppercase tracking-widest text-accent font-bold">{t.rentals_section.title}</h2>
                                     <Link href={`/${locale}/rental`} className="text-[10px] uppercase tracking-widest text-foreground/40 hover:text-accent transition-colors">
