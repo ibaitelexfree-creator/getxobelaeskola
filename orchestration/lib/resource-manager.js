@@ -1,8 +1,12 @@
 import { exec } from 'child_process';
 import { promisify } from 'util';
 import http from 'http';
+import { VisualRelay } from './visual-relay.js';
 
 const execAsync = promisify(exec);
+
+// Initialize visual relay for stats
+const visualRelay = new VisualRelay();
 
 // Configuration
 const SERVICES = {
@@ -22,6 +26,10 @@ const SERVICES = {
         command: 'ollama serve',
         apiCheck: 'http://127.0.0.1:11434/api/tags',
         displayName: 'Ollama LLM'
+    },
+    BROWSERLESS: {
+        type: 'cloud',
+        displayName: 'Browserless Cloud'
     }
 };
 
@@ -62,6 +70,21 @@ export async function getResourceStatus() {
         status.OLLAMA = { running: false, error: error.message };
     }
 
+    // Check Browserless Cloud usage
+    try {
+        const usage = await visualRelay.getUsage();
+        status.BROWSERLESS = {
+            name: SERVICES.BROWSERLESS.displayName,
+            running: visualRelay.enabled,
+            type: 'cloud',
+            used: usage?.used || 0,
+            limit: usage?.limit || 0,
+            remaining: usage?.remaining || 0
+        };
+    } catch (error) {
+        status.BROWSERLESS = { running: false, error: error.message };
+    }
+
     return {
         powerMode,
         lastActivity: new Date(lastActivity).toISOString(),
@@ -100,6 +123,10 @@ export async function startService(serviceKey) {
             }
             throw new Error('Ollama failed to start in time');
         }
+    } else if (service.type === 'cloud') {
+        if (serviceKey === 'BROWSERLESS') {
+            visualRelay.enabled = true;
+        }
     }
 
     lastActivity = Date.now();
@@ -122,8 +149,19 @@ export async function stopService(serviceKey) {
                 // Might already be stopped
             }
         }
+    } else if (service.type === 'cloud') {
+        if (serviceKey === 'BROWSERLESS') {
+            visualRelay.enabled = false;
+        }
     }
     return true;
+}
+
+export async function resetService(serviceKey) {
+    console.log(`Resetting service: ${serviceKey}`);
+    await stopService(serviceKey).catch(() => { });
+    await new Promise(r => setTimeout(r, 2000));
+    return await startService(serviceKey);
 }
 
 export function recordActivity() {

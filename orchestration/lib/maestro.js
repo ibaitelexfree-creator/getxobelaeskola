@@ -59,7 +59,7 @@ export class Maestro {
         this.clawdbot = new ClawdBotBridge(options.clawdbot || {});
         this.flash = new FlashExecutor(options.flash || {});
         this.visual = new VisualRelay(options.visual || {});
-        this.credits = new CreditMonitor(this.pool, this.flash, this.clawdbot);
+        this.credits = new CreditMonitor(this.pool, this.flash, this.clawdbot, this.visual);
         this.watchdog = new AgentWatchdog(options.watchdog || {});
 
         // Task queue for when pool is exhausted and ClawdBot not available

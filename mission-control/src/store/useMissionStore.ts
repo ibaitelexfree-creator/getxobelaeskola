@@ -15,14 +15,14 @@ interface MissionState {
         jules: { health: ServiceHealth; used: number; total: number; active: number };
         flash: { health: ServiceHealth; tasksToday: number; tokensUsed: number };
         clawdbot: { health: ServiceHealth; delegations: number };
-        browserless: { health: ServiceHealth };
+        browserless: { health: ServiceHealth; used?: number; total?: number };
         thermal: { label: string; level: number };
         watchdog: { state: string; loops: number; stalls: number; crashes: number };
     };
     power: {
         mode: 'eco' | 'performance';
         lastActivity: string;
-        services: Record<string, { name: string; running: boolean; type: string }>;
+        services: Record<string, { name: string; running: boolean; type: string; used?: number; limit?: number }>;
     };
 
     // Stats
@@ -57,6 +57,10 @@ interface MissionState {
     activeTab: Tab;
     taskDraft: string;
 
+    // Live View
+    livePreviewUrl: string;
+    livePreviewPassword: string;
+
     // Settings
     autoRefreshMs: number;
 
@@ -68,6 +72,8 @@ interface MissionState {
     setQueue: (queue: MissionState['queue']) => void;
     setHistory: (history: MissionState['history']) => void;
     setPendingApproval: (approval: MissionState['pendingApproval']) => void;
+    setLivePreviewUrl: (url: string) => void;
+    setLivePreviewPassword: (password: string) => void;
     addToHistory: (entry: MissionState['history'][0]) => void;
     setActiveTab: (tab: Tab) => void;
     updateActiveThreads: (threads: MissionState['activeThreads']) => void;
@@ -78,6 +84,7 @@ interface MissionState {
 }
 
 const STORAGE_KEY = 'mc_server_url';
+const LIVE_URL_KEY = 'mc_live_preview_url';
 
 export const useMissionStore = create<MissionState>((set, get) => ({
     // Initial state
@@ -109,6 +116,10 @@ export const useMissionStore = create<MissionState>((set, get) => ({
     activeThreads: [],
     activeTab: 'dashboard',
     taskDraft: '',
+    livePreviewUrl: typeof window !== 'undefined'
+        ? localStorage.getItem(LIVE_URL_KEY) || ''
+        : '',
+    livePreviewPassword: '',
     autoRefreshMs: 10_000,
 
     // Actions
@@ -125,16 +136,19 @@ export const useMissionStore = create<MissionState>((set, get) => ({
     setHistory: (history) => set({ history }),
     setPendingApproval: (pendingApproval) => {
         const current = get().pendingApproval;
-        // Trigger haptics only when a NEW approval arrives
         if (pendingApproval && !current) {
             Haptics.impact({ style: ImpactStyle.Heavy }).catch(() => { });
-            // Double vibration for urgency
             setTimeout(() => {
                 Haptics.impact({ style: ImpactStyle.Heavy }).catch(() => { });
             }, 200);
         }
         set({ pendingApproval });
     },
+    setLivePreviewUrl: (url) => {
+        if (typeof window !== 'undefined') localStorage.setItem(LIVE_URL_KEY, url);
+        set({ livePreviewUrl: url });
+    },
+    setLivePreviewPassword: (livePreviewPassword) => set({ livePreviewPassword }),
     addToHistory: (entry) =>
         set((state) => ({ history: [entry, ...state.history].slice(0, 100) })),
     setActiveTab: (activeTab) => set({ activeTab }),
@@ -144,5 +158,3 @@ export const useMissionStore = create<MissionState>((set, get) => ({
     updatePower: (partial) => set((state) => ({ power: { ...state.power, ...partial } })),
     setTaskDraft: (taskDraft) => set({ taskDraft }),
 }));
-
-

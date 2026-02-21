@@ -2,8 +2,8 @@
 
 import { motion } from 'framer-motion';
 import { useMissionStore } from '@/store/useMissionStore';
-import { setPowerMode, startService } from '@/lib/api';
-import { Zap, Shield, Power, Cpu, Database, Binary } from 'lucide-react';
+import { setPowerMode, startService, stopService, resetService } from '@/lib/api';
+import { Zap, Shield, Power, Cpu, Database, Binary, Play, Pause, RotateCcw } from 'lucide-react';
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
 
 export default function ResourceManager() {
@@ -26,6 +26,24 @@ export default function ResourceManager() {
             await startService(key);
         } catch (error) {
             console.error(`Failed to start service ${key}:`, error);
+        }
+    };
+
+    const handleStopService = async (key: string) => {
+        try {
+            await Haptics.impact({ style: ImpactStyle.Light });
+            await stopService(key);
+        } catch (error) {
+            console.error(`Failed to stop service ${key}:`, error);
+        }
+    };
+
+    const handleResetService = async (key: string) => {
+        try {
+            await Haptics.impact({ style: ImpactStyle.Medium });
+            await resetService(key);
+        } catch (error) {
+            console.error(`Failed to reset service ${key}:`, error);
         }
     };
 
@@ -87,26 +105,39 @@ export default function ResourceManager() {
                                     {svc.name}
                                 </span>
                                 <span className="text-[8px] font-mono text-white/20 uppercase">
-                                    {svc.type === 'docker' ? 'Container' : 'Process'} • {svc.running ? 'Active' : 'Standby'}
+                                    {svc.type === 'docker' ? 'Container' : svc.type === 'cloud' ? 'Cloud' : 'Process'} • {svc.running ? 'Active' : 'Standby'}
                                 </span>
                             </div>
                         </div>
 
-                        {!svc.running && (
-                            <button
-                                onClick={() => handleStartService(key)}
-                                className="relative z-10 px-3 py-1.5 bg-white/5 hover:bg-white/10 rounded-lg text-[9px] font-mono font-bold text-white/40 hover:text-white transition-all uppercase tracking-widest border border-white/5"
-                            >
-                                Ignite
-                            </button>
-                        )}
-
-                        {svc.running && (
-                            <div className="flex items-center gap-2 relative z-10">
-                                <div className="w-1.5 h-1.5 rounded-full bg-status-green animate-pulse shadow-[0_0_5px_rgba(0,255,148,0.8)]" />
-                                <span className="text-[9px] font-mono text-status-green uppercase font-bold tracking-tighter">Engaged</span>
-                            </div>
-                        )}
+                        <div className="flex items-center gap-2 relative z-10">
+                            {!svc.running ? (
+                                <button
+                                    onClick={() => handleStartService(key)}
+                                    className="p-2 bg-white/5 hover:bg-white/10 rounded-lg text-white/40 hover:text-white transition-all border border-white/5"
+                                    title="Start"
+                                >
+                                    <Play size={14} />
+                                </button>
+                            ) : (
+                                <>
+                                    <button
+                                        onClick={() => handleStopService(key)}
+                                        className="p-2 bg-white/5 hover:bg-white/10 rounded-lg text-white/40 hover:text-status-amber transition-all border border-white/5"
+                                        title="Pause"
+                                    >
+                                        <Pause size={14} />
+                                    </button>
+                                    <button
+                                        onClick={() => handleResetService(key)}
+                                        className="p-2 bg-white/5 hover:bg-white/10 rounded-lg text-white/40 hover:text-status-blue transition-all border border-white/5"
+                                        title="Reset"
+                                    >
+                                        <RotateCcw size={14} />
+                                    </button>
+                                </>
+                            )}
+                        </div>
                     </motion.div>
                 ))}
             </div>

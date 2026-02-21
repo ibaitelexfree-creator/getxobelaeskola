@@ -2,13 +2,13 @@
 
 import { motion } from 'framer-motion';
 import { useMissionStore, Tab } from '@/store/useMissionStore';
-import { LayoutDashboard, Rocket, ListOrdered, SlidersHorizontal, Eye, Settings } from 'lucide-react';
+import { LayoutDashboard, Rocket, ListOrdered, SlidersHorizontal, Radio, Settings } from 'lucide-react';
 
 const tabs: { id: Tab; label: string; icon: React.ReactNode }[] = [
     { id: 'dashboard', label: 'Dash', icon: <LayoutDashboard size={20} /> },
     { id: 'tasks', label: 'Tasks', icon: <Rocket size={20} /> },
     { id: 'queue', label: 'Queue', icon: <ListOrdered size={20} /> },
-    { id: 'visual', label: 'Visual', icon: <Eye size={20} /> },
+    { id: 'visual', label: 'Live', icon: <Radio size={20} /> },
     { id: 'control', label: 'Control', icon: <SlidersHorizontal size={20} /> },
     { id: 'settings', label: 'Settings', icon: <Settings size={20} /> },
 ];
