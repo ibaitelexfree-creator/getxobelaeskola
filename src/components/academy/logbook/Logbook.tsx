@@ -1,11 +1,10 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
-import { useParams } from 'next/navigation';
 import {
     Book, MapPin, Award, Ship, Waves, Wind,
-    ChevronRight, Anchor, Calendar, Download, Plus, Trash2, Smile, Layers, HelpCircle
+    Anchor, Calendar, Plus, Trash2, Smile, Layers, HelpCircle, Upload
 } from 'lucide-react';
 import { apiUrl } from '@/lib/api';
 import { useAcademyFeedback } from '@/hooks/useAcademyFeedback';
@@ -37,7 +36,8 @@ export default function Logbook() {
     const [isSavingDiary, setIsSavingDiary] = useState(false);
     const [newDiaryContent, setNewDiaryContent] = useState('');
     const [selectedPoint, setSelectedPoint] = useState<any>(null);
-    const params = useParams();
+    const [isUploading, setIsUploading] = useState(false);
+    const fileInputRef = React.useRef<HTMLInputElement>(null);
     const { showMessage } = useAcademyFeedback();
 
     async function loadDiary() {
@@ -98,6 +98,39 @@ export default function Logbook() {
             setLoading(false);
         }
     }
+
+    const handleFileUpload = async (file: File) => {
+        if (!file) return;
+
+        setIsUploading(true);
+        const formData = new FormData();
+        formData.append('file', file);
+
+        try {
+            const res = await fetch(apiUrl('/api/logbook/upload-track'), {
+                method: 'POST',
+                body: formData
+            });
+
+            if (res.ok) {
+                const data = await res.json();
+                showMessage('Ruta Importada', `Se han importado ${data.stats.total_distance_nm} millas náuticas`, 'success');
+                // Reload data to show new track
+                await loadData();
+            } else {
+                const err = await res.json();
+                showMessage('Error', err.error || 'Error al importar la ruta', 'error');
+            }
+        } catch (error) {
+            console.error('Upload error:', error);
+            showMessage('Error', 'Error de conexión', 'error');
+        } finally {
+            setIsUploading(false);
+            if (fileInputRef.current) {
+                fileInputRef.current.value = ''; // Reset input
+            }
+        }
+    };
 
     useEffect(() => {
         loadData();
@@ -311,6 +344,33 @@ export default function Logbook() {
                                 <p className="text-white/40 text-[10px] uppercase tracking-widest">Visualización de Millas</p>
                             </div>
                         </div>
+                        {/* Import Controls */}
+                        <div className="absolute top-8 right-8 z-[1000]">
+                            <input
+                                type="file"
+                                ref={fileInputRef}
+                                onChange={(e) => {
+                                    const file = e.target.files?.[0];
+                                    if (file) handleFileUpload(file);
+                                }}
+                                accept=".gpx"
+                                className="hidden"
+                            />
+                            <button
+                                onClick={() => fileInputRef.current?.click()}
+                                disabled={isUploading}
+                                className="bg-black/40 hover:bg-black/60 backdrop-blur-xl border border-white/10 p-4 rounded-3xl flex items-center gap-3 transition-all group"
+                            >
+                                <div className={`w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-white/60 group-hover:text-white group-hover:bg-accent group-hover:text-nautical-black transition-all ${isUploading ? 'animate-pulse' : ''}`}>
+                                    <Upload size={16} />
+                                </div>
+                                <div className="text-left">
+                                    <h3 className="text-white font-bold text-xs italic">Importar Ruta</h3>
+                                    <p className="text-white/40 text-[8px] uppercase tracking-widest">{isUploading ? 'Procesando...' : 'Strava / GPX'}</p>
+                                </div>
+                            </button>
+                        </div>
+
                         {/* We render the dynamic component only when on the map tab */}
                         <LeafletMap
                             sessions={sessions}
