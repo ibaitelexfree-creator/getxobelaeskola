@@ -49,6 +49,11 @@ export async function GET() {
             };
         });
 
+        // Extract enrolled course IDs for progress calculation
+        const enrolledCourseIds = enrichedInscriptions
+            .map(ins => ins.curso_id || ins.ediciones_curso?.curso_id)
+            .filter(Boolean) as string[];
+
         // 3. Fetch Rentals
         const { data: rentals } = await supabase
             .from('reservas_alquiler')
@@ -63,7 +68,9 @@ export async function GET() {
             { data: progress },
             { data: certs },
             { data: horas },
-            { data: userBonos }
+            { data: userBonos },
+            { count: totalModules },
+            { count: completedModules }
         ] = await Promise.all([
             supabase.from('progreso_alumno').select('id, tipo_entidad, estado').eq('alumno_id', user.id),
             supabase.from('certificados').select('id').eq('alumno_id', user.id),
@@ -74,7 +81,15 @@ export async function GET() {
                     tipos_bono (nombre, description, categorias_validas)
                 `)
                 .eq('usuario_id', user.id)
-                .in('estado', ['activo', 'agotado'])
+                .in('estado', ['activo', 'agotado']),
+            supabase.from('modulos')
+                .select('id', { count: 'exact', head: true })
+                .in('curso_id', enrolledCourseIds.length > 0 ? enrolledCourseIds : ['00000000-0000-0000-0000-000000000000']),
+            supabase.from('progreso_alumno')
+                .select('id', { count: 'exact', head: true })
+                .eq('alumno_id', user.id)
+                .eq('tipo_entidad', 'modulo')
+                .eq('estado', 'completado')
         ]);
 
         const totalHours = horas?.reduce((acc, curr) => acc + Number(curr.duracion_h), 0) || 0;
@@ -82,6 +97,13 @@ export async function GET() {
         const academyLevels = progress?.filter(p => p.tipo_entidad === 'nivel' && p.estado === 'completado').length || 0;
         const academyCerts = certs?.length || 0;
         const hasAcademyActivity = (progress?.length || 0) > 0;
+
+        // Calculate Global Progress
+        const safeTotalModules = totalModules || 0;
+        const safeCompletedModules = completedModules || 0;
+        const globalProgress = safeTotalModules > 0
+            ? Math.round((safeCompletedModules / safeTotalModules) * 100)
+            : 0;
 
         return NextResponse.json({
             profile: profile || null,
@@ -97,7 +119,11 @@ export async function GET() {
                 totalMiles: Math.round(totalMiles),
                 academyLevels,
                 academyCerts,
-                hasAcademyActivity
+                hasAcademyActivity,
+                currentStreak: profile?.current_streak || 0,
+                globalProgress,
+                totalModules: safeTotalModules,
+                completedModules: safeCompletedModules
             }
         });
 

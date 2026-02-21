@@ -3,7 +3,7 @@
 import dynamic from 'next/dynamic';
 import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { getApiUrl } from '@/lib/platform';
-import { Menu, X, ChevronRight, Sparkles } from 'lucide-react';
+import { Menu, X, ChevronRight, Sparkles, Flame } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
@@ -14,7 +14,6 @@ const StudentProfileSidebar = dynamic(() => import('@/components/student/Student
 const MembershipWidget = dynamic(() => import('@/components/student/MembershipWidget'));
 const DailyChallengeWidget = dynamic(() => import('@/components/student/DailyChallengeWidget'));
 const WeatherPremium = dynamic(() => import('@/components/shared/WeatherPremium'), { ssr: false });
-const SeaStateWidget = dynamic(() => import('@/components/student/SeaStateWidget'), { ssr: false });
 const MobileStudentHub = dynamic(() => import('@/components/student/MobileStudentHub'));
 const NotificationPermissionBanner = dynamic(() => import('@/components/dashboard/NotificationPermissionBanner'), { ssr: false });
 const QuickContact = dynamic(() => import('@/components/student/QuickContact'));
@@ -106,7 +105,11 @@ export default function StudentDashboardClient({
         totalMiles = 0,
         academyLevels = 0,
         academyCerts = 0,
-        hasAcademyActivity = false
+        hasAcademyActivity = false,
+        currentStreak = 0,
+        globalProgress = 0,
+        totalModules = 0,
+        completedModules = 0
     } = academyStats;
 
     const hasAnyData = inscripciones.length > 0 || rentals.length > 0;
@@ -172,6 +175,11 @@ export default function StudentDashboardClient({
         return <DashboardSkeleton />;
     }
 
+    const streakLabel = locale === 'eu' ? 'Bolada' : (locale === 'en' ? 'Streak' : 'Racha');
+    const daysLabel = locale === 'eu' ? 'Egun' : (locale === 'en' ? 'Days' : 'Días');
+    const progressLabel = locale === 'eu' ? 'Aurrerapena' : (locale === 'en' ? 'Progress' : 'Progreso');
+    const modulesLabel = locale === 'eu' ? 'Moduluak' : (locale === 'en' ? 'Modules' : 'Módulos');
+
     return (
         <div className="relative min-h-screen bg-nautical-black">
             <div className="bg-mesh" />
@@ -223,8 +231,6 @@ export default function StudentDashboardClient({
                         <WeatherPremium />
                     </div>
 
-                    <SeaStateWidget translations={t} locale={locale} />
-
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
                         <div className="lg:col-span-2 space-y-16">
                             <BonosWallet
@@ -263,7 +269,14 @@ export default function StudentDashboardClient({
                                                     {hasAcademyActivity ? t.academy_widget.card_desc_active : t.academy_widget.card_desc_inactive}
                                                 </p>
 
-                                                <div className="grid grid-cols-3 gap-4 lg:gap-8">
+                                                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-8">
+                                                    <div className="space-y-1">
+                                                        <div className="text-3xl font-black text-white italic tracking-tighter leading-none flex items-center gap-2">
+                                                            {currentStreak}
+                                                            <Flame className="w-5 h-5 text-orange-500 animate-pulse fill-orange-500/50" />
+                                                        </div>
+                                                        <div className="text-[8px] uppercase tracking-[0.2em] text-accent/60 font-medium">{streakLabel} ({daysLabel})</div>
+                                                    </div>
                                                     <div className="space-y-1">
                                                         <div className="text-3xl font-black text-white italic tracking-tighter leading-none">{totalMiles}</div>
                                                         <div className="text-[8px] uppercase tracking-[0.2em] text-accent/60 font-medium">Millas</div>
@@ -277,6 +290,27 @@ export default function StudentDashboardClient({
                                                         <div className="text-[8px] uppercase tracking-[0.2em] text-accent/60 font-medium">{t.academy_widget.stats_certs}</div>
                                                     </div>
                                                 </div>
+
+                                                {/* Global Progress Bar */}
+                                                {totalModules > 0 && (
+                                                    <div className="mt-8 space-y-2 group/progress cursor-help">
+                                                        <div className="flex justify-between items-end">
+                                                            <span className="text-[9px] uppercase tracking-widest text-white/40 font-bold">{progressLabel}</span>
+                                                            <span className="text-xs font-mono text-accent">{globalProgress}%</span>
+                                                        </div>
+                                                        <div className="h-1.5 bg-white/5 rounded-full overflow-hidden relative">
+                                                            <div
+                                                                className="absolute top-0 left-0 h-full bg-accent transition-all duration-1000 ease-out"
+                                                                style={{ width: `${globalProgress}%` }}
+                                                            />
+                                                        </div>
+
+                                                        {/* Tooltip */}
+                                                        <div className="opacity-0 group-hover/progress:opacity-100 transition-opacity absolute bg-nautical-black border border-white/10 px-3 py-2 rounded shadow-xl text-xs text-white/80 pointer-events-none transform translate-y-2 z-20">
+                                                            {completedModules} / {totalModules} {modulesLabel}
+                                                        </div>
+                                                    </div>
+                                                )}
                                             </div>
 
                                             <div className="flex flex-col items-center gap-6 w-full md:w-auto">
