@@ -40,7 +40,7 @@ export async function POST(req: Request) {
                         product_data: {
                             name: bono.nombre,
                             description: bono.descripcion || `Bono de ${bono.horas_totales} horas`,
-                            images: ['https://getxobelaeskola.com/images/bonos-placeholder.jpg'], // TODO: Add real image
+                            images: [bono.imagen_url || 'https://getxobelaeskola.cloud/images/home-hero-sailing-action.webp'],
                             metadata: {
                                 type: 'bono_horas',
                                 bono_id: bono.id,
