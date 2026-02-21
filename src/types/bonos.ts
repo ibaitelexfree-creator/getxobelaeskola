@@ -7,6 +7,7 @@ export interface TipoBono {
     id: string;
     nombre: string;
     descripcion?: string;
+    imagen_url?: string;
     horas_totales: number;
     precio: number;
     validez_dias: number;
