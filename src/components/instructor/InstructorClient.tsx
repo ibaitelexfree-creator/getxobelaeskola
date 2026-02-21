@@ -8,6 +8,7 @@ import { apiUrl } from '@/lib/api';
 
 import SessionDetailModal from '@/components/staff/SessionDetailModal';
 import IncidentReportModal from '@/components/instructor/IncidentReportModal';
+import StudentDetailModal from '@/components/instructor/StudentDetailModal';
 
 interface Profile {
     id: string;
@@ -55,6 +56,7 @@ export default function InstructorClient({ profile, initialSessions, initialInsc
 
     const [sessions, setSessions] = useState<Session[]>(initialSessions);
     const [selectedSession, setSelectedSession] = useState<Session | null>(null);
+    const [selectedStudent, setSelectedStudent] = useState<Profile | null>(null);
     const [showIncidentModal, setShowIncidentModal] = useState(false);
 
     const tabs = [
@@ -219,16 +221,20 @@ export default function InstructorClient({ profile, initialSessions, initialInsc
                             <h2 className="text-2xs uppercase tracking-widest text-accent mb-8 font-black">Mis Alumnos Activos</h2>
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                 {initialInscriptions.map((inscription) => (
-                                    <div key={inscription.id} className="p-6 bg-white/5 border border-white/5 rounded-sm hover:border-white/20 transition-all">
+                                    <div
+                                        key={inscription.id}
+                                        onClick={() => setSelectedStudent(inscription.profiles as Profile)}
+                                        className="p-6 bg-white/5 border border-white/5 rounded-sm hover:border-accent/30 cursor-pointer group transition-all"
+                                    >
                                         <div className="flex items-start justify-between mb-4">
-                                            <div className="w-10 h-10 bg-accent/20 rounded-full flex items-center justify-center text-accent text-lg font-display">
+                                            <div className="w-10 h-10 bg-accent/20 rounded-full flex items-center justify-center text-accent text-lg font-display group-hover:scale-110 transition-transform">
                                                 {inscription.profiles.nombre.charAt(0)}
                                             </div>
                                             <span className="text-3xs uppercase tracking-widest text-sea-foam bg-sea-foam/10 px-2 py-1 rounded-sm">
                                                 Activo
                                             </span>
                                         </div>
-                                        <h3 className="text-lg font-display text-white mb-1">
+                                        <h3 className="text-lg font-display text-white mb-1 group-hover:text-accent transition-colors">
                                             {inscription.profiles.nombre} {inscription.profiles.apellidos}
                                         </h3>
                                         <p className="text-2xs text-white/40 mb-4">{inscription.profiles.email}</p>
@@ -285,6 +291,14 @@ export default function InstructorClient({ profile, initialSessions, initialInsc
                 isOpen={showIncidentModal}
                 onClose={() => setShowIncidentModal(false)}
             />
+
+            {/* Student Detail Modal */}
+            {selectedStudent && (
+                <StudentDetailModal
+                    student={selectedStudent}
+                    onClose={() => setSelectedStudent(null)}
+                />
+            )}
         </main>
     );
 }
