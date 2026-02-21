@@ -66,14 +66,11 @@ export default function FinancialReportsClient({ initialData, initialView, total
 
     const [showDebug, setShowDebug] = useState(false);
     const [forceShowAll, setForceShowAll] = useState(false);
-    const [updatingId, setUpdatingId] = useState<string | null>(null);
-    const [editDate, setEditDate] = useState<string>('');
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState('all');
     const [serviceFilter, setServiceFilter] = useState('all');
     const [sortBy, setSortBy] = useState('date_desc');
     const [editingTx, setEditingTx] = useState<FinancialTransaction | null>(null);
-    const [historyTx, setHistoryTx] = useState<FinancialTransaction | null>(null);
     const [isSaving, setIsSaving] = useState(false);
 
     useEffect(() => setMounted(true), []);
@@ -123,8 +120,6 @@ export default function FinancialReportsClient({ initialData, initialView, total
             setActiveFilter(initialView);
         }
     }, [initialView]);
-
-    // Robust number parser
 
     const filteredData = useMemo(() => {
         let base = transactions;
@@ -321,13 +316,6 @@ export default function FinancialReportsClient({ initialData, initialView, total
 
         let monthStep = 1;
         // User requested strict "one bar per month" for "Todos los datos"
-        // Removing dynamic step logic to force 1 month granularity
-        // if (isMonthly) {
-        //      // Target ~30-40 bars
-        //      if (diffMonths > 40) {
-        //          monthStep = Math.ceil(diffMonths / 30);
-        //      }
-        // }
 
         if (isHourly) {
             for (let h = 0; h < 24; h++) {
@@ -392,14 +380,6 @@ export default function FinancialReportsClient({ initialData, initialView, total
                 // Buckets are generated with monthStep.
                 // We can iterate buckets to find the one that covers this date.
                 // Buckets are sorted by date.
-
-                // Get Year-Month of item
-                // const parts = new Intl.DateTimeFormat('en-CA', {
-                //    timeZone: 'Europe/Madrid', year: 'numeric', month: '2-digit'
-                // }).formatToParts(rawDate);
-                // const y = parseInt(parts.find(p => p.type === 'year')?.value || '0');
-                // const m = parseInt(parts.find(p => p.type === 'month')?.value || '0');
-                // const itemDate = new Date(Date.UTC(y, m - 1, 1));
 
                 // Easier: just loop through agg keys (which are YYYY-MM) and find the best fit
                 // Since `monthStep` > 1 means we have gaps in keys, we need to map Item -> Closest Previous Bucket
