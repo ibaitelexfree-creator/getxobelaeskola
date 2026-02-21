@@ -22,7 +22,7 @@ const EmptyState = dynamic(() => import('@/components/ui/EmptyState'));
 const BonosWallet = dynamic(() => import('@/components/student/BonosWallet'));
 const BonoPurchaseModal = dynamic(() => import('@/components/student/BonoPurchaseModal'));
 const DailyNauticalQuote = dynamic(() => import('@/components/student/DailyNauticalQuote'));
-const StudyPlannerWidget = dynamic(() => import('@/components/student/StudyPlanner/StudyPlannerWidget'));
+const PlannerContainer = dynamic(() => import('@/components/student/planner/PlannerContainer'), { ssr: false });
 
 interface DashboardItem {
     id: string;
@@ -225,8 +225,6 @@ export default function StudentDashboardClient({
 
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
                         <div className="lg:col-span-2 space-y-16">
-                            <StudyPlannerWidget locale={locale} />
-
                             <BonosWallet
                                 bonos={bonos}
                                 locale={locale}
