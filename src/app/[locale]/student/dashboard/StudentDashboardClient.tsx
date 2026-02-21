@@ -22,6 +22,7 @@ const EmptyState = dynamic(() => import('@/components/ui/EmptyState'));
 const BonosWallet = dynamic(() => import('@/components/student/BonosWallet'));
 const BonoPurchaseModal = dynamic(() => import('@/components/student/BonoPurchaseModal'));
 const DailyNauticalQuote = dynamic(() => import('@/components/student/DailyNauticalQuote'));
+const PlannerContainer = dynamic(() => import('@/components/student/planner/PlannerContainer'), { ssr: false });
 
 interface DashboardItem {
     id: string;
