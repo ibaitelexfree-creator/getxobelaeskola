@@ -12,6 +12,8 @@ export default function ResourceManager() {
     const handleModeSwitch = async (mode: 'eco' | 'performance') => {
         try {
             await Haptics.impact({ style: ImpactStyle.Medium });
+            // Immediate feedback
+            useMissionStore.getState().updatePower({ mode });
             await setPowerMode(mode);
         } catch (error) {
             console.error('Failed to set power mode:', error);
@@ -38,8 +40,8 @@ export default function ResourceManager() {
                     <button
                         onClick={() => handleModeSwitch('eco')}
                         className={`px-3 py-1.5 rounded-md text-[9px] font-bold uppercase tracking-widest transition-all ${power.mode === 'eco'
-                                ? 'bg-status-green text-black shadow-[0_0_15px_rgba(0,255,148,0.3)]'
-                                : 'text-white/30 hover:text-white/60'
+                            ? 'bg-status-green text-black shadow-[0_0_15px_rgba(0,255,148,0.3)]'
+                            : 'text-white/30 hover:text-white/60'
                             }`}
                     >
                         Eco
@@ -47,8 +49,8 @@ export default function ResourceManager() {
                     <button
                         onClick={() => handleModeSwitch('performance')}
                         className={`px-3 py-1.5 rounded-md text-[9px] font-bold uppercase tracking-widest transition-all ${power.mode === 'performance'
-                                ? 'bg-buoy-orange text-black shadow-[0_0_15px_rgba(255,107,0,0.3)]'
-                                : 'text-white/30 hover:text-white/60'
+                            ? 'bg-buoy-orange text-black shadow-[0_0_15px_rgba(255,107,0,0.3)]'
+                            : 'text-white/30 hover:text-white/60'
                             }`}
                     >
                         Blast

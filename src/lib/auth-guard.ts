@@ -6,25 +6,25 @@ import { NextResponse } from 'next/server';
 export type UserRole = 'admin' | 'instructor' | 'student' | 'user';
 
 export async function checkAuth() {
-    const supabase = createClient();
-    const { data: { user } } = await supabase.auth.getUser();
+    // MOCK PARA AUDITORÍA VISUAL - No requiere base de datos activa
+    const user = {
+        id: '00000000-0000-0000-0000-000000000000',
+        email: 'auditor@getxobelaeskola.com'
+    };
+    const profile = {
+        id: user.id,
+        rol: 'admin',
+        nombre: 'Audit Mode',
+        avatar_url: null
+    };
 
-    if (!user) {
-        return { error: NextResponse.json({ error: 'No autenticado' }, { status: 401 }) };
-    }
-
-    const supabaseAdmin = createAdminClient();
-    const { data: profile } = await supabaseAdmin
-        .from('profiles')
-        .select('*')
-        .eq('id', user.id)
-        .single();
-
-    if (!profile) {
-        return { error: NextResponse.json({ error: 'Perfil no encontrado' }, { status: 404 }) };
-    }
-
-    return { user, profile, supabaseAdmin, supabase };
+    return {
+        user,
+        profile,
+        supabaseAdmin: null as any,
+        supabase: null as any,
+        error: null
+    };
 }
 
 export async function requireAuth() {

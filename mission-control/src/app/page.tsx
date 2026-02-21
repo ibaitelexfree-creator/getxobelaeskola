@@ -18,13 +18,14 @@ const views: Record<string, React.ComponentType<any>> = {
     dashboard: Dashboard,
     tasks: TaskLauncher,
     queue: QueueHistory,
+    visual: VisualRelay,
     control: ControlPanel,
+    settings: Settings,
 };
 
 export default function MissionControlPage() {
     usePolling();
-    const { activeTab } = useMissionStore();
-    const [overlay, setOverlay] = useState<'visual' | 'settings' | null>(null);
+    const { activeTab, setActiveTab } = useMissionStore();
     const [sonarActive, setSonarActive] = useState(false);
 
     // Fallback safe indexing
@@ -70,7 +71,7 @@ export default function MissionControlPage() {
                         />
                         <span className="text-xl relative z-10">🚀</span>
                     </div>
-                    <div className="cursor-pointer" onClick={triggerDeepScan}>
+                    <div className="cursor-pointer" onClick={() => setActiveTab('dashboard')}>
                         <h1 className="text-xl font-display text-glimmer tracking-tight">Mission Control</h1>
                         <p className="text-[10px] font-mono text-white/20 uppercase tracking-[0.3em] active:text-status-blue transition-colors">Maestro v3 • HQ Relay</p>
                     </div>
@@ -78,14 +79,14 @@ export default function MissionControlPage() {
 
                 <div className="flex items-center gap-2">
                     <button
-                        onClick={() => setOverlay('visual')}
-                        className={`p-2.5 rounded-xl transition-all border ${overlay === 'visual' ? 'bg-buoy-orange border-buoy-orange text-white' : 'glass-card border-white/10 text-white/60 hover:text-white'}`}
+                        onClick={() => setActiveTab('visual')}
+                        className={`p-2.5 rounded-xl transition-all border ${activeTab === 'visual' ? 'bg-buoy-orange border-buoy-orange text-white shadow-[0_0_15px_rgba(255,107,0,0.3)]' : 'glass-card border-white/10 text-white/60 hover:text-white'}`}
                     >
                         <Camera size={18} />
                     </button>
                     <button
-                        onClick={() => setOverlay('settings')}
-                        className={`p-2.5 rounded-xl transition-all border ${overlay === 'settings' ? 'bg-brass-gold border-brass-gold text-white' : 'glass-card border-white/10 text-white/60 hover:text-white'}`}
+                        onClick={() => setActiveTab('settings')}
+                        className={`p-2.5 rounded-xl transition-all border ${activeTab === 'settings' ? 'bg-brass-gold border-brass-gold text-white shadow-[0_0_15px_rgba(184,134,11,0.3)]' : 'glass-card border-white/10 text-white/60 hover:text-white'}`}
                     >
                         <SettingsIcon size={18} />
                     </button>
@@ -93,51 +94,19 @@ export default function MissionControlPage() {
             </header>
 
             {/* Content Area */}
-            <div className="px-4 pt-4 pb-safe custom-scrollbar">
+            <div className="px-4 pt-4 pb-32 custom-scrollbar">
                 <AnimatePresence mode="wait">
                     <motion.div
                         key={activeTab}
-                        initial={{ opacity: 0, x: 10 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: -10 }}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
                         transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
                     >
                         <ActiveView />
                     </motion.div>
                 </AnimatePresence>
             </div>
-
-            {/* Overlays */}
-            <AnimatePresence>
-                {overlay && (
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.95, y: 20 }}
-                        animate={{ opacity: 1, scale: 1, y: 0 }}
-                        exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                        transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-                        className="fixed inset-0 z-[150] bg-nautical-deep/95 backdrop-blur-2xl flex flex-col p-4"
-                    >
-                        <div className="flex-1 overflow-y-auto custom-scrollbar">
-                            {overlay === 'visual' ? (
-                                <VisualRelay onClose={() => setOverlay(null)} />
-                            ) : (
-                                <div className="flex flex-col gap-6 animate-premium-in">
-                                    <header className="flex items-center justify-between mb-2">
-                                        <div className="flex items-center gap-2">
-                                            <SettingsIcon size={18} className="text-brass-gold" />
-                                            <h2 className="text-xl font-display text-glimmer text-white uppercase tracking-wider">System Config</h2>
-                                        </div>
-                                        <button onClick={() => setOverlay(null)} className="p-2 rounded-full bg-white/5 hover:bg-white/10 transition-colors text-white">
-                                            <X size={20} />
-                                        </button>
-                                    </header>
-                                    <Settings />
-                                </div>
-                            )}
-                        </div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
 
             {/* Bottom Navigation */}
             <BottomNav />
