@@ -6,7 +6,8 @@ export type MissionType =
     | 'mision_nudos'
     | 'inventario'
     | 'simulador'
-    | 'hotspot';
+    | 'hotspot'
+    | 'video_interactivo';
 
 export interface MissionData {
     tipo_contenido: MissionType;
@@ -14,6 +15,19 @@ export interface MissionData {
     descripcion?: string;
     // Flexible payload for specific mission config
     [key: string]: any;
+}
+
+export interface VideoCheckpoint {
+    time: number; // seconds
+    question: string;
+    options: string[];
+    correctAnswerIndex: number;
+}
+
+export interface VideoMissionData extends MissionData {
+    tipo_contenido: 'video_interactivo';
+    videoUrl: string;
+    checkpoints: VideoCheckpoint[];
 }
 
 export interface MissionState {
