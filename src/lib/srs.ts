@@ -1,58 +1,59 @@
 export interface SRSState {
-  easinessFactor: number;
-  interval: number; // in days
-  repetitions: number;
-  nextReviewDate: Date;
+  interval: number;
+  easeFactor: number;
+  nextReview: Date;
 }
 
-export const INITIAL_SRS_STATE: SRSState = {
-  easinessFactor: 2.5,
-  interval: 0,
-  repetitions: 0,
-  nextReviewDate: new Date(),
-};
-
 /**
- * Calculates the next SRS state based on the SuperMemo-2 algorithm.
- * @param currentState Current state of the item (EF, interval, repetitions).
- * @param quality Quality of the response (0-5). 5 = perfect, < 3 = fail.
- *                In our binary system: Correct = 5, Incorrect = 1.
- * @returns New SRS state.
+ * Calculates the next review schedule based on the SuperMemo-2 algorithm.
+ *
+ * @param currentInterval The current interval in days (0 if new).
+ * @param currentEase The current ease factor (default 2.5).
+ * @param isCorrect Whether the user answered correctly.
+ * @returns The new interval, ease factor, and next review date.
  */
-export function calculateNextSRS(currentState: SRSState, quality: number): SRSState {
-  let { easinessFactor, interval, repetitions } = currentState;
+export function calculateNextReview(
+  currentInterval: number,
+  currentEase: number,
+  isCorrect: boolean
+): SRSState {
+  let newInterval: number;
+  let newEase: number;
 
-  if (quality >= 3) {
-    // Correct response
-    if (repetitions === 0) {
-      interval = 1;
-    } else if (repetitions === 1) {
-      interval = 6;
-    } else {
-      interval = Math.round(interval * easinessFactor);
-    }
-    repetitions += 1;
+  if (!isCorrect) {
+    // Incorrect: Reset interval to 1 day, decrease ease factor slightly
+    // This effectively restarts the learning curve but keeps some "memory" of difficulty
+    newInterval = 1;
+    // Standard SM-2 for rating 1 (incorrect) would handle ease differently,
+    // but simplified: decrease ease to make future intervals grow slower.
+    newEase = Math.max(1.3, currentEase - 0.2);
   } else {
-    // Incorrect response
-    repetitions = 0;
-    interval = 1;
+    // Correct: Assumed rating 5 (Perfect recall)
+    // SM-2 Formula for new Ease Factor:
+    // EF' = EF + (0.1 - (5 - q) * (0.08 + (5 - q) * 0.02))
+    // With q=5, this simplifies to: EF' = EF + 0.1
+    newEase = currentEase + 0.1;
+
+    if (currentInterval === 0) {
+      newInterval = 1;
+    } else if (currentInterval === 1) {
+      newInterval = 6;
+    } else {
+      newInterval = Math.round(currentInterval * currentEase);
+    }
   }
 
-  // Update Easiness Factor
-  // EF' = EF + (0.1 - (5 - q) * (0.08 + (5 - q) * 0.02))
-  easinessFactor = easinessFactor + (0.1 - (5 - quality) * (0.08 + (5 - quality) * 0.02));
+  // Cap ease factor (minimum 1.3 is standard SM-2 constraint)
+  if (newEase < 1.3) newEase = 1.3;
+  // Optional: Cap max ease to prevent explosion (e.g., 5.0)
+  if (newEase > 5.0) newEase = 5.0;
 
-  if (easinessFactor < 1.3) {
-    easinessFactor = 1.3;
-  }
-
-  const nextReviewDate = new Date();
-  nextReviewDate.setDate(nextReviewDate.getDate() + interval);
+  const nextReview = new Date();
+  nextReview.setDate(nextReview.getDate() + newInterval);
 
   return {
-    easinessFactor,
-    interval,
-    repetitions,
-    nextReviewDate,
+    interval: newInterval,
+    easeFactor: parseFloat(newEase.toFixed(2)), // Keep precision reasonable
+    nextReview
   };
 }

@@ -262,17 +262,90 @@ export async function POST(request: Request) {
             }
         }
 
-        // Use SRS selection logic
-        const { data: preguntasIds, error: preguntasError } = await supabase
-            .rpc('seleccionar_preguntas_srs', {
-                p_alumno_id: user.id,
-                p_entidad_tipo: evaluacion.entidad_tipo,
-                p_entidad_id: evaluacion.entidad_id,
-                p_num_preguntas: evaluacion.num_preguntas
-            });
+        // --- SRS SELECTION LOGIC ---
+        let preguntasIds: string[] = [];
+        try {
+            // 1. Get a larger pool of valid candidates using existing RPC
+            const poolSize = Math.max(50, evaluacion.num_preguntas * 5);
+            const { data: poolIds, error: poolError } = await supabase
+                .rpc('seleccionar_preguntas_evaluacion', {
+                    p_entidad_tipo: evaluacion.entidad_tipo,
+                    p_entidad_id: evaluacion.entidad_id,
+                    p_num_preguntas: poolSize
+                });
 
-        if (preguntasError) {
-            return NextResponse.json({ error: preguntasError.message }, { status: 500 });
+            if (!poolError && poolIds && poolIds.length > 0) {
+                // 2. Fetch SRS data
+                const { data: srsData, error: srsError } = await supabase
+                    .from('srs_user_questions')
+                    .select('question_id, next_review')
+                    .eq('user_id', user.id)
+                    .in('question_id', poolIds);
+
+                if (!srsError) {
+                    const nowTime = new Date().getTime();
+                    const srsMap = new Map();
+                    if (srsData) {
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                        srsData.forEach((s: any) => srsMap.set(s.question_id, new Date(s.next_review).getTime()));
+                    }
+
+                    const dueQuestions: string[] = [];
+                    const newQuestions: string[] = [];
+                    const futureQuestions: string[] = [];
+
+                    for (const qId of (poolIds as string[])) {
+                        if (srsMap.has(qId)) {
+                            const nextReview = srsMap.get(qId);
+                            if (nextReview <= nowTime) {
+                                dueQuestions.push(qId);
+                            } else {
+                                futureQuestions.push(qId);
+                            }
+                        } else {
+                            newQuestions.push(qId);
+                        }
+                    }
+
+                    const targetCount = evaluacion.num_preguntas;
+                    let remaining = targetCount;
+
+                    // 1. Due Questions
+                    const dueToTake = dueQuestions.slice(0, remaining);
+                    preguntasIds.push(...dueToTake);
+                    remaining -= dueToTake.length;
+
+                    // 2. New Questions (randomized)
+                    if (remaining > 0) {
+                        const newToTake = newQuestions.sort(() => Math.random() - 0.5).slice(0, remaining);
+                        preguntasIds.push(...newToTake);
+                        remaining -= newToTake.length;
+                    }
+
+                    // 3. Future Questions
+                    if (remaining > 0) {
+                         const futureToTake = futureQuestions.sort(() => Math.random() - 0.5).slice(0, remaining);
+                         preguntasIds.push(...futureToTake);
+                    }
+                }
+            }
+        } catch (e) {
+            console.error("SRS Error (using fallback):", e);
+        }
+
+        // Fallback
+        if (preguntasIds.length < evaluacion.num_preguntas) {
+             const { data: standardIds, error: standardError } = await supabase
+                .rpc('seleccionar_preguntas_evaluacion', {
+                    p_entidad_tipo: evaluacion.entidad_tipo,
+                    p_entidad_id: evaluacion.entidad_id,
+                    p_num_preguntas: evaluacion.num_preguntas
+                });
+
+            if (standardError) {
+                return NextResponse.json({ error: standardError.message }, { status: 500 });
+            }
+            preguntasIds = standardIds;
         }
 
         const { data: nuevoIntento, error: intentoError } = await supabase
@@ -346,6 +419,7 @@ export async function POST(request: Request) {
 
         let preguntasOrdenadas = preguntas;
         if (evaluacion.aleatorizar_preguntas) {
+            // SRS preguntas might already be shuffled by our selection, but randomizing mixed due/new is good
             preguntasOrdenadas = preguntas.sort(() => Math.random() - 0.5);
         }
 
