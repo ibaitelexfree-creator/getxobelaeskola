@@ -48,130 +48,129 @@ export class BoatPhysics {
     constructor() { }
 
     /**
-     * Calculates the target boat speed in knots based on True Wind Angle and Speed.
-     * Implements a realistic Polar Curve.
-     * @param twaRadians True Wind Angle in radians (0 to PI)
-     * @param twsKnots True Wind Speed in knots
+     * Calculates the target boat speed in knots based on TWS and TWA.
+     * Uses a polar diagram approximation.
+     * @param twsKnots True Wind Speed in Knots
+     * @param twaDeg True Wind Angle in Degrees (0 to 180)
      */
-    public getPolarSpeed(twaRadians: number, twsKnots: number): number {
-        const twaDeg = MathUtils.radToDeg(Math.abs(twaRadians));
-        let polarRefSpeed = 0;
+    public getPolarTargetSpeed(twsKnots: number, twaDeg: number): number {
+        // Polar Diagram Interpolation Points (Angle -> Factor of TWS)
+        // Adjusted for a realistic 30-40ft performance cruiser
+        // TWA 0-30: No Go Zone (Factor 0)
+        // TWA 45: Close Haul (Factor ~0.6)
+        // TWA 90: Beam Reach (Factor ~0.8 - Max Hull Speed often reached here)
+        // TWA 135: Broad Reach (Factor ~0.75)
+        // TWA 180: Run (Factor ~0.6)
 
-        // Reference Polar Curve for ~12 knots wind
-        // Angles: 0, 30, 45, 90, 135, 180
-        // Speeds: 0, 0,  6,  8.5, 7.5, 6.0
+        const polarData = [
+            { angle: 0, factor: 0 },
+            { angle: 30, factor: 0 },       // Entering No-Go
+            { angle: 40, factor: 0.55 },    // Pinching
+            { angle: 52, factor: 0.70 },    // Optimal Upwind
+            { angle: 90, factor: 0.85 },    // Beam Reach (Fastest displacement)
+            { angle: 110, factor: 0.88 },   // Slightly deeper reach
+            { angle: 140, factor: 0.75 },   // Broad Reach
+            { angle: 180, factor: 0.60 }    // Dead Run
+        ];
 
-        if (twaDeg < 30) {
-            // No Go Zone
-            polarRefSpeed = 0;
-        } else if (twaDeg < 45) {
-            // Transition from Irons to Close Haul
-            // Ramp 0 to 6.0
-            const t = (twaDeg - 30) / (45 - 30);
-            polarRefSpeed = t * 6.0;
-        } else if (twaDeg < 90) {
-            // Close Haul (6.0) to Beam Reach (8.5)
-            const t = (twaDeg - 45) / (90 - 45);
-            polarRefSpeed = 6.0 + t * (8.5 - 6.0);
-        } else if (twaDeg < 135) {
-            // Beam Reach (8.5) to Broad Reach (7.5)
-            const t = (twaDeg - 90) / (135 - 90);
-            polarRefSpeed = 8.5 + t * (7.5 - 8.5);
-        } else {
-            // Broad Reach (7.5) to Run (6.0)
-            const t = (twaDeg - 135) / (180 - 135);
-            polarRefSpeed = 7.5 + t * (6.0 - 7.5);
+        // Find the interval
+        let lower = polarData[0];
+        let upper = polarData[polarData.length - 1];
+
+        for (let i = 0; i < polarData.length - 1; i++) {
+            if (twaDeg >= polarData[i].angle && twaDeg <= polarData[i + 1].angle) {
+                lower = polarData[i];
+                upper = polarData[i + 1];
+                break;
+            }
         }
 
-        // Scale by wind speed (normalized to 12 knots)
-        // Using a square root factor for realistic drag scaling would be better,
-        // but linear scaling with a cap works well for game feel.
-        // Actually, hull speed limit is hard.
-        // Let's assume linear power up to a point, then diminishing returns.
+        // Linear interpolation
+        const range = upper.angle - lower.angle;
+        const t = range === 0 ? 0 : (twaDeg - lower.angle) / range;
+        const factor = lower.factor + t * (upper.factor - lower.factor);
 
-        const windRatio = twsKnots / 12.0;
+        // Calculate base speed
+        let targetSpeed = twsKnots * factor;
 
-        // Simple scaling
-        let targetSpeedKnots = polarRefSpeed * windRatio;
+        // Apply Hull Speed Limit logic (Soft Cap)
+        // Displacement hulls have a "limit" based on length.
+        // Let's assume max displacement speed is around 8-9 knots.
+        // Planing (surfing) happens at higher wind speeds/angles.
+        const maxDisplacementSpeed = 9.0;
 
-        // Cap at ~18 knots (planing dinghy speeds)
-        if (targetSpeedKnots > 18) targetSpeedKnots = 18;
+        if (targetSpeed > maxDisplacementSpeed) {
+            // Logarithmic growth past hull speed (simulating drag wall)
+            // Unless we are surfing (Broad Reach + High Wind)
+            const isSurfing = (twaDeg > 100 && twaDeg < 160 && twsKnots > 15);
 
-        return targetSpeedKnots;
+            if (isSurfing) {
+                // Allow more speed
+                targetSpeed = maxDisplacementSpeed + (targetSpeed - maxDisplacementSpeed) * 0.6;
+            } else {
+                // Harder cap
+                targetSpeed = maxDisplacementSpeed + (targetSpeed - maxDisplacementSpeed) * 0.2;
+            }
+        }
+
+        return targetSpeed;
     }
 
-    public update(
-        dt: number,
-        apparentWind: ApparentWind,
-        trueWindSpeed: number, // m/s
-        trueWindAngle: number, // radians (0..PI relative to bow)
-        sailAngle: number,
-        rudderAngle: number
-    ) {
+    public update(dt: number, apparentWind: ApparentWind, trueWindSpeed: number, trueWindAngle: number, sailAngle: number, rudderAngle: number) {
         // --- REALISTIC PHYSICS V3 (Polar Based) ---
 
         // 1. Wind Analysis
-        // Apparent wind is used for Sail Trim (AWA)
-        let windAngleRelBow = apparentWind.angleToBoat;
-        if (windAngleRelBow > Math.PI) windAngleRelBow -= Math.PI * 2;
-        windAngleRelBow = Math.abs(windAngleRelBow); // 0 = Head, PI = Stern
+        // Apparent Wind Angle for Sail Trim
+        let awa = apparentWind.angleToBoat;
+        if (awa > Math.PI) awa -= Math.PI * 2;
+        awa = Math.abs(awa); // 0 = Head, PI = Stern
 
-        // 2. Sail Trim Logic (The "Bisector" Rule)
-        const idealSailAngle = Math.min(Math.PI / 2, windAngleRelBow / 2);
+        // True Wind for Polars
+        const twaDeg = MathUtils.radToDeg(Math.abs(trueWindAngle));
+        const twsKnots = trueWindSpeed * 1.94384; // m/s to knots
 
-        // Calculate Trim Efficiency (How close is user to ideal?)
+        // 2. Sail Trim Logic
+        // Realistic sailing: Optimal sail angle is roughly half the wind angle.
+        const idealSailAngle = Math.min(Math.PI / 2, awa / 2);
+
+        // Calculate Trim Efficiency
         const sailError = Math.abs(Math.abs(sailAngle) - idealSailAngle);
         const tolerance = 0.3;
 
         let trimEfficiency = 1.0 - (sailError / tolerance);
         trimEfficiency = Math.max(0, Math.min(1.0, trimEfficiency));
 
-        // 3. No-Go Zone (Irons)
-        // Also reduce efficiency if AWA is too close (physically impossible to fill sails)
-        const ironsThreshold = 0.52; // 30 deg
-        const smoothingRange = 0.15;
-        const ironsFactor = MathUtils.smoothstep(windAngleRelBow, ironsThreshold - smoothingRange, ironsThreshold);
+        // Irons (No-Go) handling
+        const ironsThreshold = 0.52; // ~30 deg
+        const ironsFactor = MathUtils.smoothstep(awa, ironsThreshold - 0.1, ironsThreshold);
         trimEfficiency *= ironsFactor;
 
         this.state.efficiency = trimEfficiency;
         this.state.tack = Math.sign(sailAngle);
 
-        // 4. Force Calculation (Polar Based)
+        // 3. Target Speed Calculation (Polar)
+        const targetSpeedKnots = this.getPolarTargetSpeed(twsKnots, twaDeg);
+        const targetSpeedMs = targetSpeedKnots * 0.514444; // Knots to m/s
 
-        // Calculate Target Speed from Polar using True Wind
-        const twsKnots = trueWindSpeed * 1.94384;
-        const targetSpeedKnots = this.getPolarSpeed(trueWindAngle, twsKnots);
-        const targetSpeedMps = targetSpeedKnots / 1.94384;
+        // 4. Force Calculation
+        // Drive Force required to maintain the Target Speed against Hull Drag
+        const maxDriveForce = this.HULL_DRAG_COEFF * (targetSpeedMs * targetSpeedMs);
 
-        // Calculate required Drive Force to maintain this speed against Hull Drag
-        // F_drag = C_drag * v^2
-        // So required F_drive = C_drag * v_target^2
-        let targetDriveForce = (targetSpeedMps * targetSpeedMps) * this.HULL_DRAG_COEFF;
+        // Apply Trim Efficiency
+        let driveForce = maxDriveForce * trimEfficiency;
 
-        // If we are stopped, we need some initial force to start moving.
-        // The v^2 formula works for steady state, but if v=0, Force=0? No.
-        // The Polar speed implies "potential speed".
-        // The force should be enough to accelerate to that speed.
-        // Actually, if we use the same Drag Coeff for driving force calc, it works out.
-        // But we must apply Trim Efficiency.
-
-        let driveForce = targetDriveForce * trimEfficiency;
-
-        // Backwind / Irons handling
-        if (trueWindAngle < MathUtils.degToRad(30)) {
-            // Drag forces dominate, no forward drive
-            driveForce = 0;
+        // If in Irons (Head to wind), apply backward drag
+        if (twaDeg < 30) {
+            driveForce = -500; // Push back
         }
 
         // Heel Force (Tipping Boat) - Based on Apparent Wind Pressure
-        const windSpeed = apparentWind.speed;
-        const windPressure = windSpeed * windSpeed;
-        const sideComp = Math.sin(windAngleRelBow);
-        // Reduced heel factor slightly to compensate for potential high pressures
+        const windPressure = apparentWind.speed * apparentWind.speed;
+        const sideComp = Math.sin(awa);
         const heelForce = windPressure * trimEfficiency * sideComp * 40.0;
 
         // 5. Linear Dynamics
-        // Propulsion Direction
+        // Propulsion
         const forwardDir = this._forward.set(
             -Math.sin(this.state.heading),
             0,
@@ -180,23 +179,20 @@ export class BoatPhysics {
 
         // Hull Drag (Water Resistance)
         const currentSpeed = this.state.velocity.dot(forwardDir);
-        // Drag always opposes motion
         const hullDrag = currentSpeed * Math.abs(currentSpeed) * this.HULL_DRAG_COEFF;
 
         // Linear Acceleration
         // Mass = 1000kg
-        // Net Force = Drive - Drag
-        // If Drive is calculated as (TargetSpeed^2 * DragCoeff), then at TargetSpeed, Net Force = 0.
         const fNet = driveForce - hullDrag;
         const accel = fNet / this.MASS;
 
         // Apply Speed Change
         let newSpeed = currentSpeed + accel * dt;
 
-        // Prevent negative speed accumulation unless explicitly handled (drifting back)
-        if (newSpeed < -0.5) newSpeed = -0.5;
+        // Handling "Baking" (Negative Drive in Irons)
+        if (newSpeed < -0.5) newSpeed = -0.5; // Cap reverse drift
 
-        // Apply Velocity
+        // Reconstruct Velocity
         this.state.velocity.copy(forwardDir).multiplyScalar(newSpeed);
 
         // 6. Angular Dynamics (Turn)
@@ -213,26 +209,30 @@ export class BoatPhysics {
         this.state.angularVelocity *= 0.95; // Water Damping
         this.state.heading += this.state.angularVelocity * dt;
 
-        // 7. Heel Physics
+        // 7. Heel Physics (Visual + Feeling)
+        // Smooth out the sign of the sail angle
         const sailSignSmooth = MathUtils.clamp(sailAngle * 5.0, -1.0, 1.0);
+        // Boat heels AWAY from the wind
         const targetHeel = -(heelForce / 2000.0) * sailSignSmooth;
 
+        // Smooth Damping
         this.state.heel += (targetHeel - this.state.heel) * dt * 1.5;
         this.state.heel = Math.max(-0.6, Math.min(0.6, this.state.heel));
 
         // 8. Update Position
         this.state.position.addScaledVector(this.state.velocity, dt);
 
-        // 9. Update State Scalars
+        // 9. Pre-calculate scalar values for HUD
         const speedMagnitude = this.state.velocity.length();
         this.state.speed = speedMagnitude * 1.94384;
         this.state.speedKmh = speedMagnitude * 3.6;
 
+        // Debug info
         this.state.liftCoeff = driveForce;
         this.state.aoa = idealSailAngle;
     }
 
-    // Facade getters for legacy support
+    // Facade getters for legacy support in SailingSimulator.tsx
     get position() { return this.state.position; }
     get velocity() { return this.state.velocity; }
     get heading() { return this.state.heading; }

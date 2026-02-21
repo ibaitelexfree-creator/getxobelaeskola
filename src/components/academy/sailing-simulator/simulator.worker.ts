@@ -156,17 +156,16 @@ function animate() {
         wind.update(dt);
         const apparentWind = wind.getApparentWind(boatPhysics.state.velocity, boatPhysics.state.heading);
 
-        // Calculate True Wind Angle (TWA) for Polar Physics
-        let trueWindAngle = wind.getDirection() - boatPhysics.state.heading;
-        // Normalize to -PI..PI
-        while (trueWindAngle > Math.PI) trueWindAngle -= Math.PI * 2;
-        while (trueWindAngle < -Math.PI) trueWindAngle += Math.PI * 2;
-        // Take absolute value for polar lookup (symmetric)
-        trueWindAngle = Math.abs(trueWindAngle);
+        // Calculate TWA
+        const trueWindDirection = wind.getDirection();
+        let twa = trueWindDirection - boatPhysics.state.heading;
+        // Normalize TWA to -PI to PI
+        while (twa > Math.PI) twa -= 2 * Math.PI;
+        while (twa < -Math.PI) twa += 2 * Math.PI;
 
         const trueWindSpeed = wind.getSpeed();
 
-        boatPhysics.update(dt, apparentWind, trueWindSpeed, trueWindAngle, inputState.sailAngle, inputState.rudderAngle);
+        boatPhysics.update(dt, apparentWind, trueWindSpeed, twa, inputState.sailAngle, inputState.rudderAngle);
 
         // Water Geofencing Check
         const inWater = checkWaterCollision(boatPhysics.state.position);
