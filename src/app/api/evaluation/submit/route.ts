@@ -1,7 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { NextResponse } from 'next/server';
-import { identifyFailedQuestions } from '@/lib/academy/evaluation';
 
 export async function POST(request: Request) {
     try {
@@ -120,39 +119,44 @@ export async function POST(request: Request) {
             .eq('student_id', user.id)
             .gte('unlocked_at', bufferTime);
 
-        // 9. LOG FAILED QUESTIONS FOR REVIEW (Mochila de Dudas)
+        // 9. TRACK MISTAKES (Mochila de Dudas)
         try {
-            if (intento.preguntas_json && intento.preguntas_json.length > 0) {
+            // Always fetch correct answers to determine mistakes internally
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const questionIds = intento.preguntas_json as any[];
+
+            if (questionIds && questionIds.length > 0) {
                 const { data: allQuestions } = await supabaseAdmin
                     .from('preguntas')
                     .select('id, respuesta_correcta')
-                    .in('id', intento.preguntas_json);
+                    .in('id', questionIds);
 
                 if (allQuestions) {
-                    const failedIds = identifyFailedQuestions(allQuestions, respuestasMerged);
-
-                    if (failedIds.length > 0) {
-                        const failuresToUpsert = failedIds.map(qid => ({
-                            alumno_id: user.id,
-                            pregunta_id: qid,
-                            estado: 'pendiente',
-                            updated_at: new Date().toISOString()
-                        }));
-
-                        const { error: upsertError } = await supabase
-                            .from('repaso_errores')
-                            .upsert(failuresToUpsert, {
-                                onConflict: 'alumno_id, pregunta_id'
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    const mistakes: any[] = [];
+                    for (const q of allQuestions) {
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                        const userAnswer = (respuestasMerged as any)[q.id];
+                        // Check if answered and incorrect
+                        if (userAnswer !== undefined && userAnswer !== q.respuesta_correcta) {
+                            mistakes.push({
+                                alumno_id: user.id,
+                                pregunta_id: q.id,
+                                estado: 'pendiente',
+                                fecha_fallo: new Date().toISOString()
                             });
-
-                        if (upsertError) {
-                            console.error('Error logging failed questions:', upsertError);
                         }
+                    }
+
+                    if (mistakes.length > 0) {
+                        await supabaseAdmin
+                            .from('errores_repaso')
+                            .upsert(mistakes, { onConflict: 'alumno_id, pregunta_id' });
                     }
                 }
             }
-        } catch (e) {
-            console.error('Error in error review logging:', e);
+        } catch (err) {
+            console.error('Error tracking mistakes:', err);
         }
 
         // Obtener las respuestas correctas si está configurado
