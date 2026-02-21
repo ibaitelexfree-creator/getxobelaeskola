@@ -262,8 +262,10 @@ export async function POST(request: Request) {
             }
         }
 
+        // Use SRS selection logic
         const { data: preguntasIds, error: preguntasError } = await supabase
-            .rpc('seleccionar_preguntas_evaluacion', {
+            .rpc('seleccionar_preguntas_srs', {
+                p_alumno_id: user.id,
                 p_entidad_tipo: evaluacion.entidad_tipo,
                 p_entidad_id: evaluacion.entidad_id,
                 p_num_preguntas: evaluacion.num_preguntas
