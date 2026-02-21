@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
-import { X, Book, Ship, Globe, Anchor, Wind, Shield, ChevronRight } from 'lucide-react';
+import { X, Book, Ship, Globe, Anchor, Wind, Shield, ChevronRight, Backpack } from 'lucide-react';
 import { useNotificationStore } from '@/lib/store/useNotificationStore';
 import dynamic from 'next/dynamic';
 
@@ -355,6 +355,13 @@ export default function DashboardPage({ params }: { params: { locale: string } }
             <div className="container mx-auto px-6 py-8">
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
                     {[
+                        {
+                            id: 'mochila',
+                            label: 'Mochila',
+                            icon: <Backpack className="w-5 h-5" />,
+                            color: 'text-pink-400 bg-pink-500/10 hover:bg-pink-500/20',
+                            href: `/${params.locale}/academy/mochila`
+                        },
                         {
                             id: 'logbook',
                             label: 'Bitácora',

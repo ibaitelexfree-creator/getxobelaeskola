@@ -714,6 +714,19 @@
       "view_requirements": "Ver Requisitos de Desbloqueo",
       "go_to_academy": "Volver a la Academia"
     },
+    "mochila": {
+      "title": "Mochila de Dudas",
+      "subtitle": "Repasa tus errores y domina el temario",
+      "empty": "¡Enhorabuena! No tienes dudas pendientes.",
+      "empty_desc": "Has dominado todas las preguntas que has fallado anteriormente.",
+      "mastered": "¡Dominada!",
+      "reveal": "Mostrar Respuesta",
+      "next": "Siguiente Pregunta",
+      "loading": "Cargando tus dudas...",
+      "question": "Pregunta",
+      "answer": "Respuesta Correcta",
+      "explanation": "Explicación"
+    },
     "motivational_quotes": [
       "El que no sabe a qué puerto quiere navegar, nunca tiene viento a favor.",
       "Un mar tranquilo nunca hizo un navegante habilidoso.",
