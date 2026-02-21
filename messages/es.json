@@ -948,5 +948,30 @@
     "history_direction": "Dirección",
     "history_temp": "Temp (ºC)",
     "history_tide": "Marea (m)"
+  },
+  "nautical_chart": {
+    "title": "Carta Náutica Interactiva",
+    "subtitle": "Explora la costa de Bizkaia y practica la navegación",
+    "tools": {
+      "navigate": "Navegar",
+      "route": "Trazar Ruta",
+      "waypoint": "Marcar Waypoint",
+      "clear": "Borrar Todo"
+    },
+    "info": {
+      "position": "Posición",
+      "distance": "Distancia Total",
+      "bearing": "Rumbo (Último tramo)",
+      "nm": "mn",
+      "degrees": "°"
+    },
+    "legend": {
+      "title": "Leyenda",
+      "lighthouse": "Faro",
+      "buoy": "Boya",
+      "wreck": "Naufragio",
+      "harbor": "Puerto",
+      "depth": "Profundidad"
+    }
   }
 }
