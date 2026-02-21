@@ -10,7 +10,7 @@ const GITHUB_API = 'api.github.com';
 /**
  * Make authenticated GitHub API request
  */
-function githubRequest(path, token = null) {
+function githubRequest(path, token = null, isBinary = false) {
   return new Promise((resolve, reject) => {
     const options = {
       hostname: GITHUB_API,
@@ -19,7 +19,7 @@ function githubRequest(path, token = null) {
       method: 'GET',
       headers: {
         'User-Agent': 'Jules-MCP-Server/1.5.0',
-        'Accept': 'application/vnd.github.v3+json'
+        'Accept': isBinary ? 'application/octet-stream' : 'application/vnd.github.v3+json'
       }
     };
 
@@ -28,6 +28,11 @@ function githubRequest(path, token = null) {
     }
 
     const req = https.request(options, (response) => {
+      if (isBinary) {
+        resolve(response);
+        return;
+      }
+
       let data = '';
       response.on('data', chunk => data += chunk);
       response.on('end', () => {
@@ -53,7 +58,7 @@ function githubRequest(path, token = null) {
  */
 export async function getIssue(owner, repo, issueNumber, token = null) {
   const issue = await githubRequest(`/repos/${owner}/${repo}/issues/${issueNumber}`, token);
-  
+
   // Get issue comments for additional context
   let comments = [];
   try {
@@ -104,7 +109,7 @@ export async function getIssuesByLabel(owner, repo, label, token = null) {
 export function formatIssueForPrompt(issue) {
   let prompt = `Fix GitHub Issue #${issue.number}: ${issue.title}\n\n`;
   prompt += `## Issue Description\n${issue.body}\n\n`;
-  
+
   if (issue.labels?.length > 0) {
     prompt += `## Labels\n${issue.labels.join(', ')}\n\n`;
   }
@@ -132,9 +137,33 @@ export async function getRepoInfo(owner, repo, token = null) {
   return await githubRequest(`/repos/${owner}/${repo}`, token);
 }
 
+/**
+ * List all releases for a repository
+ */
+export async function listReleases(owner, repo, token = null) {
+  return await githubRequest(`/repos/${owner}/${repo}/releases`, token);
+}
+
+/**
+ * Get a specific release asset by ID
+ */
+export async function getAsset(owner, repo, assetId, token = null) {
+  return await githubRequest(`/repos/${owner}/${repo}/releases/assets/${assetId}`, token);
+}
+
+/**
+ * Download a specific release asset binary
+ */
+export async function downloadAsset(owner, repo, assetId, token = null) {
+  return await githubRequest(`/repos/${owner}/${repo}/releases/assets/${assetId}`, token, true);
+}
+
 export default {
   getIssue,
   getIssuesByLabel,
   formatIssueForPrompt,
-  getRepoInfo
+  getRepoInfo,
+  listReleases,
+  getAsset,
+  downloadAsset
 };

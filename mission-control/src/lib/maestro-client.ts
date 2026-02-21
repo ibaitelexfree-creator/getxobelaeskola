@@ -194,14 +194,31 @@ export const pauseWatchdog = () => maestroPost('/watchdog/action', { action: 'pa
 /** /watchdog resume */
 export const resumeWatchdog = () => maestroPost('/watchdog/action', { action: 'resume' });
 
-/** /help — List all commands */
-export async function getHelp() {
-    return {
-        commands: [
-            '/task', '/clawdebot', '/status', '/usage', '/doctor', '/screenshot',
-            '/approve', '/reject', '/temp', '/pool', '/pause', '/resume',
-            '/queue', '/force-clawdbot', '/watchdog', '/watchdog pause', '/watchdog resume', '/help'
-        ]
-    };
+// ─── Release Management ───
+
+export interface ReleaseAsset {
+    id: number;
+    name: string;
+    size: number;
+    downloadUrl: string;
+}
+
+export interface Release {
+    id: number;
+    tagName: string;
+    name: string;
+    publishDate: string;
+    body: string;
+    assets: ReleaseAsset[];
+}
+
+/** Get list of Mission Control releases */
+export async function getReleases() {
+    return maestroGet<{ success: boolean; releases: Release[] }>('/api/releases');
+}
+
+/** Get the proxy download URL for an asset */
+export function getDownloadUrl(assetId: number): string {
+    return `${getMaestroUrl()}/api/releases/download/${assetId}`;
 }
 
