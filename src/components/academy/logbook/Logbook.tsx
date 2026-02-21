@@ -5,7 +5,7 @@ import dynamic from 'next/dynamic';
 import { useParams } from 'next/navigation';
 import {
     Book, MapPin, Award, Ship, Waves, Wind,
-    ChevronRight, Anchor, Calendar, Download, Plus, Trash2, Smile, Layers, HelpCircle
+    ChevronRight, Anchor, Calendar, Download, Plus, Trash2, Smile, Layers, HelpCircle, Upload
 } from 'lucide-react';
 import { apiUrl } from '@/lib/api';
 import { useAcademyFeedback } from '@/hooks/useAcademyFeedback';
@@ -39,6 +39,7 @@ export default function Logbook() {
     const [selectedPoint, setSelectedPoint] = useState<any>(null);
     const params = useParams();
     const { showMessage } = useAcademyFeedback();
+    const fileInputRef = React.useRef<HTMLInputElement>(null);
 
     async function loadDiary() {
         setLoadingDiary(true);
@@ -103,6 +104,38 @@ export default function Logbook() {
         loadData();
         loadSkills();
     }, []);
+
+    const handleImportGPX = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        // Reset input
+        if (fileInputRef.current) fileInputRef.current.value = '';
+
+        showMessage('Importando Ruta', 'Procesando archivo GPX...', 'info');
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        try {
+            const res = await fetch(apiUrl('/api/logbook/upload-track'), {
+                method: 'POST',
+                body: formData
+            });
+
+            if (res.ok) {
+                const data = await res.json();
+                showMessage('Ruta Importada', `Se han importado ${data.pointsCount} puntos y calculado estadísticas.`, 'success');
+                loadData();
+            } else {
+                const err = await res.json();
+                showMessage('Error', err.error || 'Error al importar GPX', 'error');
+            }
+        } catch (error) {
+            console.error('Error importing GPX:', error);
+            showMessage('Error', 'Error de conexión', 'error');
+        }
+    };
 
     const handleToggleTracking = async () => {
         if (isTracking) {
@@ -335,20 +368,41 @@ export default function Logbook() {
                                 </div>
                             )}
 
-                            <button
-                                onClick={handleToggleTracking}
-                                className={`group relative px-10 py-5 rounded-[2rem] font-black uppercase tracking-[0.2em] text-[11px] transition-all duration-500 flex items-center gap-4 overflow-hidden
+                            <div className="flex items-center gap-4">
+                                <button
+                                    onClick={handleToggleTracking}
+                                    className={`group relative px-10 py-5 rounded-[2rem] font-black uppercase tracking-[0.2em] text-[11px] transition-all duration-500 flex items-center gap-4 overflow-hidden
                                     ${isTracking
-                                        ? 'bg-red-500 text-white shadow-[0_0_40px_rgba(239,68,68,0.3)] hover:scale-105'
-                                        : 'bg-accent text-nautical-black shadow-[0_0_40px_rgba(var(--accent-rgb),0.2)] hover:scale-110'
-                                    }`}
-                            >
-                                <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
-                                <span className="relative z-10 flex items-center gap-3">
-                                    {isTracking ? <div className="w-3 h-3 bg-white rounded-sm" /> : <Waves size={18} className="animate-bounce" />}
-                                    {isTracking ? 'Finalizar Travesía' : 'Empezar Travesía'}
-                                </span>
-                            </button>
+                                            ? 'bg-red-500 text-white shadow-[0_0_40px_rgba(239,68,68,0.3)] hover:scale-105'
+                                            : 'bg-accent text-nautical-black shadow-[0_0_40px_rgba(var(--accent-rgb),0.2)] hover:scale-110'
+                                        }`}
+                                >
+                                    <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
+                                    <span className="relative z-10 flex items-center gap-3">
+                                        {isTracking ? <div className="w-3 h-3 bg-white rounded-sm" /> : <Waves size={18} className="animate-bounce" />}
+                                        {isTracking ? 'Finalizar Travesía' : 'Empezar Travesía'}
+                                    </span>
+                                </button>
+
+                                {!isTracking && (
+                                    <>
+                                        <button
+                                            onClick={() => fileInputRef.current?.click()}
+                                            className="bg-[#0a1628]/80 backdrop-blur-xl border border-white/10 w-14 h-14 rounded-[1.5rem] flex items-center justify-center text-white/40 hover:text-white hover:bg-white/10 hover:border-white/20 hover:scale-105 transition-all shadow-xl"
+                                            title="Importar Ruta GPX"
+                                        >
+                                            <Upload size={20} />
+                                        </button>
+                                        <input
+                                            type="file"
+                                            ref={fileInputRef}
+                                            onChange={handleImportGPX}
+                                            accept=".gpx"
+                                            className="hidden"
+                                        />
+                                    </>
+                                )}
+                            </div>
                         </div>
 
 
@@ -379,6 +433,24 @@ export default function Logbook() {
                                             <span className="text-[10px] uppercase tracking-widest text-white/40 font-black">Navegado</span>
                                             <p className="text-lg font-black text-white">{selectedPoint.duracion_h} <span className="text-xs text-accent">h</span></p>
                                         </div>
+                                        {selectedPoint.ubicacion?.stats && (
+                                            <>
+                                                <div>
+                                                    <span className="text-[10px] uppercase tracking-widest text-white/40 font-black">Distancia</span>
+                                                    <p className="text-lg font-black text-white">{selectedPoint.ubicacion.stats.distance_nm} <span className="text-xs text-accent">nm</span></p>
+                                                </div>
+                                                <div>
+                                                    <span className="text-[10px] uppercase tracking-widest text-white/40 font-black">Velocidad</span>
+                                                    <p className="text-lg font-black text-white">{selectedPoint.ubicacion.stats.avg_speed_kn} <span className="text-xs text-accent">kn</span></p>
+                                                </div>
+                                                {selectedPoint.ubicacion.stats.max_speed_kn && (
+                                                    <div>
+                                                        <span className="text-[10px] uppercase tracking-widest text-white/40 font-black">Max Vel</span>
+                                                        <p className="text-lg font-black text-white">{selectedPoint.ubicacion.stats.max_speed_kn} <span className="text-xs text-accent">kn</span></p>
+                                                    </div>
+                                                )}
+                                            </>
+                                        )}
                                     </div>
                                 </div>
                             </div>
