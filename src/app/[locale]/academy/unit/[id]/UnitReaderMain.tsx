@@ -15,6 +15,7 @@ import { checkAchievements } from '@/lib/gamification/AchievementEngine';
 import { useAcademyMode } from '@/lib/store/useAcademyMode';
 import { InteractiveMission, useMissionStore } from '@/components/academy/interactive-engine';
 import { apiUrl } from '@/lib/api';
+import { offlineSyncManager } from '@/lib/offline/sync-manager';
 
 interface Unidad {
     id: string;
@@ -174,6 +175,36 @@ export default function UnitReaderMain({
         setProgreso({ estado: 'completado', porcentaje: 100 });
 
         try {
+            if (typeof navigator !== 'undefined' && !navigator.onLine) {
+                offlineSyncManager.addToQueue(
+                    '/api/academy/progress/update',
+                    'POST',
+                    {
+                        tipo_entidad: 'unidad',
+                        entidad_id: unidad.id,
+                        estado: 'completado',
+                        porcentaje: 100
+                    }
+                );
+                addNotification({
+                    type: 'info',
+                    title: 'Guardado Offline',
+                    message: 'El progreso se sincronizará cuando recuperes la conexión.',
+                    icon: 'wifi-off'
+                });
+
+                // Trigger achievement check (optimistic)
+                checkForNewAchievements();
+
+                if (navegacion?.siguiente) {
+                    setTimeout(() => {
+                        router.push(`/${params.locale}/academy/unit/${navegacion.siguiente!.id}`);
+                    }, 1500);
+                }
+                setCompletando(false);
+                return;
+            }
+
             const res = await fetch(apiUrl('/api/academy/progress/update'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },

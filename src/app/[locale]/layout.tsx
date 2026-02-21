@@ -9,6 +9,7 @@ const AcademyFeedbackProvider = dynamic(() => import('@/components/academy/Acade
 const PushNotificationInitializer = dynamic(() => import('@/components/academy/notifications/PushNotificationInitializer'), { ssr: false });
 import ConditionalLayout from '@/components/layout/ConditionalLayout';
 const ScrollUpButton = dynamic(() => import('@/components/shared/ScrollToTop'), { ssr: false });
+const OfflineSyncProvider = dynamic(() => import('@/components/offline/OfflineSyncProvider'), { ssr: false });
 import { Viewport } from 'next';
 import { Suspense } from 'react';
 const StatusToast = dynamic(() => import('@/components/shared/StatusToast'), { ssr: false });
@@ -46,6 +47,7 @@ export default async function LocaleLayout({
         <NextIntlClientProvider messages={messages} locale={locale} timeZone="Europe/Madrid">
           <AcademyFeedbackProvider>
             <PushNotificationInitializer />
+            <OfflineSyncProvider />
             <div className="min-h-screen flex flex-col relative w-full overflow-x-hidden">
               <ConditionalLayout
                 locale={locale}
