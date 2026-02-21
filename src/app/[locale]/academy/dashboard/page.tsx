@@ -356,13 +356,6 @@ export default function DashboardPage({ params }: { params: { locale: string } }
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
                     {[
                         {
-                            id: 'mochila',
-                            label: 'Mochila',
-                            icon: <Backpack className="w-5 h-5" />,
-                            color: 'text-pink-400 bg-pink-500/10 hover:bg-pink-500/20',
-                            href: `/${params.locale}/academy/mochila`
-                        },
-                        {
                             id: 'logbook',
                             label: 'Bitácora',
                             icon: <Book className="w-5 h-5" />,
@@ -403,6 +396,13 @@ export default function DashboardPage({ params }: { params: { locale: string } }
                             icon: <Shield className="w-5 h-5" />,
                             color: 'text-red-400 bg-red-500/10 hover:bg-red-500/20',
                             href: `/${params.locale}/academy/skills`
+                        },
+                        {
+                            id: 'mochila',
+                            label: 'Dudas',
+                            icon: <Backpack className="w-5 h-5" />,
+                            color: 'text-rose-400 bg-rose-500/10 hover:bg-rose-500/20',
+                            href: `/${params.locale}/academy/mochila`
                         }
                     ].map((tool) => (
                         <Link
