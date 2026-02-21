@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { useParams, useRouter, usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { X, ChevronDown, Anchor, Wind, Sailboat, Users, GraduationCap, Phone, School, Compass, Sparkles } from 'lucide-react';
+import { X, ChevronDown, Anchor, Wind, Sailboat, Users, GraduationCap, Phone, School, Compass, Sparkles, BookOpen } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { apiUrl } from '@/lib/api';
 
@@ -114,6 +114,11 @@ export default function Navbar({ locale: propLocale }: { locale?: string }) {
             href: 'experiences',
             label: 'experiences',
             icon: <Compass className="w-3.5 h-3.5" />,
+        },
+        {
+            href: 'glosario',
+            label: 'glossary',
+            icon: <BookOpen className="w-3.5 h-3.5" />,
         },
         {
             href: 'academy',

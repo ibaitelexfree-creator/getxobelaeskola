@@ -34,7 +34,22 @@
     "bonos": "Packs",
     "space_rental": "Space Rental",
     "all_courses": "All Courses",
-    "all_rentals": "All Rentals"
+    "all_rentals": "All Rentals",
+    "glossary": "Glossary"
+  },
+  "glossary": {
+    "title": "Nautical Glossary",
+    "subtitle": "Complete dictionary of sailing terms",
+    "search_placeholder": "Search term, definition...",
+    "filter_all": "All",
+    "filter_maniobras": "Maneuvers",
+    "filter_partes": "Boat Parts",
+    "filter_meteo": "Meteorology",
+    "filter_reglamento": "Regulations",
+    "filter_otros": "Others",
+    "learn_more": "Learn more in the course",
+    "no_results": "No terms found for your search",
+    "back_to_top": "Back to top"
   },
   "notifications": {
     "payment_success": "Payment successful",

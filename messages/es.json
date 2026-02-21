@@ -34,7 +34,22 @@
     "bonos": "Bonos",
     "space_rental": "Alquiler Espacio",
     "all_courses": "Todos los cursos",
-    "all_rentals": "Todos los alquileres"
+    "all_rentals": "Todos los alquileres",
+    "glossary": "Glosario"
+  },
+  "glossary": {
+    "title": "Glosario Náutico",
+    "subtitle": "Diccionario completo de términos marineros",
+    "search_placeholder": "Buscar término, definición...",
+    "filter_all": "Todos",
+    "filter_maniobras": "Maniobras",
+    "filter_partes": "Partes del barco",
+    "filter_meteo": "Meteorología",
+    "filter_reglamento": "Reglamento",
+    "filter_otros": "Otros",
+    "learn_more": "Aprender más en el curso",
+    "no_results": "No se encontraron términos para tu búsqueda",
+    "back_to_top": "Volver arriba"
   },
   "notifications": {
     "payment_success": "Pago realizado con éxito",
