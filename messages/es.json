@@ -948,5 +948,26 @@
     "history_direction": "Dirección",
     "history_temp": "Temp (ºC)",
     "history_tide": "Marea (m)"
+  },
+  "profile": {
+    "title": "Perfil de Alumno",
+    "share": "Compartir",
+    "public_toggle": "Perfil Público",
+    "public_desc": "Permite que otros vean tus logros y estadísticas.",
+    "stats": "Estadísticas",
+    "badges": "Insignias",
+    "logbook": "Bitácora",
+    "certificates": "Certificados",
+    "private_profile": "Este perfil es privado.",
+    "not_found": "Perfil no encontrado.",
+    "copy_link": "Copiar Enlace",
+    "link_copied": "¡Enlace copiado!",
+    "share_error": "No se pudo compartir",
+    "edit_visibility": "Editar Visibilidad",
+    "hours_sailed": "Millas Navegadas",
+    "level": "Nivel",
+    "total_points": "Puntos",
+    "ranking": "Ranking",
+    "since": "Desde"
   }
 }

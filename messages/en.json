@@ -947,5 +947,26 @@
     "history_direction": "Direction",
     "history_temp": "Temp (ºC)",
     "history_tide": "Tide (m)"
+  },
+  "profile": {
+    "title": "Student Profile",
+    "share": "Share",
+    "public_toggle": "Public Profile",
+    "public_desc": "Allow others to see your achievements and stats.",
+    "stats": "Statistics",
+    "badges": "Badges",
+    "logbook": "Logbook",
+    "certificates": "Certificates",
+    "private_profile": "This profile is private.",
+    "not_found": "Profile not found.",
+    "copy_link": "Copy Link",
+    "link_copied": "Link copied!",
+    "share_error": "Could not share",
+    "edit_visibility": "Edit Visibility",
+    "hours_sailed": "Miles Sailed",
+    "level": "Level",
+    "total_points": "Points",
+    "ranking": "Ranking",
+    "since": "Since"
   }
 }
