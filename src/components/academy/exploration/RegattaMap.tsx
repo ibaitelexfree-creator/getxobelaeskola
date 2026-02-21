@@ -1,141 +1,96 @@
 'use client';
 
 import React, { useEffect, useRef } from 'react';
-import { RegattaStep } from '@/lib/data/historical-regattas';
+import { MapContainer, TileLayer, Polyline, Marker, Popup, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
+import L from 'leaflet';
 
 interface RegattaMapProps {
-    steps: RegattaStep[];
-    currentStepIndex: number;
+    route: [number, number][];
+    currentStep: number;
 }
 
-export default function RegattaMap({ steps, currentStepIndex }: RegattaMapProps) {
-    const mapRef = useRef<HTMLDivElement>(null);
-    const mapInstance = useRef<any>(null);
-    const LRef = useRef<any>(null);
-    const markersRef = useRef<any[]>([]);
-    const polylinesRef = useRef<any[]>([]);
-    const initializing = useRef(false);
+// Component to handle map view updates
+function MapController({ route, currentStep }: { route: [number, number][], currentStep: number }) {
+    const map = useMap();
+    const prevRouteRef = useRef<[number, number][] | null>(null);
 
-    // Initialize Map
     useEffect(() => {
-        if (typeof window === 'undefined' || !mapRef.current || mapInstance.current || initializing.current) return;
-
-        const initMap = async () => {
-            if (!mapRef.current || initializing.current) return;
-            initializing.current = true;
-
-            const L = (await import('leaflet')).default;
-            LRef.current = L;
-
-            // Fix default icon issue
-            delete (L.Icon.Default.prototype as any)._getIconUrl;
-            L.Icon.Default.mergeOptions({
-                iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
-                iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
-                shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
-            });
-
-            if (!mapRef.current || (mapRef.current as any)._leaflet_id) return;
-
-            const map = L.map(mapRef.current, {
-                zoomControl: false,
-                attributionControl: false
-            });
-
-            // Dark Matter tile layer
-            L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-                subdomains: 'abcd',
-                maxZoom: 19
-            }).addTo(map);
-
-            mapInstance.current = map;
-        };
-
-        initMap();
-
-        return () => {
-            if (mapInstance.current) {
-                mapInstance.current.remove();
-                mapInstance.current = null;
-            }
-        };
+        // Fix Leaflet icons
+        // This is needed because of how webpack handles image imports for Leaflet
+        delete (L.Icon.Default.prototype as any)._getIconUrl;
+        L.Icon.Default.mergeOptions({
+            iconRetinaUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon-2x.png',
+            iconUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png',
+            shadowUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png',
+        });
     }, []);
 
-    // Update Route and Position
     useEffect(() => {
-        const map = mapInstance.current;
-        const L = LRef.current;
+        // Check if route has changed (by reference or length/start point)
+        const isNewRoute = prevRouteRef.current !== route;
 
-        if (!map || !L || !steps || steps.length === 0) return;
-
-        // Clear previous layers
-        markersRef.current.forEach(m => map.removeLayer(m));
-        polylinesRef.current.forEach(p => map.removeLayer(p));
-        markersRef.current = [];
-        polylinesRef.current = [];
-
-        // 1. Draw Full Route (Dimmed)
-        const allPositions = steps.map(s => s.coordinates);
-        const fullRoute = L.polyline(allPositions, {
-            color: '#334155', // slate-700
-            weight: 2,
-            dashArray: '5, 10',
-            opacity: 0.5
-        }).addTo(map);
-        polylinesRef.current.push(fullRoute);
-
-        // 2. Draw Active Route (Accent)
-        const activePositions = steps.slice(0, currentStepIndex + 1).map(s => s.coordinates);
-        if (activePositions.length > 1) {
-            const activeRoute = L.polyline(activePositions, {
-                color: '#fbbf24', // amber-400 (accent)
-                weight: 3,
-                opacity: 0.9
-            }).addTo(map);
-            polylinesRef.current.push(activeRoute);
+        if (isNewRoute && route.length > 0) {
+            const bounds = L.latLngBounds(route);
+            map.fitBounds(bounds, { padding: [50, 50], maxZoom: 6 });
+            prevRouteRef.current = route;
         }
+    }, [route, map]);
 
-        // 3. Draw Start Point
-        const startMarker = L.circleMarker(steps[0].coordinates, {
-            radius: 4,
-            fillColor: '#94a3b8',
-            color: 'transparent',
-            fillOpacity: 0.6
-        }).addTo(map);
-        markersRef.current.push(startMarker);
-
-        // 4. Draw Current Position (Boat)
-        const currentPos = steps[currentStepIndex].coordinates;
-
-        // Custom Boat Icon (SVG)
-        const boatIcon = L.divIcon({
-            className: 'custom-boat-icon',
-            html: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12 2L2 22H22L12 2Z" fill="#fbbf24" stroke="white" stroke-width="2"/>
-            </svg>`,
-            iconSize: [24, 24],
-            iconAnchor: [12, 12]
-        });
-
-        const boatMarker = L.marker(currentPos, { icon: boatIcon }).addTo(map);
-        markersRef.current.push(boatMarker);
-
-        // Pan to current position with appropriate zoom
-        // If it's the first step, fit bounds to the whole route to show context
-        if (currentStepIndex === 0) {
-            map.fitBounds(fullRoute.getBounds(), { padding: [50, 50] });
-        } else {
-            map.flyTo(currentPos, 5, { duration: 1.5 });
+    useEffect(() => {
+        const position = route[currentStep];
+        if (position) {
+             // Pan to boat, but keep zoom level unless it's initial load handled above
+             // Use panTo for smooth animation
+             map.panTo(position, { animate: true, duration: 0.5 });
         }
+    }, [currentStep, route, map]);
 
-    }, [steps, currentStepIndex]);
+    return null;
+}
+
+export default function RegattaMap({ route, currentStep }: RegattaMapProps) {
+    const boatIcon = L.divIcon({
+        html: '<div style="font-size: 24px; line-height: 1; filter: drop-shadow(0 0 4px rgba(0,0,0,0.5)); transform: translate(-50%, -50%);">⛵</div>',
+        className: 'bg-transparent border-none',
+        iconSize: [24, 24],
+        iconAnchor: [12, 12],
+    });
+
+    const position = route[currentStep] || route[0] || [0, 0];
+    const travelledPath = route.slice(0, currentStep + 1);
+    const remainingPath = route.slice(currentStep);
 
     return (
-        <div className="w-full h-full relative bg-[#000510]">
-             <div ref={mapRef} style={{ height: '100%', width: '100%' }} />
-             {/* Map Controls could go here if managed internally */}
-        </div>
+        <MapContainer
+            center={[20, 0]}
+            zoom={2}
+            className="w-full h-full"
+            style={{ background: '#000510' }}
+            scrollWheelZoom={true}
+        >
+            <TileLayer
+                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+                url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+            />
+
+            <Polyline
+                positions={travelledPath}
+                pathOptions={{ color: '#4ade80', weight: 3, opacity: 0.8 }}
+            />
+
+            <Polyline
+                positions={remainingPath}
+                pathOptions={{ color: '#ffffff', weight: 2, opacity: 0.3, dashArray: '5, 10' }}
+            />
+
+            <Marker position={position} icon={boatIcon}>
+                <Popup>
+                    Posición Actual
+                </Popup>
+            </Marker>
+
+            <MapController route={route} currentStep={currentStep} />
+        </MapContainer>
     );
 }
