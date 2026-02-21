@@ -1,5 +1,7 @@
 import TelegramBot from 'node-telegram-bot-api';
 import { appendToProjectMemory, readProjectMemory } from './project-memory.js';
+import { recordActivity } from './resource-manager.js';
+
 
 export function setupTelegramInbound(token, chatId) {
     if (!token) return null;
@@ -9,7 +11,11 @@ export function setupTelegramInbound(token, chatId) {
     console.log('[Telegram] Inbound polling started');
 
     bot.on('message', async (msg) => {
+        // Record activity to wake up/keep alive the system
+        recordActivity();
+
         const text = msg.text;
+
         const msgChatId = msg.chat.id;
 
         // Solo responder al usuario autorizado (tú)
