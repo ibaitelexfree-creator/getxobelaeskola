@@ -12,6 +12,16 @@ export interface WeatherData {
     gusts?: number;
 }
 
+interface EuskalmetReading {
+    sensorId: string;
+    type?: string;
+    value: number;
+}
+
+interface EuskalmetStationData {
+    readings: EuskalmetReading[];
+}
+
 export async function fetchWeatherData(): Promise<WeatherData> {
     // Priority order:
     // 1. Getxo Bela Eskola (Unisono)
@@ -86,13 +96,13 @@ export async function fetchWeatherData(): Promise<WeatherData> {
 
         // --- 2. Try Punta Galea (Euskalmet C042) ---
         try {
-            const galea = await fetchEuskalmetStationData('C042');
+            const galea = await fetchEuskalmetStationData('C042') as EuskalmetStationData | null;
             if (galea && galea.readings) {
                 // Euskalmet JSON structure check needed, but common is reading[i].value
                 // Assuming it returns an object with sensors
-                const wind = galea.readings.find((r: any) => r.sensorId === 'wind_speed' || r.type === 'wind_speed');
-                const dir = galea.readings.find((r: any) => r.sensorId === 'wind_direction');
-                const temp = galea.readings.find((r: any) => r.sensorId === 'temperature');
+                const wind = galea.readings.find((r) => r.sensorId === 'wind_speed' || r.type === 'wind_speed');
+                const dir = galea.readings.find((r) => r.sensorId === 'wind_direction');
+                const temp = galea.readings.find((r) => r.sensorId === 'temperature');
 
                 if (wind) {
                     const ms = wind.value; // Euskalmet usually gives m/s
@@ -116,9 +126,9 @@ export async function fetchWeatherData(): Promise<WeatherData> {
 
         // --- 4. Try Puerto de Bilbao (Euskalmet B090) ---
         try {
-            const puerto = await fetchEuskalmetStationData('B090');
+            const puerto = await fetchEuskalmetStationData('B090') as EuskalmetStationData | null;
             if (puerto && puerto.readings) {
-                const wind = puerto.readings.find((r: any) => r.sensorId === 'wind_speed');
+                const wind = puerto.readings.find((r) => r.sensorId === 'wind_speed');
                 if (wind) {
                     const ms = wind.value;
                     const knots = parseFloat((ms * 1.94384).toFixed(1));

@@ -26,7 +26,34 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: 'Servicio no encontrado' }, { status: 404 });
         }
 
-        // --- NEW: AVAILABILITY CHECK ---
+        // --- NEW: DYNAMIC FLEET AVAILABILITY CHECK ---
+        const BOAT_PREFIX_MAP: Record<string, string> = {
+            'alquiler-j80': 'J80',
+            'alquiler-kayak-1': 'Kayak (1 persona)',
+            'alquiler-kayak-2': 'Kayak (2 personas)',
+            'alquiler-piragua-1': 'Piragua (1 persona)',
+            'alquiler-piragua-2': 'Piragua (2 personas)',
+            'alquiler-windsurf': 'Windsurf',
+            'alquiler-optimist': 'Optimist',
+            'alquiler-laser': 'Laser',
+            'alquiler-raquero-omega': 'Raquero'
+        };
+
+        const prefix = BOAT_PREFIX_MAP[service.slug];
+        let stockLimit = service.stock_total || 1;
+
+        if (prefix) {
+            const { data: availableBoats, error: fleetError } = await supabase
+                .from('embarcaciones')
+                .select('id')
+                .ilike('nombre', `${prefix}%`)
+                .eq('estado', 'disponible');
+
+            if (!fleetError && availableBoats) {
+                stockLimit = availableBoats.length;
+            }
+        }
+
         const { count: currentBookings, error: countError } = await supabase
             .from('reservas_alquiler')
             .select('*', { count: 'exact', head: true })
@@ -40,13 +67,18 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: 'Error al verificar disponibilidad' }, { status: 500 });
         }
 
-        const stockLimit = service.stock_total || 1;
-        if (currentBookings !== null && currentBookings >= stockLimit) {
+        if (stockLimit <= 0) {
             return NextResponse.json({
-                error: `Lo sentimos, no hay ${service.nombre_es} disponibles para el ${reservedDate} a las ${reservedTime}. Por favor, elige otra hora.`
+                error: `Lo sentimos, todos los ${service.nombre_es} están actualmente fuera de servicio por mantenimiento. Por favor, contacta con nosotros.`
             }, { status: 400 });
         }
-        // --- END AVAILABILITY CHECK ---
+
+        if (currentBookings !== null && currentBookings >= stockLimit) {
+            return NextResponse.json({
+                error: `Lo sentimos, no hay ${service.nombre_es} disponibles para el ${reservedDate} a las ${reservedTime}. (Disponibles: ${stockLimit}).`
+            }, { status: 400 });
+        }
+        // --- END DYNAMIC AVAILABILITY CHECK ---
 
         // --- NEW: DOUBLE-BOOKING CHECK (Gating) ---
         const { data: userBooking } = await supabase

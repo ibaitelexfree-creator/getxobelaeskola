@@ -77,7 +77,7 @@ export class BoatPhysics {
         const ironsThreshold = 0.52; // 30 deg
         const smoothingRange = 0.15; // ~8 deg smoothing
 
-        let ironsFactor = MathUtils.smoothstep(windAngleRelBow, ironsThreshold - smoothingRange, ironsThreshold);
+        const ironsFactor = MathUtils.smoothstep(windAngleRelBow, ironsThreshold - smoothingRange, ironsThreshold);
         trimEfficiency *= ironsFactor;
 
         this.state.efficiency = trimEfficiency;
