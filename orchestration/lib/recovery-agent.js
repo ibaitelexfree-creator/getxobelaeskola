@@ -1,4 +1,4 @@
-import { startRenderAutoFix } from './render-autofix.js';
+import { startAutoFix as startRenderAutoFix } from './render-autofix.js';
 import { sendTelegramMessage } from './telegram.js';
 
 /**

@@ -70,9 +70,18 @@ export function usePolling() {
             }
 
             if (queueData?.success && queueData.result) {
-                const { queue, history } = queueData.result;
+                const { queue, history } = queueData.result as any;
                 if (queue) useMissionStore.getState().setQueue(queue);
-                if (history) useMissionStore.getState().setHistory(history);
+                if (history) {
+                    useMissionStore.getState().setHistory(history);
+
+                    // Calculate stats
+                    const assigned = (queue || []).length + (history || []).filter((h: any) => h.status === 'running' || h.status === 'queued').length;
+                    const completed = (history || []).filter((h: any) => h.status === 'completed').length;
+                    const failed = (history || []).filter((h: any) => h.status === 'failed').length;
+
+                    updateStats({ assigned, completed, failed });
+                }
             }
 
             if (sessions?.activeSessions) {
