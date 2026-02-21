@@ -10,7 +10,7 @@ import {
 import { apiUrl } from '@/lib/api';
 import { useAcademyFeedback } from '@/hooks/useAcademyFeedback';
 import { useSmartTracker } from '@/hooks/useSmartTracker';
-import ExportLogbookButton from './ExportLogbookButton';
+import { generateLogbookReportPDF } from '@/lib/logbook/pdfReportGenerator';
 
 // Direct dynamic import with explicit default handling
 const LeafletMap = dynamic(
@@ -35,6 +35,7 @@ export default function Logbook() {
     const [allSkills, setAllSkills] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [loadingDiary, setLoadingDiary] = useState(false);
+    const [isExporting, setIsExporting] = useState(false);
     const [isSavingDiary, setIsSavingDiary] = useState(false);
     const [newDiaryContent, setNewDiaryContent] = useState('');
     const [selectedPoint, setSelectedPoint] = useState<any>(null);
@@ -103,7 +104,6 @@ export default function Logbook() {
     useEffect(() => {
         loadData();
         loadSkills();
-        loadDiary();
     }, []);
 
     const handleToggleTracking = async () => {
@@ -131,6 +131,55 @@ export default function Logbook() {
         } else {
             await startTracking();
             showMessage('Seguimiento Iniciado', 'Coge el timón, estamos grabando tu travesía', 'info');
+        }
+    };
+
+
+    useEffect(() => {
+        if (activeTab === 'diary') {
+            loadDiary();
+        }
+    }, [activeTab]);
+
+    const handleExportPDF = async () => {
+        setIsExporting(true);
+        try {
+            // Ensure we have diary entries even if tab wasn't opened
+            let entries = diaryEntries;
+            if (entries.length === 0) {
+                const res = await fetch(apiUrl('/api/logbook/diary'));
+                if (res.ok) {
+                    entries = await res.json();
+                    setDiaryEntries(entries);
+                }
+            }
+
+            // Calculate stats
+            const totalHours = officialData?.estadisticas?.horas_totales || 0;
+            const totalMiles = totalHours * 5.2; // Estimation based on avg speed
+
+            // Count unique visited marinas/zones
+            const zones = new Set();
+            (officialData?.horas || []).forEach((h: any) => {
+                if (h.zona_nombre) zones.add(h.zona_nombre);
+            });
+            const visitedMarinas = zones.size;
+
+            await generateLogbookReportPDF({
+                studentName: officialData?.user?.full_name || 'Alumno',
+                totalHours,
+                totalMiles,
+                visitedMarinas,
+                sessions: officialData?.horas || [],
+                diaryEntries: entries
+            });
+
+            showMessage('PDF Generado', 'Tu bitácora se ha descargado correctamente', 'success');
+        } catch (error) {
+            console.error('Error exporting PDF:', error);
+            showMessage('Error', 'No se pudo generar el PDF', 'error');
+        } finally {
+            setIsExporting(false);
         }
     };
 
@@ -200,14 +249,28 @@ export default function Logbook() {
                     </div>
                 </div>
 
-                <div className="flex items-center gap-4">
-                    <ExportLogbookButton officialData={officialData} diaryEntries={diaryEntries} />
+                <div className="flex items-stretch gap-4">
                     <div className="px-8 py-5 bg-white/5 border border-white/10 rounded-3xl text-center backdrop-blur-md">
                         <div className="text-[10px] uppercase tracking-widest text-white/40 mb-1">Millas Totales</div>
                         <div className="text-4xl font-black text-white">
                             {((officialData?.estadisticas?.horas_totales || 0) * 5.2).toFixed(1)}
                         </div>
                     </div>
+
+                    <button
+                        onClick={handleExportPDF}
+                        disabled={isExporting}
+                        className="group px-6 bg-white/5 hover:bg-accent/10 border border-white/10 hover:border-accent/30 rounded-3xl transition-all flex flex-col items-center justify-center gap-1 min-w-[100px]"
+                    >
+                        {isExporting ? (
+                            <div className="w-5 h-5 border-2 border-accent border-t-transparent rounded-full animate-spin" />
+                        ) : (
+                            <Download className="text-white/60 group-hover:text-accent transition-colors" size={20} />
+                        )}
+                        <span className="text-[10px] uppercase tracking-widest text-white/40 group-hover:text-accent font-black">
+                            Exportar
+                        </span>
+                    </button>
                 </div>
             </header>
 
