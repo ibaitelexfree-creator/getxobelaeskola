@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
-import { X, Book, Ship, Globe, Anchor, Wind, Shield, ChevronRight } from 'lucide-react';
+import { X, Book, Ship, Globe, Anchor, Wind, Shield, ChevronRight, Trophy } from 'lucide-react';
 import { useNotificationStore } from '@/lib/store/useNotificationStore';
 import dynamic from 'next/dynamic';
 
@@ -396,6 +396,13 @@ export default function DashboardPage({ params }: { params: { locale: string } }
                             icon: <Shield className="w-5 h-5" />,
                             color: 'text-red-400 bg-red-500/10 hover:bg-red-500/20',
                             href: `/${params.locale}/academy/skills`
+                        },
+                        {
+                            id: 'leaderboard',
+                            label: 'Clasificación',
+                            icon: <Trophy className="w-5 h-5" />,
+                            color: 'text-yellow-400 bg-yellow-500/10 hover:bg-yellow-500/20',
+                            href: `/${params.locale}/academy/leaderboard`
                         }
                     ].map((tool) => (
                         <Link
