@@ -35,7 +35,6 @@ import { EventManager } from './EventManager';
 import { ScoringManager } from './ScoringManager';
 import { WindEffectManager } from './WindEffectManager';
 import { FloatingTextManager } from './FloatingTextManager';
-import { OpponentManager } from './OpponentManager';
 import * as turf from '@turf/turf';
 import waterGeometryData from '../../../data/geospatial/water-geometry.json';
 
@@ -69,12 +68,10 @@ let events: EventManager;
 let scoring: ScoringManager;
 let windEffect: WindEffectManager;
 let floatingText: FloatingTextManager;
-let opponentManager: OpponentManager;
 
 let animationFrameId: number;
 let lastTime = 0;
 let isGameOver = false;
-let latestOpponentsPayload: any[] = [];
 
 // Mock context for things that might expect window
 const inputState = {
@@ -95,9 +92,6 @@ self.onmessage = (e: MessageEvent) => {
             break;
         case 'INPUT':
             updateInput(payload);
-            break;
-        case 'OPPONENTS_UPDATE':
-            latestOpponentsPayload = payload;
             break;
     }
 };
@@ -120,7 +114,6 @@ function init(canvas: OffscreenCanvas, width: number, height: number, pixelRatio
     scoring = new ScoringManager();
     windEffect = new WindEffectManager(scene);
     floatingText = new FloatingTextManager(scene);
-    opponentManager = new OpponentManager(scene);
 
     objectives.onObjectiveReached = () => {
         const points = scoring.addObjectiveBonus(objectives.state.distance);
@@ -162,7 +155,18 @@ function animate() {
         // Update Physics
         wind.update(dt);
         const apparentWind = wind.getApparentWind(boatPhysics.state.velocity, boatPhysics.state.heading);
-        boatPhysics.update(dt, apparentWind, inputState.sailAngle, inputState.rudderAngle);
+
+        // Calculate True Wind Angle (TWA) for Polar Physics
+        let trueWindAngle = wind.getDirection() - boatPhysics.state.heading;
+        // Normalize to -PI..PI
+        while (trueWindAngle > Math.PI) trueWindAngle -= Math.PI * 2;
+        while (trueWindAngle < -Math.PI) trueWindAngle += Math.PI * 2;
+        // Take absolute value for polar lookup (symmetric)
+        trueWindAngle = Math.abs(trueWindAngle);
+
+        const trueWindSpeed = wind.getSpeed();
+
+        boatPhysics.update(dt, apparentWind, trueWindSpeed, trueWindAngle, inputState.sailAngle, inputState.rudderAngle);
 
         // Water Geofencing Check
         const inWater = checkWaterCollision(boatPhysics.state.position);
@@ -187,7 +191,6 @@ function animate() {
 
         // Update Visuals
         boatModel.update(dt, elapsedTime, boatPhysics.state, apparentWind, inputState.sailAngle, inputState.rudderAngle);
-        opponentManager.update(dt, elapsedTime, latestOpponentsPayload);
         wake.update(dt, boatPhysics.state);
         windEffect.update(dt, apparentWind, boatPhysics.state.position, boatPhysics.state.velocity);
         floatingText.update(dt);
@@ -211,9 +214,7 @@ function animate() {
                 apparentWind,
                 trueWindAngle: wind.getDirection(),
                 objectiveState: objectives.state,
-                eventState: events.state,
-                sailAngle: inputState.sailAngle,
-                rudderAngle: inputState.rudderAngle
+                eventState: events.state
             }
         });
     }
