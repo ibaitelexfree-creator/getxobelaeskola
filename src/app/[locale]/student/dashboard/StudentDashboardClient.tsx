@@ -22,6 +22,7 @@ const EmptyState = dynamic(() => import('@/components/ui/EmptyState'));
 const BonosWallet = dynamic(() => import('@/components/student/BonosWallet'));
 const BonoPurchaseModal = dynamic(() => import('@/components/student/BonoPurchaseModal'));
 const DailyNauticalQuote = dynamic(() => import('@/components/student/DailyNauticalQuote'));
+const StudySessionsList = dynamic(() => import('@/components/student/StudySessionsList'));
 
 interface DashboardItem {
     id: string;
@@ -97,7 +98,8 @@ export default function StudentDashboardClient({
         inscripciones = [],
         rentals = [],
         bonos = [],
-        academyStats = {}
+        academyStats = {},
+        studySessions = []
     } = data || {};
 
     const {
@@ -382,6 +384,11 @@ export default function StudentDashboardClient({
                                     <EmptyState icon="🌊" title={t.rentals_section.empty_title} subtitle={t.rentals_section.empty_subtitle} actionLabel={t.rentals_section.btn_reserve} actionHref={`/${locale}/rental`} />
                                 )}
                             </section>
+
+                            {/* Study Sessions List */}
+                            {studySessions.length > 0 && (
+                                <StudySessionsList sessions={studySessions} locale={locale} />
+                            )}
 
                             {/* History Section */}
                             {(pastInscripciones.length > 0 || pastRentals.length > 0) && (
