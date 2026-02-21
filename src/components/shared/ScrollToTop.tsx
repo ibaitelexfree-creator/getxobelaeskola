@@ -65,7 +65,7 @@ export default function ScrollToTop() {
             onClick={scrollToTop}
             className={`fixed bottom-32 md:bottom-8 right-8 z-[9999] p-3 rounded-full bg-accent text-nautical-black shadow-lg shadow-accent/20 transition-all duration-500 hover:scale-110 hover:-translate-y-1 group ${isVisible && !isExternallyHidden ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10 pointer-events-none'
                 }`}
-            aria-label="Scroll to top"
+            aria-label="Volver al inicio de la página"
         >
             <div className="absolute inset-0 rounded-full border border-accent/50 animate-ping opacity-20 group-hover:opacity-40" />
             <svg

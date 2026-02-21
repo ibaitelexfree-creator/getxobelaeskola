@@ -2,12 +2,13 @@
 
 import { motion } from 'framer-motion';
 import { useMissionStore } from '@/store/useMissionStore';
-import { Clock, Zap, Bot, Cpu, CheckCircle2, XCircle, Loader2 } from 'lucide-react';
+import { Clock, Zap, Bot, Cpu, CheckCircle2, XCircle, Loader2, Globe } from 'lucide-react';
 
 const executorIcon: Record<string, React.ReactNode> = {
     jules: <Cpu size={14} className="text-buoy-orange" />,
     flash: <Zap size={14} className="text-status-amber" />,
     clawdbot: <Bot size={14} className="text-status-blue" />,
+    antigravity: <Globe size={14} className="text-status-green" />,
 };
 
 const statusIcon: Record<string, React.ReactNode> = {
