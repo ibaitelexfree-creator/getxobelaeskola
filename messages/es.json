@@ -853,6 +853,16 @@
       "save_btn": "GUARDAR",
       "ranking_title": "RANKING - TOP 10",
       "restart_btn": "VOLVER A JUGAR"
+    },
+    "interactive_rose": {
+      "title": "Roseta Interactiva",
+      "drag_instruction": "Arrastra el indicador de viento (flecha azul) para ver cómo cambia la navegación.",
+      "close_hauled": "Ceñida",
+      "optimal_angle": "Ángulo Óptimo",
+      "vmg": "VMG",
+      "boat_heading": "Rumbo Barco",
+      "twa": "Ángulo Viento Real",
+      "speed": "Velocidad"
     }
   },
   "validation": {

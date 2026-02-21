@@ -852,6 +852,16 @@
       "save_btn": "SAVE",
       "ranking_title": "RANKING - TOP 10",
       "restart_btn": "PLAY AGAIN"
+    },
+    "interactive_rose": {
+      "title": "Interactive Rose",
+      "drag_instruction": "Drag the wind indicator (blue arrow) to see how navigation changes.",
+      "close_hauled": "Close-Hauled",
+      "optimal_angle": "Optimal Angle",
+      "vmg": "VMG",
+      "boat_heading": "Boat Heading",
+      "twa": "True Wind Angle",
+      "speed": "Speed"
     }
   },
   "validation": {
