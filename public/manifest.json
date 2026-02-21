@@ -1,11 +1,11 @@
 {
   "name": "Getxo Bela Eskola",
-  "short_name": "Bela Eskola",
-  "description": "Escuela de Navegación en Getxo. Cursos de vela, alquiler y más.",
+  "short_name": "Getxo Bela",
+  "description": "Escuela de Vela y Navegación en Getxo",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#001B3A",
-  "theme_color": "#001B3A",
+  "background_color": "#0a1628",
+  "theme_color": "#0a1628",
   "icons": [
     {
       "src": "/images/LogoGetxoBelaEskola.png",

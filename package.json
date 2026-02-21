@@ -20,6 +20,7 @@
     "@capacitor/local-notifications": "^8.0.1",
     "@capacitor/network": "^8.0.1",
     "@capacitor/push-notifications": "^8.0.1",
+    "@ducanh2912/next-pwa": "^10.2.9",
     "@hookform/resolvers": "^5.2.2",
     "@stripe/stripe-js": "^8.7.0",
     "@supabase/ssr": "^0.8.0",
