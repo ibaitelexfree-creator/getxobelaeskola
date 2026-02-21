@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { NextResponse } from 'next/server';
+import { calculateNextSRS, SRSState } from '@/lib/srs';
 
 export async function POST(request: Request) {
     try {
@@ -119,56 +120,79 @@ export async function POST(request: Request) {
             .eq('student_id', user.id)
             .gte('unlocked_at', bufferTime);
 
-        // 9. TRACK MISTAKES (Mochila de Dudas)
-        try {
-            // Always fetch correct answers to determine mistakes internally
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const questionIds = intento.preguntas_json as any[];
-
-            if (questionIds && questionIds.length > 0) {
-                const { data: allQuestions } = await supabaseAdmin
-                    .from('preguntas')
-                    .select('id, respuesta_correcta')
-                    .in('id', questionIds);
-
-                if (allQuestions) {
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                    const mistakes: any[] = [];
-                    for (const q of allQuestions) {
-                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                        const userAnswer = (respuestasMerged as any)[q.id];
-                        // Check if answered and incorrect
-                        if (userAnswer !== undefined && userAnswer !== q.respuesta_correcta) {
-                            mistakes.push({
-                                alumno_id: user.id,
-                                pregunta_id: q.id,
-                                estado: 'pendiente',
-                                fecha_fallo: new Date().toISOString()
-                            });
-                        }
-                    }
-
-                    if (mistakes.length > 0) {
-                        await supabaseAdmin
-                            .from('errores_repaso')
-                            .upsert(mistakes, { onConflict: 'alumno_id, pregunta_id' });
-                    }
-                }
-            }
-        } catch (err) {
-            console.error('Error tracking mistakes:', err);
-        }
-
-        // Obtener las respuestas correctas si está configurado
+        // Obtener las respuestas correctas (para SRS y para mostrar si está configurado)
         let respuestasCorrectas = null;
-        if (intento.evaluacion.mostrar_respuestas) {
-            const { data: preguntas } = await supabaseAdmin
-                .from('preguntas')
-                .select('id, respuesta_correcta, explicacion_es, explicacion_eu')
-                .in('id', intento.preguntas_json);
+        const { data: preguntas } = await supabaseAdmin
+            .from('preguntas')
+            .select('id, respuesta_correcta, explicacion_es, explicacion_eu')
+            .in('id', intento.preguntas_json);
 
+        if (intento.evaluacion.mostrar_respuestas) {
             respuestasCorrectas = preguntas;
         }
+
+        // --- ACTUALIZAR SRS (Anki algorithm) ---
+        if (preguntas) {
+            // Fetch existing SRS states
+            const { data: existingProgress } = await supabase
+                .from('progreso_preguntas')
+                .select('*')
+                .eq('alumno_id', user.id)
+                .in('pregunta_id', intento.preguntas_json);
+
+            const progressMap = new Map(existingProgress?.map(p => [p.pregunta_id, p]));
+            const questionMap = new Map(preguntas.map(q => [q.id, q]));
+
+            const srsUpdates = [];
+
+            const preguntasArray = Array.isArray(intento.preguntas_json) ? intento.preguntas_json : [];
+
+            for (const preguntaId of preguntasArray) {
+                const question = questionMap.get(preguntaId);
+                if (!question) continue;
+
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                const userAnswer = (respuestasMerged as any)[preguntaId];
+
+                // Compare answer. This assumes respuesta_correcta matches userAnswer format.
+                const isCorrect = userAnswer === question.respuesta_correcta;
+                const quality = isCorrect ? 5 : 1; // 5 = perfect, 1 = wrong
+
+                const currentSRSDB = progressMap.get(preguntaId);
+                const currentSRS: SRSState = currentSRSDB ? {
+                    easinessFactor: Number(currentSRSDB.easiness_factor),
+                    interval: currentSRSDB.interval,
+                    repetitions: currentSRSDB.repetitions,
+                    nextReviewDate: new Date() // Not used in calc
+                } : {
+                    easinessFactor: 2.5,
+                    interval: 0,
+                    repetitions: 0,
+                    nextReviewDate: new Date()
+                };
+
+                const nextState = calculateNextSRS(currentSRS, quality);
+
+                srsUpdates.push({
+                    alumno_id: user.id,
+                    pregunta_id: preguntaId,
+                    easiness_factor: nextState.easinessFactor,
+                    interval: nextState.interval,
+                    repetitions: nextState.repetitions,
+                    next_review_date: nextState.nextReviewDate.toISOString(),
+                    last_reviewed_date: new Date().toISOString()
+                });
+            }
+
+            if (srsUpdates.length > 0) {
+                const { error: srsError } = await supabase
+                    .from('progreso_preguntas')
+                    .upsert(srsUpdates, { onConflict: 'alumno_id, pregunta_id' });
+
+                if (srsError) console.error('Error updating SRS:', srsError);
+            }
+        }
+        // ---------------------------------------
 
         return NextResponse.json({
             puntuacion: puntuacion.puntuacion,
