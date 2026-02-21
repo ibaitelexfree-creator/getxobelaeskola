@@ -78,7 +78,7 @@ export default async function CoursesPage({
             duracion_h: 12,
             nivel: 'iniciacion',
             categoria: { nombre_es: 'Cursos Adultos', nombre_eu: 'Helduentzako Ikastaroak' },
-            imagen_url: 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5997?q=70&w=800'
+            imagen_url: '/images/J80.webp'
         },
         {
             id: '2',
