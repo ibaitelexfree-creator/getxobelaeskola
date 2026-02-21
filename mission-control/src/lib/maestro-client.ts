@@ -3,46 +3,90 @@
  * Each method maps to a Telegram command from maestro.js
  */
 
-const DEFAULT_MAESTRO = 'https://agent.scarmonit.com';
+const DEFAULT_MAESTRO = 'http://localhost:3323';
+const TIMEOUT_MS = 15000;
+const MAX_RETRIES = 2;
 
 function getMaestroUrl(): string {
     if (typeof window !== 'undefined') {
-        const stored = localStorage.getItem('mc_server_url');
-        if (stored && (stored.includes('localhost') || stored.includes('127.0.0.1'))) {
-            localStorage.setItem('mc_server_url', DEFAULT_MAESTRO);
-            return DEFAULT_MAESTRO;
-        }
-        return stored || DEFAULT_MAESTRO;
+        return localStorage.getItem('mc_server_url') || DEFAULT_MAESTRO;
     }
     return DEFAULT_MAESTRO;
 }
 
+/**
+ * Generic request with timeout and retry logic
+ */
+async function maestroRequest<T>(method: string, path: string, body?: unknown, retries = MAX_RETRIES): Promise<T> {
+    const url = `${getMaestroUrl()}${path}`;
+    const controller = new AbortController();
+    const id = setTimeout(() => controller.abort(), TIMEOUT_MS);
+
+    try {
+        const res = await fetch(url, {
+            method,
+            headers: { 'Content-Type': 'application/json' },
+            body: body ? JSON.stringify(body) : undefined,
+            signal: controller.signal,
+        });
+        clearTimeout(id);
+
+        if (!res.ok) {
+            if (res.status >= 500 && retries > 0) {
+                await new Promise(r => setTimeout(r, 1000));
+                return maestroRequest(method, path, body, retries - 1);
+            }
+            const text = await res.text().catch(() => 'Unknown error');
+            throw new Error(`Maestro error ${res.status}: ${text}`);
+        }
+        return res.json();
+    } catch (error: any) {
+        clearTimeout(id);
+        if (error.name === 'AbortError') throw new Error('Maestro Request Timeout');
+        if (retries > 0) {
+            await new Promise(r => setTimeout(r, 1000));
+            return maestroRequest(method, path, body, retries - 1);
+        }
+        throw error;
+    }
+}
+
 async function maestroPost<T>(path: string, body?: unknown): Promise<T> {
-    const res = await fetch(`${getMaestroUrl()}${path}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: body ? JSON.stringify(body) : undefined,
-    });
-    return res.json();
+    return maestroRequest('POST', path, body);
 }
 
 async function maestroGet<T>(path: string): Promise<T> {
-    const res = await fetch(`${getMaestroUrl()}${path}`);
-    return res.json();
+    return maestroRequest('GET', path);
 }
 
 // ─── Execution Commands ───
 
 /** /task <desc> — Cascade: Jules → Flash → ClawdBot */
 export async function sendTask(description: string, mode: 'cascade' | 'flash' | 'clawdbot' = 'cascade') {
-    const toolMap = {
-        cascade: 'jules_create_session',
-        flash: 'jules_create_session',
-        clawdbot: 'jules_create_session',
-    };
     return maestroPost('/mcp/execute', {
-        tool: toolMap[mode],
-        parameters: { prompt: description, title: description, source: 'sources/github/ibaitelexfree-creator/getxobelaeskola' },
+        tool: 'jules_create_session',
+        parameters: {
+            prompt: description,
+            title: description,
+            source: 'sources/github/ibaitelexfree-creator/getxobelaeskola',
+            automationMode: mode === 'flash' ? 'FLASH_ONLY' : 'AUTO_CREATE_PR'
+        },
+    });
+}
+
+/** /todo <desc> — Alias for /task */
+export const sendTodo = sendTask;
+
+/** /clawdebot <desc> — Isolated session direct to PC ClawdBot */
+export async function sendClawdebot(description: string) {
+    return maestroPost('/mcp/execute', {
+        tool: 'jules_create_session',
+        parameters: {
+            prompt: description,
+            title: `[ClawdBot] ${description}`,
+            source: 'sources/github/ibaitelexfree-creator/getxobelaeskola',
+            automationMode: 'NONE'
+        },
     });
 }
 
@@ -54,6 +98,11 @@ export async function approve() {
 /** /reject — Reject and re-queue */
 export async function reject() {
     return maestroPost('/watchdog/action', { action: 'feed', message: '/reject' });
+}
+
+/** /force-clawdbot — Force next task to ClawdBot */
+export async function forceClawdbot() {
+    return maestroPost('/watchdog/action', { action: 'feed', message: '/force-clawdbot' });
 }
 
 // ─── Monitoring Commands ───
@@ -72,14 +121,20 @@ export interface MaestroStatus {
 /** /status — Get full system status */
 export async function getStatus(): Promise<MaestroStatus> {
     const health = await maestroGet<any>('/health');
+    const watchdog = await maestroGet<any>('/watchdog/status');
+
     return {
-        jules: { used: 0, total: 300, active: 0 },
-        flash: { enabled: health.services?.geminiFlash !== 'error', tasksToday: 0, tokensUsed: 0 },
-        clawdbot: { healthy: health.services?.clawdbot !== 'error', delegations: 0 },
+        jules: {
+            used: health.circuitBreaker?.failures || 0,
+            total: 300,
+            active: health.services?.julesApi === 'configured' ? 1 : 0
+        },
+        flash: { enabled: health.services?.github === 'configured', tasksToday: 0, tokensUsed: 0 },
+        clawdbot: { healthy: true, delegations: 0 },
         visual: { enabled: health.services?.browserless !== 'error' },
         thermal: { label: 'Normal', level: 0 },
         queue: 0,
-        pendingApproval: false,
+        pendingApproval: watchdog.state === 'STALLED' || watchdog.state === 'LOOPING',
         stats: { assigned: 0, completed: 0 },
     };
 }
@@ -111,6 +166,11 @@ export async function screenshot(url: string) {
     });
 }
 
+/** /queue — Task queue status */
+export async function getQueue() {
+    return maestroPost('/mcp/execute', { tool: 'jules_get_queue' });
+}
+
 // ─── Control Commands ───
 
 /** /temp — CPU/GPU temperatures */
@@ -133,3 +193,15 @@ export const pauseWatchdog = () => maestroPost('/watchdog/action', { action: 'pa
 
 /** /watchdog resume */
 export const resumeWatchdog = () => maestroPost('/watchdog/action', { action: 'resume' });
+
+/** /help — List all commands */
+export async function getHelp() {
+    return {
+        commands: [
+            '/task', '/clawdebot', '/status', '/usage', '/doctor', '/screenshot',
+            '/approve', '/reject', '/temp', '/pool', '/pause', '/resume',
+            '/queue', '/force-clawdbot', '/watchdog', '/watchdog pause', '/watchdog resume', '/help'
+        ]
+    };
+}
+
