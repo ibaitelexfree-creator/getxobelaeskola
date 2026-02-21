@@ -55,6 +55,7 @@ interface MissionState {
 
     // Navigation
     activeTab: Tab;
+    taskDraft: string;
 
     // Settings
     autoRefreshMs: number;
@@ -65,6 +66,7 @@ interface MissionState {
     updateServices: (services: Partial<MissionState['services']>) => void;
     updateStats: (stats: Partial<MissionState['stats']>) => void;
     setQueue: (queue: MissionState['queue']) => void;
+    setHistory: (history: MissionState['history']) => void;
     setPendingApproval: (approval: MissionState['pendingApproval']) => void;
     addToHistory: (entry: MissionState['history'][0]) => void;
     setActiveTab: (tab: Tab) => void;
@@ -72,6 +74,7 @@ interface MissionState {
     setAutoRefresh: (ms: number) => void;
     setLastSync: (ts: number) => void;
     updatePower: (power: Partial<MissionState['power']>) => void;
+    setTaskDraft: (draft: string) => void;
 }
 
 const STORAGE_KEY = 'mc_server_url';
@@ -105,6 +108,7 @@ export const useMissionStore = create<MissionState>((set, get) => ({
     history: [],
     activeThreads: [],
     activeTab: 'dashboard',
+    taskDraft: '',
     autoRefreshMs: 10_000,
 
     // Actions
@@ -118,6 +122,7 @@ export const useMissionStore = create<MissionState>((set, get) => ({
     updateStats: (partial) =>
         set((state) => ({ stats: { ...state.stats, ...partial } })),
     setQueue: (queue) => set({ queue }),
+    setHistory: (history) => set({ history }),
     setPendingApproval: (pendingApproval) => {
         const current = get().pendingApproval;
         // Trigger haptics only when a NEW approval arrives
@@ -137,6 +142,7 @@ export const useMissionStore = create<MissionState>((set, get) => ({
     setAutoRefresh: (autoRefreshMs) => set({ autoRefreshMs }),
     setLastSync: (lastSync) => set({ lastSync }),
     updatePower: (partial) => set((state) => ({ power: { ...state.power, ...partial } })),
+    setTaskDraft: (taskDraft) => set({ taskDraft }),
 }));
 
 

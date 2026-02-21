@@ -69,7 +69,7 @@ export async function sendTask(description: string, mode: 'cascade' | 'flash' | 
             prompt: description,
             title: description,
             source: 'sources/github/ibaitelexfree-creator/getxobelaeskola',
-            automationMode: mode === 'flash' ? 'FLASH_ONLY' : 'AUTO_CREATE_PR'
+            automationMode: mode === 'flash' ? 'FLASH_ONLY' : mode === 'clawdbot' ? 'NONE' : 'AUTO_CREATE_PR'
         },
     });
 }

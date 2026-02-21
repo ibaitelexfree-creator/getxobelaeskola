@@ -10,6 +10,9 @@ import {
 } from 'lucide-react';
 import { getReleases, getDownloadUrl, Release } from '@/lib/maestro-client';
 import { Browser } from '@capacitor/browser';
+import { FirebaseCrashlytics } from '@capacitor-community/firebase-crashlytics';
+import { AlertTriangle, Zap } from 'lucide-react';
+
 
 export default function Settings() {
     const {
@@ -171,8 +174,8 @@ export default function Settings() {
                                             onClick={() => handleDownload(release.assets[0].id)}
                                             disabled={downloading === release.assets[0].id}
                                             className={`p-3 rounded-2xl border transition-all ${downloading === release.assets[0].id
-                                                    ? 'bg-buoy-orange/20 border-buoy-orange text-buoy-orange animate-pulse'
-                                                    : 'glass-card border-white/10 text-white/60 hover:text-buoy-orange hover:border-buoy-orange/40'
+                                                ? 'bg-buoy-orange/20 border-buoy-orange text-buoy-orange animate-pulse'
+                                                : 'glass-card border-white/10 text-white/60 hover:text-buoy-orange hover:border-buoy-orange/40'
                                                 }`}
                                         >
                                             {downloading === release.assets[0].id ? (
@@ -201,6 +204,48 @@ export default function Settings() {
                     Artifacts are served via Maestro Secure Proxy.
                 </p>
             </section>
+
+            {/* Security & Stability Section */}
+            <section className="flex flex-col gap-3">
+                <label className="text-[10px] font-mono text-white/20 uppercase tracking-[0.2em] ml-1">Systems Integrity</label>
+                <div className="glass-panel rounded-3xl p-5 flex flex-col gap-5">
+                    <div className="flex items-start gap-4">
+                        <div className="w-10 h-10 rounded-2xl bg-status-red/10 border border-status-red/20 flex items-center justify-center text-status-red shrink-0">
+                            <Shield size={20} />
+                        </div>
+                        <div className="flex-1">
+                            <p className="text-sm font-medium text-white/90">Auto-Healing Protocols</p>
+                            <p className="text-[10px] text-white/40 leading-relaxed mt-1">
+                                Critical failures are automatically routed to the Orchestrator for diagnosis and patching.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div className="flex flex-col gap-2">
+                        <button
+                            onClick={async () => {
+                                try {
+                                    await FirebaseCrashlytics.addLogMessage({ message: "Manual stability test initiated by user." });
+                                    // Verification log for the orchestrator
+                                    console.log("[Stability] Triggering intentional crash...");
+                                    await FirebaseCrashlytics.crash({ message: "Intentional stability probe - Verification 001" });
+                                } catch (e) {
+                                    console.error("Crash trigger failed:", e);
+                                    alert("Crash trigger only works on Android/iOS native builds.");
+                                }
+                            }}
+                            className="w-full bg-status-red/10 border border-status-red/20 hover:bg-status-red/20 py-4 rounded-2xl flex items-center justify-center gap-3 transition-all group"
+                        >
+                            <Zap size={16} className="text-status-red group-hover:scale-110 transition-transform" />
+                            <span className="font-bold text-[11px] uppercase tracking-wider text-status-red">Trigger Test Crash</span>
+                        </button>
+                        <p className="text-[9px] font-mono text-white/20 uppercase text-center tracking-widest mt-1">
+                            WARNING: App will close immediately.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
 
             {/* App Info Footer */}
             <div className="mt-4 pt-4 border-t border-white/5 flex flex-col gap-4 pb-10">

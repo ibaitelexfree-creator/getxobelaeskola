@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Send, Zap, Bot, Shuffle, ChevronDown } from 'lucide-react';
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
 import { useMissionStore } from '@/store/useMissionStore';
@@ -16,29 +16,37 @@ const modeConfig: Record<ExecutionMode, { icon: React.ReactNode; label: string; 
 };
 
 export default function TaskLauncher() {
-    const [description, setDescription] = useState('');
+    const { taskDraft, setTaskDraft, pendingApproval, setPendingApproval, addToHistory, serverUrl } = useMissionStore();
     const [mode, setMode] = useState<ExecutionMode>('cascade');
     const [sending, setSending] = useState(false);
     const [showModes, setShowModes] = useState(false);
-    const { pendingApproval, setPendingApproval, addToHistory } = useMissionStore();
+    const [status, setStatus] = useState<{ type: 'error' | 'success', msg: string } | null>(null);
 
     const handleSubmit = async () => {
-        if (!description.trim() || sending) return;
+        if (!taskDraft.trim() || sending) return;
         setSending(true);
+        setStatus(null);
 
         try {
-            await sendTask(description.trim(), mode);
+            await sendTask(taskDraft.trim(), mode);
             Haptics.impact({ style: ImpactStyle.Medium }).catch(() => { });
+
             addToHistory({
                 id: `t_${Date.now()}`,
-                title: description.trim(),
+                title: taskDraft.trim(),
                 executor: mode === 'cascade' ? 'jules' : mode,
                 status: 'running',
                 timestamp: Date.now(),
             });
-            setDescription('');
-        } catch (err) {
+
+            setTaskDraft('');
+            setStatus({ type: 'success', msg: 'Task launched successfully' });
+            setTimeout(() => setStatus(null), 3000);
+        } catch (err: any) {
             console.error('Task send failed:', err);
+            setStatus({ type: 'error', msg: `Failed: ${err.message || 'Unknown error'}` });
+            // Alert user for visibility in APK
+            alert(`Error: ${err.message}\nCheck URL: ${serverUrl}`);
         } finally {
             setSending(false);
         }
@@ -74,8 +82,8 @@ export default function TaskLauncher() {
                 className="glass-panel rounded-2xl p-4"
             >
                 <textarea
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
+                    value={taskDraft}
+                    onChange={(e) => setTaskDraft(e.target.value)}
                     placeholder="Describe the task..."
                     rows={4}
                     className="w-full bg-transparent text-sm text-white/90 placeholder:text-white/20 resize-none outline-none font-sans"
@@ -122,9 +130,9 @@ export default function TaskLauncher() {
                 <motion.button
                     whileTap={{ scale: 0.97 }}
                     onClick={handleSubmit}
-                    disabled={!description.trim() || sending}
+                    disabled={!taskDraft.trim() || sending}
                     className={`mt-4 w-full btn-primary rounded-xl py-3 flex items-center justify-center gap-2 ${sending ? 'opacity-50' : ''
-                        } ${!description.trim() ? 'opacity-30 cursor-not-allowed' : ''}`}
+                        } ${!taskDraft.trim() ? 'opacity-30 cursor-not-allowed' : ''}`}
                 >
                     {sending ? (
                         <div className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" />
@@ -133,6 +141,23 @@ export default function TaskLauncher() {
                     )}
                     <span>{sending ? 'Sending...' : 'Launch Task'}</span>
                 </motion.button>
+
+                {/* Status Message */}
+                <AnimatePresence>
+                    {status && (
+                        <motion.div
+                            initial={{ opacity: 0, y: -10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0 }}
+                            className={`mt-3 p-2 rounded-lg text-[10px] font-mono text-center border ${status.type === 'success'
+                                ? 'bg-status-green/10 border-status-green/20 text-status-green'
+                                : 'bg-status-red/10 border-status-red/20 text-status-red'
+                                }`}
+                        >
+                            {status.msg}
+                        </motion.div>
+                    )}
+                </AnimatePresence>
             </motion.div>
 
             {/* Pending Approval */}
