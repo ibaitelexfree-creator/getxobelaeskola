@@ -6,7 +6,7 @@ image: node:22-alpine
 
 pipelines:
   branches:
-    # Trigger dispatch for main or the test branch
+    # Main branch: Lint + dispatch to GitHub
     "{main,feature/sbrm-ci-test}":
       - step:
           name: "⚡ Lint & Signal (≤10s)"
