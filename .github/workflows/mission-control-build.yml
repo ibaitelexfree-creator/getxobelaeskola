@@ -39,7 +39,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: "zulu"
-          java-version: "17"
+          java-version: "21"
           cache: "gradle"
 
       - name: Setup Android SDK
@@ -61,6 +61,18 @@ jobs:
         with:
           name: mission-control-debug-apk
           path: mission-control/android/app/build/outputs/apk/debug/app-debug.apk
+
+      - name: Create GitHub Release
+        id: create_release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: mc-v${{ github.run_number }}
+          name: Mission Control v1.0.${{ github.run_number }}
+          draft: false
+          prerelease: false
+          files: mission-control/android/app/build/outputs/apk/debug/app-debug.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload to Firebase App Distribution
         uses: wzieba/Firebase-Distribution-Github-Action@v1

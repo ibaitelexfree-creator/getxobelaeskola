@@ -1,10 +1,10 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import https from 'https';
-import fs from 'fs';
-import path from 'path';
+import fs, { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs';
+import path, { join } from 'path';
 import admin from 'firebase-admin';
-import { getIssue, getIssuesByLabel, formatIssueForPrompt } from './lib/github.js';
+import { getIssue, getIssuesByLabel, formatIssueForPrompt, listReleases, downloadAsset } from './lib/github.js';
 import { BatchProcessor } from './lib/batch.js';
 import { SessionMonitor } from './lib/monitor.js';
 import { ollamaCompletion, listOllamaModels, ollamaCodeGeneration, ollamaChat } from './lib/ollama.js';
@@ -517,6 +517,47 @@ app.post('/watchdog/action', express.json(), (req, res) => {
 // Get watchdog intervention history
 app.get('/watchdog/history', (req, res) => {
   res.json({ history: agentWatchdog.getFullHistory() });
+});
+
+// ============ RELEASE MANAGEMENT ============
+
+// List Mission Control Releases
+app.get('/api/releases', cacheMiddleware, async (req, res) => {
+  if (!GITHUB_TOKEN) return res.status(503).json({ error: 'GitHub not configured' });
+  try {
+    const releases = await listReleases('ibaitelexfree-creator', 'getxobelaeskola', GITHUB_TOKEN);
+    // Filter only Mission Control releases (mc-v*)
+    const mcReleases = (releases || [])
+      .filter(r => r.tag_name.startsWith('mc-v'))
+      .map(r => ({
+        id: r.id,
+        tagName: r.tag_name,
+        name: r.name,
+        publishDate: r.published_at,
+        body: r.body,
+        assets: r.assets.map(a => ({ id: a.id, name: a.name, size: a.size, downloadUrl: a.browser_download_url }))
+      }));
+    res.json({ success: true, releases: mcReleases });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Download Release Asset (Proxy)
+app.get('/api/releases/download/:assetId', async (req, res) => {
+  if (!GITHUB_TOKEN) return res.status(503).json({ error: 'GitHub not configured' });
+  try {
+    const stream = await downloadAsset('ibaitelexfree-creator', 'getxobelaeskola', req.params.assetId, GITHUB_TOKEN);
+
+    // Pass along content type and length if available
+    if (stream.headers['content-type']) res.setHeader('Content-Type', stream.headers['content-type']);
+    if (stream.headers['content-length']) res.setHeader('Content-Length', stream.headers['content-length']);
+    res.setHeader('Content-Disposition', `attachment; filename="mission-control-${req.params.assetId}.apk"`);
+
+    stream.pipe(res);
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
 });
 
 // ============ WEBHOOKS ============
