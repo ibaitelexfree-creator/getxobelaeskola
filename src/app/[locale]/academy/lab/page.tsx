@@ -3,7 +3,8 @@
 import React from 'react';
 import { useTranslations } from 'next-intl';
 import { WaterDemo } from '@/components/academy/geospatial/WaterDemo';
-import { Map, Compass, ShieldCheck, Zap } from 'lucide-react';
+import NavigationMap from '@/components/academy/geospatial/MapWrapper';
+import { Map, Compass, ShieldCheck, Zap, Anchor } from 'lucide-react';
 import Link from 'next/link';
 
 export default function GeoLabPage({ params }: { params: { locale: string } }) {
@@ -27,7 +28,7 @@ export default function GeoLabPage({ params }: { params: { locale: string } }) {
                     </p>
                 </header>
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start mb-16">
                     {/* Demo Component */}
                     <div className="order-2 lg:order-1">
                         <WaterDemo />
@@ -88,6 +89,22 @@ export default function GeoLabPage({ params }: { params: { locale: string } }) {
                         </div>
                     </div>
                 </div>
+
+                {/* Navigation Map Section */}
+                <section>
+                    <div className="flex items-center gap-4 mb-8">
+                        <div className="p-3 bg-blue-500/20 rounded-2xl">
+                            <Anchor className="text-blue-400 w-8 h-8" />
+                        </div>
+                        <div>
+                            <h2 className="text-2xl font-bold text-white">Carta Náutica Digital</h2>
+                            <p className="text-slate-400 text-sm">Visualización de rutas, zonas de peligro y waypoints en tiempo real.</p>
+                        </div>
+                    </div>
+                    <div className="w-full">
+                        <NavigationMap />
+                    </div>
+                </section>
             </div>
         </div>
     );
