@@ -19,7 +19,6 @@ const CareerAdvisor = dynamic(() => import('@/components/academy/dashboard/Caree
 const NavigationExperienceMap = dynamic(() => import('@/components/academy/dashboard/NavigationExperienceMap'), { ssr: false });
 const DailyChallengeWidget = dynamic(() => import('@/components/academy/dashboard/DailyChallengeWidget'), { ssr: false });
 const AchievementsWidget = dynamic(() => import('@/components/academy/dashboard/AchievementsWidget'), { ssr: false });
-const WelcomeWizard = dynamic(() => import('@/components/academy/onboarding/WelcomeWizard'), { ssr: false });
 
 import AcademySkeleton from '@/components/academy/AcademySkeleton';
 import { getRank, calculateEstimatedXP } from '@/lib/gamification/ranks';
@@ -120,7 +119,6 @@ interface DashboardData {
     user: {
         full_name: string;
         avatar_url: string;
-        onboarding_completed?: boolean;
     };
     progreso: any[];
     habilidades: HabilidadItem[];
@@ -139,7 +137,6 @@ export default function DashboardPage({ params }: { params: { locale: string } }
     const [data, setData] = useState<DashboardData | null>(null);
     const [cursos, setCursos] = useState<Curso[]>([]);
     const [loading, setLoading] = useState(true);
-    const [showOnboarding, setShowOnboarding] = useState(false);
     const { addNotification, clearNotifications } = useNotificationStore();
 
     let MOTIVATIONAL_QUOTES: string[] = [];
@@ -188,12 +185,6 @@ export default function DashboardPage({ params }: { params: { locale: string } }
     }, []);
 
     useEffect(() => {
-        if (data && data.user && data.user.onboarding_completed === false) {
-            setShowOnboarding(true);
-        }
-    }, [data]);
-
-    useEffect(() => {
         if (!data) return;
 
         const lastSeenLogros = JSON.parse(localStorage.getItem('seen_logros') || '[]');
@@ -208,6 +199,20 @@ export default function DashboardPage({ params }: { params: { locale: string } }
                 icon: l.logro.icono,
                 data: { rareza: l.logro.rareza, puntos: l.logro.puntos }
             });
+
+            // Send push notification via server (via FCM)
+            fetch(apiUrl('/api/notifications/push'), {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    title: `¡Logro Desbloqueado: ${l.logro.nombre_es}!`,
+                    body: l.logro.descripcion_es,
+                    data: {
+                        type: 'achievement',
+                        achievementId: l.logro.id
+                    }
+                })
+            }).catch(err => console.error('Error sending push notification:', err));
         });
 
         if (newLogros.length > 0) {
@@ -302,17 +307,6 @@ export default function DashboardPage({ params }: { params: { locale: string } }
     return (
         <div className="min-h-screen bg-gradient-to-b from-nautical-black via-nautical-black to-[#0a1628] text-white pb-20">
             <h1 className="sr-only">Dashboard de Academia | Getxo Bela Eskola</h1>
-
-            {showOnboarding && data?.user && (
-                <WelcomeWizard
-                    userName={data.user.full_name.split(' ')[0]}
-                    onComplete={() => {
-                        setShowOnboarding(false);
-                        window.location.reload();
-                    }}
-                />
-            )}
-
             <NotificationContainer />
             <AchievementToast />
             <SkillUnlockedModal />
