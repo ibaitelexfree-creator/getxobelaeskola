@@ -1041,5 +1041,30 @@
     "history_direction": "Direction",
     "history_temp": "Temp (ºC)",
     "history_tide": "Tide (m)"
+  },
+  "nautical_chart": {
+    "title": "Interactive Nautical Chart",
+    "subtitle": "Explore the Bizkaia coast and practice navigation",
+    "tools": {
+      "navigate": "Navigate",
+      "route": "Plot Route",
+      "waypoint": "Mark Waypoint",
+      "clear": "Clear All"
+    },
+    "info": {
+      "position": "Position",
+      "distance": "Total Distance",
+      "bearing": "Bearing (Last leg)",
+      "nm": "nm",
+      "degrees": "°"
+    },
+    "legend": {
+      "title": "Legend",
+      "lighthouse": "Lighthouse",
+      "buoy": "Buoy",
+      "wreck": "Wreck",
+      "harbor": "Harbor",
+      "depth": "Depth"
+    }
   }
 }
