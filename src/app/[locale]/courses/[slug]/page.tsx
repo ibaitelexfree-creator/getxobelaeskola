@@ -303,7 +303,30 @@ export default async function CourseDetailPage({
                     </Link>
 
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-20">
-                        <div className="space-y-12">
+                        {/* Mobile: booking first (above-the-fold). Desktop: right column via order */}
+                        <div className="space-y-12 lg:order-last">
+                            <div className="relative h-[300px] md:h-[450px] rounded-sm overflow-hidden border border-white/10 shadow-2xl">
+                                <Image
+                                    src={displayCourse.imagen_url || '/images/home-hero-sailing-action.webp'}
+                                    alt={name}
+                                    fill
+                                    priority
+                                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 800px"
+                                    className="object-cover"
+                                />
+                            </div>
+
+                            <div className="card-luxury p-10 bg-white/5 backdrop-blur-xl border border-white/10">
+                                <h3 className="font-display text-4xl mb-6 text-sea-foam">Reserva tu plaza</h3>
+                                <BookingSelector
+                                    editions={displayEditions}
+                                    coursePrice={displayCourse.precio}
+                                    courseId={displayCourse.id}
+                                />
+                            </div>
+                        </div>
+
+                        <div className="space-y-12 lg:order-first">
                             <h1 className="text-6xl md:text-8xl font-display leading-tight">{name}</h1>
                             <div className="w-24 h-px bg-accent/30" />
                             <p className="text-xl font-light leading-relaxed text-foreground/80">
@@ -338,28 +361,6 @@ export default async function CourseDetailPage({
                                     </ul>
                                 </div>
                             )}
-                        </div>
-
-                        <div className="space-y-12">
-                            <div className="relative h-[450px] rounded-sm overflow-hidden border border-white/10 shadow-2xl">
-                                <Image
-                                    src={displayCourse.imagen_url || 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5997?auto=format&fit=crop&q=80&w=2074'}
-                                    alt={name}
-                                    fill
-                                    priority
-                                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 800px"
-                                    className="object-cover"
-                                />
-                            </div>
-
-                            <div className="card-luxury p-10 bg-white/5 backdrop-blur-xl border border-white/10">
-                                <h3 className="font-display text-4xl mb-6 text-sea-foam">Reserva tu plaza</h3>
-                                <BookingSelector
-                                    editions={displayEditions}
-                                    coursePrice={displayCourse.precio}
-                                    courseId={displayCourse.id}
-                                />
-                            </div>
                         </div>
                     </div>
                 </div>
