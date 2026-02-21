@@ -199,6 +199,20 @@ export default function DashboardPage({ params }: { params: { locale: string } }
                 icon: l.logro.icono,
                 data: { rareza: l.logro.rareza, puntos: l.logro.puntos }
             });
+
+            // Send push notification via server (via FCM)
+            fetch(apiUrl('/api/notifications/push'), {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    title: `¡Logro Desbloqueado: ${l.logro.nombre_es}!`,
+                    body: l.logro.descripcion_es,
+                    data: {
+                        type: 'achievement',
+                        achievementId: l.logro.id
+                    }
+                })
+            }).catch(err => console.error('Error sending push notification:', err));
         });
 
         if (newLogros.length > 0) {

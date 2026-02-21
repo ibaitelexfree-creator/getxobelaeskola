@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useNotificationStore } from '@/lib/store/useNotificationStore';
+import confetti from 'canvas-confetti';
 
 export default function AchievementToast() {
     const notifications = useNotificationStore(state => state.notifications);
@@ -49,7 +50,17 @@ function Toast({ notification, index, onDismiss }: ToastProps) {
     useEffect(() => {
         // Staggered entry animation based on index
         const entryDelay = 50 + (index * 150);
-        setTimeout(() => setIsVisible(true), entryDelay);
+        setTimeout(() => {
+            setIsVisible(true);
+            // Trigger confetti animation
+            confetti({
+                particleCount: 100,
+                spread: 70,
+                origin: { y: 0.6 },
+                zIndex: 9999,
+                colors: ['#FFD700', '#FFA500', '#FFFFFF', '#00BFFF']
+            });
+        }, entryDelay);
 
         // Auto-dismiss
         const timer = setTimeout(() => {
