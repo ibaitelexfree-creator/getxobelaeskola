@@ -13,8 +13,8 @@ import DashboardSkeleton from '@/components/student/DashboardSkeleton';
 const StudentProfileSidebar = dynamic(() => import('@/components/student/StudentProfileSidebar'));
 const MembershipWidget = dynamic(() => import('@/components/student/MembershipWidget'));
 const DailyChallengeWidget = dynamic(() => import('@/components/student/DailyChallengeWidget'));
-const WeeklyChallengeWidget = dynamic(() => import('@/components/student/WeeklyChallengeWidget'));
 const WeatherPremium = dynamic(() => import('@/components/shared/WeatherPremium'), { ssr: false });
+const SeaStateWidget = dynamic(() => import('@/components/dashboard/SeaStateWidget'), { ssr: false });
 const MobileStudentHub = dynamic(() => import('@/components/student/MobileStudentHub'));
 const NotificationPermissionBanner = dynamic(() => import('@/components/dashboard/NotificationPermissionBanner'), { ssr: false });
 const QuickContact = dynamic(() => import('@/components/student/QuickContact'));
@@ -23,7 +23,6 @@ const EmptyState = dynamic(() => import('@/components/ui/EmptyState'));
 const BonosWallet = dynamic(() => import('@/components/student/BonosWallet'));
 const BonoPurchaseModal = dynamic(() => import('@/components/student/BonoPurchaseModal'));
 const DailyNauticalQuote = dynamic(() => import('@/components/student/DailyNauticalQuote'));
-const MicroLeccionesWidget = dynamic(() => import('@/components/student/MicroLeccionesWidget'));
 
 interface DashboardItem {
     id: string;
@@ -224,10 +223,10 @@ export default function StudentDashboardClient({
                         <WeatherPremium />
                     </div>
 
+                    <SeaStateWidget />
+
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
                         <div className="lg:col-span-2 space-y-16">
-                            <MicroLeccionesWidget locale={locale} translations={t.micro_lessons || {}} />
-
                             <BonosWallet
                                 bonos={bonos}
                                 locale={locale}
@@ -415,7 +414,6 @@ export default function StudentDashboardClient({
 
                         <div className="lg:col-span-1 space-y-8">
                             <DailyNauticalQuote locale={locale} />
-                            <WeeklyChallengeWidget locale={locale} />
                             <DailyChallengeWidget locale={locale} />
                             <QuickContact />
                         </div>

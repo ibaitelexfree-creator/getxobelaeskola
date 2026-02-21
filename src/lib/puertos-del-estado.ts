@@ -1,96 +1,81 @@
-import { addMinutes, startOfDay, endOfDay } from 'date-fns';
 
-export interface TidePrediction {
-    time: Date;
-    height: number;
-    type: 'HIGH' | 'LOW';
+export interface SeaStateData {
+    waveHeight: number; // in meters
+    period: number; // in seconds
+    waterTemp: number; // in Celsius
+    windSpeed: number; // in knots
+    windDirection: number; // in degrees
+    timestamp: string;
+    isSimulated: boolean;
 }
 
-export interface TideState {
-    height: number;
-    trend: 'RISING' | 'FALLING';
-    percentage: number; // 0 to 1 (Low to High)
-    nextTide: TidePrediction;
-}
+// Bilbao-Vizcaya Buoy (2630) - Deep Water
+const BUOY_ID = '2630';
+const BUOY_NAME = 'Bilbao-Vizcaya';
 
-// Bilbao approximate harmonic constants (simplified for simulation)
-// M2 Constituent (Moon)
-const TIDE_PERIOD_MINUTES = 12 * 60 + 25.2; // 12h 25m
-const AMPLITUDE = 1.5; // meters (approx range 3m)
-const MEAN_LEVEL = 2.5; // meters
+// Fallback mock data generator based on season and typical Cantabrian sea conditions
+function getSimulatedSeaState(): SeaStateData {
+    const now = new Date();
+    const month = now.getMonth(); // 0-11
 
-// Reference High Tide: Random recent date known to be high tide or just an arbitrary point
-// Let's pick a reference point: Jan 1, 2024 at 03:00 AM (Approximate)
-const REFERENCE_DATE = new Date('2024-01-01T03:00:00Z');
+    // Winter (Nov-Mar): Rougher seas, higher waves
+    const isWinter = month >= 10 || month <= 2;
 
-export function getTidePredictions(date: Date): TidePrediction[] {
-    const dayStart = startOfDay(date);
-    const dayEnd = endOfDay(date);
+    // Base values
+    let baseWaveHeight = isWinter ? 2.5 : 1.0;
+    let basePeriod = isWinter ? 10 : 7;
+    let baseWaterTemp = isWinter ? 13 : 20;
+    let baseWindSpeed = isWinter ? 15 : 8;
 
-    const predictions: TidePrediction[] = [];
-
-    // Find the first high tide before or at the start of the day
-    let currentEventTime = new Date(REFERENCE_DATE);
-
-    // Adjust to be near the target date
-    const diffTime = dayStart.getTime() - REFERENCE_DATE.getTime();
-    const periods = Math.floor(diffTime / (TIDE_PERIOD_MINUTES * 60 * 1000 / 2)); // Half periods (High -> Low -> High)
-
-    // Move closer
-    currentEventTime = addMinutes(currentEventTime, periods * (TIDE_PERIOD_MINUTES / 2));
-
-    // Ensure we start a bit before
-    currentEventTime = addMinutes(currentEventTime, -TIDE_PERIOD_MINUTES);
-
-    let isHigh = periods % 2 === 0; // If even half-periods passed, type is same as reference (High)
-
-    // Generate events for the day covering 24h + buffer
-    while (currentEventTime <= dayEnd) {
-        if (currentEventTime >= dayStart) {
-            predictions.push({
-                time: new Date(currentEventTime),
-                height: isHigh ? MEAN_LEVEL + AMPLITUDE : MEAN_LEVEL - AMPLITUDE,
-                type: isHigh ? 'HIGH' : 'LOW'
-            });
-        }
-
-        // Next event (High -> Low or Low -> High) is half a period away
-        currentEventTime = addMinutes(currentEventTime, TIDE_PERIOD_MINUTES / 2);
-        isHigh = !isHigh;
-    }
-
-    return predictions;
-}
-
-export function getTideLevel(date: Date): number {
-    const timeDiff = date.getTime() - REFERENCE_DATE.getTime();
-    // Simple sinusoidal wave: h(t) = Mean + Amplitude * cos(2 * pi * t / Period)
-    // t is in milliseconds, Period is in milliseconds
-    const periodMs = TIDE_PERIOD_MINUTES * 60 * 1000;
-    const phase = (2 * Math.PI * timeDiff) / periodMs;
-
-    return MEAN_LEVEL + AMPLITUDE * Math.cos(phase);
-}
-
-export function getTideState(date: Date): TideState {
-    const currentHeight = getTideLevel(date);
-
-    // To determine trend, check a small delta
-    const nextHeight = getTideLevel(addMinutes(date, 1));
-    const trend = nextHeight > currentHeight ? 'RISING' : 'FALLING';
-
-    const minHeight = MEAN_LEVEL - AMPLITUDE;
-    const maxHeight = MEAN_LEVEL + AMPLITUDE;
-    const percentage = (currentHeight - minHeight) / (maxHeight - minHeight);
-
-    const predictions = getTidePredictions(date);
-    // Find next prediction
-    const nextTide = predictions.find(p => p.time > date) || predictions[0]; // Fallback
+    // Add randomness
+    const waveHeight = parseFloat((baseWaveHeight + (Math.random() * 1.5 - 0.5)).toFixed(2));
+    const period = Math.round(basePeriod + (Math.random() * 4 - 2));
+    const waterTemp = parseFloat((baseWaterTemp + (Math.random() * 2 - 1)).toFixed(1));
+    const windSpeed = Math.round(baseWindSpeed + (Math.random() * 10 - 3));
+    const windDirection = Math.round(Math.random() * 360);
 
     return {
-        height: currentHeight,
-        trend,
-        percentage,
-        nextTide
+        waveHeight: Math.max(0.5, waveHeight),
+        period: Math.max(4, period),
+        waterTemp: Math.max(10, Math.min(25, waterTemp)),
+        windSpeed: Math.max(0, windSpeed),
+        windDirection,
+        timestamp: now.toISOString(),
+        isSimulated: true
     };
+}
+
+export async function fetchSeaState(): Promise<SeaStateData> {
+    // Currently relying on simulation as the official API requires authentication/tokens
+    // that are not available in the context.
+    // We return simulated data immediately to avoid performance penalties (latency)
+    // on the dashboard weather endpoint.
+
+    /*
+    try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 2000);
+
+        const response = await fetch(`https://bancodatos.puertos.es/TablaAccesoSimplificado/util/get_data.php?station=${BUOY_ID}&name=${BUOY_NAME}`, {
+            signal: controller.signal,
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (compatible; GetxoBelaEskola/1.0)',
+                'Accept': 'application/json'
+            },
+            next: { revalidate: 1800 }
+        });
+
+        clearTimeout(timeoutId);
+
+        if (response.ok) {
+            const data = await response.json();
+            // TODO: Parse real data when endpoint is confirmed working
+            // return mapApiData(data);
+        }
+    } catch (error) {
+        console.warn('Sea state API unreachable');
+    }
+    */
+
+    return getSimulatedSeaState();
 }

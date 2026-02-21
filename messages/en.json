@@ -34,22 +34,7 @@
     "bonos": "Packs",
     "space_rental": "Space Rental",
     "all_courses": "All Courses",
-    "all_rentals": "All Rentals",
-    "glossary": "Glossary"
-  },
-  "glossary": {
-    "title": "Nautical Glossary",
-    "subtitle": "Complete dictionary of sailing terms",
-    "search_placeholder": "Search term, definition...",
-    "filter_all": "All",
-    "filter_maniobras": "Maneuvers",
-    "filter_partes": "Boat Parts",
-    "filter_meteo": "Meteorology",
-    "filter_reglamento": "Regulations",
-    "filter_otros": "Others",
-    "learn_more": "Learn more in the course",
-    "no_results": "No terms found for your search",
-    "back_to_top": "Back to top"
+    "all_rentals": "All Rentals"
   },
   "notifications": {
     "payment_success": "Payment successful",
@@ -869,39 +854,6 @@
       "restart_btn": "PLAY AGAIN"
     }
   },
-  "tools": {
-    "title": "Nautical Calculator",
-    "coordinates": {
-      "title": "Coordinate Converter",
-      "dms": "Degrees, Minutes, Seconds",
-      "decimal": "Decimal",
-      "lat": "Latitude",
-      "lon": "Longitude",
-      "convert_to_decimal": "To Decimal ↓",
-      "convert_to_dms": "To DMS ↑",
-      "deg": "Degrees",
-      "min": "Minutes",
-      "sec": "Seconds"
-    },
-    "route": {
-      "title": "Route Calculation",
-      "point_a": "Starting Point (A)",
-      "point_b": "Destination Point (B)",
-      "speed": "Speed (Knots)",
-      "declination": "Magnetic Declination",
-      "east": "East (+)",
-      "west": "West (-)",
-      "calculate": "Calculate Course & Distance",
-      "results": "Navigation Results",
-      "distance": "Distance",
-      "true_bearing": "True Bearing",
-      "magnetic_bearing": "Magnetic Bearing",
-      "eta": "Estimated Time (ETA)",
-      "days": "d",
-      "hours": "h",
-      "minutes": "min"
-    }
-  },
   "validation": {
     "name_short": "Name too short",
     "last_name_short": "Surnames too short",
@@ -956,52 +908,6 @@
     "loading": "Loading...",
     "portal_error": "Error opening payment portal"
   },
-  "tools": {
-    "index": {
-      "eyebrow": "Nautical Tools",
-      "title": "Digital Bridge",
-      "description": "A collection of essential tools for navigation, planning, and safety at sea. Designed for sailors by sailors.",
-      "converter": {
-        "title": "Nautical Converter",
-        "description": "Professional unit converter for speed, distance, depth, and pressure. Includes history and quick presets.",
-        "cta": "Launch Converter"
-      },
-      "plotter": {
-        "title": "Chart Plotter",
-        "description": "Practice your navigation skills with our interactive chart plotter. Plot courses, measure distances, and more.",
-        "cta": "Open Plotter"
-      }
-    },
-    "nautical_converter": {
-      "eyebrow": "Utility",
-      "title": "Nautical Converter",
-      "description": "Precision tool for converting between maritime and standard units.",
-      "input": "Input Value",
-      "result": "Result",
-      "history": "Recent Conversions",
-      "clear_history": "Clear History",
-      "speed": "Speed",
-      "distance": "Distance",
-      "depth": "Depth",
-      "temperature": "Temp",
-      "pressure": "Pressure",
-      "units": {
-        "knots": "Knots",
-        "kmh": "km/h",
-        "ms": "m/s",
-        "meters": "Meters",
-        "feet": "Feet",
-        "nautical_miles": "Nautical Miles",
-        "km": "Kilometers",
-        "fathoms": "Fathoms",
-        "celsius": "Celsius",
-        "fahrenheit": "Fahrenheit",
-        "hpa": "hPa",
-        "mb": "Millibars",
-        "inhg": "inHg"
-      }
-    }
-  },
   "nautical_radar": {
     "title": "Bridge Command Navigation Radar",
     "location": "Arriluze Kaia — Getxo",
@@ -1042,29 +948,20 @@
     "history_temp": "Temp (ºC)",
     "history_tide": "Tide (m)"
   },
-  "nautical_chart": {
-    "title": "Interactive Nautical Chart",
-    "subtitle": "Explore the Bizkaia coast and practice navigation",
-    "tools": {
-      "navigate": "Navigate",
-      "route": "Plot Route",
-      "waypoint": "Mark Waypoint",
-      "clear": "Clear All"
-    },
-    "info": {
-      "position": "Position",
-      "distance": "Total Distance",
-      "bearing": "Bearing (Last leg)",
-      "nm": "nm",
-      "degrees": "°"
-    },
-    "legend": {
-      "title": "Legend",
-      "lighthouse": "Lighthouse",
-      "buoy": "Buoy",
-      "wreck": "Wreck",
-      "harbor": "Harbor",
-      "depth": "Depth"
-    }
+  "sea_state_widget": {
+    "title": "Sea State",
+    "subtitle": "Bilbao-Vizcaya Buoy (Getxo)",
+    "wave_height": "Wave Height",
+    "period": "Period",
+    "water_temp": "Water Temp",
+    "wind_speed": "Wind",
+    "simulated": "Simulated",
+    "simulated_desc": "Estimated data by model",
+    "real_time": "Real Time",
+    "meters": "m",
+    "seconds": "s",
+    "celsius": "°C",
+    "knots": "kn",
+    "loading": "Loading..."
   }
 }

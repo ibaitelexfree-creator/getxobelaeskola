@@ -537,5 +537,21 @@
     "membership_card": "Ma Carte de Membre",
     "loading": "Chargement...",
     "portal_error": "Erreur lors de l'ouverture du portail de paiement"
+  },
+  "sea_state_widget": {
+    "title": "État de la Mer",
+    "subtitle": "Bouée Bilbao-Vizcaya (Getxo)",
+    "wave_height": "Hauteur Vague",
+    "period": "Période",
+    "water_temp": "Temp. Eau",
+    "wind_speed": "Vent",
+    "simulated": "Simulé",
+    "simulated_desc": "Données estimées par modèle",
+    "real_time": "Temps Réel",
+    "meters": "m",
+    "seconds": "s",
+    "celsius": "°C",
+    "knots": "kn",
+    "loading": "Chargement..."
   }
 }
