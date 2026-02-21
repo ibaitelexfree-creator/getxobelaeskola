@@ -26,13 +26,24 @@ export default function CertificateCard({ certificate, studentName, locale }: Ce
                     ? (locale === 'eu' ? certificate.nivel?.nombre_eu : certificate.nivel?.nombre_es)
                     : 'Capitán de Vela';
 
+            // Map distinction to English types expected by the generator
+            const distinctionVal = certificate.nivel_distincion || 'estandar';
+            const distinctionMap: Record<string, 'standard' | 'merit' | 'excellence'> = {
+                'estandar': 'standard',
+                'merito': 'merit',
+                'excelencia': 'excellence',
+                'standard': 'standard',
+                'merit': 'merit',
+                'excellence': 'excellence'
+            };
+
             await generateCertificatePDF({
                 studentName: studentName || 'Estudiante',
                 courseName: courseName || 'Curso de Vela',
                 issueDate: certificate.fecha_emision,
                 certificateId: certificate.numero_certificado,
                 verificationHash: certificate.verificacion_hash,
-                distinction: certificate.nivel_distincion || 'estandar',
+                distinction: distinctionMap[distinctionVal] || 'standard',
                 // hours could be passed if API returned it, skipping for now
             });
         } catch (err) {
