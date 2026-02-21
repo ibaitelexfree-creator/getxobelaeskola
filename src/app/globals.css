@@ -3,6 +3,12 @@
 @tailwind utilities;
 
 :root {
+  /* Ocean Palette (Light Mode) */
+  --ocean-dark: #0077B6;
+  --ocean-medium: #00B4D8;
+  --ocean-light: #ADE8F4;
+  --ocean-deep: #001B3A;
+
   /* Corporate Palette Getxo Bela Eskola */
   --nautical-black: #000000;
   --nautical-deep: #010409;
@@ -17,11 +23,14 @@
   --glass-blur: 16px;
   --glass-highlight: rgba(255, 255, 255, 0.05);
 
-  --background: var(--nautical-black);
-  --foreground: var(--sea-foam);
+  --background: #F8FAFC;
+  --foreground: var(--ocean-deep);
+  --card: #FFFFFF;
+  --card-foreground: var(--ocean-deep);
+  --card-border: rgba(0, 119, 182, 0.2);
 
-  --accent: var(--buoy-orange);
-  --accent-foreground: var(--sea-foam);
+  --accent: var(--ocean-dark);
+  --accent-foreground: #FFFFFF;
 
   --font-display: var(--font-display), serif;
   --font-sans: var(--font-sans), sans-serif;
@@ -30,6 +39,25 @@
   --transition-premium: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
   --transition-fast: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   --timing-premium: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.dark {
+  /* Dark Mode Defaults (Existing Nautical Theme) */
+  --background: var(--nautical-deep);
+  --foreground: var(--sea-foam);
+
+  --card: rgba(255, 255, 255, 0.03);
+  --card-foreground: var(--sea-foam);
+  --card-border: rgba(255, 255, 255, 0.1);
+
+  --accent: var(--buoy-orange);
+  --accent-foreground: var(--sea-foam);
+
+  /* Glassmorphism Tokens (Dark) */
+  --glass-surface: rgba(255, 255, 255, 0.03);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-blur: 16px;
+  --glass-highlight: rgba(255, 255, 255, 0.05);
 }
 
 * {
@@ -44,8 +72,8 @@ body {
   max-width: 100%;
   overflow-x: hidden;
   position: relative;
-  background-color: var(--nautical-deep);
-  color: var(--sea-foam);
+  background-color: var(--background);
+  color: var(--foreground);
   font-family: var(--font-sans);
   font-size: 0.95rem;
   /* Mobile first */
@@ -544,4 +572,12 @@ a:hover {
 
 .animate-scroll-dash {
   animation: scroll-dash 2.5s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+}
+@keyframes wave {
+  0% {
+    transform: translate3d(-90px, 0, 0);
+  }
+  100% {
+    transform: translate3d(85px, 0, 0);
+  }
 }
