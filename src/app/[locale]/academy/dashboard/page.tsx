@@ -1,10 +1,11 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import WaveAnimation from '@/components/ui/WaveAnimation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
-import { X, Book, Ship, Globe, Anchor, Wind, Shield, ChevronRight, Backpack } from 'lucide-react';
+import { X, Book, Ship, Globe, Anchor, Wind, Shield, ChevronRight } from 'lucide-react';
 import { useNotificationStore } from '@/lib/store/useNotificationStore';
 import dynamic from 'next/dynamic';
 
@@ -234,15 +235,15 @@ export default function DashboardPage({ params }: { params: { locale: string } }
                 <div className="w-20 h-20 bg-accent/10 rounded-full flex items-center justify-center text-accent mb-6">
                     <X size={40} />
                 </div>
-                <h2 className="text-2xl font-display text-white mb-2 italic">No se pudo cargar tu bitácora</h2>
-                <p className="text-white/40 mb-8 max-w-xs">Parece que hay un problema de conexión o tu sesión ha expirado.</p>
+                <h2 className="text-2xl font-display text-foreground mb-2 italic">No se pudo cargar tu bitácora</h2>
+                <p className="text-foreground/60 mb-8 max-w-xs">Parece que hay un problema de conexión o tu sesión ha expirado.</p>
                 <button
                     onClick={() => window.location.reload()}
                     className="px-8 py-3 bg-accent text-nautical-black font-black uppercase tracking-widest text-xs rounded"
                 >
                     Reintentar
                 </button>
-                <Link href={`/${params.locale}/student/dashboard`} className="mt-4 text-white/20 text-[10px] uppercase tracking-widest hover:text-white transition-colors">
+                <Link href={`/${params.locale}/student/dashboard`} className="mt-4 text-foreground/20 text-[10px] uppercase tracking-widest hover:text-foreground transition-colors">
                     Volver al Panel Principal
                 </Link>
             </div>
@@ -291,14 +292,15 @@ export default function DashboardPage({ params }: { params: { locale: string } }
     const nextMilestone = getNextMilestone(skillsCount);
 
     return (
-        <div className="min-h-screen bg-gradient-to-b from-nautical-black via-nautical-black to-[#0a1628] text-white pb-20">
+        <div className="min-h-screen relative bg-background text-foreground pb-20 overflow-hidden">
+            <WaveAnimation />
             <h1 className="sr-only">Dashboard de Academia | Getxo Bela Eskola</h1>
             <NotificationContainer />
             <AchievementToast />
             <SkillUnlockedModal />
 
             {/* Header / Resumen General */}
-            <div className="relative overflow-hidden border-b border-white/10 bg-white/5 backdrop-blur-sm">
+            <div className="relative overflow-hidden border-b border-card-border bg-card backdrop-blur-sm">
                 <div className="absolute inset-0 bg-gradient-to-r from-accent/5 to-transparent" />
                 <div className="container mx-auto px-6 py-12 relative">
                     <div className="flex flex-col md:flex-row items-center gap-8">
@@ -307,44 +309,44 @@ export default function DashboardPage({ params }: { params: { locale: string } }
                         </div>
 
                         <div className="flex-1 text-center md:text-left">
-                            <h1 className="text-4xl font-display italic text-white mb-2 leading-none">
+                            <h1 className="text-4xl font-display italic text-foreground mb-2 leading-none">
                                 Hola, <span className="text-accent">{data.user?.full_name?.split(' ')[0] || 'Navegante'}</span>
                             </h1>
 
                             <div className="flex flex-col gap-2 mb-6">
                                 <div className="flex items-center gap-3">
-                                    <div className="text-[10px] font-black uppercase tracking-widest text-white/40">Camino a Capitán</div>
+                                    <div className="text-[10px] font-black uppercase tracking-widest text-foreground/60">Camino a Capitán</div>
                                     <div className="h-1.5 w-32 bg-white/10 rounded-full overflow-hidden">
                                         <div className="h-full bg-accent" style={{ width: `${skillsPercent}%` }} />
                                     </div>
                                     <div className="text-[10px] font-bold text-accent">{skillsCount}/12 SKILLS</div>
                                 </div>
                                 {nextMilestone && (
-                                    <div className="text-[10px] text-white/40 italic">
-                                        🎯 Próximo Rango: <span className="text-white font-bold">{nextMilestone.name}</span>
+                                    <div className="text-[10px] text-foreground/60 italic">
+                                        🎯 Próximo Rango: <span className="text-foreground font-bold">{nextMilestone.name}</span>
                                         {` (faltan ${nextMilestone.target - skillsCount} habilidades)`}
                                     </div>
                                 )}
                             </div>
 
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                <div className="p-4 rounded-lg bg-white/5 border border-white/10 animate-fade-in" style={{ animationDelay: '0.1s' }}>
-                                    <div className="text-2xl font-bold text-white mb-1">{data.estadisticas.progreso_global}%</div>
-                                    <div className="text-xs uppercase tracking-wider text-white/40">Progreso Total</div>
+                                <div className="p-4 rounded-lg bg-card border border-card-border animate-fade-in" style={{ animationDelay: '0.1s' }}>
+                                    <div className="text-2xl font-bold text-foreground mb-1">{data.estadisticas.progreso_global}%</div>
+                                    <div className="text-xs uppercase tracking-wider text-foreground/60">Progreso Total</div>
                                 </div>
-                                <div className="p-4 rounded-lg bg-white/5 border border-amber-500/20 animate-fade-in shadow-[0_0_15px_rgba(245,158,11,0.05)]" style={{ animationDelay: '0.2s' }}>
+                                <div className="p-4 rounded-lg bg-card border border-amber-500/20 animate-fade-in shadow-[0_0_15px_rgba(245,158,11,0.05)]" style={{ animationDelay: '0.2s' }}>
                                     <div className="text-2xl font-bold text-amber-500 mb-1 flex items-center gap-2">
                                         🔥 {data.estadisticas.racha_dias}
                                     </div>
-                                    <div className="text-xs uppercase tracking-wider text-white/40">Días de Racha</div>
+                                    <div className="text-xs uppercase tracking-wider text-foreground/60">Días de Racha</div>
                                 </div>
-                                <div className="p-4 rounded-lg bg-white/5 border border-white/10 animate-fade-in" style={{ animationDelay: '0.3s' }}>
-                                    <div className="text-2xl font-bold text-white mb-1">{(data.estadisticas.horas_totales * 5.2).toFixed(0)} <span className="text-xs text-accent">nm</span></div>
-                                    <div className="text-xs uppercase tracking-wider text-white/40">Millas Navegadas</div>
+                                <div className="p-4 rounded-lg bg-card border border-card-border animate-fade-in" style={{ animationDelay: '0.3s' }}>
+                                    <div className="text-2xl font-bold text-foreground mb-1">{(data.estadisticas.horas_totales * 5.2).toFixed(0)} <span className="text-xs text-accent">nm</span></div>
+                                    <div className="text-xs uppercase tracking-wider text-foreground/60">Millas Navegadas</div>
                                 </div>
-                                <div className="p-4 rounded-lg bg-white/5 border border-white/10 animate-fade-in" style={{ animationDelay: '0.4s' }}>
-                                    <div className="text-2xl font-bold text-white mb-1">#{data.estadisticas.posicion_ranking}</div>
-                                    <div className="text-xs uppercase tracking-wider text-white/40">Ranking</div>
+                                <div className="p-4 rounded-lg bg-card border border-card-border animate-fade-in" style={{ animationDelay: '0.4s' }}>
+                                    <div className="text-2xl font-bold text-foreground mb-1">#{data.estadisticas.posicion_ranking}</div>
+                                    <div className="text-xs uppercase tracking-wider text-foreground/60">Ranking</div>
                                 </div>
                             </div>
                         </div>
@@ -396,20 +398,13 @@ export default function DashboardPage({ params }: { params: { locale: string } }
                             icon: <Shield className="w-5 h-5" />,
                             color: 'text-red-400 bg-red-500/10 hover:bg-red-500/20',
                             href: `/${params.locale}/academy/skills`
-                        },
-                        {
-                            id: 'mochila',
-                            label: 'Dudas',
-                            icon: <Backpack className="w-5 h-5" />,
-                            color: 'text-rose-400 bg-rose-500/10 hover:bg-rose-500/20',
-                            href: `/${params.locale}/academy/mochila`
                         }
                     ].map((tool) => (
                         <Link
                             key={tool.id}
                             href={tool.href}
                             prefetch={false}
-                            className={`flex flex-col items-center justify-center p-4 rounded-xl border border-white/5 transition-all duration-300 group ${tool.color}`}
+                            className={`flex flex-col items-center justify-center p-4 rounded-xl border border-card-border transition-all duration-300 group ${tool.color}`}
                         >
                             <div className="mb-2 transition-transform group-hover:scale-110">
                                 {tool.icon}
@@ -451,19 +446,19 @@ export default function DashboardPage({ params }: { params: { locale: string } }
                             <span className="text-accent">▶</span> En Curso
                         </h2>
                         {cursoMostrado ? (
-                            <div className="group relative overflow-hidden rounded-xl border border-white/10 bg-white/5 hover:border-accent/40 transition-all duration-300">
+                            <div className="group relative overflow-hidden rounded-xl border border-card-border bg-card hover:border-accent/40 transition-all duration-300">
                                 <div className="p-8">
                                     <div className="flex justify-between items-start mb-6">
                                         <div>
                                             <span className="text-xs font-bold uppercase tracking-widest text-accent mb-2 block">Curso Actual</span>
-                                            <h3 className="text-3xl font-display text-white mb-2">{params.locale === 'eu' ? cursoMostrado.nombre_eu : cursoMostrado.nombre_es}</h3>
-                                            <p className="text-white/60 line-clamp-2">{params.locale === 'eu' ? cursoMostrado.descripcion_eu : cursoMostrado.descripcion_es}</p>
+                                            <h3 className="text-3xl font-display text-foreground mb-2">{params.locale === 'eu' ? cursoMostrado.nombre_eu : cursoMostrado.nombre_es}</h3>
+                                            <p className="text-foreground/60 line-clamp-2">{params.locale === 'eu' ? cursoMostrado.descripcion_eu : cursoMostrado.descripcion_es}</p>
                                         </div>
                                     </div>
                                     <div className="mb-6">
                                         <div className="flex justify-between text-xs mb-2">
-                                            <span className="text-white/60">Progreso del curso</span>
-                                            <span className="text-white font-bold">{Math.round(progresoCursoMostrado?.porcentaje || 0)}%</span>
+                                            <span className="text-foreground/60">Progreso del curso</span>
+                                            <span className="text-foreground font-bold">{Math.round(progresoCursoMostrado?.porcentaje || 0)}%</span>
                                         </div>
                                         <div className="h-2 bg-white/10 rounded-full overflow-hidden">
                                             <div className="h-full bg-accent transition-all duration-1000 ease-out" style={{ width: `${progresoCursoMostrado?.porcentaje || 0}%` }} />
