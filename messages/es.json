@@ -34,22 +34,7 @@
     "bonos": "Bonos",
     "space_rental": "Alquiler Espacio",
     "all_courses": "Todos los cursos",
-    "all_rentals": "Todos los alquileres",
-    "glossary": "Glosario"
-  },
-  "glossary": {
-    "title": "Glosario Náutico",
-    "subtitle": "Diccionario completo de términos marineros",
-    "search_placeholder": "Buscar término, definición...",
-    "filter_all": "Todos",
-    "filter_maniobras": "Maniobras",
-    "filter_partes": "Partes del barco",
-    "filter_meteo": "Meteorología",
-    "filter_reglamento": "Reglamento",
-    "filter_otros": "Otros",
-    "learn_more": "Aprender más en el curso",
-    "no_results": "No se encontraron términos para tu búsqueda",
-    "back_to_top": "Volver arriba"
+    "all_rentals": "Todos los alquileres"
   },
   "notifications": {
     "payment_success": "Pago realizado con éxito",
@@ -759,14 +744,6 @@
       "retry": "Recargar Bitácora ⚓"
     }
   },
-  "chatbot": {
-    "title": "El Piloto",
-    "placeholder": "Pregunta sobre vela, reglamento...",
-    "initial_greeting": "¡Hola! Soy El Piloto. Pregúntame sobre el curso, maniobras o reglamento.",
-    "thinking": "Consultando carta náutica...",
-    "error": "Parece que hay interferencias en la radio. Inténtalo de nuevo.",
-    "sources": "Fuentes del curso:"
-  },
   "errors": {
     "404": {
       "code": "ERROR 404",
@@ -932,52 +909,6 @@
     "loading": "Cargando...",
     "portal_error": "Error al abrir el portal de pagos"
   },
-  "tools": {
-    "index": {
-      "eyebrow": "Herramientas Náuticas",
-      "title": "Puente Digital",
-      "description": "Una colección de herramientas esenciales para la navegación, planificación y seguridad en el mar. Diseñado por navegantes para navegantes.",
-      "converter": {
-        "title": "Convertidor Náutico",
-        "description": "Convertidor profesional de unidades para velocidad, distancia, profundidad y presión. Incluye historial y preajustes rápidos.",
-        "cta": "Lanzar Convertidor"
-      },
-      "plotter": {
-        "title": "Plotter de Cartas",
-        "description": "Practica tus habilidades de navegación con nuestro plotter interactivo. Traza rumbos, mide distancias y más.",
-        "cta": "Abrir Plotter"
-      }
-    },
-    "nautical_converter": {
-      "eyebrow": "Utilidad",
-      "title": "Convertidor Náutico",
-      "description": "Herramienta de precisión para convertir entre unidades marítimas y estándar.",
-      "input": "Valor de Entrada",
-      "result": "Resultado",
-      "history": "Conversiones Recientes",
-      "clear_history": "Borrar Historial",
-      "speed": "Velocidad",
-      "distance": "Distancia",
-      "depth": "Profundidad",
-      "temperature": "Temp",
-      "pressure": "Presión",
-      "units": {
-        "knots": "Nudos",
-        "kmh": "km/h",
-        "ms": "m/s",
-        "meters": "Metros",
-        "feet": "Pies",
-        "nautical_miles": "Millas Náuticas",
-        "km": "Kilómetros",
-        "fathoms": "Brazas",
-        "celsius": "Celsius",
-        "fahrenheit": "Fahrenheit",
-        "hpa": "hPa",
-        "mb": "Milibares",
-        "inhg": "inHg"
-      }
-    }
-  },
   "nautical_radar": {
     "title": "Radar de Navegación \"Puente de Mando\"",
     "location": "Arriluze Kaia — Getxo",
@@ -1018,55 +949,29 @@
     "history_temp": "Temp (ºC)",
     "history_tide": "Marea (m)"
   },
-  "onboarding": {
-    "welcome_title": "¡Bienvenido a bordo, {name}!",
-    "welcome_desc": "Antes de soltar amarras, vamos a configurar tu cuaderno de bitácora y evaluar tus conocimientos previos.",
-    "start_btn": "Comenzar Onboarding",
-    "step_1_title": "1. Test de Nivel Inicial",
-    "step_2_title": "2. Configura tu Objetivo",
-    "step_2_desc": "¿Cuándo te gustaría obtener tu titulación oficial?",
-    "step_3_title": "3. Tour del Dashboard",
-    "step_4_title": "Tu Primera Misión",
-    "step_4_subtitle": "🚀 Despegue Inmediato",
-    "step_4_desc": "Completa este onboarding para recibir tu insignia de \"Marino Novel\" y desbloquear el acceso completo.",
-    "complete_mission_btn": "Completar Misión",
-    "processing": "Procesando...",
-    "congrats_title": "¡Enhorabuena!",
-    "badge_earned": "Has obtenido la insignia \"Marino Novel\"",
-    "journey_begins": "Tu viaje comienza ahora.",
-    "go_to_dashboard": "Ir al Dashboard",
-    "next": "Siguiente",
-    "understood": "Entendido",
-    "goals": {
-      "3_months": "En 3 meses (Intensivo)",
-      "6_months": "En 6 meses (Estándar)",
-      "1_year": "En 1 año (Relajado)",
-      "just_learning": "Solo aprender por placer"
+  "nautical_chart": {
+    "title": "Carta Náutica Interactiva",
+    "subtitle": "Explora la costa de Bizkaia y practica la navegación",
+    "tools": {
+      "navigate": "Navegar",
+      "route": "Trazar Ruta",
+      "waypoint": "Marcar Waypoint",
+      "clear": "Borrar Todo"
     },
-    "tour": {
-      "courses_title": "Cursos",
-      "courses_desc": "Tu ruta de aprendizaje estructurada paso a paso.",
-      "logbook_title": "Bitácora",
-      "logbook_desc": "Registra tus horas de navegación y prácticas.",
-      "tools_title": "Herramientas",
-      "tools_desc": "Simuladores, nudos y nomenclatura interactiva."
+    "info": {
+      "position": "Posición",
+      "distance": "Distancia Total",
+      "bearing": "Rumbo (Último tramo)",
+      "nm": "mn",
+      "degrees": "°"
     },
-    "quiz": {
-      "q1": "¿Cuál es el lado izquierdo de una embarcación mirando a proa?",
-      "q1_opt1": "Babor",
-      "q1_opt2": "Estribor",
-      "q1_opt3": "Popa",
-      "q1_opt4": "Aleta",
-      "q2": "¿De qué color es la luz de posición de estribor?",
-      "q2_opt1": "Roja",
-      "q2_opt2": "Verde",
-      "q2_opt3": "Blanca",
-      "q2_opt4": "Amarilla",
-      "q3": "¿Quién tiene preferencia entre un velero a vela y una motora?",
-      "q3_opt1": "La motora",
-      "q3_opt2": "El velero",
-      "q3_opt3": "El que viene por la derecha",
-      "q3_opt4": "Depende del viento"
+    "legend": {
+      "title": "Leyenda",
+      "lighthouse": "Faro",
+      "buoy": "Boya",
+      "wreck": "Naufragio",
+      "harbor": "Puerto",
+      "depth": "Profundidad"
     }
   }
 }
