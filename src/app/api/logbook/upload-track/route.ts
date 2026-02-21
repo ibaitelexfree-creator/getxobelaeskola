@@ -1,4 +1,3 @@
-
 import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
 import { requireAuth } from '@/lib/auth-guard';
@@ -12,185 +11,169 @@ export async function POST(req: Request) {
 
         const formData = await req.formData();
         const file = formData.get('file') as File;
-        const sessionId = formData.get('sessionId') as string; // Optional
+        const sessionId = formData.get('sessionId') as string;
 
+        // Allow missing sessionId (create new session)
         if (!file) {
             return NextResponse.json({ error: 'Missing file' }, { status: 400 });
         }
 
         const text = await file.text();
+
+        // Robust GPX parsing using cheerio
         const $ = cheerio.load(text, { xmlMode: true });
+        const coords: { lat: number, lng: number, time?: string }[] = [];
 
-        const points: { lat: number, lng: number, time: Date | null }[] = [];
-
-        // Parse GPX using Cheerio (safer than Regex)
         $('trkpt').each((_, el) => {
-            const latStr = $(el).attr('lat');
-            const lonStr = $(el).attr('lon');
+            const $el = $(el);
+            const lat = parseFloat($el.attr('lat') || '');
+            const lon = parseFloat($el.attr('lon') || '');
+            const time = $el.find('time').text();
 
-            if (latStr && lonStr) {
-                const lat = parseFloat(latStr);
-                const lng = parseFloat(lonStr);
-                const timeStr = $(el).find('time').text();
-
-                if (!isNaN(lat) && !isNaN(lng)) {
-                    points.push({
-                        lat,
-                        lng,
-                        time: timeStr ? new Date(timeStr) : null
-                    });
-                }
+            if (!isNaN(lat) && !isNaN(lon)) {
+                coords.push({
+                    lat,
+                    lng: lon,
+                    time: time || undefined
+                });
             }
         });
 
-        if (points.length < 2) {
-            return NextResponse.json({ error: 'No valid track points found (minimum 2 required)' }, { status: 400 });
-        }
-
-        // Simplify coordinates if there are too many (max 500 points for rendering/storage)
-        // We keep the first and last point always.
-        let simplifiedPoints = points;
-        if (points.length > 500) {
-            const step = Math.ceil(points.length / 500);
-            simplifiedPoints = points.filter((_, i) => i === 0 || i === points.length - 1 || i % step === 0);
-        }
-
-        // --- CALCULATE STATISTICS ---
-
-        // 1. Total Distance
-        // Convert points to GeoJSON LineString for Turf
-        const coordinates = points.map(p => [p.lng, p.lat]); // Turf uses [lng, lat]
-        const lineString = turf.lineString(coordinates);
-        const totalDistanceKm = turf.length(lineString, { units: 'kilometers' });
-        const totalDistanceNm = totalDistanceKm * 0.539957; // 1 km = 0.539957 nm
-
-        // 2. Duration
-        let durationHours = 0;
-        const startTime = points[0].time;
-        const endTime = points[points.length - 1].time;
-
-        if (startTime && endTime) {
-            const diffMs = endTime.getTime() - startTime.getTime();
-            durationHours = diffMs / (1000 * 60 * 60);
-        }
-
-        // 3. Average Speed (Knots)
-        // If duration is 0 or very small, avoid division by zero
-        const avgSpeedKn = (durationHours > 0.01) ? (totalDistanceNm / durationHours) : 0;
-
-        // 4. Max Speed (Knots)
-        let maxSpeedKn = 0;
-        // Iterate through segments to find max speed
-        for (let i = 0; i < points.length - 1; i++) {
-            const p1 = points[i];
-            const p2 = points[i + 1];
-
-            if (p1.time && p2.time) {
-                const timeDiffHours = (p2.time.getTime() - p1.time.getTime()) / (1000 * 60 * 60);
-                if (timeDiffHours > 0.0001) { // Avoid tiny time diffs (noise)
-                    const segmentDistKm = turf.distance(
-                        [p1.lng, p1.lat],
-                        [p2.lng, p2.lat],
-                        { units: 'kilometers' }
-                    );
-                    const segmentDistNm = segmentDistKm * 0.539957;
-                    const speed = segmentDistNm / timeDiffHours;
-
-                    // Filter unrealistic speeds (e.g., > 100 knots for sailing, maybe GPS jump)
-                    if (speed < 100 && speed > maxSpeedKn) {
-                        maxSpeedKn = speed;
-                    }
-                }
+        // Simplified Check: If coords empty, try to find any lat/lon attributes even if not strictly trkpt (unlikely for valid GPX)
+        if (coords.length === 0) {
+             // Fallback regex for very broken GPX
+             const fallbackRegex = /lat="([-+]?\d*\.?\d+)"[^>]*lon="([-+]?\d*\.?\d+)"/g;
+             let match;
+             while ((match = fallbackRegex.exec(text)) !== null) {
+                coords.push({
+                    lat: parseFloat(match[1]),
+                    lng: parseFloat(match[2])
+                });
             }
         }
 
-        // Prepare data for DB
-        const trackLog = simplifiedPoints.map(p => ({
-            lat: p.lat,
-            lng: p.lng,
-        }));
+        // Calculate Stats using Turf
+        let totalDistanceNm = 0;
+        let maxSpeedKn = 0;
+        let durationH = 0;
 
-        const stats = {
-            total_distance_nm: parseFloat(totalDistanceNm.toFixed(2)),
-            average_speed_kn: parseFloat(avgSpeedKn.toFixed(2)),
-            max_speed_kn: parseFloat(maxSpeedKn.toFixed(2)),
-            duration_h: parseFloat(durationHours.toFixed(2)),
-            start_time: startTime,
-            end_time: endTime
-        };
+        if (coords.length > 1) {
+            // 1. Calculate Distance & Speed
+            for (let i = 0; i < coords.length - 1; i++) {
+                const from = turf.point([coords[i].lng, coords[i].lat]);
+                const to = turf.point([coords[i+1].lng, coords[i+1].lat]);
+                const d = turf.distance(from, to, { units: 'nauticalmiles' });
+                totalDistanceNm += d;
+
+                if (coords[i].time && coords[i+1].time) {
+                    const t1 = new Date(coords[i].time!).getTime();
+                    const t2 = new Date(coords[i+1].time!).getTime();
+                    const diffH = (t2 - t1) / (1000 * 3600);
+                    if (diffH > 0) {
+                        const speed = d / diffH;
+                        // Filter unrealistic speeds (e.g. GPS jumps) - max 60kn
+                        if (speed < 60 && speed > maxSpeedKn) {
+                            maxSpeedKn = speed;
+                        }
+                    }
+                }
+            }
+
+            // 2. Calculate Duration
+            const startTime = coords[0].time ? new Date(coords[0].time).getTime() : 0;
+            const endTime = coords[coords.length - 1].time ? new Date(coords[coords.length - 1].time).getTime() : 0;
+            if (startTime && endTime) {
+                durationH = (endTime - startTime) / (1000 * 3600);
+            }
+        }
+
+        // Note: "Ruta más al viento" (Upwind Route) requires wind data which is not present in standard GPX.
+        // We omit this statistic for imported tracks.
+
+        // Simplify coordinates if there are too many (max 200 points for rendering)
+        let simplifiedCoords = coords;
+        if (coords.length > 200) {
+            const step = Math.ceil(coords.length / 200);
+            simplifiedCoords = coords.filter((_, i) => i % step === 0);
+        }
+
+        if (simplifiedCoords.length === 0) {
+            return NextResponse.json({ error: 'No valid coordinates found in GPX' }, { status: 400 });
+        }
 
         const supabase = createClient();
+        const stats = {
+            distance_nm: parseFloat(totalDistanceNm.toFixed(2)),
+            avg_speed_kn: durationH > 0 ? parseFloat((totalDistanceNm / durationH).toFixed(2)) : 0,
+            max_speed_kn: parseFloat(maxSpeedKn.toFixed(2))
+        };
 
         // 1. Upload original GPX to Storage
-        const filePath = `tracks/${user.id}/${Date.now()}_import.gpx`;
-        const { error: uploadError } = await supabase.storage
+        // Use a generic name if sessionId is not provided
+        const finalSessionId = sessionId || `imported_${Date.now()}`;
+        const filePath = `tracks/${user.id}/${finalSessionId}.gpx`;
+
+        const { data: uploadData, error: uploadError } = await supabase.storage
             .from('academy-assets')
             .upload(filePath, file);
 
-        if (uploadError) {
-             console.error('Storage Upload Error:', uploadError);
-             return NextResponse.json({ error: 'Failed to upload GPX file' }, { status: 500 });
-        }
+        if (uploadError) throw uploadError;
 
-        // 2. Insert or Update Database
-        let data, error;
-
-        // Note: We cannot calculate "Ruta más al viento" (Upwind VMG/Angle) without wind data.
-        const notesContent = `Importado de GPX.\n` +
-                             `Distancia: ${stats.total_distance_nm} NM\n` +
-                             `Vel. Media: ${stats.average_speed_kn} kn\n` +
-                             `Vel. Max: ${stats.max_speed_kn} kn\n` +
-                             `Ruta más al viento: N/A (sin datos de viento)`;
+        // 2. Insert or Update horas_navegacion
+        let resultData;
 
         if (sessionId) {
-            // Update existing
-             const { data: d, error: e } = await supabase
+            const { data, error: updateError } = await supabase
                 .from('horas_navegacion')
                 .update({
-                    track_log: trackLog,
+                    track_log: simplifiedCoords, // Now includes timestamps if available
                     gpx_url: filePath,
-                    duracion_h: stats.duration_h || 0,
-                    notas: notesContent,
-                    ubicacion: { lat: trackLog[0].lat, lng: trackLog[0].lng }
+                    duracion_h: durationH > 0 ? parseFloat(durationH.toFixed(2)) : undefined,
+                    ubicacion: {
+                        lat: simplifiedCoords[0].lat,
+                        lng: simplifiedCoords[0].lng,
+                        stats: stats
+                    }
                 })
                 .eq('id', sessionId)
                 .eq('alumno_id', user.id)
                 .select()
                 .single();
-            data = d;
-            error = e;
+
+            if (updateError) throw updateError;
+            resultData = data;
         } else {
-            // Create new
-            const { data: d, error: e } = await supabase
+            // Create new session
+            const { data, error: insertError } = await supabase
                 .from('horas_navegacion')
                 .insert({
                     alumno_id: user.id,
-                    fecha: stats.start_time ? stats.start_time.toISOString() : new Date().toISOString(),
+                    fecha: coords[0].time ? new Date(coords[0].time).toISOString() : new Date().toISOString(),
+                    duracion_h: durationH > 0 ? parseFloat(durationH.toFixed(2)) : 0.1, // Minimum 0.1h
                     tipo: 'Travesía Importada',
-                    duracion_h: stats.duration_h || 0,
-                    embarcacion: 'Desconocida',
-                    track_log: trackLog,
-                    gpx_url: filePath,
-                    notas: notesContent,
-                    ubicacion: { lat: trackLog[0].lat, lng: trackLog[0].lng },
+                    embarcacion: 'Desconocido', // Can be edited later
                     verificado: false,
-                    condiciones_meteo: `Viento: -`
+                    track_log: simplifiedCoords,
+                    gpx_url: filePath,
+                    ubicacion: {
+                        lat: simplifiedCoords[0].lat,
+                        lng: simplifiedCoords[0].lng,
+                        stats: stats
+                    }
                 })
                 .select()
                 .single();
-            data = d;
-            error = e;
-        }
 
-        if (error) {
-            console.error('Database Error:', error);
-            return NextResponse.json({ error: 'Failed to save session to database' }, { status: 500 });
+            if (insertError) throw insertError;
+            resultData = data;
         }
 
         return NextResponse.json({
             success: true,
-            stats,
-            session: data
+            sessionId: resultData.id,
+            pointsCount: simplifiedCoords.length,
+            stats: stats,
+            track: simplifiedCoords
         });
 
     } catch (err) {
