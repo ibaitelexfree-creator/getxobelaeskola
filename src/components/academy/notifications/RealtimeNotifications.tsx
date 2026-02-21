@@ -85,9 +85,44 @@ export default function RealtimeNotifications() {
                 )
                 .subscribe();
 
+            // Escuchar Respuestas del Foro
+            const forumSub = supabase
+                .channel('realtime_forum')
+                .on(
+                    'postgres_changes',
+                    {
+                        event: 'INSERT',
+                        schema: 'public',
+                        table: 'foro_respuestas'
+                    },
+                    async (payload: { new: { pregunta_id: string; usuario_id: string } }) => {
+                        // No notificar si soy yo quien responde
+                        if (payload.new.usuario_id === user.id) return;
+
+                        // Verificar si la pregunta es mía
+                        const { data: question } = await supabase
+                            .from('foro_preguntas')
+                            .select('usuario_id, titulo')
+                            .eq('id', payload.new.pregunta_id)
+                            .single();
+
+                        if (question && question.usuario_id === user.id) {
+                            addNotification({
+                                type: 'info',
+                                title: 'Nueva respuesta en el foro',
+                                message: `Alguien ha respondido a tu pregunta: "${question.titulo}"`,
+                                icon: '💬',
+                                duration: 8000
+                            });
+                        }
+                    }
+                )
+                .subscribe();
+
             return () => {
                 supabase.removeChannel(logrosSub);
                 supabase.removeChannel(skillsSub);
+                supabase.removeChannel(forumSub);
             };
         }
 

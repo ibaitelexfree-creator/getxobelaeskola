@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { UnlockStatusBadge, UnlockStatusResponse, LockedContentOverlay } from '@/components/academy/UnlockStatusBadge';
 import { SimpleEvaluation } from '@/components/academy/evaluation';
+import ForumMain from '@/components/academy/forum/ForumMain';
 import { apiUrl } from '@/lib/api';
 
 interface Unidad {
@@ -265,6 +266,8 @@ export default function ModuleDetailMain({
                     </section>
                 )}
             </main>
+
+            <ForumMain moduloId={modulo.id} />
         </div>
     );
 }
