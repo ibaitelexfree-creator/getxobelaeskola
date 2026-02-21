@@ -10,6 +10,7 @@ import {
 import { apiUrl } from '@/lib/api';
 import { useAcademyFeedback } from '@/hooks/useAcademyFeedback';
 import { useSmartTracker } from '@/hooks/useSmartTracker';
+import ExportLogbookButton from './ExportLogbookButton';
 
 // Direct dynamic import with explicit default handling
 const LeafletMap = dynamic(
@@ -102,6 +103,7 @@ export default function Logbook() {
     useEffect(() => {
         loadData();
         loadSkills();
+        loadDiary();
     }, []);
 
     const handleToggleTracking = async () => {
@@ -131,13 +133,6 @@ export default function Logbook() {
             showMessage('Seguimiento Iniciado', 'Coge el timón, estamos grabando tu travesía', 'info');
         }
     };
-
-
-    useEffect(() => {
-        if (activeTab === 'diary') {
-            loadDiary();
-        }
-    }, [activeTab]);
 
     const handleAddDiaryEntry = async () => {
         if (!newDiaryContent.trim()) return;
@@ -205,10 +200,13 @@ export default function Logbook() {
                     </div>
                 </div>
 
-                <div className="px-8 py-5 bg-white/5 border border-white/10 rounded-3xl text-center backdrop-blur-md">
-                    <div className="text-[10px] uppercase tracking-widest text-white/40 mb-1">Millas Totales</div>
-                    <div className="text-4xl font-black text-white">
-                        {((officialData?.estadisticas?.horas_totales || 0) * 5.2).toFixed(1)}
+                <div className="flex items-center gap-4">
+                    <ExportLogbookButton officialData={officialData} diaryEntries={diaryEntries} />
+                    <div className="px-8 py-5 bg-white/5 border border-white/10 rounded-3xl text-center backdrop-blur-md">
+                        <div className="text-[10px] uppercase tracking-widest text-white/40 mb-1">Millas Totales</div>
+                        <div className="text-4xl font-black text-white">
+                            {((officialData?.estadisticas?.horas_totales || 0) * 5.2).toFixed(1)}
+                        </div>
                     </div>
                 </div>
             </header>
