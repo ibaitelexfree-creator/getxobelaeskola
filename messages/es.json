@@ -744,6 +744,14 @@
       "retry": "Recargar Bitácora ⚓"
     }
   },
+  "chatbot": {
+    "title": "El Piloto",
+    "placeholder": "Pregunta sobre vela, reglamento...",
+    "initial_greeting": "¡Hola! Soy El Piloto. Pregúntame sobre el curso, maniobras o reglamento.",
+    "thinking": "Consultando carta náutica...",
+    "error": "Parece que hay interferencias en la radio. Inténtalo de nuevo.",
+    "sources": "Fuentes del curso:"
+  },
   "errors": {
     "404": {
       "code": "ERROR 404",
