@@ -248,6 +248,7 @@ app.use('/mcp/', (req, res, next) => {
 let batchProcessor = null;
 let sessionMonitor = null;
 const agentWatchdog = new AgentWatchdog();
+agentWatchdog.start();
 
 // Initialize Firebase Admin (V1 SDK)
 try {
@@ -353,6 +354,7 @@ app.get(['/health', '/api/v1/health'], async (req, res) => {
   if (JULES_API_KEY) {
     try {
       health.services.julesApi = circuitBreaker.isOpen() ? 'circuit_open' : 'configured';
+      health.services.watchdog = agentWatchdog.getStatus().state;
     } catch (e) {
       health.services.julesApi = 'error';
     }

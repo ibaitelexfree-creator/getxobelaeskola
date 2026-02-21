@@ -31,6 +31,7 @@ interface ServiceCardProps {
     metric: string;
     detail: string;
     index: number;
+    onClick?: () => void;
 }
 
 function Sparkline({ color }: { color: string }) {
@@ -39,7 +40,7 @@ function Sparkline({ color }: { color: string }) {
             <motion.path
                 d="M0 35 L10 25 L20 30 L35 15 L50 25 L65 10 L80 15 L100 5"
                 fill="none"
-                stroke={color.includes('green') ? '#00FF94' : color.includes('amber') ? '#FFB800' : '#FF3B3B'}
+                stroke={color.includes('green') ? '#00FF94' : color.includes('amber') ? '#FFB800' : (color.includes('red') ? '#FF3B3B' : '#666')}
                 strokeWidth="2"
                 initial={{ pathLength: 0 }}
                 animate={{ pathLength: 1 }}
@@ -49,13 +50,14 @@ function Sparkline({ color }: { color: string }) {
     );
 }
 
-function ServiceCard({ name, icon, health, metric, detail, index }: ServiceCardProps) {
+function ServiceCard({ name, icon, health, metric, detail, index, onClick }: ServiceCardProps) {
     return (
         <motion.div
             initial={{ opacity: 0, x: index % 2 === 0 ? -20 : 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: index * 0.05, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-            className="glass-card rounded-xl p-4 flex flex-col gap-4 relative group"
+            onClick={onClick}
+            className="glass-card rounded-xl p-4 flex flex-col gap-4 relative group cursor-pointer active:scale-95 transition-transform"
         >
             {/* Subtle frame corners */}
             <div className="hud-frame-tl opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -85,37 +87,48 @@ function ServiceCard({ name, icon, health, metric, detail, index }: ServiceCardP
 
 
 export default function Dashboard() {
-    const { services, stats, queue, pendingApproval, connected, lastSync } = useMissionStore();
+    const { services, stats, queue, pendingApproval, connected, lastSync, setActiveTab } = useMissionStore();
 
-    const cards: Omit<ServiceCardProps, 'index'>[] = [
+    const watchdogState = services.watchdog.state || 'UNKNOWN';
+    const watchdogHealth: ServiceHealth = watchdogState === 'ACTIVE' ? 'online'
+        : (watchdogState === 'PAUSED' ? 'degraded' : (watchdogState === 'UNKNOWN' ? 'unknown' : 'offline'));
+
+    const cards: (Omit<ServiceCardProps, 'index'> & { id: string })[] = [
         {
+            id: 'jules',
             name: 'Jules HQ',
             icon: <span className="text-sm">🐙</span>,
             health: services.jules.health,
             metric: `${services.jules.used}/${services.jules.total}`,
             detail: `${services.jules.active} Active`,
+            onClick: () => setActiveTab('tasks')
         },
         {
+            id: 'flash',
             name: 'Fast Relay',
-            icon: <span className="text-sm">🐙</span>,
+            icon: <span className="text-sm">⚡</span>,
             health: services.flash.health,
             metric: `${services.flash.tasksToday}`,
             detail: `${services.flash.tokensUsed.toLocaleString()} TKN`,
+            onClick: () => setActiveTab('visual')
         },
         {
+            id: 'clawdbot',
             name: 'ClawdBot',
             icon: <span className="text-sm">🤖</span>,
             health: services.clawdbot.health,
             metric: `${services.clawdbot.delegations}`,
             detail: 'DELEGATIONS',
+            onClick: () => setActiveTab('queue')
         },
         {
+            id: 'watchdog',
             name: 'Watchdog',
             icon: <span className="text-sm">📡</span>,
-            health: services.watchdog.state === 'ACTIVE' ? 'online'
-                : services.watchdog.state === 'PAUSED' ? 'degraded' : 'offline',
-            metric: services.watchdog.state.slice(0, 6),
+            health: watchdogHealth,
+            metric: watchdogState === 'UNKNOWN' ? '---' : watchdogState.slice(0, 8).toUpperCase(),
             detail: `${services.watchdog.loops}L • ${services.watchdog.stalls}S`,
+            onClick: () => setActiveTab('control')
         },
     ];
 
@@ -155,9 +168,12 @@ export default function Dashboard() {
                             <span className="flex items-center gap-1 text-[10px] font-bold text-white/60">
                                 <Thermometer size={10} className="text-buoy-orange" /> {services.thermal.label}
                             </span>
-                            <span className="flex items-center gap-1 text-[10px] font-bold text-white/60">
-                                <Activity size={10} className="text-status-blue" /> OPTIMAL
-                            </span>
+                            <button
+                                onClick={() => setActiveTab('visual')}
+                                className="flex items-center gap-1.5 text-[9px] font-bold text-status-blue/80 hover:text-status-blue transition-colors uppercase border border-status-blue/20 px-2 py-0.5 rounded-md bg-status-blue/5"
+                            >
+                                <Eye size={10} /> Visual Relay
+                            </button>
                         </div>
                     </div>
                     <div className="text-right">
@@ -180,10 +196,13 @@ export default function Dashboard() {
                 ].map((s, i) => (
                     <motion.div
                         key={s.label}
+                        onClick={() => setActiveTab('queue')}
+                        whileHover={{ scale: 1.02, backgroundColor: 'rgba(255,255,255,0.05)' }}
+                        whileTap={{ scale: 0.98 }}
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.1 + i * 0.05 }}
-                        className="glass-card p-3 rounded-xl border-white/5 text-center"
+                        className="glass-card p-3 rounded-xl border-white/5 text-center cursor-pointer transition-all duration-300 hover:border-white/10"
                     >
                         <p className={`text-xl font-display ${s.clr}`}>{s.val}</p>
                         <p className="text-[9px] font-mono text-white/20 uppercase tracking-widest mt-1">{s.label}</p>
@@ -218,7 +237,7 @@ export default function Dashboard() {
             {/* Main Service Grid */}
             <div className="grid grid-cols-2 gap-4">
                 {cards.map((card, i) => (
-                    <ServiceCard key={card.name} {...card} index={i} />
+                    <ServiceCard key={card.id} {...card} index={i} />
                 ))}
             </div>
         </div>
