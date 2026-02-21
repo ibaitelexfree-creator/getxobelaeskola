@@ -13,6 +13,7 @@ import DashboardSkeleton from '@/components/student/DashboardSkeleton';
 const StudentProfileSidebar = dynamic(() => import('@/components/student/StudentProfileSidebar'));
 const MembershipWidget = dynamic(() => import('@/components/student/MembershipWidget'));
 const DailyChallengeWidget = dynamic(() => import('@/components/student/DailyChallengeWidget'));
+const WeeklyChallengeWidget = dynamic(() => import('@/components/student/WeeklyChallengeWidget'));
 const WeatherPremium = dynamic(() => import('@/components/shared/WeatherPremium'), { ssr: false });
 const MobileStudentHub = dynamic(() => import('@/components/student/MobileStudentHub'));
 const NotificationPermissionBanner = dynamic(() => import('@/components/dashboard/NotificationPermissionBanner'), { ssr: false });
@@ -411,6 +412,7 @@ export default function StudentDashboardClient({
 
                         <div className="lg:col-span-1 space-y-8">
                             <DailyNauticalQuote locale={locale} />
+                            <WeeklyChallengeWidget locale={locale} />
                             <DailyChallengeWidget locale={locale} />
                             <QuickContact />
                         </div>
