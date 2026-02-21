@@ -26,6 +26,7 @@ const COSMOS_DATA: ConstellationNode[] = [
     { id: '5', label: 'Navegación', x: 200, y: 500, type: 'nebula', status: 'available', description: 'Arte de ir de A a B.', link: '/academy/tools/chart-plotter' },
     { id: '6', label: 'Partes del Barco', x: 300, y: 200, type: 'planet', status: 'available', description: 'Conoce tu embarcación.', link: '/academy/tools/nomenclature' },
     { id: '7', label: 'Cuaderno', x: 100, y: 150, type: 'star', status: 'available', description: 'Tu viaje personal.', link: '/academy/logbook' },
+    { id: '8', label: 'Grandes Regatas', x: 700, y: 150, type: 'nebula', status: 'available', description: 'Revive la historia de la navegación.', link: '/academy/exploration/regattas' },
 ];
 
 export default function ConstellationMap() {
@@ -188,6 +189,7 @@ export default function ConstellationMap() {
                 <line x1="400" y1="300" x2="300" y2="200" stroke="rgba(255,255,255,0.1)" strokeWidth="1" strokeDasharray="5,5" aria-hidden="true" />
                 <line x1="300" y1="200" x2="100" y2="150" stroke="rgba(255,255,255,0.1)" strokeWidth="1" strokeDasharray="5,5" aria-hidden="true" />
                 <line x1="400" y1="300" x2="200" y2="500" stroke="rgba(255,255,255,0.1)" strokeWidth="1" strokeDasharray="5,5" aria-hidden="true" />
+                <line x1="600" y1="250" x2="700" y2="150" stroke="rgba(255,255,255,0.1)" strokeWidth="1" strokeDasharray="5,5" aria-hidden="true" />
 
                 {/* Nodes */}
                 {COSMOS_DATA.map((node) => (
@@ -259,4 +261,3 @@ export default function ConstellationMap() {
         </div>
     );
 }
-
