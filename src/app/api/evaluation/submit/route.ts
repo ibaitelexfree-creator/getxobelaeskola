@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { NextResponse } from 'next/server';
+import { calculateNextReview } from '@/lib/srs';
 
 export async function POST(request: Request) {
     try {
@@ -119,10 +120,63 @@ export async function POST(request: Request) {
             .eq('student_id', user.id)
             .gte('unlocked_at', bufferTime);
 
-        // Obtener las respuestas correctas si está configurado
+        // --- SRS UPDATE LOGIC START ---
+        try {
+            // Obtener preguntas y respuestas correctas para calcular SRS
+            // Usamos supabaseAdmin para ver respuestas correctas
+            const { data: allQuestions } = await supabaseAdmin
+                .from('preguntas')
+                .select('id, respuesta_correcta')
+                .in('id', intento.preguntas_json);
+
+            if (allQuestions && allQuestions.length > 0) {
+                // Obtener estado SRS actual
+                const { data: currentSrs } = await supabase
+                    .from('srs_user_questions')
+                    .select('*')
+                    .eq('user_id', user.id)
+                    .in('question_id', allQuestions.map(q => q.id));
+
+                const srsMap = new Map();
+                if (currentSrs) {
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    currentSrs.forEach((s: any) => srsMap.set(s.question_id, s));
+                }
+
+                const updates = [];
+                for (const q of allQuestions) {
+                    const userAnswer = respuestasMerged[q.id];
+                    // Si no respondió, consideramos incorrecto
+                    const isCorrect = userAnswer === q.respuesta_correcta;
+
+                    const current = srsMap.get(q.id) || { interval: 0, ease_factor: 2.5 };
+
+                    const next = calculateNextReview(current.interval, current.ease_factor, isCorrect);
+
+                    updates.push({
+                        user_id: user.id,
+                        question_id: q.id,
+                        interval: next.interval,
+                        ease_factor: next.easeFactor,
+                        next_review: next.nextReview.toISOString(),
+                        last_answered: new Date().toISOString()
+                    });
+                }
+
+                if (updates.length > 0) {
+                    await supabase.from('srs_user_questions').upsert(updates);
+                }
+            }
+        } catch (e) {
+             console.error("Error updating SRS:", e);
+        }
+        // --- SRS UPDATE LOGIC END ---
+
+        // Obtener las respuestas correctas si está configurado para el cliente
         let respuestasCorrectas = null;
         if (intento.evaluacion.mostrar_respuestas) {
-            const { data: preguntas } = await supabaseAdmin
+            // Ya las tenemos en allQuestions si hicimos SRS, pero necesitamos explanations y el formato correcto
+             const { data: preguntas } = await supabaseAdmin
                 .from('preguntas')
                 .select('id, respuesta_correcta, explicacion_es, explicacion_eu')
                 .in('id', intento.preguntas_json);
@@ -149,4 +203,3 @@ export async function POST(request: Request) {
         );
     }
 }
-
