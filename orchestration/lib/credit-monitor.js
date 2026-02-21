@@ -8,10 +8,11 @@
  */
 
 export class CreditMonitor {
-    constructor(julesPool, flashExecutor, clawdbot) {
+    constructor(julesPool, flashExecutor, clawdbot, visualRelay) {
         this.pool = julesPool;
         this.flash = flashExecutor;
         this.clawdbot = clawdbot;
+        this.visual = visualRelay;
     }
 
     julesUsage() {
@@ -52,10 +53,22 @@ export class CreditMonitor {
         };
     }
 
-    getSummaryMessage() {
+    async browserlessUsage() {
+        if (!this.visual) return { enabled: false };
+        const usage = await this.visual.getUsage();
+        return {
+            enabled: this.visual.enabled,
+            used: usage?.used || 0,
+            limit: usage?.limit || 0,
+            remaining: usage?.remaining || 0
+        };
+    }
+
+    async getSummaryMessage() {
         const jules = this.julesUsage();
         const flash = this.flashCredits();
         const claw = this.clawdbotCost();
+        const browse = await this.browserlessUsage();
 
         const julesLines = jules.accounts.map(a => {
             const bar = this._progressBar(a.used, a.limit);
@@ -75,6 +88,7 @@ export class CreditMonitor {
             '',
             `**Flash** ${flashEmoji} — ${flash.tasksToday} tareas | ${flash.tokensUsed.toLocaleString()} tokens`,
             `**ClawdBot** ${clawEmoji} — ${claw.sessionsToday} sesiones hoy`,
+            `**Browserless** ${browse.enabled ? '🟢' : '🔴'} — ${browse.used}/${browse.limit} hoy`,
             '',
             `🏗️ Prioridad: Jules → Flash → ClawdBot`
         ].join('\n');

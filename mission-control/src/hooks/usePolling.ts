@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useCallback } from 'react';
 import { useMissionStore } from '@/store/useMissionStore';
-import { getHealth, getWatchdogStatus, getActiveSessions, getResourceStatus, getQueue } from '@/lib/api';
+import { getHealth, getWatchdogStatus, getActiveSessions, getResourceStatus, getQueue, getLivePreviewConfig } from '@/lib/api';
 
 
 export function usePolling() {
@@ -15,17 +15,20 @@ export function usePolling() {
         setLastSync,
         updateActiveThreads,
         updatePower,
+        setLivePreviewUrl,
+        livePreviewUrl
     } = useMissionStore();
 
 
     const poll = useCallback(async () => {
         try {
-            const [health, watchdog, sessions, resources, queueData] = await Promise.all([
+            const [health, watchdog, sessions, resources, queueData, liveConfig] = await Promise.all([
                 getHealth().catch(() => null),
                 getWatchdogStatus().catch(() => null),
                 getActiveSessions().catch(() => null),
                 getResourceStatus().catch(() => null),
                 getQueue().catch(() => null),
+                getLivePreviewConfig().catch(() => null),
             ]);
 
 
@@ -51,11 +54,18 @@ export function usePolling() {
                         delegations: 0,
                     },
                     browserless: {
-                        health: svc.browserless !== 'error' ? 'online' : 'offline',
+                        health: svc.browserless !== 'error' ? (resources?.services?.BROWSERLESS?.running ? 'online' : 'offline') : 'offline',
+                        used: resources?.services?.BROWSERLESS?.used || 0,
+                        total: resources?.services?.BROWSERLESS?.limit || 0,
                     },
                 });
             } else {
                 setConnected(false);
+            }
+
+            if (liveConfig?.url && (liveConfig.url !== livePreviewUrl || liveConfig.password !== useMissionStore.getState().livePreviewPassword)) {
+                setLivePreviewUrl(liveConfig.url);
+                if (liveConfig.password) useMissionStore.getState().setLivePreviewPassword(liveConfig.password);
             }
 
             if (watchdog) {

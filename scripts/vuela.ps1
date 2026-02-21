@@ -23,4 +23,18 @@ if (Test-Path "$ProjectRoot\antigravity\TRASH") {
     Remove-Item "$ProjectRoot\antigravity\TRASH\*" -Recurse -Force -ErrorAction SilentlyContinue
 }
 
-Write-Host "✅ Mantenimiento completado. El sistema debería estar más ligero ahora."
+# 4. Iniciar Visual Bridge (Tunnel) automático
+Write-Host "📡 Iniciando Visual Bridge (Tunnel) en segundo plano..." -ForegroundColor Cyan
+$BridgeScript = "$ProjectRoot\scripts\visual-bridge.ps1"
+if (Test-Path $BridgeScript) {
+    Start-Process powershell.exe -ArgumentList "-ExecutionPolicy Bypass -File `"$BridgeScript`"" -WindowStyle Minimized
+}
+
+# 5. Verificar Orquestador
+$OrchProcess = Get-Process node | Where-Object { $_.MainWindowTitle -match "antigravity-jules-orchestration" -or $_.CommandLine -match "orchestration" } -ErrorAction SilentlyContinue
+if (-not $OrchProcess) {
+    Write-Host "🚀 Iniciando Orquestador..." -ForegroundColor Cyan
+    Start-Process powershell.exe -ArgumentList "-NoExit", "-Command", "cd `"$ProjectRoot\orchestration`"; npm start" -WindowStyle Normal
+}
+
+Write-Host "Mantenimiento y Arranque completado. El sistema esta en el aire." -ForegroundColor Green

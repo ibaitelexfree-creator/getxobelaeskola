@@ -115,8 +115,9 @@ export default function HeroCarousel({ initialSlides }: HeroCarouselProps) {
 
                     <div className="absolute inset-0 flex items-center">
                         <div className="container mx-auto px-6 md:px-12">
-                            <div className={`max-w-4xl transition-all duration-1000 delay-500 transform ${index === current ? 'translate-y-0 opacity-100 blur-0' : 'translate-y-12 opacity-0 blur-md'
+                            <div className={`max-w-4xl transition-all duration-700 delay-200 transform ${index === current ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'
                                 }`}>
+
                                 <div className="flex items-center gap-4 mb-8">
                                     <div className="w-12 h-[1px] bg-accent/40" />
                                     <span className="text-accent uppercase tracking-[0.6em] text-[10px] font-black">
@@ -124,13 +125,14 @@ export default function HeroCarousel({ initialSlides }: HeroCarouselProps) {
                                     </span>
                                 </div>
 
-                                <h2 className="text-5xl sm:text-7xl md:text-[10rem] lg:text-[12rem] font-display text-white mb-10 leading-[0.85] tracking-tighter">
-                                    {slide.title.split(' ').map((word, i) => (
+                                <h2 className="text-5xl sm:text-7xl md:text-[8rem] lg:text-[10rem] font-display text-white mb-10 leading-[0.85] tracking-tighter">
+                                    {slide.title.split(/\s+/).map((word, i) => (
                                         <span key={i} className={`block ${i % 2 !== 0 ? 'italic font-light text-accent/90 ml-12 sm:ml-24' : ''}`}>
                                             {word}
                                         </span>
                                     ))}
                                 </h2>
+
 
                                 <p className="text-lg md:text-2xl text-foreground/70 font-light mb-16 max-w-xl leading-relaxed tracking-wide italic">
                                     {slide.subtitle}

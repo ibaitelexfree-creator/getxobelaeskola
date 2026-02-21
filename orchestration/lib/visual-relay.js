@@ -77,6 +77,43 @@ export class VisualRelay {
         }
     }
 
+    async getUsage() {
+        if (!this.enabled || !this.browserlessToken) return null;
+
+        try {
+            const data = await new Promise((resolve, reject) => {
+                const url = new URL(`${this.browserlessUrl}/account?token=${this.browserlessToken}`);
+                const isHttps = url.protocol === 'https:';
+                const transport = isHttps ? https : http;
+
+                transport.get(url, (res) => {
+                    let body = '';
+                    res.on('data', chunk => body += chunk);
+                    res.on('end', () => {
+                        if (res.statusCode >= 400) {
+                            reject(new Error(`Status ${res.statusCode}`));
+                            return;
+                        }
+                        try {
+                            resolve(JSON.parse(body));
+                        } catch (e) {
+                            reject(e);
+                        }
+                    });
+                }).on('error', reject);
+            });
+
+            return {
+                used: data.usage || 0,
+                limit: data.limit || 0,
+                remaining: data.remaining || 0
+            };
+        } catch (err) {
+            console.error('[VisualRelay] Failed to get usage:', err.message);
+            return null;
+        }
+    }
+
     getStatus() {
         return {
             enabled: this.enabled,
