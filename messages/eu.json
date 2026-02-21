@@ -984,5 +984,56 @@
     "action_close": "Itxi historikoa",
     "tide_high": "G",
     "tide_low": "B"
+  },
+  "onboarding": {
+    "welcome_title": "Ongi etorri ontzira, {name}!",
+    "welcome_desc": "Amarrak askatu aurretik, zure bitakora koadernoa konfiguratu eta zure aurretiazko ezagutzak ebaluatuko ditugu.",
+    "start_btn": "Onboarding Hasi",
+    "step_1_title": "1. Hasierako Maila Testa",
+    "step_2_title": "2. Konfiguratu zure Helburua",
+    "step_2_desc": "Noiz lortu nahiko zenuke zure titulazio ofiziala?",
+    "step_3_title": "3. Dashboard Tourra",
+    "step_4_title": "Zure Lehen Misioa",
+    "step_4_subtitle": "🚀 Berehalako Aireratzea",
+    "step_4_desc": "Osatu onboarding hau \"Marinel Hasiberria\" intsignia jasotzeko eta sarbide osoa desblokeatzeko.",
+    "complete_mission_btn": "Misioa Osatu",
+    "processing": "Prozesatzen...",
+    "congrats_title": "Zorionak!",
+    "badge_earned": "\"Marinel Hasiberria\" intsignia lortu duzu",
+    "journey_begins": "Zure bidaia orain hasten da.",
+    "go_to_dashboard": "Dashboardera Joan",
+    "next": "Hurrengoa",
+    "understood": "Ulertuta",
+    "goals": {
+      "3_months": "3 hilabetetan (Intentsiboa)",
+      "6_months": "6 hilabetetan (Estandarra)",
+      "1_year": "Urte 1ean (Lasai)",
+      "just_learning": "Plazeragatik ikasi bakarrik"
+    },
+    "tour": {
+      "courses_title": "Ikastaroak",
+      "courses_desc": "Zure ikasketa ibilbidea pausoz pauso egituratua.",
+      "logbook_title": "Bitakora",
+      "logbook_desc": "Erregistratu zure nabigazio orduak eta praktikak.",
+      "tools_title": "Tresnak",
+      "tools_desc": "Simulatzaileak, nudoak eta nomenklatura interaktiboa."
+    },
+    "quiz": {
+      "q1": "Zein da ontzi baten ezkerreko aldea proara begira?",
+      "q1_opt1": "Babor",
+      "q1_opt2": "Estribor",
+      "q1_opt3": "Popa",
+      "q1_opt4": "Aleta",
+      "q2": "Zein koloretakoa da estriborreko posizio-argia?",
+      "q2_opt1": "Gorria",
+      "q2_opt2": "Berdea",
+      "q2_opt3": "Zuria",
+      "q2_opt4": "Horia",
+      "q3": "Nork du lehentasuna belaontzi baten (belaz) eta motora baten artean?",
+      "q3_opt1": "Motorak",
+      "q3_opt2": "Belaontziak",
+      "q3_opt3": "Eskuinetik datorrenak",
+      "q3_opt4": "Haizearen araberakoa"
+    }
   }
 }

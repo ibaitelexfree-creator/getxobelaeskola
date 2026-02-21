@@ -793,9 +793,6 @@
       "title": "Historial Reciente",
       "completed": "Completado"
     },
-    "micro_lessons": {
-      "title": "Micro-Lecciones"
-    },
     "daily_challenge": {
       "title": "Desafío del Día",
       "subtitle": "Micro-Aprende algo nuevo hoy",
@@ -856,39 +853,6 @@
       "save_btn": "GUARDAR",
       "ranking_title": "RANKING - TOP 10",
       "restart_btn": "VOLVER A JUGAR"
-    }
-  },
-  "tools": {
-    "title": "Calculadora Náutica",
-    "coordinates": {
-      "title": "Conversor de Coordenadas",
-      "dms": "Grados, Minutos, Segundos",
-      "decimal": "Decimal",
-      "lat": "Latitud",
-      "lon": "Longitud",
-      "convert_to_decimal": "A Decimal ↓",
-      "convert_to_dms": "A GMS ↑",
-      "deg": "Grados",
-      "min": "Minutos",
-      "sec": "Segundos"
-    },
-    "route": {
-      "title": "Cálculo de Ruta",
-      "point_a": "Punto de Partida (A)",
-      "point_b": "Punto de Llegada (B)",
-      "speed": "Velocidad (Nudos)",
-      "declination": "Declinación Magnética",
-      "east": "Este (+)",
-      "west": "Oeste (-)",
-      "calculate": "Calcular Rumbo y Distancia",
-      "results": "Resultados de Navegación",
-      "distance": "Distancia",
-      "true_bearing": "Rumbo Verdadero",
-      "magnetic_bearing": "Rumbo Magnético",
-      "eta": "Tiempo Estimado (ETA)",
-      "days": "d",
-      "hours": "h",
-      "minutes": "min"
     }
   },
   "validation": {
@@ -985,8 +949,55 @@
     "history_temp": "Temp (ºC)",
     "history_tide": "Marea (m)"
   },
-  "lab": {
-    "title": "Mareas y Corrientes",
-    "subtitle": "Simulación Interactiva"
+  "onboarding": {
+    "welcome_title": "¡Bienvenido a bordo, {name}!",
+    "welcome_desc": "Antes de soltar amarras, vamos a configurar tu cuaderno de bitácora y evaluar tus conocimientos previos.",
+    "start_btn": "Comenzar Onboarding",
+    "step_1_title": "1. Test de Nivel Inicial",
+    "step_2_title": "2. Configura tu Objetivo",
+    "step_2_desc": "¿Cuándo te gustaría obtener tu titulación oficial?",
+    "step_3_title": "3. Tour del Dashboard",
+    "step_4_title": "Tu Primera Misión",
+    "step_4_subtitle": "🚀 Despegue Inmediato",
+    "step_4_desc": "Completa este onboarding para recibir tu insignia de \"Marino Novel\" y desbloquear el acceso completo.",
+    "complete_mission_btn": "Completar Misión",
+    "processing": "Procesando...",
+    "congrats_title": "¡Enhorabuena!",
+    "badge_earned": "Has obtenido la insignia \"Marino Novel\"",
+    "journey_begins": "Tu viaje comienza ahora.",
+    "go_to_dashboard": "Ir al Dashboard",
+    "next": "Siguiente",
+    "understood": "Entendido",
+    "goals": {
+      "3_months": "En 3 meses (Intensivo)",
+      "6_months": "En 6 meses (Estándar)",
+      "1_year": "En 1 año (Relajado)",
+      "just_learning": "Solo aprender por placer"
+    },
+    "tour": {
+      "courses_title": "Cursos",
+      "courses_desc": "Tu ruta de aprendizaje estructurada paso a paso.",
+      "logbook_title": "Bitácora",
+      "logbook_desc": "Registra tus horas de navegación y prácticas.",
+      "tools_title": "Herramientas",
+      "tools_desc": "Simuladores, nudos y nomenclatura interactiva."
+    },
+    "quiz": {
+      "q1": "¿Cuál es el lado izquierdo de una embarcación mirando a proa?",
+      "q1_opt1": "Babor",
+      "q1_opt2": "Estribor",
+      "q1_opt3": "Popa",
+      "q1_opt4": "Aleta",
+      "q2": "¿De qué color es la luz de posición de estribor?",
+      "q2_opt1": "Roja",
+      "q2_opt2": "Verde",
+      "q2_opt3": "Blanca",
+      "q2_opt4": "Amarilla",
+      "q3": "¿Quién tiene preferencia entre un velero a vela y una motora?",
+      "q3_opt1": "La motora",
+      "q3_opt2": "El velero",
+      "q3_opt3": "El que viene por la derecha",
+      "q3_opt4": "Depende del viento"
+    }
   }
 }
