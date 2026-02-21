@@ -11,7 +11,7 @@
 |----|--------|-------|--------|--------|
 | T-003 | ClawdBot | Fix carousel navbar overlap | 2026-02-20 | en_curso |
 | T-004 | Jules | Move ScrollToTop button up | 2026-02-20 | completado |
-| T-005 | Jules | Multiplayer Regatta Mode | 2026-02-22 | completado |
+| T-005 | Jules | Integrate Leaflet Map in Academy Geospatial | 2026-02-20 | completado |
 
 ## Bloqueos / Conflictos
 Ninguno actualmente.
