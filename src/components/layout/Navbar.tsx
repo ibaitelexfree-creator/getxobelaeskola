@@ -8,6 +8,7 @@ import { useEffect, useState } from 'react';
 import { X, ChevronDown, Anchor, Wind, Sailboat, Users, GraduationCap, Phone, School, Compass, Sparkles } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { apiUrl } from '@/lib/api';
+import ThemeToggle from '@/components/ui/ThemeToggle';
 
 interface NavDropdownItem {
     href: string;
@@ -203,6 +204,9 @@ export default function Navbar({ locale: propLocale }: { locale?: string }) {
 
                 {/* Right Side Actions */}
                 <div className="flex gap-4 items-center relative z-[110]">
+                    <div className="hidden xl:block">
+                        <ThemeToggle />
+                    </div>
                     <div className="hidden xl:flex bg-white/5 backdrop-blur-md border border-white/10 rounded-full p-1.5 transition-premium hover:border-white/20">
                         {['es', 'eu', 'en', 'fr'].map((lang) => (
                             <button
@@ -254,9 +258,6 @@ export default function Navbar({ locale: propLocale }: { locale?: string }) {
                             setIsMenuOpen(!isMenuOpen);
                             setMobileExpanded(null);
                         }}
-                        aria-label={isMenuOpen ? t('close') : t('menu')}
-                        aria-expanded={isMenuOpen}
-                        aria-controls="mobile-menu"
                         className="xl:hidden flex-shrink-0 w-14 h-14 flex items-center justify-center bg-accent text-nautical-black rounded-full shadow-2xl relative z-[10000] transition-premium hover:scale-110 active:scale-95 shadow-accent/30"
                     >
                         {isMenuOpen ? <X size={24} strokeWidth={3} /> : (
@@ -272,8 +273,6 @@ export default function Navbar({ locale: propLocale }: { locale?: string }) {
 
             {/* Mobile Menu Overlay */}
             <div
-                id="mobile-menu"
-                aria-hidden={!isMenuOpen}
                 className={`fixed inset-0 z-[90] bg-nautical-deep transition-all duration-700 xl:hidden ${isMenuOpen ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-full pointer-events-none'}`}
             >
                 <div className="absolute inset-0 bg-maps opacity-5 pointer-events-none" />
@@ -356,6 +355,10 @@ export default function Navbar({ locale: propLocale }: { locale?: string }) {
                         )}
 
                         <div className="flex flex-col gap-4 pb-12">
+                            <div className="flex items-center justify-between px-4">
+                                <span className="text-[10px] uppercase tracking-[0.4em] font-black text-white/30">Theme</span>
+                                <ThemeToggle />
+                            </div>
                             <span className="text-[10px] uppercase tracking-[0.4em] font-black text-white/30 ml-4">{t('language_selector')}</span>
                             <div className="grid grid-cols-4 gap-3 bg-white/5 border border-white/10 rounded-2xl p-2">
                                 {['es', 'eu', 'en', 'fr'].map((lang) => (

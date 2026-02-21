@@ -1,5 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
+    darkMode: 'class',
     content: [
         "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
         "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
@@ -24,18 +25,25 @@ module.exports = {
                     deep: '#010409',
                     blue: '#154FA3',
                 },
+                ocean: {
+                    dark: 'var(--ocean-dark)',
+                    medium: 'var(--ocean-medium)',
+                    light: 'var(--ocean-light)',
+                    deep: 'var(--ocean-deep)',
+                },
                 'sea-foam': '#F2F2F2',
                 'buoy-orange': '#FF4D00',
                 'brass-gold': '#c5a059',
                 accent: {
-                    DEFAULT: '#FF4D00',
-                    foreground: '#F2F2F2',
+                    DEFAULT: 'var(--accent)',
+                    foreground: 'var(--accent-foreground)',
                 },
-                background: '#000000',
-                foreground: '#F2F2F2',
+                background: 'var(--background)',
+                foreground: 'var(--foreground)',
                 card: {
-                    DEFAULT: 'rgba(255, 255, 255, 0.03)',
-                    border: 'rgba(255, 255, 255, 0.1)',
+                    DEFAULT: 'var(--card)',
+                    foreground: 'var(--card-foreground)',
+                    border: 'var(--card-border)', // Keep hardcoded or make variable if needed
                 },
             },
             fontFamily: {
