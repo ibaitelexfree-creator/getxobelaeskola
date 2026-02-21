@@ -1,6 +1,9 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import https from 'https';
+import fs from 'fs';
+import path from 'path';
+import admin from 'firebase-admin';
 import { getIssue, getIssuesByLabel, formatIssueForPrompt } from './lib/github.js';
 import { BatchProcessor } from './lib/batch.js';
 import { SessionMonitor } from './lib/monitor.js';
@@ -49,7 +52,6 @@ import { cacheMiddleware, invalidateCaches } from './middleware/cacheMiddleware.
 import { sendTelegramMessage } from './lib/telegram.js';
 import { readProjectMemory, writeProjectMemory, appendToProjectMemory, readAllContext } from './lib/project-memory.js';
 import { setupTelegramInbound } from './lib/telegram-inbound.js';
-import { initDb, query } from './lib/db.js';
 
 dotenv.config();
 
@@ -64,7 +66,7 @@ const julesAgent = new https.Agent({
 const PORT = process.env.PORT || 3323;
 const JULES_API_KEY = process.env.JULES_API_KEY;
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN || null;
-const VERSION = '2.6.2';
+const VERSION = '2.6.0';
 
 // ============ v2.5.0 INFRASTRUCTURE ============
 
@@ -144,13 +146,13 @@ async function retryWithBackoff(fn, options = {}) {
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try { return await fn(); }
     catch (error) {
+      lastError = error;
       if (error.statusCode && error.statusCode >= 400 && error.statusCode < 500 && error.statusCode !== 429) throw error;
       if (attempt < maxRetries) {
         const delay = Math.min(baseDelay * Math.pow(2, attempt - 1) + Math.random() * 1000, maxDelay);
         structuredLog('warn', `Retry attempt ${attempt}/${maxRetries}`, { correlationId, delay: Math.round(delay), error: error.message });
         await new Promise(resolve => setTimeout(resolve, delay));
       }
-      lastError = error;
     }
   }
   throw lastError;
@@ -243,6 +245,39 @@ let batchProcessor = null;
 let sessionMonitor = null;
 const agentWatchdog = new AgentWatchdog();
 
+// Initialize Firebase Admin (V1 SDK)
+try {
+  const serviceAccountPath = path.join(process.cwd(), 'firebase-auth.json');
+  if (fs.existsSync(serviceAccountPath)) {
+    const serviceAccount = JSON.parse(fs.readFileSync(serviceAccountPath, 'utf8'));
+    admin.initializeApp({
+      credential: admin.credential.cert(serviceAccount)
+    });
+    console.log('[Firebase] Admin SDK initialized successfully');
+  } else {
+    console.warn('[Firebase] Skip init: firebase-auth.json not found');
+  }
+} catch (error) {
+  console.error('[Firebase] Failed to initialize:', error.message);
+}
+
+// Connect Watchdog events to Push Notifications
+agentWatchdog.on('loopDetected', (e) => {
+  sendPushToAll('⚠️ Bucle Detectado', `Antigravity está repitiendo comandos (${e.repeatCount}x). Interviniendo...`, { priority: 'high', type: 'loop' });
+});
+
+agentWatchdog.on('stallDetected', (e) => {
+  sendPushToAll('⏸️ Agente Estancado', `No hay salida de Antigravity hace ${Math.round(e.silentForMs / 1000)}s. Intentando continuar...`, { type: 'stall' });
+});
+
+agentWatchdog.on('crashDetected', () => {
+  sendPushToAll('🔥 Crash de Antigravity', 'El proceso de Antigravity/Cursor no responde. Reiniciando...', { priority: 'high', type: 'crash' });
+});
+
+agentWatchdog.on('autoContinueSent', (e) => {
+  sendPushToAll('▶️ Auto-Continuar', `Enviado ENTER a la consola (Intento ${e.attempt}).`, { type: 'auto-continue' });
+});
+
 // CORS - Secure whitelist configuration (no wildcard fallback)
 const DEFAULT_ORIGINS = [
   'http://localhost:3000',
@@ -300,7 +335,7 @@ app.get(['/health', '/api/v1/health'], async (req, res) => {
     },
     services: {
       julesApi: 'unknown',
-      database: process.env.DB_HOST ? 'mysql_configured' : 'not_configured',
+      database: process.env.DATABASE_URL ? 'configured' : 'not_configured',
       github: GITHUB_TOKEN ? 'configured' : 'not_configured',
       semanticMemory: process.env.SEMANTIC_MEMORY_URL ? 'configured' : 'not_configured'
     },
@@ -370,10 +405,93 @@ app.get('/api/sessions/:id/timeline', async (req, res) => {
 
 // ============ WATCHDOG ENDPOINTS ============
 
+const DEVICES_FILE = join(process.cwd(), 'logs', 'devices.json');
+let registeredDevices = [];
+
+// Load devices on startup
+try {
+  if (existsSync(DEVICES_FILE)) {
+    registeredDevices = JSON.parse(readFileSync(DEVICES_FILE, 'utf-8'));
+    console.log(`[Watchdog] Loaded ${registeredDevices.length} registered devices`);
+  }
+} catch (e) {
+  console.error('[Watchdog] Failed to load devices:', e.message);
+}
+
 // Get watchdog status (used by watchdog.ps1)
 app.get('/watchdog/status', (req, res) => {
   res.json(agentWatchdog.getStatus());
 });
+
+// Register device for push notifications
+app.post('/watchdog/register-device', express.json(), (req, res) => {
+  const { token, platform, deviceId } = req.body || {};
+  if (!token) return res.status(400).json({ error: 'Token required' });
+
+  const existingIdx = registeredDevices.findIndex(d => d.deviceId === deviceId || d.token === token);
+  const deviceEntry = { token, platform: platform || 'unknown', deviceId: deviceId || 'unknown', registeredAt: new Date().toISOString() };
+
+  if (existingIdx >= 0) {
+    registeredDevices[existingIdx] = deviceEntry;
+  } else {
+    registeredDevices.push(deviceEntry);
+  }
+
+  // Persist
+  try {
+    const logsDir = join(process.cwd(), 'logs');
+    if (!existsSync(logsDir)) mkdirSync(logsDir, { recursive: true });
+    writeFileSync(DEVICES_FILE, JSON.stringify(registeredDevices, null, 2));
+  } catch (e) {
+    console.error('[Watchdog] Failed to save devices:', e.message);
+  }
+
+  structuredLog('info', 'Device registered for push', { platform, deviceId });
+  res.json({ success: true, count: registeredDevices.length });
+});
+
+// Helper to send push notifications to all registered devices
+async function sendPushToAll(title, body, data = {}) {
+  if (registeredDevices.length === 0) return;
+
+  // Check if Firebase is initialized
+  const isFirebaseReady = admin.apps.length > 0;
+
+  if (!isFirebaseReady) {
+    structuredLog('info', 'Push simulated (Firebase not initialized)', { count: registeredDevices.length, title });
+    return registeredDevices.map(d => ({ device: d.deviceId, success: true, simulated: true }));
+  }
+
+  console.log(`[Push] Sending V1 to ${registeredDevices.length} devices: ${title}`);
+
+  const results = await Promise.all(registeredDevices.map(async (device) => {
+    try {
+      const message = {
+        notification: { title, body },
+        data: {
+          ...data,
+          priority: data.priority || 'high'
+        },
+        token: device.token,
+        android: {
+          priority: 'high',
+          notification: {
+            sound: 'default',
+            clickAction: 'FCM_PLUGIN_ACTIVITY'
+          }
+        }
+      };
+
+      const response = await admin.messaging().send(message);
+      return { device: device.deviceId, success: true, messageId: response };
+    } catch (error) {
+      console.error(`[Push] Error sending to ${device.deviceId}:`, error.message);
+      return { device: device.deviceId, success: false, error: error.message };
+    }
+  }));
+
+  return results;
+}
 
 // Perform watchdog action
 app.post('/watchdog/action', express.json(), (req, res) => {
@@ -659,15 +777,7 @@ app.get('/mcp/tools', cacheMiddleware, (req, res) => {
       { name: 'project_memory_read', description: 'Read a shared project memory file', parameters: { file: { type: 'string', required: true, description: 'GLOBAL_STATE.md | DECISIONS_LOG.md | TECHNICAL_CONTEXT.md | AGENT_TASKS.md' } } },
       { name: 'project_memory_write', description: 'Overwrite a shared project memory file', parameters: { file: { type: 'string', required: true }, content: { type: 'string', required: true } } },
       { name: 'project_memory_append', description: 'Append a line to a shared project memory file', parameters: { file: { type: 'string', required: true }, entry: { type: 'string', required: true } } },
-      { name: 'project_memory_context', description: 'Read GLOBAL_STATE + TECHNICAL_CONTEXT for quick context', parameters: {} },
-      // NEW: Autonomous Semantic Search
-      {
-        name: 'search_nautical_knowledge',
-        description: 'Search the academy internal vector memory (Qdrant) for official rules, nautical concepts, coding patterns, and business logic.',
-        parameters: {
-          query: { type: 'string', required: true, description: 'The exact question or topic you want to search for in the academy brain.' }
-        }
-      }
+      { name: 'project_memory_context', description: 'Read GLOBAL_STATE + TECHNICAL_CONTEXT for quick context', parameters: {} }
     ]
   });
 });
@@ -931,16 +1041,6 @@ function julesRequest(method, path, body = null) {
 
 // Create a new Jules session with correct API schema
 async function createJulesSession(config) {
-  // Record session in MySQL if available
-  try {
-    await query(
-      'INSERT INTO session_history (id, title, executor, status) VALUES (?, ?, ?, ?)',
-      [`session_${Date.now()}`, config.title || 'unnamed', 'jules', 'pending']
-    );
-  } catch (err) {
-    // Silently fail if DB not available
-  }
-
   const { error } = sessionCreateSchema.validate(config);
   if (error) {
     // Sanitize and format the error to be more user-friendly
@@ -1451,13 +1551,6 @@ const server = app.listen(PORT, '0.0.0.0', () => {
 
   // Start Render webhook cleanup interval
   startRenderCleanupInterval();
-
-  // Initialize Database
-  initDb().then(() => {
-    console.log('Database system ready');
-  }).catch(err => {
-    console.warn('Database initialization failed, using local mode:', err.message);
-  });
 
   // Initialize modules after server starts
   batchProcessor = new BatchProcessor(julesRequest, createJulesSession);

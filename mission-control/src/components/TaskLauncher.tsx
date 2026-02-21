@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Send, Zap, Bot, Shuffle, ChevronDown } from 'lucide-react';
+import { Haptics, ImpactStyle } from '@capacitor/haptics';
 import { useMissionStore } from '@/store/useMissionStore';
 import { sendTask, approve, reject } from '@/lib/maestro-client';
 
@@ -27,6 +28,7 @@ export default function TaskLauncher() {
 
         try {
             await sendTask(description.trim(), mode);
+            Haptics.impact({ style: ImpactStyle.Medium }).catch(() => { });
             addToHistory({
                 id: `t_${Date.now()}`,
                 title: description.trim(),
@@ -43,11 +45,13 @@ export default function TaskLauncher() {
     };
 
     const handleApprove = async () => {
+        Haptics.impact({ style: ImpactStyle.Light }).catch(() => { });
         await approve();
         setPendingApproval(null);
     };
 
     const handleReject = async () => {
+        Haptics.impact({ style: ImpactStyle.Medium }).catch(() => { });
         await reject();
         setPendingApproval(null);
     };

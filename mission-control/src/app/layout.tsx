@@ -15,6 +15,8 @@ export const viewport: Viewport = {
     userScalable: false,
 };
 
+import { ClientProviders } from '@/components/ClientProviders';
+
 export default function RootLayout({
     children,
 }: {
@@ -23,7 +25,9 @@ export default function RootLayout({
     return (
         <html lang="en" className={`${cormorantGaramond.variable} ${outfit.variable} ${jetbrainsMono.variable}`}>
             <body className="bg-mission-mesh min-h-screen safe-area-top">
-                {children}
+                <ClientProviders>
+                    {children}
+                </ClientProviders>
             </body>
         </html>
     );

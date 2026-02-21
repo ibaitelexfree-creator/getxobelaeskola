@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "69772078869",
+    "project_id": "getxo-bela-eskola",
+    "storage_bucket": "getxo-bela-eskola.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:69772078869:android:31839be870c4447320c31c",
+        "android_client_info": {
+          "package_name": "com.getxo.belaeskola"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBrvsKkV2hQDU7b2Hg0FHIjVOj1KXm7RQU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:69772078869:android:98da75d770dad20020c31c",
+        "android_client_info": {
+          "package_name": "com.scarmonit.missioncontrol"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBrvsKkV2hQDU7b2Hg0FHIjVOj1KXm7RQU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

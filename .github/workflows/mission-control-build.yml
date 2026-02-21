@@ -1,0 +1,71 @@
+name: Build Mission Control APK
+
+on:
+  push:
+    paths:
+      - "mission-control/**"
+      - ".github/workflows/mission-control-build.yml"
+    branches: [main, master, feature/sbrm-ci-test]
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build & Distribute Mission Control
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: "npm"
+          cache-dependency-path: mission-control/package-lock.json
+
+      - name: Install dependencies
+        run: |
+          cd mission-control
+          npm ci --legacy-peer-deps
+
+      - name: Build Next.js (SSG)
+        run: |
+          cd mission-control
+          npm run build
+        env:
+          IS_CAPACITOR: "true"
+
+      - name: Java Setup
+        uses: actions/setup-java@v4
+        with:
+          distribution: "zulu"
+          java-version: "17"
+          cache: "gradle"
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Capacitor Sync
+        run: |
+          cd mission-control
+          npx cap sync android
+
+      - name: Build Android APK (Debug)
+        run: |
+          cd mission-control/android
+          chmod +x gradlew
+          ./gradlew assembleDebug
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: mission-control-debug-apk
+          path: mission-control/android/app/build/outputs/apk/debug/app-debug.apk
+
+      - name: Upload to Firebase App Distribution
+        uses: wzieba/Firebase-Distribution-Github-Action@v1
+        with:
+          appId: "${{ secrets.FIREBASE_MISSION_CONTROL_APP_ID }}"
+          serviceCredentialsFileContent: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_KEY }}
+          groups: testers
+          file: mission-control/android/app/build/outputs/apk/debug/app-debug.apk
