@@ -15,6 +15,7 @@ import { checkAchievements } from '@/lib/gamification/AchievementEngine';
 import { useAcademyMode } from '@/lib/store/useAcademyMode';
 import { InteractiveMission, useMissionStore } from '@/components/academy/interactive-engine';
 import { apiUrl } from '@/lib/api';
+import WrittenExerciseSubmission from '@/components/academy/peer-review/WrittenExerciseSubmission';
 
 interface Unidad {
     id: string;
@@ -72,6 +73,8 @@ export default function UnitReaderMain({
     const [unidad, setUnidad] = useState<Unidad | null>(null);
     const [navegacion, setNavegacion] = useState<Navegacion | null>(null);
     const [progreso, setProgreso] = useState<any>(null);
+    const [actividades, setActividades] = useState<any[]>([]);
+    const [intentos, setIntentos] = useState<any[]>([]);
     const [unlockStatus, setUnlockStatus] = useState<Record<string, UnlockStatus>>({});
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState<'teoria' | 'practica' | 'errores'>('teoria');
@@ -95,6 +98,8 @@ export default function UnitReaderMain({
                     setUnidad(data.unidad);
                     setNavegacion(data.navegacion);
                     setProgreso(data.progreso);
+                    setActividades(data.actividades || []);
+                    setIntentos(data.intentos || []);
 
                     try {
                         const resStatus = await fetch(apiUrl('/api/unlock-status'));
@@ -467,6 +472,17 @@ export default function UnitReaderMain({
                                 )}
                             </div>
                         </div>
+
+                        {/* Peer Review Exercises */}
+                        {actividades && actividades.map((activity) => (
+                            <WrittenExerciseSubmission
+                                key={activity.id}
+                                activity={activity}
+                                existingAttempt={intentos.find(i => i.actividad_id === activity.id)}
+                                unitId={unidad.id}
+                                locale={params.locale}
+                            />
+                        ))}
 
                         <div className="mt-12 border-t border-white/10 pt-12">
                             {isExplorationMode && !isCompletada ? (

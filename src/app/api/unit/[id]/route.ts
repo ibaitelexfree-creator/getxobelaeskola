@@ -86,6 +86,26 @@ export async function GET(
             ), request);
         }
 
+        // Fetch activities (Specifically written exercises for peer review)
+        const { data: actividades } = await supabase
+            .from('actividades')
+            .select('id, tipo, titulo_es, titulo_eu, descripcion_es, descripcion_eu, rubrica')
+            .eq('unidad_id', params.id)
+            .eq('tipo', 'ejercicio_escrito');
+
+        // Fetch user attempts for these activities
+        let intentos = [];
+        if (actividades && actividades.length > 0) {
+            const actividadIds = actividades.map((a: any) => a.id);
+            const { data: intentosData } = await supabase
+                .from('intentos_actividad')
+                .select('id, actividad_id, estado_revision, datos_json, created_at')
+                .eq('alumno_id', user.id)
+                .in('actividad_id', actividadIds);
+
+            intentos = intentosData || [];
+        }
+
         const { data: unidadesHermanas } = await supabase
             .from('unidades_didacticas')
             .select('id, orden, nombre_es, nombre_eu')
@@ -100,6 +120,8 @@ export async function GET(
 
         return withCors(NextResponse.json({
             unidad,
+            actividades: actividades || [],
+            intentos: intentos || [],
             navegacion: {
                 anterior: unidadAnterior,
                 siguiente: unidadSiguiente,
