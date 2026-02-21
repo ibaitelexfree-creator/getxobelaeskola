@@ -12,6 +12,7 @@ const ScrollUpButton = dynamic(() => import('@/components/shared/ScrollToTop'), 
 import { Viewport } from 'next';
 import { Suspense } from 'react';
 const StatusToast = dynamic(() => import('@/components/shared/StatusToast'), { ssr: false });
+const OfflineIndicator = dynamic(() => import('@/components/shared/OfflineIndicator'), { ssr: false });
 
 export const viewport: Viewport = {
   themeColor: '#001B3A', // Nautical Black
@@ -46,6 +47,7 @@ export default async function LocaleLayout({
         <NextIntlClientProvider messages={messages} locale={locale} timeZone="Europe/Madrid">
           <AcademyFeedbackProvider>
             <PushNotificationInitializer />
+            <OfflineIndicator />
             <div className="min-h-screen flex flex-col relative w-full overflow-x-hidden">
               <ConditionalLayout
                 locale={locale}
@@ -144,5 +146,6 @@ export async function generateMetadata({ params: { locale } }: { params: { local
         'max-snippet': -1,
       },
     },
+    manifest: '/manifest.json',
   };
 }
