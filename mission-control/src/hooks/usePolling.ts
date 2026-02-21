@@ -2,7 +2,8 @@
 
 import { useEffect, useRef, useCallback } from 'react';
 import { useMissionStore } from '@/store/useMissionStore';
-import { getHealth, getWatchdogStatus, getActiveSessions } from '@/lib/api';
+import { getHealth, getWatchdogStatus, getActiveSessions, getResourceStatus } from '@/lib/api';
+
 
 export function usePolling() {
     const intervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -13,15 +14,19 @@ export function usePolling() {
         updateStats,
         setLastSync,
         updateActiveThreads,
+        updatePower,
     } = useMissionStore();
+
 
     const poll = useCallback(async () => {
         try {
-            const [health, watchdog, sessions] = await Promise.all([
+            const [health, watchdog, sessions, resources] = await Promise.all([
                 getHealth().catch(() => null),
                 getWatchdogStatus().catch(() => null),
                 getActiveSessions().catch(() => null),
+                getResourceStatus().catch(() => null),
             ]);
+
 
             if (health) {
                 setConnected(true);
@@ -90,6 +95,15 @@ export function usePolling() {
 
                 updateActiveThreads(threads);
             }
+
+            if (resources) {
+                updatePower({
+                    mode: resources.powerMode,
+                    lastActivity: resources.lastActivity,
+                    services: resources.services,
+                });
+            }
+
         } catch {
             setConnected(false);
         }
