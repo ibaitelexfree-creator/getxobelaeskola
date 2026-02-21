@@ -22,7 +22,26 @@ export async function GET() {
 
         if (dbError) throw dbError;
 
-        return NextResponse.json(data);
+        // Fetch Feedback
+        const entryIds = data?.map((e: any) => e.id) || [];
+        let feedback: any[] = [];
+
+        if (entryIds.length > 0) {
+            const { data: fbData } = await supabase
+                .from('instructor_feedback')
+                .select('*')
+                .in('context_id', entryIds)
+                .eq('context_type', 'logbook');
+            feedback = fbData || [];
+        }
+
+        // Merge
+        const entriesWithFeedback = data?.map((entry: any) => ({
+            ...entry,
+            feedback: feedback.filter((f: any) => f.context_id === entry.id) || []
+        })) || [];
+
+        return NextResponse.json(entriesWithFeedback);
     } catch (err) {
         console.error('Error fetching diary entries:', err);
         return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });

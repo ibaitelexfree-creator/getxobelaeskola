@@ -10,6 +10,7 @@ import {
 import { apiUrl } from '@/lib/api';
 import { useAcademyFeedback } from '@/hooks/useAcademyFeedback';
 import { useSmartTracker } from '@/hooks/useSmartTracker';
+import FeedbackDisplay from '@/components/shared/feedback/FeedbackDisplay';
 
 // Direct dynamic import with explicit default handling
 const LeafletMap = dynamic(
@@ -512,6 +513,12 @@ export default function Logbook() {
                                             <p className="text-white/70 leading-relaxed italic font-serif">
                                                 "{entry.contenido}"
                                             </p>
+
+                                            {/* FEEDBACK DISPLAY */}
+                                            {entry.feedback && entry.feedback.length > 0 && (
+                                                <FeedbackDisplay feedback={entry.feedback} />
+                                            )}
+
                                             {entry.tags && entry.tags.length > 0 && (
                                                 <div className="flex gap-2 mt-4">
                                                     {entry.tags.map((tag: string) => (
