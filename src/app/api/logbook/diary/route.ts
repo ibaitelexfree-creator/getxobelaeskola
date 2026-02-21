@@ -38,9 +38,26 @@ export async function POST(req: Request) {
         }
 
         const body = await req.json();
-        const { contenido, estado_animo, tags } = body;
+        const {
+            contenido,
+            estado_animo,
+            tags,
+            fecha,
+            puerto_salida,
+            tripulacion,
+            viento_nudos,
+            viento_direccion,
+            maniobras,
+            observaciones
+        } = body;
 
-        if (!contenido) {
+        // Si no hay contenido explícito pero hay datos náuticos, generamos un contenido por defecto
+        let finalContent = contenido;
+        if (!finalContent && (puerto_salida || tripulacion || maniobras)) {
+            finalContent = `Registro de Navegación: ${puerto_salida || 'Salida al mar'}`;
+        }
+
+        if (!finalContent) {
             return NextResponse.json({ error: 'Contenido es requerido' }, { status: 400 });
         }
 
@@ -49,10 +66,16 @@ export async function POST(req: Request) {
             .from('bitacora_personal')
             .insert({
                 alumno_id: user.id,
-                contenido,
+                contenido: finalContent,
                 estado_animo: estado_animo || 'discovery',
                 tags: tags || [],
-                fecha: new Date().toISOString()
+                fecha: fecha || new Date().toISOString(),
+                puerto_salida,
+                tripulacion,
+                viento_nudos,
+                viento_direccion,
+                maniobras,
+                observaciones
             })
             .select()
             .single();
