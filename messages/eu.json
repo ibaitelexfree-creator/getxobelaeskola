@@ -69,6 +69,7 @@
     "title_prefix": "Materialaren",
     "title_highlight": "Alokairua",
     "description": "Optimist, Laser, J80, turbinadun Paddle Surf, Windsurf eta gehiago. Zure itsas abenturarako beharrezko material guztia.",
+    "crew_label": "Tripulazioa",
     "footer_note": "* Belaontzien alokairurako gutxieneko titulazioa behar da. Turbinadun Paddle Surferako oinarrizko prestakuntza sartzen da.",
     "categories": {
       "all": "Guztiak",
@@ -115,7 +116,8 @@
     "cumpleanos": "Urtebetetzeak",
     "atraque": "Atrakak",
     "bono": "Bonoak",
-    "visita": "Bisitak"
+    "visita": "Bisitak",
+    "premium_experience": "Premium Esperientzia"
   },
   "home": {
     "hero": {

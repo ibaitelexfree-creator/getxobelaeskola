@@ -5,6 +5,7 @@ import JsonLd from '@/components/shared/JsonLd';
 
 import HeroCarousel from '@/components/home/HeroCarousel';
 import StatsSection from '@/components/home/StatsSection';
+import { createAdminClient } from '@/lib/supabase/admin';
 const NativeAppRedirect = dynamic(() => import('@/components/shared/NativeAppRedirect'), { ssr: false });
 const ExperienceSection = dynamic(() => import('@/components/home/ExperienceSection'));
 const FeaturesSection = dynamic(() => import('@/components/home/FeaturesSection'));
@@ -42,6 +43,14 @@ export default async function LandingPage({ params: { locale } }: { params: { lo
   const tExp = await getTranslations({ locale, namespace: 'home.experience' });
   const tProg = await getTranslations({ locale, namespace: 'home.programs' });
   const tFeat = await getTranslations({ locale, namespace: 'home.features' });
+
+  // Fetch boat count
+  const supabase = createAdminClient();
+  const { count } = await supabase
+    .from('embarcaciones')
+    .select('*', { count: 'exact', head: true });
+
+  const flotaValue = count?.toString() || '12';
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -152,6 +161,7 @@ export default async function LandingPage({ params: { locale } }: { params: { lo
         alumnosLabel={tStats('alumnos')}
         flotaLabel={tStats('flota')}
         clasesLabel={tStats('clases')}
+        flotaValue={flotaValue}
       />
       <ExperienceSection
         locale={locale}

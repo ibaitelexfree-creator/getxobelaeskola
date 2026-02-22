@@ -6,23 +6,67 @@ import { useTranslations } from 'next-intl';
 import { ArrowLeft, Check, Sparkles, Anchor, Star, Shield } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { apiUrl } from '@/lib/api';
+import LegalConsentModal from '@/components/shared/LegalConsentModal';
+import { createClient } from '@/lib/supabase/client';
 
 export default function MembershipPage({ params: { locale } }: { params: { locale: string } }) {
+    const tLegal = useTranslations('legal');
     const [loading, setLoading] = useState(false);
+    const [isLegalModalOpen, setIsLegalModalOpen] = useState(false);
 
-    const handleSubscribe = async () => {
+    // Auth state for legal modal
+    const [user, setUser] = React.useState<any>(null);
+    const [profile, setProfile] = React.useState<any>(null);
+    const supabase = React.useMemo(() => createClient(), []);
+
+    React.useEffect(() => {
+        const checkUser = async () => {
+            const { data: { user } } = await supabase.auth.getUser();
+            setUser(user);
+            if (user) {
+                const { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).single();
+                setProfile(profile);
+            }
+        };
+        checkUser();
+    }, [supabase]);
+
+    const handleSubscribeClick = () => {
+        if (loading) return;
+        setIsLegalModalOpen(true);
+    };
+
+    const handleLegalConfirm = async (legalData: { fullName: string; email: string; dni: string }) => {
+        setIsLegalModalOpen(false);
         try {
             setLoading(true);
+
+            // 1. Log Consent
+            await fetch(apiUrl('/api/legal/consent'), {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    fullName: legalData.fullName,
+                    email: legalData.email,
+                    dni: legalData.dni,
+                    legalText: tLegal('consent_acceptance'),
+                    consentType: 'membership',
+                    referenceId: 'membership_subscription'
+                })
+            });
+
+            // 2. Subscribe
             const res = await fetch(apiUrl('/api/membership/subscribe'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ locale })
+                body: JSON.stringify({
+                    locale,
+                    legalName: legalData.fullName,
+                    legalDni: legalData.dni
+                })
             });
             const data = await res.json();
             if (data.url) {
-                // Use window.open for external links in Capacitor if needed, 
-                // but window.location.href usually works for replacing the view.
-                // For a checkout flow, we want to go there.
                 window.location.href = data.url;
             } else {
                 alert(data.error || 'Error al iniciar suscripción');
@@ -132,7 +176,7 @@ export default function MembershipPage({ params: { locale } }: { params: { local
                 {/* CTA Action */}
                 <div className="fixed bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-nautical-black via-nautical-black/95 to-transparent z-40">
                     <button
-                        onClick={handleSubscribe}
+                        onClick={handleSubscribeClick}
                         disabled={loading}
                         className="w-full py-4 bg-brass-gold text-nautical-black font-black uppercase tracking-widest text-sm rounded-lg hover:bg-white transition-all shadow-[0_0_30px_rgba(184,134,11,0.3)] active:scale-95 flex items-center justify-center gap-2"
                     >
@@ -149,6 +193,19 @@ export default function MembershipPage({ params: { locale } }: { params: { local
                         El cobro se realizará de forma segura a través de Stripe. Puedes cancelar en cualquier momento.
                     </p>
                 </div>
+
+                <LegalConsentModal
+                    isOpen={isLegalModalOpen}
+                    onClose={() => setIsLegalModalOpen(false)}
+                    onConfirm={handleLegalConfirm}
+                    activityType="membership"
+                    initialData={user ? {
+                        fullName: profile ? `${profile.nombre} ${profile.apellidos}` : undefined,
+                        email: user.email,
+                        dni: profile?.dni
+                    } : undefined}
+                    legalText={tLegal('consent_acceptance')}
+                />
             </div>
         </main>
     );

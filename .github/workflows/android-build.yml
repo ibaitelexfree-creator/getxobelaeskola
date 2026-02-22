@@ -1,9 +1,16 @@
 name: Build & Distribute Android
 
 on:
-  push:
-    branches: [main, master]
   workflow_dispatch:
+    inputs:
+      reason:
+        description: "Reason for manual build"
+        required: false
+        default: "Manual update from Control APK"
+
+concurrency:
+  group: android-build-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build:

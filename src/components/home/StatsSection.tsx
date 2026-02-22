@@ -6,13 +6,14 @@ interface StatsSectionProps {
     alumnosLabel: string;
     flotaLabel: string;
     clasesLabel: string;
+    flotaValue?: string;
 }
 
-export default function StatsSection({ pasionLabel, alumnosLabel, flotaLabel, clasesLabel }: StatsSectionProps) {
+export default function StatsSection({ pasionLabel, alumnosLabel, flotaLabel, clasesLabel, flotaValue = '12' }: StatsSectionProps) {
     const stats = [
         { label: pasionLabel, value: '30+' },
         { label: alumnosLabel, value: '5K+' },
-        { label: flotaLabel, value: '12' },
+        { label: flotaLabel, value: flotaValue },
         { label: clasesLabel, value: '100%' }
     ];
     return (

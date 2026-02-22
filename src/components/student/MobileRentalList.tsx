@@ -96,7 +96,7 @@ export default function MobileRentalList({
                     email: legalData.email,
                     dni: legalData.dni,
                     legalText: tLegal('consent_acceptance'),
-                    consentType: 'rental',
+                    consentType: selectedService.categoria === 'membresias' ? 'membership' : 'rental',
                     referenceId: selectedService.id
                 })
             });
@@ -263,7 +263,7 @@ export default function MobileRentalList({
                 isOpen={isLegalModalOpen}
                 onClose={() => setIsLegalModalOpen(false)}
                 onConfirm={processBooking}
-                consentType="rental"
+                activityType={selectedService?.categoria === 'membresias' ? 'membership' : 'rental'}
                 initialData={user ? {
                     fullName: profile ? `${profile.nombre} ${profile.apellidos}` : undefined,
                     email: user.email,

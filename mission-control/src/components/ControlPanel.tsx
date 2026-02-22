@@ -9,6 +9,8 @@ import {
     Play, Pause, AlertTriangle, Shield, Settings,
 } from 'lucide-react';
 
+import BuildTrigger from './BuildTrigger';
+
 function ToggleSwitch({
     on,
     onToggle,
@@ -195,6 +197,9 @@ export default function ControlPanel() {
 
             {/* Trust Tunnel Control */}
             <TrustTunnelCard />
+
+            {/* GitHub Build Control */}
+            <BuildTrigger />
         </div>
     );
 }
