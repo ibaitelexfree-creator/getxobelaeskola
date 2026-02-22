@@ -2,15 +2,17 @@ import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { EvaluationResult } from './types';
 import MotivationalMessages from '@/components/academy/MotivationalMessages';
-import FeedbackDisplay from '@/components/shared/feedback/FeedbackDisplay';
+import FeedbackRecorder from '@/components/academy/feedback/FeedbackRecorder';
+import FeedbackPlayer from '@/components/academy/feedback/FeedbackPlayer';
+import { createClient } from '@/lib/supabase/client';
 
 interface ResultScreenProps {
     result: EvaluationResult;
+    attemptId?: string;
     onRetry: () => void;
     onClose: () => void;
     maxAttemptsExceeded?: boolean;
     cooldownActive?: boolean;
-    attemptId?: string;
 }
 
 /**
@@ -39,28 +41,82 @@ const CountingNumber = ({ value, duration = 2000 }: { value: number, duration?: 
 
 export default function ResultScreen({
     result,
+    attemptId,
     onRetry,
     onClose,
     maxAttemptsExceeded = false,
-    cooldownActive = false,
-    attemptId
+    cooldownActive = false
 }: ResultScreenProps) {
     const isPassing = result.passed;
     const [showDetails, setShowDetails] = useState(false);
-    const [instructorFeedback, setInstructorFeedback] = useState<any[]>([]);
+    const [isInstructor, setIsInstructor] = useState(false);
+    const [feedbackMap, setFeedbackMap] = useState<Record<string, any>>({});
+    const [studentId, setStudentId] = useState<string | undefined>(undefined);
+    const supabase = createClient();
 
     useEffect(() => {
-        if (attemptId) {
-            fetch(`/api/feedback?context_id=${attemptId}&context_type=evaluation`)
-                .then(res => res.json())
-                .then(data => {
-                    if (data.feedback) {
-                        setInstructorFeedback(data.feedback);
-                    }
-                })
-                .catch(err => console.error('Error fetching feedback', err));
+        async function loadRoleAndFeedback() {
+            // Role
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user) {
+                const { data: profile } = await supabase.from('profiles').select('rol').eq('id', user.id).single();
+                if (profile && (profile.rol === 'instructor' || profile.rol === 'admin')) {
+                    setIsInstructor(true);
+                }
+            }
+
+            // Feedback and Student ID
+            if (attemptId) {
+                // Fetch student ID associated with attempt
+                const { data: attempt } = await supabase
+                    .from('intentos_evaluacion')
+                    .select('alumno_id')
+                    .eq('id', attemptId)
+                    .single();
+
+                if (attempt) {
+                    setStudentId(attempt.alumno_id);
+                }
+
+                // Fetch feedback
+                const { data } = await supabase
+                    .from('evaluacion_feedback')
+                    .select('*')
+                    .eq('intento_id', attemptId);
+
+                if (data) {
+                    const map: Record<string, any> = {};
+                    data.forEach(item => {
+                        if (item.pregunta_id) {
+                            map[item.pregunta_id] = item;
+                        }
+                    });
+                    setFeedbackMap(map);
+                }
+            }
         }
-    }, [attemptId]);
+        loadRoleAndFeedback();
+    }, [attemptId, supabase]);
+
+    const handleFeedbackSaved = () => {
+        if (attemptId) {
+             supabase
+                .from('evaluacion_feedback')
+                .select('*')
+                .eq('intento_id', attemptId)
+                .then(({ data }) => {
+                    if (data) {
+                        const map: Record<string, any> = {};
+                        data.forEach(item => {
+                            if (item.pregunta_id) {
+                                map[item.pregunta_id] = item;
+                            }
+                        });
+                        setFeedbackMap(map);
+                    }
+                });
+        }
+    };
 
     return (
         <>
@@ -121,14 +177,6 @@ export default function ResultScreen({
                         </p>
                     </div>
 
-                    {/* INSTRUCTOR FEEDBACK */}
-                    {instructorFeedback.length > 0 && (
-                        <div className="w-full max-w-2xl mx-auto animate-in slide-in-from-bottom-4">
-                            <FeedbackDisplay feedback={instructorFeedback} />
-                        </div>
-                    )}
-
-
                     {/* Detailed Review Section */}
                     {result.details && result.details.length > 0 && (
                         <div className="w-full space-y-4">
@@ -183,6 +231,29 @@ export default function ResultScreen({
                                                             "{detail.explicacion_es}"
                                                         </div>
                                                     )}
+
+                                                    {/* Instructor Feedback Section */}
+                                                    {(!detail.isCorrect || isInstructor) && (
+                                                        <div className="mt-4 pt-4 border-t border-white/5">
+                                                            {isInstructor && attemptId && (
+                                                                <div className="mb-4">
+                                                                    <FeedbackRecorder
+                                                                        entityType="evaluation"
+                                                                        entityId={attemptId}
+                                                                        studentId={studentId}
+                                                                        context={{ preguntaId: detail.questionId }}
+                                                                        onSave={handleFeedbackSaved}
+                                                                        existingText={feedbackMap[detail.questionId]?.feedback_text}
+                                                                        existingAudioUrl={feedbackMap[detail.questionId]?.feedback_audio_url}
+                                                                    />
+                                                                </div>
+                                                            )}
+                                                            <FeedbackPlayer
+                                                                text={feedbackMap[detail.questionId]?.feedback_text}
+                                                                audioUrl={feedbackMap[detail.questionId]?.feedback_audio_url}
+                                                            />
+                                                        </div>
+                                                    )}
                                                 </div>
                                             </div>
                                         </div>
@@ -212,7 +283,7 @@ export default function ResultScreen({
                             onClick={onClose}
                             className={`flex-1 py-4 px-6 rounded-xl font-bold text-2xs uppercase tracking-widest transition-all border ${isPassing
                                 ? 'bg-blue-600 border-blue-500 hover:bg-blue-500 text-white shadow-[0_0_30px_rgba(37,99,235,0.3)] active:scale-95'
-                                : 'bg-transparent border-white/10 text-slate-400 hover:text-white hover:bg-white/5'
+                                : 'bg-transparent border-white/10 text-slate-400 hover:text-white hover:bg-white/10 hover:border-white/20'
                                 }`}
                         >
                             {isPassing ? 'Siguiente Unidad →' : 'Volver al Curso'}

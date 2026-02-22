@@ -68,21 +68,18 @@ export const usePushNotifications = () => {
             console.log('Push Registration Token:', token.value);
             setState(prev => ({ ...prev, token: token.value }));
 
-            // Send the token to Supabase profiles
-            try {
-                const supabase = createClient();
-                const { data: { user } } = await supabase.auth.getUser();
-                if (user) {
-                    const { error } = await supabase
-                        .from('profiles')
-                        .update({ fcm_token: token.value })
-                        .eq('id', user.id);
-
-                    if (error) console.error('Error saving FCM token to profile:', error);
-                    else console.log('FCM token saved to profile');
-                }
-            } catch (err) {
-                console.error('Error saving token:', err);
+            // Send the token to backend
+            const supabase = createClient();
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user) {
+                // We use onConflict ignore or update to ensure we don't duplicate
+                // But upsert with unique key (user_id, token) handles it
+                await supabase.from('user_devices').upsert({
+                    user_id: user.id,
+                    token: token.value,
+                    platform: Capacitor.getPlatform(),
+                    updated_at: new Date().toISOString()
+                }, { onConflict: 'user_id, token' });
             }
         });
 

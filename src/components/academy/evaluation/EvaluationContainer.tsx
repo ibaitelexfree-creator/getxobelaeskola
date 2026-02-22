@@ -115,9 +115,9 @@ export default function EvaluationContainer({
         return (
             <ResultScreen
                 result={state.result}
+                attemptId={state.attemptId} // Pass attemptId
                 onRetry={startEvaluation}
                 onClose={handleClose}
-                attemptId={state.attemptId}
             />
         );
     }
