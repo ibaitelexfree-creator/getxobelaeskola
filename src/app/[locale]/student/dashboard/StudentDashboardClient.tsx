@@ -22,7 +22,7 @@ const EmptyState = dynamic(() => import('@/components/ui/EmptyState'));
 const BonosWallet = dynamic(() => import('@/components/student/BonosWallet'));
 const BonoPurchaseModal = dynamic(() => import('@/components/student/BonoPurchaseModal'));
 const DailyNauticalQuote = dynamic(() => import('@/components/student/DailyNauticalQuote'));
-const PlannerContainer = dynamic(() => import('@/components/student/planner/PlannerContainer'), { ssr: false });
+const StudySessionsHistory = dynamic(() => import('@/components/student/dashboard/StudySessionsHistory'));
 
 interface DashboardItem {
     id: string;
@@ -408,6 +408,9 @@ export default function StudentDashboardClient({
                                     </div>
                                 </section>
                             )}
+
+                            {/* Study Sessions History */}
+                            <StudySessionsHistory locale={locale} />
                         </div>
 
                         <div className="lg:col-span-1 space-y-8">
