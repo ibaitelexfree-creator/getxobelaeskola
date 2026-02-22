@@ -150,36 +150,15 @@ export default function MobileRentalList({
 
             {/* List */}
             <StaggeredEntrance className="px-6 grid gap-4 mt-6" type="recombine">
-                {services.map((service) => (
-                    <button
+                {services.map((service, idx) => (
+                    <RentalCard
                         key={service.id}
+                        service={service}
+                        locale={locale}
+                        index={idx}
                         onClick={() => openBooking(service)}
-                        className="bg-nautical-black border border-white/10 rounded-2xl overflow-hidden active:scale-[0.98] transition-all duration-300 text-left"
-                    >
-                        <div className="h-40 relative bg-white/5">
-                            {service.imagen_url ? (
-                                <img
-                                    src={service.imagen_url}
-                                    alt={getServiceName(service)}
-                                    className="w-full h-full object-cover"
-                                />
-                            ) : (
-                                <div className="w-full h-full flex items-center justify-center text-4xl">⚓</div>
-                            )}
-                            <div className="absolute top-4 right-4 bg-nautical-black/80 backdrop-blur px-3 py-1 rounded text-[10px] font-black uppercase tracking-widest text-white">
-                                {service.precio_base}€/h
-                            </div>
-                        </div>
-                        <div className="p-5">
-                            <h3 className="text-lg font-display text-white mb-1">
-                                {getServiceName(service)}
-                            </h3>
-                            <div className="flex items-center gap-2 mt-2">
-                                <span className="text-[10px] uppercase tracking-widest text-accent font-bold">{t('booking.book_now')}</span>
-                                <ChevronRight className="w-3 h-3 text-accent" />
-                            </div>
-                        </div>
-                    </button>
+                        t={t}
+                    />
                 ))}
             </StaggeredEntrance>
 
@@ -275,3 +254,62 @@ export default function MobileRentalList({
     );
 }
 
+function RentalCard({
+    service,
+    locale,
+    index,
+    onClick,
+    t
+}: {
+    service: RentalService;
+    locale: string;
+    index: number;
+    onClick: () => void;
+    t: any;
+}) {
+    const [imageError, setImageError] = useState(false);
+
+    const getServiceName = (service: RentalService) => {
+        if (locale === 'eu') return service.nombre_eu || service.nombre_es;
+        if (locale === 'en') return service.nombre_en || service.nombre_es;
+        if (locale === 'fr') return service.nombre_fr || service.nombre_es;
+        return service.nombre_es;
+    };
+
+    const name = getServiceName(service);
+
+    return (
+        <button
+            onClick={onClick}
+            className="bg-nautical-black border border-white/10 rounded-2xl overflow-hidden active:scale-[0.98] transition-all duration-300 text-left"
+        >
+            <div className="h-40 relative bg-white/5">
+                {service.imagen_url && !imageError ? (
+                    <Image
+                        src={service.imagen_url}
+                        alt={name}
+                        fill
+                        sizes="(max-width: 768px) 90vw, 600px"
+                        priority={index === 0}
+                        className="object-cover"
+                        onError={() => setImageError(true)}
+                    />
+                ) : (
+                    <div className="w-full h-full flex items-center justify-center text-4xl">⚓</div>
+                )}
+                <div className="absolute top-4 right-4 bg-nautical-black/80 backdrop-blur px-3 py-1 rounded text-[10px] font-black uppercase tracking-widest text-white">
+                    {service.precio_base}€/h
+                </div>
+            </div>
+            <div className="p-5">
+                <h3 className="text-lg font-display text-white mb-1">
+                    {name}
+                </h3>
+                <div className="flex items-center gap-2 mt-2">
+                    <span className="text-[10px] uppercase tracking-widest text-accent font-bold">{t('booking.book_now')}</span>
+                    <ChevronRight className="w-3 h-3 text-accent" />
+                </div>
+            </div>
+        </button>
+    );
+}

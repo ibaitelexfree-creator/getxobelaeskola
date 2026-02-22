@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Search, ChevronRight, X, BookOpen } from 'lucide-react';
 import { getApiUrl } from '@/lib/platform';
 import StaggeredEntrance from '@/components/shared/StaggeredEntrance';
@@ -66,12 +67,6 @@ export default function MobileCourseList({ locale }: { locale: string }) {
     const getDesc = (c: Course) => {
         if (locale === 'eu' && c.descripcion_eu) return c.descripcion_eu;
         return c.descripcion_es || '';
-    };
-
-    const getCategory = (c: Course) => {
-        if (!c.categoria) return 'Bela Eskola';
-        if (locale === 'eu' && c.categoria.nombre_eu) return c.categoria.nombre_eu;
-        return c.categoria.nombre_es || 'Bela Eskola';
     };
 
     useEffect(() => {
@@ -165,62 +160,14 @@ export default function MobileCourseList({ locale }: { locale: string }) {
             {/* Course Grid */}
             <StaggeredEntrance className="px-6 pt-8 grid gap-6" type="recombine">
                 {filteredCourses.length > 0 ? (
-                    filteredCourses.map((course, idx) => {
-                        const name = getName(course);
-                        const desc = getDesc(course);
-                        const category = getCategory(course);
-
-                        return (
-                            <Link
-                                key={course.id || `course-${idx}`}
-                                href={`/${locale}/student/courses/${course.slug}`}
-                                className="group relative bg-white/[0.02] border border-white/10 rounded-3xl overflow-hidden active:scale-[0.98] transition-all duration-300 hover:border-accent/30"
-                            >
-                                <div className="relative h-48 sm:h-64 bg-white/5">
-                                    {course.imagen_url ? (
-                                        <img
-                                            src={course.imagen_url}
-                                            alt={name}
-                                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                                            onError={(e) => {
-                                                (e.target as HTMLImageElement).style.display = 'none';
-                                                (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden');
-                                            }}
-                                        />
-                                    ) : (
-                                        <div className="w-full h-full flex items-center justify-center text-5xl bg-gradient-to-br from-nautical-black to-white/5">⛵</div>
-                                    )}
-                                    <div className="hidden absolute inset-0 flex items-center justify-center bg-nautical-black/50">
-                                        <span className="text-4xl">⛵</span>
-                                    </div>
-                                    <div className="absolute inset-0 bg-gradient-to-t from-nautical-black via-transparent to-transparent opacity-60" />
-
-                                    <div className="absolute top-4 left-4 bg-accent/20 backdrop-blur-md border border-accent/30 px-3 py-1.5 rounded-full">
-                                        <span className="text-[10px] font-black uppercase tracking-widest text-accent">
-                                            {category}
-                                        </span>
-                                    </div>
-                                </div>
-
-                                <div className="p-6 relative">
-                                    <h3 className="text-xl font-display text-white mb-2 group-hover:text-accent transition-colors">{name}</h3>
-                                    <p className="text-white/50 text-sm leading-relaxed line-clamp-2 mb-6 font-light">{desc}</p>
-
-                                    <div className="flex items-center justify-between">
-                                        <div className="flex flex-col">
-                                            <span className="text-xs uppercase tracking-widest text-white/30 font-bold mb-1">Precio</span>
-                                            <span className="text-2xl font-bold text-white italic">
-                                                {course.precio}<span className="text-accent text-sm not-italic ml-1">€</span>
-                                            </span>
-                                        </div>
-                                        <div className="w-12 h-12 rounded-2xl bg-accent flex items-center justify-center text-nautical-black shadow-[0_0_20px_rgba(255,77,0,0.3)] group-hover:shadow-accent/50 transition-all">
-                                            <ChevronRight className="w-6 h-6 stroke-[3]" />
-                                        </div>
-                                    </div>
-                                </div>
-                            </Link>
-                        );
-                    })
+                    filteredCourses.map((course, idx) => (
+                        <CourseCard
+                            key={course.id || `course-${idx}`}
+                            course={course}
+                            locale={locale}
+                            index={idx}
+                        />
+                    ))
                 ) : (
                     <div className="py-20 flex flex-col items-center justify-center text-center space-y-6 animate-in fade-in duration-700">
                         <div className="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center text-white/20 mb-2">
@@ -246,5 +193,87 @@ export default function MobileCourseList({ locale }: { locale: string }) {
                 )}
             </StaggeredEntrance>
         </div>
+    );
+}
+
+function CourseCard({
+    course,
+    locale,
+    index
+}: {
+    course: Course;
+    locale: string;
+    index: number;
+}) {
+    const [imageError, setImageError] = useState(false);
+
+    const getName = (c: Course) => {
+        if (locale === 'eu' && c.nombre_eu) return c.nombre_eu;
+        return c.nombre_es || 'Curso sin nombre';
+    };
+
+    const getDesc = (c: Course) => {
+        if (locale === 'eu' && c.descripcion_eu) return c.descripcion_eu;
+        return c.descripcion_es || '';
+    };
+
+    const getCategory = (c: Course) => {
+        if (!c.categoria) return 'Bela Eskola';
+        if (locale === 'eu' && c.categoria.nombre_eu) return c.categoria.nombre_eu;
+        return c.categoria.nombre_es || 'Bela Eskola';
+    };
+
+    const name = getName(course);
+    const desc = getDesc(course);
+    const category = getCategory(course);
+
+    return (
+        <Link
+            href={`/${locale}/student/courses/${course.slug}`}
+            className="group relative bg-white/[0.02] border border-white/10 rounded-3xl overflow-hidden active:scale-[0.98] transition-all duration-300 hover:border-accent/30"
+        >
+            <div className="relative h-48 sm:h-64 bg-white/5">
+                {course.imagen_url && !imageError ? (
+                    <Image
+                        src={course.imagen_url}
+                        alt={name}
+                        fill
+                        sizes="(max-width: 768px) 90vw, 600px"
+                        priority={index === 0}
+                        className="object-cover group-hover:scale-110 transition-transform duration-700"
+                        onError={() => setImageError(true)}
+                    />
+                ) : (
+                    <div className="w-full h-full flex items-center justify-center text-5xl bg-gradient-to-br from-nautical-black to-white/5">
+                        <span className="text-4xl">⛵</span>
+                    </div>
+                )}
+
+                <div className="absolute inset-0 bg-gradient-to-t from-nautical-black via-transparent to-transparent opacity-60" />
+
+                <div className="absolute top-4 left-4 bg-accent/20 backdrop-blur-md border border-accent/30 px-3 py-1.5 rounded-full">
+                    <span className="text-[10px] font-black uppercase tracking-widest text-accent">
+                        {category}
+                    </span>
+                </div>
+            </div>
+
+            <div className="p-6 relative">
+                <h3 className="text-xl font-display text-white mb-2 group-hover:text-accent transition-colors">{name}</h3>
+                <p className="text-white/50 text-sm leading-relaxed line-clamp-2 mb-6 font-light">{desc}</p>
+
+                <div className="flex items-center justify-between">
+                    <div className="flex flex-col">
+                        <span className="text-xs uppercase tracking-widest text-white/30 font-bold mb-1">Precio</span>
+                        <span className="text-2xl font-bold text-white italic">
+                            {course.precio}<span className="text-accent text-sm not-italic ml-1">€</span>
+                        </span>
+                    </div>
+                    <div className="w-12 h-12 rounded-2xl bg-accent flex items-center justify-center text-nautical-black shadow-[0_0_20px_rgba(255,77,0,0.3)] group-hover:shadow-accent/50 transition-all">
+                        <ChevronRight className="w-6 h-6 stroke-[3]" />
+                    </div>
+                </div>
+            </div>
+        </Link>
     );
 }
