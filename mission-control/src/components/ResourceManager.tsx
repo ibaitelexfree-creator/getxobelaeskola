@@ -3,10 +3,22 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { useMissionStore } from '@/store/useMissionStore';
 import { setPowerMode, startService, stopService, resetService, pauseService, getServiceLogs } from '@/lib/api';
-import { Zap, Shield, Power, Cpu, Database, Binary, Play, Pause, RotateCcw, Globe, ExternalLink, Monitor, Square, FileText, X, AlertCircle } from 'lucide-react';
+import { Zap, Shield, Power, Cpu, Database, Binary, Play, Pause, RotateCcw, Globe, ExternalLink, Monitor, Square, FileText, X, AlertCircle, Lock, Copy, CheckCircle } from 'lucide-react';
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
+
+// VPN passwords for external services (pulled from env via API ideally, hardcoded fallback is empty)
+const EXTERNAL_VPN_HINTS: Record<string, { label: string; password?: string; note?: string }> = {
+    'https://getxobelaeskola.cloud': {
+        label: 'GetxoBelaEskola VPS',
+        note: 'No requiere contraseña (dominio público Hostinger)'
+    },
+    'https://n8n.scarmonit.com': {
+        label: 'n8n Automation (Hostinger VPS)',
+        note: 'Accede con las credenciales de n8n. Si usas VPN, desconéctala primero.'
+    }
+};
 
 // ── Types ──────────────────────────────────────────────────────────────
 interface ServiceAction {
@@ -25,6 +37,93 @@ const getActions = (t: any): Record<string, ServiceAction> => ({
     logs: { id: 'logs', label: t('actions.logs.label'), description: t('actions.logs.desc'), icon: FileText, color: 'text-status-blue' },
     link: { id: 'link', label: t('actions.link.label'), description: t('actions.link.desc'), icon: ExternalLink, color: 'text-status-blue' },
 });
+
+// ── External Link Modal ─────────────────────────────────────────────────
+function ExternalLinkModal({ url, onClose }: { url: string; onClose: () => void }) {
+    const hint = EXTERNAL_VPN_HINTS[url] || { label: url, note: '' };
+    const [copied, setCopied] = useState(false);
+
+    const handleOpen = () => {
+        window.open(url, '_blank');
+        onClose();
+    };
+
+    const handleCopyUrl = () => {
+        navigator.clipboard.writeText(url).then(() => {
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000);
+        });
+    };
+
+    return (
+        <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[500] flex items-end justify-center"
+            onClick={onClose}
+        >
+            <div className="absolute inset-0 bg-black/80 backdrop-blur-md" />
+            <motion.div
+                initial={{ y: 100, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                exit={{ y: 100, opacity: 0 }}
+                transition={{ type: 'spring', damping: 20 }}
+                onClick={(e) => e.stopPropagation()}
+                className="relative z-10 w-full max-w-lg bg-[#0a0f1a] border border-white/10 rounded-t-3xl p-6 shadow-[0_-20px_60px_rgba(0,0,0,0.6)]"
+            >
+                {/* Handle */}
+                <div className="w-12 h-1 rounded-full bg-white/20 mx-auto mb-6" />
+
+                <div className="flex items-center gap-3 mb-6">
+                    <div className="p-3 rounded-2xl bg-status-blue/10 text-status-blue border border-status-blue/20">
+                        <Globe size={20} />
+                    </div>
+                    <div>
+                        <h3 className="font-mono font-black text-sm text-white uppercase tracking-widest">{hint.label}</h3>
+                        <p className="text-[9px] font-mono text-white/30 uppercase tracking-tight mt-0.5">ENLACE EXTERNO</p>
+                    </div>
+                </div>
+
+                {/* URL Row */}
+                <div className="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/5 mb-4">
+                    <span className="text-[10px] font-mono text-white/40 flex-1 truncate">{url}</span>
+                    <button
+                        onClick={handleCopyUrl}
+                        className="p-1.5 rounded-lg bg-white/10 text-white/60 active:scale-90 transition-all shrink-0"
+                    >
+                        {copied ? <CheckCircle size={14} className="text-status-green" /> : <Copy size={14} />}
+                    </button>
+                </div>
+
+                {/* Note / VPN hint */}
+                {hint.note && (
+                    <div className="flex items-start gap-2 p-3 rounded-xl bg-status-amber/10 border border-status-amber/20 mb-6">
+                        <AlertCircle size={14} className="text-status-amber shrink-0 mt-0.5" />
+                        <p className="text-[10px] font-mono text-status-amber/80 leading-relaxed">{hint.note}</p>
+                    </div>
+                )}
+
+                {/* Actions */}
+                <div className="flex gap-3">
+                    <button
+                        onClick={onClose}
+                        className="flex-1 py-4 rounded-2xl bg-white/5 text-white/40 font-black text-[11px] uppercase tracking-widest active:bg-white/10 active:scale-95 transition-all border border-white/5"
+                    >
+                        Cancelar
+                    </button>
+                    <button
+                        onClick={handleOpen}
+                        className="flex-1 py-4 rounded-2xl bg-status-blue text-black font-black text-[11px] uppercase tracking-widest shadow-[0_10px_30px_rgba(0,120,200,0.4)] active:scale-90 transition-all flex items-center justify-center gap-2"
+                    >
+                        <ExternalLink size={14} />
+                        Abrir
+                    </button>
+                </div>
+            </motion.div>
+        </motion.div>
+    );
+}
 
 // ── Tooltip Component ───────────────────────────────────────────────────
 function ActionTooltip({ action, position }: { action: ServiceAction; position: { x: number; y: number } }) {
@@ -220,6 +319,7 @@ export default function ResourceManager() {
     const { t } = useTranslation();
     const actions = getActions(t);
     const [viewingLogs, setViewingLogs] = useState<string | null>(null);
+    const [externalLinkUrl, setExternalLinkUrl] = useState<string | null>(null);
 
     const handleModeSwitch = async (mode: 'eco' | 'performance') => {
         try {
@@ -321,7 +421,12 @@ export default function ResourceManager() {
                                     actions={actions}
                                     onClick={() => {
                                         Haptics.impact({ style: ImpactStyle.Light });
-                                        window.open(svc.url, '_blank');
+                                        // Show info modal for external services, direct open otherwise
+                                        if (svc.type === 'external') {
+                                            setExternalLinkUrl(svc.url ?? null);
+                                        } else {
+                                            window.open(svc.url, '_blank');
+                                        }
                                     }}
                                     className="p-1.5 bg-status-blue/10 hover:bg-status-blue/20 rounded-lg text-status-blue transition-all border border-status-blue/20"
                                 >
@@ -400,6 +505,15 @@ export default function ResourceManager() {
                     <LogViewer
                         serviceKey={viewingLogs}
                         onClose={() => setViewingLogs(null)}
+                    />
+                )}
+            </AnimatePresence>
+
+            <AnimatePresence>
+                {externalLinkUrl && (
+                    <ExternalLinkModal
+                        url={externalLinkUrl}
+                        onClose={() => setExternalLinkUrl(null)}
                     />
                 )}
             </AnimatePresence>
