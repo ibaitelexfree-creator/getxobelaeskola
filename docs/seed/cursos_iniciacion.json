@@ -1,0 +1,71 @@
+{
+  "cursos": [
+    {
+      "slug": "curso-iniciacion-vela",
+      "nombre_es": "Curso de Iniciación a la Vela",
+      "nombre_eu": "Bela Hastapen Ikastaroa",
+      "descripcion_es": "Curso completo para iniciarse en la navegación a vela, cubriendo desde seguridad básica hasta maniobras esenciales.",
+      "descripcion_eu": "Nabigazioan hasteko ikastaro osoa, segurtasunetik maniobra nagusietaraino.",
+      "nivel": "iniciacion",
+      "precio": 150,
+      "duracion_h": 25,
+      "modulos": [
+        {
+          "slug": "introduccion-seguridad",
+          "nombre_es": "Introducción y Seguridad",
+          "nombre_eu": "Sarrera eta Segurtasuna",
+          "orden": 1,
+          "unidades_didacticas": [
+            { "slug": "equipo-seguridad", "nombre_es": "Equipo de Seguridad Personal", "orden": 1 },
+            { "slug": "prevencion-accidentes", "nombre_es": "Prevención de Accidentes", "orden": 2 },
+            { "slug": "hombre-al-agua", "nombre_es": "Maniobra de Hombre al Agua", "orden": 3 }
+          ]
+        },
+        {
+          "slug": "partes-barco",
+          "nombre_es": "Partes del Barco",
+          "nombre_eu": "Itsasontziaren Atalak",
+          "orden": 2,
+          "unidades_didacticas": [
+            { "slug": "casco-cubierta", "nombre_es": "El Casco y la Cubierta", "orden": 1 },
+            { "slug": "aparejo-velas", "nombre_es": "El Aparejo y las Velas", "orden": 2 },
+            { "slug": "timon-orza", "nombre_es": "El Timón y la Orza", "orden": 3 }
+          ]
+        },
+        {
+          "slug": "teoria-viento",
+          "nombre_es": "Teoría del Viento",
+          "nombre_eu": "Haizearen Teoria",
+          "orden": 3,
+          "unidades_didacticas": [
+            { "slug": "origen-viento", "nombre_es": "Origen y Tipos de Viento", "orden": 1 },
+            { "slug": "viento-real-aparente", "nombre_es": "Viento Real y Aparente", "orden": 2 },
+            { "slug": "rosa-vientos", "nombre_es": "La Rosa de los Vientos", "orden": 3 }
+          ]
+        },
+        {
+          "slug": "maniobras-basicas",
+          "nombre_es": "Maniobras Básicas",
+          "nombre_eu": "Oinarrizko Maniobrak",
+          "orden": 4,
+          "unidades_didacticas": [
+            { "slug": "virada-avante", "nombre_es": "La Virada por Avante", "orden": 1 },
+            { "slug": "trasluchada", "nombre_es": "La Trasluchada", "orden": 2 },
+            { "slug": "control-velocidad", "nombre_es": "Control de Velocidad", "orden": 3 }
+          ]
+        },
+        {
+          "slug": "nudos-marineros",
+          "nombre_es": "Nudos Marineros",
+          "nombre_eu": "Korapiloak",
+          "orden": 5,
+          "unidades_didacticas": [
+            { "slug": "nudos-tope", "nombre_es": "Nudos de Tope (Ocho)", "orden": 1 },
+            { "slug": "nudos-amarre", "nombre_es": "Nudos de Amarre (As de Guía)", "orden": 2 },
+            { "slug": "nudos-union", "nombre_es": "Nudos de Unión (Llano)", "orden": 3 }
+          ]
+        }
+      ]
+    }
+  ]
+}
