@@ -1,5 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
+    darkMode: 'class',
     content: [
         "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
         "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
@@ -20,19 +21,24 @@ module.exports = {
                     grey: '#F2F2F2',
                 },
                 nautical: {
-                    black: '#000000',
-                    deep: '#010409',
-                    blue: '#154FA3',
+                    black: 'var(--nautical-black)',
+                    deep: 'var(--nautical-deep)',
+                    blue: 'var(--nautical-blue)',
                 },
-                'sea-foam': '#F2F2F2',
-                'buoy-orange': '#FF4D00',
-                'brass-gold': '#c5a059',
+                ocean: {
+                    dark: '#0077B6',
+                    medium: '#00B4D8',
+                    light: '#ADE8F4',
+                },
+                'sea-foam': 'var(--sea-foam)',
+                'buoy-orange': 'var(--buoy-orange)',
+                'brass-gold': 'var(--brass-gold)',
                 accent: {
-                    DEFAULT: '#FF4D00',
-                    foreground: '#F2F2F2',
+                    DEFAULT: 'var(--accent)',
+                    foreground: 'var(--accent-foreground)',
                 },
-                background: '#000000',
-                foreground: '#F2F2F2',
+                background: 'var(--background)',
+                foreground: 'var(--foreground)',
                 card: {
                     DEFAULT: 'rgba(255, 255, 255, 0.03)',
                     border: 'rgba(255, 255, 255, 0.1)',
