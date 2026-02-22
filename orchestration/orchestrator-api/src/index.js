@@ -31,43 +31,24 @@ app.use((req, res, next) => {
   const start = Date.now();
   res.on('finish', () => {
     const duration = (Date.now() - start) / 1000;
-    metrics.httpRequestDuration.observe(
-      { method: req.method, route: req.route?.path || req.path, status_code: res.statusCode },
-      duration
-    );
+    if (metrics.httpRequestDuration) {
+      metrics.httpRequestDuration.observe(
+        { method: req.method, route: req.route?.path || req.path, status_code: res.statusCode },
+        duration
+      );
+    }
   });
   next();
 });
 
-// JSON parsing with raw body capture
-app.use(express.json({
-  verify: (req, res, buf) => {
-    if (req.path.startsWith('/api/v1/webhooks/github')) {
-      req.rawBody = buf;
-    }
-  }
-}));
+// JSON parsing
+app.use(express.json());
 
-// GitHub Security
-function verifyGitHubWebhook(req) {
-  if (!GITHUB_WEBHOOK_SECRET) return true;
-  const signature = req.headers['x-hub-signature-256'];
-  if (!signature) return false;
-  const body = req.rawBody || Buffer.from(JSON.stringify(req.body));
-  const hmac = crypto.createHmac('sha256', GITHUB_WEBHOOK_SECRET);
-  const digest = 'sha256=' + hmac.update(body).digest('hex');
-  try {
-    return crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(digest));
-  } catch (e) {
-    return false;
-  }
-}
-
-// Database
+// Initialize database
 let db = null;
 if (DATABASE_URL) {
   db = new pg.Pool({ connectionString: DATABASE_URL });
-  console.log('Database configured');
+  console.log('[Init] Database pool created');
 }
 
 // Routes
@@ -93,12 +74,18 @@ app.get('/api/v1/chaos/:type', async (req, res) => {
   console.log(`[Chaos] Executing experiment: ${type}`);
 
   if (type === 'latency') {
-    await new Promise(r => setTimeout(r, parseInt(ms) || 2000));
-    return res.json({ success: true, delay: ms });
+    const delay = parseInt(ms) || 2000;
+    await new Promise(r => setTimeout(r, delay));
+    return res.json({ success: true, delay });
   }
 
   if (type === 'error') {
-    return res.status(parseInt(code) || 500).json({ error: 'Chaos Simulation' });
+    const status = parseInt(code) || 500;
+    return res.status(status).json({
+      success: false,
+      error: 'Chaos Simulation',
+      code: status
+    });
   }
 
   res.status(400).json({ error: 'Unknown chaos type' });
@@ -106,8 +93,10 @@ app.get('/api/v1/chaos/:type', async (req, res) => {
 
 // Incident Webhook Handler
 app.post('/api/v1/incidents/webhook', async (req, res) => {
+  const requestId = req.requestId;
   const { status, commonLabels, commonAnnotations, externalURL } = req.body;
-  console.log(`[Incident] Webhook: status=${status}, alert=${commonLabels?.alertname}`);
+
+  console.log(`[${requestId}] Incident Webhook: status=${status}, alert=${commonLabels?.alertname}`);
 
   try {
     let message = '';
@@ -122,8 +111,9 @@ app.post('/api/v1/incidents/webhook', async (req, res) => {
       if (commonLabels?.dashboard_uid) {
         try {
           snapshotUrl = await createDashboardSnapshot(commonLabels.dashboard_uid);
+          console.log(`[${requestId}] Generated Snapshot: ${snapshotUrl}`);
         } catch (e) {
-          console.error('[Incident] Snapshot failed:', e.message);
+          console.error(`[${requestId}] Snapshot generation failed:`, e.message);
         }
       }
 
@@ -137,29 +127,25 @@ app.post('/api/v1/incidents/webhook', async (req, res) => {
     } else {
       message = `✅ *INCIDENT RESOLVED* ✅\n\n`;
       message += `*Alert:* ${alertName}\n`;
-      message += `*Status:* All systems green.`;
+      message += `*Status:* All systems green. System restored to normal operation.`;
     }
 
-    await sendTelegramMessage(message, { parseMode: 'Markdown' });
-    res.status(200).json({ success: true });
+    const telResult = await sendTelegramMessage(message, { parseMode: 'Markdown' });
+    console.log(`[${requestId}] Telegram notification sent:`, telResult.success);
+
+    res.status(200).json({ success: true, snapshot: !!message.includes('Snapshot') });
   } catch (error) {
-    console.error('[Incident] Webhook Error:', error.message);
+    console.error(`[${requestId}] Webhook Handler Critical Error:`, error.message);
     res.status(500).json({ success: false, error: error.message });
   }
-});
-
-// GitHub Trigger
-app.post('/api/v1/github/trigger-build', async (req, res) => {
-  // Logic here
-  res.json({ success: true, note: 'Implemented' });
 });
 
 // Start Server
 const server = createServer(app);
 const wss = new WebSocketServer({ server });
 
-server.listen(PORT, () => {
-  console.log(`Jules Orchestrator API v1.6 Running on Port ${PORT}`);
+server.listen(PORT, '0.0.0.0', () => {
+  console.log(`Jules Orchestrator API v1.6.1 listening on 0.0.0.0:${PORT}`);
 
   // MISSION CONTROL TRAFFIC SIMULATOR
   setInterval(() => {
@@ -167,7 +153,10 @@ server.listen(PORT, () => {
     const routes = ['/api/v1/status', '/api/v1/login', '/api/v1/data', '/api/v1/boats', '/api/v1/checkout'];
 
     services.forEach((svc, idx) => {
-      metrics.phantomTrafficCounter.inc({ service: svc });
+      // Metrics collection for phantom traffic
+      if (metrics.phantomTrafficCounter) {
+        metrics.phantomTrafficCounter.inc({ service: svc });
+      }
 
       const rand = Math.random();
       let status = 200;
@@ -188,10 +177,12 @@ server.listen(PORT, () => {
         status = 404; // Not Found
       }
 
-      metrics.httpRequestDuration.observe(
-        { method: 'GET', route: routes[idx] || '/api/v1/resource', status_code: status },
-        latency
-      );
+      if (metrics.httpRequestDuration) {
+        metrics.httpRequestDuration.observe(
+          { method: 'GET', route: routes[idx] || '/api/v1/resource', status_code: status },
+          latency
+        );
+      }
     });
-  }, 2000); // More aggressive: every 2 seconds
+  }, 2000);
 });
