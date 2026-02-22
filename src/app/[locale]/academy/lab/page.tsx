@@ -3,6 +3,7 @@
 import React from 'react';
 import { useTranslations } from 'next-intl';
 import { WaterDemo } from '@/components/academy/geospatial/WaterDemo';
+import { MapWrapper } from '@/components/academy/geospatial/MapWrapper';
 import { Map, Compass, ShieldCheck, Zap } from 'lucide-react';
 import Link from 'next/link';
 
@@ -86,6 +87,22 @@ export default function GeoLabPage({ params }: { params: { locale: string } }) {
                                 <span className="text-xs">IR →</span>
                             </Link>
                         </div>
+                    </div>
+                </div>
+
+                <div className="mt-20">
+                    <h2 className="text-2xl font-display italic font-bold mb-6 flex items-center gap-3">
+                        <div className="p-2 bg-blue-500/20 rounded-xl">
+                            <Map className="text-blue-400 w-6 h-6" />
+                        </div>
+                        Carta Náutica: Ría de Bilbao
+                    </h2>
+                    <p className="text-slate-400 mb-8 max-w-3xl">
+                        Visualización interactiva de zonas de navegación, puntos de interés y áreas restringidas.
+                        Los datos se renderizan utilizando <strong>Leaflet</strong> con capas de OpenStreetMap.
+                    </p>
+                    <div className="border-2 border-green-500 min-h-[600px] p-2 rounded-xl">
+                        <MapWrapper />
                     </div>
                 </div>
             </div>
