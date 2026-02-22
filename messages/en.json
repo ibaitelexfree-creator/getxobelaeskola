@@ -69,7 +69,6 @@
     "title_prefix": "Rent",
     "title_highlight": "Material",
     "description": "Optimist, Laser, J80, Paddle Surf with turbine, Windsurf and more. All the material you need for your adventure at sea.",
-    "crew_label": "Crew",
     "footer_note": "* Sailboat rental requires a minimum qualification. Basic handling training is included for Paddle Surf with turbine.",
     "categories": {
       "all": "All",
@@ -115,8 +114,7 @@
     "cumpleanos": "Birthdays",
     "atraque": "Moorings",
     "bono": "Vouchers",
-    "visita": "Visitas",
-    "premium_experience": "Premium Experience"
+    "visita": "Visitas"
   },
   "home": {
     "hero": {
@@ -950,25 +948,15 @@
     "history_temp": "Temp (ºC)",
     "history_tide": "Tide (m)"
   },
-  "profile": {
-    "title": "Student Profile",
-    "share": "Share",
-    "public_toggle": "Public Profile",
-    "public_desc": "Allow others to see your achievements and stats.",
-    "stats": "Statistics",
-    "badges": "Badges",
-    "logbook": "Logbook",
-    "certificates": "Certificates",
-    "private_profile": "This profile is private.",
-    "not_found": "Profile not found.",
-    "copy_link": "Copy Link",
-    "link_copied": "Link copied!",
-    "share_error": "Could not share",
-    "edit_visibility": "Edit Visibility",
-    "hours_sailed": "Miles Sailed",
-    "level": "Level",
-    "total_points": "Points",
-    "ranking": "Ranking",
-    "since": "Since"
+  "sea_state": {
+    "title": "Sea State",
+    "subtitle": "Current Conditions in Getxo",
+    "wave_height": "Wave Height",
+    "wave_period": "Period",
+    "water_temp": "Water Temp",
+    "wind_speed": "Wind Speed",
+    "wind_dir": "Wind Dir",
+    "last_update": "Last update: {time}",
+    "source": "Source: Puertos del Estado"
   }
 }

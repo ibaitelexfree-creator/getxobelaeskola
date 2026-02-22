@@ -69,7 +69,6 @@
     "title_prefix": "Alquiler de",
     "title_highlight": "Material",
     "description": "Optimist, Laser, J80, Paddle Surf con turbina, Windsurf y más. Todo el material necesario para tu aventura en el mar.",
-    "crew_label": "Tripulación",
     "footer_note": "* El alquiler de veleros requiere titulación mínima. Para Paddle Surf con turbina se incluye formación básica de manejo.",
     "categories": {
       "all": "Todos",
@@ -116,8 +115,7 @@
     "cumpleanos": "Cumpleaños",
     "atraque": "Atraques",
     "bono": "Bonos",
-    "visita": "Visitas",
-    "premium_experience": "Experiencia Premium"
+    "visita": "Visitas"
   },
   "home": {
     "hero": {
@@ -951,25 +949,15 @@
     "history_temp": "Temp (ºC)",
     "history_tide": "Marea (m)"
   },
-  "profile": {
-    "title": "Perfil de Alumno",
-    "share": "Compartir",
-    "public_toggle": "Perfil Público",
-    "public_desc": "Permite que otros vean tus logros y estadísticas.",
-    "stats": "Estadísticas",
-    "badges": "Insignias",
-    "logbook": "Bitácora",
-    "certificates": "Certificados",
-    "private_profile": "Este perfil es privado.",
-    "not_found": "Perfil no encontrado.",
-    "copy_link": "Copiar Enlace",
-    "link_copied": "¡Enlace copiado!",
-    "share_error": "No se pudo compartir",
-    "edit_visibility": "Editar Visibilidad",
-    "hours_sailed": "Millas Navegadas",
-    "level": "Nivel",
-    "total_points": "Puntos",
-    "ranking": "Ranking",
-    "since": "Desde"
+  "sea_state": {
+    "title": "Estado del Mar",
+    "subtitle": "Condiciones Actuales en Getxo",
+    "wave_height": "Altura Ola",
+    "wave_period": "Período",
+    "water_temp": "Temp. Agua",
+    "wind_speed": "Vel. Viento",
+    "wind_dir": "Dir. Viento",
+    "last_update": "Última actualización: {time}",
+    "source": "Fuente: Puertos del Estado"
   }
 }

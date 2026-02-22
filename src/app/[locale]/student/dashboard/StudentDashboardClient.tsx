@@ -14,6 +14,7 @@ const StudentProfileSidebar = dynamic(() => import('@/components/student/Student
 const MembershipWidget = dynamic(() => import('@/components/student/MembershipWidget'));
 const DailyChallengeWidget = dynamic(() => import('@/components/student/DailyChallengeWidget'));
 const WeatherPremium = dynamic(() => import('@/components/shared/WeatherPremium'), { ssr: false });
+const SeaStateWidget = dynamic(() => import('@/components/student/SeaStateWidget'), { ssr: false });
 const MobileStudentHub = dynamic(() => import('@/components/student/MobileStudentHub'));
 const NotificationPermissionBanner = dynamic(() => import('@/components/dashboard/NotificationPermissionBanner'), { ssr: false });
 const QuickContact = dynamic(() => import('@/components/student/QuickContact'));
@@ -22,7 +23,6 @@ const EmptyState = dynamic(() => import('@/components/ui/EmptyState'));
 const BonosWallet = dynamic(() => import('@/components/student/BonosWallet'));
 const BonoPurchaseModal = dynamic(() => import('@/components/student/BonoPurchaseModal'));
 const DailyNauticalQuote = dynamic(() => import('@/components/student/DailyNauticalQuote'));
-const WaveBackground = dynamic(() => import('@/components/shared/WaveBackground'), { ssr: false });
 
 interface DashboardItem {
     id: string;
@@ -173,8 +173,7 @@ export default function StudentDashboardClient({
     }
 
     return (
-        <div className="relative min-h-screen bg-background transition-colors duration-500">
-            <WaveBackground />
+        <div className="relative min-h-screen bg-nautical-black">
             <div className="bg-mesh" />
 
             {/* Mobile View - Visible only on small screens */}
@@ -223,6 +222,8 @@ export default function StudentDashboardClient({
                     <div className="mb-12">
                         <WeatherPremium />
                     </div>
+
+                    <SeaStateWidget translations={t} locale={locale} />
 
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
                         <div className="lg:col-span-2 space-y-16">
