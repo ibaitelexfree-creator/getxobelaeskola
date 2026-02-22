@@ -5,6 +5,7 @@ import { useMissionStore, ServiceHealth } from '@/store/useMissionStore';
 import { AlertTriangle, X, AlertCircle, ChevronRight, Server, ShieldCheck, Cpu } from 'lucide-react';
 import TacticalRadar from '@/components/TacticalRadar';
 import ResourceManager from '@/components/ResourceManager';
+import HardwareStats from './HardwareStats';
 import { useState } from 'react';
 
 /* ═══════════════════════════════════════════════════
@@ -26,11 +27,14 @@ function ServiceItemCard({ service, index, onAlert }: {
     index: number;
     onAlert: (s: ServiceItem) => void
 }) {
-    const isError = service.health === 'offline' || service.health === 'degraded';
+    const isError = service.health === 'offline';
+    const isWarning = service.health === 'degraded';
     const statusBg = service.health === 'online' ? 'rgba(0, 255, 149, 0.15)' :
-        isError ? 'rgba(255, 51, 51, 0.2)' : 'rgba(255,255,255,0.05)';
+        isError ? 'rgba(255, 51, 51, 0.2)' :
+            isWarning ? 'rgba(255, 170, 0, 0.2)' : 'rgba(255,255,255,0.05)';
     const statusBorder = service.health === 'online' ? 'rgba(0, 255, 149, 0.4)' :
-        isError ? 'rgba(255, 51, 51, 0.6)' : 'rgba(255,255,255,0.2)';
+        isError ? 'rgba(255, 51, 51, 0.6)' :
+            isWarning ? 'rgba(255, 170, 0, 0.6)' : 'rgba(255,255,255,0.2)';
 
     return (
         <motion.div
@@ -49,7 +53,8 @@ function ServiceItemCard({ service, index, onAlert }: {
             <div className="text-right">
                 <p className="text-xl font-black font-mono text-white">{service.metric}</p>
                 <div className={`text-[10px] font-bold uppercase py-0.5 px-2 rounded-full inline-block mt-1 ${service.health === 'online' ? 'bg-status-green text-black' :
-                    isError ? 'bg-status-red text-white' : 'bg-white/20 text-white'
+                    isError ? 'bg-status-red text-white' :
+                        isWarning ? 'bg-status-amber text-black' : 'bg-white/20 text-white'
                     }`}>
                     {service.health}
                 </div>
@@ -62,7 +67,7 @@ function ServiceItemCard({ service, index, onAlert }: {
    MAIN DASHBOARD
 ═══════════════════════════════════════════════════ */
 export default function Dashboard() {
-    const { services, stats, pendingApproval, connected, lastSync, setActiveTab } = useMissionStore();
+    const { services, stats, pendingApproval, connected, lastSync, setActiveTab, julesWaiting } = useMissionStore();
     const [alertService, setAlertService] = useState<ServiceItem | null>(null);
 
     const watchdogS = services.watchdog.state || 'UNKNOWN';
@@ -88,9 +93,9 @@ export default function Dashboard() {
                     id: 'jules',
                     name: 'JULES IDE',
                     icon: '🐙',
-                    health: services.jules.health,
-                    metric: `${services.jules.active}`,
-                    detail: `Sesión ${services.jules.used}/${services.jules.total}`,
+                    health: julesWaiting ? 'degraded' : services.jules.health,
+                    metric: julesWaiting ? 'WAITING' : `${services.jules.active}`,
+                    detail: julesWaiting ? 'Input Requerido' : `Sesión ${services.jules.used}/${services.jules.total}`,
                     errorMsg: 'Jules API Offline o Cuota Agotada.'
                 }
             ]
@@ -149,14 +154,20 @@ export default function Dashboard() {
             {/* ── Stats Bar ── */}
             <div className="grid grid-cols-3 gap-3">
                 {[
-                    { label: 'PENDING', val: stats.assigned, color: '#FFFFFF', bg: 'rgba(255,255,255,0.2)' },
-                    { label: 'DONE', val: stats.completed, color: '#00FF95', bg: 'rgba(0,255,149,0.2)' },
-                    { label: 'FAIL', val: stats.failed, color: '#FF3333', bg: 'rgba(255,51,51,0.2)' },
+                    { label: 'PENDING', val: stats.assigned, color: '#FFFFFF', bg: 'rgba(255,255,255,0.15)', tab: 'queue' },
+                    { label: 'DONE', val: stats.completed, color: '#00FF95', bg: 'rgba(0,255,149,0.15)', tab: 'queue' },
+                    { label: 'FAIL', val: stats.failed, color: '#FF3333', bg: 'rgba(255,51,51,0.15)', tab: 'queue' },
                 ].map((s) => (
-                    <div key={s.label} className="p-4 rounded-3xl border-4 text-center" style={{ borderColor: 'rgba(255,255,255,0.4)', backgroundColor: s.bg }}>
+                    <motion.div
+                        key={s.label}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => setActiveTab(s.tab as any)}
+                        className="p-4 rounded-3xl border-2 text-center cursor-pointer transition-premium bg-black/40 border-white/10 hover:border-white/30"
+                        style={{ backgroundColor: s.bg }}
+                    >
                         <p className="text-4xl font-black" style={{ color: s.color }}>{s.val}</p>
-                        <p className="text-white text-[12px] font-black uppercase tracking-widest mt-1">{s.label}</p>
-                    </div>
+                        <p className="text-white/60 text-[12px] font-black uppercase tracking-widest mt-1">{s.label}</p>
+                    </motion.div>
                 ))}
             </div>
 
@@ -169,7 +180,12 @@ export default function Dashboard() {
                     </h2>
                     <span className="bg-white/20 text-white text-[12px] font-black px-4 py-1.5 rounded-full">{services.thermal.label}</span>
                 </div>
-                <TacticalRadar />
+
+                <div className="grid grid-cols-1 lg:grid-cols-[auto_1fr_auto] items-center gap-6">
+                    <HardwareStats side="left" />
+                    <TacticalRadar />
+                    <HardwareStats side="right" />
+                </div>
             </div>
 
             {/* ── Resource Management ── */}

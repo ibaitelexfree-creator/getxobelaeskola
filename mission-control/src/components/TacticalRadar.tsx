@@ -264,12 +264,13 @@ export default function TacticalRadar() {
                     />
                 ))}
 
-                {/* Sweep */}
-                <div
-                    className="absolute inset-0 origin-center pointer-events-none z-10 opacity-50"
+                {/* Sweep Ray */}
+                <motion.div
+                    className="absolute inset-0 origin-center pointer-events-none z-10"
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
                     style={{
-                        transform: `rotate(${sweepAngle - 40}deg)`,
-                        background: 'conic-gradient(from 0deg at 50% 50%, rgba(0, 255, 148, 0.35) 0deg, rgba(0, 255, 148, 0.08) 22deg, transparent 44deg)',
+                        background: 'conic-gradient(from 0deg at 50% 50%, rgba(0, 255, 148, 0.4) 0deg, rgba(0, 255, 148, 0.1) 20deg, transparent 45deg)',
                         borderRadius: '50%',
                     }}
                 />
@@ -280,6 +281,14 @@ export default function TacticalRadar() {
                     const x = 50 + Math.cos((c.angle - 90) * (Math.PI / 180)) * (c.distance / 2);
                     const y = 50 + Math.sin((c.angle - 90) * (Math.PI / 180)) * (c.distance / 2);
                     const clickable = isOffline;
+
+                    // Label placement "intelligence"
+                    // - If contact is on the left half (angle 180-360), place label on the right
+                    // - If contact is on the right half (angle 0-180), place label on the left
+                    // - Add subtle vertical offset based on angle to avoid straight-line collisions
+                    const isLeftHalf = c.angle > 180 && c.angle < 360;
+                    const labelXClass = isLeftHalf ? 'left-full ml-3' : 'right-full mr-3';
+                    const labelYOffset = Math.sin(c.angle * (Math.PI / 180)) * 5;
 
                     return (
                         <div
@@ -306,23 +315,29 @@ export default function TacticalRadar() {
                                 title={c.label}
                             />
 
-                            {/* Label — always visible */}
+                            {/* Label — intelligence-based placement */}
                             <div
-                                className="absolute left-full top-0 ml-2 whitespace-nowrap pointer-events-none"
-                                style={{ transform: 'translateY(-50%)' }}
+                                className={`absolute top-0 whitespace-nowrap pointer-events-none transition-all duration-500 ${labelXClass}`}
+                                style={{
+                                    transform: `translateY(calc(-50% + ${labelYOffset}px))`,
+                                }}
                             >
-                                <div className="flex items-center gap-2 bg-black px-2 py-1 rounded-xl border-2 border-white/20 backdrop-blur-xl">
-                                    <span className="text-[14px]">{c.icon}</span>
+                                <motion.div
+                                    initial={{ opacity: 0, scale: 0.8 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    className="flex items-center gap-2 bg-black/60 px-2 py-0.5 rounded-lg border border-white/10 backdrop-blur-md"
+                                >
+                                    <span className="text-[12px]">{c.icon}</span>
                                     <span
-                                        className="text-[14px] font-black uppercase tracking-tighter"
+                                        className="text-[11px] font-black uppercase tracking-tighter"
                                         style={{ color: healthColor(c.health) }}
                                     >
                                         {c.label}
                                     </span>
                                     {isOffline && (
-                                        <span className="text-[12px] text-status-red font-black animate-pulse ml-1">!</span>
+                                        <span className="text-[10px] text-status-red font-black animate-pulse ml-1">!</span>
                                     )}
-                                </div>
+                                </motion.div>
                             </div>
                         </div>
                     );
