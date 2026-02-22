@@ -49,6 +49,7 @@ import { cacheMiddleware, invalidateCaches } from './middleware/cacheMiddleware.
 import { sendTelegramMessage } from './lib/telegram.js';
 import { readProjectMemory, writeProjectMemory, appendToProjectMemory, readAllContext } from './lib/project-memory.js';
 import { setupTelegramInbound } from './lib/telegram-inbound.js';
+import { initDb, query } from './lib/db.js';
 
 dotenv.config();
 
@@ -63,7 +64,7 @@ const julesAgent = new https.Agent({
 const PORT = process.env.PORT || 3323;
 const JULES_API_KEY = process.env.JULES_API_KEY;
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN || null;
-const VERSION = '2.6.0';
+const VERSION = '2.6.2';
 
 // ============ v2.5.0 INFRASTRUCTURE ============
 
@@ -143,13 +144,13 @@ async function retryWithBackoff(fn, options = {}) {
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try { return await fn(); }
     catch (error) {
-      lastError = error;
       if (error.statusCode && error.statusCode >= 400 && error.statusCode < 500 && error.statusCode !== 429) throw error;
       if (attempt < maxRetries) {
         const delay = Math.min(baseDelay * Math.pow(2, attempt - 1) + Math.random() * 1000, maxDelay);
         structuredLog('warn', `Retry attempt ${attempt}/${maxRetries}`, { correlationId, delay: Math.round(delay), error: error.message });
         await new Promise(resolve => setTimeout(resolve, delay));
       }
+      lastError = error;
     }
   }
   throw lastError;
@@ -299,7 +300,7 @@ app.get(['/health', '/api/v1/health'], async (req, res) => {
     },
     services: {
       julesApi: 'unknown',
-      database: process.env.DATABASE_URL ? 'configured' : 'not_configured',
+      database: process.env.DB_HOST ? 'mysql_configured' : 'not_configured',
       github: GITHUB_TOKEN ? 'configured' : 'not_configured',
       semanticMemory: process.env.SEMANTIC_MEMORY_URL ? 'configured' : 'not_configured'
     },
@@ -922,6 +923,16 @@ function julesRequest(method, path, body = null) {
 
 // Create a new Jules session with correct API schema
 async function createJulesSession(config) {
+  // Record session in MySQL if available
+  try {
+    await query(
+      'INSERT INTO session_history (id, title, executor, status) VALUES (?, ?, ?, ?)',
+      [`session_${Date.now()}`, config.title || 'unnamed', 'jules', 'pending']
+    );
+  } catch (err) {
+    // Silently fail if DB not available
+  }
+
   const { error } = sessionCreateSchema.validate(config);
   if (error) {
     // Sanitize and format the error to be more user-friendly
@@ -1432,6 +1443,13 @@ const server = app.listen(PORT, '0.0.0.0', () => {
 
   // Start Render webhook cleanup interval
   startRenderCleanupInterval();
+
+  // Initialize Database
+  initDb().then(() => {
+    console.log('Database system ready');
+  }).catch(err => {
+    console.warn('Database initialization failed, using local mode:', err.message);
+  });
 
   // Initialize modules after server starts
   batchProcessor = new BatchProcessor(julesRequest, createJulesSession);
