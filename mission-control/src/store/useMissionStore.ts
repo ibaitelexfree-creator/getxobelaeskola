@@ -55,11 +55,13 @@ interface MissionState {
     setLastSync: (ts: number) => void;
 }
 
+const DEFAULT_BASE = 'https://agent.scarmonit.com';
+
 export const useMissionStore = create<MissionState>((set) => ({
     // Initial state
     serverUrl: typeof window !== 'undefined'
-        ? localStorage.getItem('mc_server_url') || 'http://localhost:3323'
-        : 'http://localhost:3323',
+        ? localStorage.getItem('mc_server_url') || DEFAULT_BASE
+        : DEFAULT_BASE,
     connected: false,
     lastSync: null,
 
