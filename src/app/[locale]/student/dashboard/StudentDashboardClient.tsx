@@ -14,6 +14,7 @@ const StudentProfileSidebar = dynamic(() => import('@/components/student/Student
 const MembershipWidget = dynamic(() => import('@/components/student/MembershipWidget'));
 const DailyChallengeWidget = dynamic(() => import('@/components/student/DailyChallengeWidget'));
 const WeatherPremium = dynamic(() => import('@/components/shared/WeatherPremium'), { ssr: false });
+const SeaStateWidget = dynamic(() => import('@/components/student/SeaStateWidget'), { ssr: false });
 const MobileStudentHub = dynamic(() => import('@/components/student/MobileStudentHub'));
 const NotificationPermissionBanner = dynamic(() => import('@/components/dashboard/NotificationPermissionBanner'), { ssr: false });
 const QuickContact = dynamic(() => import('@/components/student/QuickContact'));
@@ -221,6 +222,8 @@ export default function StudentDashboardClient({
                     <div className="mb-12">
                         <WeatherPremium />
                     </div>
+
+                    <SeaStateWidget translations={t} locale={locale} />
 
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
                         <div className="lg:col-span-2 space-y-16">

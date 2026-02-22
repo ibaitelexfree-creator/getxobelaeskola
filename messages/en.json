@@ -947,5 +947,16 @@
     "history_direction": "Direction",
     "history_temp": "Temp (ºC)",
     "history_tide": "Tide (m)"
+  },
+  "sea_state": {
+    "title": "Sea State",
+    "subtitle": "Current Conditions in Getxo",
+    "wave_height": "Wave Height",
+    "wave_period": "Period",
+    "water_temp": "Water Temp",
+    "wind_speed": "Wind Speed",
+    "wind_dir": "Wind Dir",
+    "last_update": "Last update: {time}",
+    "source": "Source: Puertos del Estado"
   }
 }
