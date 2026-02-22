@@ -186,7 +186,7 @@ export default function HeroCarousel({ initialSlides }: HeroCarouselProps) {
 
             {/* Cinematic Scroll Indicator */}
             <div className="absolute bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-6 z-30 opacity-40 hover:opacity-100 transition-premium group shadow-2xl">
-                <span className="text-[9px] uppercase tracking-[0.5em] font-black text-white vertical-text">Scroll</span>
+                <span className="text-[9px] uppercase tracking-[0.5em] font-black text-white vertical-text">{t('scroll')}</span>
                 <div className="w-[1px] h-20 bg-gradient-to-b from-accent via-accent/20 to-transparent relative overflow-hidden">
                     <div className="absolute top-0 left-0 w-full h-1/2 bg-white animate-scroll-dash" />
                 </div>
