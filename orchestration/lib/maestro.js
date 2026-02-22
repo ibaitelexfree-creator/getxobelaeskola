@@ -40,6 +40,7 @@ import { VisualRelay } from './visual-relay.js';
 import { CreditMonitor } from './credit-monitor.js';
 import { AgentWatchdog } from './watchdog.js';
 import { appendToProjectMemory, readProjectMemory } from './project-memory.js';
+import { query } from './db.js';
 import { config } from 'dotenv';
 import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
@@ -244,6 +245,7 @@ export class Maestro {
             if (result.success) {
                 this.stats.flashUsed++;
                 this.stats.tasksCompleted++;
+                this._logToDb(task, 'flash', 'completed', result.latencyMs);
                 await this._send([
                     `✅ **Flash completó** (${result.latencyMs}ms)`,
                     `📝 ${description}`,
@@ -397,8 +399,10 @@ export class Maestro {
         const result = await this.clawdbot.delegateTask(task);
         if (result.success) {
             this.stats.clawdbotUsed++;
+            this._logToDb(task, 'clawdbot', 'completed', 0);
             await this._send(`✅ **ClawdBot completó:**\n${result.response?.substring(0, 500) || 'OK'}`);
         } else {
+            this._logToDb(task, 'clawdbot', 'failed', 0);
             await this._send(`❌ ClawdBot falló: ${result.error}`);
         }
     }
@@ -517,9 +521,11 @@ export class Maestro {
 
         if (result.success) {
             this.stats.tasksCompleted++;
+            this._logToDb(task, 'clawdbot', 'completed', 0);
             await this._send(`✅ ClawdBot completó: ${task.title}`);
         } else {
             this.stats.tasksFailed++;
+            this._logToDb(task, 'clawdbot', 'failed', 0);
             await this._send(`❌ ClawdBot falló: ${result.error}\nTarea añadida a la cola.`);
             this.taskQueue.push(task);
         }
@@ -569,6 +575,18 @@ export class Maestro {
             appendToProjectMemory('AGENT_TASKS.md', newRow);
         } catch (err) {
             console.warn('[Maestro] Failed to log task:', err.message);
+        }
+    }
+
+    async _logToDb(task, executor, status, latency = 0) {
+        try {
+            const id = `session_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`;
+            await query(
+                'INSERT INTO session_history (id, title, executor, status, latency_ms) VALUES (?, ?, ?, ?, ?)',
+                [id, task.title || 'Untitled', executor, status, latency]
+            );
+        } catch (err) {
+            console.warn('[Maestro] Failed to log to DB:', err.message);
         }
     }
 
@@ -683,6 +701,7 @@ export class Maestro {
      */
     async notifyCompletion(sessionRef, result = {}) {
         this.stats.tasksCompleted++;
+        this._logToDb({ title: result.title || 'Unknown Task' }, 'jules', 'completed', 0);
 
         // Find and release the account
         const status = this.pool.getStatus();
@@ -706,6 +725,7 @@ export class Maestro {
      */
     async notifyFailure(sessionRef, error = '') {
         this.stats.tasksFailed++;
+        this._logToDb({ title: 'Failed Task' }, 'jules', 'failed', 0);
 
         const status = this.pool.getStatus();
         for (const account of status.accounts) {
