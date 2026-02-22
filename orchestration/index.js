@@ -204,17 +204,6 @@ async function retryWithBackoff(fn, options = {}) {
 
 const app = express();
 
-// Simple CORS middleware
-app.use((req, res, next) => {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
-  res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
-  res.setHeader('Access-Control-Allow-Credentials', 'true');
-  if (req.method === 'OPTIONS') {
-    return res.sendStatus(200);
-  }
-  next();
-});
 app.use(compressionMiddleware());
 app.use(cacheMiddleware);
 // Preserve raw body for webhook signature verification
@@ -342,6 +331,7 @@ agentWatchdog.on('autoContinueSent', (e) => {
 // CORS - Secure whitelist configuration (no wildcard fallback)
 const DEFAULT_ORIGINS = [
   'http://localhost:3000',
+  'http://localhost:3100',
   'http://localhost:5173',
   'https://antigravity-jules-orchestration.onrender.com',
   'https://scarmonit.com',
@@ -1699,7 +1689,7 @@ async function createJulesSession(config) {
 
   // Record in DB
   if (session && session.name) {
-    const sessionId = session.name.split('/')?.pop() || 'unknown';
+    const sessionId = session.name?.split('/')?.pop() || 'unknown';
     dbTasks.add({
       id: sessionId,
       title: config.title || config.prompt.substring(0, 100),
@@ -1712,7 +1702,7 @@ async function createJulesSession(config) {
 
   // Notify Telegram (Async, do not block response)
   if (session && session.name) {
-    const sessionId = session.name.split('/')?.pop() || 'unknown';
+    const sessionId = session.name?.split('/')?.pop() || 'unknown';
     const title = session.title || sessionData.title || 'Nueva tarea';
     sendTelegramMessage(`🚀 *Sesión de Jules Iniciada*\n\n*ID:* \`${sessionId}\`\n*Tarea:* ${title}\n*Origen:* \`${config.source}\`\n\n[Ver en el navegador](${session.url})`)
       .catch(err => console.error('[Telegram] Notification failed:', err.message));

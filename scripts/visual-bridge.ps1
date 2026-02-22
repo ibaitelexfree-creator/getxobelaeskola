@@ -16,7 +16,7 @@ if (-not $currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Adm
 # Compatible con el orquestador en local.
 # ==========================================================
 
-$Port = 3323
+$Port = 3000
 $BaseDir = "c:\Users\User\Desktop\Saili8ng School Test\antigravity"
 $TunnelLog = "$BaseDir\tunnel.log"
 $ErrorLog = "$BaseDir\tunnel_error.log"
@@ -71,7 +71,7 @@ if ($null -ne $TunnelUrl) {
         source    = "cloudflare"
         timestamp = (Get-Date -Format "yyyy-MM-ddTHH:mm:ss.fffZ")
     } | ConvertTo-Json
-    $JsonData | Out-File -FilePath $UrlFile -Encoding utf8
+    $JsonData | Out-File -FilePath $UrlFile -Encoding ASCII
 
     # 4. Notificar por Telegram
     $BotToken = "8182239815:AAFHtrRnwN3oHnah0zo-SbzAZzmeaAtU9tI"

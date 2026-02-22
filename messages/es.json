@@ -69,6 +69,7 @@
     "title_prefix": "Alquiler de",
     "title_highlight": "Material",
     "description": "Optimist, Laser, J80, Paddle Surf con turbina, Windsurf y más. Todo el material necesario para tu aventura en el mar.",
+    "crew_label": "Tripulación",
     "footer_note": "* El alquiler de veleros requiere titulación mínima. Para Paddle Surf con turbina se incluye formación básica de manejo.",
     "categories": {
       "all": "Todos",
@@ -115,7 +116,8 @@
     "cumpleanos": "Cumpleaños",
     "atraque": "Atraques",
     "bono": "Bonos",
-    "visita": "Visitas"
+    "visita": "Visitas",
+    "premium_experience": "Experiencia Premium"
   },
   "home": {
     "hero": {

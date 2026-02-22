@@ -69,6 +69,7 @@
     "title_prefix": "Rent",
     "title_highlight": "Material",
     "description": "Optimist, Laser, J80, Paddle Surf with turbine, Windsurf and more. All the material you need for your adventure at sea.",
+    "crew_label": "Crew",
     "footer_note": "* Sailboat rental requires a minimum qualification. Basic handling training is included for Paddle Surf with turbine.",
     "categories": {
       "all": "All",
@@ -114,7 +115,8 @@
     "cumpleanos": "Birthdays",
     "atraque": "Moorings",
     "bono": "Vouchers",
-    "visita": "Visitas"
+    "visita": "Visitas",
+    "premium_experience": "Premium Experience"
   },
   "home": {
     "hero": {

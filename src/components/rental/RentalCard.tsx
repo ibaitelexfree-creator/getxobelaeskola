@@ -41,6 +41,16 @@ export default function RentalCard({ service, locale, onBook }: RentalCardProps)
         return src;
     };
 
+    // Determine capacity based on service type
+    const getCapacity = () => {
+        const s = service.slug.toLowerCase();
+        if (s.includes('j80')) return '6';
+        if (s.includes('raquero')) return '8';
+        if (s.includes('kayak-2') || s.includes('piragua-2')) return '2';
+        if (s.includes('kayak-1') || s.includes('piragua-1') || s.includes('optimist') || s.includes('laser')) return '1';
+        return '1-4';
+    };
+
     return (
         <div className="group relative glass-card overflow-hidden h-full flex flex-col">
             {/* Design Decor - Nautical Numbers */}
@@ -81,10 +91,10 @@ export default function RentalCard({ service, locale, onBook }: RentalCardProps)
                     {/* Specs Row */}
                     <div className="flex gap-6 py-4 border-y border-white/5 mb-6">
                         <div className="flex flex-col gap-1">
-                            <span className="text-[8px] uppercase tracking-widest text-white/30">Crew</span>
+                            <span className="text-[8px] uppercase tracking-widest text-white/30">{t('crew_label')}</span>
                             <div className="flex items-center gap-1.5 text-white/60">
                                 <Users className="w-3.5 h-3.5" />
-                                <span className="text-xs font-bold font-mono">1-4</span>
+                                <span className="text-xs font-bold font-mono">{getCapacity()}</span>
                             </div>
                         </div>
                         <div className="w-px h-8 bg-white/5" />

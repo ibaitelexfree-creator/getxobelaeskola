@@ -322,6 +322,7 @@ export default async function CourseDetailPage({
                                     editions={displayEditions}
                                     coursePrice={displayCourse.precio}
                                     courseId={displayCourse.id}
+                                    activityType={slug.includes('campus') || slug.includes('udalekus') ? 'udalekus' : (slug.includes('vela-ligera') ? 'training' : 'course')}
                                 />
                             </div>
                         </div>

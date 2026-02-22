@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
-import LegalConsentModal from '../shared/LegalConsentModal';
+import LegalConsentModal, { ActivityType } from '../shared/LegalConsentModal';
 import { createClient } from '@/lib/supabase/client';
 import { apiUrl } from '@/lib/api';
 
@@ -21,9 +21,10 @@ interface BookingSelectorProps {
     editions: Edition[];
     coursePrice: number;
     courseId: string;
+    activityType?: ActivityType;
 }
 
-export default function BookingSelector({ editions, coursePrice, courseId }: BookingSelectorProps) {
+export default function BookingSelector({ editions, coursePrice, courseId, activityType = 'course' }: BookingSelectorProps) {
     const t = useTranslations('booking');
     const router = useRouter();
     const [selectedEdition, setSelectedEdition] = useState<string | null>(null);
@@ -75,7 +76,7 @@ export default function BookingSelector({ editions, coursePrice, courseId }: Boo
                     email: legalData.email,
                     dni: legalData.dni,
                     legalText: "He leído y acepto expresamente las condiciones legales detalladas anteriormente. Entiendo que esta aceptación equivale a una firma digital vinculante.",
-                    consentType: 'course',
+                    consentType: activityType,
                     referenceId: courseId
                 })
             });
@@ -225,7 +226,7 @@ export default function BookingSelector({ editions, coursePrice, courseId }: Boo
                 isOpen={isLegalModalOpen}
                 onClose={() => setIsLegalModalOpen(false)}
                 onConfirm={handleLegalConfirm}
-                consentType="course"
+                activityType={activityType}
                 initialData={user ? {
                     fullName: profile ? `${profile.nombre} ${profile.apellidos}` : undefined,
                     email: user.email,

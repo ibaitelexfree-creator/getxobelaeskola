@@ -289,6 +289,46 @@ function broadcast(data) {
   });
 }
 
+// Remote GitHub Build Trigger
+app.post('/api/v1/github/trigger-build', async (req, res) => {
+  const { workflow_id = 'android-build.yml', branch = 'main', inputs = {} } = req.body;
+
+  if (!GITHUB_TOKEN) {
+    return res.status(500).json({ error: 'GITHUB_TOKEN not configured on orchestrator' });
+  }
+
+  // Extract owner/repo from JULES_DEFAULT_SOURCE if possible
+  const source = process.env.JULES_DEFAULT_SOURCE || '';
+  const match = source.match(/github\.com\/([^/]+)\/([^/]+)/) || source.match(/github\/([^/]+)\/([^/]+)/);
+  const owner = match ? match[1] : 'ibaitelexfree-creator';
+  const repo = match ? match[2] : 'getxobelaeskola';
+
+  console.log(`[GitHub] Triggering workflow ${workflow_id} on ${owner}/${repo} (${branch})`);
+
+  try {
+    const response = await githubClient.post(`/repos/${owner}/${repo}/actions/workflows/${workflow_id}/dispatches`, {
+      ref: branch,
+      inputs: {
+        reason: 'Triggered from Mission Control Mobile',
+        ...inputs
+      }
+    });
+
+    res.status(200).json({
+      success: true,
+      message: `Workflow ${workflow_id} triggered successfully`,
+      github_status: response.status
+    });
+  } catch (error) {
+    console.error('[GitHub] Trigger Error:', error.response?.data || error.message);
+    res.status(error.response?.status || 500).json({
+      success: false,
+      error: error.response?.data?.message || error.message,
+      details: error.response?.data
+    });
+  }
+});
+
 // GitHub Webhook Receiver with signature verification
 app.post('/api/v1/webhooks/github', async (req, res) => {
   // CRITICAL: Verify webhook signature to prevent spoofing

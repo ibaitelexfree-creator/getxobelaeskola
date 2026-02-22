@@ -6,6 +6,10 @@ on:
       - main
       - master
 
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
@@ -87,19 +91,19 @@ jobs:
             # Set the remote path
             REMOTE_PATH="/opt/getxo-sailing"
             cd $REMOTE_PATH
-            
+
             # Login to GHCR
             echo "$GITHUB_TOKEN" | docker login ghcr.io -u $GITHUB_ACTOR --password-stdin
-            
+
             # Lowercase the repo name for docker (GHCR requires lowercase)
             REPO_LOWER=$(echo "$GITHUB_REPOSITORY" | tr '[:upper:]' '[:lower:]')
             export DOCKER_IMAGE=ghcr.io/$REPO_LOWER:latest
-            
+
             echo "Pulling latest image: $DOCKER_IMAGE"
             docker compose pull web
-            
+
             echo "Deploying update..."
             docker compose up -d --remove-orphans --force-recreate web
-            
+
             # Cleanup old images to save space
             docker image prune -f

@@ -38,6 +38,10 @@ function julesRequest(apiKey, method, path, body = null) {
                 }
             });
         });
+        req.setTimeout(15000, () => {
+            req.destroy();
+            reject(new Error('Request timeout after 15 seconds'));
+        });
         req.on('error', reject);
         if (body) req.write(JSON.stringify(body));
         req.end();
@@ -54,7 +58,7 @@ async function checkAll() {
             const sessions = resp.sessions || [];
             console.log(`Found ${sessions.length} sessions.`);
             for (const s of sessions) {
-                console.log(`- [${s.state}] ${s.name.split('/').pop()}: ${s.title || 'Untitled'}`);
+                console.log(`- [${s.state}] ${s.name?.split('/').pop() || 'unknown'}: ${s.title || 'Untitled'}`);
                 if (s.state === 'WAITING_FOR_APPROVAL' || s.state === 'AWAITING_PLAN_APPROVAL') {
                     console.log(`  APPROVING PLAN for ${s.name}...`);
                     await julesRequest(key, 'POST', `/${s.name}:approvePlan`, {});

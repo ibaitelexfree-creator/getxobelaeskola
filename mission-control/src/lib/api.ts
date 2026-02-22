@@ -174,4 +174,7 @@ export const getLivePreviewConfig = () => request<{
 export const getVisualHistory = () => request<{ screenshots: Screenshot[] }>('GET', '/api/visual/history');
 export const getSyncHistory = (days = 7) => request<any[]>('GET', `/api/analytics/sync-history?days=${days}`);
 
+export const triggerBuild = (workflow_id = 'android-build.yml') =>
+    request<{ success: boolean; message: string }>('POST', '/api/v1/github/trigger-build', { workflow_id });
+
 export { getBaseUrl, DEFAULT_BASE };

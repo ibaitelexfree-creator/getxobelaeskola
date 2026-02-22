@@ -45,10 +45,12 @@ export class VisualRelay {
         try {
             const buffer = await this._browserlessRequest('/screenshot', {
                 url,
+                gotoOptions: {
+                    waitUntil: 'networkidle0'
+                },
                 options: {
                     fullPage: options.fullPage || false,
-                    type: 'png',
-                    wait: options.wait || 3000
+                    type: 'png'
                 }
             });
 
@@ -165,9 +167,28 @@ export class VisualRelay {
             const buffer = result.stdout;
             if (!buffer || buffer.length === 0) throw new Error('Empty response from Browserless');
 
+            // Log size for debugging
+            console.log(`[VisualRelay] Captured ${endpoint}: ${buffer.length} bytes`);
+
+            // Verification that we got an image (PNG starts with 89 50 4E 47)
+            if (endpoint === '/screenshot' || endpoint === '/pdf') {
+                const isPng = buffer.length > 4 && buffer[0] === 0x89 && buffer[1] === 0x50 && buffer[2] === 0x4E && buffer[3] === 0x47;
+                const isPdf = buffer.length > 4 && buffer[0] === 0x25 && buffer[1] === 0x50 && buffer[2] === 0x44 && buffer[3] === 0x46;
+
+                if (!isPng && !isPdf) {
+                    const text = buffer.toString('utf8').substring(0, 100);
+                    if (text.includes('502 Bad Gateway') || text.includes('validation failed') || text.includes('Bad Request')) {
+                        throw new Error(`Browserless Error (Source Down): ${text.trim()}`);
+                    }
+                    if (endpoint === '/screenshot') {
+                        throw new Error(`Invalid Screenshot Buffer (Not PNG): ${text.trim()}...`);
+                    }
+                }
+            }
+
             return buffer;
         } catch (err) {
-            console.error('[VisualRelay] Browserless curl failed:', err.message);
+            console.error('[VisualRelay] Browserless request failed:', err.message);
             throw err;
         }
     }

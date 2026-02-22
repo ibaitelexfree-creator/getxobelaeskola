@@ -50,6 +50,10 @@ function julesRequest(apiKey, method, path, body = null) {
                 }
             });
         });
+        req.setTimeout(15000, () => {
+            req.destroy();
+            reject(new Error('Request timeout after 15 seconds'));
+        });
         req.on('error', reject);
         if (body) req.write(JSON.stringify(body));
         req.end();
@@ -83,7 +87,7 @@ async function syncAll() {
     // 3. Match sessions to DB tasks and update
     let updates = 0;
     for (const session of allSessions) {
-        const sessionId = session.name.split('/').pop();
+        const sessionId = session.name?.split('/')?.pop() || 'unknown';
         const state = session.state; // COMPLETED, FAILED, RUNNING, etc.
         let targetStatus = 'running';
         if (state === 'COMPLETED') targetStatus = 'completed';

@@ -1,12 +1,11 @@
 name: Build Mission Control APK
 
 on:
-  push:
-    paths:
-      - "mission-control/**"
-      - ".github/workflows/mission-control-build.yml"
-    branches: [main, master, feature/sbrm-ci-test]
   workflow_dispatch:
+
+concurrency:
+  group: mission-control-build-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build:

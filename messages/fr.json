@@ -68,6 +68,7 @@
     "title_prefix": "Louer",
     "title_highlight": "Matériel",
     "description": "Optimist, Laser, J80, Paddle Surf avec turbine, Windsurf et plus encore. Tout le matériel dont vous avez besoin pour votre aventure en mer.",
+    "crew_label": "Équipage",
     "footer_note": "* La location de voiliers nécessite une qualification minimale. Une formation de base au maniement est incluse pour le Paddle Surf avec turbine.",
     "categories": {
       "all": "Tous",
@@ -100,7 +101,8 @@
     "cumpleanos": "Anniversaires",
     "atraque": "Mouillages",
     "bono": "Forfaits",
-    "visita": "Visites"
+    "visita": "Visites",
+    "premium_experience": "Expérience Premium"
   },
   "home": {
     "hero": {
