@@ -7,10 +7,6 @@ import { SimulatorSkeleton } from '@/components/academy/sailing-simulator/Simula
 import { useMultiplayerStore } from '@/lib/store/useMultiplayerStore';
 import { createClient } from '@/lib/supabase/client';
 
-export function generateStaticParams() {
-    return ['es', 'eu', 'en', 'fr'].map(locale => ({ locale, code: 'placeholder' }));
-}
-
 const SailingSimulator = dynamic(
     () => import('@/components/academy/sailing-simulator/SailingSimulator').then(mod => mod.SailingSimulator),
     {
@@ -19,7 +15,7 @@ const SailingSimulator = dynamic(
     }
 );
 
-export default function RacePage() {
+export default function RaceClient() {
     const { code } = useParams();
     const router = useRouter();
     const [ready, setReady] = useState(false);
