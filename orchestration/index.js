@@ -50,6 +50,7 @@ import { sendTelegramMessage } from './lib/telegram.js';
 import { readProjectMemory, writeProjectMemory, appendToProjectMemory, readAllContext } from './lib/project-memory.js';
 import { setupTelegramInbound } from './lib/telegram-inbound.js';
 import { initDb, query } from './lib/db.js';
+import { routeTask } from './lib/semantic-router.js';
 
 dotenv.config();
 
@@ -337,6 +338,20 @@ app.get('/api/sessions/active', cacheMiddleware, async (req, res) => {
     }
     const active = await sessionMonitor.getActiveSessions();
     res.json({ sessions: active, count: active.length });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Semantic Router - Classify Task
+app.post('/api/router/classify', express.json(), async (req, res) => {
+  try {
+    const { task, context } = req.body;
+    if (!task) {
+      return res.status(400).json({ error: 'Task description required' });
+    }
+    const result = await routeTask(task, context);
+    res.json(result);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -659,7 +674,9 @@ app.get('/mcp/tools', cacheMiddleware, (req, res) => {
       { name: 'project_memory_read', description: 'Read a shared project memory file', parameters: { file: { type: 'string', required: true, description: 'GLOBAL_STATE.md | DECISIONS_LOG.md | TECHNICAL_CONTEXT.md | AGENT_TASKS.md' } } },
       { name: 'project_memory_write', description: 'Overwrite a shared project memory file', parameters: { file: { type: 'string', required: true }, content: { type: 'string', required: true } } },
       { name: 'project_memory_append', description: 'Append a line to a shared project memory file', parameters: { file: { type: 'string', required: true }, entry: { type: 'string', required: true } } },
-      { name: 'project_memory_context', description: 'Read GLOBAL_STATE + TECHNICAL_CONTEXT for quick context', parameters: {} }
+      { name: 'project_memory_context', description: 'Read GLOBAL_STATE + TECHNICAL_CONTEXT for quick context', parameters: {} },
+      // v2.9.0: Semantic Router
+      { name: 'semantic_route_task', description: 'Classify a task as LOCAL (simple) or CLOUD (complex)', parameters: { task: { type: 'string', required: true, description: 'Task description' }, context: { type: 'object', required: false } } }
     ]
   });
 });
@@ -816,6 +833,9 @@ function initializeToolRegistry() {
   toolRegistry.set('project_memory_write', (p) => writeProjectMemory(p.file, p.content));
   toolRegistry.set('project_memory_append', (p) => appendToProjectMemory(p.file, p.entry));
   toolRegistry.set('project_memory_context', () => readAllContext());
+
+  // v2.9.0: Semantic Router
+  toolRegistry.set('semantic_route_task', (p) => routeTask(p.task, p.context));
 }
 
 // MCP Protocol - Execute tool with O(1) registry lookup
