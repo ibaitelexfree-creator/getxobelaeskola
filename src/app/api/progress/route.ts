@@ -243,7 +243,8 @@ export async function GET(request: Request) {
         return withCors(NextResponse.json({
             user: {
                 full_name: profile?.nombre ? `${profile.nombre} ${profile.apellidos || ''}`.trim() : user.email,
-                avatar_url: profile?.avatar_url
+                avatar_url: profile?.avatar_url,
+                onboarding_completed: profile?.onboarding_completed
             },
             progreso: filteredProgress,
             habilidades: skills?.map((s: any) => ({

@@ -19,6 +19,7 @@ const CareerAdvisor = dynamic(() => import('@/components/academy/dashboard/Caree
 const NavigationExperienceMap = dynamic(() => import('@/components/academy/dashboard/NavigationExperienceMap'), { ssr: false });
 const DailyChallengeWidget = dynamic(() => import('@/components/academy/dashboard/DailyChallengeWidget'), { ssr: false });
 const AchievementsWidget = dynamic(() => import('@/components/academy/dashboard/AchievementsWidget'), { ssr: false });
+const WelcomeWizard = dynamic(() => import('@/components/academy/onboarding/WelcomeWizard'), { ssr: false });
 
 import AcademySkeleton from '@/components/academy/AcademySkeleton';
 import { getRank, calculateEstimatedXP } from '@/lib/gamification/ranks';
@@ -119,6 +120,7 @@ interface DashboardData {
     user: {
         full_name: string;
         avatar_url: string;
+        onboarding_completed?: boolean;
     };
     progreso: any[];
     habilidades: HabilidadItem[];
@@ -296,6 +298,7 @@ export default function DashboardPage({ params }: { params: { locale: string } }
             <NotificationContainer />
             <AchievementToast />
             <SkillUnlockedModal />
+            {data && <WelcomeWizard onboardingCompleted={!!data.user.onboarding_completed} userName={data.user.full_name} />}
 
             {/* Header / Resumen General */}
             <div className="relative overflow-hidden border-b border-white/10 bg-white/5 backdrop-blur-sm">
