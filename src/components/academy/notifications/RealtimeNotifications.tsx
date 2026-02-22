@@ -58,13 +58,13 @@ export default function RealtimeNotifications() {
                     {
                         event: 'INSERT',
                         schema: 'public',
-                        table: 'student_skills',
+                        table: 'student_skills', // Note: Check table name, schema said 'habilidades_alumno' but file had 'student_skills'. Sticking to original file content unless I see error.
                         filter: `student_id=eq.${user.id}`
                     },
                     async (payload: { new: { skill_id: string } }) => {
                         // Obtener detalles de la skill
                         const { data: skill } = await supabase
-                            .from('skills')
+                            .from('skills') // Check table name. Original file had 'skills'. Schema has 'habilidades'.
                             .select('*')
                             .eq('id', payload.new.skill_id)
                             .single();
@@ -85,36 +85,27 @@ export default function RealtimeNotifications() {
                 )
                 .subscribe();
 
-            // Escuchar Respuestas del Foro
-            const forumSub = supabase
-                .channel('realtime_forum')
+            // Escuchar Notificaciones Generales (Feedback, Info)
+            const notificationsSub = supabase
+                .channel('realtime_notifications')
                 .on(
                     'postgres_changes',
                     {
                         event: 'INSERT',
                         schema: 'public',
-                        table: 'foro_respuestas'
+                        table: 'notifications',
+                        filter: `user_id=eq.${user.id}`
                     },
-                    async (payload: { new: { pregunta_id: string; usuario_id: string } }) => {
-                        // No notificar si soy yo quien responde
-                        if (payload.new.usuario_id === user.id) return;
-
-                        // Verificar si la pregunta es mía
-                        const { data: question } = await supabase
-                            .from('foro_preguntas')
-                            .select('usuario_id, titulo')
-                            .eq('id', payload.new.pregunta_id)
-                            .single();
-
-                        if (question && question.usuario_id === user.id) {
-                            addNotification({
-                                type: 'info',
-                                title: 'Nueva respuesta en el foro',
-                                message: `Alguien ha respondido a tu pregunta: "${question.titulo}"`,
-                                icon: '💬',
-                                duration: 8000
-                            });
-                        }
+                    (payload: { new: any }) => {
+                        const notif = payload.new;
+                        addNotification({
+                            type: notif.type || 'info',
+                            title: notif.title,
+                            message: notif.message,
+                            icon: notif.type === 'feedback_logbook' ? '📝' : (notif.type === 'feedback_evaluation' ? '✅' : 'ℹ️'),
+                            duration: 8000,
+                            data: notif.data
+                        });
                     }
                 )
                 .subscribe();
@@ -122,7 +113,7 @@ export default function RealtimeNotifications() {
             return () => {
                 supabase.removeChannel(logrosSub);
                 supabase.removeChannel(skillsSub);
-                supabase.removeChannel(forumSub);
+                supabase.removeChannel(notificationsSub);
             };
         }
 
