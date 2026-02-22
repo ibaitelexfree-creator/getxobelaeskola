@@ -8,6 +8,7 @@ import AcademyControls from '@/components/layout/AcademyControls';
 import MobileBottomNav from '@/components/layout/MobileBottomNav';
 import NotificationContainer from '@/components/academy/notifications/NotificationContainer';
 import RealtimeNotifications from '@/components/academy/notifications/RealtimeNotifications';
+import SmartNotificationManager from '@/components/academy/notifications/SmartNotificationManager';
 import SafetyMonitor from '@/components/academy/notifications/SafetyMonitor';
 import ActivityTracker from '@/components/academy/ActivityTracker';
 
@@ -22,7 +23,6 @@ export default function ConditionalLayout({ children, navbar, footer }: Conditio
     const pathname = usePathname();
     const isAcademy = pathname.includes('/academy');
     const isAuth = pathname.includes('/auth/');
-    const isKiosk = pathname.includes('/academy/kiosko');
 
     // Default to false (SSR/Web)
     const [isNativeApp, setIsNativeApp] = useState(false);
@@ -35,15 +35,6 @@ export default function ConditionalLayout({ children, navbar, footer }: Conditio
             }
         });
     }, []);
-
-    // Kiosk Mode - Bare minimum layout
-    if (isKiosk) {
-        return (
-            <main className="flex-grow flex flex-col relative w-full h-full min-h-screen bg-nautical-black overflow-hidden">
-                {children}
-            </main>
-        );
-    }
 
     // Academy mode — no nav, show academy controls
     if (isAcademy) {
@@ -60,6 +51,7 @@ export default function ConditionalLayout({ children, navbar, footer }: Conditio
                 )}
                 <NotificationContainer />
                 <RealtimeNotifications />
+                <SmartNotificationManager />
                 <SafetyMonitor />
                 <ActivityTracker />
             </>
@@ -93,6 +85,7 @@ export default function ConditionalLayout({ children, navbar, footer }: Conditio
                 <>
                     <NotificationContainer />
                     <RealtimeNotifications />
+                    <SmartNotificationManager />
                     <SafetyMonitor />
                     <ActivityTracker />
                 </>
