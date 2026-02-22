@@ -5,16 +5,14 @@ import '@/app/globals.css';
 import dynamic from 'next/dynamic';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
-import ThemeProvider from '@/components/providers/ThemeProvider';
 const AcademyFeedbackProvider = dynamic(() => import('@/components/academy/AcademyFeedbackProvider'), { ssr: false });
 const PushNotificationInitializer = dynamic(() => import('@/components/academy/notifications/PushNotificationInitializer'), { ssr: false });
-const SmartNotificationManager = dynamic(() => import('@/components/academy/notifications/SmartNotificationManager'), { ssr: false });
 import ConditionalLayout from '@/components/layout/ConditionalLayout';
 const ScrollUpButton = dynamic(() => import('@/components/shared/ScrollToTop'), { ssr: false });
 import { Viewport } from 'next';
 import { Suspense } from 'react';
+import { ThemeProvider } from '@/components/providers/ThemeProvider';
 const StatusToast = dynamic(() => import('@/components/shared/StatusToast'), { ssr: false });
-const OfflineIndicator = dynamic(() => import('@/components/shared/OfflineIndicator'), { ssr: false });
 
 export const viewport: Viewport = {
   themeColor: '#001B3A', // Nautical Black
@@ -43,32 +41,31 @@ export default async function LocaleLayout({
         <link rel="dns-prefetch" href="https://xbledhifomblirxurtyv.supabase.co" />
       </head>
       <body suppressHydrationWarning>
-        <ThemeProvider />
         <a href="#main-content" className="skip-link">
           {locale === 'eu' ? 'Edukira jo' : locale === 'en' ? 'Skip to content' : locale === 'fr' ? 'Aller au contenu' : 'Saltar al contenido'}
         </a>
         <NextIntlClientProvider messages={messages} locale={locale} timeZone="Europe/Madrid">
-          <AcademyFeedbackProvider>
-            <PushNotificationInitializer />
-            <OfflineIndicator />
-            <SmartNotificationManager />
-            <div className="min-h-screen flex flex-col relative w-full overflow-x-hidden">
-              <ConditionalLayout
-                locale={locale}
-                navbar={<Navbar locale={locale} />}
-                footer={<Footer locale={locale} />}
-              >
-                <main id="main-content" className="flex-grow">
-                  {children}
-                </main>
-              </ConditionalLayout>
-            </div>
-            <ScrollUpButton />
+          <ThemeProvider attribute="class" defaultTheme="dark" themes={['dark', 'premium', 'light']}>
+            <AcademyFeedbackProvider>
+              <PushNotificationInitializer />
+              <div className="min-h-screen flex flex-col relative w-full overflow-x-hidden">
+                <ConditionalLayout
+                  locale={locale}
+                  navbar={<Navbar locale={locale} />}
+                  footer={<Footer locale={locale} />}
+                >
+                  <main id="main-content" className="flex-grow">
+                    {children}
+                  </main>
+                </ConditionalLayout>
+              </div>
+              <ScrollUpButton />
 
-            <Suspense fallback={null}>
-              <StatusToast />
-            </Suspense>
-          </AcademyFeedbackProvider>
+              <Suspense fallback={null}>
+                <StatusToast />
+              </Suspense>
+            </AcademyFeedbackProvider>
+          </ThemeProvider>
         </NextIntlClientProvider>
       </body>
     </html>
@@ -150,6 +147,5 @@ export async function generateMetadata({ params: { locale } }: { params: { local
         'max-snippet': -1,
       },
     },
-    manifest: '/manifest.json',
   };
 }

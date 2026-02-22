@@ -8,7 +8,9 @@ import { useEffect, useState } from 'react';
 import { X, ChevronDown, Anchor, Wind, Sailboat, Users, GraduationCap, Phone, School, Compass, Sparkles } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { apiUrl } from '@/lib/api';
-import ThemeToggle from '@/components/ui/ThemeToggle';
+import dynamic from 'next/dynamic';
+
+const ThemeToggle = dynamic(() => import('@/components/shared/ThemeToggle'), { ssr: false });
 
 interface NavDropdownItem {
     href: string;
@@ -355,7 +357,7 @@ export default function Navbar({ locale: propLocale }: { locale?: string }) {
                         )}
 
                         <div className="flex flex-col gap-4 pb-12">
-                            <div className="flex items-center justify-between px-4">
+                            <div className="flex items-center justify-between ml-4 mr-4 mb-4">
                                 <span className="text-[10px] uppercase tracking-[0.4em] font-black text-white/30">Theme</span>
                                 <ThemeToggle />
                             </div>

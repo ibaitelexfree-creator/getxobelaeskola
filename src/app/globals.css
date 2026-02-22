@@ -3,13 +3,12 @@
 @tailwind utilities;
 
 :root {
-  /* Ocean Palette (Light Mode) */
-  --ocean-dark: #0077B6;
-  --ocean-medium: #00B4D8;
-  --ocean-light: #ADE8F4;
-  --ocean-deep: #001B3A;
+  /* Common definitions */
+  --font-display: var(--font-display), serif;
+  --font-sans: var(--font-sans), sans-serif;
+  --font-mono: var(--font-mono), monospace;
 
-  /* Corporate Palette Getxo Bela Eskola */
+  /* Default Theme (Dark / Nautical) - Matches existing corporate palette */
   --nautical-black: #000000;
   --nautical-deep: #010409;
   --nautical-blue: #154FA3;
@@ -17,47 +16,68 @@
   --buoy-orange: #FF4D00;
   --brass-gold: #c5a059;
 
+  --background: #000000;
+  --foreground: #F2F2F2;
+
+  --accent: #FF4D00;
+  --accent-foreground: #F2F2F2;
+
   /* Glassmorphism Tokens */
   --glass-surface: rgba(255, 255, 255, 0.03);
   --glass-border: rgba(255, 255, 255, 0.08);
   --glass-blur: 16px;
   --glass-highlight: rgba(255, 255, 255, 0.05);
 
-  --background: #F8FAFC;
-  --foreground: var(--ocean-deep);
-  --card: #FFFFFF;
-  --card-foreground: var(--ocean-deep);
-  --card-border: rgba(0, 119, 182, 0.2);
-
-  --accent: var(--ocean-dark);
-  --accent-foreground: #FFFFFF;
-
-  --font-display: var(--font-display), serif;
-  --font-sans: var(--font-sans), sans-serif;
-  --font-mono: var(--font-mono), monospace;
-
   --transition-premium: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
   --transition-fast: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   --timing-premium: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.dark {
-  /* Dark Mode Defaults (Existing Nautical Theme) */
-  --background: var(--nautical-deep);
-  --foreground: var(--sea-foam);
+.premium {
+  /* Premium Ocean Theme */
+  /* Ocean Palette: #0077B6, #00B4D8, #ADE8F4 */
 
-  --card: rgba(255, 255, 255, 0.03);
-  --card-foreground: var(--sea-foam);
-  --card-border: rgba(255, 255, 255, 0.1);
+  /* Background becomes Ocean Dark */
+  --background: #0077B6;
+  --foreground: #F0F4F8;
 
-  --accent: var(--buoy-orange);
-  --accent-foreground: var(--sea-foam);
+  /* Adjust nautical tokens to fit the blue theme */
+  --nautical-black: #005f87; /* Slightly darker than bg */
+  --nautical-deep: #0077B6; /* Matches bg */
+  --nautical-blue: #00B4D8; /* Ocean Medium */
 
-  /* Glassmorphism Tokens (Dark) */
-  --glass-surface: rgba(255, 255, 255, 0.03);
-  --glass-border: rgba(255, 255, 255, 0.08);
-  --glass-blur: 16px;
-  --glass-highlight: rgba(255, 255, 255, 0.05);
+  --sea-foam: #ADE8F4; /* Ocean Light */
+  --buoy-orange: #ADE8F4; /* Use Ocean Light as primary accent */
+  --brass-gold: #FFD166; /* Lighter gold/yellow for contrast on blue */
+
+  --accent: #ADE8F4;
+  --accent-foreground: #003049; /* Dark blue text for contrast on light accent */
+
+  /* Glass tokens for lighter/blue background */
+  --glass-surface: rgba(255, 255, 255, 0.15);
+  --glass-border: rgba(255, 255, 255, 0.3);
+  --glass-highlight: rgba(255, 255, 255, 0.2);
+}
+
+.light {
+  /* Light Theme - Clean Nautical */
+  --background: #FFFFFF;
+  --foreground: #010409;
+
+  --nautical-black: #F2F2F2;
+  --nautical-deep: #FFFFFF;
+  --nautical-blue: #154FA3;
+
+  --sea-foam: #010409; /* Invert */
+  --buoy-orange: #FF4D00;
+  --brass-gold: #c5a059;
+
+  --accent: #154FA3; /* Blue accent */
+  --accent-foreground: #FFFFFF;
+
+  --glass-surface: rgba(0, 0, 0, 0.03);
+  --glass-border: rgba(0, 0, 0, 0.08);
+  --glass-highlight: rgba(0, 0, 0, 0.05);
 }
 
 * {
@@ -79,6 +99,7 @@ body {
   /* Mobile first */
   -webkit-font-smoothing: antialiased;
   -webkit-overflow-scrolling: touch;
+  transition: background-color 0.6s cubic-bezier(0.16, 1, 0.3, 1), color 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @media (min-width: 768px) {
@@ -121,14 +142,14 @@ h4,
 }
 
 .glass-card {
-  background: rgba(255, 255, 255, 0.02);
+  background: var(--glass-surface); /* Updated to use variable */
   backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--glass-border); /* Updated to use variable */
   transition: var(--transition-premium);
 }
 
 .glass-card:hover {
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--glass-highlight); /* Updated to use variable */
   border-color: rgba(255, 255, 255, 0.15);
   box-shadow:
     0 20px 40px rgba(0, 0, 0, 0.4),
@@ -572,12 +593,4 @@ a:hover {
 
 .animate-scroll-dash {
   animation: scroll-dash 2.5s cubic-bezier(0.16, 1, 0.3, 1) infinite;
-}
-@keyframes wave {
-  0% {
-    transform: translate3d(-90px, 0, 0);
-  }
-  100% {
-    transform: translate3d(85px, 0, 0);
-  }
 }
