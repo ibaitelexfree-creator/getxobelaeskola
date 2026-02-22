@@ -35,6 +35,7 @@ import { EventManager } from './EventManager';
 import { ScoringManager } from './ScoringManager';
 import { WindEffectManager } from './WindEffectManager';
 import { FloatingTextManager } from './FloatingTextManager';
+import { OpponentManager } from './OpponentManager';
 import * as turf from '@turf/turf';
 import waterGeometryData from '../../../data/geospatial/water-geometry.json';
 
@@ -68,10 +69,12 @@ let events: EventManager;
 let scoring: ScoringManager;
 let windEffect: WindEffectManager;
 let floatingText: FloatingTextManager;
+let opponentManager: OpponentManager;
 
 let animationFrameId: number;
 let lastTime = 0;
 let isGameOver = false;
+let latestOpponentsPayload: any[] = [];
 
 // Mock context for things that might expect window
 const inputState = {
@@ -92,6 +95,9 @@ self.onmessage = (e: MessageEvent) => {
             break;
         case 'INPUT':
             updateInput(payload);
+            break;
+        case 'OPPONENTS_UPDATE':
+            latestOpponentsPayload = payload;
             break;
     }
 };
@@ -114,6 +120,7 @@ function init(canvas: OffscreenCanvas, width: number, height: number, pixelRatio
     scoring = new ScoringManager();
     windEffect = new WindEffectManager(scene);
     floatingText = new FloatingTextManager(scene);
+    opponentManager = new OpponentManager(scene);
 
     objectives.onObjectiveReached = () => {
         const points = scoring.addObjectiveBonus(objectives.state.distance);
@@ -180,6 +187,7 @@ function animate() {
 
         // Update Visuals
         boatModel.update(dt, elapsedTime, boatPhysics.state, apparentWind, inputState.sailAngle, inputState.rudderAngle);
+        opponentManager.update(dt, elapsedTime, latestOpponentsPayload);
         wake.update(dt, boatPhysics.state);
         windEffect.update(dt, apparentWind, boatPhysics.state.position, boatPhysics.state.velocity);
         floatingText.update(dt);
@@ -203,7 +211,9 @@ function animate() {
                 apparentWind,
                 trueWindAngle: wind.getDirection(),
                 objectiveState: objectives.state,
-                eventState: events.state
+                eventState: events.state,
+                sailAngle: inputState.sailAngle,
+                rudderAngle: inputState.rudderAngle
             }
         });
     }

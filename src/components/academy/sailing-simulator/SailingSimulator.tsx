@@ -6,13 +6,19 @@ import { InputController } from './InputController';
 import { AudioManager } from './AudioManager';
 import { HUDManager } from './HUDManager';
 import { Volume2, VolumeX } from 'lucide-react';
+import { OpponentState } from '../../../types/regatta';
+
+interface SailingSimulatorProps {
+    onStateUpdate?: (state: any) => void;
+    opponents?: OpponentState[];
+}
 
 /**
  * SailingSimulator v2 (Optimized)
  * This component acts as a bridge between the browser DOM/Inputs
  * and the Web Worker where the 3D engine (Three.js) and Physics run.
  */
-export const SailingSimulator: React.FC = () => {
+export const SailingSimulator: React.FC<SailingSimulatorProps> = ({ onStateUpdate, opponents }) => {
     const t = useTranslations('wind_lab');
     const locale = useLocale();
     const containerRef = useRef<HTMLDivElement>(null);
@@ -36,6 +42,16 @@ export const SailingSimulator: React.FC = () => {
             audioRef.current.setMuted(nextMuted);
         }
     };
+
+    // Relay opponents to worker whenever they change
+    useEffect(() => {
+        if (workerRef.current && opponents) {
+            workerRef.current.postMessage({
+                type: 'OPPONENTS_UPDATE',
+                payload: opponents
+            });
+        }
+    }, [opponents]);
 
     useEffect(() => {
         if (!containerRef.current) return;
@@ -129,6 +145,12 @@ export const SailingSimulator: React.FC = () => {
                     payload.apparentWind.speed,
                     payload.boatState.efficiency
                 );
+
+                // Broadcast State if callback provided
+                if (onStateUpdate) {
+                    onStateUpdate(payload);
+                }
+
             } else if (type === 'GAME_OVER') {
                 const stored = localStorage.getItem('sailing_leaderboard');
                 const leaderboard = stored ? JSON.parse(stored) : [];
