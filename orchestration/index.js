@@ -1490,6 +1490,35 @@ function initializeToolRegistry() {
   toolRegistry.set('project_memory_write', (p) => writeProjectMemory(p.file, p.content));
   toolRegistry.set('project_memory_append', (p) => appendToProjectMemory(p.file, p.entry));
   toolRegistry.set('project_memory_context', () => readAllContext());
+
+  // Custom Semantic Memory
+  toolRegistry.set('search_nautical_knowledge', async (p) => {
+      const openRouterKey = process.env.OPEN_ROUTER_API_KEY;
+      const qdrantUrl = process.env.QDRANT_URL || 'http://localhost:6333';
+      if (!openRouterKey) throw new Error('OPEN_ROUTER_API_KEY missing.');
+      
+      const embRes = await fetch('https://openrouter.ai/api/v1/embeddings', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + openRouterKey },
+          body: JSON.stringify({ model: 'openai/text-embedding-3-small', input: p.query.substring(0, 1000) })
+      });
+      const embData = await embRes.json();
+      const vector = embData.data[0].embedding;
+      
+      const qResp = await fetch(qdrantUrl + '/collections/nautical_knowledge/points/search', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ vector: vector, limit: 3, with_payload: true })
+      });
+      const qData = await qResp.json();
+      let context = [];
+      if (qData.result && qData.result.length > 0) {
+          qData.result.forEach(hit => {
+              if (hit.score > 0.3) context.push('--- [' + hit.payload.title + ' / Cat: ' + hit.payload.category + '] ---\n' + hit.payload.content);
+          });
+      }
+      return { _text: context.length > 0 ? context.join('\n\n') : 'No relevant information found in the knowledge base.' };
+  });
 }
 
 // MCP Protocol - Execute tool with O(1) registry lookup

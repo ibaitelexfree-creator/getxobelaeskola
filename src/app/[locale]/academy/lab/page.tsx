@@ -3,8 +3,8 @@
 import React from 'react';
 import { useTranslations } from 'next-intl';
 import { WaterDemo } from '@/components/academy/geospatial/WaterDemo';
-import NavigationMap from '@/components/academy/geospatial/MapWrapper';
-import { Map, Compass, ShieldCheck, Zap, Anchor } from 'lucide-react';
+import { MapWrapper } from '@/components/academy/geospatial/MapWrapper';
+import { Map, Compass, ShieldCheck, Zap } from 'lucide-react';
 import Link from 'next/link';
 
 export default function GeoLabPage({ params }: { params: { locale: string } }) {
@@ -28,7 +28,7 @@ export default function GeoLabPage({ params }: { params: { locale: string } }) {
                     </p>
                 </header>
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start mb-16">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
                     {/* Demo Component */}
                     <div className="order-2 lg:order-1">
                         <WaterDemo />
@@ -90,21 +90,21 @@ export default function GeoLabPage({ params }: { params: { locale: string } }) {
                     </div>
                 </div>
 
-                {/* Navigation Map Section */}
-                <section>
-                    <div className="flex items-center gap-4 mb-8">
-                        <div className="p-3 bg-blue-500/20 rounded-2xl">
-                            <Anchor className="text-blue-400 w-8 h-8" />
+                <div className="mt-20">
+                    <h2 className="text-2xl font-display italic font-bold mb-6 flex items-center gap-3">
+                        <div className="p-2 bg-blue-500/20 rounded-xl">
+                            <Map className="text-blue-400 w-6 h-6" />
                         </div>
-                        <div>
-                            <h2 className="text-2xl font-bold text-white">Carta Náutica Digital</h2>
-                            <p className="text-slate-400 text-sm">Visualización de rutas, zonas de peligro y waypoints en tiempo real.</p>
-                        </div>
+                        Carta Náutica: Ría de Bilbao
+                    </h2>
+                    <p className="text-slate-400 mb-8 max-w-3xl">
+                        Visualización interactiva de zonas de navegación, puntos de interés y áreas restringidas.
+                        Los datos se renderizan utilizando <strong>Leaflet</strong> con capas de OpenStreetMap.
+                    </p>
+                    <div className="border-2 border-green-500 min-h-[600px] p-2 rounded-xl">
+                        <MapWrapper />
                     </div>
-                    <div className="w-full">
-                        <NavigationMap />
-                    </div>
-                </section>
+                </div>
             </div>
         </div>
     );
