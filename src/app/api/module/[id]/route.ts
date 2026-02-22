@@ -58,7 +58,7 @@ export async function GET(
                 nombre_eu,
                 descripcion_es,
                 descripcion_eu,
-                imagen_url,
+                objetivos_json,
                 orden,
                 curso:curso_id (
                     id,
@@ -86,7 +86,7 @@ export async function GET(
 
         const { data: unidades, error: unidadesError } = await supabase
             .from('unidades_didacticas')
-            .select('id, nombre_es, nombre_eu, descripcion_es, descripcion_eu, duracion_estimada_min, orden, slug, objetivos_es, objetivos_eu')
+            .select('id, nombre_es, nombre_eu, duracion_estimada_min, orden, slug, objetivos_es, objetivos_eu')
             .eq('modulo_id', params.id)
             .order('orden');
 

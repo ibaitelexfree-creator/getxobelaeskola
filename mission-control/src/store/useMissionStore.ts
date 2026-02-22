@@ -18,6 +18,7 @@ interface MissionState {
         browserless: { health: ServiceHealth; used?: number; total?: number };
         thermal: { label: string; level: number };
         watchdog: { state: string; loops: number; stalls: number; crashes: number };
+        orchestrator: { health: ServiceHealth };
     };
     hardware: {
         cpu: { load: number; temp: number };
@@ -64,6 +65,14 @@ interface MissionState {
         progress: number;
         status: string;
     }>;
+    syncHistory: Array<{
+        id: number;
+        service_id: string;
+        status: string;
+        metric_value: number;
+        metric_label: string;
+        timestamp: string;
+    }>;
 
     // Navigation
     activeTab: Tab;
@@ -99,6 +108,7 @@ interface MissionState {
     updatePower: (power: Partial<MissionState['power']>) => void;
     setTaskDraft: (draft: string) => void;
     updateJulesWaiting: (waiting: boolean, tasks: MissionState['waitingTasks']) => void;
+    setSyncHistory: (history: MissionState['syncHistory']) => void;
 
     // Task Operations
     updateTask: (id: string, updates: Partial<MissionState['queue'][0]>) => Promise<void>;
@@ -129,6 +139,7 @@ export const useMissionStore = create<MissionState>((set, get) => ({
         browserless: { health: 'unknown' },
         thermal: { label: 'Unknown', level: 0 },
         watchdog: { state: 'UNKNOWN', loops: 0, stalls: 0, crashes: 0 },
+        orchestrator: { health: 'unknown' },
     },
     hardware: {
         cpu: { load: 0, temp: 0 },
@@ -155,6 +166,7 @@ export const useMissionStore = create<MissionState>((set, get) => ({
     autoRefreshMs: 10_000,
     julesWaiting: false,
     waitingTasks: [],
+    syncHistory: [],
 
     // Actions
     setServerUrl: (url) => {
@@ -194,6 +206,7 @@ export const useMissionStore = create<MissionState>((set, get) => ({
     updatePower: (partial) => set((state) => ({ power: { ...state.power, ...partial } })),
     setTaskDraft: (taskDraft) => set({ taskDraft }),
     updateJulesWaiting: (julesWaiting, waitingTasks) => set({ julesWaiting, waitingTasks }),
+    setSyncHistory: (syncHistory) => set({ syncHistory }),
 
     // Task Operations
     updateTask: async (id, updates) => {

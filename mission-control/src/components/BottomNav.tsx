@@ -3,18 +3,21 @@
 import { motion } from 'framer-motion';
 import { useMissionStore, Tab } from '@/store/useMissionStore';
 import { LayoutDashboard, Rocket, ListOrdered, SlidersHorizontal, Radio, Settings } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
-const tabs: { id: Tab; label: string; icon: React.ReactNode }[] = [
-    { id: 'dashboard', label: 'Dash', icon: <LayoutDashboard size={20} /> },
-    { id: 'tasks', label: 'Tasks', icon: <Rocket size={20} /> },
-    { id: 'queue', label: 'Queue', icon: <ListOrdered size={20} /> },
-    { id: 'visual', label: 'Live', icon: <Radio size={20} /> },
-    { id: 'control', label: 'Control', icon: <SlidersHorizontal size={20} /> },
-    { id: 'settings', label: 'Settings', icon: <Settings size={20} /> },
+const getTabs = (t: any): { id: Tab; label: string; icon: React.ReactNode }[] => [
+    { id: 'dashboard', label: t('nav.dashboard'), icon: <LayoutDashboard size={20} /> },
+    { id: 'tasks', label: t('nav.tasks'), icon: <Rocket size={20} /> },
+    { id: 'queue', label: t('nav.queue'), icon: <ListOrdered size={20} /> },
+    { id: 'visual', label: t('nav.live'), icon: <Radio size={20} /> },
+    { id: 'control', label: t('nav.control'), icon: <SlidersHorizontal size={20} /> },
+    { id: 'settings', label: t('nav.settings'), icon: <Settings size={20} /> },
 ];
 
 export default function BottomNav() {
     const { activeTab, setActiveTab } = useMissionStore();
+    const { t } = useTranslation();
+    const tabs = getTabs(t);
 
     return (
         <nav className="fixed bottom-0 left-0 right-0 z-50 glass-panel safe-area-bottom border-t border-white/5 shadow-[0_-10px_40px_rgba(0,0,0,0.5)]">

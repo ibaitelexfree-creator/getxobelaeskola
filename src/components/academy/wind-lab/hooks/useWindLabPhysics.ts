@@ -9,6 +9,7 @@ export const useWindLabPhysics = () => {
         boatHeading: 45, // Sailing 45 degrees
         boatSpeed: 0,
         sailAngle: 15, // Tight
+        jibAngle: 15,
         heelAngle: 0,
         rudderAngle: 0,
         angularVelocity: 0
@@ -92,7 +93,9 @@ export const useWindLabPhysics = () => {
             // Update Heel
             // Spring-Damper system for heeling
             // Target Heel based on HeelForce
-            const targetHeel = Math.min(45, currentPhysics.heelForce * 20); // Max 45 degrees
+            // Apparent wind from starboard (positive angle) should heel to port (positive heel)
+            const heelSide = currentPhysics.apparentWindAngle >= 0 ? 1 : -1;
+            const targetHeel = Math.min(45, currentPhysics.heelForce * 20) * heelSide; // Max 45 degrees
             // Move towards target
             const heelDiff = targetHeel - physicsState.current.heelAngle;
             let newHeel = physicsState.current.heelAngle + (heelDiff * deltaTime * 2.0);

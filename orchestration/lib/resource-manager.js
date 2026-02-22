@@ -1,7 +1,9 @@
-import { exec } from 'child_process';
+import { exec, spawn } from 'child_process';
 import { promisify } from 'util';
 import http from 'http';
 import { VisualRelay } from './visual-relay.js';
+import { logs } from './db.js';
+import path from 'path';
 
 const execAsync = promisify(exec);
 
@@ -44,8 +46,29 @@ const SERVICES = {
     N8N: {
         type: 'external',
         displayName: 'n8n Automation',
-        url: 'https://n8n.scarmonit.com', // URL baseada no contexto anterior, se errada o usuário corrigirá, mas é o padrão scarmonit
+        url: 'https://n8n.scarmonit.com',
         description: 'Workflow Automation Platform (Hostinger VPS)'
+    },
+    ORCHESTRATOR: {
+        type: 'process',
+        displayName: 'Jules Orchestrator',
+        description: 'Backend Engine & API Gateway'
+    },
+    MISSION_CONTROL: {
+        type: 'process',
+        displayName: 'Mission Control',
+        description: 'Web Dashboard & Mission Management',
+        command: 'npm run dev', // or npm start
+        cwd: 'mission-control',
+        apiCheck: 'http://localhost:3100'
+    },
+    MAIN_APP: {
+        type: 'process',
+        displayName: 'Main Application',
+        description: 'Sailing School Website (Next.js)',
+        command: 'npm run dev',
+        cwd: '.',
+        apiCheck: 'http://localhost:3000'
     }
 };
 
@@ -53,19 +76,24 @@ const INACTIVITY_TIMEOUT = 15 * 60 * 1000; // 15 minutes
 let lastActivity = Date.now();
 let powerMode = 'eco'; // 'eco' or 'performance'
 
+// In-memory process storage to manage children/logs
+const runningProcesses = new Map();
+
 export async function getResourceStatus() {
     const status = {};
 
     // Check Docker containers
     try {
-        const { stdout } = await execAsync('docker ps --format "{{.Names}}"');
-        const runningContainers = stdout.split('\n').map(c => c.trim());
+        const { stdout } = await execAsync('docker ps --format "{{.Names}} ({{.Status}})"');
+        const runningContainers = stdout.split('\n').filter(Boolean);
 
         for (const [key, service] of Object.entries(SERVICES)) {
             if (service.type === 'docker') {
+                const containerInfo = runningContainers.find(c => c.startsWith(service.containerName));
                 status[key] = {
                     name: service.displayName,
-                    running: runningContainers.includes(service.containerName),
+                    running: !!containerInfo && !containerInfo.includes('Paused'),
+                    paused: !!containerInfo && containerInfo.includes('Paused'),
                     type: 'docker',
                     description: service.description
                 };
@@ -83,7 +111,24 @@ export async function getResourceStatus() {
         console.error('Failed to check docker status:', error.message);
     }
 
-    // Check Ollama
+    // Check Processes
+    for (const [key, service] of Object.entries(SERVICES)) {
+        if (service.type === 'process' && key !== 'ORCHESTRATOR') {
+            try {
+                const isRunning = runningProcesses.has(key) || (service.apiCheck ? await isUrlResponsive(service.apiCheck) : false);
+                status[key] = {
+                    name: service.displayName,
+                    running: isRunning,
+                    type: 'process',
+                    description: service.description
+                };
+            } catch (e) {
+                status[key] = { name: service.displayName, running: false, error: e.message };
+            }
+        }
+    }
+
+    // Check Ollama (specific check)
     try {
         const ollamaRunning = await isOllamaRunning();
         status.OLLAMA = {
@@ -111,6 +156,14 @@ export async function getResourceStatus() {
     } catch (error) {
         status.BROWSERLESS = { running: false, error: error.message };
     }
+
+    // Check Orchestrator (self)
+    status.ORCHESTRATOR = {
+        name: SERVICES.ORCHESTRATOR.displayName,
+        running: true, // If this code is running, the orchestrator is running
+        type: 'process',
+        description: SERVICES.ORCHESTRATOR.description
+    };
 
     // Hardware Metrics (Windows specific)
     const hardware = {
@@ -145,10 +198,18 @@ export async function getResourceStatus() {
 }
 
 async function isOllamaRunning() {
+    return isUrlResponsive(SERVICES.OLLAMA.apiCheck);
+}
+
+async function isUrlResponsive(url) {
     return new Promise((resolve) => {
-        http.get(SERVICES.OLLAMA.apiCheck, (res) => {
-            resolve(res.statusCode === 200);
-        }).on('error', () => {
+        const timeout = 2000;
+        const req = http.get(url, (res) => {
+            resolve(res.statusCode >= 200 && res.statusCode < 400);
+        });
+        req.on('error', () => resolve(false));
+        req.setTimeout(timeout, () => {
+            req.destroy();
             resolve(false);
         });
     });
@@ -162,22 +223,69 @@ export async function startService(serviceKey) {
 
     if (service.type === 'docker') {
         await execAsync(`docker start ${service.containerName}`);
+        logs.add(serviceKey, 'START', 'Docker container started');
     } else if (service.type === 'process') {
         if (serviceKey === 'OLLAMA') {
-            // Start as background process
             exec('ollama serve', (err) => {
                 if (err) console.error('Ollama serve exited:', err.message);
             });
-            // Wait for it to be ready
             for (let i = 0; i < 10; i++) {
                 if (await isOllamaRunning()) return true;
                 await new Promise(r => setTimeout(r, 1000));
             }
             throw new Error('Ollama failed to start in time');
+        } else if (service.command) {
+            // Check if already running in our map
+            if (runningProcesses.has(serviceKey)) {
+                console.log(`${serviceKey} already managed by us`);
+                return true;
+            }
+
+            const projectRoot = process.cwd();
+            const serviceCwd = service.cwd ? path.resolve(projectRoot, '..', service.cwd) : path.resolve(projectRoot, '..');
+
+            // For Windows, we might need to use shell: true for 'npm'
+            const child = spawn('npm.cmd', service.command.split(' ').slice(1), {
+                cwd: serviceCwd,
+                shell: true,
+                detached: false, // We want to track it
+                env: { ...process.env, PORT: service.apiCheck ? new URL(service.apiCheck).port : undefined }
+            });
+
+            child.stdout.on('data', (data) => {
+                const text = data.toString().trim();
+                if (text) {
+                    // Filter logs to avoid noise, only save to DB if it looks like an error or important info
+                    if (text.toLowerCase().includes('error') || text.toLowerCase().includes('fail')) {
+                        logs.add(serviceKey, 'LOG_ERR', text.substring(0, 500));
+                    } else if (text.length < 200) {
+                        // Minimal logging for info
+                    }
+                }
+            });
+
+            child.stderr.on('data', (data) => {
+                const text = data.toString().trim();
+                if (text) logs.add(serviceKey, 'LOG_STDERR', text.substring(0, 500));
+            });
+
+            child.on('close', (code) => {
+                console.log(`${serviceKey} process exited with code ${code}`);
+                runningProcesses.delete(serviceKey);
+                logs.add(serviceKey, 'EXIT', `Code: ${code}`);
+            });
+
+            runningProcesses.set(serviceKey, child);
+            logs.add(serviceKey, 'START', `Started with command: ${service.command}`);
+
+            // Wait a bit to see if it crashes immediately
+            await new Promise(r => setTimeout(r, 2000));
+            return true;
         }
     } else if (service.type === 'cloud') {
         if (serviceKey === 'BROWSERLESS') {
             visualRelay.enabled = true;
+            logs.add(serviceKey, 'ENABLE', 'Cloud relay enabled');
         }
     }
 
@@ -193,24 +301,81 @@ export async function stopService(serviceKey) {
 
     if (service.type === 'docker') {
         await execAsync(`docker stop ${service.containerName}`);
+        logs.add(serviceKey, 'STOP', 'Docker container stopped');
     } else if (service.type === 'process') {
         if (serviceKey === 'OLLAMA') {
             try {
                 await execAsync('taskkill /F /IM ollama.exe');
+            } catch (e) { }
+        } else if (runningProcesses.has(serviceKey)) {
+            const child = runningProcesses.get(serviceKey);
+            // On Windows, killing a process tree is hard with just child.kill()
+            try {
+                // Try taskkill for the PID and its children
+                if (child.pid) {
+                    await execAsync(`taskkill /F /T /PID ${child.pid}`);
+                } else {
+                    child.kill();
+                }
             } catch (e) {
-                // Might already be stopped
+                child.kill();
             }
+            runningProcesses.delete(serviceKey);
+            logs.add(serviceKey, 'STOP', 'Process terminated');
         }
     } else if (service.type === 'cloud') {
         if (serviceKey === 'BROWSERLESS') {
             visualRelay.enabled = false;
         }
+    } else if (serviceKey === 'ORCHESTRATOR') {
+        logs.add(serviceKey, 'STOP', 'Full system shutdown requested');
+        process.exit(0);
     }
     return true;
 }
 
+export async function pauseService(serviceKey) {
+    const service = SERVICES[serviceKey];
+    if (!service) throw new Error(`Unknown service: ${serviceKey}`);
+
+    if (service.type === 'docker') {
+        const status = await getResourceStatus();
+        if (status.services[serviceKey]?.paused) {
+            await execAsync(`docker unpause ${service.containerName}`);
+            logs.add(serviceKey, 'UNPAUSE', 'Docker container unpaused');
+        } else {
+            await execAsync(`docker pause ${service.containerName}`);
+            logs.add(serviceKey, 'PAUSE', 'Docker container paused');
+        }
+        return true;
+    }
+
+    // For processes, "pause" is just stop but we might implement it differently later
+    // For now, let's just stop it
+    return await stopService(serviceKey);
+}
+
+export async function getServiceLogs(serviceKey, limit = 50) {
+    const allLogs = await logs.getRecent(500);
+    return allLogs.filter(l => l.service === serviceKey).slice(0, limit);
+}
+
 export async function resetService(serviceKey) {
     console.log(`Resetting service: ${serviceKey}`);
+    if (serviceKey === 'ORCHESTRATOR') {
+        const { spawn } = await import('child_process');
+        const projectRoot = process.cwd();
+        // Spawn detached process to restart
+        spawn('powershell.exe', [
+            '-ExecutionPolicy', 'Bypass',
+            '-Command', `Start-Sleep 2; cd "${projectRoot}"; npm start`
+        ], {
+            detached: true,
+            stdio: 'ignore',
+            cwd: path.join(projectRoot, '..')
+        }).unref();
+        process.exit(0);
+    }
     await stopService(serviceKey).catch(() => { });
     await new Promise(r => setTimeout(r, 2000));
     return await startService(serviceKey);

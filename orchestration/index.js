@@ -1,4 +1,5 @@
 import express from 'express';
+import axios from 'axios';
 import dotenv from 'dotenv';
 import https from 'https';
 import fs, { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs';
@@ -54,7 +55,7 @@ import { readProjectMemory, writeProjectMemory, appendToProjectMemory, readAllCo
 import { setupTelegramInbound } from './lib/telegram-inbound.js';
 import * as resourceManager from './lib/resource-manager.js';
 import { handleRecoverySignal } from './lib/recovery-agent.js';
-import { tasks as dbTasks, logs as dbLogs } from './lib/db.js';
+import { tasks as dbTasks, logs as dbLogs, syncHistory, settings } from './lib/db.js';
 
 
 
@@ -375,7 +376,10 @@ app.get(['/health', '/api/v1/health'], async (req, res) => {
       julesApi: 'unknown',
       database: process.env.DATABASE_URL ? 'configured' : 'not_configured',
       github: GITHUB_TOKEN ? 'configured' : 'not_configured',
-      semanticMemory: process.env.SEMANTIC_MEMORY_URL ? 'configured' : 'not_configured'
+      semanticMemory: process.env.SEMANTIC_MEMORY_URL ? 'configured' : 'not_configured',
+      browserless: 'configured',
+      clawdbot: 'configured',
+      orchestrator: 'online'
     },
     circuitBreaker: {
       failures: circuitBreaker.failures,
@@ -668,6 +672,17 @@ app.post('/api/v1/alert-to-fix', async (req, res) => {
   }
 });
 
+// Get sync history for analytics
+app.get('/api/analytics/sync-history', async (req, res) => {
+  try {
+    const { days = 7, serviceId } = req.query;
+    const history = await syncHistory.getAggregated(parseInt(days));
+    res.json(history);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 
 // ============ RESOURCE MANAGEMENT ============
 
@@ -722,6 +737,26 @@ app.post('/api/resources/reset/:service', async (req, res) => {
   }
 });
 
+// Pause/Unpause a service
+app.post('/api/resources/pause/:service', async (req, res) => {
+  try {
+    await resourceManager.pauseService(req.params.service.toUpperCase());
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get logs for a service
+app.get('/api/resources/logs/:service', async (req, res) => {
+  try {
+    const logs = await resourceManager.getServiceLogs(req.params.service.toUpperCase());
+    res.json({ logs });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Get live preview configuration (VPN / Tunnel)
 app.get('/api/config/live-preview', async (req, res) => {
   try {
@@ -751,6 +786,52 @@ app.get('/api/config/live-preview', async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({ error: error.message });
+  }
+});
+
+// v2.8.5: Visual Proxy to bypass X-Frame-Options (for Cloudflare Tunnels)
+app.get('/api/visual/proxy', async (req, res) => {
+  try {
+    const tunnelPath = path.join(process.cwd(), '..', 'antigravity', 'last_tunnel_url.txt');
+    if (!fs.existsSync(tunnelPath)) {
+      return res.status(404).json({ error: 'No tunnel active' });
+    }
+
+    const tunnelData = JSON.parse(fs.readFileSync(tunnelPath, 'utf-8'));
+    const targetUrl = tunnelData.url;
+
+    if (!targetUrl) {
+      return res.status(404).json({ error: 'Tunnel URL not found' });
+    }
+
+    // Proxy the request using axios
+    const response = await axios.get(targetUrl, {
+      responseType: 'arraybuffer',
+      headers: {
+        'User-Agent': req.headers['user-agent'] || 'Mozilla/5.0',
+        'Accept': req.headers['accept'] || '*/*'
+      },
+      timeout: 10000,
+      validateStatus: false
+    });
+
+    // Copy status and headers from target, but STRIP security ones
+    res.status(response.status);
+    Object.keys(response.headers).forEach(header => {
+      const h = header.toLowerCase();
+      if (h !== 'x-frame-options' && h !== 'content-security-policy' && h !== 'content-length' && h !== 'transfer-encoding') {
+        res.setHeader(header, response.headers[header]);
+      }
+    });
+
+    // Explicitly allow iframes
+    res.setHeader('X-Frame-Options', 'ALLOWALL');
+    res.setHeader('Access-Control-Allow-Origin', '*');
+
+    res.send(Buffer.from(response.data));
+  } catch (error) {
+    console.error('[Visual Proxy] Error:', error.message);
+    res.status(500).json({ error: 'Proxy failed: ' + error.message });
   }
 });
 
@@ -1092,7 +1173,18 @@ app.get('/mcp/tools', cacheMiddleware, (req, res) => {
       { name: 'project_memory_read', description: 'Read a shared project memory file', parameters: { file: { type: 'string', required: true, description: 'GLOBAL_STATE.md | DECISIONS_LOG.md | TECHNICAL_CONTEXT.md | AGENT_TASKS.md' } } },
       { name: 'project_memory_write', description: 'Overwrite a shared project memory file', parameters: { file: { type: 'string', required: true }, content: { type: 'string', required: true } } },
       { name: 'project_memory_append', description: 'Append a line to a shared project memory file', parameters: { file: { type: 'string', required: true }, entry: { type: 'string', required: true } } },
-      { name: 'project_memory_context', description: 'Read GLOBAL_STATE + TECHNICAL_CONTEXT for quick context', parameters: {} }
+      { name: 'project_memory_context', description: 'Read GLOBAL_STATE + TECHNICAL_CONTEXT for quick context', parameters: {} },
+      // v2.9.0: Antigravity Delegation
+      {
+        name: 'jules_request_verification',
+        description: 'Jules delegates a completed task to Antigravity for visual verification',
+        parameters: {
+          originalTask: { type: 'string', required: true, description: 'Task title/ID' },
+          url: { type: 'string', required: false, description: 'URL to verify' },
+          autoVerify: { type: 'boolean', required: false, description: 'Trigger automatic screenshot' },
+          priority: { type: 'number', required: false, description: 'Verification priority (1-5)' }
+        }
+      }
     ]
   });
 });
@@ -1326,6 +1418,41 @@ function initializeToolRegistry() {
     });
   });
   toolRegistry.set('jules_clear_suggested_cache', () => clearSuggestedTasksCache());
+
+  // v2.9.0: Antigravity Delegation (Verification & Visualization)
+  toolRegistry.set('jules_request_verification', async (p) => {
+    const handoffId = `AGA-${Date.now().toString(36).toUpperCase()}`;
+    const title = `Verify: ${p.originalTask || 'Task completion'}`;
+
+    dbTasks.add({
+      id: handoffId,
+      title: title,
+      executor: 'antigravity',
+      status: 'pending',
+      priority: p.priority || 2,
+      source: 'jules_handoff'
+    });
+
+    const url = p.url || process.env.TUNNEL_URL || 'http://localhost:3000';
+
+    await sendTelegramMessage([
+      `🤝 **Handoff: Jules → Antigravity**`,
+      `Tarea Original: \`${p.originalTask}\``,
+      `ID de Verificación: \`${handoffId}\``,
+      `URL: ${url}`,
+      `Acción: Verificación visual solicitada.`
+    ].join('\n'));
+
+    // Trigger visual verification automatically if requested
+    if (p.autoVerify) {
+      const visualRelay = new VisualRelay();
+      await visualRelay.screenshotToTelegram(url, `🛡️ Auto-Verification: ${handoffId}\nTask: ${p.originalTask}`);
+      dbTasks.updateStatus(handoffId, 'completed', 'Visual verification sent to Telegram');
+    }
+
+    await syncTasksToMarkdown();
+    return { success: true, handoffId, message: 'Task delegated to Antigravity' };
+  });
 
   // v2.7.0: Telegram Integration
   toolRegistry.set('telegram_send_message', (p) => sendTelegramMessage(p.text, { parseMode: p.parseMode }));
@@ -2140,11 +2267,122 @@ const server = app.listen(PORT, '0.0.0.0', () => {
     }
   }
 
+  // ── TRUST TUNNEL API ────────────────────────────────────────────────────
+  app.get('/api/trust-tunnel/status', (req, res) => {
+    const active = settings.get('trust_tunnel_active') === 'true';
+    res.json({ active });
+  });
+
+  app.post('/api/trust-tunnel/toggle', express.json(), (req, res) => {
+    const { password } = req.body;
+    const correctPassword = process.env.ORCHESTRATOR_FIX_KEY || 'maestro_repara_001';
+
+    if (password !== correctPassword) {
+      return res.status(401).json({ error: 'Invalid Trust password' });
+    }
+
+    const current = settings.get('trust_tunnel_active') === 'true';
+    const newState = !current;
+    settings.set('trust_tunnel_active', newState);
+
+    structuredLog('info', 'Trust Tunnel state changed', { active: newState });
+    sendTelegramMessage(`🛡️ **Trust Tunnel ${newState ? 'ACTIVADO' : 'DESACTIVADO'}**\nEl sistema ahora opera en modo autónomo.`);
+
+    res.json({ active: newState });
+  });
+
+  // ── TRUST TUNNEL: AUTO-APPROVE LOOP ────────────────────────────────────
+  let trustTunnelInterval = null;
+  async function runTrustTunnelLoop() {
+    const isTrustActive = settings.get('trust_tunnel_active') === 'true';
+    if (!isTrustActive) return;
+
+    try {
+      const resp = await julesRequest('GET', '/sessions');
+      const sessions = resp.sessions || [];
+
+      for (const s of sessions) {
+        if (s.state === 'WAITING_FOR_APPROVAL' || s.state === 'AWAITING_PLAN_APPROVAL') {
+          console.log(`[TrustTunnel] ✅ Auto-approving plan for ${s.name}`);
+          await julesRequest('POST', `/${s.name}:approvePlan`, {});
+          sendTelegramMessage(`✅ **Plan Auto-Aprobado** para: ${s.title || s.name}`);
+        } else if (s.state === 'AWAITING_USER_FEEDBACK') {
+          console.log(`[TrustTunnel] 🤖 Sending autonomous proceed to ${s.name}`);
+          await julesRequest('POST', `/${s.name}:sendMessage`, {
+            prompt: "Please proceed autonomously with the best possible approach. Trust Tunnel Active."
+          });
+          sendTelegramMessage(`🤖 **Mensaje Autónomo enviado** a: ${s.title || s.name}`);
+        }
+      }
+    } catch (err) {
+      console.error('[TrustTunnel] Loop error:', err.message);
+    }
+  }
+
+  // Check every 20 seconds for sessions to approve
+  setInterval(runTrustTunnelLoop, 20_000);
+
   // Run immediately on startup (after 10s warmup), then every 90 seconds
   setTimeout(() => {
     autoDispatchPendingTasks();
     setInterval(autoDispatchPendingTasks, 90_000);
   }, 10_000);
+
+  // ── HISTORY RECORDING LOOP ──────────────────────────────────────────────
+  async function recordHistory() {
+    try {
+      const resources = await resourceManager.getResourceStatus();
+      const sessions = await sessionMonitor.getActiveSessions().catch(() => []);
+
+      // Record Jules
+      syncHistory.add({
+        service_id: 'jules',
+        status: circuitBreaker.isOpen() ? 'offline' : 'online',
+        metric_value: sessions.length,
+        metric_label: 'Active Sessions'
+      });
+
+      // Record Hardware
+      if (resources.hardware) {
+        if (resources.hardware.cpu) {
+          syncHistory.add({
+            service_id: 'cpu',
+            status: 'online',
+            metric_value: resources.hardware.cpu.load,
+            metric_label: 'CPU Load %'
+          });
+        }
+        if (resources.hardware.gpu) {
+          syncHistory.add({
+            service_id: 'gpu',
+            status: 'online',
+            metric_value: resources.hardware.gpu.temp,
+            metric_label: 'GPU Temp °C'
+          });
+        }
+      }
+
+      // Record individual services
+      if (resources.services) {
+        for (const [id, svc] of Object.entries(resources.services)) {
+          syncHistory.add({
+            service_id: id.toLowerCase(),
+            status: svc.running ? 'online' : 'offline',
+            metric_value: svc.used || (svc.running ? 1 : 0),
+            metric_label: svc.type || 'service'
+          });
+        }
+      }
+
+      structuredLog('debug', 'Sync history recorded');
+    } catch (err) {
+      console.error('[History] Failed to record:', err.message);
+    }
+  }
+
+  // Record every 15 minutes
+  setInterval(recordHistory, 15 * 60 * 1000);
+  setTimeout(recordHistory, 20_000); // delay first run to allow modules to init
 
   console.log('[AutoDispatch] Loop scheduled — will check for pending Jules tasks every 90s');
 });

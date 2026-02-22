@@ -112,9 +112,11 @@ export interface ResourceStatus {
     services: Record<string, {
         name: string;
         running: boolean;
-        type: 'docker' | 'process' | 'cloud';
+        type: 'docker' | 'process' | 'cloud' | 'external';
         used?: number;
         limit?: number;
+        url?: string;
+        description?: string;
     }>;
     hardware: {
         cpu: { load: number; temp: number };
@@ -127,6 +129,8 @@ export const setPowerMode = (mode: 'eco' | 'performance') => request<{ success: 
 export const startService = (service: string) => request<{ success: boolean }>('POST', `/api/resources/start/${service}`);
 export const stopService = (service: string) => request<{ success: boolean }>('POST', `/api/resources/stop/${service}`);
 export const resetService = (service: string) => request<{ success: boolean }>('POST', `/api/resources/reset/${service}`);
+export const pauseService = (service: string) => request<{ success: boolean }>('POST', `/api/resources/pause/${service}`);
+export const getServiceLogs = (service: string) => request<{ logs: any[] }>('GET', `/api/resources/logs/${service}`);
 
 // ─── MCP Execute (proxy to Maestro commands) ───
 
@@ -161,5 +165,6 @@ export const getJulesBlockedStatus = () => request<{ blocked: boolean; sessions:
 
 export const getLivePreviewConfig = () => request<{ url: string; source: string; password?: string }>('GET', '/api/config/live-preview');
 export const getVisualHistory = () => request<{ screenshots: Screenshot[] }>('GET', '/api/visual/history');
+export const getSyncHistory = (days = 7) => request<any[]>('GET', `/api/analytics/sync-history?days=${days}`);
 
 export { getBaseUrl, DEFAULT_BASE };
