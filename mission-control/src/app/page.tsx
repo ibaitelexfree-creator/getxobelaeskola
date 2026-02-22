@@ -40,7 +40,7 @@ export default function MissionControlPage() {
     };
 
     return (
-        <main className={`min-h-screen relative overflow-hidden transition-colors duration-1000 ${sonarActive ? 'bg-status-blue/10' : ''}`}>
+        <main className={`h-screen flex flex-col relative transition-colors duration-1000 ${sonarActive ? 'bg-status-blue/10' : ''}`}>
             <div className="bg-mission-mesh fixed inset-0 -z-10" />
 
             {/* Pro Atmosphere Layer */}
@@ -60,8 +60,8 @@ export default function MissionControlPage() {
                 )}
             </AnimatePresence>
 
-            {/* Header */}
-            <header className="px-5 pt-safe pb-4 flex items-center justify-between sticky top-0 z-30 bg-nautical-deep/95 backdrop-blur-md border-b border-white/10">
+            {/* Header - Fixed/Sticky at top */}
+            <header className="px-5 pt-safe pb-4 flex items-center justify-between sticky top-0 z-30 bg-nautical-deep/95 backdrop-blur-md border-b border-white/10 shrink-0">
                 <div className="flex items-center gap-3">
                     <div
                         onClick={triggerDeepScan}
@@ -92,8 +92,8 @@ export default function MissionControlPage() {
 
             <JulesUrgentBanner />
 
-            {/* Content Area */}
-            <div className={`px-4 pt-8 pb-32 overflow-y-auto custom-scrollbar ${activeTab === 'visual' ? 'h-[calc(100vh-180px)]' : 'min-h-[50vh]'}`}>
+            {/* Content Area - Uses flex-1 to fill space and scroll internally */}
+            <div className="flex-1 overflow-y-auto custom-scrollbar px-4 pt-8 pb-32">
                 <AnimatePresence mode="wait">
                     <motion.div
                         key={activeTab}

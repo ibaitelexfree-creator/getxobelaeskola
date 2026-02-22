@@ -10,6 +10,8 @@ import SyncHistoryGraph from './SyncHistoryGraph';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import ConnectionDiagnostics from '@/components/ConnectionDiagnostics';
+
 /* ═══════════════════════════════════════════════════
    SERVICE ITEM COMPONENT
 ═══════════════════════════════════════════════════ */
@@ -74,6 +76,10 @@ export default function Dashboard() {
     const [alertService, setAlertService] = useState<ServiceItem | null>(null);
 
     const watchdogS = services.watchdog.state || 'UNKNOWN';
+
+    if (!connected) {
+        return <ConnectionDiagnostics />;
+    }
     const watchdogH: ServiceHealth = watchdogS === 'ACTIVE' ? 'online' :
         ['STALLED', 'LOOPING', 'RECOVERING'].includes(watchdogS) ? 'degraded' :
             ['CRASHED', 'OFFLINE'].includes(watchdogS) ? 'offline' : 'unknown';

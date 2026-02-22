@@ -1,3 +1,13 @@
+# ==========================================================
+# AUTO-ELEVATE: Check for Administrator Privileges
+# ==========================================================
+$currentPrincipal = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
+if (-not $currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
+    Write-Host "Elevando privilegios a Administrador..." -ForegroundColor Yellow
+    $arguments = "-ExecutionPolicy Bypass -File `"$PSCommandPath`""
+    Start-Process powershell.exe -ArgumentList $arguments -Verb RunAs
+    exit
+}
 
 # Script de Mantenimiento y Arranque Agentico (Vuela)
 # Limpia el sistema y arranca el Orquestador + Visual Bridge

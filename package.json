@@ -10,6 +10,7 @@
     "lint": "next lint",
     "vuela": "powershell.exe -ExecutionPolicy Bypass -File scripts/vuela.ps1",
     "bridge": "powershell.exe -ExecutionPolicy Bypass -File scripts/visual-bridge.ps1",
+    "mission": "powershell.exe -ExecutionPolicy Bypass -File scripts/mission.ps1",
     "fetch-water": "node scripts/prepare_water_data.js"
   },
   "dependencies": {

@@ -1,12 +1,17 @@
-// orchestrator-api/src/index.js
 import express from 'express';
 import pg from 'pg';
 import axios from 'axios';
 import crypto from 'crypto';
+import dns from 'dns';
 import { WebSocketServer } from 'ws';
 import { createServer } from 'http';
 import { GoogleAuth } from 'google-auth-library';
 import * as metrics from './metrics.js';
+
+// Fix connection hangs by prioritizing IPv4
+if (dns.setDefaultResultOrder) {
+  dns.setDefaultResultOrder('ipv4first');
+}
 
 const app = express();
 
@@ -92,7 +97,7 @@ julesClient.interceptors.request.use((config) => {
 // GitHub API client
 const githubClient = axios.create({
   baseURL: 'https://api.github.com',
-  headers: { 
+  headers: {
     'Accept': 'application/vnd.github+json'
   }
 });
@@ -118,7 +123,7 @@ app.get('/', (req, res) => {
 
 // Health Check
 app.get(['/health', '/api/v1/health'], async (req, res) => {
-  res.json({ 
+  res.json({
     status: 'ok',
     version: '1.5.0',
     services: {
@@ -126,7 +131,7 @@ app.get(['/health', '/api/v1/health'], async (req, res) => {
       julesApi: 'configured',
       githubApi: GITHUB_TOKEN ? 'configured' : 'not_configured'
     },
-    timestamp: new Date().toISOString() 
+    timestamp: new Date().toISOString()
   });
 });
 
@@ -186,9 +191,9 @@ app.post('/mcp/execute', async (req, res) => {
   if (!toolName) {
     console.error(`[${req.requestId}] MCP Error: Missing tool name`);
     return res.status(400).json({
-        error: 'Tool name required (use "name" or "tool" field)',
-        requestId: req.requestId,
-        hint: 'Ensure Content-Type is application/json'
+      error: 'Tool name required (use "name" or "tool" field)',
+      requestId: req.requestId,
+      hint: 'Ensure Content-Type is application/json'
     });
   }
 
@@ -200,7 +205,7 @@ app.post('/mcp/execute', async (req, res) => {
       hint: 'Tool names must be alphanumeric with underscores'
     });
   }
-  
+
   try {
     let result;
     if (toolName === 'jules_create_session') {
@@ -215,17 +220,17 @@ app.post('/mcp/execute', async (req, res) => {
     } else {
       return res.status(404).json({ error: 'Tool ' + toolName + ' not found' });
     }
-    
-    res.json({ 
+
+    res.json({
       success: true,
       content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
-      result 
+      result
     });
   } catch (error) {
     console.error('MCP Execute Error (' + toolName + '):', error.response?.data || error.message);
-    res.status(500).json({ 
+    res.status(500).json({
       success: false,
-      error: error.response?.data?.error?.message || error.message 
+      error: error.response?.data?.error?.message || error.message
     });
   }
 });

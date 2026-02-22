@@ -2,8 +2,15 @@ import express from 'express';
 import axios from 'axios';
 import dotenv from 'dotenv';
 import https from 'https';
+import dns from 'dns';
+
+// Fix connection hangs to Telegram/Browserless by prioritizing IPv4
+if (dns.setDefaultResultOrder) {
+  dns.setDefaultResultOrder('ipv4first');
+}
 import fs, { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs';
 import path, { join } from 'path';
+import os from 'os';
 import admin from 'firebase-admin';
 import { getIssue, getIssuesByLabel, formatIssueForPrompt, listReleases, downloadAsset } from './lib/github.js';
 import { BatchProcessor } from './lib/batch.js';
@@ -51,6 +58,7 @@ import mcpExecuteSchema from './schemas/mcp-execute-schema.js';
 import sessionCreateSchema from './schemas/session-create-schema.js';
 import { cacheMiddleware, invalidateCaches } from './middleware/cacheMiddleware.js';
 import { sendTelegramMessage } from './lib/telegram.js';
+import { VisualRelay } from './lib/visual-relay.js';
 import { readProjectMemory, writeProjectMemory, appendToProjectMemory, readAllContext, getParsedTasks } from './lib/project-memory.js';
 import { setupTelegramInbound } from './lib/telegram-inbound.js';
 import * as resourceManager from './lib/resource-manager.js';
@@ -159,6 +167,20 @@ const currentLogLevel = LOG_LEVELS[process.env.LOG_LEVEL || 'info'];
 function structuredLog(level, message, context = {}) {
   if (LOG_LEVELS[level] > currentLogLevel) return;
   console.log(JSON.stringify({ timestamp: new Date().toISOString(), level, message, ...context, correlationId: context.correlationId || 'system' }));
+}
+
+// Get Local Network IP for WiFi access
+function getLocalNetworkIp() {
+  const interfaces = os.networkInterfaces();
+  for (const name of Object.keys(interfaces)) {
+    for (const iface of interfaces[name]) {
+      // Skip over non-IPv4 and internal (i.e. 127.0.0.1) addresses
+      if (iface.family === 'IPv4' && !iface.internal) {
+        return iface.address;
+      }
+    }
+  }
+  return 'localhost';
 }
 
 // Retry with Exponential Backoff
@@ -778,10 +800,17 @@ app.get('/api/config/live-preview', async (req, res) => {
       }
     }
 
+    const localIp = getLocalNetworkIp();
     res.json({
       url,
       source,
       password,
+      localIp,
+      apps: [
+        { id: 'MAIN_APP', name: 'Web Getxo School', port: 3000, type: 'web' },
+        { id: 'MISSION_CONTROL', name: 'Control Manager APK', port: 3100, type: 'apk' },
+        { id: 'WEB_GETXO', name: 'Production Web', url: 'https://getxobelaeskola.cloud', type: 'web' }
+      ],
       timestamp: new Date().toISOString()
     });
   } catch (error) {
@@ -793,12 +822,12 @@ app.get('/api/config/live-preview', async (req, res) => {
 app.get('/api/visual/proxy', async (req, res) => {
   try {
     const tunnelPath = path.join(process.cwd(), '..', 'antigravity', 'last_tunnel_url.txt');
-    if (!fs.existsSync(tunnelPath)) {
-      return res.status(404).json({ error: 'No tunnel active' });
-    }
+    let targetUrl = req.query.url; // Support dynamic URL from query string
 
-    const tunnelData = JSON.parse(fs.readFileSync(tunnelPath, 'utf-8'));
-    const targetUrl = tunnelData.url;
+    if (!targetUrl && fs.existsSync(tunnelPath)) {
+      const tunnelData = JSON.parse(fs.readFileSync(tunnelPath, 'utf-8'));
+      targetUrl = tunnelData.url;
+    }
 
     if (!targetUrl) {
       return res.status(404).json({ error: 'Tunnel URL not found' });
@@ -809,7 +838,8 @@ app.get('/api/visual/proxy', async (req, res) => {
       responseType: 'arraybuffer',
       headers: {
         'User-Agent': req.headers['user-agent'] || 'Mozilla/5.0',
-        'Accept': req.headers['accept'] || '*/*'
+        'Accept': req.headers['accept'] || '*/*',
+        'Referer': targetUrl
       },
       timeout: 10000,
       validateStatus: false

@@ -1,15 +1,23 @@
 /**
  * VisualRelay — Browserless Screenshots & PDFs → Telegram
  * 
- * Eliminates local browser dependency by routing all web
- * visualization through Browserless.io, sending results
- * directly to Telegram as photos or documents.
+ * Master Fix: Uses 'curl' bridge for Telegram communications. 
+ * Since Node.js native network calls were consistently hanging due to system-level 
+ * IPv6/MTU issues, this bridge leverages the system's 'curl' binary (IPV4 forced)
+ * to send messages and photos.
  */
 
 import https from 'https';
 import http from 'http';
 import fs from 'fs';
 import path from 'path';
+import dns from 'dns';
+import { spawnSync } from 'child_process';
+
+// Fix connection hangs to Telegram/Browserless by prioritizing IPv4
+if (dns.setDefaultResultOrder) {
+    dns.setDefaultResultOrder('ipv4first');
+}
 
 const BROWSERLESS_DEFAULT = 'https://chrome.browserless.io';
 const STORAGE_DIR = path.join(process.cwd(), 'storage', 'screenshots');
@@ -32,18 +40,19 @@ export class VisualRelay {
     }
 
     async screenshot(url, options = {}) {
-        if (!this.browserlessEnabled) return { success: false, error: 'Browserless not configured (use screenshotToTelegram for text fallback)' };
+        if (!this.browserlessEnabled) return { success: false, error: 'Browserless not configured' };
 
         try {
             const buffer = await this._browserlessRequest('/screenshot', {
                 url,
                 options: {
                     fullPage: options.fullPage || false,
-                    type: 'png'
+                    type: 'png',
+                    wait: options.wait || 3000
                 }
             });
 
-            // Save locally for History View
+            // Save locally
             const filename = `shot_${Date.now()}.png`;
             const filepath = path.join(STORAGE_DIR, filename);
             fs.writeFileSync(filepath, buffer);
@@ -75,11 +84,11 @@ export class VisualRelay {
             const text = [
                 caption || `📸 Visual Relay`,
                 `🔗 URL: ${url}`,
-                `⚠️ Modo texto (BROWSERLESS_TOKEN no configurado)`,
+                `⚠️ Modo texto (Fallback por error de red o falta de Token)`,
                 `🕐 ${new Date().toISOString()}`
             ].join('\n');
             await this._sendTelegramMessage(text);
-            return { success: true, message: 'Text notification sent to Telegram (no Browserless)' };
+            return { success: true, message: 'Text notification sent to Telegram' };
         } catch (err) {
             return { success: false, error: `Telegram failed: ${err.message}` };
         }
@@ -113,40 +122,7 @@ export class VisualRelay {
     }
 
     async getUsage() {
-        if (!this.enabled || !this.browserlessToken) return null;
-
-        try {
-            const data = await new Promise((resolve, reject) => {
-                const url = new URL(`${this.browserlessUrl}/account?token=${this.browserlessToken}`);
-                const isHttps = url.protocol === 'https:';
-                const transport = isHttps ? https : http;
-
-                transport.get(url, (res) => {
-                    let body = '';
-                    res.on('data', chunk => body += chunk);
-                    res.on('end', () => {
-                        if (res.statusCode >= 400) {
-                            reject(new Error(`Status ${res.statusCode}`));
-                            return;
-                        }
-                        try {
-                            resolve(JSON.parse(body));
-                        } catch (e) {
-                            reject(e);
-                        }
-                    });
-                }).on('error', reject);
-            });
-
-            return {
-                used: data.usage || 0,
-                limit: data.limit || 0,
-                remaining: data.remaining || 0
-            };
-        } catch (err) {
-            console.error('[VisualRelay] Failed to get usage:', err.message);
-            return null;
-        }
+        return null; // Simplified for now
     }
 
     getStatus() {
@@ -168,77 +144,61 @@ export class VisualRelay {
         ].join('\n');
     }
 
-    // ───────── INTERNAL ─────────
+    // ───────── INTERNAL (CURL BRIDGE) ─────────
 
     async _browserlessRequest(endpoint, body) {
-        return new Promise((resolve, reject) => {
-            const url = new URL(`${this.browserlessUrl}${endpoint}?token=${this.browserlessToken}`);
-            const isHttps = url.protocol === 'https:';
-            const transport = isHttps ? https : http;
-            const data = JSON.stringify(body);
+        const url = `${this.browserlessUrl}${endpoint}?token=${this.browserlessToken}`;
+        const payload = JSON.stringify(body);
+        const tmpBody = path.join(STORAGE_DIR, `req_${Date.now()}.json`);
 
-            const options = {
-                hostname: url.hostname,
-                port: url.port || (isHttps ? 443 : 80),
-                path: url.pathname + url.search,
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Content-Length': Buffer.byteLength(data)
-                }
-            };
+        try {
+            fs.writeFileSync(tmpBody, payload);
+            const result = spawnSync('curl', [
+                '-4', '-s', '-X', 'POST', url,
+                '-H', 'Content-Type: application/json',
+                '--data-binary', `@${tmpBody}`
+            ]);
 
-            const req = transport.request(options, (res) => {
-                const chunks = [];
-                res.on('data', chunk => chunks.push(chunk));
-                res.on('end', () => {
-                    const buffer = Buffer.concat(chunks);
-                    if (res.statusCode >= 400) {
-                        reject(new Error(`Browserless ${res.statusCode}: ${buffer.toString().substring(0, 200)}`));
-                        return;
-                    }
-                    resolve(buffer);
-                });
-            });
+            if (fs.existsSync(tmpBody)) fs.unlinkSync(tmpBody);
+            if (result.error) throw result.error;
 
-            req.on('error', reject);
-            req.setTimeout(30000, () => {
-                req.destroy();
-                reject(new Error('Browserless timeout (30s)'));
-            });
+            const buffer = result.stdout;
+            if (!buffer || buffer.length === 0) throw new Error('Empty response from Browserless');
 
-            req.write(data);
-            req.end();
-        });
+            return buffer;
+        } catch (err) {
+            console.error('[VisualRelay] Browserless curl failed:', err.message);
+            throw err;
+        }
     }
 
     async _sendTelegramMessage(text) {
-        return new Promise((resolve, reject) => {
-            const body = JSON.stringify({
-                chat_id: this.chatId,
-                text,
-                parse_mode: 'Markdown'
-            });
-            const options = {
-                hostname: 'api.telegram.org',
-                port: 443,
-                path: `/bot${this.telegramToken}/sendMessage`,
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(body) }
-            };
-            const req = https.request(options, (res) => {
-                let data = '';
-                res.on('data', chunk => data += chunk);
-                res.on('end', () => {
-                    res.statusCode >= 400
-                        ? reject(new Error(`Telegram ${res.statusCode}: ${data.substring(0, 200)}`))
-                        : resolve(JSON.parse(data));
-                });
-            });
-            req.on('error', reject);
-            req.write(body);
-            req.end();
+        const url = `https://api.telegram.org/bot${this.telegramToken}/sendMessage`;
+        const payload = JSON.stringify({
+            chat_id: this.chatId,
+            text,
+            parse_mode: 'Markdown'
         });
+        const tmpBody = path.join(STORAGE_DIR, `tel_${Date.now()}.json`);
+
+        try {
+            fs.writeFileSync(tmpBody, payload);
+            const result = spawnSync('curl', [
+                '-4', '-s', '-X', 'POST', url,
+                '-H', 'Content-Type: application/json',
+                '--data-binary', `@${tmpBody}`
+            ], { encoding: 'utf-8' });
+
+            if (fs.existsSync(tmpBody)) fs.unlinkSync(tmpBody);
+            if (result.error) throw result.error;
+
+            const data = JSON.parse(result.stdout);
+            if (!data.ok) throw new Error(data.description);
+            return data;
+        } catch (err) {
+            console.error('[VisualRelay] Telegram curl failed:', err.message);
+            throw err;
+        }
     }
 
     async _sendPhotoToTelegram(buffer, caption) {
@@ -250,56 +210,42 @@ export class VisualRelay {
     }
 
     async _telegramMultipart(endpoint, fieldName, buffer, filename, caption) {
-        return new Promise((resolve, reject) => {
-            const boundary = `----FormBoundary${Date.now()}`;
-            const parts = [];
+        const url = `https://api.telegram.org/bot${this.telegramToken}${endpoint}`;
+        const tmpFile = path.join(STORAGE_DIR, `tmp_${Date.now()}_${filename}`);
 
-            // chat_id
-            parts.push(`--${boundary}\r\nContent-Disposition: form-data; name="chat_id"\r\n\r\n${this.chatId}`);
+        try {
+            fs.writeFileSync(tmpFile, buffer);
 
-            // caption
+            const args = [
+                '-4', '-s', '-X', 'POST', url,
+                '-F', `chat_id=${this.chatId}`,
+                '-F', `${fieldName}=@${tmpFile}`
+            ];
+
             if (caption) {
-                parts.push(`--${boundary}\r\nContent-Disposition: form-data; name="caption"\r\n\r\n${caption}`);
+                args.push('-F', `caption=${caption}`);
+                args.push('-F', 'parse_mode=Markdown');
             }
 
-            // file
-            const fileHeader = `--${boundary}\r\nContent-Disposition: form-data; name="${fieldName}"; filename="${filename}"\r\nContent-Type: application/octet-stream\r\n\r\n`;
-            const fileFooter = `\r\n--${boundary}--\r\n`;
+            const result = spawnSync('curl', args, { encoding: 'utf-8' });
+            if (result.error) throw result.error;
 
-            const body = Buffer.concat([
-                Buffer.from(parts.join('\r\n') + '\r\n'),
-                Buffer.from(fileHeader),
-                buffer,
-                Buffer.from(fileFooter)
-            ]);
+            if (result.stdout.trim() === '') {
+                throw new Error('Telegram returned empty stdout. Check if curl is blocked.');
+            }
 
-            const options = {
-                hostname: 'api.telegram.org',
-                port: 443,
-                path: `/bot${this.telegramToken}${endpoint}`,
-                method: 'POST',
-                headers: {
-                    'Content-Type': `multipart/form-data; boundary=${boundary}`,
-                    'Content-Length': body.length
-                }
-            };
-
-            const req = https.request(options, (res) => {
-                let data = '';
-                res.on('data', chunk => data += chunk);
-                res.on('end', () => {
-                    if (res.statusCode >= 400) {
-                        reject(new Error(`Telegram ${res.statusCode}: ${data.substring(0, 200)}`));
-                        return;
-                    }
-                    resolve(JSON.parse(data));
-                });
-            });
-
-            req.on('error', reject);
-            req.write(body);
-            req.end();
-        });
+            const data = JSON.parse(result.stdout);
+            if (!data.ok) {
+                console.error('[VisualRelay] Telegram Error Response:', data);
+                throw new Error(data.description);
+            }
+            return data;
+        } catch (err) {
+            console.error('[VisualRelay] Telegram multipart curl failed:', err.message);
+            throw err;
+        } finally {
+            if (fs.existsSync(tmpFile)) fs.unlinkSync(tmpFile);
+        }
     }
 }
 
