@@ -48,6 +48,7 @@ The following keys are required for full functionality:
 | `STRIPE_SECRET_KEY` | Stripe Secret Key |
 | `STRIPE_WEBHOOK_SECRET` | Secret for verifying Stripe webhooks |
 | `NEXT_PUBLIC_APP_URL` | Base URL of the application (e.g. localhost:3000) |
+| `GRAFANA_WEBHOOK_URL` | Webhook URL for server-side error monitoring (Grafana/Slack) |
 
 ## 📖 Further Documentation
 - [Architecture & Design System](./docs/ARCHITECTURE.md)

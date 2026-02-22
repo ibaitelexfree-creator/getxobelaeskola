@@ -11,6 +11,7 @@ import ConditionalLayout from '@/components/layout/ConditionalLayout';
 const ScrollUpButton = dynamic(() => import('@/components/shared/ScrollToTop'), { ssr: false });
 import { Viewport } from 'next';
 import { Suspense } from 'react';
+import GlobalErrorBoundary from '@/components/shared/GlobalErrorBoundary';
 const StatusToast = dynamic(() => import('@/components/shared/StatusToast'), { ssr: false });
 
 export const viewport: Viewport = {
@@ -44,25 +45,27 @@ export default async function LocaleLayout({
           {locale === 'eu' ? 'Edukira jo' : locale === 'en' ? 'Skip to content' : locale === 'fr' ? 'Aller au contenu' : 'Saltar al contenido'}
         </a>
         <NextIntlClientProvider messages={messages} locale={locale} timeZone="Europe/Madrid">
-          <AcademyFeedbackProvider>
-            <PushNotificationInitializer />
-            <div className="min-h-screen flex flex-col relative w-full overflow-x-hidden">
-              <ConditionalLayout
-                locale={locale}
-                navbar={<Navbar locale={locale} />}
-                footer={<Footer locale={locale} />}
-              >
-                <main id="main-content" className="flex-grow">
-                  {children}
-                </main>
-              </ConditionalLayout>
-            </div>
-            <ScrollUpButton />
+          <GlobalErrorBoundary>
+            <AcademyFeedbackProvider>
+              <PushNotificationInitializer />
+              <div className="min-h-screen flex flex-col relative w-full overflow-x-hidden">
+                <ConditionalLayout
+                  locale={locale}
+                  navbar={<Navbar locale={locale} />}
+                  footer={<Footer locale={locale} />}
+                >
+                  <main id="main-content" className="flex-grow">
+                    {children}
+                  </main>
+                </ConditionalLayout>
+              </div>
+              <ScrollUpButton />
 
-            <Suspense fallback={null}>
-              <StatusToast />
-            </Suspense>
-          </AcademyFeedbackProvider>
+              <Suspense fallback={null}>
+                <StatusToast />
+              </Suspense>
+            </AcademyFeedbackProvider>
+          </GlobalErrorBoundary>
         </NextIntlClientProvider>
       </body>
     </html>

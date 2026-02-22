@@ -17,6 +17,27 @@ export default function Error({
     useEffect(() => {
         // Log the error to an error reporting service
         console.error('Captured by error boundary:', error);
+
+        // Send error report to the internal API route
+        const payload = {
+            title: 'Page Error Boundary (error.tsx) Caught Error',
+            message: error.message,
+            stack: error.stack,
+            digest: error.digest,
+            url: typeof window !== 'undefined' ? window.location.href : 'SSR',
+            userAgent: typeof window !== 'undefined' ? window.navigator.userAgent : 'SSR',
+            timestamp: new Date().toISOString(),
+        };
+
+        fetch('/api/monitoring/log-error', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(payload),
+        }).catch((err) => {
+            console.error('Failed to send error report to monitoring API:', err);
+        });
     }, [error]);
 
     return (
