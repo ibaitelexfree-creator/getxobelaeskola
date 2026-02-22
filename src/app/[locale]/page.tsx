@@ -9,6 +9,7 @@ const NativeAppRedirect = dynamic(() => import('@/components/shared/NativeAppRed
 const ExperienceSection = dynamic(() => import('@/components/home/ExperienceSection'));
 const FeaturesSection = dynamic(() => import('@/components/home/FeaturesSection'));
 const ProgramsSection = dynamic(() => import('@/components/home/ProgramsSection'));
+const PricingSection = dynamic(() => import('@/components/home/PricingSection'));
 
 
 export async function generateMetadata({ params: { locale } }: { params: { locale: string } }): Promise<Metadata> {
@@ -42,6 +43,7 @@ export default async function LandingPage({ params: { locale } }: { params: { lo
   const tExp = await getTranslations({ locale, namespace: 'home.experience' });
   const tProg = await getTranslations({ locale, namespace: 'home.programs' });
   const tFeat = await getTranslations({ locale, namespace: 'home.features' });
+  const tPricing = await getTranslations({ locale, namespace: 'home.pricing' });
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -142,6 +144,45 @@ export default async function LandingPage({ params: { locale } }: { params: { lo
     }
   ];
 
+  const pricingTiers = [
+    {
+      name: tPricing('tiers.tier1.name'),
+      price: tPricing('tiers.tier1.price'),
+      desc: tPricing('tiers.tier1.desc'),
+      cta: tPricing('tiers.tier1.cta'),
+      features: [
+        tPricing('tiers.tier1.features.f1'),
+        tPricing('tiers.tier1.features.f2'),
+        tPricing('tiers.tier1.features.f3'),
+        tPricing('tiers.tier1.features.f4'),
+      ]
+    },
+    {
+      name: tPricing('tiers.tier2.name'),
+      price: tPricing('tiers.tier2.price'),
+      desc: tPricing('tiers.tier2.desc'),
+      cta: tPricing('tiers.tier2.cta'),
+      features: [
+        tPricing('tiers.tier2.features.f1'),
+        tPricing('tiers.tier2.features.f2'),
+        tPricing('tiers.tier2.features.f3'),
+        tPricing('tiers.tier2.features.f4'),
+      ]
+    },
+    {
+      name: tPricing('tiers.tier3.name'),
+      price: tPricing('tiers.tier3.price'),
+      desc: tPricing('tiers.tier3.desc'),
+      cta: tPricing('tiers.tier3.cta'),
+      features: [
+        tPricing('tiers.tier3.features.f1'),
+        tPricing('tiers.tier3.features.f2'),
+        tPricing('tiers.tier3.features.f3'),
+        tPricing('tiers.tier3.features.f4'),
+      ]
+    }
+  ];
+
   return (
     <div className="w-full">
       <JsonLd data={jsonLd} />
@@ -171,6 +212,13 @@ export default async function LandingPage({ params: { locale } }: { params: { lo
         title={tProg('title')}
         learn_more={tProg('learn_more')}
         programs={programs}
+      />
+      <PricingSection
+        title={tPricing('title')}
+        subtitle={tPricing('subtitle')}
+        monthly={tPricing('monthly')}
+        popular={tPricing('popular')}
+        tiers={pricingTiers}
       />
       <FeaturesSection features={features} />
 

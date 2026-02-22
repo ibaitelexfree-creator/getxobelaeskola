@@ -175,6 +175,50 @@
       "staff_desc": "Learn from sailors with thousands of miles of experience.",
       "comm_title": "Active Community",
       "comm_desc": "Join a club of sailing and Cantabrian Sea enthusiasts."
+    },
+    "pricing": {
+      "title": "Digital Plans",
+      "subtitle": "Choose your course and access exclusive tools.",
+      "monthly": "/mo",
+      "popular": "Most Popular",
+      "tiers": {
+        "tier1": {
+          "name": "Deckhand",
+          "price": "Free",
+          "desc": "To get started in the digital nautical world.",
+          "cta": "Start Free",
+          "features": {
+            "f1": "Basic Logbook",
+            "f2": "Public Wind Map",
+            "f3": "Community Access",
+            "f4": "Open Events"
+          }
+        },
+        "tier2": {
+          "name": "Skipper",
+          "price": "9.99€",
+          "desc": "Advanced tools for active sailors.",
+          "cta": "Become a Skipper",
+          "features": {
+            "f1": "Everything in Deckhand",
+            "f2": "Unlimited GPS Tracks",
+            "f3": "Exam Simulations",
+            "f4": "Advanced Weather (Wind Lab)"
+          }
+        },
+        "tier3": {
+          "name": "Captain",
+          "price": "29.99€",
+          "desc": "Total management for families and owners.",
+          "cta": "Contact Club",
+          "features": {
+            "f1": "Everything in Skipper",
+            "f2": "Crew Management",
+            "f3": "Regatta Analysis",
+            "f4": "Priority Booking"
+          }
+        }
+      }
     }
   },
   "courses_page": {

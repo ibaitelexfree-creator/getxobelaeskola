@@ -176,6 +176,50 @@
       "staff_desc": "Aprende de navegantes con miles de millas de experiencia.",
       "comm_title": "Comunidad Activa",
       "comm_desc": "Únete a un club de apasionados por la vela y el Cantábrico."
+    },
+    "pricing": {
+      "title": "Planes Digitales",
+      "subtitle": "Elige tu rumbo y accede a herramientas exclusivas.",
+      "monthly": "/mes",
+      "popular": "Más Popular",
+      "tiers": {
+        "tier1": {
+          "name": "Grumete",
+          "price": "Gratis",
+          "desc": "Para iniciarse en el mundo náutico digital.",
+          "cta": "Empezar Gratis",
+          "features": {
+            "f1": "Bitácora básica",
+            "f2": "Mapa de vientos público",
+            "f3": "Acceso a Comunidad",
+            "f4": "Eventos abiertos"
+          }
+        },
+        "tier2": {
+          "name": "Patrón",
+          "price": "9.99€",
+          "desc": "Herramientas avanzadas para navegantes activos.",
+          "cta": "Hazte Patrón",
+          "features": {
+            "f1": "Todo lo de Grumete",
+            "f2": "GPS Tracks ilimitados",
+            "f3": "Simulaciones de examen",
+            "f4": "Meteo Avanzada (Wind Lab)"
+          }
+        },
+        "tier3": {
+          "name": "Capitán",
+          "price": "29.99€",
+          "desc": "Gestión total para familias y armadores.",
+          "cta": "Contactar Club",
+          "features": {
+            "f1": "Todo lo de Patrón",
+            "f2": "Gestión de tripulación",
+            "f3": "Análisis de regatas",
+            "f4": "Prioridad en reservas"
+          }
+        }
+      }
     }
   },
   "courses_page": {
