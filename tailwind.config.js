@@ -21,19 +21,18 @@ module.exports = {
                     grey: '#F2F2F2',
                 },
                 nautical: {
-                    black: '#000000',
-                    deep: '#010409',
-                    blue: '#154FA3',
+                    black: 'var(--nautical-black)',
+                    deep: 'var(--nautical-deep)',
+                    blue: 'var(--nautical-blue)',
                 },
                 ocean: {
-                    dark: 'var(--ocean-dark)',
-                    medium: 'var(--ocean-medium)',
-                    light: 'var(--ocean-light)',
-                    deep: 'var(--ocean-deep)',
+                    dark: '#0077B6',
+                    medium: '#00B4D8',
+                    light: '#ADE8F4',
                 },
-                'sea-foam': '#F2F2F2',
-                'buoy-orange': '#FF4D00',
-                'brass-gold': '#c5a059',
+                'sea-foam': 'var(--sea-foam)',
+                'buoy-orange': 'var(--buoy-orange)',
+                'brass-gold': 'var(--brass-gold)',
                 accent: {
                     DEFAULT: 'var(--accent)',
                     foreground: 'var(--accent-foreground)',
@@ -41,9 +40,8 @@ module.exports = {
                 background: 'var(--background)',
                 foreground: 'var(--foreground)',
                 card: {
-                    DEFAULT: 'var(--card)',
-                    foreground: 'var(--card-foreground)',
-                    border: 'var(--card-border)', // Keep hardcoded or make variable if needed
+                    DEFAULT: 'rgba(255, 255, 255, 0.03)',
+                    border: 'rgba(255, 255, 255, 0.1)',
                 },
             },
             fontFamily: {

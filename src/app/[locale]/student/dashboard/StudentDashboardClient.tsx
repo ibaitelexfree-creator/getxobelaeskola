@@ -22,7 +22,7 @@ const EmptyState = dynamic(() => import('@/components/ui/EmptyState'));
 const BonosWallet = dynamic(() => import('@/components/student/BonosWallet'));
 const BonoPurchaseModal = dynamic(() => import('@/components/student/BonoPurchaseModal'));
 const DailyNauticalQuote = dynamic(() => import('@/components/student/DailyNauticalQuote'));
-const MicroLessonTray = dynamic(() => import('@/components/academy/micro-lessons/MicroLessonTray'));
+const WaveBackground = dynamic(() => import('@/components/shared/WaveBackground'), { ssr: false });
 
 interface DashboardItem {
     id: string;
@@ -173,7 +173,8 @@ export default function StudentDashboardClient({
     }
 
     return (
-        <div className="relative min-h-screen bg-nautical-black">
+        <div className="relative min-h-screen bg-background transition-colors duration-500">
+            <WaveBackground />
             <div className="bg-mesh" />
 
             {/* Mobile View - Visible only on small screens */}
@@ -218,8 +219,6 @@ export default function StudentDashboardClient({
                     </header>
 
                     <DashboardRefresh hasData={hasAnyData} />
-
-                    <MicroLessonTray />
 
                     <div className="mb-12">
                         <WeatherPremium />
