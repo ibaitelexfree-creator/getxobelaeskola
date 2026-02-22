@@ -22,6 +22,7 @@ const EmptyState = dynamic(() => import('@/components/ui/EmptyState'));
 const BonosWallet = dynamic(() => import('@/components/student/BonosWallet'));
 const BonoPurchaseModal = dynamic(() => import('@/components/student/BonoPurchaseModal'));
 const DailyNauticalQuote = dynamic(() => import('@/components/student/DailyNauticalQuote'));
+const MicroLessonTray = dynamic(() => import('@/components/academy/micro-lessons/MicroLessonTray'));
 
 interface DashboardItem {
     id: string;
@@ -217,6 +218,8 @@ export default function StudentDashboardClient({
                     </header>
 
                     <DashboardRefresh hasData={hasAnyData} />
+
+                    <MicroLessonTray />
 
                     <div className="mb-12">
                         <WeatherPremium />
