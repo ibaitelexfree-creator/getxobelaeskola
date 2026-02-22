@@ -1,5 +1,6 @@
 import { requireAdmin } from '@/lib/auth-guard';
 import { NextResponse } from 'next/server';
+import { boatSchema } from '@/lib/validators/boat';
 
 export async function POST(request: Request) {
     try {
@@ -7,35 +8,18 @@ export async function POST(request: Request) {
         if (authError) return authError;
 
         const body = await request.json();
-        const nombre = body.nombre?.trim();
-        const tipo = body.tipo?.trim();
-        const capacidad = body.capacidad;
-        const matricula = body.matricula?.trim();
-        const estado = body.estado?.trim();
-        const notas = body.notas?.trim();
-        const imagen_url = body.imagen_url?.trim();
 
-        if (!nombre || !tipo || capacidad === undefined || capacidad === null) {
-            return NextResponse.json({ error: 'Faltan campos obligatorios (Nombre, Tipo, Capacidad)' }, { status: 400 });
+        const validation = boatSchema.safeParse(body);
+
+        if (!validation.success) {
+            return NextResponse.json({ error: validation.error.errors[0].message }, { status: 400 });
         }
 
-        const capacityInt = parseInt(capacidad);
-        if (isNaN(capacityInt) || capacityInt <= 0) {
-            return NextResponse.json({ error: 'La capacidad debe ser un número positivo' }, { status: 400 });
-        }
+        const { data: boatData } = validation;
 
         const { data, error } = await supabaseAdmin
             .from('embarcaciones')
-            .insert({
-                nombre,
-                tipo,
-                capacidad: capacityInt,
-                matricula: matricula || '',
-                estado: estado || 'disponible',
-                notas: notas || '',
-                imagen_url: imagen_url || '',
-                notion_threshold: body.notion_threshold !== undefined ? body.notion_threshold : 0.2
-            })
+            .insert(boatData)
             .select()
             .single();
 
