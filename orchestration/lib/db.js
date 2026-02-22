@@ -23,6 +23,9 @@ db.exec(`
         status TEXT DEFAULT 'pending',
         priority INTEGER DEFAULT 3,
         result TEXT,
+        retry_count INTEGER DEFAULT 0,
+        requires_approval INTEGER DEFAULT 0,
+        source TEXT,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
     );
@@ -41,21 +44,39 @@ db.exec(`
     );
 `);
 
+// Migration: Check if columns exist, add if not
+try {
+    const tableInfo = db.prepare("PRAGMA table_info(tasks)").all();
+    const columnNames = tableInfo.map(c => c.name);
+
+    if (!columnNames.includes('requires_approval')) {
+        db.exec("ALTER TABLE tasks ADD COLUMN requires_approval INTEGER DEFAULT 0");
+    }
+    if (!columnNames.includes('source')) {
+        db.exec("ALTER TABLE tasks ADD COLUMN source TEXT");
+    }
+} catch (e) {
+    console.error('[DB Migration] Error:', e.message);
+}
+
 /**
  * Tasks API
  */
 export const tasks = {
     add: (task) => {
         const stmt = db.prepare(`
-            INSERT INTO tasks (external_id, title, executor, status, priority, created_at, updated_at)
-            VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+            INSERT INTO tasks (external_id, title, executor, status, priority, retry_count, requires_approval, source, created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
         `);
         const info = stmt.run(
             task.id || `T-${Date.now().toString(36).toUpperCase()}`,
             task.title,
             task.executor || 'jules',
-            task.status || 'pending',
-            task.priority || 3
+            task.status || (task.requires_approval ? 'pending_approval' : 'pending'),
+            task.priority || 3,
+            task.retry_count || 0,
+            task.requires_approval ? 1 : 0,
+            task.source || 'orchestrator'
         );
         return info.lastInsertRowid;
     },
@@ -65,24 +86,59 @@ export const tasks = {
     },
 
     getPending: () => {
-        return db.prepare("SELECT * FROM tasks WHERE status IN ('pending', 'en_curso', 'queued', 'running') ORDER BY priority ASC, created_at DESC").all();
+        return db.prepare("SELECT * FROM tasks WHERE status IN ('pending', 'en_curso', 'queued', 'running', 'pending_approval') ORDER BY priority ASC, created_at DESC").all();
+    },
+
+    getUnapproved: () => {
+        return db.prepare("SELECT * FROM tasks WHERE status = 'pending_approval' OR requires_approval = 1 AND status = 'pending' ORDER BY created_at DESC").all();
     },
 
     getCompleted: () => {
         return db.prepare("SELECT * FROM tasks WHERE status IN ('completed', 'failed', 'completado') ORDER BY updated_at DESC LIMIT 50").all();
     },
 
-    updateStatus: (externalId, status, result = null) => {
+    updateStatus: (externalId, status, result = null, incRetry = false) => {
         const stmt = db.prepare(`
             UPDATE tasks 
-            SET status = ?, result = ?, updated_at = CURRENT_TIMESTAMP 
+            SET status = ?, result = ?, retry_count = retry_count + ?, updated_at = CURRENT_TIMESTAMP 
             WHERE external_id = ?
         `);
-        return stmt.run(status, result, externalId);
+        return stmt.run(status, result, incRetry ? 1 : 0, externalId);
+    },
+
+    updateTask: (externalId, updates) => {
+        const fields = [];
+        const values = [];
+
+        if (updates.title !== undefined) { fields.push('title = ?'); values.push(updates.title); }
+        if (updates.priority !== undefined) { fields.push('priority = ?'); values.push(updates.priority); }
+        if (updates.status !== undefined) { fields.push('status = ?'); values.push(updates.status); }
+        if (updates.executor !== undefined) { fields.push('executor = ?'); values.push(updates.executor); }
+
+        if (fields.length === 0) return null;
+
+        fields.push('updated_at = CURRENT_TIMESTAMP');
+        values.push(externalId);
+
+        const stmt = db.prepare(`UPDATE tasks SET ${fields.join(', ')} WHERE external_id = ?`);
+        return stmt.run(...values);
+    },
+
+    deleteTask: (externalId) => {
+        return db.prepare('DELETE FROM tasks WHERE external_id = ?').run(externalId);
+    },
+
+    approveTask: (externalId) => {
+        return db.prepare("UPDATE tasks SET status = 'pending', requires_approval = 0, updated_at = CURRENT_TIMESTAMP WHERE external_id = ?").run(externalId);
     },
 
     clear: () => {
-        return db.prepare('DELETE FROM tasks WHERE status = "pending"').run();
+        return db.prepare('DELETE FROM tasks WHERE status = "pending" OR status = "pending_approval"').run();
+    },
+
+    clearDeprecated: () => {
+        // Clear tasks that are not AGA or ACA (Legacy ones)
+        return db.prepare("DELETE FROM tasks WHERE external_id NOT LIKE 'ACA-%' AND external_id NOT LIKE 'AGA-%' AND status != 'running'").run();
     }
 };
 

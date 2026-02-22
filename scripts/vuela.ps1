@@ -1,5 +1,6 @@
 
-# Script de Mantenimiento Agéntico (Vuela)
+# Script de Mantenimiento y Arranque Agentico (Vuela)
+# Limpia el sistema y arranca el Orquestador + Visual Bridge
 
 $ProjectRoot = "c:\Users\User\Desktop\Saili8ng School Test"
 $MaxSizeBytes = 1MB
@@ -12,9 +13,9 @@ $LogFiles = Get-ChildItem -Path $ProjectRoot -Filter "*.log" -Recurse -ErrorActi
 $TxtOutputs = Get-ChildItem -Path $ProjectRoot -Filter "*_output.txt" -ErrorAction SilentlyContinue
 
 foreach ($file in ($LogFiles + $TxtOutputs)) {
-    if ($file.Length -gt $MaxSizeBytes) {
+    if ($file -and $file.Length -gt $MaxSizeBytes) {
         Remove-Item $file.FullName -Force
-        Write-Host "Limpiado: $($file.Name) ($($file.Length / 1MB) MB)"
+        Write-Host "Limpiado: $($file.Name) ($([math]::Round($file.Length / 1MB, 1)) MB)" -ForegroundColor Gray
     }
 }
 
@@ -23,18 +24,28 @@ if (Test-Path "$ProjectRoot\antigravity\TRASH") {
     Remove-Item "$ProjectRoot\antigravity\TRASH\*" -Recurse -Force -ErrorAction SilentlyContinue
 }
 
-# 4. Iniciar Visual Bridge (Tunnel) automático
-Write-Host "📡 Iniciando Visual Bridge (Tunnel) en segundo plano..." -ForegroundColor Cyan
+# 4. Iniciar Visual Bridge (Tunnel) en segundo plano
+Write-Host "[BRIDGE] Iniciando Visual Bridge en segundo plano..." -ForegroundColor Cyan
 $BridgeScript = "$ProjectRoot\scripts\visual-bridge.ps1"
 if (Test-Path $BridgeScript) {
     Start-Process powershell.exe -ArgumentList "-ExecutionPolicy Bypass -File `"$BridgeScript`"" -WindowStyle Minimized
+    Write-Host "[BRIDGE] Proceso arrancado en ventana minimizada." -ForegroundColor Cyan
+}
+else {
+    Write-Host "[WARN] No se encontro el script visual-bridge.ps1" -ForegroundColor Yellow
 }
 
-# 5. Verificar Orquestador
-$OrchProcess = Get-Process node | Where-Object { $_.MainWindowTitle -match "antigravity-jules-orchestration" -or $_.CommandLine -match "orchestration" } -ErrorAction SilentlyContinue
+# 5. Verificar si el Orquestador ya esta corriendo
+$OrchProcess = Get-Process -Name "node" -ErrorAction SilentlyContinue | Where-Object {
+    $_.Path -match "node" -or $_.Path -match "npm"
+}
+
 if (-not $OrchProcess) {
-    Write-Host "🚀 Iniciando Orquestador..." -ForegroundColor Cyan
-    Start-Process powershell.exe -ArgumentList "-NoExit", "-Command", "cd `"$ProjectRoot\orchestration`"; npm start" -WindowStyle Normal
+    Write-Host "[ORCH] Iniciando Orquestador..." -ForegroundColor Cyan
+    Start-Process powershell.exe -ArgumentList "-NoExit -Command `"cd '$ProjectRoot\orchestration'; npm start`"" -WindowStyle Normal
+}
+else {
+    Write-Host "[ORCH] El Orquestador ya esta corriendo (PID: $($OrchProcess[0].Id))" -ForegroundColor Green
 }
 
-Write-Host "Mantenimiento y Arranque completado. El sistema esta en el aire." -ForegroundColor Green
+Write-Host "[OK] Vuela completado. El sistema esta en el aire." -ForegroundColor Green

@@ -9,13 +9,7 @@ import {
     RefreshCw, Shield, Globe, Terminal, Activity,
     Zap, Lock, Radio
 } from 'lucide-react';
-
-interface Screenshot {
-    id: string;
-    url: string;
-    timestamp: number;
-    label: string;
-}
+import { getLivePreviewConfig, getVisualHistory, Screenshot } from '@/lib/api';
 
 export default function VisualRelay() {
     const { services, livePreviewUrl, setLivePreviewUrl } = useMissionStore();
@@ -24,16 +18,38 @@ export default function VisualRelay() {
     const [iframeKey, setIframeKey] = useState(0);
     const [customUrl, setCustomUrl] = useState(livePreviewUrl);
     const [showSettings, setShowSettings] = useState(false);
+    const [screenshots, setScreenshots] = useState<Screenshot[]>([]);
 
-    // Mock screenshots for the history view
-    const [screenshots] = useState<Screenshot[]>([
-        { id: '1', url: 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?q=80&w=800', timestamp: Date.now() - 3600000, label: 'Course Layout v1' },
-        { id: '2', url: 'https://images.unsplash.com/photo-1534274988757-a28bf1a57c17?q=80&w=800', timestamp: Date.now() - 7200000, label: 'Hero Section Mobile' },
-    ]);
+    useEffect(() => {
+        if (viewMode === 'history') {
+            loadHistory();
+        }
+    }, [viewMode]);
+
+    const loadHistory = async () => {
+        try {
+            const data = await getVisualHistory();
+            if (data?.screenshots) {
+                // Ensure URLs are absolute if they are relative
+                const baseUrl = window.location.origin.replace('3000', '3323'); // Hack for dev, but api handles it usually
+                const prepared = data.screenshots.map(s => ({
+                    ...s,
+                    url: s.url.startsWith('http') ? s.url : `${baseUrl}${s.url}`
+                }));
+                setScreenshots(prepared);
+            }
+        } catch (error) {
+            console.error('Failed to load visual history:', error);
+        }
+    };
 
     const handleRefresh = () => {
         setIsRefreshing(true);
-        setIframeKey(prev => prev + 1);
+        if (viewMode === 'live') {
+            setIframeKey(prev => prev + 1);
+        } else {
+            loadHistory();
+        }
         setTimeout(() => setIsRefreshing(false), 1000);
     };
 

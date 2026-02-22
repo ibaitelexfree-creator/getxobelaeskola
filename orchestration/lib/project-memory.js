@@ -73,28 +73,53 @@ export function getParsedTasks() {
         });
     };
 
+    // Normalize status string → internal status
+    const normalizeStatus = (s = '') => {
+        const v = s.toLowerCase();
+        if (v === 'running' || v === 'en_curso') return 'running';
+        if (v === 'completed' || v === 'completada') return 'completed';
+        if (v === 'failed' || v === 'fallida') return 'failed';
+        return 'queued'; // pendiente, queued, anything else
+    };
+
     sections.forEach(section => {
-        if (section.toLowerCase().includes('cola de tareas pendientes')) {
+        const heading = section.toLowerCase();
+
+        if (heading.includes('tareas completadas')) {
             const raw = parseTable(section);
-            queue = raw.map((t, idx) => ({
-                id: t.id,
-                title: t.tarea,
-                priority: parseInt(t.prioridad) || 3,
-                executor: t.agente ? t.agente.toLowerCase() : 'jules',
-                status: t.estado === 'en_curso' ? 'running' : 'queued',
-                createdAt: new Date(t.fecha || Date.now()).getTime(),
-                position: idx + 1
-            }));
-        } else if (section.toLowerCase().includes('tareas completadas')) {
-            const raw = parseTable(section);
-            history = raw.map(t => ({
+            history = history.concat(raw.map(t => ({
                 id: t.id,
                 title: t.tarea,
                 executor: t.agente ? t.agente.toLowerCase() : 'jules',
                 status: t.resultado?.toLowerCase().includes('completado') || t.resultado?.toLowerCase().includes('mezclado') ? 'completed' : 'failed',
                 result: t.resultado,
                 timestamp: new Date(t.fecha || Date.now()).getTime()
-            }));
+            })));
+            return;
+        }
+
+        // Match ANY pending/queue section — "cola de tareas pendientes" OR "misiones" OR "operación"
+        if (
+            heading.includes('cola de tareas pendientes') ||
+            heading.includes('misiones') ||
+            heading.includes('operaci') // "operación academia"
+        ) {
+            const raw = parseTable(section);
+            const tasks = raw
+                .filter(t => t.id && t.agente) // must have id and agent
+                .map((t, idx) => ({
+                    id: t.id,
+                    // "misión" column in ACA tasks, "tarea" in original tasks
+                    title: (t['misión'] || t['mision'] || t.tarea || '').replace(/\*\*/g, '').trim(),
+                    priority: parseInt(t.prioridad) || 3,
+                    executor: t.agente ? t.agente.toLowerCase() : 'jules',
+                    status: normalizeStatus(t.estado),
+                    createdAt: new Date(t.fecha || Date.now()).getTime(),
+                    position: idx + 1
+                }))
+                // Only dispatch jules tasks that are not already running/done
+                .filter(t => t.executor === 'jules' && (t.status === 'queued'));
+            queue = queue.concat(tasks);
         }
     });
 

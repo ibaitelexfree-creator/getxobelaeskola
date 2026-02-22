@@ -13,23 +13,39 @@ const SERVICES = {
     CLAWDEBOT: {
         type: 'docker',
         containerName: 'openclaw-gateway',
-        displayName: 'ClawdeBot (Docker)'
+        displayName: 'ClawdeBot (Docker)',
+        description: 'AI Coding Assistant & Task Executor'
     },
     CHROMA: {
         type: 'docker',
         containerName: 'chromadb',
-        displayName: 'ChromaDB'
+        displayName: 'ChromaDB',
+        description: 'Vector Database for Semantic Memory'
     },
     OLLAMA: {
         type: 'process',
         processName: 'ollama',
         command: 'ollama serve',
         apiCheck: 'http://127.0.0.1:11434/api/tags',
-        displayName: 'Ollama LLM'
+        displayName: 'Ollama LLM',
+        description: 'Local Large Language Model Runner'
     },
     BROWSERLESS: {
         type: 'cloud',
-        displayName: 'Browserless Cloud'
+        displayName: 'Browserless Cloud',
+        description: 'Headless Browser Cluster for Automation'
+    },
+    WEB_GETXO: {
+        type: 'external',
+        displayName: 'GetxoBelaEskola.cloud',
+        url: 'https://getxobelaeskola.cloud',
+        description: 'Main Sailing School Website (Hostinger VPS)'
+    },
+    N8N: {
+        type: 'external',
+        displayName: 'n8n Automation',
+        url: 'https://n8n.scarmonit.com', // URL baseada no contexto anterior, se errada o usuário corrigirá, mas é o padrão scarmonit
+        description: 'Workflow Automation Platform (Hostinger VPS)'
     }
 };
 
@@ -50,7 +66,16 @@ export async function getResourceStatus() {
                 status[key] = {
                     name: service.displayName,
                     running: runningContainers.includes(service.containerName),
-                    type: 'docker'
+                    type: 'docker',
+                    description: service.description
+                };
+            } else if (service.type === 'external') {
+                status[key] = {
+                    name: service.displayName,
+                    running: true, // Always "active" for external dashboard links
+                    type: 'external',
+                    url: service.url,
+                    description: service.description
                 };
             }
         }
@@ -64,7 +89,8 @@ export async function getResourceStatus() {
         status.OLLAMA = {
             name: SERVICES.OLLAMA.displayName,
             running: ollamaRunning,
-            type: 'process'
+            type: 'process',
+            description: SERVICES.OLLAMA.description
         };
     } catch (error) {
         status.OLLAMA = { running: false, error: error.message };
@@ -77,6 +103,7 @@ export async function getResourceStatus() {
             name: SERVICES.BROWSERLESS.displayName,
             running: visualRelay.enabled,
             type: 'cloud',
+            description: SERVICES.BROWSERLESS.description,
             used: usage?.used || 0,
             limit: usage?.limit || 0,
             remaining: usage?.remaining || 0
@@ -85,10 +112,35 @@ export async function getResourceStatus() {
         status.BROWSERLESS = { running: false, error: error.message };
     }
 
+    // Hardware Metrics (Windows specific)
+    const hardware = {
+        cpu: { load: 0, temp: 0 },
+        gpu: { temp: 0, hotspot: 0, name: 'NVIDIA GPU' }
+    };
+
+    try {
+        // Query GPU stats via nvidia-smi
+        const { stdout: gpuData } = await execAsync('nvidia-smi --query-gpu=temperature.gpu,temperature.hotspot,gpu_name --format=csv,noheader,nounits');
+        const [temp, hotspot, name] = gpuData.split(',').map(s => s.trim());
+        hardware.gpu.temp = parseInt(temp) || 0;
+        hardware.gpu.hotspot = parseInt(hotspot) || 0;
+        hardware.gpu.name = name || 'NVIDIA GPU';
+    } catch (e) {
+        // GPU might not be available or nvidia-smi missing
+    }
+
+    try {
+        // CPU Load via wmic (more reliable than thermal zone for non-admin)
+        const { stdout: cpuData } = await execAsync('wmic cpu get loadpercentage /value');
+        const match = cpuData.match(/LoadPercentage=(\d+)/);
+        hardware.cpu.load = match ? parseInt(match[1]) : 0;
+    } catch (e) { }
+
     return {
         powerMode,
         lastActivity: new Date(lastActivity).toISOString(),
-        services: status
+        services: status,
+        hardware
     };
 }
 

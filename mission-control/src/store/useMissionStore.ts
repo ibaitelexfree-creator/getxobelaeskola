@@ -19,18 +19,30 @@ interface MissionState {
         thermal: { label: string; level: number };
         watchdog: { state: string; loops: number; stalls: number; crashes: number };
     };
+    hardware: {
+        cpu: { load: number; temp: number };
+        gpu: { temp: number; hotspot: number; name: string };
+    };
     power: {
         mode: 'eco' | 'performance';
         lastActivity: string;
-        services: Record<string, { name: string; running: boolean; type: string; used?: number; limit?: number }>;
+        services: Record<string, {
+            name: string;
+            running: boolean;
+            type: string;
+            used?: number;
+            limit?: number;
+            url?: string;
+            description?: string;
+        }>;
     };
 
     // Stats
     stats: { assigned: number; completed: number; failed: number };
 
     // Queue & Approvals
-    queue: Array<{ title: string; createdAt: number; position: number }>;
-    pendingApproval: { task: string; reason: string } | null;
+    queue: Array<{ id: string; title: string; createdAt: number; position: number; status: string; requiresApproval?: boolean }>;
+    pendingApproval: { id: string; task: string; reason: string } | null;
 
     // Task History
     history: Array<{
@@ -61,6 +73,10 @@ interface MissionState {
     livePreviewUrl: string;
     livePreviewPassword: string;
 
+    // Jules Status
+    julesWaiting: boolean;
+    waitingTasks: Array<{ id: string; title: string; url: string; state: string }>;
+
     // Settings
     autoRefreshMs: number;
 
@@ -68,6 +84,7 @@ interface MissionState {
     setServerUrl: (url: string) => void;
     setConnected: (connected: boolean) => void;
     updateServices: (services: Partial<MissionState['services']>) => void;
+    updateHardware: (hardware: Partial<HardwareState>) => void;
     updateStats: (stats: Partial<MissionState['stats']>) => void;
     setQueue: (queue: MissionState['queue']) => void;
     setHistory: (history: MissionState['history']) => void;
@@ -81,6 +98,17 @@ interface MissionState {
     setLastSync: (ts: number) => void;
     updatePower: (power: Partial<MissionState['power']>) => void;
     setTaskDraft: (draft: string) => void;
+    updateJulesWaiting: (waiting: boolean, tasks: MissionState['waitingTasks']) => void;
+
+    // Task Operations
+    updateTask: (id: string, updates: Partial<MissionState['queue'][0]>) => Promise<void>;
+    deleteTask: (id: string) => Promise<void>;
+    approveTask: (id: string) => Promise<void>;
+}
+
+interface HardwareState {
+    cpu: { load: number; temp: number };
+    gpu: { temp: number; hotspot: number; name: string };
 }
 
 const STORAGE_KEY = 'mc_server_url';
@@ -102,6 +130,10 @@ export const useMissionStore = create<MissionState>((set, get) => ({
         thermal: { label: 'Unknown', level: 0 },
         watchdog: { state: 'UNKNOWN', loops: 0, stalls: 0, crashes: 0 },
     },
+    hardware: {
+        cpu: { load: 0, temp: 0 },
+        gpu: { temp: 0, hotspot: 0, name: 'NVIDIA GPU' },
+    },
     power: {
         mode: 'eco',
         lastActivity: '',
@@ -121,6 +153,8 @@ export const useMissionStore = create<MissionState>((set, get) => ({
         : '',
     livePreviewPassword: '',
     autoRefreshMs: 10_000,
+    julesWaiting: false,
+    waitingTasks: [],
 
     // Actions
     setServerUrl: (url) => {
@@ -128,9 +162,11 @@ export const useMissionStore = create<MissionState>((set, get) => ({
         set({ serverUrl: url });
     },
     setConnected: (connected) => set({ connected }),
-    updateServices: (partial) =>
+    updateServices: (partial: Partial<MissionState['services']>) =>
         set((state) => ({ services: { ...state.services, ...partial } })),
-    updateStats: (partial) =>
+    updateHardware: (partial: Partial<HardwareState>) =>
+        set((state) => ({ hardware: { ...state.hardware, ...partial } })),
+    updateStats: (partial: Partial<MissionState['stats']>) =>
         set((state) => ({ stats: { ...state.stats, ...partial } })),
     setQueue: (queue) => set({ queue }),
     setHistory: (history) => set({ history }),
@@ -157,4 +193,53 @@ export const useMissionStore = create<MissionState>((set, get) => ({
     setLastSync: (lastSync) => set({ lastSync }),
     updatePower: (partial) => set((state) => ({ power: { ...state.power, ...partial } })),
     setTaskDraft: (taskDraft) => set({ taskDraft }),
+    updateJulesWaiting: (julesWaiting, waitingTasks) => set({ julesWaiting, waitingTasks }),
+
+    // Task Operations
+    updateTask: async (id, updates) => {
+        const { serverUrl } = get();
+        try {
+            const res = await fetch(`${serverUrl}/api/tasks/${id}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(updates)
+            });
+            if (res.ok) {
+                set(state => ({
+                    queue: state.queue.map(t => t.id === id ? { ...t, ...updates } : t)
+                }));
+            }
+        } catch (e) {
+            console.error('Failed to update task:', e);
+        }
+    },
+
+    deleteTask: async (id) => {
+        const { serverUrl } = get();
+        try {
+            const res = await fetch(`${serverUrl}/api/tasks/${id}`, { method: 'DELETE' });
+            if (res.ok) {
+                set(state => ({
+                    queue: state.queue.filter(t => t.id !== id),
+                    stats: { ...state.stats, assigned: Math.max(0, state.stats.assigned - 1) }
+                }));
+            }
+        } catch (e) {
+            console.error('Failed to delete task:', e);
+        }
+    },
+
+    approveTask: async (id) => {
+        const { serverUrl } = get();
+        try {
+            const res = await fetch(`${serverUrl}/api/tasks/${id}/approve`, { method: 'POST' });
+            if (res.ok) {
+                set(state => ({
+                    queue: state.queue.map(t => t.id === id ? { ...t, status: 'pending', requiresApproval: false } : t)
+                }));
+            }
+        } catch (e) {
+            console.error('Failed to approve task:', e);
+        }
+    },
 }));
