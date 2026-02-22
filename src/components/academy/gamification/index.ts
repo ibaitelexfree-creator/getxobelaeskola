@@ -1,3 +1,3 @@
-export * from './BadgeCard';
-export * from './BadgeGrid';
-export * from './BadgeUnlockedModal';
+export * from "./BadgeCard";
+export * from "./BadgeGrid";
+export * from "./BadgeUnlockedModal";

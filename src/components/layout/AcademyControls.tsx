@@ -1,3 +1,3 @@
 export default function AcademyControls() {
-    return null;
+	return null;
 }

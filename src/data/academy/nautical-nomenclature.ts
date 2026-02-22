@@ -1,221 +1,229 @@
 export interface NomenclatureCard {
-    id: string;
-    term_es: string;
-    term_eu: string; // Basque
-    definition_es: string;
-    definition_eu: string;
-    category: 'general' | 'rigging' | 'sails' | 'safety' | 'dimensions' | 'orientation';
-    difficulty: 'basic' | 'intermediate' | 'advanced';
-    imagePath?: string; // Optional path to image
-    svgPath?: string; // Optional SVG path for inline rendering
+	id: string;
+	term_es: string;
+	term_eu: string; // Basque
+	definition_es: string;
+	definition_eu: string;
+	category:
+		| "general"
+		| "rigging"
+		| "sails"
+		| "safety"
+		| "dimensions"
+		| "orientation";
+	difficulty: "basic" | "intermediate" | "advanced";
+	imagePath?: string; // Optional path to image
+	svgPath?: string; // Optional SVG path for inline rendering
 }
 
 export const NAUTICAL_TERMS: NomenclatureCard[] = [
-    // --- GENERAL & DIMENSIONS ---
-    {
-        id: 'proa',
-        term_es: 'Proa',
-        term_eu: 'Branka',
-        definition_es: 'Parte delantera de la embarcación.',
-        definition_eu: 'Ontziaren aurrealdea.',
-        category: 'general',
-        difficulty: 'basic',
-        svgPath: 'M100,30 L130,100 L70,100 Z'
-    },
-    {
-        id: 'popa',
-        term_es: 'Popa',
-        term_eu: 'Txopa',
-        definition_es: 'Parte trasera de la embarcación.',
-        definition_eu: 'Ontziaren atzealdea.',
-        category: 'general',
-        difficulty: 'basic',
-        svgPath: 'M70,120 L130,120 L125,180 L75,180 Z'
-    },
-    {
-        id: 'babor',
-        term_es: 'Babor',
-        term_eu: 'Ababor',
-        definition_es: 'Costado izquierdo mirando hacia proa. Color rojo.',
-        definition_eu: 'Ezkerreko aldea brankara begiratuz. Kolore gorria.',
-        category: 'general',
-        difficulty: 'basic',
-        svgPath: 'M40,70 L100,70 L100,130 L40,130 Z'
-    },
-    {
-        id: 'estribor',
-        term_es: 'Estribor',
-        term_eu: 'Istribor',
-        definition_es: 'Costado derecho mirando hacia proa. Color verde.',
-        definition_eu: 'Eskuineko aldea brankara begiratuz. Kolore berdea.',
-        category: 'general',
-        difficulty: 'basic',
-        svgPath: 'M100,70 L160,70 L160,130 L100,130 Z'
-    },
-    {
-        id: 'amura',
-        term_es: 'Amura',
-        term_eu: 'Amura',
-        definition_es: 'Partes delanteras de los costados que convergen en la proa.',
-        definition_eu: 'Brankarantz doazen ontziaren alboetako aurreko aldeak.',
-        category: 'general',
-        difficulty: 'intermediate',
-        svgPath: 'M100,30 L140,70 L100,70 Z'
-    },
-    {
-        id: 'aleta',
-        term_es: 'Aleta',
-        term_eu: 'Hegatsa',
-        definition_es: 'Partes posteriores de los costados que convergen en la popa.',
-        definition_eu: 'Poparantz doazen ontziaren alboetako atzeko aldeak.',
-        category: 'general',
-        difficulty: 'intermediate',
-        svgPath: 'M100,130 L140,130 L100,170 Z'
-    },
-    {
-        id: 'eslora',
-        term_es: 'Eslora',
-        term_eu: 'Luzera',
-        definition_es: 'Longitud de la embarcación de proa a popa.',
-        definition_eu: 'Ontziaren luzera brankatik txopara.',
-        category: 'dimensions',
-        difficulty: 'basic',
-        svgPath: 'M100,20 L100,180'
-    },
-    {
-        id: 'manga',
-        term_es: 'Manga',
-        term_eu: 'Zabalera',
-        definition_es: 'Anchura máxima de la embarcación.',
-        definition_eu: 'Ontziaren zabalera maximoa.',
-        category: 'dimensions',
-        difficulty: 'basic',
-        svgPath: 'M40,100 L160,100'
-    },
-    {
-        id: 'orza',
-        term_es: 'Orza',
-        term_eu: 'Orza',
-        definition_es: 'Placa sumergible que reduce el abatimiento lateral.',
-        definition_eu: 'Ontzia alborantz lerratzea eragozten duen pieza.',
-        category: 'general',
-        difficulty: 'basic',
-        svgPath: 'M95,100 L105,100 L105,140 L95,140 Z'
-    },
-    {
-        id: 'timon',
-        term_es: 'Timón',
-        term_eu: 'Lema',
-        definition_es: 'Pieza articulada a popa que sirve para gobernar.',
-        definition_eu: 'Popan kokatutako pieza mugikorra, ontzia gidatzeko.',
-        category: 'general',
-        difficulty: 'basic',
-        svgPath: 'M90,180 L110,180 L110,210 L90,210 Z'
-    },
+	// --- GENERAL & DIMENSIONS ---
+	{
+		id: "proa",
+		term_es: "Proa",
+		term_eu: "Branka",
+		definition_es: "Parte delantera de la embarcación.",
+		definition_eu: "Ontziaren aurrealdea.",
+		category: "general",
+		difficulty: "basic",
+		svgPath: "M100,30 L130,100 L70,100 Z",
+	},
+	{
+		id: "popa",
+		term_es: "Popa",
+		term_eu: "Txopa",
+		definition_es: "Parte trasera de la embarcación.",
+		definition_eu: "Ontziaren atzealdea.",
+		category: "general",
+		difficulty: "basic",
+		svgPath: "M70,120 L130,120 L125,180 L75,180 Z",
+	},
+	{
+		id: "babor",
+		term_es: "Babor",
+		term_eu: "Ababor",
+		definition_es: "Costado izquierdo mirando hacia proa. Color rojo.",
+		definition_eu: "Ezkerreko aldea brankara begiratuz. Kolore gorria.",
+		category: "general",
+		difficulty: "basic",
+		svgPath: "M40,70 L100,70 L100,130 L40,130 Z",
+	},
+	{
+		id: "estribor",
+		term_es: "Estribor",
+		term_eu: "Istribor",
+		definition_es: "Costado derecho mirando hacia proa. Color verde.",
+		definition_eu: "Eskuineko aldea brankara begiratuz. Kolore berdea.",
+		category: "general",
+		difficulty: "basic",
+		svgPath: "M100,70 L160,70 L160,130 L100,130 Z",
+	},
+	{
+		id: "amura",
+		term_es: "Amura",
+		term_eu: "Amura",
+		definition_es:
+			"Partes delanteras de los costados que convergen en la proa.",
+		definition_eu: "Brankarantz doazen ontziaren alboetako aurreko aldeak.",
+		category: "general",
+		difficulty: "intermediate",
+		svgPath: "M100,30 L140,70 L100,70 Z",
+	},
+	{
+		id: "aleta",
+		term_es: "Aleta",
+		term_eu: "Hegatsa",
+		definition_es:
+			"Partes posteriores de los costados que convergen en la popa.",
+		definition_eu: "Poparantz doazen ontziaren alboetako atzeko aldeak.",
+		category: "general",
+		difficulty: "intermediate",
+		svgPath: "M100,130 L140,130 L100,170 Z",
+	},
+	{
+		id: "eslora",
+		term_es: "Eslora",
+		term_eu: "Luzera",
+		definition_es: "Longitud de la embarcación de proa a popa.",
+		definition_eu: "Ontziaren luzera brankatik txopara.",
+		category: "dimensions",
+		difficulty: "basic",
+		svgPath: "M100,20 L100,180",
+	},
+	{
+		id: "manga",
+		term_es: "Manga",
+		term_eu: "Zabalera",
+		definition_es: "Anchura máxima de la embarcación.",
+		definition_eu: "Ontziaren zabalera maximoa.",
+		category: "dimensions",
+		difficulty: "basic",
+		svgPath: "M40,100 L160,100",
+	},
+	{
+		id: "orza",
+		term_es: "Orza",
+		term_eu: "Orza",
+		definition_es: "Placa sumergible que reduce el abatimiento lateral.",
+		definition_eu: "Ontzia alborantz lerratzea eragozten duen pieza.",
+		category: "general",
+		difficulty: "basic",
+		svgPath: "M95,100 L105,100 L105,140 L95,140 Z",
+	},
+	{
+		id: "timon",
+		term_es: "Timón",
+		term_eu: "Lema",
+		definition_es: "Pieza articulada a popa que sirve para gobernar.",
+		definition_eu: "Popan kokatutako pieza mugikorra, ontzia gidatzeko.",
+		category: "general",
+		difficulty: "basic",
+		svgPath: "M90,180 L110,180 L110,210 L90,210 Z",
+	},
 
-    // --- RIGGING (JARCIA) ---
-    {
-        id: 'mastil',
-        term_es: 'Mástil',
-        term_eu: 'Masta',
-        definition_es: 'Palo vertical que sostiene las velas.',
-        definition_eu: 'Bela eusten dituen zutoina.',
-        category: 'rigging',
-        difficulty: 'basic',
-        svgPath: 'M98,20 L102,20 L102,150 L98,150 Z'
-    },
-    {
-        id: 'botavara',
-        term_es: 'Botavara',
-        term_eu: 'Botabara',
-        definition_es: 'Palo horizontal que sostiene el pujamen de la mayor.',
-        definition_eu: 'Oihal nagusiaren behealdea tenkatzen duen pieza.',
-        category: 'rigging',
-        difficulty: 'basic',
-        svgPath: 'M100,140 L180,140 L180,145 L100,145 Z'
-    },
-    {
-        id: 'estay',
-        term_es: 'Estay',
-        term_eu: 'Estai',
-        definition_es: 'Cable que sujeta el mástil hacia proa.',
-        definition_eu: 'Masta aurrerantz eusten duen kablea.',
-        category: 'rigging',
-        difficulty: 'intermediate',
-        svgPath: 'M100,30 L40,150'
-    },
-    {
-        id: 'obenques',
-        term_es: 'Obenques',
-        term_eu: 'Obenkeak',
-        definition_es: 'Cables que sujetan el mástil lateralmente.',
-        definition_eu: 'Masta alboetatik eusten duten kableak.',
-        category: 'rigging',
-        difficulty: 'intermediate',
-        svgPath: 'M100,30 L40,150 M100,30 L160,150'
-    },
+	// --- RIGGING (JARCIA) ---
+	{
+		id: "mastil",
+		term_es: "Mástil",
+		term_eu: "Masta",
+		definition_es: "Palo vertical que sostiene las velas.",
+		definition_eu: "Bela eusten dituen zutoina.",
+		category: "rigging",
+		difficulty: "basic",
+		svgPath: "M98,20 L102,20 L102,150 L98,150 Z",
+	},
+	{
+		id: "botavara",
+		term_es: "Botavara",
+		term_eu: "Botabara",
+		definition_es: "Palo horizontal que sostiene el pujamen de la mayor.",
+		definition_eu: "Oihal nagusiaren behealdea tenkatzen duen pieza.",
+		category: "rigging",
+		difficulty: "basic",
+		svgPath: "M100,140 L180,140 L180,145 L100,145 Z",
+	},
+	{
+		id: "estay",
+		term_es: "Estay",
+		term_eu: "Estai",
+		definition_es: "Cable que sujeta el mástil hacia proa.",
+		definition_eu: "Masta aurrerantz eusten duen kablea.",
+		category: "rigging",
+		difficulty: "intermediate",
+		svgPath: "M100,30 L40,150",
+	},
+	{
+		id: "obenques",
+		term_es: "Obenques",
+		term_eu: "Obenkeak",
+		definition_es: "Cables que sujetan el mástil lateralmente.",
+		definition_eu: "Masta alboetatik eusten duten kableak.",
+		category: "rigging",
+		difficulty: "intermediate",
+		svgPath: "M100,30 L40,150 M100,30 L160,150",
+	},
 
-    // --- SAILS (VELAS) ---
-    {
-        id: 'mayor',
-        term_es: 'Vela Mayor',
-        term_eu: 'Bela Nagusia',
-        definition_es: 'Vela principal situada detrás del mástil.',
-        definition_eu: 'Masta atzean dagoen bela nagusia.',
-        category: 'sails',
-        difficulty: 'basic',
-        svgPath: 'M105,30 L170,135 L105,135 Z'
-    },
-    {
-        id: 'foque',
-        term_es: 'Foque / Génova',
-        term_eu: 'Foke / Genova',
-        definition_es: 'Vela triangular situada a proa del mástil.',
-        definition_eu: 'Masta aurrean dagoen bela triangeluarra.',
-        category: 'sails',
-        difficulty: 'basic',
-        svgPath: 'M95,35 L45,145 L95,145 Z'
-    },
-    {
-        id: 'baluma',
-        term_es: 'Baluma',
-        term_eu: 'Baluma',
-        definition_es: 'Borde posterior de la vela que no va sujeto a ningún palo.',
-        definition_eu: 'Oihalaren atzeko ertza.',
-        category: 'sails',
-        difficulty: 'advanced',
-        svgPath: 'M170,135 L105,30'
-    },
-    {
-        id: 'gratil',
-        term_es: 'Gratil',
-        term_eu: 'Gratil',
-        definition_es: 'Borde de la vela que va sujeto al mástil o al estay.',
-        definition_eu: 'Mastari edo estaiari lotua dagoen oihalaren ertza.',
-        category: 'sails',
-        difficulty: 'advanced',
-        svgPath: 'M105,30 L105,135'
-    },
+	// --- SAILS (VELAS) ---
+	{
+		id: "mayor",
+		term_es: "Vela Mayor",
+		term_eu: "Bela Nagusia",
+		definition_es: "Vela principal situada detrás del mástil.",
+		definition_eu: "Masta atzean dagoen bela nagusia.",
+		category: "sails",
+		difficulty: "basic",
+		svgPath: "M105,30 L170,135 L105,135 Z",
+	},
+	{
+		id: "foque",
+		term_es: "Foque / Génova",
+		term_eu: "Foke / Genova",
+		definition_es: "Vela triangular situada a proa del mástil.",
+		definition_eu: "Masta aurrean dagoen bela triangeluarra.",
+		category: "sails",
+		difficulty: "basic",
+		svgPath: "M95,35 L45,145 L95,145 Z",
+	},
+	{
+		id: "baluma",
+		term_es: "Baluma",
+		term_eu: "Baluma",
+		definition_es: "Borde posterior de la vela que no va sujeto a ningún palo.",
+		definition_eu: "Oihalaren atzeko ertza.",
+		category: "sails",
+		difficulty: "advanced",
+		svgPath: "M170,135 L105,30",
+	},
+	{
+		id: "gratil",
+		term_es: "Gratil",
+		term_eu: "Gratil",
+		definition_es: "Borde de la vela que va sujeto al mástil o al estay.",
+		definition_eu: "Mastari edo estaiari lotua dagoen oihalaren ertza.",
+		category: "sails",
+		difficulty: "advanced",
+		svgPath: "M105,30 L105,135",
+	},
 
-    // --- ORIENTACIÓN ---
-    {
-        id: 'barlovento',
-        term_es: 'Barlovento',
-        term_eu: 'Haizealde',
-        definition_es: 'Parte de donde viene el viento.',
-        definition_eu: 'Haizea datorren aldea.',
-        category: 'orientation',
-        difficulty: 'basic',
-        svgPath: 'M10,50 L50,50 L40,40 M50,50 L40,60' // Arrow
-    },
-    {
-        id: 'sotavento',
-        term_es: 'Sotavento',
-        term_eu: 'Haizebe',
-        definition_es: 'Parte hacia donde va el viento.',
-        definition_eu: 'Haizea doan aldea.',
-        category: 'orientation',
-        difficulty: 'basic',
-        svgPath: 'M150,50 L190,50 L180,40 M190,50 L180,60' // Arrow
-    }
+	// --- ORIENTACIÓN ---
+	{
+		id: "barlovento",
+		term_es: "Barlovento",
+		term_eu: "Haizealde",
+		definition_es: "Parte de donde viene el viento.",
+		definition_eu: "Haizea datorren aldea.",
+		category: "orientation",
+		difficulty: "basic",
+		svgPath: "M10,50 L50,50 L40,40 M50,50 L40,60", // Arrow
+	},
+	{
+		id: "sotavento",
+		term_es: "Sotavento",
+		term_eu: "Haizebe",
+		definition_es: "Parte hacia donde va el viento.",
+		definition_eu: "Haizea doan aldea.",
+		category: "orientation",
+		difficulty: "basic",
+		svgPath: "M150,50 L190,50 L180,40 M190,50 L180,60", // Arrow
+	},
 ];

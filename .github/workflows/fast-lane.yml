@@ -36,3 +36,5 @@ jobs:
 
             - name: "🧪 Type Check"
               run: npx tsc --noEmit && echo "✅ TypeScript Passed"
+              env:
+                  NODE_OPTIONS: "--max-old-space-size=4096"

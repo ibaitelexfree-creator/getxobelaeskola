@@ -1,5 +1,5 @@
-import { createClient } from '@/lib/supabase/server';
-import { NextResponse } from 'next/server';
+import { NextResponse } from "next/server";
+import { createClient } from "@/lib/supabase/server";
 
 /**
  * GET /api/academy/certificates/[id]
@@ -7,22 +7,25 @@ import { NextResponse } from 'next/server';
  * Incluye habilidades demostradas por el alumno.
  */
 export async function GET(
-    request: Request,
-    { params }: { params: { id: string } }
+	request: Request,
+	{ params }: { params: { id: string } },
 ) {
-    try {
-        const supabase = await createClient();
+	try {
+		const supabase = await createClient();
 
-        const { data: { user }, error: authError } = await supabase.auth.getUser();
+		const {
+			data: { user },
+			error: authError,
+		} = await supabase.auth.getUser();
 
-        if (authError || !user) {
-            return NextResponse.json({ error: 'No autenticado' }, { status: 401 });
-        }
+		if (authError || !user) {
+			return NextResponse.json({ error: "No autenticado" }, { status: 401 });
+		}
 
-        // Obtener certificado con información completa
-        const { data: certificado, error } = await supabase
-            .from('certificados')
-            .select(`
+		// Obtener certificado con información completa
+		const { data: certificado, error } = await supabase
+			.from("certificados")
+			.select(`
                 id,
                 tipo,
                 numero_certificado,
@@ -49,20 +52,23 @@ export async function GET(
                     email
                 )
             `)
-            .eq('id', params.id)
-            .eq('alumno_id', user.id) // Seguridad: solo sus propios certificados
-            .single();
+			.eq("id", params.id)
+			.eq("alumno_id", user.id) // Seguridad: solo sus propios certificados
+			.single();
 
-        if (error || !certificado) {
-            return NextResponse.json({
-                error: 'Certificado no encontrado'
-            }, { status: 404 });
-        }
+		if (error || !certificado) {
+			return NextResponse.json(
+				{
+					error: "Certificado no encontrado",
+				},
+				{ status: 404 },
+			);
+		}
 
-        // Obtener habilidades del alumno
-        const { data: habilidades } = await supabase
-            .from('student_skills')
-            .select(`
+		// Obtener habilidades del alumno
+		const { data: habilidades } = await supabase
+			.from("student_skills")
+			.select(`
                 obtained_at,
                 skill:skill_id (
                     slug,
@@ -72,19 +78,18 @@ export async function GET(
                     categoria
                 )
             `)
-            .eq('student_id', user.id)
-            .order('obtained_at', { ascending: false });
+			.eq("student_id", user.id)
+			.order("obtained_at", { ascending: false });
 
-        return NextResponse.json({
-            certificado,
-            habilidades_demostradas: habilidades || []
-        });
-
-    } catch (error) {
-        console.error('Error al obtener detalle de certificado:', error);
-        return NextResponse.json(
-            { error: 'Error al obtener certificado' },
-            { status: 500 }
-        );
-    }
+		return NextResponse.json({
+			certificado,
+			habilidades_demostradas: habilidades || [],
+		});
+	} catch (error) {
+		console.error("Error al obtener detalle de certificado:", error);
+		return NextResponse.json(
+			{ error: "Error al obtener certificado" },
+			{ status: 500 },
+		);
+	}
 }

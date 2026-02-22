@@ -1,1 +1,1 @@
-export * from './SailingSimulator';
+export * from "./SailingSimulator";

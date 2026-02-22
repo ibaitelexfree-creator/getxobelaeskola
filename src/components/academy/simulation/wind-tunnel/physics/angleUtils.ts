@@ -2,14 +2,14 @@
  * Converts degrees to radians
  */
 export function deg2rad(deg: number): number {
-    return deg * (Math.PI / 180);
+	return deg * (Math.PI / 180);
 }
 
 /**
  * Converts radians to degrees
  */
 export function rad2deg(rad: number): number {
-    return rad * (180 / Math.PI);
+	return rad * (180 / Math.PI);
 }
 
 /**
@@ -17,9 +17,9 @@ export function rad2deg(rad: number): number {
  * Useful for compass headings.
  */
 export function normalizeAngle360(angle: number): number {
-    let result = angle % 360;
-    if (result < 0) result += 360;
-    return result;
+	let result = angle % 360;
+	if (result < 0) result += 360;
+	return result;
 }
 
 /**
@@ -27,9 +27,9 @@ export function normalizeAngle360(angle: number): number {
  * Useful for relative angles (like AWA or rudder angle).
  */
 export function normalizeAngle180(angle: number): number {
-    let result = normalizeAngle360(angle);
-    if (result > 180) result -= 360;
-    return result;
+	let result = normalizeAngle360(angle);
+	if (result > 180) result -= 360;
+	return result;
 }
 
 /**
@@ -38,5 +38,5 @@ export function normalizeAngle180(angle: number): number {
  * Positive means 'target' is clockwise from 'source'.
  */
 export function angleDifference(target: number, source: number): number {
-    return normalizeAngle180(target - source);
+	return normalizeAngle180(target - source);
 }

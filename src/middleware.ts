@@ -1,48 +1,48 @@
-import createMiddleware from 'next-intl/middleware';
-import { createServerClient } from '@supabase/ssr';
-import { type NextRequest } from 'next/server';
+import { createServerClient } from "@supabase/ssr";
+import type { NextRequest } from "next/server";
+import createMiddleware from "next-intl/middleware";
 
 const intlMiddleware = createMiddleware({
-    locales: ['es', 'eu', 'en', 'fr'],
-    defaultLocale: 'es',
-    localePrefix: 'always'
+	locales: ["es", "eu", "en", "fr"],
+	defaultLocale: "es",
+	localePrefix: "always",
 });
 
 export default async function middleware(request: NextRequest) {
-    // 1. Run next-intl middleware first
-    const response = intlMiddleware(request);
+	// 1. Run next-intl middleware first
+	const response = intlMiddleware(request);
 
-    // If it's a redirect, return it immediately
-    if (response.status === 307 || response.status === 308) {
-        return response;
-    }
+	// If it's a redirect, return it immediately
+	if (response.status === 307 || response.status === 308) {
+		return response;
+	}
 
-    // 2. Supabase session logic
-    const supabase = createServerClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-        {
-            cookies: {
-                getAll() {
-                    return request.cookies.getAll();
-                },
-                setAll(cookiesToSet) {
-                    cookiesToSet.forEach(({ name, value }) => {
-                        request.cookies.set(name, value);
-                    });
-                    cookiesToSet.forEach(({ name, value, options }) => {
-                        response.cookies.set(name, value, options);
-                    });
-                },
-            },
-        }
-    );
+	// 2. Supabase session logic
+	const supabase = createServerClient(
+		process.env.NEXT_PUBLIC_SUPABASE_URL!,
+		process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+		{
+			cookies: {
+				getAll() {
+					return request.cookies.getAll();
+				},
+				setAll(cookiesToSet) {
+					cookiesToSet.forEach(({ name, value }) => {
+						request.cookies.set(name, value);
+					});
+					cookiesToSet.forEach(({ name, value, options }) => {
+						response.cookies.set(name, value, options);
+					});
+				},
+			},
+		},
+	);
 
-    await supabase.auth.getUser();
+	await supabase.auth.getUser();
 
-    return response;
+	return response;
 }
 
 export const config = {
-    matcher: ['/((?!api|_next|_vercel|.*\\..*).*)']
+	matcher: ["/((?!api|_next|_vercel|.*\\..*).*)"],
 };

@@ -1,92 +1,95 @@
-'use client';
-import { usePathname } from 'next/navigation';
-import { ReactNode, useEffect, useState } from 'react';
+"use client";
+import { usePathname } from "next/navigation";
+import { type ReactNode, useEffect, useState } from "react";
+
 // Capacitor will be dynamically checked in the effect to avoid SSR issues
 // import { Capacitor } from '@capacitor/core';
 
-import AcademyControls from '@/components/layout/AcademyControls';
-import MobileBottomNav from '@/components/layout/MobileBottomNav';
-import NotificationContainer from '@/components/academy/notifications/NotificationContainer';
-import RealtimeNotifications from '@/components/academy/notifications/RealtimeNotifications';
-import SafetyMonitor from '@/components/academy/notifications/SafetyMonitor';
-import ActivityTracker from '@/components/academy/ActivityTracker';
+import ActivityTracker from "@/components/academy/ActivityTracker";
+import NotificationContainer from "@/components/academy/notifications/NotificationContainer";
+import RealtimeNotifications from "@/components/academy/notifications/RealtimeNotifications";
+import SafetyMonitor from "@/components/academy/notifications/SafetyMonitor";
+import AcademyControls from "@/components/layout/AcademyControls";
+import MobileBottomNav from "@/components/layout/MobileBottomNav";
 
 interface ConditionalLayoutProps {
-    children: ReactNode;
-    navbar: ReactNode;
-    footer: ReactNode;
-    locale: string;
+	children: ReactNode;
+	navbar: ReactNode;
+	footer: ReactNode;
+	locale: string;
 }
 
-export default function ConditionalLayout({ children, navbar, footer }: ConditionalLayoutProps) {
-    const pathname = usePathname();
-    const isAcademy = pathname.includes('/academy');
-    const isAuth = pathname.includes('/auth/');
+export default function ConditionalLayout({
+	children,
+	navbar,
+	footer,
+}: ConditionalLayoutProps) {
+	const pathname = usePathname();
+	const isAcademy = pathname.includes("/academy");
+	const isAuth = pathname.includes("/auth/");
 
-    // Default to false (SSR/Web)
-    const [isNativeApp, setIsNativeApp] = useState(false);
+	// Default to false (SSR/Web)
+	const [isNativeApp, setIsNativeApp] = useState(false);
 
-    useEffect(() => {
-        // Check if running in a native Capacitor environment (iOS/Android)
-        import('@capacitor/core').then(({ Capacitor }) => {
-            if (Capacitor.isNativePlatform()) {
-                setIsNativeApp(true);
-            }
-        });
-    }, []);
+	useEffect(() => {
+		// Check if running in a native Capacitor environment (iOS/Android)
+		import("@capacitor/core").then(({ Capacitor }) => {
+			if (Capacitor.isNativePlatform()) {
+				setIsNativeApp(true);
+			}
+		});
+	}, []);
 
-    // Academy mode — no nav, show academy controls
-    if (isAcademy) {
-        return (
-            <>
-                <main className="flex-grow flex flex-col relative w-full h-full min-h-screen bg-nautical-black">
-                    {children}
-                    <AcademyControls />
-                </main>
-                {!isAuth && isNativeApp && (
-                    <div className="block">
-                        <MobileBottomNav />
-                    </div>
-                )}
-                <NotificationContainer />
-                <RealtimeNotifications />
-                <SafetyMonitor />
-                <ActivityTracker />
-            </>
-        );
-    }
+	// Academy mode — no nav, show academy controls
+	if (isAcademy) {
+		return (
+			<>
+				<main className="flex-grow flex flex-col relative w-full h-full min-h-screen bg-nautical-black">
+					{children}
+					<AcademyControls />
+				</main>
+				{!isAuth && isNativeApp && (
+					<div className="block">
+						<MobileBottomNav />
+					</div>
+				)}
+				<NotificationContainer />
+				<RealtimeNotifications />
+				<SafetyMonitor />
+				<ActivityTracker />
+			</>
+		);
+	}
 
-    return (
-        <>
-            {/* Navbar: Visible on Web (Responsive), Hidden on Native App */}
-            {!isAuth && !isNativeApp && (
-                <div className="block">{navbar}</div>
-            )}
+	return (
+		<>
+			{/* Navbar: Visible on Web (Responsive), Hidden on Native App */}
+			{!isAuth && !isNativeApp && <div className="block">{navbar}</div>}
 
-            <main className={`flex-grow min-h-screen bg-nautical-black ${!isAuth ? 'pb-24 md:pb-0' : ''}`}>
-                {children}
-            </main>
+			<main
+				className={`flex-grow min-h-screen bg-nautical-black ${!isAuth ? "pb-24 md:pb-0" : ""}`}
+			>
+				{children}
+			</main>
 
-            {/* Footer: Visible on Web (Responsive), Hidden on Native App */}
-            {!isAuth && !isNativeApp && (
-                <div className="block">{footer}</div>
-            )}
+			{/* Footer: Visible on Web (Responsive), Hidden on Native App */}
+			{!isAuth && !isNativeApp && <div className="block">{footer}</div>}
 
-            {/* Mobile Navigation: Visible ONLY on Native Mobile App */}
-            {!isAuth && isNativeApp && (
-                <div className="block">
-                    <MobileBottomNav />
-                </div>
-            )}
+			{/* Mobile Navigation: Visible ONLY on Native Mobile App */}
+			{!isAuth && isNativeApp && (
+				<div className="block">
+					<MobileBottomNav />
+				</div>
+			)}
 
-            {!isAuth && (
-                <>
-                    <NotificationContainer />
-                    <RealtimeNotifications />
-                    <SafetyMonitor />
-                    <ActivityTracker />
-                </>
-            )}
-        </>
-    );
+			{!isAuth && (
+				<>
+					<NotificationContainer />
+					<RealtimeNotifications />
+					<SafetyMonitor />
+					<ActivityTracker />
+				</>
+			)}
+		</>
+	);
 }

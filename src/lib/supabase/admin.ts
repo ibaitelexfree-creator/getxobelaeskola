@@ -1,4 +1,4 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient } from "@supabase/supabase-js";
 
 /**
  * Crea un cliente de Supabase con Service Role (ADMIN).
@@ -8,17 +8,17 @@ import { createClient } from '@supabase/supabase-js';
 let supabaseAdmin: ReturnType<typeof createClient> | null = null;
 
 export function createAdminClient() {
-    if (supabaseAdmin) return supabaseAdmin;
+	if (supabaseAdmin) return supabaseAdmin;
 
-    supabaseAdmin = createClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.SUPABASE_SERVICE_ROLE_KEY!,
-        {
-            auth: {
-                autoRefreshToken: false,
-                persistSession: false
-            }
-        }
-    );
-    return supabaseAdmin;
+	supabaseAdmin = createClient(
+		process.env.NEXT_PUBLIC_SUPABASE_URL!,
+		process.env.SUPABASE_SERVICE_ROLE_KEY!,
+		{
+			auth: {
+				autoRefreshToken: false,
+				persistSession: false,
+			},
+		},
+	);
+	return supabaseAdmin;
 }

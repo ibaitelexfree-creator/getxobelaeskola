@@ -1,104 +1,126 @@
-
-import { NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
-import { cookies } from 'next/headers';
+import { cookies } from "next/headers";
+import { NextResponse } from "next/server";
+import { createClient } from "@/lib/supabase/server";
 
 // Simple map of important relations to check
-const RELATIONS: Record<string, { table: string, fk: string, label: string }[]> = {
-    profiles: [
-        { table: 'reservas_alquiler', fk: 'perfil_id', label: 'Alquileres' },
-        { table: 'inscripciones', fk: 'perfil_id', label: 'Cursos Inscritos' },
-        { table: 'mensajes_contacto', fk: 'email', label: 'Mensajes (por Email)' }, // Special email linkage
-        { table: 'newsletter_subscriptions', fk: 'email', label: 'Susufrpcioines (por Email)' }
-    ],
-    cursos: [
-        { table: 'ediciones_curso', fk: 'curso_id', label: 'Ediciones Programadas' },
-        { table: 'inscripciones', fk: 'curso_id', label: 'Alumnos Totales' }
-    ],
-    embarcaciones: [
-        { table: 'mantenimiento_logs', fk: 'embarcacion_id', label: 'Historial Mantenimiento' }
-    ]
+const RELATIONS: Record<
+	string,
+	{ table: string; fk: string; label: string }[]
+> = {
+	profiles: [
+		{ table: "reservas_alquiler", fk: "perfil_id", label: "Alquileres" },
+		{ table: "inscripciones", fk: "perfil_id", label: "Cursos Inscritos" },
+		{ table: "mensajes_contacto", fk: "email", label: "Mensajes (por Email)" }, // Special email linkage
+		{
+			table: "newsletter_subscriptions",
+			fk: "email",
+			label: "Susufrpcioines (por Email)",
+		},
+	],
+	cursos: [
+		{
+			table: "ediciones_curso",
+			fk: "curso_id",
+			label: "Ediciones Programadas",
+		},
+		{ table: "inscripciones", fk: "curso_id", label: "Alumnos Totales" },
+	],
+	embarcaciones: [
+		{
+			table: "mantenimiento_logs",
+			fk: "embarcacion_id",
+			label: "Historial Mantenimiento",
+		},
+	],
 };
 
 const SEARCHABLE_COLS: Record<string, string[]> = {
-    profiles: ['nombre', 'apellidos', 'email', 'telefono'],
-    reservas_alquiler: ['id', 'estado_entrega'], // Maybe search by ID
-    cursos: ['nombre', 'descripcion_es'],
-    embarcaciones: ['nombre', 'matricula'],
-    mensajes_contacto: ['nombre', 'email', 'asunto', 'mensaje'],
-    newsletter_subscriptions: ['email']
+	profiles: ["nombre", "apellidos", "email", "telefono"],
+	reservas_alquiler: ["id", "estado_entrega"], // Maybe search by ID
+	cursos: ["nombre", "descripcion_es"],
+	embarcaciones: ["nombre", "matricula"],
+	mensajes_contacto: ["nombre", "email", "asunto", "mensaje"],
+	newsletter_subscriptions: ["email"],
 };
 
 export async function GET(req: Request) {
-    const { searchParams } = new URL(req.url);
-    const query = searchParams.get('q') || '';
-    const table = searchParams.get('table') || 'all';
+	const { searchParams } = new URL(req.url);
+	const query = searchParams.get("q") || "";
+	const table = searchParams.get("table") || "all";
 
-    if (!query) return NextResponse.json({ results: [] });
+	if (!query) return NextResponse.json({ results: [] });
 
-    const supabase = createClient();
-    let results: any[] = [];
+	const supabase = createClient();
+	let results: any[] = [];
 
-    const searchTable = async (tableName: string) => {
-        const cols = SEARCHABLE_COLS[tableName] || ['id'];
-        // Construct OR filter: col1.ilike.%q%,col2.ilike.%q%
-        const orFilter = cols.map(c => `${c}.ilike.%${query}%`).join(',');
+	const searchTable = async (tableName: string) => {
+		const cols = SEARCHABLE_COLS[tableName] || ["id"];
+		// Construct OR filter: col1.ilike.%q%,col2.ilike.%q%
+		const orFilter = cols.map((c) => `${c}.ilike.%${query}%`).join(",");
 
-        const { data, error } = await supabase
-            .from(tableName)
-            .select('*')
-            .or(orFilter)
-            .limit(5);
+		const { data, error } = await supabase
+			.from(tableName)
+			.select("*")
+			.or(orFilter)
+			.limit(5);
 
-        if (error) {
-            console.error(`Search error in ${tableName}:`, error);
-            return [];
-        }
+		if (error) {
+			console.error(`Search error in ${tableName}:`, error);
+			return [];
+		}
 
-        // Enrich with relations count
-        const enriched = await Promise.all((data || []).map(async (item) => {
-            const relations: any[] = [];
-            const rels = RELATIONS[tableName] || [];
+		// Enrich with relations count
+		const enriched = await Promise.all(
+			(data || []).map(async (item) => {
+				const relations: any[] = [];
+				const rels = RELATIONS[tableName] || [];
 
-            for (const rel of rels) {
-                // Determine FK value (handle email special case)
-                let fkValue = item[rel.fk === 'email' ? 'email' : 'id'];
-                if (rel.fk === 'email') fkValue = item.email; // Source is email
+				for (const rel of rels) {
+					// Determine FK value (handle email special case)
+					let fkValue = item[rel.fk === "email" ? "email" : "id"];
+					if (rel.fk === "email") fkValue = item.email; // Source is email
 
-                // Skip if no key to join
-                if (!fkValue) continue;
+					// Skip if no key to join
+					if (!fkValue) continue;
 
-                // Simple count query
-                const { count, error: countError } = await supabase
-                    .from(rel.table)
-                    .select('*', { count: 'exact', head: true })
-                    .eq(rel.fk, fkValue);
+					// Simple count query
+					const { count, error: countError } = await supabase
+						.from(rel.table)
+						.select("*", { count: "exact", head: true })
+						.eq(rel.fk, fkValue);
 
-                if (!countError && count !== null && count > 0) {
-                    relations.push({ label: rel.label, count, table: rel.table });
-                }
-            }
-            return {
-                ...item,
-                _table: tableName,
-                _title: item.nombre || item.title || item.name || item.asunto || item.id, // Best effort title
-                _relations: relations
-            };
-        }));
+					if (!countError && count !== null && count > 0) {
+						relations.push({ label: rel.label, count, table: rel.table });
+					}
+				}
+				return {
+					...item,
+					_table: tableName,
+					_title:
+						item.nombre || item.title || item.name || item.asunto || item.id, // Best effort title
+					_relations: relations,
+				};
+			}),
+		);
 
-        return enriched;
-    };
+		return enriched;
+	};
 
-    if (table === 'all') {
-        // Search key tables
-        const tablesToSearch = ['profiles', 'cursos', 'embarcaciones', 'reservas_alquiler'];
-        for (const t of tablesToSearch) {
-            const res = await searchTable(t);
-            results = [...results, ...res];
-        }
-    } else {
-        results = await searchTable(table);
-    }
+	if (table === "all") {
+		// Search key tables
+		const tablesToSearch = [
+			"profiles",
+			"cursos",
+			"embarcaciones",
+			"reservas_alquiler",
+		];
+		for (const t of tablesToSearch) {
+			const res = await searchTable(t);
+			results = [...results, ...res];
+		}
+	} else {
+		results = await searchTable(table);
+	}
 
-    return NextResponse.json({ results });
+	return NextResponse.json({ results });
 }

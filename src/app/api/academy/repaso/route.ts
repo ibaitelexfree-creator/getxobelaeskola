@@ -1,18 +1,20 @@
-import { createClient } from '@/lib/supabase/server';
-import { NextResponse } from 'next/server';
+import { NextResponse } from "next/server";
+import { createClient } from "@/lib/supabase/server";
 
 export async function GET() {
-    try {
-        const supabase = await createClient();
-        const { data: { user } } = await supabase.auth.getUser();
+	try {
+		const supabase = await createClient();
+		const {
+			data: { user },
+		} = await supabase.auth.getUser();
 
-        if (!user) {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-        }
+		if (!user) {
+			return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+		}
 
-        const { data, error } = await supabase
-            .from('repaso_errores')
-            .select(`
+		const { data, error } = await supabase
+			.from("repaso_errores")
+			.select(`
                 id,
                 pregunta_id,
                 estado,
@@ -30,18 +32,21 @@ export async function GET() {
                     imagen_url
                 )
             `)
-            .eq('alumno_id', user.id)
-            .eq('estado', 'pendiente')
-            .order('created_at', { ascending: false });
+			.eq("alumno_id", user.id)
+			.eq("estado", "pendiente")
+			.order("created_at", { ascending: false });
 
-        if (error) {
-            console.error('Error fetching repaso errors:', error);
-            return NextResponse.json({ error: error.message }, { status: 500 });
-        }
+		if (error) {
+			console.error("Error fetching repaso errors:", error);
+			return NextResponse.json({ error: error.message }, { status: 500 });
+		}
 
-        return NextResponse.json({ questions: data });
-    } catch (e) {
-        console.error('Unexpected error in repaso GET:', e);
-        return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
-    }
+		return NextResponse.json({ questions: data });
+	} catch (e) {
+		console.error("Unexpected error in repaso GET:", e);
+		return NextResponse.json(
+			{ error: "Internal Server Error" },
+			{ status: 500 },
+		);
+	}
 }

@@ -1,35 +1,35 @@
-import { createClient } from '@/lib/supabase/server';
-import MobileRentalList from '@/components/student/MobileRentalList';
+import MobileRentalList from "@/components/student/MobileRentalList";
+import { createClient } from "@/lib/supabase/server";
 
 export function generateStaticParams() {
-    return ['es', 'eu', 'en', 'fr'].map(locale => ({ locale }));
+	return ["es", "eu", "en", "fr"].map((locale) => ({ locale }));
 }
 
 export default async function MobileRentalPage({
-    params: { locale }
+	params: { locale },
 }: {
-    params: { locale: string }
+	params: { locale: string };
 }) {
-    const supabase = createClient();
-    let services = [];
+	const supabase = createClient();
+	let services = [];
 
-    try {
-        const { data, error } = await supabase
-            .from('servicios_alquiler')
-            .select('*')
-            .eq('activo', true)
-            .order('precio_base', { ascending: true });
+	try {
+		const { data, error } = await supabase
+			.from("servicios_alquiler")
+			.select("*")
+			.eq("activo", true)
+			.order("precio_base", { ascending: true });
 
-        if (!error && data) {
-            services = data;
-        }
-    } catch (err) {
-        console.error('Error loading rentals:', err);
-    }
+		if (!error && data) {
+			services = data;
+		}
+	} catch (err) {
+		console.error("Error loading rentals:", err);
+	}
 
-    return (
-        <main className="min-h-screen bg-nautical-black">
-            <MobileRentalList services={services} locale={locale} />
-        </main>
-    );
+	return (
+		<main className="min-h-screen bg-nautical-black">
+			<MobileRentalList services={services} locale={locale} />
+		</main>
+	);
 }

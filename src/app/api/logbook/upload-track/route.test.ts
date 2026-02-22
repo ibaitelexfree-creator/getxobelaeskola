@@ -1,55 +1,61 @@
-
-import { POST } from './route';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { POST } from "./route";
 
 // Mock dependencies
-vi.mock('@/lib/auth-guard', () => ({
-    requireAuth: vi.fn().mockResolvedValue({
-        user: { id: 'test-user-id' },
-        error: null
-    })
+vi.mock("@/lib/auth-guard", () => ({
+	requireAuth: vi.fn().mockResolvedValue({
+		user: { id: "test-user-id" },
+		error: null,
+	}),
 }));
 
 const { mockUpload, mockInsert, mockUpdate } = vi.hoisted(() => {
-    return {
-        mockUpload: vi.fn().mockResolvedValue({ data: { path: 'path/to/file' }, error: null }),
-        mockInsert: vi.fn().mockReturnValue({
-            select: vi.fn().mockReturnValue({
-                single: vi.fn().mockResolvedValue({ data: { id: 'new-session-id' }, error: null })
-            })
-        }),
-        mockUpdate: vi.fn().mockReturnValue({
-            select: vi.fn().mockReturnValue({
-                single: vi.fn().mockResolvedValue({ data: { id: 'updated-session-id' }, error: null })
-            })
-        })
-    };
+	return {
+		mockUpload: vi
+			.fn()
+			.mockResolvedValue({ data: { path: "path/to/file" }, error: null }),
+		mockInsert: vi.fn().mockReturnValue({
+			select: vi.fn().mockReturnValue({
+				single: vi
+					.fn()
+					.mockResolvedValue({ data: { id: "new-session-id" }, error: null }),
+			}),
+		}),
+		mockUpdate: vi.fn().mockReturnValue({
+			select: vi.fn().mockReturnValue({
+				single: vi.fn().mockResolvedValue({
+					data: { id: "updated-session-id" },
+					error: null,
+				}),
+			}),
+		}),
+	};
 });
 
-vi.mock('@/lib/supabase/server', () => ({
-    createClient: vi.fn().mockReturnValue({
-        storage: {
-            from: vi.fn().mockReturnValue({
-                upload: mockUpload
-            })
-        },
-        from: vi.fn().mockReturnValue({
-            insert: mockInsert,
-            update: mockUpdate,
-            select: vi.fn().mockReturnThis(),
-            eq: vi.fn().mockReturnThis(),
-            single: vi.fn().mockResolvedValue({ data: {}, error: null })
-        })
-    })
+vi.mock("@/lib/supabase/server", () => ({
+	createClient: vi.fn().mockReturnValue({
+		storage: {
+			from: vi.fn().mockReturnValue({
+				upload: mockUpload,
+			}),
+		},
+		from: vi.fn().mockReturnValue({
+			insert: mockInsert,
+			update: mockUpdate,
+			select: vi.fn().mockReturnThis(),
+			eq: vi.fn().mockReturnThis(),
+			single: vi.fn().mockResolvedValue({ data: {}, error: null }),
+		}),
+	}),
 }));
 
-describe('POST /api/logbook/upload-track', () => {
-    beforeEach(() => {
-        vi.clearAllMocks();
-    });
+describe("POST /api/logbook/upload-track", () => {
+	beforeEach(() => {
+		vi.clearAllMocks();
+	});
 
-    it('should process a valid GPX file and create a new session', async () => {
-        const gpxContent = `
+	it("should process a valid GPX file and create a new session", async () => {
+		const gpxContent = `
             <?xml version="1.0" encoding="UTF-8"?>
             <gpx version="1.1" creator="StravaGPX">
             <trk>
@@ -72,35 +78,35 @@ describe('POST /api/logbook/upload-track', () => {
             </gpx>
         `;
 
-        // Mock Request and FormData manually to avoid JSDOM issues
-        const mockFormData = {
-            get: vi.fn((key) => {
-                if (key === 'file') {
-                    // Mock File object interface used in the route
-                    return {
-                        text: async () => gpxContent,
-                        name: 'track.gpx'
-                    };
-                }
-                return null;
-            })
-        };
+		// Mock Request and FormData manually to avoid JSDOM issues
+		const mockFormData = {
+			get: vi.fn((key) => {
+				if (key === "file") {
+					// Mock File object interface used in the route
+					return {
+						text: async () => gpxContent,
+						name: "track.gpx",
+					};
+				}
+				return null;
+			}),
+		};
 
-        const req = {
-            formData: async () => mockFormData
-        } as unknown as Request;
+		const req = {
+			formData: async () => mockFormData,
+		} as unknown as Request;
 
-        const res = await POST(req);
+		const res = await POST(req);
 
-        expect(res.status).toBe(200);
+		expect(res.status).toBe(200);
 
-        const data = await res.json();
+		const data = await res.json();
 
-        expect(data.success).toBe(true);
-        expect(data.stats.total_distance_nm).toBeGreaterThan(0);
-        expect(data.stats.duration_h).toBeCloseTo(0.03, 2); // 2 minutes = 0.033 hours, rounded to 0.03
+		expect(data.success).toBe(true);
+		expect(data.stats.total_distance_nm).toBeGreaterThan(0);
+		expect(data.stats.duration_h).toBeCloseTo(0.03, 2); // 2 minutes = 0.033 hours, rounded to 0.03
 
-        expect(mockUpload).toHaveBeenCalled();
-        expect(mockInsert).toHaveBeenCalled();
-    });
+		expect(mockUpload).toHaveBeenCalled();
+		expect(mockInsert).toHaveBeenCalled();
+	});
 });
