@@ -1,13 +1,13 @@
 /**
  * JulesPool — Invisible Load Balancer for 3 Jules Accounts
- * 
+ *
  * Manages a pool of Jules accounts with:
  * - 100 tasks/day per account (300 total)
  * - Max concurrent sessions per account (controlled by ThermalGuard)
  * - Domain-based routing (A=backend, B=ui, C=qa)
  * - Automatic rotation when preferred account is full
  * - Persistent state across restarts
- * 
+ *
  * Ibai NEVER sees which Jules is handling a task.
  */
 
@@ -15,6 +15,7 @@ import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs';
 import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
 import { EventEmitter } from 'events';
+import { query } from './db.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const STATE_DIR = join(__dirname, '..', 'state');
@@ -62,7 +63,12 @@ export class JulesPool extends EventEmitter {
         this.thermalGuard = thermalGuard;
         this.maxConcurrentOverride = options.maxConcurrent || null;
 
-        this.state = this._loadState();
+        this.state = this._defaultState();
+        this._initPool();
+    }
+
+    async _initPool() {
+        this.state = await this._loadState();
         this._checkDateReset();
 
         // Schedule midnight reset
@@ -310,16 +316,29 @@ export class JulesPool extends EventEmitter {
     }
 
     /**
-     * Load state from disk
+     * Load state from database or disk
      */
-    _loadState() {
+    async _loadState() {
+        // Try Database
+        try {
+            const results = await query('SELECT state_json FROM pool_state WHERE id = 1');
+            if (results && results.length > 0) {
+                console.log('[JulesPool] Loaded state from MySQL');
+                return results[0].state_json;
+            }
+        } catch (err) {
+            // Silently fail DB load
+        }
+
+        // Fallback to Disk
         try {
             if (existsSync(STATE_FILE)) {
                 const data = JSON.parse(readFileSync(STATE_FILE, 'utf-8'));
+                console.log('[JulesPool] Loaded state from disk');
                 return data;
             }
         } catch (err) {
-            console.warn('[JulesPool] Failed to load state, using defaults:', err.message);
+            // console.warn('[JulesPool] Disk load failed, using defaults:', err.message);
         }
 
         return this._defaultState();
@@ -339,16 +358,29 @@ export class JulesPool extends EventEmitter {
     }
 
     /**
-     * Save state to disk
+     * Save state to database and disk
      */
-    _saveState() {
+    async _saveState() {
+        const stateJson = JSON.stringify(this.state);
+
+        // Save to Database
+        try {
+            await query(
+                'INSERT INTO pool_state (id, state_json) VALUES (1, ?) ON DUPLICATE KEY UPDATE state_json = ?',
+                [stateJson, stateJson]
+            );
+        } catch (err) {
+            // Silently fail database save if not available
+        }
+
+        // Save to Disk (Backup)
         try {
             if (!existsSync(STATE_DIR)) {
                 mkdirSync(STATE_DIR, { recursive: true });
             }
             writeFileSync(STATE_FILE, JSON.stringify(this.state, null, 2), 'utf-8');
         } catch (err) {
-            console.error('[JulesPool] Failed to save state:', err.message);
+            console.error('[JulesPool] Failed to save state to disk:', err.message);
         }
     }
 

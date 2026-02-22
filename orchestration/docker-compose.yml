@@ -1,126 +1,49 @@
 version: '3.8'
 
 services:
-  jules-api:
-    build: 
-      context: ./orchestrator-api
+  orchestration:
+    build:
+      context: .
       dockerfile: Dockerfile
-    container_name: jules-orchestrator
+    container_name: jules-mission-control-server
+    restart: always
     ports:
-      - "3000:3000"
+      - "3323:3323"
     environment:
-      - DATABASE_URL=postgresql://user:password@postgres:5432/jules
-      - REDIS_URL=redis://redis:6379
-      - JULES_API_KEY=${JULES_API_KEY:-mock_key}
-      - GITHUB_TOKEN=${GITHUB_TOKEN:-mock_token}
-      - NODE_ENV=development
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_started
-    restart: unless-stopped
-    networks:
-      - orchestrator-network
-    healthcheck:
-      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/api/v1/health', (r) => process.exit(r.statusCode === 200 ? 0 : 1))"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
-
-  dashboard:
-    image: nginx:alpine
-    container_name: jules-dashboard
+      - NODE_ENV=production
+      - PORT=3323
+      - JULES_API_KEY=${JULES_API_KEY}
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+      - DB_HOST=mysql
+      - DB_USER=jules
+      - DB_PASSWORD=${DB_PASSWORD:-jules_pass}
+      - DB_NAME=jules_mission_control
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID}
     volumes:
-      - ./dashboard/dist:/usr/share/nginx/html:ro
-    ports:
-      - "8080:80"
-    restart: unless-stopped
-    networks:
-      - orchestrator-network
+      - ./state:/usr/src/app/state
     depends_on:
-      - jules-api
+      - mysql
+    networks:
+      - n8n_default
 
-  postgres:
-    image: postgres:15-alpine
-    container_name: orchestrator-db
+  mysql:
+    image: mysql:8.0
+    container_name: jules-mysql
+    restart: always
     environment:
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: jules
+      - MYSQL_DATABASE=jules_mission_control
+      - MYSQL_USER=jules
+      - MYSQL_PASSWORD=${DB_PASSWORD:-jules_pass}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-root_pass}
     volumes:
-      - postgres-data:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
-    restart: unless-stopped
+      - mysql-data:/var/lib/mysql
     networks:
-      - orchestrator-network
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U user -d jules"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-  redis:
-    image: redis:7-alpine
-    container_name: orchestrator-redis
-    volumes:
-      - redis-data:/data
-    ports:
-      - "6379:6379"
-    restart: unless-stopped
-    networks:
-      - orchestrator-network
-    command: redis-server --appendonly yes
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
-
-  prometheus:
-    image: prom/prometheus:latest
-    container_name: orchestrator-prometheus
-    volumes:
-      - ./orchestrator-api/monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
-      - prometheus-data:/prometheus
-    ports:
-      - "9090:9090"
-    restart: unless-stopped
-    networks:
-      - orchestrator-network
-    command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
-      - '--storage.tsdb.path=/prometheus'
-      - '--storage.tsdb.retention.time=15d'
-
-  grafana:
-    image: grafana/grafana:latest
-    container_name: orchestrator-grafana
-    volumes:
-      - grafana-data:/var/lib/grafana
-    ports:
-      - "3001:3000"
-    environment:
-      - GF_SECURITY_ADMIN_PASSWORD=admin
-      - GF_USERS_ALLOW_SIGN_UP=false
-    restart: unless-stopped
-    networks:
-      - orchestrator-network
-    depends_on:
-      - prometheus
+      - n8n_default
 
 networks:
-  orchestrator-network:
-    driver: bridge
+  n8n_default:
+    external: true
 
 volumes:
-  postgres-data:
-    driver: local
-  redis-data:
-    driver: local
-  prometheus-data:
-    driver: local
-  grafana-data:
-    driver: local
+  mysql-data:

@@ -1,8 +1,13 @@
-const DEFAULT_BASE = 'http://localhost:3323';
+const DEFAULT_BASE = 'https://agent.scarmonit.com';
 
 function getBaseUrl(): string {
     if (typeof window !== 'undefined') {
-        return localStorage.getItem('mc_server_url') || DEFAULT_BASE;
+        const stored = localStorage.getItem('mc_server_url');
+        if (stored && (stored.includes('localhost') || stored.includes('127.0.0.1'))) {
+            localStorage.setItem('mc_server_url', DEFAULT_BASE);
+            return DEFAULT_BASE;
+        }
+        return stored || DEFAULT_BASE;
     }
     return DEFAULT_BASE;
 }
