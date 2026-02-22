@@ -714,19 +714,6 @@
       "view_requirements": "Ver Requisitos de Desbloqueo",
       "go_to_academy": "Volver a la Academia"
     },
-    "mochila": {
-      "title": "Mochila de Dudas",
-      "subtitle": "Repasa tus errores y domina el temario",
-      "empty": "¡Enhorabuena! No tienes dudas pendientes.",
-      "empty_desc": "Has dominado todas las preguntas que has fallado anteriormente.",
-      "mastered": "¡Dominada!",
-      "reveal": "Mostrar Respuesta",
-      "next": "Siguiente Pregunta",
-      "loading": "Cargando tus dudas...",
-      "question": "Pregunta",
-      "answer": "Respuesta Correcta",
-      "explanation": "Explicación"
-    },
     "motivational_quotes": [
       "El que no sabe a qué puerto quiere navegar, nunca tiene viento a favor.",
       "Un mar tranquilo nunca hizo un navegante habilidoso.",
@@ -786,7 +773,6 @@
       "card_desc_inactive": "Accede a cursos teóricos online, exámenes oficiales y simulacros de navegación.",
       "stats_levels": "Niveles",
       "stats_certs": "Certificados",
-      "leaderboard": "Ver Ranking",
       "btn_continue": "Continuar Aprendiendo",
       "btn_start": "Empezar Ahora"
     },
@@ -963,21 +949,35 @@
     "history_temp": "Temp (ºC)",
     "history_tide": "Marea (m)"
   },
-  "leaderboard": {
-    "title": "Ranking de Alumnos",
-    "subtitle": "Compara tu progreso con otros navegantes",
-    "my_position": "Tu Posición",
-    "xp": "XP",
-    "streak": "Racha",
-    "modules": "Módulos",
-    "privacy_title": "Privacidad del Ranking",
-    "privacy_desc": "Elige si quieres aparecer en el ranking público.",
-    "public": "Público",
-    "private": "Privado (Anónimo)",
-    "anonymous_user": "Usuario Anónimo",
-    "empty_state": "Aún no hay datos suficientes para mostrar el ranking.",
-    "rank": "Posición",
-    "sailor": "Navegante",
-    "level": "Nivel"
+  "tools": {
+    "title": "Herramientas Náuticas",
+    "converter": {
+      "title": "Convertidor de Unidades",
+      "subtitle": "Herramienta de cálculo náutico rápido",
+      "speed": "Velocidad",
+      "distance": "Distancia",
+      "temperature": "Temperatura",
+      "pressure": "Presión",
+      "input": "Entrada",
+      "output": "Salida",
+      "knots": "Nudos",
+      "kmh": "km/h",
+      "ms": "m/s",
+      "feet": "Pies",
+      "meters": "Metros",
+      "nautical_miles": "Millas Náuticas",
+      "km": "Kilómetros",
+      "fathoms": "Brazas",
+      "celsius": "Celsius",
+      "fahrenheit": "Fahrenheit",
+      "hpa": "hPa",
+      "mb": "mbar",
+      "inhg": "inHg",
+      "history": "Historial Reciente",
+      "clear_history": "Borrar Historial",
+      "convert_btn": "CONVERTIR",
+      "swap": "Intercambiar",
+      "no_history": "No hay conversiones recientes"
+    }
   }
 }

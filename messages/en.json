@@ -948,20 +948,35 @@
     "history_temp": "Temp (ºC)",
     "history_tide": "Tide (m)"
   },
-  "sea_state_widget": {
-    "title": "Sea State",
-    "subtitle": "Bilbao-Vizcaya Buoy (Getxo)",
-    "wave_height": "Wave Height",
-    "period": "Period",
-    "water_temp": "Water Temp",
-    "wind_speed": "Wind",
-    "simulated": "Simulated",
-    "simulated_desc": "Estimated data by model",
-    "real_time": "Real Time",
-    "meters": "m",
-    "seconds": "s",
-    "celsius": "°C",
-    "knots": "kn",
-    "loading": "Loading..."
+  "tools": {
+    "title": "Nautical Tools",
+    "converter": {
+      "title": "Unit Converter",
+      "subtitle": "Quick nautical calculation tool",
+      "speed": "Speed",
+      "distance": "Distance",
+      "temperature": "Temperature",
+      "pressure": "Pressure",
+      "input": "Input",
+      "output": "Output",
+      "knots": "Knots",
+      "kmh": "km/h",
+      "ms": "m/s",
+      "feet": "Feet",
+      "meters": "Meters",
+      "nautical_miles": "Nautical Miles",
+      "km": "Kilometers",
+      "fathoms": "Fathoms",
+      "celsius": "Celsius",
+      "fahrenheit": "Fahrenheit",
+      "hpa": "hPa",
+      "mb": "mbar",
+      "inhg": "inHg",
+      "history": "Recent History",
+      "clear_history": "Clear History",
+      "convert_btn": "CONVERT",
+      "swap": "Swap",
+      "no_history": "No recent conversions"
+    }
   }
 }
