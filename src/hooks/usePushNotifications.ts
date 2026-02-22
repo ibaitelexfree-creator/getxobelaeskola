@@ -68,9 +68,19 @@ export const usePushNotifications = () => {
             console.log('Push Registration Token:', token.value);
             setState(prev => ({ ...prev, token: token.value }));
 
-            // Here you would typically send the token to your backend
-            // const supabase = createClient();
-            // await supabase.from('user_devices').upsert({ ... });
+            // Send the token to backend
+            const supabase = createClient();
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user) {
+                // We use onConflict ignore or update to ensure we don't duplicate
+                // But upsert with unique key (user_id, token) handles it
+                await supabase.from('user_devices').upsert({
+                    user_id: user.id,
+                    token: token.value,
+                    platform: Capacitor.getPlatform(),
+                    updated_at: new Date().toISOString()
+                }, { onConflict: 'user_id, token' });
+            }
         });
 
         // Listener for registration error

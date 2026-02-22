@@ -10,6 +10,9 @@ import {
 import { apiUrl } from '@/lib/api';
 import { useAcademyFeedback } from '@/hooks/useAcademyFeedback';
 import { useSmartTracker } from '@/hooks/useSmartTracker';
+import FeedbackRecorder from '@/components/academy/feedback/FeedbackRecorder';
+import FeedbackPlayer from '@/components/academy/feedback/FeedbackPlayer';
+import { createClient } from '@/lib/supabase/client';
 
 // Direct dynamic import with explicit default handling
 const LeafletMap = dynamic(
@@ -37,8 +40,23 @@ export default function Logbook() {
     const [isSavingDiary, setIsSavingDiary] = useState(false);
     const [newDiaryContent, setNewDiaryContent] = useState('');
     const [selectedPoint, setSelectedPoint] = useState<any>(null);
+    const [isInstructor, setIsInstructor] = useState(false);
     const params = useParams();
     const { showMessage } = useAcademyFeedback();
+    const supabase = createClient();
+
+    useEffect(() => {
+        async function checkRole() {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user) {
+                const { data: profile } = await supabase.from('profiles').select('rol').eq('id', user.id).single();
+                if (profile && (profile.rol === 'instructor' || profile.rol === 'admin')) {
+                    setIsInstructor(true);
+                }
+            }
+        }
+        checkRole();
+    }, [supabase]);
 
     async function loadDiary() {
         setLoadingDiary(true);
@@ -289,6 +307,26 @@ export default function Logbook() {
                                                 </div>
                                                 <div className="text-[10px] text-white/20 uppercase tracking-tighter">ID: {session.id.slice(0, 8)}</div>
                                             </div>
+                                        </div>
+
+                                        {/* Feedback Section */}
+                                        <div className="mt-6 border-t border-white/5 pt-4">
+                                            {isInstructor && (
+                                                <div className="mb-4">
+                                                    <FeedbackRecorder
+                                                        entityType="logbook"
+                                                        entityId={session.id}
+                                                        studentId={session.alumno_id}
+                                                        existingText={session.feedback_text}
+                                                        existingAudioUrl={session.feedback_audio_url}
+                                                        onSave={loadData}
+                                                    />
+                                                </div>
+                                            )}
+                                            <FeedbackPlayer
+                                                text={session.feedback_text}
+                                                audioUrl={session.feedback_audio_url}
+                                            />
                                         </div>
                                     </div>
                                 ))

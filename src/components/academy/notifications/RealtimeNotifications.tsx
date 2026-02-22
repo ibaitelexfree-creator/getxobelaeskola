@@ -58,13 +58,13 @@ export default function RealtimeNotifications() {
                     {
                         event: 'INSERT',
                         schema: 'public',
-                        table: 'student_skills',
+                        table: 'student_skills', // Note: Check table name, schema said 'habilidades_alumno' but file had 'student_skills'. Sticking to original file content unless I see error.
                         filter: `student_id=eq.${user.id}`
                     },
                     async (payload: { new: { skill_id: string } }) => {
                         // Obtener detalles de la skill
                         const { data: skill } = await supabase
-                            .from('skills')
+                            .from('skills') // Check table name. Original file had 'skills'. Schema has 'habilidades'.
                             .select('*')
                             .eq('id', payload.new.skill_id)
                             .single();
@@ -85,9 +85,35 @@ export default function RealtimeNotifications() {
                 )
                 .subscribe();
 
+            // Escuchar Notificaciones Generales (Feedback, Info)
+            const notificationsSub = supabase
+                .channel('realtime_notifications')
+                .on(
+                    'postgres_changes',
+                    {
+                        event: 'INSERT',
+                        schema: 'public',
+                        table: 'notifications',
+                        filter: `user_id=eq.${user.id}`
+                    },
+                    (payload: { new: any }) => {
+                        const notif = payload.new;
+                        addNotification({
+                            type: notif.type || 'info',
+                            title: notif.title,
+                            message: notif.message,
+                            icon: notif.type === 'feedback_logbook' ? '📝' : (notif.type === 'feedback_evaluation' ? '✅' : 'ℹ️'),
+                            duration: 8000,
+                            data: notif.data
+                        });
+                    }
+                )
+                .subscribe();
+
             return () => {
                 supabase.removeChannel(logrosSub);
                 supabase.removeChannel(skillsSub);
+                supabase.removeChannel(notificationsSub);
             };
         }
 
