@@ -858,6 +858,39 @@
       "restart_btn": "VOLVER A JUGAR"
     }
   },
+  "tools": {
+    "title": "Calculadora Náutica",
+    "coordinates": {
+      "title": "Conversor de Coordenadas",
+      "dms": "Grados, Minutos, Segundos",
+      "decimal": "Decimal",
+      "lat": "Latitud",
+      "lon": "Longitud",
+      "convert_to_decimal": "A Decimal ↓",
+      "convert_to_dms": "A GMS ↑",
+      "deg": "Grados",
+      "min": "Minutos",
+      "sec": "Segundos"
+    },
+    "route": {
+      "title": "Cálculo de Ruta",
+      "point_a": "Punto de Partida (A)",
+      "point_b": "Punto de Llegada (B)",
+      "speed": "Velocidad (Nudos)",
+      "declination": "Declinación Magnética",
+      "east": "Este (+)",
+      "west": "Oeste (-)",
+      "calculate": "Calcular Rumbo y Distancia",
+      "results": "Resultados de Navegación",
+      "distance": "Distancia",
+      "true_bearing": "Rumbo Verdadero",
+      "magnetic_bearing": "Rumbo Magnético",
+      "eta": "Tiempo Estimado (ETA)",
+      "days": "d",
+      "hours": "h",
+      "minutes": "min"
+    }
+  },
   "validation": {
     "name_short": "Nombre demasiado corto",
     "last_name_short": "Apellidos demasiado cortos",
