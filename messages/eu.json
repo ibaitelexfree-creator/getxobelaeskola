@@ -839,6 +839,9 @@
       "already_done": "Dagoeneko osatu duzu gaurko erronka.",
       "come_back": "Itzuli bihar puntuak batzen jarraitzeko.",
       "explanation": "Bazekien..."
+    },
+    "micro_lessons": {
+      "title": "[TODO: EU] Micro-Lecciones"
     }
   },
   "wind_lab": {
