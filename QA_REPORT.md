@@ -42,9 +42,16 @@
 ```
 - **Notes**: Tested simulation mode successfully. The API correctly identifies the absence of the Resend API key and enters simulation mode, logging the transmission details to the server console.
 
+### 5. Agent Integration Verification
+- **Tool**: `call_hello_world_agent`
+- **Result**: ❌ FAIL
+- **Error**: `Agency agent call failed: Error exchanging credentials (12, 'RPC error... aida-tandem-server is not an individual human user...')`
+- **Notes**: The environment lacks the necessary permissions/credentials to dispatch tasks to the Hello World Agency agent. This indicates that agent-to-agent communication is currently disabled or misconfigured in this sandbox environment.
+
 ## Recommendations
 - Ensure `RESEND_API_KEY` is configured in production.
 - Consider moving the catch-all `notFound` trigger to the core routing logic permanently to avoid future 404 regressions.
+- Verify service account permissions for agent integration if this feature is required.
 
 ---
 *QA Engineer: Antigravity AI*
