@@ -1,5 +1,5 @@
 # Estado Global del Proyecto
-Última actualización: 2026-02-20 22:25 UTC
+Última actualización: 2026-02-21 11:30 UTC
 
 ## Ramas Activas
 | Rama | Agente | Estado | Descripción |
@@ -10,7 +10,8 @@
 | ID | Agente | Tarea | Inicio | Estado |
 |----|--------|-------|--------|--------|
 | T-003 | ClawdBot | Fix carousel navbar overlap | 2026-02-20 | en_curso |
-| T-004 | Jules | Missing edge case test for document type auto-detection | 2026-02-20 | finalizado |
+| T-004 | Jules | Move ScrollToTop button up | 2026-02-20 | completado |
+| T-005 | Jules | Implement Kiosk Mode (/academy/kiosko) | 2026-02-21 | completado |
 
 ## Bloqueos / Conflictos
 Ninguno actualmente.
