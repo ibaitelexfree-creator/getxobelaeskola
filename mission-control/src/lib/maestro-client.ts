@@ -3,11 +3,16 @@
  * Each method maps to a Telegram command from maestro.js
  */
 
-const DEFAULT_MAESTRO = 'http://localhost:3323';
+const DEFAULT_MAESTRO = 'https://agent.scarmonit.com';
 
 function getMaestroUrl(): string {
     if (typeof window !== 'undefined') {
-        return localStorage.getItem('mc_server_url') || DEFAULT_MAESTRO;
+        const stored = localStorage.getItem('mc_server_url');
+        if (stored && (stored.includes('localhost') || stored.includes('127.0.0.1'))) {
+            localStorage.setItem('mc_server_url', DEFAULT_MAESTRO);
+            return DEFAULT_MAESTRO;
+        }
+        return stored || DEFAULT_MAESTRO;
     }
     return DEFAULT_MAESTRO;
 }
