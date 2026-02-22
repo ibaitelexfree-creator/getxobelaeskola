@@ -9,7 +9,8 @@
     "start": "next start",
     "lint": "next lint",
     "vuela": "powershell.exe -ExecutionPolicy Bypass -File scripts/vuela.ps1",
-    "fetch-water": "node scripts/prepare_water_data.js"
+    "fetch-water": "node scripts/prepare_water_data.js",
+    "debate:security": "tsx scripts/security-debate.ts"
   },
   "dependencies": {
     "@capacitor/android": "^8.1.0",
@@ -67,6 +68,7 @@
   },
   "devDependencies": {
     "@capacitor/assets": "^3.0.5",
+    "@google/generative-ai": "^0.24.1",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "@types/leaflet": "^1.9.21",
@@ -75,9 +77,11 @@
     "@types/react": "^18.3.28",
     "@types/react-dom": "^18",
     "@vitejs/plugin-react": "^5.1.4",
+    "chalk": "^4.1.2",
     "eslint": "^8",
     "eslint-config-next": "14.2.16",
     "jsdom": "^28.1.0",
+    "tsx": "^4.21.0",
     "typescript": "^5.9.3",
     "vitest": "^4.0.18"
   },
