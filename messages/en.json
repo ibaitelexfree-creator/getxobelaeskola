@@ -947,5 +947,36 @@
     "history_direction": "Direction",
     "history_temp": "Temp (ºC)",
     "history_tide": "Tide (m)"
+  },
+  "tools": {
+    "title": "Nautical Tools",
+    "converter": {
+      "title": "Unit Converter",
+      "subtitle": "Quick nautical calculation tool",
+      "speed": "Speed",
+      "distance": "Distance",
+      "temperature": "Temperature",
+      "pressure": "Pressure",
+      "input": "Input",
+      "output": "Output",
+      "knots": "Knots",
+      "kmh": "km/h",
+      "ms": "m/s",
+      "feet": "Feet",
+      "meters": "Meters",
+      "nautical_miles": "Nautical Miles",
+      "km": "Kilometers",
+      "fathoms": "Fathoms",
+      "celsius": "Celsius",
+      "fahrenheit": "Fahrenheit",
+      "hpa": "hPa",
+      "mb": "mbar",
+      "inhg": "inHg",
+      "history": "Recent History",
+      "clear_history": "Clear History",
+      "convert_btn": "CONVERT",
+      "swap": "Swap",
+      "no_history": "No recent conversions"
+    }
   }
 }
