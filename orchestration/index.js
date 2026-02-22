@@ -1194,6 +1194,14 @@ app.get('/mcp/tools', cacheMiddleware, (req, res) => {
       { name: 'project_memory_write', description: 'Overwrite a shared project memory file', parameters: { file: { type: 'string', required: true }, content: { type: 'string', required: true } } },
       { name: 'project_memory_append', description: 'Append a line to a shared project memory file', parameters: { file: { type: 'string', required: true }, entry: { type: 'string', required: true } } },
       { name: 'project_memory_context', description: 'Read GLOBAL_STATE + TECHNICAL_CONTEXT for quick context', parameters: {} },
+      // NEW: Autonomous Semantic Search
+      {
+        name: 'search_nautical_knowledge',
+        description: 'Search the academy internal vector memory (Qdrant) for official rules, nautical concepts, coding patterns, and business logic.',
+        parameters: {
+          query: { type: 'string', required: true, description: 'The exact question or topic you want to search for in the academy brain.' }
+        }
+      },
       // v2.9.0: Antigravity Delegation
       {
         name: 'jules_request_verification',

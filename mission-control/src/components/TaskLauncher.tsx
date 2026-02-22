@@ -2,79 +2,86 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Zap, Bot, Shuffle, ChevronDown } from 'lucide-react';
-import { Haptics, ImpactStyle } from '@capacitor/haptics';
+import { Send, Zap, Bot, Shuffle, ChevronDown, MessagesSquare, Shield, Palette, CheckCircle } from 'lucide-react';
 import { useMissionStore } from '@/store/useMissionStore';
-import { sendTask, approve, reject } from '@/lib/maestro-client';
-import { useTranslation } from 'react-i18next';
+import { sendTask, approve, reject, sendQuestion } from '@/lib/maestro-client';
 
 type ExecutionMode = 'cascade' | 'flash' | 'clawdbot';
 
-const getModeConfig = (t: any): Record<ExecutionMode, { icon: React.ReactNode; label: string; color: string; desc: string }> => ({
-    cascade: { icon: <Shuffle size={16} />, label: t('tasks.modes.cascade.label'), color: 'text-buoy-orange', desc: t('tasks.modes.cascade.desc') },
-    flash: { icon: <Zap size={16} />, label: t('tasks.modes.flash.label'), color: 'text-status-amber', desc: t('tasks.modes.flash.desc') },
-    clawdbot: { icon: <Bot size={16} />, label: t('tasks.modes.clawdbot.label'), color: 'text-status-blue', desc: t('tasks.modes.clawdbot.desc') },
-});
+const modeConfig: Record<ExecutionMode, { icon: React.ReactNode; label: string; color: string; desc: string }> = {
+    cascade: { icon: <Shuffle size={16} />, label: 'Cascade', color: 'text-buoy-orange', desc: 'Jules → Flash → ClawdBot' },
+    flash: { icon: <Zap size={16} />, label: 'Flash Only', color: 'text-status-amber', desc: 'Gemini Flash direct' },
+    clawdbot: { icon: <Bot size={16} />, label: 'ClawdBot', color: 'text-status-blue', desc: 'Direct bypass' },
+};
 
 export default function TaskLauncher() {
-    const { taskDraft, setTaskDraft, pendingApproval, setPendingApproval, addToHistory, serverUrl } = useMissionStore();
-    const { t } = useTranslation();
-    const modeConfig = getModeConfig(t);
+    const [description, setDescription] = useState('');
     const [mode, setMode] = useState<ExecutionMode>('cascade');
     const [sending, setSending] = useState(false);
     const [showModes, setShowModes] = useState(false);
-    const [status, setStatus] = useState<{ type: 'error' | 'success', msg: string } | null>(null);
+    const [question, setQuestion] = useState('');
+    const [selectedJules, setSelectedJules] = useState<'1' | '2' | '3'>('1');
+    const [asking, setAsking] = useState(false);
+    const { pendingApproval, setPendingApproval, addToHistory } = useMissionStore();
 
     const handleSubmit = async () => {
-        if (!taskDraft.trim() || sending) return;
+        if (!description.trim() || sending) return;
         setSending(true);
-        setStatus(null);
 
         try {
-            await sendTask(taskDraft.trim(), mode);
-            Haptics.impact({ style: ImpactStyle.Medium }).catch(() => { });
-
+            await sendTask(description.trim(), mode);
             addToHistory({
                 id: `t_${Date.now()}`,
-                title: taskDraft.trim(),
+                title: description.trim(),
                 executor: mode === 'cascade' ? 'jules' : mode,
                 status: 'running',
                 timestamp: Date.now(),
             });
-
-            setTaskDraft('');
-            setStatus({ type: 'success', msg: t('tasks.status.success') });
-            setTimeout(() => setStatus(null), 3000);
-        } catch (err: any) {
+            setDescription('');
+        } catch (err) {
             console.error('Task send failed:', err);
-            setStatus({ type: 'error', msg: `Failed: ${err.message || 'Unknown error'}` });
-            // Alert user for visibility in APK
-            alert(`Error: ${err.message}\nCheck URL: ${serverUrl}`);
         } finally {
             setSending(false);
         }
     };
 
     const handleApprove = async () => {
-        Haptics.impact({ style: ImpactStyle.Light }).catch(() => { });
         await approve();
         setPendingApproval(null);
     };
 
     const handleReject = async () => {
-        Haptics.impact({ style: ImpactStyle.Medium }).catch(() => { });
         await reject();
         setPendingApproval(null);
     };
 
+    const handleAsk = async () => {
+        if (!question.trim() || asking) return;
+        setAsking(true);
+        try {
+            await sendQuestion(question.trim(), selectedJules);
+            setQuestion('');
+        } catch (err) {
+            console.error('Question send failed:', err);
+        } finally {
+            setAsking(false);
+        }
+    };
+
     const currentMode = modeConfig[mode];
+
+    const julesConfig = {
+        '1': { label: 'Jules 1', role: 'Architect', icon: <Shield size={14} />, color: 'text-status-green' },
+        '2': { label: 'Jules 2', role: 'Product', icon: <Palette size={14} />, color: 'text-status-blue' },
+        '3': { label: 'Jules 3', role: 'QA', icon: <CheckCircle size={14} />, color: 'text-status-amber' },
+    };
 
     return (
         <div className="flex flex-col gap-4">
             {/* Header */}
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                <h2 className="text-lg font-display text-glimmer">{t('tasks.title')}</h2>
-                <p className="text-2xs text-white/30 mt-1">{t('tasks.subtitle')}</p>
+                <h2 className="text-lg font-display text-glimmer">Launch Task</h2>
+                <p className="text-2xs text-white/30 mt-1">Send tasks to the orchestration cascade</p>
             </motion.div>
 
             {/* Task Input */}
@@ -85,9 +92,9 @@ export default function TaskLauncher() {
                 className="glass-panel rounded-2xl p-4"
             >
                 <textarea
-                    value={taskDraft}
-                    onChange={(e) => setTaskDraft(e.target.value)}
-                    placeholder={t('tasks.placeholder')}
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    placeholder="Describe the task..."
                     rows={4}
                     className="w-full bg-transparent text-sm text-white/90 placeholder:text-white/20 resize-none outline-none font-sans"
                 />
@@ -133,34 +140,82 @@ export default function TaskLauncher() {
                 <motion.button
                     whileTap={{ scale: 0.97 }}
                     onClick={handleSubmit}
-                    disabled={!taskDraft.trim() || sending}
+                    disabled={!description.trim() || sending}
                     className={`mt-4 w-full btn-primary rounded-xl py-3 flex items-center justify-center gap-2 ${sending ? 'opacity-50' : ''
-                        } ${!taskDraft.trim() ? 'opacity-30 cursor-not-allowed' : ''}`}
+                        } ${!description.trim() ? 'opacity-30 cursor-not-allowed' : ''}`}
                 >
                     {sending ? (
                         <div className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" />
                     ) : (
                         <Send size={14} />
                     )}
-                    <span>{sending ? t('common.sending') : t('tasks.btn_launch')}</span>
+                    <span>{sending ? 'Sending...' : 'Launch Task'}</span>
                 </motion.button>
+            </motion.div>
 
-                {/* Status Message */}
-                <AnimatePresence>
-                    {status && (
-                        <motion.div
-                            initial={{ opacity: 0, y: -10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0 }}
-                            className={`mt-3 p-2 rounded-lg text-[10px] font-mono text-center border ${status.type === 'success'
-                                ? 'bg-status-green/10 border-status-green/20 text-status-green'
-                                : 'bg-status-red/10 border-status-red/20 text-status-red'
+            {/* Direct Question Section */}
+            <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className="glass-panel rounded-2xl p-4 mt-2"
+            >
+                <div className="flex items-center gap-2 mb-4">
+                    <div className="w-8 h-8 rounded-lg bg-buoy-orange/10 flex items-center justify-center">
+                        <MessagesSquare size={16} className="text-buoy-orange" />
+                    </div>
+                    <div>
+                        <h3 className="text-sm font-display text-white/90">Preguntar a Jules</h3>
+                        <p className="text-2xs text-white/30 font-mono uppercase tracking-wider">Direct Consultation</p>
+                    </div>
+                </div>
+
+                {/* Jules Selector */}
+                <div className="flex gap-2 mb-4 p-1 bg-white/5 rounded-xl">
+                    {(['1', '2', '3'] as const).map((id) => (
+                        <button
+                            key={id}
+                            onClick={() => setSelectedJules(id)}
+                            className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-2xs font-mono transition-all ${selectedJules === id
+                                ? 'bg-white/10 text-white shadow-lg shadow-black/20'
+                                : 'text-white/30 hover:text-white/50'
                                 }`}
                         >
-                            {status.msg}
-                        </motion.div>
-                    )}
-                </AnimatePresence>
+                            <span className={selectedJules === id ? julesConfig[id].color : ''}>
+                                {julesConfig[id].icon}
+                            </span>
+                            <span>{julesConfig[id].label}</span>
+                        </button>
+                    ))}
+                </div>
+
+                <div className="relative">
+                    <textarea
+                        value={question}
+                        onChange={(e) => setQuestion(e.target.value)}
+                        placeholder={`Haz una pregunta al ${julesConfig[selectedJules].role}...`}
+                        rows={3}
+                        className="w-full bg-white/3 rounded-xl p-3 text-sm text-white/90 placeholder:text-white/20 resize-none outline-none border border-white/5 focus:border-white/10 transition-colors"
+                    />
+
+                    <button
+                        onClick={handleAsk}
+                        disabled={!question.trim() || asking}
+                        className={`absolute bottom-3 right-3 p-2 rounded-lg bg-buoy-orange text-black transition-all ${
+                            !question.trim() || asking ? 'opacity-30 cursor-not-allowed scale-90' : 'hover:scale-105 active:scale-95 shadow-lg shadow-buoy-orange/20'
+                        }`}
+                    >
+                        {asking ? (
+                            <div className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" />
+                        ) : (
+                            <Send size={14} />
+                        )}
+                    </button>
+                </div>
+
+                <p className="text-[10px] text-white/20 mt-3 text-center italic">
+                    Las preguntas se envían al Hub Central de Telegram
+                </p>
             </motion.div>
 
             {/* Pending Approval */}
@@ -174,7 +229,7 @@ export default function TaskLauncher() {
                     <div className="flex items-center gap-2 mb-3">
                         <span className="status-dot status-dot-amber" />
                         <span className="text-xs font-mono uppercase tracking-widest text-status-amber">
-                            {t('tasks.approval.title')}
+                            ClawdBot Approval
                         </span>
                     </div>
                     <p className="text-sm text-white/80 mb-2">{pendingApproval.task}</p>
@@ -185,14 +240,14 @@ export default function TaskLauncher() {
                             onClick={handleApprove}
                             className="btn-primary flex-1 py-2.5 text-xs rounded-xl"
                         >
-                            ✅ {t('tasks.approval.btn_approve')}
+                            ✅ Approve
                         </motion.button>
                         <motion.button
                             whileTap={{ scale: 0.95 }}
                             onClick={handleReject}
                             className="btn-glass flex-1 py-2.5 text-xs rounded-xl"
                         >
-                            ❌ {t('tasks.approval.btn_reject')}
+                            ❌ Reject
                         </motion.button>
                     </div>
                 </motion.div>
