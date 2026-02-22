@@ -949,35 +949,16 @@
     "history_temp": "Temp (ºC)",
     "history_tide": "Marea (m)"
   },
-  "tools": {
-    "title": "Herramientas Náuticas",
-    "converter": {
-      "title": "Convertidor de Unidades",
-      "subtitle": "Herramienta de cálculo náutico rápido",
-      "speed": "Velocidad",
-      "distance": "Distancia",
-      "temperature": "Temperatura",
-      "pressure": "Presión",
-      "input": "Entrada",
-      "output": "Salida",
-      "knots": "Nudos",
-      "kmh": "km/h",
-      "ms": "m/s",
-      "feet": "Pies",
-      "meters": "Metros",
-      "nautical_miles": "Millas Náuticas",
-      "km": "Kilómetros",
-      "fathoms": "Brazas",
-      "celsius": "Celsius",
-      "fahrenheit": "Fahrenheit",
-      "hpa": "hPa",
-      "mb": "mbar",
-      "inhg": "inHg",
-      "history": "Historial Reciente",
-      "clear_history": "Borrar Historial",
-      "convert_btn": "CONVERTIR",
-      "swap": "Intercambiar",
-      "no_history": "No hay conversiones recientes"
-    }
+  "glossary": {
+    "title": "Glosario Náutico",
+    "subtitle": "Diccionario completo de términos náuticos, maniobras y partes del barco.",
+    "description": "Domina el lenguaje del mar. Encuentra definiciones precisas de maniobras, partes del barco, meteorología y reglamento.",
+    "search_placeholder": "Buscar término (ej: babor, virada, barómetro...)",
+    "all": "Todos",
+    "view_in_module": "Ver en el módulo",
+    "no_results": "No se encontraron términos",
+    "no_results_desc": "Intenta con otra búsqueda o cambia los filtros.",
+    "clear_filters": "Limpiar filtros",
+    "showing_results": "Mostrando {count} de {total} términos náuticos"
   }
 }

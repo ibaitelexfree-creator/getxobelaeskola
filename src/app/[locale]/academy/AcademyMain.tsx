@@ -6,7 +6,7 @@ import { useTranslations } from 'next-intl';
 import { useAcademyData } from '@/hooks/useAcademyData';
 import { useNotificationStore } from '@/lib/store/useNotificationStore';
 import AcademySkeleton from '@/components/academy/AcademySkeleton';
-import { Compass, Book, Ship, Anchor, Globe, Shield, Wind, ChevronRight, AlertCircle } from 'lucide-react';
+import { Compass, Book, Ship, Anchor, Globe, Shield, Wind, ChevronRight, AlertCircle, BookOpen } from 'lucide-react';
 import StaggeredEntrance from '@/components/shared/StaggeredEntrance';
 
 export default function AcademyMain({ params }: { params: { locale: string } }) {
@@ -58,20 +58,20 @@ export default function AcademyMain({ params }: { params: { locale: string } }) 
             href: `/${locale}/academy/tools/wind-lab`
         },
         {
-            id: 'wind-station',
-            label: 'Estación IoT',
-            desc: 'Viento en tiempo real',
-            icon: <Wind className="w-6 h-6" />,
-            color: 'bg-purple-500/10 text-purple-400',
-            href: `/${locale}/academy/tools/wind-station`
-        },
-        {
             id: 'skills',
             label: 'Seguridad',
             desc: 'Habilidades técnicas esenciales',
             icon: <Shield className="w-6 h-6" />,
             color: 'bg-red-500/10 text-red-400',
             href: `/${locale}/academy/skills`
+        },
+        {
+            id: 'glossary',
+            label: 'Glosario',
+            desc: 'Diccionario de términos náuticos',
+            icon: <BookOpen className="w-6 h-6" />,
+            color: 'bg-purple-500/10 text-purple-400',
+            href: `/${locale}/academy/glossary`
         }
     ];
 
