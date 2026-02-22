@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
-import { ElPilotoChat } from '@/components/academy/chatbot/ElPilotoChat';
+import Chatbot from '@/components/academy/Chatbot';
 
 export default function AcademyLayout({
     children,
@@ -14,7 +14,7 @@ export default function AcademyLayout({
     return (
         <div className="min-h-screen bg-nautical-black relative">
             {children}
-            <ElPilotoChat />
+            <Chatbot />
         </div>
     );
 }
