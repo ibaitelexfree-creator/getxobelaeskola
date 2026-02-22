@@ -12,6 +12,7 @@ import BottomNav from '@/components/BottomNav';
 import VisualRelay from '@/components/VisualRelay';
 import Settings from '@/components/Settings';
 import AtmosphericHUD from '@/components/AtmosphericHUD';
+import JulesUrgentBanner from '@/components/JulesUrgentBanner';
 import { Camera, Settings as SettingsIcon, X, Activity } from 'lucide-react';
 
 const views: Record<string, React.ComponentType<any>> = {
@@ -92,6 +93,8 @@ export default function MissionControlPage() {
                     </button>
                 </div>
             </header>
+
+            <JulesUrgentBanner />
 
             {/* Content Area */}
             <div className="px-4 pt-4 pb-32 custom-scrollbar">

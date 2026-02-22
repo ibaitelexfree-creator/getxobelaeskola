@@ -116,6 +116,10 @@ export interface ResourceStatus {
         used?: number;
         limit?: number;
     }>;
+    hardware: {
+        cpu: { load: number; temp: number };
+        gpu: { temp: number; hotspot: number; name: string };
+    };
 }
 
 export const getResourceStatus = () => request<ResourceStatus>('GET', '/api/resources/status');
@@ -143,9 +147,19 @@ export const processQueue = () => executeTool('jules_process_queue');
 
 // ─── Cache ───
 
+export interface Screenshot {
+    id: string;
+    url: string;
+    timestamp: number;
+    label: string;
+}
+
 export const getCacheStats = () => executeTool('jules_cache_stats');
 export const clearCache = () => executeTool('jules_clear_cache');
 
+export const getJulesBlockedStatus = () => request<{ blocked: boolean; sessions: any[] }>('GET', '/api/jules/blocked');
+
 export const getLivePreviewConfig = () => request<{ url: string; source: string; password?: string }>('GET', '/api/config/live-preview');
+export const getVisualHistory = () => request<{ screenshots: Screenshot[] }>('GET', '/api/visual/history');
 
 export { getBaseUrl, DEFAULT_BASE };

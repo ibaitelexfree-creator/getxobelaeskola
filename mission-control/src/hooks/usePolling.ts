@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useCallback } from 'react';
 import { useMissionStore } from '@/store/useMissionStore';
-import { getHealth, getWatchdogStatus, getActiveSessions, getResourceStatus, getQueue, getLivePreviewConfig } from '@/lib/api';
+import { getHealth, getWatchdogStatus, getActiveSessions, getResourceStatus, getQueue, getLivePreviewConfig, getJulesBlockedStatus } from '@/lib/api';
 
 
 export function usePolling() {
@@ -16,25 +16,31 @@ export function usePolling() {
         updateActiveThreads,
         updatePower,
         setLivePreviewUrl,
-        livePreviewUrl
+        livePreviewUrl,
+        updateJulesWaiting
     } = useMissionStore();
 
 
     const poll = useCallback(async () => {
         try {
-            const [health, watchdog, sessions, resources, queueData, liveConfig] = await Promise.all([
+            const [health, watchdog, sessions, resources, queueData, liveConfig, julesBlocked] = await Promise.all([
                 getHealth().catch(() => null),
                 getWatchdogStatus().catch(() => null),
                 getActiveSessions().catch(() => null),
                 getResourceStatus().catch(() => null),
                 getQueue().catch(() => null),
                 getLivePreviewConfig().catch(() => null),
+                getJulesBlockedStatus().catch(() => null),
             ]);
 
 
             if (health) {
                 setConnected(true);
                 setLastSync(Date.now());
+
+                if (julesBlocked) {
+                    updateJulesWaiting(julesBlocked.blocked, julesBlocked.sessions || []);
+                }
 
                 const svc = health.services || {};
                 updateServices({
@@ -129,6 +135,9 @@ export function usePolling() {
                     lastActivity: resources.lastActivity,
                     services: resources.services,
                 });
+                if (resources.hardware) {
+                    useMissionStore.getState().updateHardware(resources.hardware);
+                }
             }
 
         } catch {

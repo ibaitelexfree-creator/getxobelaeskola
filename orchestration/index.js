@@ -210,8 +210,8 @@ app.use(express.json({
 const circuitBreaker = {
   failures: 0,
   lastFailure: null,
-  threshold: 5,        // Trip after 5 consecutive failures
-  resetTimeout: 60000, // Reset after 1 minute
+  threshold: 20,       // Trip after 20 consecutive failures (increased for bulk batch support)
+  resetTimeout: 30000, // Reset after 30 seconds
   isOpen() {
     if (this.failures >= this.threshold) {
       const timeSinceFailure = Date.now() - this.lastFailure;
@@ -424,6 +424,32 @@ app.get('/api/sessions/stats', cacheMiddleware, async (req, res) => {
     }
     const stats = await sessionMonitor.getStats();
     res.json(stats);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Check if any Jules sessions are blocked/waiting for input
+app.get('/api/jules/blocked', cacheMiddleware, async (req, res) => {
+  try {
+    if (!sessionMonitor) {
+      return res.status(503).json({ error: 'Monitor not initialized' });
+    }
+    const sessions = await sessionMonitor.getActiveSessions();
+    const blocked = (sessions || []).filter(s =>
+      s.state === 'WAITING_FOR_USER_INPUT' ||
+      s.state === 'STATE_PENDING_PLAN_APPROVAL'
+    );
+    res.json({
+      blocked: blocked.length > 0,
+      count: blocked.length,
+      sessions: blocked.map(s => ({
+        id: s.name?.split('/')?.pop() || s.id,
+        title: s.title || 'Untitled Session',
+        state: s.state,
+        url: s.url
+      }))
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -728,6 +754,105 @@ app.get('/api/config/live-preview', async (req, res) => {
   }
 });
 
+// Visual Relay History & Storage
+const SCREENSHOTS_DIR = path.join(process.cwd(), 'storage', 'screenshots');
+if (!fs.existsSync(SCREENSHOTS_DIR)) fs.mkdirSync(SCREENSHOTS_DIR, { recursive: true });
+
+app.use('/storage/screenshots', express.static(SCREENSHOTS_DIR));
+
+app.get('/api/visual/history', (req, res) => {
+  try {
+    if (!fs.existsSync(SCREENSHOTS_DIR)) return res.json({ screenshots: [] });
+
+    const files = fs.readdirSync(SCREENSHOTS_DIR)
+      .filter(f => f.endsWith('.png'))
+      .map(f => {
+        const stats = fs.statSync(path.join(SCREENSHOTS_DIR, f));
+        return {
+          id: f,
+          url: `/api/visual/screenshot/${f}`, // Using proxy endpoint for more control if needed
+          timestamp: stats.mtimeMs,
+          label: `Captura ${new Date(stats.mtimeMs).toLocaleDateString()}`
+        };
+      })
+      .sort((a, b) => b.timestamp - a.timestamp)
+      .slice(0, 20); // Limit to last 20
+
+    res.json({ screenshots: files });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Proxy route for screenshots to ensure correct base URL
+app.get('/api/visual/screenshot/:filename', (req, res) => {
+  const file = path.join(SCREENSHOTS_DIR, req.params.filename);
+  if (fs.existsSync(file)) {
+    res.sendFile(file);
+  } else {
+    res.status(404).end();
+  }
+});
+
+
+// ============ TASK MANAGEMENT ============
+
+// List all tasks (pending + completed)
+app.get('/api/tasks', async (req, res) => {
+  try {
+    const allTasks = dbTasks.getAll();
+    res.json(allTasks);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Update a task (edit)
+app.patch('/api/tasks/:id', express.json(), async (req, res) => {
+  try {
+    const { id } = req.params;
+    dbTasks.updateTask(id, req.body);
+    await syncTasksToMarkdown();
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Delete a task
+app.delete('/api/tasks/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    dbTasks.deleteTask(id);
+    await syncTasksToMarkdown();
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Approve a pending task
+app.post('/api/tasks/:id/approve', async (req, res) => {
+  try {
+    const { id } = req.params;
+    dbTasks.approveTask(id);
+    await syncTasksToMarkdown();
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Clear deprecated (non-ACA/AGA) tasks
+app.post('/api/tasks/clear-deprecated', async (req, res) => {
+  try {
+    dbTasks.clearDeprecated();
+    await syncTasksToMarkdown();
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
 
 // ============ MCP TOOLS ============
 
@@ -1048,15 +1173,19 @@ function initializeToolRegistry() {
   // v2.5.0: Session Queue
   toolRegistry.set('jules_queue_session', async (p) => {
     const id = `T-${Date.now().toString(36).toUpperCase()}`;
+    const requiresApproval = p.requiresApproval !== undefined ? p.requiresApproval : true;
+
     dbTasks.add({
       id,
       title: p.config.title || p.config.prompt.substring(0, 100),
       executor: p.config.executor || 'jules',
-      status: 'pending',
-      priority: p.priority || 3
+      status: requiresApproval ? 'pending_approval' : 'pending',
+      priority: p.priority || 3,
+      requires_approval: requiresApproval ? 1 : 0,
+      source: p.source || 'mcp'
     });
     await syncTasksToMarkdown();
-    return { success: true, id };
+    return { success: true, id, requiresApproval };
   });
 
   toolRegistry.set('jules_get_queue', async () => {
@@ -1083,14 +1212,15 @@ function initializeToolRegistry() {
     const history = dbTasks.getCompleted();
 
     return {
-      queue: pending.map(t => ({
+      queue: pending.map((t, idx) => ({
         id: t.external_id,
         title: t.title,
         priority: t.priority,
         executor: t.executor,
         status: t.status,
         createdAt: new Date(t.created_at).getTime(),
-        position: 0
+        position: idx + 1,
+        requiresApproval: !!t.requires_approval
       })),
       history: history.map(t => ({
         id: t.external_id,
@@ -1100,12 +1230,34 @@ function initializeToolRegistry() {
         result: t.result,
         timestamp: new Date(t.updated_at).getTime()
       })),
-      stats: sessionQueue.stats()
+      stats: sessionQueue.list().length // Using dbTasks stats would be better but keeping consistency
     };
   });
   toolRegistry.set('jules_process_queue', () => processQueue());
   toolRegistry.set('jules_clear_queue', async () => {
     dbTasks.clear();
+    await syncTasksToMarkdown();
+    return { success: true };
+  });
+
+  // Task Management Tools (for APK/Dashboard via MCP)
+  toolRegistry.set('jules_update_task', async (p) => {
+    dbTasks.updateTask(p.id, p.updates);
+    await syncTasksToMarkdown();
+    return { success: true };
+  });
+  toolRegistry.set('jules_delete_task', async (p) => {
+    dbTasks.deleteTask(p.id);
+    await syncTasksToMarkdown();
+    return { success: true };
+  });
+  toolRegistry.set('jules_approve_task', async (p) => {
+    dbTasks.approveTask(p.id);
+    await syncTasksToMarkdown();
+    return { success: true };
+  });
+  toolRegistry.set('jules_clear_deprecated', async () => {
+    dbTasks.clearDeprecated();
     await syncTasksToMarkdown();
     return { success: true };
   });
@@ -1375,9 +1527,11 @@ async function createJulesSession(config) {
   if (config.title) {
     sessionData.title = config.title;
   }
-  if (config.requirePlanApproval !== undefined) {
-    sessionData.requirePlanApproval = config.requirePlanApproval;
-  }
+
+  // Default to auto-approve if JULES_AUTO_APPROVE is true (Autonomous Mode)
+  const globalAutoApprove = process.env.JULES_AUTO_APPROVE === 'true';
+  sessionData.requirePlanApproval = config.requirePlanApproval !== undefined ? config.requirePlanApproval : !globalAutoApprove;
+
   if (config.automationMode) {
     sessionData.automationMode = config.automationMode;
   }
@@ -1442,7 +1596,7 @@ async function syncTasksToMarkdown() {
 
 // Create session from GitHub issue
 async function createSessionFromIssue(params) {
-  const { owner, repo, issueNumber, autoApprove = false, automationMode = 'AUTO_CREATE_PR' } = params;
+  const { owner, repo, issueNumber, autoApprove = true, automationMode = 'AUTO_CREATE_PR' } = params;
 
   console.log(`[GitHub] Fetching issue #${issueNumber} from ${owner}/${repo}`);
 
@@ -1483,7 +1637,7 @@ async function createSessionFromIssue(params) {
 
 // Create sessions from all issues with a label
 async function createSessionsFromLabel(params) {
-  const { owner, repo, label, autoApprove = false, parallel = 3 } = params;
+  const { owner, repo, label, autoApprove = true, parallel = 3 } = params;
 
   console.log(`[GitHub] Fetching issues with label "${label}" from ${owner}/${repo}`);
 
@@ -1927,41 +2081,60 @@ const server = app.listen(PORT, '0.0.0.0', () => {
         return;
       }
 
-      console.log(`[AutoDispatch] Found ${pending.length} pending Jules task(s) — dispatching...`);
+      console.log(`[AutoDispatch] Found ${pending.length} pending Jules task(s) — dispatching ALL in parallel...`);
 
+      // Mark all as running first (prevent double-dispatch on next tick)
       for (const task of pending) {
+        dbTasks.updateStatus(task.external_id, 'running');
+      }
+
+      // Dispatch all in parallel with a small stagger (500ms) to avoid hitting rate limits
+      const dispatchOne = async (task, idx) => {
+        // Stagger: task 0=0ms, task 1=2s, task 2=4s... (2s between each to avoid API rate limits)
+        await new Promise(r => setTimeout(r, idx * 2000));
+
+        // Check retry limit
+        const maxRetries = parseInt(process.env.JULES_MAX_RETRIES || '3');
+        if (task.retry_count >= maxRetries) {
+          console.warn(`[AutoDispatch] ⚠️ Task "${task.title}" exceeded retry limit (${maxRetries}). Marking as FAILED.`);
+          dbTasks.updateStatus(task.external_id, 'failed', `Exceeded JULES_MAX_RETRIES (${maxRetries})`);
+          sendTelegramMessage(`⚠️ *Tarea Cancelada*\n\nExceded retries (${maxRetries}) for: ${task.title}`).catch(() => { });
+          return;
+        }
+
         try {
-          // Mark as running first to avoid double-dispatch
-          dbTasks.updateStatus(task.external_id, 'running');
+          const fullPrompt = task.title;
+          const shortTitle = fullPrompt.length > 195
+            ? fullPrompt.substring(0, 192) + '...'
+            : fullPrompt;
 
           const session = await createJulesSession({
-            prompt: task.title,
+            prompt: fullPrompt,
             source: process.env.JULES_DEFAULT_SOURCE || 'sources/github/ibaitelexfree-creator/getxobelaeskola',
-            title: task.title,
+            title: shortTitle,
             automationMode: 'AUTO_CREATE_PR',
-          }).catch(err => {
-            // If dispatch fails, revert to pending
-            dbTasks.updateStatus(task.external_id, 'pending');
-            throw err;
+            requirePlanApproval: false // Explicitly disable plan approval for auto-dispatch
           });
 
           const sessionId = session?.name?.split('/')?.pop() || session?.id || 'unknown';
-          dbTasks.updateStatus(task.external_id, 'running', `Jules session: ${sessionId}`);
-          await syncTasksToMarkdown();
+          dbTasks.updateStatus(task.external_id, 'running', `Jules session: ${sessionId}`, true); // incRetry=true
 
-          console.log(`[AutoDispatch] ✅ Task "${task.title}" → Jules session ${sessionId}`);
+          console.log(`[AutoDispatch] ✅ Task "${task.title}" → Jules session ${sessionId} (Retry: ${task.retry_count + 1})`);
 
           sendTelegramMessage(
-            `🤖 *Auto-Dispatch*\n\n*Tarea:* ${task.title}\n*Jules ID:* \`${sessionId}\`\n*Prioridad:* ${task.priority}`
+            `🤖 *Auto-Dispatch*\n\n*Tarea:* ${task.title}\n*Jules ID:* \`${sessionId}\`\n*Intento:* ${task.retry_count + 1}/${maxRetries}`
           ).catch(() => { });
 
         } catch (err) {
+          // Revert to pending so next cycle can retry
+          dbTasks.updateStatus(task.external_id, 'pending');
           console.error(`[AutoDispatch] ❌ Failed to dispatch "${task.title}":`, err.message);
         }
+      };
 
-        // Stagger dispatches by 3 seconds to avoid rate limits
-        await new Promise(r => setTimeout(r, 3000));
-      }
+      // All tasks launch in parallel
+      await Promise.allSettled(pending.map((task, idx) => dispatchOne(task, idx)));
+      await syncTasksToMarkdown();
     } finally {
       autoDispatchRunning = false;
     }

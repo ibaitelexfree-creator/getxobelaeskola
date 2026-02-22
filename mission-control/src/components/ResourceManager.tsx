@@ -3,7 +3,7 @@
 import { motion } from 'framer-motion';
 import { useMissionStore } from '@/store/useMissionStore';
 import { setPowerMode, startService, stopService, resetService } from '@/lib/api';
-import { Zap, Shield, Power, Cpu, Database, Binary, Play, Pause, RotateCcw } from 'lucide-react';
+import { Zap, Shield, Power, Cpu, Database, Binary, Play, Pause, RotateCcw, Globe, ExternalLink } from 'lucide-react';
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
 
 export default function ResourceManager() {
@@ -98,44 +98,67 @@ export default function ResourceManager() {
                             <div className={`p-2 rounded-lg ${svc.running ? 'bg-status-green/10 text-status-green' : 'bg-white/5 text-white/20'}`}>
                                 {key === 'OLLAMA' ? <Cpu size={14} /> :
                                     key === 'CHROMA' ? <Database size={14} /> :
-                                        <Binary size={14} />}
+                                        svc.type === 'external' ? <Globe size={14} /> :
+                                            <Binary size={14} />}
                             </div>
                             <div className="flex flex-col">
                                 <span className={`text-[10px] font-mono font-bold uppercase tracking-widest ${svc.running ? 'text-white' : 'text-white/30'}`}>
                                     {svc.name}
                                 </span>
-                                <span className="text-[8px] font-mono text-white/20 uppercase">
-                                    {svc.type === 'docker' ? 'Container' : svc.type === 'cloud' ? 'Cloud' : 'Process'} • {svc.running ? 'Active' : 'Standby'}
-                                </span>
+                                <div className="flex flex-col gap-0.5">
+                                    <span className="text-[8px] font-mono text-white/20 uppercase">
+                                        {svc.type === 'docker' ? 'Container' : svc.type === 'cloud' ? 'Cloud' : svc.type === 'external' ? 'External VPS' : 'Process'} • {svc.running ? 'Active' : 'Standby'}
+                                    </span>
+                                    {svc.description && (
+                                        <span className="text-[7px] font-mono text-white/40 uppercase tracking-tighter leading-tight max-w-[150px]">
+                                            {svc.description}
+                                        </span>
+                                    )}
+                                </div>
                             </div>
                         </div>
 
                         <div className="flex items-center gap-2 relative z-10">
-                            {!svc.running ? (
-                                <button
-                                    onClick={() => handleStartService(key)}
-                                    className="p-2 bg-white/5 hover:bg-white/10 rounded-lg text-white/40 hover:text-white transition-all border border-white/5"
-                                    title="Start"
+                            {svc.url && (
+                                <a
+                                    href={svc.url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="p-2 bg-status-blue/10 hover:bg-status-blue/20 rounded-lg text-status-blue transition-all border border-status-blue/20 flex items-center gap-1 group/link"
+                                    title="Open URL"
+                                    onClick={() => Haptics.impact({ style: ImpactStyle.Light })}
                                 >
-                                    <Play size={14} />
-                                </button>
-                            ) : (
-                                <>
+                                    <ExternalLink size={14} />
+                                    <span className="text-[8px] font-mono font-bold uppercase hidden group-hover/link:block">Link</span>
+                                </a>
+                            )}
+                            {svc.type !== 'external' && (
+                                !svc.running ? (
                                     <button
-                                        onClick={() => handleStopService(key)}
-                                        className="p-2 bg-white/5 hover:bg-white/10 rounded-lg text-white/40 hover:text-status-amber transition-all border border-white/5"
-                                        title="Pause"
+                                        onClick={() => handleStartService(key)}
+                                        className="p-2 bg-white/5 hover:bg-white/10 rounded-lg text-white/40 hover:text-white transition-all border border-white/5"
+                                        title="Start"
                                     >
-                                        <Pause size={14} />
+                                        <Play size={14} />
                                     </button>
-                                    <button
-                                        onClick={() => handleResetService(key)}
-                                        className="p-2 bg-white/5 hover:bg-white/10 rounded-lg text-white/40 hover:text-status-blue transition-all border border-white/5"
-                                        title="Reset"
-                                    >
-                                        <RotateCcw size={14} />
-                                    </button>
-                                </>
+                                ) : (
+                                    <>
+                                        <button
+                                            onClick={() => handleStopService(key)}
+                                            className="p-2 bg-white/5 hover:bg-white/10 rounded-lg text-white/40 hover:text-status-amber transition-all border border-white/5"
+                                            title="Pause"
+                                        >
+                                            <Pause size={14} />
+                                        </button>
+                                        <button
+                                            onClick={() => handleResetService(key)}
+                                            className="p-2 bg-white/5 hover:bg-white/10 rounded-lg text-white/40 hover:text-status-blue transition-all border border-white/5"
+                                            title="Reset"
+                                        >
+                                            <RotateCcw size={14} />
+                                        </button>
+                                    </>
+                                )
                             )}
                         </div>
                     </motion.div>

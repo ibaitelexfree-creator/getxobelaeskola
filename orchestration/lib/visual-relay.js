@@ -8,8 +8,16 @@
 
 import https from 'https';
 import http from 'http';
+import fs from 'fs';
+import path from 'path';
 
 const BROWSERLESS_DEFAULT = 'https://chrome.browserless.io';
+const STORAGE_DIR = path.join(process.cwd(), 'storage', 'screenshots');
+
+// Ensure directory exists
+if (!fs.existsSync(STORAGE_DIR)) {
+    fs.mkdirSync(STORAGE_DIR, { recursive: true });
+}
 
 export class VisualRelay {
     constructor(options = {}) {
@@ -32,7 +40,12 @@ export class VisualRelay {
                 }
             });
 
-            return { success: true, buffer, size: buffer.length };
+            // Save locally for History View
+            const filename = `shot_${Date.now()}.png`;
+            const filepath = path.join(STORAGE_DIR, filename);
+            fs.writeFileSync(filepath, buffer);
+
+            return { success: true, buffer, size: buffer.length, filename };
         } catch (err) {
             return { success: false, error: err.message };
         }
