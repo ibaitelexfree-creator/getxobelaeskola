@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl';
 import { UnlockStatusBadge, UnlockStatusResponse, LockedContentOverlay } from '@/components/academy/UnlockStatusBadge';
 import { SimpleEvaluation } from '@/components/academy/evaluation';
 import PeerReviewDashboard from '@/components/academy/peer-review/PeerReviewDashboard';
+import ModuleQA from '@/components/academy/module/ModuleQA';
 import { apiUrl } from '@/lib/api';
 
 interface Unidad {
@@ -271,6 +272,9 @@ export default function ModuleDetailMain({
                         <PeerReviewDashboard moduleId={modulo.id} locale={params.locale} />
                     </section>
                 )}
+
+                {/* Forum Section */}
+                <ModuleQA moduleId={modulo.id} locale={params.locale} />
             </main>
         </div>
     );
