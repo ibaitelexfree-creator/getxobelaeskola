@@ -25,11 +25,14 @@ export class VisualRelay {
         this.browserlessToken = options.browserlessToken || process.env.BROWSERLESS_TOKEN;
         this.telegramToken = options.telegramToken || process.env.TELEGRAM_BOT_TOKEN;
         this.chatId = options.chatId || process.env.TELEGRAM_CHAT_ID;
-        this.enabled = !!(this.browserlessToken && this.telegramToken && this.chatId);
+        // enabled = Telegram configured (Browserless is optional - will use text fallback)
+        this.telegramEnabled = !!(this.telegramToken && this.chatId);
+        this.browserlessEnabled = !!(this.browserlessToken && this.telegramEnabled);
+        this.enabled = this.telegramEnabled; // No longer requires Browserless
     }
 
     async screenshot(url, options = {}) {
-        if (!this.enabled) return { success: false, error: 'VisualRelay not configured' };
+        if (!this.browserlessEnabled) return { success: false, error: 'Browserless not configured (use screenshotToTelegram for text fallback)' };
 
         try {
             const buffer = await this._browserlessRequest('/screenshot', {
@@ -52,19 +55,38 @@ export class VisualRelay {
     }
 
     async screenshotToTelegram(url, caption = '') {
-        const result = await this.screenshot(url);
-        if (!result.success) return result;
+        if (!this.telegramEnabled) return { success: false, error: 'Telegram not configured' };
 
+        // If browserless is available, send a real screenshot
+        if (this.browserlessEnabled) {
+            const result = await this.screenshot(url);
+            if (result.success) {
+                try {
+                    await this._sendPhotoToTelegram(result.buffer, caption || `📸 ${url}`);
+                    return { success: true, message: 'Screenshot sent to Telegram' };
+                } catch (err) {
+                    console.warn('[VisualRelay] Photo send failed, falling back to text:', err.message);
+                }
+            }
+        }
+
+        // Fallback: send text notification via Telegram
         try {
-            await this._sendPhotoToTelegram(result.buffer, caption || `📸 ${url}`);
-            return { success: true, message: 'Screenshot sent to Telegram' };
+            const text = [
+                caption || `📸 Visual Relay`,
+                `🔗 URL: ${url}`,
+                `⚠️ Modo texto (BROWSERLESS_TOKEN no configurado)`,
+                `🕐 ${new Date().toISOString()}`
+            ].join('\n');
+            await this._sendTelegramMessage(text);
+            return { success: true, message: 'Text notification sent to Telegram (no Browserless)' };
         } catch (err) {
-            return { success: false, error: `Screenshot OK, Telegram failed: ${err.message}` };
+            return { success: false, error: `Telegram failed: ${err.message}` };
         }
     }
 
     async generatePDF(url) {
-        if (!this.enabled) return { success: false, error: 'VisualRelay not configured' };
+        if (!this.browserlessEnabled) return { success: false, error: 'Browserless not configured' };
 
         try {
             const buffer = await this._browserlessRequest('/pdf', {
@@ -129,17 +151,19 @@ export class VisualRelay {
 
     getStatus() {
         return {
-            enabled: this.enabled,
-            browserless: !!this.browserlessToken,
-            telegram: !!(this.telegramToken && this.chatId)
+            enabled: this.telegramEnabled,
+            browserless: this.browserlessEnabled,
+            telegram: this.telegramEnabled
         };
     }
 
     getStatusMessage() {
         const s = this.getStatus();
+        const mode = s.browserless ? 'Screenshot + Telegram' : (s.telegram ? 'Texto (sin Browserless)' : 'DESCONECTADO');
         return [
             `🌐 **Visual Relay** ${s.enabled ? '🟢' : '🔴'}`,
-            `Browserless: ${s.browserless ? '✅' : '❌'}`,
+            `Modo: ${mode}`,
+            `Browserless: ${s.browserless ? '✅' : '❌ (texto fallback)'}`,
             `Telegram: ${s.telegram ? '✅' : '❌'}`
         ].join('\n');
     }
@@ -184,6 +208,35 @@ export class VisualRelay {
             });
 
             req.write(data);
+            req.end();
+        });
+    }
+
+    async _sendTelegramMessage(text) {
+        return new Promise((resolve, reject) => {
+            const body = JSON.stringify({
+                chat_id: this.chatId,
+                text,
+                parse_mode: 'Markdown'
+            });
+            const options = {
+                hostname: 'api.telegram.org',
+                port: 443,
+                path: `/bot${this.telegramToken}/sendMessage`,
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(body) }
+            };
+            const req = https.request(options, (res) => {
+                let data = '';
+                res.on('data', chunk => data += chunk);
+                res.on('end', () => {
+                    res.statusCode >= 400
+                        ? reject(new Error(`Telegram ${res.statusCode}: ${data.substring(0, 200)}`))
+                        : resolve(JSON.parse(data));
+                });
+            });
+            req.on('error', reject);
+            req.write(body);
             req.end();
         });
     }

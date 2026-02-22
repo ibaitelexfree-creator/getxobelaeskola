@@ -1,12 +1,12 @@
 
-import { VisualRelay } from './lib/visual-relay.js';
+import { VisualRelay } from '../lib/visual-relay.js';
 import dotenv from 'dotenv';
 import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'fs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-dotenv.config({ path: resolve(__dirname, '.env') });
+dotenv.config({ path: resolve(__dirname, '../.env') });
 
 const visualRelay = new VisualRelay();
 
