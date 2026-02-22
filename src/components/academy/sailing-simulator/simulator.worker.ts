@@ -69,9 +69,6 @@ let scoring: ScoringManager;
 let windEffect: WindEffectManager;
 let floatingText: FloatingTextManager;
 
-// Multiplayer Opponents
-let opponents: Map<string, BoatModel> = new Map();
-
 let animationFrameId: number;
 let lastTime = 0;
 let isGameOver = false;
@@ -96,41 +93,8 @@ self.onmessage = (e: MessageEvent) => {
         case 'INPUT':
             updateInput(payload);
             break;
-        case 'UPDATE_OPPONENTS':
-            updateOpponents(payload);
-            break;
     }
 };
-
-function updateOpponents(payload: any) {
-    const currentIds = new Set(Object.keys(payload));
-
-    // Remove missing
-    for (const id of opponents.keys()) {
-        if (!currentIds.has(id)) {
-            const boat = opponents.get(id);
-            if (boat) {
-                scene.remove(boat.group);
-            }
-            opponents.delete(id);
-        }
-    }
-
-    // Add or Update
-    for (const [id, state] of Object.entries(payload)) {
-        let boat = opponents.get(id);
-        if (!boat) {
-            boat = new BoatModel();
-            scene.add(boat.group);
-            opponents.set(id, boat);
-        }
-
-        const s = state as any;
-        if (s.position) {
-             boat.syncState(s.position, s.heading, s.heel || 0, s.sailAngle || 0);
-        }
-    }
-}
 
 function init(canvas: OffscreenCanvas, width: number, height: number, pixelRatio: number) {
     const context = RendererSetup.create(canvas, width, height, pixelRatio);

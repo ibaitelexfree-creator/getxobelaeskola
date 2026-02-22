@@ -22,7 +22,6 @@ const EmptyState = dynamic(() => import('@/components/ui/EmptyState'));
 const BonosWallet = dynamic(() => import('@/components/student/BonosWallet'));
 const BonoPurchaseModal = dynamic(() => import('@/components/student/BonoPurchaseModal'));
 const DailyNauticalQuote = dynamic(() => import('@/components/student/DailyNauticalQuote'));
-const MicroLeccionesWidget = dynamic(() => import('@/components/student/MicroLeccionesWidget'));
 
 interface DashboardItem {
     id: string;
@@ -225,8 +224,6 @@ export default function StudentDashboardClient({
 
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
                         <div className="lg:col-span-2 space-y-16">
-                            <MicroLeccionesWidget locale={locale} translations={t.micro_lessons || {}} />
-
                             <BonosWallet
                                 bonos={bonos}
                                 locale={locale}

@@ -35,6 +35,16 @@ const nextConfig = {
     poweredByHeader: false,
     output: isCapacitor ? 'export' : 'standalone',
     staticPageGenerationTimeout: 300, // Increase timeout to 5 minutes
+    experimental: {
+        serverExternalPackages: [
+            '@capacitor/core',
+            '@capacitor/android',
+            '@capacitor/ios',
+            '@capacitor/geolocation',
+            '@capacitor/network',
+            '@capacitor/push-notifications'
+        ],
+    },
     transpilePackages: [
         '@capacitor/core',
         '@capacitor/android',
@@ -43,33 +53,31 @@ const nextConfig = {
         '@capacitor/network',
         '@capacitor/push-notifications'
     ],
-    ...(isCapacitor ? {} : {
-        async headers() {
-            return [
-                {
-                    source: '/:path*',
-                    headers: [
-                        {
-                            key: 'X-Frame-Options',
-                            value: 'DENY',
-                        },
-                        {
-                            key: 'X-Content-Type-Options',
-                            value: 'nosniff',
-                        },
-                        {
-                            key: 'Referrer-Policy',
-                            value: 'strict-origin-when-cross-origin',
-                        },
-                        {
-                            key: 'Permissions-Policy',
-                            value: 'camera=(), microphone=(), geolocation=()',
-                        },
-                    ],
-                },
-            ];
-        },
-    }),
+    async headers() {
+        return [
+            {
+                source: '/:path*',
+                headers: [
+                    {
+                        key: 'X-Frame-Options',
+                        value: 'DENY',
+                    },
+                    {
+                        key: 'X-Content-Type-Options',
+                        value: 'nosniff',
+                    },
+                    {
+                        key: 'Referrer-Policy',
+                        value: 'strict-origin-when-cross-origin',
+                    },
+                    {
+                        key: 'Permissions-Policy',
+                        value: 'camera=(), microphone=(), geolocation=()',
+                    },
+                ],
+            },
+        ];
+    },
 };
 
 export default withNextIntl(nextConfig);

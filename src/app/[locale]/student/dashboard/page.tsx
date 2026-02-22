@@ -57,9 +57,6 @@ export default async function StudentDashboard({
         history_section: {
             title: t('history_section.title'),
             completed: t('history_section.completed')
-        },
-        micro_lessons: {
-            title: t('micro_lessons.title')
         }
     };
 

@@ -177,19 +177,6 @@ export class BoatModel {
         this.group.scale.set(3, 3, 3); // Scale the entire boat group
     }
 
-    public syncState(position: { x: number, y: number, z: number }, heading: number, heel: number, sailAngle: number) {
-        this.group.position.set(position.x, position.y, position.z);
-
-        const axisY = new Vector3(0, 1, 0);
-        const qY = new Quaternion().setFromAxisAngle(axisY, heading + Math.PI);
-        const axisZ = new Vector3(0, 0, 1);
-        const qZ = new Quaternion().setFromAxisAngle(axisZ, heel);
-
-        this.group.quaternion.copy(qY.multiply(qZ));
-
-        this.boomGroup.rotation.y = sailAngle;
-    }
-
     public update(dt: number, time: number, state: BoatState, apparentWind: ApparentWind, sailAngle: number, rudderAngle: number) {
         // Sync Position & Base Heading
         this.group.position.copy(state.position);
