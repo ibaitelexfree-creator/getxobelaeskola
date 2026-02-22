@@ -16,32 +16,13 @@ export async function GET() {
         const supabase = createClient();
         const { data, error: dbError } = await supabase
             .from('bitacora_personal')
-            .select('*')
+            .select('*, bitacora_multimedia(*)')
             .eq('alumno_id', user.id)
             .order('fecha', { ascending: false });
 
         if (dbError) throw dbError;
 
-        // Fetch Feedback
-        const entryIds = data?.map((e: any) => e.id) || [];
-        let feedback: any[] = [];
-
-        if (entryIds.length > 0) {
-            const { data: fbData } = await supabase
-                .from('instructor_feedback')
-                .select('*')
-                .in('context_id', entryIds)
-                .eq('context_type', 'logbook');
-            feedback = fbData || [];
-        }
-
-        // Merge
-        const entriesWithFeedback = data?.map((entry: any) => ({
-            ...entry,
-            feedback: feedback.filter((f: any) => f.context_id === entry.id) || []
-        })) || [];
-
-        return NextResponse.json(entriesWithFeedback);
+        return NextResponse.json(data);
     } catch (err) {
         console.error('Error fetching diary entries:', err);
         return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
@@ -57,14 +38,14 @@ export async function POST(req: Request) {
         }
 
         const body = await req.json();
-        const { contenido, estado_animo, tags } = body;
+        const { contenido, estado_animo, tags, media_urls } = body;
 
         if (!contenido) {
             return NextResponse.json({ error: 'Contenido es requerido' }, { status: 400 });
         }
 
         const supabase = createClient();
-        const { data, error: dbError } = await supabase
+        const { data: entry, error: dbError } = await supabase
             .from('bitacora_personal')
             .insert({
                 alumno_id: user.id,
@@ -78,7 +59,23 @@ export async function POST(req: Request) {
 
         if (dbError) throw dbError;
 
-        return NextResponse.json(data);
+        if (media_urls && Array.isArray(media_urls) && media_urls.length > 0) {
+            const mediaInserts = media_urls.map((url: string) => ({
+                bitacora_id: entry.id,
+                url,
+                type: 'image'
+            }));
+
+            const { error: mediaError } = await supabase
+                .from('bitacora_multimedia')
+                .insert(mediaInserts);
+
+            if (mediaError) {
+                console.error('Error inserting media:', mediaError);
+            }
+        }
+
+        return NextResponse.json(entry);
     } catch (err) {
         console.error('Error creating diary entry:', err);
         return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
