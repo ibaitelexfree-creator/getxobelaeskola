@@ -41,6 +41,7 @@ import { CreditMonitor } from './credit-monitor.js';
 import { AgentWatchdog } from './watchdog.js';
 import { appendToProjectMemory, readProjectMemory } from './project-memory.js';
 import { config } from 'dotenv';
+import { tasks as dbTasks } from './db.js';
 import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
 
@@ -257,32 +258,23 @@ export class Maestro {
             await this._send(`⚠️ Flash falló: ${result.error}`);
         }
 
-        // Level 3: ClawdBot (WITH CONFIRMATION)
-        const reason = this._getExhaustionMessage();
-        const clawdbotAvailable = await this.clawdbot.isAvailable();
+        // Level 3: Enqueue for Approval / Processing
+        const externalId = `T-${Date.now().toString(36).toUpperCase()}`;
+        dbTasks.add({
+            id: externalId,
+            title: description,
+            executor: 'jules',
+            status: 'pending_approval',
+            priority: 3,
+            requires_approval: 1,
+            source: 'telegram'
+        });
 
-        if (clawdbotAvailable || this.thermal.shouldDelegateToClawdBot()) {
-            // Store pending approval
-            this.pendingApproval = { task, reason };
-            await this._send([
-                `⚠️ **Jules y Flash agotados**`,
-                `📝 ${description}`,
-                `Motivo: ${reason}`,
-                '',
-                `🤖 ¿Enviar a ClawdBot?`,
-                `/approve — Sí, ejecutar`,
-                `/reject — No, encolar`
-            ].join('\n'));
-            return;
-        }
-
-        // Nothing available — queue the task
-        this.taskQueue.push(task);
         await this._send([
-            `⏳ **Tarea en cola** (posición ${this.taskQueue.length})`,
+            `⏳ **Tarea encolada para aprobación**`,
             `📝 ${description}`,
-            `Motivo: ${reason}`,
-            `Se ejecutará automáticamente cuando haya capacidad.`
+            `ID: ${externalId}`,
+            `Aprobar en el APK de Mission Control para ejecutar.`
         ].join('\n'));
     }
 
@@ -334,19 +326,21 @@ export class Maestro {
     }
 
     async _cmdQueue() {
-        if (this.taskQueue.length === 0) {
+        const pending = dbTasks.getPending();
+        if (pending.length === 0) {
             return this._send('📋 Cola vacía. No hay tareas pendientes.');
         }
 
-        const lines = this.taskQueue.map((t, i) =>
-            `${i + 1}. ${t.title} (${new Date(t.createdAt).toLocaleTimeString()})`
+        const lines = pending.slice(0, 20).map((t, i) =>
+            `${i + 1}. [${t.status}] ${t.title} (${t.external_id})`
         );
 
         await this._send([
-            `📋 **Cola de tareas** (${this.taskQueue.length})`,
+            `📋 **Cola de tareas** (${pending.length})`,
             '',
-            ...lines
-        ].join('\n'));
+            ...lines,
+            pending.length > 20 ? `... y ${pending.length - 20} más.` : ''
+        ].filter(Boolean).join('\n'));
     }
 
     async _cmdForceClawdBot() {
@@ -537,38 +531,17 @@ export class Maestro {
     }
 
     async _processQueue() {
-        while (this.taskQueue.length > 0) {
-            const task = this.taskQueue[0];
-            const slot = this.pool.acquire(task);
+        const pending = dbTasks.getPending().filter(t => t.status === 'pending' || t.status === 'queued');
 
+        for (const task of pending) {
+            const slot = this.pool.acquire(task);
             if (!slot) break; // Pool still full
 
-            this.taskQueue.shift();
+            // Update status in DB
+            dbTasks.updateStatus(task.external_id, 'running');
             this.stats.tasksAssigned++;
-            this._logTask(task, slot.accountId);
 
-            await this._send(`🚀 Tarea de cola procesada: ${task.title}`);
-        }
-    }
-
-    _logTask(task, accountId) {
-        try {
-            const date = new Date().toISOString().split('T')[0];
-            const currentTasks = readProjectMemory('AGENT_TASKS.md');
-            let nextId = 'T-001';
-
-            if (currentTasks.success) {
-                const matches = currentTasks.content.match(/T-(\d+)/g);
-                if (matches) {
-                    const ids = matches.map(m => parseInt(m.split('-')[1]));
-                    nextId = `T-${(Math.max(...ids) + 1).toString().padStart(3, '0')}`;
-                }
-            }
-
-            const newRow = `| ${nextId} | 3 | en_curso | ${task.title} | interno-${accountId.toLowerCase()} | ${date} |`;
-            appendToProjectMemory('AGENT_TASKS.md', newRow);
-        } catch (err) {
-            console.warn('[Maestro] Failed to log task:', err.message);
+            await this._send(`🚀 Tarea procesada: ${task.title}`);
         }
     }
 

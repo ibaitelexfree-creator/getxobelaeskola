@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useCallback } from 'react';
 import { useMissionStore } from '@/store/useMissionStore';
-import { getHealth, getWatchdogStatus, getActiveSessions, getResourceStatus, getQueue, getLivePreviewConfig, getJulesBlockedStatus } from '@/lib/api';
+import { getHealth, getWatchdogStatus, getActiveSessions, getResourceStatus, getQueue, getLivePreviewConfig, getJulesBlockedStatus, getSyncHistory } from '@/lib/api';
 
 
 export function usePolling() {
@@ -17,13 +17,14 @@ export function usePolling() {
         updatePower,
         setLivePreviewUrl,
         livePreviewUrl,
-        updateJulesWaiting
+        updateJulesWaiting,
+        setSyncHistory
     } = useMissionStore();
 
 
     const poll = useCallback(async () => {
         try {
-            const [health, watchdog, sessions, resources, queueData, liveConfig, julesBlocked] = await Promise.all([
+            const [health, watchdog, sessions, resources, queueData, liveConfig, julesBlocked, syncData] = await Promise.all([
                 getHealth().catch(() => null),
                 getWatchdogStatus().catch(() => null),
                 getActiveSessions().catch(() => null),
@@ -31,6 +32,7 @@ export function usePolling() {
                 getQueue().catch(() => null),
                 getLivePreviewConfig().catch(() => null),
                 getJulesBlockedStatus().catch(() => null),
+                getSyncHistory(1).catch(() => null),
             ]);
 
 
@@ -63,6 +65,9 @@ export function usePolling() {
                         health: svc.browserless !== 'error' ? (resources?.services?.BROWSERLESS?.running ? 'online' : 'offline') : 'offline',
                         used: resources?.services?.BROWSERLESS?.used || 0,
                         total: resources?.services?.BROWSERLESS?.limit || 0,
+                    },
+                    orchestrator: {
+                        health: svc.orchestrator === 'online' ? 'online' : 'offline',
                     },
                 });
             } else {
@@ -138,6 +143,10 @@ export function usePolling() {
                 if (resources.hardware) {
                     useMissionStore.getState().updateHardware(resources.hardware);
                 }
+            }
+
+            if (syncData) {
+                setSyncHistory(syncData);
             }
 
         } catch {

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useMissionStore } from '@/store/useMissionStore';
 import { pausePool, resumePool, pauseWatchdog, resumeWatchdog } from '@/lib/maestro-client';
@@ -41,16 +41,27 @@ function ToggleSwitch({
 
 export default function ControlPanel() {
     const { services } = useMissionStore();
-    const [poolPaused, setPoolPaused] = useState(false);
-    const [watchdogPaused, setWatchdogPaused] = useState(services.watchdog.state === 'PAUSED');
+    const watchdogActive = services.watchdog.state === 'ACTIVE' || services.watchdog.state === 'RUNNING';
+    const watchdogPaused = services.watchdog.state === 'PAUSED';
+
+    const [poolOn, setPoolOn] = useState(watchdogActive);
+    const [watchdogOn, setWatchdogOn] = useState(!watchdogPaused);
     const [loadingPool, setLoadingPool] = useState(false);
     const [loadingWatchdog, setLoadingWatchdog] = useState(false);
+
+    // Sync with store when polled data changes
+    useEffect(() => {
+        setPoolOn(watchdogActive);
+        setWatchdogOn(!watchdogPaused);
+    }, [watchdogActive, watchdogPaused]);
 
     const handlePoolToggle = async () => {
         setLoadingPool(true);
         try {
-            if (poolPaused) await resumePool(); else await pausePool();
-            setPoolPaused(!poolPaused);
+            if (poolOn) await pausePool(); else await resumePool();
+            setPoolOn(!poolOn);
+        } catch (e) {
+            console.error('Pool toggle failed:', e);
         } finally {
             setLoadingPool(false);
         }
@@ -59,8 +70,10 @@ export default function ControlPanel() {
     const handleWatchdogToggle = async () => {
         setLoadingWatchdog(true);
         try {
-            if (watchdogPaused) await resumeWatchdog(); else await pauseWatchdog();
-            setWatchdogPaused(!watchdogPaused);
+            if (watchdogOn) await pauseWatchdog(); else await resumeWatchdog();
+            setWatchdogOn(!watchdogOn);
+        } catch (e) {
+            console.error('Watchdog toggle failed:', e);
         } finally {
             setLoadingWatchdog(false);
         }
@@ -88,7 +101,7 @@ export default function ControlPanel() {
                 <div className="flex items-center justify-between">
                     <div>
                         <p className={`text-2xl font-display ${services.thermal.level > 2 ? 'text-status-red' :
-                                services.thermal.level > 1 ? 'text-status-amber' : 'text-status-green'
+                            services.thermal.level > 1 ? 'text-status-amber' : 'text-status-green'
                             }`}>
                             {services.thermal.label}
                         </p>
@@ -139,9 +152,9 @@ export default function ControlPanel() {
                 </div>
 
                 <ToggleSwitch
-                    on={!poolPaused}
+                    on={poolOn}
                     onToggle={handlePoolToggle}
-                    label={poolPaused ? 'Pool Paused' : 'Pool Active'}
+                    label={!poolOn ? 'Pool Paused' : 'Pool Active'}
                     loading={loadingPool}
                 />
             </motion.div>
@@ -173,12 +186,120 @@ export default function ControlPanel() {
                 </div>
 
                 <ToggleSwitch
-                    on={!watchdogPaused}
+                    on={watchdogOn}
                     onToggle={handleWatchdogToggle}
-                    label={watchdogPaused ? 'Watchdog Paused' : 'Watchdog Active'}
+                    label={!watchdogOn ? 'Watchdog Paused' : 'Watchdog Active'}
                     loading={loadingWatchdog}
                 />
             </motion.div>
+
+            {/* Trust Tunnel Control */}
+            <TrustTunnelCard />
         </div>
+    );
+}
+
+function TrustTunnelCard() {
+    const [password, setPassword] = useState('');
+    const [active, setActive] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const [showInput, setShowInput] = useState(false);
+
+    const checkStatus = async () => {
+        try {
+            const status = await import('@/lib/maestro-client').then(m => m.getTrustStatus());
+            setActive(status.active);
+        } catch (e) { }
+    };
+
+    const handleToggle = async () => {
+        if (!showInput && !active) {
+            setShowInput(true);
+            return;
+        }
+
+        setLoading(true);
+        setError(null);
+        try {
+            const { toggleTrustTunnel } = await import('@/lib/maestro-client');
+            const result = await toggleTrustTunnel(password);
+            setActive(result.active);
+            setPassword('');
+            setShowInput(false);
+        } catch (e: any) {
+            setError(e.message || 'Error toggling tunnel');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return (
+        <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.25 }}
+            className={`glass-panel rounded-2xl p-4 border transition-colors ${active ? 'border-status-green/30 bg-status-green/5' : 'border-white/10'}`}
+        >
+            <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                    <Shield size={16} className={active ? 'text-status-green' : 'text-white/40'} />
+                    <span className="text-xs font-mono uppercase tracking-widest text-white/40">Trust Tunnel</span>
+                </div>
+                {active && (
+                    <span className="px-2 py-0.5 rounded-full bg-status-green/20 text-status-green text-[8px] font-bold uppercase tracking-tight">Active</span>
+                )}
+            </div>
+
+            <p className="text-2xs text-white/40 mb-4">
+                Reduces manual confirmations for Jules & Antigravity. Use with caution.
+            </p>
+
+            {showInput && (
+                <div className="mb-3 space-y-2">
+                    <input
+                        type="password"
+                        placeholder="Trust Password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-brass-gold/50"
+                        autoFocus
+                    />
+                    {error && <p className="text-[10px] text-status-red">{error}</p>}
+                </div>
+            )}
+
+            <button
+                onClick={handleToggle}
+                disabled={loading}
+                className={`w-full p-3 rounded-xl flex items-center justify-center gap-2 transition-all ${active
+                    ? 'bg-status-red/10 border border-status-red/20 text-status-red hover:bg-status-red/20'
+                    : 'bg-brass-gold/10 border border-brass-gold/20 text-brass-gold hover:bg-brass-gold/20'
+                    }`}
+            >
+                {loading ? (
+                    <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                ) : active ? (
+                    <>
+                        <Pause size={16} />
+                        <span className="text-sm font-medium">Deactivate Trust Tunnel</span>
+                    </>
+                ) : (
+                    <>
+                        <Play size={16} />
+                        <span className="text-sm font-medium">{showInput ? 'Authorize Now' : 'Activate Trust Tunnel'}</span>
+                    </>
+                )}
+            </button>
+
+            {showInput && !active && (
+                <button
+                    onClick={() => { setShowInput(false); setError(null); }}
+                    className="w-full mt-2 text-2xs text-white/20 hover:text-white/40 transition-colors"
+                >
+                    Cancel
+                </button>
+            )}
+        </motion.div>
     );
 }

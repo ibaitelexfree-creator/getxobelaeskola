@@ -42,6 +42,15 @@ db.exec(`
         key TEXT PRIMARY KEY,
         value TEXT
     );
+
+    CREATE TABLE IF NOT EXISTS sync_history (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        service_id TEXT NOT NULL,
+        status TEXT NOT NULL,
+        metric_value REAL,
+        metric_label TEXT,
+        timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
 `);
 
 // Migration: Check if columns exist, add if not
@@ -152,6 +161,50 @@ export const logs = {
     },
     getRecent: (limit = 100) => {
         return db.prepare('SELECT * FROM service_logs ORDER BY timestamp DESC LIMIT ?').all(limit);
+    }
+};
+
+/**
+ * Sync History API
+ */
+export const syncHistory = {
+    add: (data) => {
+        const stmt = db.prepare(`
+            INSERT INTO sync_history (service_id, status, metric_value, metric_label)
+            VALUES (?, ?, ?, ?)
+        `);
+        return stmt.run(data.service_id, data.status, data.metric_value, data.metric_label);
+    },
+    getHistory: (serviceId = null, limit = 100) => {
+        if (serviceId) {
+            return db.prepare('SELECT * FROM sync_history WHERE service_id = ? ORDER BY timestamp DESC LIMIT ?').all(serviceId, limit);
+        }
+        return db.prepare('SELECT * FROM sync_history ORDER BY timestamp DESC LIMIT ?').all(limit);
+    },
+    getAggregated: (days = 7) => {
+        return db.prepare(`
+            SELECT service_id, status, metric_value, metric_label, timestamp 
+            FROM sync_history 
+            WHERE timestamp >= date('now', ?)
+            ORDER BY timestamp ASC
+        `).all(`-${days} days`);
+    }
+};
+
+/**
+ * Settings API
+ */
+export const settings = {
+    get: (key) => {
+        const result = db.prepare('SELECT value FROM settings WHERE key = ?').get(key);
+        return result ? result.value : null;
+    },
+    set: (key, value) => {
+        const stmt = db.prepare('INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)');
+        return stmt.run(key, value.toString());
+    },
+    all: () => {
+        return db.prepare('SELECT * FROM settings').all();
     }
 };
 

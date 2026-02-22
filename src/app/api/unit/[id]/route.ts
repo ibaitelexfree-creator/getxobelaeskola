@@ -56,7 +56,22 @@ export async function GET(
         const { data: unidad, error: unidadError } = await supabase
             .from('unidades_didacticas')
             .select(`
-                *,
+                id,
+                modulo_id,
+                nombre_es,
+                nombre_eu,
+                slug,
+                orden,
+                objetivos_es,
+                objetivos_eu,
+                contenido_teorico_es:contenido_teoria_es,
+                contenido_teorico_eu:contenido_teoria_eu,
+                contenido_practico_es:contenido_practica_es,
+                contenido_practico_eu:contenido_practica_eu,
+                errores_comunes_es,
+                errores_comunes_eu,
+                duracion_estimada_min,
+                recursos_json,
                 modulo:modulo_id (
                     id,
                     nombre_es,

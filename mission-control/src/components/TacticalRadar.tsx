@@ -85,12 +85,21 @@ export default function TacticalRadar() {
         const watchdogH = services.watchdog.state === 'ACTIVE' ? 'online'
             : services.watchdog.state === 'STALLED' ? 'degraded' : 'offline';
 
-        return [
-            // ── GROUP: ClawdBot (top-left zone, 230–300°) ──
+        // 1. Calculate usage-based distances
+        // Formula: distance = 90 - (normalizedUsage * 70) 
+        // -> Usage 0% = Distance 90 (Edge)
+        // -> Usage 100% = Distance 20 (Center)
+
+        const julesUsage = Math.min(1, services.jules.used / (services.jules.total || 1));
+        const clawdUsage = Math.min(1, services.clawdbot.delegations / 30);
+        const infraUsage = Math.min(1, (services.flash.tasksToday / 50 + (services.browserless?.used || 0) / (services.browserless?.total || 100)) / 2);
+
+        const baseContacts: RadarContact[] = [
+            // ── GROUP: ClawdBot (top-left zone) ──
             {
                 id: 'clawd-hq',
                 angle: 240,
-                distance: 80,
+                distance: 90 - (clawdUsage * 60),
                 label: 'CLAWD',
                 health: services.clawdbot.health,
                 icon: '🤖',
@@ -102,7 +111,7 @@ export default function TacticalRadar() {
             {
                 id: 'clawd-p1',
                 angle: 255,
-                distance: 55,
+                distance: 85 - (clawdUsage * 40),
                 label: 'PULPO-1',
                 health: services.clawdbot.health,
                 icon: '🐙',
@@ -112,7 +121,7 @@ export default function TacticalRadar() {
             {
                 id: 'clawd-p2',
                 angle: 270,
-                distance: 70,
+                distance: 75 - (clawdUsage * 50),
                 label: 'PULPO-2',
                 health: services.clawdbot.health,
                 icon: '🐙',
@@ -122,7 +131,7 @@ export default function TacticalRadar() {
             {
                 id: 'clawd-p3',
                 angle: 285,
-                distance: 50,
+                distance: 80 - (clawdUsage * 45),
                 label: 'PULPO-3',
                 health: services.clawdbot.health,
                 icon: '🐙',
@@ -130,11 +139,11 @@ export default function TacticalRadar() {
                 errorMsg: 'Pulpo 3 (delegación) no responde.',
             },
 
-            // ── GROUP: Jules (right zone, 30–110°) ──
+            // ── GROUP: Jules (right zone) ──
             {
                 id: 'jules-1',
                 angle: 40,
-                distance: 75,
+                distance: 90 - (julesUsage * 70),
                 label: 'JULES-1',
                 health: services.jules.health,
                 icon: '🐙',
@@ -146,7 +155,7 @@ export default function TacticalRadar() {
             {
                 id: 'jules-2',
                 angle: 70,
-                distance: 60,
+                distance: 85 - (julesUsage * 55),
                 label: 'JULES-2',
                 health: services.jules.health,
                 icon: '🐙',
@@ -156,7 +165,7 @@ export default function TacticalRadar() {
             {
                 id: 'jules-3',
                 angle: 100,
-                distance: 80,
+                distance: 80 - (julesUsage * 65),
                 label: 'JULES-3',
                 health: services.jules.health,
                 icon: '🐙',
@@ -164,11 +173,11 @@ export default function TacticalRadar() {
                 errorMsg: 'Jules instance 3 no responde.',
             },
 
-            // ── GROUP: Infra (bottom zone, 140–200°) ──
+            // ── GROUP: Infra (bottom zone) ──
             {
                 id: 'flash-svc',
                 angle: 145,
-                distance: 72,
+                distance: 85 - (infraUsage * 50),
                 label: 'RELAY',
                 health: services.flash.health,
                 icon: '⚡',
@@ -178,7 +187,7 @@ export default function TacticalRadar() {
             {
                 id: 'watchdog-svc',
                 angle: 170,
-                distance: 45,
+                distance: 75 - (services.watchdog.loops % 100 / 100 * 20), // Use loops for some jitter
                 label: 'WDOG',
                 health: watchdogH,
                 icon: '🛡️',
@@ -190,7 +199,7 @@ export default function TacticalRadar() {
             {
                 id: 'browserless',
                 angle: 195,
-                distance: 68,
+                distance: 80 - (infraUsage * 60),
                 label: 'BSRLS',
                 health: services.browserless?.health ?? 'unknown',
                 icon: '🌐',
@@ -198,6 +207,39 @@ export default function TacticalRadar() {
                 errorMsg: 'Browserless no responde. Docker caído o puerto incorrecto.',
             },
         ];
+
+        // 2. Repulsion Logic (Auto-balancing)
+        // We iterate a few times to push contacts away if they are too close in polar space.
+        const adjusted = [...baseContacts];
+        const MIN_ANGLE_DIST = 12; // Degrees
+        const MIN_RADIUS_DIST = 10; // % distance
+
+        for (let iter = 0; iter < 5; iter++) {
+            for (let i = 0; i < adjusted.length; i++) {
+                for (let j = i + 1; j < adjusted.length; j++) {
+                    const c1 = adjusted[i];
+                    const c2 = adjusted[j];
+
+                    const angleDist = Math.abs(c1.angle - c2.angle);
+                    const radiusDist = Math.abs(c1.distance - c2.distance);
+
+                    // If they are dangerously close in both angle and distance
+                    if (angleDist < MIN_ANGLE_DIST && radiusDist < MIN_RADIUS_DIST) {
+                        // Push them apart in angle
+                        const push = (MIN_ANGLE_DIST - angleDist) / 2;
+                        if (c1.angle < c2.angle) {
+                            adjusted[i] = { ...c1, angle: c1.angle - push };
+                            adjusted[j] = { ...c2, angle: c2.angle + push };
+                        } else {
+                            adjusted[i] = { ...c1, angle: c1.angle + push };
+                            adjusted[j] = { ...c2, angle: c2.angle - push };
+                        }
+                    }
+                }
+            }
+        }
+
+        return adjusted;
     }, [services]);
 
     // ── Sweep animation ──────────────────────────────────────────────
@@ -287,7 +329,7 @@ export default function TacticalRadar() {
                     // - If contact is on the right half (angle 0-180), place label on the left
                     // - Add subtle vertical offset based on angle to avoid straight-line collisions
                     const isLeftHalf = c.angle > 180 && c.angle < 360;
-                    const labelXClass = isLeftHalf ? 'left-full ml-3' : 'right-full mr-3';
+                    const labelXClass = isLeftHalf ? 'right-full mr-3' : 'left-full ml-3';
                     const labelYOffset = Math.sin(c.angle * (Math.PI / 180)) * 5;
 
                     return (

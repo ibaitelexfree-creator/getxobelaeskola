@@ -2,11 +2,13 @@
 
 import { motion, AnimatePresence } from 'framer-motion';
 import { useMissionStore, ServiceHealth } from '@/store/useMissionStore';
-import { AlertTriangle, X, AlertCircle, ChevronRight, Server, ShieldCheck, Cpu } from 'lucide-react';
+import { AlertTriangle, X, AlertCircle, ChevronRight, Server, ShieldCheck, Cpu, Activity } from 'lucide-react';
 import TacticalRadar from '@/components/TacticalRadar';
 import ResourceManager from '@/components/ResourceManager';
 import HardwareStats from './HardwareStats';
+import SyncHistoryGraph from './SyncHistoryGraph';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 /* ═══════════════════════════════════════════════════
    SERVICE ITEM COMPONENT
@@ -68,6 +70,7 @@ function ServiceItemCard({ service, index, onAlert }: {
 ═══════════════════════════════════════════════════ */
 export default function Dashboard() {
     const { services, stats, pendingApproval, connected, lastSync, setActiveTab, julesWaiting } = useMissionStore();
+    const { t } = useTranslation();
     const [alertService, setAlertService] = useState<ServiceItem | null>(null);
 
     const watchdogS = services.watchdog.state || 'UNKNOWN';
@@ -77,7 +80,7 @@ export default function Dashboard() {
 
     const groups = [
         {
-            title: 'CORE AGENTS',
+            title: t('dashboard.groups.core'),
             icon: <Cpu size={18} className="text-status-blue" />,
             items: [
                 {
@@ -86,7 +89,7 @@ export default function Dashboard() {
                     icon: '🤖',
                     health: services.clawdbot.health,
                     metric: `${services.clawdbot.delegations}`,
-                    detail: 'Delegaciones Master',
+                    detail: t('dashboard.details.delegations'),
                     errorMsg: 'ClawdBot no detectado. Revisa el orquestador.'
                 },
                 {
@@ -95,13 +98,13 @@ export default function Dashboard() {
                     icon: '🐙',
                     health: julesWaiting ? 'degraded' : services.jules.health,
                     metric: julesWaiting ? 'WAITING' : `${services.jules.active}`,
-                    detail: julesWaiting ? 'Input Requerido' : `Sesión ${services.jules.used}/${services.jules.total}`,
+                    detail: julesWaiting ? t('dashboard.details.input_required') : `${t('dashboard.details.session')} ${services.jules.used}/${services.jules.total}`,
                     errorMsg: 'Jules API Offline o Cuota Agotada.'
                 }
             ]
         },
         {
-            title: 'INFRASTRUCTURE',
+            title: t('dashboard.groups.infra'),
             icon: <Server size={18} className="text-status-amber" />,
             items: [
                 {
@@ -110,7 +113,7 @@ export default function Dashboard() {
                     icon: '⚡',
                     health: services.flash.health,
                     metric: `${services.flash.tasksToday}`,
-                    detail: 'Tareas Anthropic hoy',
+                    detail: t('dashboard.details.anthropic_tasks'),
                     errorMsg: 'Error de conexión con AWS/Claude.'
                 },
                 {
@@ -120,7 +123,7 @@ export default function Dashboard() {
                     health: watchdogH,
                     metric: watchdogS.substring(0, 4),
                     detail: `${services.watchdog.loops}L / ${services.watchdog.stalls}S`,
-                    errorMsg: 'Watchdog STALLED. Requiere reinicio manual.'
+                    errorMsg: t('dashboard.details.manual_restart')
                 },
                 {
                     id: 'browserless',
@@ -128,8 +131,17 @@ export default function Dashboard() {
                     icon: '🌐',
                     health: services.browserless.health,
                     metric: services.browserless.health === 'online' ? `${services.browserless.used}/${services.browserless.total}` : 'OFFLINE',
-                    detail: 'Cloud Visualization',
+                    detail: t('dashboard.details.visual_cloud'),
                     errorMsg: 'Browserless Cloud inaccesible o cuota excedida.'
+                },
+                {
+                    id: 'orchestrator',
+                    name: 'ORCHESTRATOR',
+                    icon: '🛰️',
+                    health: services.orchestrator.health,
+                    metric: 'v2.6',
+                    detail: t('dashboard.details.node_api'),
+                    errorMsg: 'Orquestrador Desconectado.'
                 }
             ]
         }
@@ -144,19 +156,32 @@ export default function Dashboard() {
                 <div className="flex items-center gap-4">
                     <div className={`w-4 h-4 rounded-full ${connected ? 'bg-status-green' : 'bg-status-red'}`} />
                     <div>
-                        <h1 className="text-white text-3xl font-black uppercase leading-none">SYSTEM {connected ? 'READY' : 'OFFLINE'}</h1>
-                        <p className="text-white text-sm font-mono font-black mt-1 uppercase tracking-tighter">LAST SYNC: {lastSync ? new Date(lastSync).toLocaleTimeString() : 'NEVER'}</p>
+                        <h1 className="text-white text-3xl font-black uppercase leading-none">{connected ? t('dashboard.system_ready') : t('dashboard.system_offline')}</h1>
+                        <p className="text-white text-sm font-mono font-black mt-1 uppercase tracking-tighter">{t('dashboard.last_sync')}: {lastSync ? new Date(lastSync).toLocaleTimeString() : t('common.never')}</p>
                     </div>
                 </div>
-                {!connected && <AlertTriangle size={36} className="text-status-red" />}
+                {!connected ? (
+                    <div className="flex flex-col items-end gap-2">
+                        <AlertTriangle size={36} className="text-status-red" />
+                        <motion.button
+                            whileTap={{ scale: 0.9 }}
+                            onClick={() => setActiveTab('settings')}
+                            className="bg-white/10 text-white text-[10px] font-black px-4 py-1.5 rounded-full border border-white/20 uppercase tracking-widest hover:bg-white/20 transition-all"
+                        >
+                            {t('nav.settings')}
+                        </motion.button>
+                    </div>
+                ) : (
+                    <Activity size={36} className="text-status-green/50" />
+                )}
             </div>
 
             {/* ── Stats Bar ── */}
             <div className="grid grid-cols-3 gap-3">
                 {[
-                    { label: 'PENDING', val: stats.assigned, color: '#FFFFFF', bg: 'rgba(255,255,255,0.15)', tab: 'queue' },
-                    { label: 'DONE', val: stats.completed, color: '#00FF95', bg: 'rgba(0,255,149,0.15)', tab: 'queue' },
-                    { label: 'FAIL', val: stats.failed, color: '#FF3333', bg: 'rgba(255,51,51,0.15)', tab: 'queue' },
+                    { label: t('dashboard.stats.pending'), val: stats.assigned, color: '#FFFFFF', bg: 'rgba(255,255,255,0.15)', tab: 'queue' },
+                    { label: t('dashboard.stats.done'), val: stats.completed, color: '#00FF95', bg: 'rgba(0,255,149,0.15)', tab: 'queue' },
+                    { label: t('dashboard.stats.fail'), val: stats.failed, color: '#FF3333', bg: 'rgba(255,51,51,0.15)', tab: 'queue' },
                 ].map((s) => (
                     <motion.div
                         key={s.label}
@@ -176,7 +201,7 @@ export default function Dashboard() {
                 <div className="flex items-center justify-between mb-6">
                     <h2 className="text-white text-2xl font-black uppercase tracking-tight flex items-center gap-2">
                         <ShieldCheck size={24} className="text-buoy-orange" />
-                        Tactical View
+                        {t('dashboard.tactical_view')}
                     </h2>
                     <span className="bg-white/20 text-white text-[12px] font-black px-4 py-1.5 rounded-full">{services.thermal.label}</span>
                 </div>
@@ -187,6 +212,9 @@ export default function Dashboard() {
                     <HardwareStats side="right" />
                 </div>
             </div>
+
+            {/* ── Analytics Section ── */}
+            <SyncHistoryGraph />
 
             {/* ── Resource Management ── */}
             <ResourceManager />
@@ -200,12 +228,12 @@ export default function Dashboard() {
                 >
                     <div className="flex items-center gap-4 mb-6">
                         <AlertTriangle size={48} className="text-status-amber" />
-                        <h2 className="text-black text-3xl font-black uppercase leading-tight">Acción Requerida</h2>
+                        <h2 className="text-black text-3xl font-black uppercase leading-tight">{t('dashboard.action_required')}</h2>
                     </div>
                     <p className="text-black font-black text-xl leading-snug mb-8">{pendingApproval.task}</p>
                     <div className="flex gap-4">
-                        <button className="flex-1 py-5 bg-black text-white text-2xl font-black rounded-3xl uppercase tracking-tighter active:scale-95 transition-transform">Confirmar</button>
-                        <button className="flex-1 py-5 bg-black/10 text-black text-2xl font-black rounded-3xl uppercase tracking-tighter border-2 border-black/20">Omitir</button>
+                        <button className="flex-1 py-5 bg-black text-white text-2xl font-black rounded-3xl uppercase tracking-tighter active:scale-95 transition-transform">{t('common.confirm')}</button>
+                        <button className="flex-1 py-5 bg-black/10 text-black text-2xl font-black rounded-3xl uppercase tracking-tighter border-2 border-black/20">{t('common.skip')}</button>
                     </div>
                 </motion.div>
             )}
@@ -255,7 +283,7 @@ export default function Dashboard() {
                                 onClick={() => setAlertService(null)}
                                 className="w-full py-5 bg-white text-status-red text-2xl font-black rounded-[2rem] uppercase tracking-tighter shadow-2xl active:scale-95 transition-transform"
                             >
-                                Entendido
+                                {t('common.close')}
                             </button>
                         </motion.div>
                     </motion.div>

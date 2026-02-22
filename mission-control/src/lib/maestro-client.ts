@@ -222,3 +222,13 @@ export function getDownloadUrl(assetId: number): string {
     return `${getMaestroUrl()}/api/releases/download/${assetId}`;
 }
 
+// ─── Trust Tunnel ───
+
+export async function getTrustStatus() {
+    return maestroGet<{ active: boolean }>('/api/trust-tunnel/status');
+}
+
+export async function toggleTrustTunnel(password: string) {
+    return maestroPost<{ active: boolean }>('/api/trust-tunnel/toggle', { password });
+}
+

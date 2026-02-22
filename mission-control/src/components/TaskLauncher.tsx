@@ -6,17 +6,20 @@ import { Send, Zap, Bot, Shuffle, ChevronDown } from 'lucide-react';
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
 import { useMissionStore } from '@/store/useMissionStore';
 import { sendTask, approve, reject } from '@/lib/maestro-client';
+import { useTranslation } from 'react-i18next';
 
 type ExecutionMode = 'cascade' | 'flash' | 'clawdbot';
 
-const modeConfig: Record<ExecutionMode, { icon: React.ReactNode; label: string; color: string; desc: string }> = {
-    cascade: { icon: <Shuffle size={16} />, label: 'Cascade', color: 'text-buoy-orange', desc: 'Jules → Flash → ClawdBot' },
-    flash: { icon: <Zap size={16} />, label: 'Flash Only', color: 'text-status-amber', desc: 'Gemini Flash direct' },
-    clawdbot: { icon: <Bot size={16} />, label: 'ClawdBot', color: 'text-status-blue', desc: 'Direct bypass' },
-};
+const getModeConfig = (t: any): Record<ExecutionMode, { icon: React.ReactNode; label: string; color: string; desc: string }> => ({
+    cascade: { icon: <Shuffle size={16} />, label: t('tasks.modes.cascade.label'), color: 'text-buoy-orange', desc: t('tasks.modes.cascade.desc') },
+    flash: { icon: <Zap size={16} />, label: t('tasks.modes.flash.label'), color: 'text-status-amber', desc: t('tasks.modes.flash.desc') },
+    clawdbot: { icon: <Bot size={16} />, label: t('tasks.modes.clawdbot.label'), color: 'text-status-blue', desc: t('tasks.modes.clawdbot.desc') },
+});
 
 export default function TaskLauncher() {
     const { taskDraft, setTaskDraft, pendingApproval, setPendingApproval, addToHistory, serverUrl } = useMissionStore();
+    const { t } = useTranslation();
+    const modeConfig = getModeConfig(t);
     const [mode, setMode] = useState<ExecutionMode>('cascade');
     const [sending, setSending] = useState(false);
     const [showModes, setShowModes] = useState(false);
@@ -40,7 +43,7 @@ export default function TaskLauncher() {
             });
 
             setTaskDraft('');
-            setStatus({ type: 'success', msg: 'Task launched successfully' });
+            setStatus({ type: 'success', msg: t('tasks.status.success') });
             setTimeout(() => setStatus(null), 3000);
         } catch (err: any) {
             console.error('Task send failed:', err);
@@ -70,8 +73,8 @@ export default function TaskLauncher() {
         <div className="flex flex-col gap-4">
             {/* Header */}
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                <h2 className="text-lg font-display text-glimmer">Launch Task</h2>
-                <p className="text-2xs text-white/30 mt-1">Send tasks to the orchestration cascade</p>
+                <h2 className="text-lg font-display text-glimmer">{t('tasks.title')}</h2>
+                <p className="text-2xs text-white/30 mt-1">{t('tasks.subtitle')}</p>
             </motion.div>
 
             {/* Task Input */}
@@ -84,7 +87,7 @@ export default function TaskLauncher() {
                 <textarea
                     value={taskDraft}
                     onChange={(e) => setTaskDraft(e.target.value)}
-                    placeholder="Describe the task..."
+                    placeholder={t('tasks.placeholder')}
                     rows={4}
                     className="w-full bg-transparent text-sm text-white/90 placeholder:text-white/20 resize-none outline-none font-sans"
                 />
@@ -139,7 +142,7 @@ export default function TaskLauncher() {
                     ) : (
                         <Send size={14} />
                     )}
-                    <span>{sending ? 'Sending...' : 'Launch Task'}</span>
+                    <span>{sending ? t('common.sending') : t('tasks.btn_launch')}</span>
                 </motion.button>
 
                 {/* Status Message */}
@@ -171,7 +174,7 @@ export default function TaskLauncher() {
                     <div className="flex items-center gap-2 mb-3">
                         <span className="status-dot status-dot-amber" />
                         <span className="text-xs font-mono uppercase tracking-widest text-status-amber">
-                            ClawdBot Approval
+                            {t('tasks.approval.title')}
                         </span>
                     </div>
                     <p className="text-sm text-white/80 mb-2">{pendingApproval.task}</p>
@@ -182,14 +185,14 @@ export default function TaskLauncher() {
                             onClick={handleApprove}
                             className="btn-primary flex-1 py-2.5 text-xs rounded-xl"
                         >
-                            ✅ Approve
+                            ✅ {t('tasks.approval.btn_approve')}
                         </motion.button>
                         <motion.button
                             whileTap={{ scale: 0.95 }}
                             onClick={handleReject}
                             className="btn-glass flex-1 py-2.5 text-xs rounded-xl"
                         >
-                            ❌ Reject
+                            ❌ {t('tasks.approval.btn_reject')}
                         </motion.button>
                     </div>
                 </motion.div>
