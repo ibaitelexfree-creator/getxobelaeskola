@@ -15,6 +15,11 @@ interface QuizViewProps {
     onNavigate: (index: number) => void;
     onSubmit: () => void;
     lastSaved?: string | null;
+    /**
+     * 'default': Uses semantic classes (text-foreground, bg-card) - standard behavior
+     * 'nautical': Uses explicit dark theme classes (text-white, bg-white/5) - for PER exam
+     */
+    variant?: 'default' | 'nautical';
 }
 
 export default function QuizView({
@@ -29,8 +34,29 @@ export default function QuizView({
     answers,
     onNavigate,
     onSubmit,
-    lastSaved
+    lastSaved,
+    variant = 'default'
 }: QuizViewProps) {
+    const isNautical = variant === 'nautical';
+
+    // Theme Classes
+    const theme = {
+        text: isNautical ? 'text-white' : 'text-foreground',
+        subText: isNautical ? 'text-white/60' : 'text-muted-foreground',
+        card: isNautical
+            ? 'bg-white/5 border-white/10 shadow-2xl'
+            : 'bg-card/40 backdrop-blur-md border-border shadow-2xl animate-in fade-in slide-in-from-bottom-4 duration-500',
+        optionBase: isNautical
+            ? 'border-2 rounded-xl transition-all focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:opacity-50'
+            : 'border-2 rounded-xl transition-all focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:opacity-50', // Same structure, colors differ
+        optionIdle: isNautical
+            ? 'border-white/10 hover:border-primary/50 hover:bg-white/5'
+            : 'border-border hover:border-primary/50 hover:bg-primary/5',
+        optionSelected: 'border-primary bg-primary/10 ring-2 ring-primary/20',
+        optionTextIdle: isNautical ? 'text-white' : 'text-foreground',
+        optionTextSelected: 'text-primary' // or foreground? usually primary or contrast
+    };
+
     const [showConfirm, setShowConfirm] = useState(false);
     const progress = ((currentQuestionIndex + 1) / totalQuestions) * 100;
 
@@ -98,12 +124,9 @@ export default function QuizView({
                                 key={opt.id}
                                 onClick={() => onAnswer(opt.id)}
                                 disabled={isSubmitting}
-                                className={`group relative flex flex-col items-center justify-center p-8 border-2 rounded-xl transition-all focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:opacity-50 ${isSelected
-                                    ? 'border-primary bg-primary/10 ring-2 ring-primary/20'
-                                    : 'border-border hover:border-primary/50 hover:bg-primary/5'
-                                    }`}
+                                className={`group relative flex flex-col items-center justify-center p-8 ${theme.optionBase} ${isSelected ? theme.optionSelected : theme.optionIdle}`}
                             >
-                                <span className={`text-lg font-bold ${isSelected ? 'text-primary' : 'text-foreground'}`}>
+                                <span className={`text-lg font-bold ${isSelected ? 'text-primary' : theme.optionTextIdle}`}>
                                     {opt.texto}
                                 </span>
                                 {isSelected && <div className="absolute top-2 right-2 w-2 h-2 rounded-full bg-primary" aria-label="Seleccionado" />}
@@ -124,16 +147,13 @@ export default function QuizView({
                             key={option.id || idx}
                             onClick={() => onAnswer(option.id)}
                             disabled={isSubmitting}
-                            className={`group relative flex items-center w-full p-5 text-left border-2 rounded-xl transition-all focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:opacity-50 ${isSelected
-                                ? 'border-primary bg-primary/10 ring-2 ring-primary/20'
-                                : 'border-border hover:border-primary/50 hover:bg-primary/5'
-                                }`}
+                            className={`group relative flex items-center w-full p-5 text-left ${theme.optionBase} ${isSelected ? theme.optionSelected : theme.optionIdle}`}
                         >
                             <span className={`flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-lg text-base font-bold mr-5 transition-colors ${isSelected ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground group-hover:bg-primary group-hover:text-primary-foreground'
                                 }`}>
                                 {option.id || String.fromCharCode(65 + idx)}
                             </span>
-                            <span className={`text-base font-medium transition-colors ${isSelected ? 'text-foreground' : 'text-white/90 group-hover:text-foreground'
+                            <span className={`text-base font-medium transition-colors ${isSelected ? theme.text : (isNautical ? 'text-white/90 group-hover:text-white' : 'text-white/90 group-hover:text-foreground')
                                 }`}>
                                 {option.texto}
                             </span>
@@ -284,15 +304,15 @@ export default function QuizView({
 
                 {/* Main Question Area */}
                 <div className="lg:col-span-3 space-y-8">
-                    <div className="bg-card/40 backdrop-blur-md p-10 rounded-2xl border border-white/10 shadow-2xl space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                    <div className={`p-10 rounded-2xl border ${theme.card} space-y-8`}>
                         <div className="space-y-4">
                             <div className="flex items-center justify-between">
                                 <div className="inline-block px-3 py-1 bg-primary/10 text-primary text-3xs font-bold uppercase tracking-wider rounded-full border border-primary/20">
                                     {question.tipo_pregunta.replace('_', ' ')}
                                 </div>
-                                <span className="text-3xs font-bold text-white/50">{question.puntos} {question.puntos === 1 ? 'punto' : 'puntos'}</span>
+                                <span className={`text-3xs font-bold ${isNautical ? 'text-white/50' : 'text-muted-foreground'}`}>{question.puntos} {question.puntos === 1 ? 'punto' : 'puntos'}</span>
                             </div>
-                            <h3 className="text-2xl font-semibold text-foreground leading-tight tracking-tight">
+                            <h3 className={`text-2xl font-semibold leading-tight tracking-tight ${theme.text}`}>
                                 {question.enunciado_es}
                             </h3>
                         </div>
@@ -315,7 +335,7 @@ export default function QuizView({
                             <button
                                 onClick={() => onNavigate(currentQuestionIndex - 1)}
                                 disabled={currentQuestionIndex === 0}
-                                className="px-6 py-3 rounded-xl border border-white/10 text-sm font-bold text-muted-foreground hover:bg-white/5 hover:text-white transition-all disabled:opacity-20 disabled:cursor-not-allowed"
+                                className={`px-6 py-3 rounded-xl border border-white/10 text-sm font-bold transition-all disabled:opacity-20 disabled:cursor-not-allowed ${theme.subText} hover:bg-white/5 hover:text-white`}
                             >
                                 ← Anterior
                             </button>
@@ -342,5 +362,3 @@ export default function QuizView({
         </div>
     );
 }
-
-// Helper components/logic can go here
