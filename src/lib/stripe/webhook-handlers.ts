@@ -1,7 +1,8 @@
 import { SupabaseClient } from '@supabase/supabase-js';
 import Stripe from 'stripe';
+import { stripe } from '../stripe';
 import { resend, DEFAULT_FROM_EMAIL } from '../resend';
-import { rentalTemplate, inscriptionTemplate, membershipTemplate, internalOrderNotificationTemplate } from '../email-templates';
+import { rentalTemplate, inscriptionTemplate, membershipTemplate, internalOrderNotificationTemplate, paymentFailedTemplate } from '../email-templates';
 import { createRentalGoogleEvent } from '../google-calendar';
 
 const STAFF_EMAIL = 'getxobelaeskola@gmail.com';
@@ -302,5 +303,106 @@ export class StripeHandlers {
 
         // 3. Optional: Send notification
         console.log(`✅ Bono ${bono_id} granted to user ${userId}`);
+    }
+
+    async handlePaymentFailed(paymentIntent: Stripe.PaymentIntent) {
+        console.log(`⚠️ Handling Payment Failed: ${paymentIntent.id}`);
+        let userId: string | null = null;
+        let isSubscription = false;
+
+        // 1. Try to find user via Invoice -> Subscription
+        // Use 'as any' to avoid type issues with Stripe library versions
+        const pi = paymentIntent as any;
+        if (pi.invoice) {
+            const invoiceId = typeof pi.invoice === 'string' ? pi.invoice : pi.invoice.id;
+            try {
+                // Fetch invoice to get subscription ID
+                const invoice = await stripe.invoices.retrieve(invoiceId) as any;
+
+                if (invoice.subscription) {
+                    isSubscription = true;
+                    const subscriptionId = typeof invoice.subscription === 'string' ? invoice.subscription : invoice.subscription.id;
+
+                    // Fetch user from DB based on subscription
+                    const { data: subData } = await this.supabase
+                        .from('subscriptions')
+                        .select('user_id')
+                        .eq('stripe_subscription_id', subscriptionId)
+                        .single();
+
+                    if (subData) {
+                        userId = subData.user_id;
+                    }
+                }
+            } catch (err) {
+                console.error('Error fetching invoice for failed payment:', err);
+            }
+        }
+
+        // 2. If not found yet, try metadata or customer ID
+        if (!userId) {
+            if (paymentIntent.metadata && paymentIntent.metadata.user_id) {
+                userId = paymentIntent.metadata.user_id;
+            } else if (paymentIntent.customer) {
+                const customerId = typeof paymentIntent.customer === 'string' ? paymentIntent.customer : paymentIntent.customer.id;
+                const { data: userData } = await this.supabase
+                    .from('profiles')
+                    .select('id')
+                    .eq('stripe_customer_id', customerId)
+                    .single();
+
+                if (userData) {
+                    userId = userData.id;
+                }
+            }
+        }
+
+        if (!userId) {
+            console.warn(`Could not identify user for failed payment ${paymentIntent.id}`);
+            return;
+        }
+
+        console.log(`Identified user ${userId} for failed payment. Is Subscription: ${isSubscription}`);
+
+        // 3. Block access if subscription
+        if (isSubscription) {
+             const { error } = await this.supabase
+                .from('profiles')
+                .update({ status_socio: 'past_due' })
+                .eq('id', userId);
+
+            if (error) {
+                console.error('Error updating profile status:', error);
+            } else {
+                console.log(`Blocked access for user ${userId} (status_socio: past_due)`);
+            }
+        }
+
+        // 4. Send Email
+        try {
+            if (!resend) return;
+            const { data: profile } = await this.supabase.from('profiles').select('email, nombre').eq('id', userId).single();
+            if (!profile?.email) return;
+
+            // Try to extract locale from metadata if available, otherwise default to es
+            const locale = (paymentIntent.metadata && paymentIntent.metadata.locale) ? paymentIntent.metadata.locale : 'es';
+
+            const subjects: any = {
+                es: 'Problema con tu pago - Getxo Sailing School',
+                en: 'Payment Issue - Getxo Sailing School',
+                fr: 'Problème de paiement - Getxo Sailing School',
+                eu: 'Ordainketa Arazoa - Getxo Bela Eskola'
+            };
+
+            await resend.emails.send({
+                from: DEFAULT_FROM_EMAIL,
+                to: profile.email,
+                subject: subjects[locale] || subjects.es,
+                html: paymentFailedTemplate(profile.nombre || 'Navegante', locale as any)
+            });
+            console.log(`Sent payment failed email to ${profile.email}`);
+        } catch (e) {
+            console.error('Error sending payment failed email:', e);
+        }
     }
 }

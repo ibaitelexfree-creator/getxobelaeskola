@@ -119,6 +119,10 @@ export async function POST(request: Request) {
                     // (Additional logic can be added to handlers to notify users)
                     break;
 
+                case 'payment_intent.payment_failed':
+                    await handlers.handlePaymentFailed(event.data.object as Stripe.PaymentIntent);
+                    break;
+
                 default:
                     console.log(`ℹ️  Unhandled event type: ${event.type}`);
             }
