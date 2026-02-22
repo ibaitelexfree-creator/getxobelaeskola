@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@capacitor/android": "^8.1.0",
+    "@capacitor/camera": "^8.0.1",
     "@capacitor/cli": "^8.1.0",
     "@capacitor/core": "^8.1.0",
     "@capacitor/geolocation": "^8.1.0",
@@ -33,6 +34,7 @@
     "@types/recharts": "^1.8.29",
     "@types/three": "^0.182.0",
     "autoprefixer": "10.4",
+    "browser-image-compression": "^2.0.2",
     "canvas-confetti": "^1.9.4",
     "cheerio": "^1.2.0",
     "date-fns": "^4.1.0",

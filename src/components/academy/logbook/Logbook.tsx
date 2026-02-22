@@ -3,14 +3,17 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import dynamic from 'next/dynamic';
 import { useParams } from 'next/navigation';
+import { createClient } from '@/lib/supabase/client';
+import { Camera, CameraResultType } from '@capacitor/camera';
+import imageCompression from 'browser-image-compression';
 import {
     Book, MapPin, Award, Ship, Waves, Wind,
-    ChevronRight, Anchor, Calendar, Download, Plus, Trash2, Smile, Layers, HelpCircle
+    ChevronRight, Anchor, Calendar, Download, Plus, Trash2, Smile, Layers, HelpCircle,
+    Camera as CameraIcon, Image as ImageIcon, X
 } from 'lucide-react';
 import { apiUrl } from '@/lib/api';
 import { useAcademyFeedback } from '@/hooks/useAcademyFeedback';
 import { useSmartTracker } from '@/hooks/useSmartTracker';
-import { generateLogbookReportPDF } from '@/lib/logbook/pdfReportGenerator';
 
 // Direct dynamic import with explicit default handling
 const LeafletMap = dynamic(
@@ -35,10 +38,12 @@ export default function Logbook() {
     const [allSkills, setAllSkills] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [loadingDiary, setLoadingDiary] = useState(false);
-    const [isExporting, setIsExporting] = useState(false);
     const [isSavingDiary, setIsSavingDiary] = useState(false);
     const [newDiaryContent, setNewDiaryContent] = useState('');
     const [selectedPoint, setSelectedPoint] = useState<any>(null);
+    const [selectedImages, setSelectedImages] = useState<File[]>([]);
+    const [previewUrls, setPreviewUrls] = useState<string[]>([]);
+    const [isUploading, setIsUploading] = useState(false);
     const params = useParams();
     const { showMessage } = useAcademyFeedback();
 
@@ -141,46 +146,87 @@ export default function Logbook() {
         }
     }, [activeTab]);
 
-    const handleExportPDF = async () => {
-        setIsExporting(true);
+    const handleSelectImage = async () => {
         try {
-            // Ensure we have diary entries even if tab wasn't opened
-            let entries = diaryEntries;
-            if (entries.length === 0) {
-                const res = await fetch(apiUrl('/api/logbook/diary'));
-                if (res.ok) {
-                    entries = await res.json();
-                    setDiaryEntries(entries);
+            const image = await Camera.getPhoto({
+                quality: 80,
+                allowEditing: false,
+                resultType: CameraResultType.Uri
+            });
+
+            if (image.webPath) {
+                const response = await fetch(image.webPath);
+                const blob = await response.blob();
+                const file = new File([blob], `photo_${Date.now()}.jpg`, { type: blob.type });
+
+                const options = {
+                    maxSizeMB: 1,
+                    maxWidthOrHeight: 1920,
+                    useWebWorker: true,
+                };
+
+                try {
+                    const compressedFile = await imageCompression(file, options);
+                    setSelectedImages(prev => [...prev, compressedFile]);
+
+                    const previewUrl = URL.createObjectURL(compressedFile);
+                    setPreviewUrls(prev => [...prev, previewUrl]);
+                } catch (error) {
+                    console.error('Compression error:', error);
+                    // Fallback to original if compression fails
+                    setSelectedImages(prev => [...prev, file]);
+                    setPreviewUrls(prev => [...prev, URL.createObjectURL(file)]);
                 }
             }
-
-            // Calculate stats
-            const totalHours = officialData?.estadisticas?.horas_totales || 0;
-            const totalMiles = totalHours * 5.2; // Estimation based on avg speed
-
-            // Count unique visited marinas/zones
-            const zones = new Set();
-            (officialData?.horas || []).forEach((h: any) => {
-                if (h.zona_nombre) zones.add(h.zona_nombre);
-            });
-            const visitedMarinas = zones.size;
-
-            await generateLogbookReportPDF({
-                studentName: officialData?.user?.full_name || 'Alumno',
-                totalHours,
-                totalMiles,
-                visitedMarinas,
-                sessions: officialData?.horas || [],
-                diaryEntries: entries
-            });
-
-            showMessage('PDF Generado', 'Tu bitácora se ha descargado correctamente', 'success');
         } catch (error) {
-            console.error('Error exporting PDF:', error);
-            showMessage('Error', 'No se pudo generar el PDF', 'error');
-        } finally {
-            setIsExporting(false);
+            console.error('Error selecting image:', error);
         }
+    };
+
+    const handleRemoveImage = (index: number) => {
+        setSelectedImages(prev => prev.filter((_, i) => i !== index));
+        setPreviewUrls(prev => {
+            const newUrls = [...prev];
+            URL.revokeObjectURL(newUrls[index]);
+            newUrls.splice(index, 1);
+            return newUrls;
+        });
+    };
+
+    const uploadImages = async (): Promise<string[]> => {
+        if (selectedImages.length === 0) return [];
+        setIsUploading(true);
+        const uploadedUrls: string[] = [];
+        const supabase = createClient();
+
+        try {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) throw new Error('Usuario no autenticado');
+
+            for (const file of selectedImages) {
+                const fileExt = file.name.split('.').pop() || 'jpg';
+                const fileName = `${user.id}/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+
+                const { error: uploadError } = await supabase.storage
+                    .from('logbook-photos')
+                    .upload(fileName, file);
+
+                if (uploadError) throw uploadError;
+
+                const { data: { publicUrl } } = supabase.storage
+                    .from('logbook-photos')
+                    .getPublicUrl(fileName);
+
+                uploadedUrls.push(publicUrl);
+            }
+        } catch (error) {
+            console.error('Error uploading images:', error);
+            showMessage('Error', 'No se pudieron subir las imágenes', 'error');
+            throw error; // Re-throw to stop entry creation
+        } finally {
+            setIsUploading(false);
+        }
+        return uploadedUrls;
     };
 
     const handleAddDiaryEntry = async () => {
@@ -188,14 +234,21 @@ export default function Logbook() {
 
         setIsSavingDiary(true);
         try {
+            const mediaUrls = await uploadImages();
+
             const res = await fetch(apiUrl('/api/logbook/diary'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ contenido: newDiaryContent })
+                body: JSON.stringify({
+                    contenido: newDiaryContent,
+                    media_urls: mediaUrls
+                })
             });
 
             if (res.ok) {
                 setNewDiaryContent('');
+                setSelectedImages([]);
+                setPreviewUrls([]);
                 loadDiary();
                 showMessage('Éxito', 'Entrada guardada en tu diario', 'success');
             } else {
@@ -203,7 +256,7 @@ export default function Logbook() {
             }
         } catch (error) {
             console.error('Error adding diary entry:', error);
-            showMessage('Error', 'Error de conexión', 'error');
+            if (!isUploading) showMessage('Error', 'Error de conexión', 'error');
         } finally {
             setIsSavingDiary(false);
         }
@@ -249,28 +302,11 @@ export default function Logbook() {
                     </div>
                 </div>
 
-                <div className="flex items-stretch gap-4">
-                    <div className="px-8 py-5 bg-white/5 border border-white/10 rounded-3xl text-center backdrop-blur-md">
-                        <div className="text-[10px] uppercase tracking-widest text-white/40 mb-1">Millas Totales</div>
-                        <div className="text-4xl font-black text-white">
-                            {((officialData?.estadisticas?.horas_totales || 0) * 5.2).toFixed(1)}
-                        </div>
+                <div className="px-8 py-5 bg-white/5 border border-white/10 rounded-3xl text-center backdrop-blur-md">
+                    <div className="text-[10px] uppercase tracking-widest text-white/40 mb-1">Millas Totales</div>
+                    <div className="text-4xl font-black text-white">
+                        {((officialData?.estadisticas?.horas_totales || 0) * 5.2).toFixed(1)}
                     </div>
-
-                    <button
-                        onClick={handleExportPDF}
-                        disabled={isExporting}
-                        className="group px-6 bg-white/5 hover:bg-accent/10 border border-white/10 hover:border-accent/30 rounded-3xl transition-all flex flex-col items-center justify-center gap-1 min-w-[100px]"
-                    >
-                        {isExporting ? (
-                            <div className="w-5 h-5 border-2 border-accent border-t-transparent rounded-full animate-spin" />
-                        ) : (
-                            <Download className="text-white/60 group-hover:text-accent transition-colors" size={20} />
-                        )}
-                        <span className="text-[10px] uppercase tracking-widest text-white/40 group-hover:text-accent font-black">
-                            Exportar
-                        </span>
-                    </button>
                 </div>
             </header>
 
@@ -521,25 +557,45 @@ export default function Logbook() {
                                 className="w-full bg-black/40 border border-white/5 rounded-3xl p-6 text-white text-sm focus:outline-none focus:border-accent/40 min-h-[150px] transition-all resize-none mb-6"
                             />
 
+                            {/* Image Previews */}
+                            {previewUrls.length > 0 && (
+                                <div className="flex flex-wrap gap-4 mb-6">
+                                    {previewUrls.map((url, index) => (
+                                        <div key={index} className="relative w-24 h-24 rounded-xl overflow-hidden group border border-white/10">
+                                            <img src={url} alt="Preview" className="w-full h-full object-cover" />
+                                            <button
+                                                onClick={() => handleRemoveImage(index)}
+                                                className="absolute top-1 right-1 bg-black/50 hover:bg-red-500/80 p-1 rounded-full text-white transition-colors"
+                                            >
+                                                <X size={12} />
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+
                             <div className="flex items-center justify-between">
                                 <div className="flex gap-2">
                                     <button className="w-10 h-10 bg-white/5 hover:bg-white/10 rounded-full flex items-center justify-center text-white/40 transition-colors">
                                         <Smile size={18} />
                                     </button>
-                                    <button className="w-10 h-10 bg-white/5 hover:bg-white/10 rounded-full flex items-center justify-center text-white/40 transition-colors">
-                                        <MapPin size={18} />
+                                    <button
+                                        onClick={handleSelectImage}
+                                        className="w-10 h-10 bg-white/5 hover:bg-white/10 rounded-full flex items-center justify-center text-white/40 transition-colors"
+                                    >
+                                        <CameraIcon size={18} />
                                     </button>
                                 </div>
                                 <button
                                     onClick={handleAddDiaryEntry}
-                                    disabled={isSavingDiary || !newDiaryContent.trim()}
+                                    disabled={isSavingDiary || (!newDiaryContent.trim() && selectedImages.length === 0)}
                                     className={`px-8 py-3 rounded-full text-[10px] font-black uppercase tracking-widest transition-all
-                                        ${newDiaryContent.trim()
+                                        ${newDiaryContent.trim() || selectedImages.length > 0
                                             ? 'bg-accent text-nautical-black shadow-lg shadow-accent/20 hover:scale-105'
                                             : 'bg-white/5 text-white/20'
                                         }`}
                                 >
-                                    {isSavingDiary ? 'Guardando...' : 'Guardar Entrada'}
+                                    {isSavingDiary || isUploading ? 'Guardando...' : 'Guardar Entrada'}
                                 </button>
                             </div>
                         </div>
@@ -573,6 +629,23 @@ export default function Logbook() {
                                             <p className="text-white/70 leading-relaxed italic font-serif">
                                                 "{entry.contenido}"
                                             </p>
+
+                                            {/* Gallery */}
+                                            {entry.bitacora_multimedia && entry.bitacora_multimedia.length > 0 && (
+                                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
+                                                    {entry.bitacora_multimedia.map((media: any) => (
+                                                        <div key={media.id} className="relative aspect-square rounded-xl overflow-hidden border border-white/10 group cursor-pointer">
+                                                            <img
+                                                                src={media.url}
+                                                                alt="Logbook Media"
+                                                                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                                                            />
+                                                            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors" />
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            )}
+
                                             {entry.tags && entry.tags.length > 0 && (
                                                 <div className="flex gap-2 mt-4">
                                                     {entry.tags.map((tag: string) => (
