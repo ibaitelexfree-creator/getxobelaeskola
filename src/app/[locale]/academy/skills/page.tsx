@@ -115,6 +115,36 @@ export default function SkillsPage({ params }: { params: { locale: string } }) {
                 </div>
             </div>
 
+            {/* Simulation Exam Section */}
+            <div className="container mx-auto px-6 pt-12 pb-4">
+                <div className="flex flex-col md:flex-row items-center justify-between gap-8 bg-gradient-to-r from-blue-900/20 to-indigo-900/20 p-8 rounded-3xl border border-blue-500/30 backdrop-blur-sm relative overflow-hidden group">
+                    <div className="absolute inset-0 bg-blue-500/5 group-hover:bg-blue-500/10 transition-colors duration-500" />
+
+                    <div className="relative z-10">
+                        <div className="flex items-center gap-3 mb-2">
+                            <span className="text-2xs font-black uppercase tracking-[0.2em] text-blue-400 bg-blue-500/10 px-3 py-1 rounded-full border border-blue-500/20">
+                                Nuevo
+                            </span>
+                            <span className="text-2xs font-black uppercase tracking-[0.2em] text-white/40">
+                                Oficial DGMM
+                            </span>
+                        </div>
+                        <h2 className="text-3xl font-display italic text-white mb-2">Examen Final Simulado (PER)</h2>
+                        <p className="text-white/60 max-w-xl text-sm leading-relaxed">
+                            Pon a prueba tus conocimientos con un examen completo de 60 preguntas y 90 minutos, simulando las condiciones reales del examen oficial. Incluye revisión detallada.
+                        </p>
+                    </div>
+
+                    <Link
+                        href={`/${params.locale}/academy/skills/simulation`}
+                        className="relative z-10 px-8 py-4 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold uppercase tracking-widest shadow-lg shadow-blue-500/20 transition-all hover:scale-105 active:scale-95 flex items-center gap-3 shrink-0"
+                    >
+                        <span>Comenzar Simulacro</span>
+                        <span className="text-xl">⏱️</span>
+                    </Link>
+                </div>
+            </div>
+
             <div className="container mx-auto px-6 py-20">
                 <h2 className="text-3xl font-display italic mb-12 flex items-center gap-4">
                     <span className="text-accent">⚡</span> Árbol de Habilidades
