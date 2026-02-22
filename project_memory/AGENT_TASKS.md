@@ -19,6 +19,7 @@ quiero que quites esta ultima parte HQ Relay, | running | 2026-02-21 |
 ## Tareas Completadas
 | ID | Agente | Tarea | Resultado | Fecha |
 |----|--------|-------|-----------|-------|
+| AGA-VERIFY-001 | antigravity | Verificación Visual de Academia (Home, Lab, Nomenclature, Logbook) | ✅ 4 Screenshots enviadas a Telegram exitosamente con Browserless. | 2026-02-22 |
 | 17091207529284488477 | jules | Verify that this test task is dispatched correctly. | Task finished successfully | 2026-02-22 |
 | ACA-001 | jules | Dashboard del Alumno — Streak & Progreso Real: Implementar un streak diario (racha de días consecutivos estudiados) visible en el dashboard con animación de fuego 🔥, usando datos reales de la base de datos Supabase. Incluir barra de progreso global del curso en % con tooltip que muestra módulos completados vs pendientes. | Matched to session: 12297462820068788179 (COMPLETED) | 2026-02-22 |
 | ACA-002 | jules | Simulador de Vela — Motor de Física del Viento: Mejorar el simulador de vela en `/simulador` para que el viento afecte la velocidad del barco según el ángulo de ceñida real (close-hauled, beam reach, broad reach, running). Implementar la fórmula polar de velocidad de vela con valores numéricos realistas en nudos. | Matched to session: 9590920399159640396 (COMPLETED) | 2026-02-22 |

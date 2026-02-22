@@ -165,29 +165,45 @@ export async function getResourceStatus() {
         description: SERVICES.ORCHESTRATOR.description
     };
 
-    // Hardware Metrics (Windows specific)
+    // Hardware Metrics (Improved)
     const hardware = {
         cpu: { load: 0, temp: 0 },
         gpu: { temp: 0, hotspot: 0, name: 'NVIDIA GPU' }
     };
 
     try {
-        // Query GPU stats via nvidia-smi
-        const { stdout: gpuData } = await execAsync('nvidia-smi --query-gpu=temperature.gpu,temperature.hotspot,gpu_name --format=csv,noheader,nounits');
-        const [temp, hotspot, name] = gpuData.split(',').map(s => s.trim());
+        // Query GPU stats via nvidia-smi (removed hotspot as it causes errors on some drivers)
+        const { stdout: gpuData } = await execAsync('nvidia-smi --query-gpu=temperature.gpu,gpu_name --format=csv,noheader,nounits');
+        const [temp, name] = gpuData.split(',').map(s => s.trim());
         hardware.gpu.temp = parseInt(temp) || 0;
-        hardware.gpu.hotspot = parseInt(hotspot) || 0;
         hardware.gpu.name = name || 'NVIDIA GPU';
     } catch (e) {
         // GPU might not be available or nvidia-smi missing
     }
 
     try {
-        // CPU Load via wmic (more reliable than thermal zone for non-admin)
-        const { stdout: cpuData } = await execAsync('wmic cpu get loadpercentage /value');
-        const match = cpuData.match(/LoadPercentage=(\d+)/);
-        hardware.cpu.load = match ? parseInt(match[1]) : 0;
-    } catch (e) { }
+        // Use systeminformation for more accurate metrics if available
+        const si = await import('systeminformation');
+        const cpuLoad = await si.currentLoad();
+        const cpuTemp = await si.cpuTemperature();
+
+        hardware.cpu.load = Math.round(cpuLoad.currentLoad) || 0;
+        hardware.cpu.temp = Math.round(cpuTemp.main) || 0;
+
+        // If systeminformation failed to get temp (common on Windows without admin), fallback to wmic for load
+        if (hardware.cpu.load === 0) {
+            const { stdout: cpuData } = await execAsync('wmic cpu get loadpercentage /value');
+            const match = cpuData.match(/LoadPercentage=(\d+)/);
+            hardware.cpu.load = match ? parseInt(match[1]) : 0;
+        }
+    } catch (e) {
+        // Fallback to simpler methods if systeminformation is not working
+        try {
+            const { stdout: cpuData } = await execAsync('wmic cpu get loadpercentage /value');
+            const match = cpuData.match(/LoadPercentage=(\d+)/);
+            hardware.cpu.load = match ? parseInt(match[1]) : 0;
+        } catch (innerE) { }
+    }
 
     return {
         powerMode,

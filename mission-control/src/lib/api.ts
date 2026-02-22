@@ -163,7 +163,14 @@ export const clearCache = () => executeTool('jules_clear_cache');
 
 export const getJulesBlockedStatus = () => request<{ blocked: boolean; sessions: any[] }>('GET', '/api/jules/blocked');
 
-export const getLivePreviewConfig = () => request<{ url: string; source: string; password?: string }>('GET', '/api/config/live-preview');
+export const getLivePreviewConfig = () => request<{
+    url: string;
+    source: string;
+    password?: string;
+    localIp?: string;
+    apps?: Array<{ id: string; name: string; port?: number; url?: string; type: 'web' | 'apk' }>
+}>('GET', '/api/config/live-preview');
+
 export const getVisualHistory = () => request<{ screenshots: Screenshot[] }>('GET', '/api/visual/history');
 export const getSyncHistory = (days = 7) => request<any[]>('GET', `/api/analytics/sync-history?days=${days}`);
 

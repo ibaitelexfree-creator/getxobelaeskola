@@ -9,15 +9,21 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 dotenv.config({ path: resolve(__dirname, '../.env') });
 
 const visualRelay = new VisualRelay();
+console.log(`🤖 Bot Token Prefix: ${process.env.TELEGRAM_BOT_TOKEN?.substring(0, 10)}...`);
+console.log(`👤 Chat ID: ${process.env.TELEGRAM_CHAT_ID}`);
+
 
 async function runVerification() {
     console.log('🛡️ Starting Antigravity Batch Verification...');
 
     // Read the tunnel URL if available, otherwise use default
-    const urlFile = resolve(__dirname, '../antigravity/last_tunnel_url.txt');
+    const urlFile = resolve(__dirname, '../../antigravity/last_tunnel_url.txt');
     let baseUrl = 'http://localhost:3000';
     if (fs.existsSync(urlFile)) {
-        const tunnelData = JSON.parse(fs.readFileSync(urlFile, 'utf-8'));
+        const rawContent = fs.readFileSync(urlFile, 'utf-8');
+        // Remove BOM and any leading/trailing whitespace
+        const sanitizedContent = rawContent.replace(/^\uFEFF/, '').trim();
+        const tunnelData = JSON.parse(sanitizedContent);
         baseUrl = tunnelData.url;
         console.log(`🔗 Using Tunnel URL: ${baseUrl}`);
     }

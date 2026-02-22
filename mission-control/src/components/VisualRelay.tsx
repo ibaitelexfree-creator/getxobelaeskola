@@ -7,10 +7,13 @@ import {
     Camera, Eye, Share2, Trash2, Maximize2, X,
     ExternalLink, Download, Image as ImageIcon,
     RefreshCw, Shield, Globe, Terminal, Activity,
-    Zap, Lock, Radio
+    Zap, Lock, Radio, Play, Square, Power, Settings
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { getLivePreviewConfig, getVisualHistory, Screenshot } from '@/lib/api';
+import {
+    getLivePreviewConfig, getVisualHistory, Screenshot,
+    startService, stopService, resetService
+} from '@/lib/api';
 
 export default function VisualRelay() {
     const { services, livePreviewUrl, setLivePreviewUrl } = useMissionStore();
@@ -21,6 +24,9 @@ export default function VisualRelay() {
     const [customUrl, setCustomUrl] = useState(livePreviewUrl);
     const [showSettings, setShowSettings] = useState(false);
     const [tunnelSource, setTunnelSource] = useState<string | null>(null);
+    const [localIp, setLocalIp] = useState('localhost');
+    const [availableApps, setAvailableApps] = useState<any[]>([]);
+    const [selectedAppId, setSelectedAppId] = useState<string>('MAIN_APP');
     const [screenshots, setScreenshots] = useState<Screenshot[]>([]);
 
     useEffect(() => {
@@ -31,6 +37,9 @@ export default function VisualRelay() {
                     setLivePreviewUrl(config.url);
                     setCustomUrl(config.url);
                     setTunnelSource(config.source || null);
+                    if (config.localIp) setLocalIp(config.localIp);
+                    if (config.apps) setAvailableApps(config.apps);
+
                     if (config.password) {
                         useMissionStore.getState().setLivePreviewPassword(config.password);
                     }
@@ -52,7 +61,8 @@ export default function VisualRelay() {
         if (!livePreviewUrl) return '';
         if (tunnelSource === 'cloudflare') {
             const serverUrl = useMissionStore.getState().serverUrl;
-            return `${serverUrl}/api/visual/proxy?t=${iframeKey}`;
+            // Pass encoded URL to proxy so it knows what to load
+            return `${serverUrl}/api/visual/proxy?url=${encodeURIComponent(livePreviewUrl)}&t=${iframeKey}`;
         }
         return livePreviewUrl;
     };
@@ -84,9 +94,41 @@ export default function VisualRelay() {
         setTimeout(() => setIsRefreshing(false), 1000);
     };
 
-    const handleUpdateUrl = () => {
-        setLivePreviewUrl(customUrl);
+    const handleUpdateUrl = (url?: string) => {
+        const targetUrl = url || customUrl;
+
+        // Detect source - explicitly check if it's cloudflare
+        if (targetUrl.includes('cloudflare') || targetUrl.includes('trycloudflare')) {
+            setTunnelSource('cloudflare');
+        } else {
+            // If it's the exact same URL as when we loaded, keep the original tunnel source
+            // otherwise clear it to avoid proxying non-tunnel links
+            setTunnelSource(targetUrl === customUrl ? tunnelSource : null);
+        }
+
+        setLivePreviewUrl(targetUrl);
+        setCustomUrl(targetUrl);
+        setIframeKey(prev => prev + 1);
         setShowSettings(false);
+    };
+
+    const handleServiceAction = async (action: 'start' | 'stop' | 'reset') => {
+        try {
+            if (action === 'start') await startService(selectedAppId);
+            else if (action === 'stop') await stopService(selectedAppId);
+            else if (action === 'reset') await resetService(selectedAppId);
+
+            // Notification or visual feedback could go here
+            handleRefresh();
+        } catch (error) {
+            console.error(`Service action ${action} failed:`, error);
+        }
+    };
+
+    const handleAppSelect = (app: any) => {
+        setSelectedAppId(app.id);
+        const url = app.url || `http://${localIp}:${app.port}`;
+        handleUpdateUrl(url);
     };
 
     return (
@@ -290,19 +332,43 @@ export default function VisualRelay() {
                                         </div>
                                     </div>
 
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <button
-                                            onPointerDown={() => setCustomUrl('http://192.168.1.50:3000')}
-                                            className="px-4 py-4 rounded-2xl bg-white/5 border border-white/10 text-[11px] font-mono font-black text-white/60 active:bg-white/20 active:scale-95 transition-all uppercase tracking-tighter"
-                                        >
-                                            Local Host (WiFi)
-                                        </button>
-                                        <button
-                                            onPointerDown={() => setCustomUrl('https://getxobelaeskola.cloud')}
-                                            className="px-4 py-4 rounded-2xl bg-white/5 border border-white/10 text-[11px] font-mono font-black text-white/60 active:bg-white/20 active:scale-95 transition-all uppercase tracking-tighter"
-                                        >
-                                            Production CI
-                                        </button>
+                                    {/* App Selector / Services */}
+                                    <div className="space-y-4">
+                                        <div className="flex items-center gap-2 mb-2">
+                                            <Settings className="w-3 h-3 text-glimmer" />
+                                            <span className="text-[10px] font-black uppercase tracking-tighter text-white/40">Select Project</span>
+                                        </div>
+                                        <div className="grid grid-cols-1 gap-2">
+                                            {availableApps.map(app => (
+                                                <button
+                                                    key={app.id}
+                                                    onPointerDown={() => handleAppSelect(app)}
+                                                    className={`px-4 py-3 rounded-xl border transition-all flex items-center justify-between group ${selectedAppId === app.id
+                                                            ? 'bg-glimmer/10 border-glimmer text-glimmer'
+                                                            : 'bg-white/5 border-white/10 text-white/60 hover:border-white/20'
+                                                        }`}
+                                                >
+                                                    <div className="flex flex-col items-start">
+                                                        <span className="text-[11px] font-black uppercase tracking-tighter">{app.name}</span>
+                                                        <span className="text-[9px] opacity-40 font-mono italic">{app.type.toUpperCase()}</span>
+                                                    </div>
+                                                    <div className="flex items-center gap-2">
+                                                        <button
+                                                            onPointerDown={(e) => { e.stopPropagation(); handleServiceAction('start'); }}
+                                                            className="p-2 rounded-lg bg-green-500/10 text-green-500 hover:bg-green-500/20 active:scale-90 transition-all"
+                                                        >
+                                                            <Play className="w-3 h-3" />
+                                                        </button>
+                                                        <button
+                                                            onPointerDown={(e) => { e.stopPropagation(); handleServiceAction('stop'); }}
+                                                            className="p-2 rounded-lg bg-red-500/10 text-red-500 hover:bg-red-500/20 active:scale-90 transition-all"
+                                                        >
+                                                            <Square className="w-3 h-3" />
+                                                        </button>
+                                                    </div>
+                                                </button>
+                                            ))}
+                                        </div>
                                     </div>
 
                                     <div className="flex items-center gap-4 pt-6 border-t border-white/5">
@@ -313,7 +379,7 @@ export default function VisualRelay() {
                                             {t('visual.dismiss')}
                                         </button>
                                         <button
-                                            onPointerDown={handleUpdateUrl}
+                                            onPointerDown={() => handleUpdateUrl()}
                                             className="flex-1 py-5 rounded-[2rem] bg-glimmer text-black font-black text-xs uppercase tracking-widest shadow-[0_15px_35px_rgba(0,184,212,0.4)] active:scale-90 transition-all"
                                         >
                                             {t('visual.link_relay')}

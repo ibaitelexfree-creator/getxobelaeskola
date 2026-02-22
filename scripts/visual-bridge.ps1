@@ -1,11 +1,22 @@
 # ==========================================================
+# AUTO-ELEVATE: Check for Administrator Privileges
+# ==========================================================
+$currentPrincipal = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
+if (-not $currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
+    Write-Host "Elevando privilegios a Administrador..." -ForegroundColor Yellow
+    $arguments = "-ExecutionPolicy Bypass -File `"$PSCommandPath`""
+    Start-Process powershell.exe -ArgumentList $arguments -Verb RunAs
+    exit
+}
+
+# ==========================================================
 # MISSION CONTROL: VISUAL BRIDGE (CLOUDFLARE TUNNEL)
 # ==========================================================
-# Levanta un túnel de Cloudflare SIN CONTRASEÑA.
+# Levanta un tunel de Cloudflare SIN CONTRASENA.
 # Compatible con el orquestador en local.
 # ==========================================================
 
-$Port = 3000
+$Port = 3323
 $BaseDir = "c:\Users\User\Desktop\Saili8ng School Test\antigravity"
 $TunnelLog = "$BaseDir\tunnel.log"
 $ErrorLog = "$BaseDir\tunnel_error.log"
@@ -17,15 +28,15 @@ foreach ($f in @($TunnelLog, $ErrorLog)) {
 }
 
 # 1. Iniciar Cloudflare Tunnel
-Write-Host "🚀 Iniciando Bridge Visual (Cloudflare) en puerto $Port..." -ForegroundColor Cyan
+Write-Host "Iniciando Bridge Visual (Cloudflare) en puerto $Port..." -ForegroundColor Cyan
 $TunnelProcess = Start-Process cmd `
-    -ArgumentList "/c npx -y cloudflared tunnel --url http://localhost:$Port" `
+    -ArgumentList "/c npx -y cloudflared tunnel --url http://127.0.0.1:$Port" `
     -PassThru -NoNewWindow `
     -RedirectStandardOutput $TunnelLog `
     -RedirectStandardError  $ErrorLog
 
 # 2. Esperar a que la URL aparezca en los logs
-Write-Host "📡 Generando URL segura (Password-less)..." -ForegroundColor Yellow
+Write-Host "Generando URL segura (Password-less)..." -ForegroundColor Yellow
 $TunnelUrl = $null
 $Timeout = 60
 $Counter = 0
@@ -50,8 +61,8 @@ while ($null -eq $TunnelUrl -and $Counter -lt $Timeout) {
 }
 
 if ($null -ne $TunnelUrl) {
-    Write-Host "✅ ¡Bridge Activo!: $TunnelUrl" -ForegroundColor Green
-    Write-Host "✨ Sin contraseña requerida." -ForegroundColor Green
+    Write-Host "Bridge Activo!: $TunnelUrl" -ForegroundColor Green
+    Write-Host "Sin contrasena requerida." -ForegroundColor Green
 
     # 3. Guardar JSON para el Orquestador
     $JsonData = [ordered]@{
@@ -63,31 +74,31 @@ if ($null -ne $TunnelUrl) {
     $JsonData | Out-File -FilePath $UrlFile -Encoding utf8
 
     # 4. Notificar por Telegram
-    $BotToken = "8375089119:AAFC4svZTAYtIRG13rwlgLOdpZjfVLMXt5U"
+    $BotToken = "8182239815:AAFHtrRnwN3oHnah0zo-SbzAZzmeaAtU9tI"
     $ChatId = "1567383226"
-    $Msg = "👁️ *Visual Bridge (Cloudflare)*`n`n*URL:* $TunnelUrl`n*Acceso:* Directo (sin password)"
+    $Msg = "Visual Bridge (Cloudflare)`n`nURL: $TunnelUrl`nAcceso: Directo (sin password)"
 
     try {
         $Body = @{ chat_id = $ChatId; text = $Msg; parse_mode = "Markdown" }
         Invoke-RestMethod -Uri "https://api.telegram.org/bot$BotToken/sendMessage" `
             -Method Post -Body $Body | Out-Null
-        Write-Host "📢 Notificación de Telegram enviada." -ForegroundColor Cyan
+        Write-Host "Notificacion de Telegram enviada." -ForegroundColor Cyan
     }
     catch {
-        Write-Host "⚠️ Telegram no disponible." -ForegroundColor DarkGray
+        Write-Host "Telegram no disponible." -ForegroundColor DarkGray
     }
 
-    Write-Host "`nAbre la pestaña LIVE en el APK para ver el preview." -ForegroundColor White
+    Write-Host "`nAbre la pestana LIVE en el APK para ver el preview." -ForegroundColor White
 
 }
 else {
-    Write-Host "❌ Error: No se obtuvo URL. Revisa $ErrorLog" -ForegroundColor Red
+    Write-Host "Error: No se obtuvo URL. Revisa $ErrorLog" -ForegroundColor Red
     if ($TunnelProcess) { Stop-Process -Id $TunnelProcess.Id -Force -ErrorAction SilentlyContinue }
     exit 1
 }
 
-# 5. Mantener vivo el túnel
-Write-Host "`nPresiona CTRL+C para cerrar el túnel." -ForegroundColor DarkGray
+# 5. Mantener vivo el tunel
+Write-Host "`nPresiona CTRL+C para cerrar el tunel." -ForegroundColor DarkGray
 try {
     while ($true) { Start-Sleep -Seconds 5 }
 }
@@ -95,5 +106,5 @@ finally {
     if ($TunnelProcess) {
         Stop-Process -Id $TunnelProcess.Id -Force -ErrorAction SilentlyContinue
     }
-    Write-Host "`n🛑 Túnel cerrado." -ForegroundColor Yellow
+    Write-Host "`nTunnel cerrado." -ForegroundColor Yellow
 }

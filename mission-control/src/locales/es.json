@@ -163,5 +163,19 @@
         "usage_trends": "Tendencias de Uso",
         "filter_service": "Filtrar por Servicio",
         "all_services": "Todos los Servicios"
+    },
+    "connection": {
+        "diagnostic_title": "Diagnóstico de Enlace",
+        "endpoint_label": "Endpoint del Orquestador",
+        "test_btn": "Probar",
+        "apply_btn": "Aplicar y Sincronizar",
+        "recovery_guide": "Guía de Recuperación",
+        "guide_step_1": "Asegúrate de que el Orquestador esté corriendo en la terminal (`node index.js`).",
+        "guide_step_2": "Si usas WiFi, verifica que el móvil y el PC estén en la misma red.",
+        "guide_step_3": "Para acceso remoto fuera de casa, usa la URL de Cloudflare Tunnel.",
+        "test_success": "Conexión Exitosa. Servidor detectado.",
+        "test_fail_http": "Error HTTP",
+        "test_fail_network": "Fallo de red o timeout.",
+        "fix_btn": "Solucionar Conexión"
     }
 }

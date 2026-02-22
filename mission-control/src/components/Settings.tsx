@@ -6,7 +6,8 @@ import { useMissionStore } from '@/store/useMissionStore';
 import {
     Settings as SettingsIcon, Globe, RefreshCcw, Bell,
     Shield, Server, Smartphone, Info, Save, ChevronRight,
-    Database, Cpu, Wifi, Package, Download, HardDrive
+    Database, Cpu, Wifi, Package, Download, HardDrive,
+    WifiOff
 } from 'lucide-react';
 import { getReleases, getDownloadUrl, Release } from '@/lib/maestro-client';
 import { Browser } from '@capacitor/browser';
@@ -20,7 +21,7 @@ export default function Settings() {
     const {
         serverUrl, setServerUrl,
         autoRefreshMs, setAutoRefresh,
-        connected
+        connected, setActiveTab
     } = useMissionStore();
     const { t } = useTranslation();
 
@@ -78,6 +79,24 @@ export default function Settings() {
                 <label className="text-[10px] font-mono text-white/20 uppercase tracking-[0.2em] ml-1">{t('settings.language')}</label>
                 <LanguageSwitch />
             </section>
+
+            {!connected && (
+                <motion.button
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    onClick={() => setActiveTab('dashboard')}
+                    className="p-5 rounded-3xl bg-status-red/10 border-2 border-status-red/30 flex items-center gap-4 group"
+                >
+                    <div className="w-12 h-12 rounded-2xl bg-status-red/20 flex items-center justify-center text-status-red">
+                        <WifiOff size={24} className="animate-pulse" />
+                    </div>
+                    <div className="text-left flex-1">
+                        <p className="text-sm font-black text-white uppercase tracking-tight">Solucionar Conexión</p>
+                        <p className="text-[10px] text-white/40 uppercase font-mono tracking-widest">El sistema está offline</p>
+                    </div>
+                    <ChevronRight size={20} className="text-white/20 group-hover:text-white transition-colors" />
+                </motion.button>
+            )}
 
             {/* Connectivity Section */}
             <section className="flex flex-col gap-3">
