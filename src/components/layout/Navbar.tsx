@@ -134,7 +134,7 @@ export default function Navbar({ locale: propLocale }: { locale?: string }) {
 
     return (
         <>
-            <nav className="fixed top-0 left-0 w-full z-[9999] px-4 md:px-12 py-4 md:py-8 flex justify-between items-center bg-nautical-deep/70 backdrop-blur-2xl border-b border-white/5 transition-all duration-500 hover:bg-nautical-deep/90 min-h-[70px]">
+            <nav className="fixed top-0 left-0 w-full z-[9999] px-4 md:px-12 py-2 md:py-3 flex justify-between items-center bg-nautical-deep/70 backdrop-blur-2xl border-b border-white/5 transition-all duration-500 hover:bg-nautical-deep/90 min-h-[70px]">
                 {/* Logo Section */}
                 <Link
                     href={`/${locale}`}
@@ -142,7 +142,7 @@ export default function Navbar({ locale: propLocale }: { locale?: string }) {
                     className="flex items-center gap-4 group transition-premium relative z-[110]"
                     onClick={() => setIsMenuOpen(false)}
                 >
-                    <div className="relative w-12 h-12 md:w-16 md:h-16 flex-shrink-0 transition-premium group-hover:scale-110">
+                    <div className="relative w-16 h-16 md:w-20 md:h-20 flex-shrink-0 transition-premium group-hover:scale-110">
                         <Image
                             src="/images/LogoGetxoBelaEskola.webp"
                             alt="Getxo Bela Eskola"
@@ -152,10 +152,10 @@ export default function Navbar({ locale: propLocale }: { locale?: string }) {
                         />
                     </div>
                     <div className="flex flex-col">
-                        <span className="font-display text-lg md:text-2xl tracking-tight text-white leading-none uppercase">
+                        <span className="font-display text-xl md:text-3xl tracking-tight text-white leading-none uppercase">
                             GETXO <span className="italic font-light text-accent">BELA</span>
                         </span>
-                        <span className="text-[9px] md:text-[10px] uppercase tracking-[0.5em] text-white/40 font-bold mt-1.5 transition-premium group-hover:text-white/70">Escuela Náutica</span>
+                        <span className="text-[10px] md:text-xs uppercase tracking-[0.5em] text-white/40 font-bold mt-1.5 transition-premium group-hover:text-white/70">Escuela Náutica</span>
                     </div>
                 </Link>
 
