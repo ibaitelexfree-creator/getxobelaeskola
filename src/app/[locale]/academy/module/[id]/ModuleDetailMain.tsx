@@ -5,7 +5,8 @@ import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { UnlockStatusBadge, UnlockStatusResponse, LockedContentOverlay } from '@/components/academy/UnlockStatusBadge';
 import { SimpleEvaluation } from '@/components/academy/evaluation';
-import ForumMain from '@/components/academy/forum/ForumMain';
+import PeerReviewDashboard from '@/components/academy/peer-review/PeerReviewDashboard';
+import ModuleQA from '@/components/academy/module/ModuleQA';
 import { apiUrl } from '@/lib/api';
 
 interface Unidad {
@@ -265,9 +266,16 @@ export default function ModuleDetailMain({
                         />
                     </section>
                 )}
-            </main>
 
-            <ForumMain moduloId={modulo.id} />
+                {currentModuleStatus === 'completado' && (
+                    <section className="mt-20 max-w-4xl mx-auto glass-panel p-10 lg:p-16 border-accent/40 shadow-2xl animate-fade-in">
+                        <PeerReviewDashboard moduleId={modulo.id} locale={params.locale} />
+                    </section>
+                )}
+
+                {/* Forum Section */}
+                <ModuleQA moduleId={modulo.id} locale={params.locale} />
+            </main>
         </div>
     );
 }
