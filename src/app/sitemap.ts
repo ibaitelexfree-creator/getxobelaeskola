@@ -41,6 +41,39 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
                 });
             });
         }
+
+        // Dynamic Lesson Paths
+        const { data: lessonsData } = await supabase
+            .from('unidades_didacticas')
+            .select(`
+                id,
+                slug,
+                updated_at,
+                modulo!inner (
+                    curso!inner (
+                        activo,
+                        visible
+                    )
+                )
+            `)
+            .eq('modulo.curso.activo', true)
+            .eq('modulo.curso.visible', true);
+
+        const lessons = lessonsData as unknown as { id: string, slug: string, updated_at: string }[] | null;
+
+        if (lessons) {
+            locales.forEach((locale) => {
+                lessons.forEach((lesson) => {
+                    const identifier = lesson.slug || lesson.id;
+                    sitemapEntries.push({
+                        url: `${baseUrl}/${locale}/academy/unit/${identifier}`,
+                        lastModified: new Date(lesson.updated_at),
+                        changeFrequency: 'monthly',
+                        priority: 0.6,
+                    });
+                });
+            });
+        }
     } catch (e) {
         console.error('Sitemap dynamic paths error:', e);
     }

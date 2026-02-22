@@ -43,7 +43,28 @@ export async function GET(
         }
         // -------------------------------
 
-        const hasAccess = await verifyUnitAccess(user.id, params.id);
+        // Support both ID (UUID) and Slug
+        const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(params.id);
+        const supabase = createClient();
+        let unitId = params.id;
+
+        if (!isUUID) {
+            const { data: unitBySlug } = await supabase
+                .from('unidades_didacticas')
+                .select('id')
+                .eq('slug', params.id)
+                .single();
+
+            if (!unitBySlug) {
+                return withCors(NextResponse.json(
+                    { error: 'Resource not found' },
+                    { status: 404 }
+                ), request);
+            }
+            unitId = unitBySlug.id;
+        }
+
+        const hasAccess = await verifyUnitAccess(user.id, unitId);
 
         if (!hasAccess) {
             return withCors(NextResponse.json(
@@ -52,7 +73,6 @@ export async function GET(
             ), request);
         }
 
-        const supabase = createClient();
         const { data: unidad, error: unidadError } = await supabase
             .from('unidades_didacticas')
             .select(`
@@ -76,7 +96,7 @@ export async function GET(
                     )
                 )
             `)
-            .eq('id', params.id)
+            .eq('id', unitId)
             .single();
 
         if (unidadError || !unidad) {
@@ -92,7 +112,11 @@ export async function GET(
             .eq('modulo_id', unidad.modulo_id)
             .order('orden');
 
-        const currentIndex = unidadesHermanas?.findIndex((u: any) => u.id === params.id) ?? -1;
+        // Note: For navigation, we should check if current navigation is using slug or ID.
+        // If the user came via slug, maybe they expect slug links?
+        // But the frontend usually builds links based on ID currently.
+        // We will keep IDs for next/prev for consistency with current frontend.
+        const currentIndex = unidadesHermanas?.findIndex((u: any) => u.id === unitId) ?? -1;
         const unidadAnterior = currentIndex > 0 ? unidadesHermanas?.[currentIndex - 1] : null;
         const unidadSiguiente = currentIndex >= 0 && currentIndex < (unidadesHermanas?.length ?? 0) - 1
             ? unidadesHermanas?.[currentIndex + 1]
