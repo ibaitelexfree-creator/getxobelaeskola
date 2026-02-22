@@ -3,9 +3,13 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import dynamic from 'next/dynamic';
 import { useParams } from 'next/navigation';
+import { createClient } from '@/lib/supabase/client';
+import { Camera, CameraResultType } from '@capacitor/camera';
+import imageCompression from 'browser-image-compression';
 import {
     Book, MapPin, Award, Ship, Waves, Wind,
-    ChevronRight, Anchor, Calendar, Download, Plus, Trash2, Smile, Layers, HelpCircle
+    ChevronRight, Anchor, Calendar, Download, Plus, Trash2, Smile, Layers, HelpCircle,
+    Camera as CameraIcon, Image as ImageIcon, X
 } from 'lucide-react';
 import { apiUrl } from '@/lib/api';
 import { useAcademyFeedback } from '@/hooks/useAcademyFeedback';
@@ -37,6 +41,9 @@ export default function Logbook() {
     const [isSavingDiary, setIsSavingDiary] = useState(false);
     const [newDiaryContent, setNewDiaryContent] = useState('');
     const [selectedPoint, setSelectedPoint] = useState<any>(null);
+    const [selectedImages, setSelectedImages] = useState<File[]>([]);
+    const [previewUrls, setPreviewUrls] = useState<string[]>([]);
+    const [isUploading, setIsUploading] = useState(false);
     const params = useParams();
     const { showMessage } = useAcademyFeedback();
 
@@ -139,19 +146,109 @@ export default function Logbook() {
         }
     }, [activeTab]);
 
+    const handleSelectImage = async () => {
+        try {
+            const image = await Camera.getPhoto({
+                quality: 80,
+                allowEditing: false,
+                resultType: CameraResultType.Uri
+            });
+
+            if (image.webPath) {
+                const response = await fetch(image.webPath);
+                const blob = await response.blob();
+                const file = new File([blob], `photo_${Date.now()}.jpg`, { type: blob.type });
+
+                const options = {
+                    maxSizeMB: 1,
+                    maxWidthOrHeight: 1920,
+                    useWebWorker: true,
+                };
+
+                try {
+                    const compressedFile = await imageCompression(file, options);
+                    setSelectedImages(prev => [...prev, compressedFile]);
+
+                    const previewUrl = URL.createObjectURL(compressedFile);
+                    setPreviewUrls(prev => [...prev, previewUrl]);
+                } catch (error) {
+                    console.error('Compression error:', error);
+                    // Fallback to original if compression fails
+                    setSelectedImages(prev => [...prev, file]);
+                    setPreviewUrls(prev => [...prev, URL.createObjectURL(file)]);
+                }
+            }
+        } catch (error) {
+            console.error('Error selecting image:', error);
+        }
+    };
+
+    const handleRemoveImage = (index: number) => {
+        setSelectedImages(prev => prev.filter((_, i) => i !== index));
+        setPreviewUrls(prev => {
+            const newUrls = [...prev];
+            URL.revokeObjectURL(newUrls[index]);
+            newUrls.splice(index, 1);
+            return newUrls;
+        });
+    };
+
+    const uploadImages = async (): Promise<string[]> => {
+        if (selectedImages.length === 0) return [];
+        setIsUploading(true);
+        const uploadedUrls: string[] = [];
+        const supabase = createClient();
+
+        try {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) throw new Error('Usuario no autenticado');
+
+            for (const file of selectedImages) {
+                const fileExt = file.name.split('.').pop() || 'jpg';
+                const fileName = `${user.id}/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+
+                const { error: uploadError } = await supabase.storage
+                    .from('logbook-photos')
+                    .upload(fileName, file);
+
+                if (uploadError) throw uploadError;
+
+                const { data: { publicUrl } } = supabase.storage
+                    .from('logbook-photos')
+                    .getPublicUrl(fileName);
+
+                uploadedUrls.push(publicUrl);
+            }
+        } catch (error) {
+            console.error('Error uploading images:', error);
+            showMessage('Error', 'No se pudieron subir las imágenes', 'error');
+            throw error; // Re-throw to stop entry creation
+        } finally {
+            setIsUploading(false);
+        }
+        return uploadedUrls;
+    };
+
     const handleAddDiaryEntry = async () => {
         if (!newDiaryContent.trim()) return;
 
         setIsSavingDiary(true);
         try {
+            const mediaUrls = await uploadImages();
+
             const res = await fetch(apiUrl('/api/logbook/diary'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ contenido: newDiaryContent })
+                body: JSON.stringify({
+                    contenido: newDiaryContent,
+                    media_urls: mediaUrls
+                })
             });
 
             if (res.ok) {
                 setNewDiaryContent('');
+                setSelectedImages([]);
+                setPreviewUrls([]);
                 loadDiary();
                 showMessage('Éxito', 'Entrada guardada en tu diario', 'success');
             } else {
@@ -159,7 +256,7 @@ export default function Logbook() {
             }
         } catch (error) {
             console.error('Error adding diary entry:', error);
-            showMessage('Error', 'Error de conexión', 'error');
+            if (!isUploading) showMessage('Error', 'Error de conexión', 'error');
         } finally {
             setIsSavingDiary(false);
         }
@@ -460,25 +557,45 @@ export default function Logbook() {
                                 className="w-full bg-black/40 border border-white/5 rounded-3xl p-6 text-white text-sm focus:outline-none focus:border-accent/40 min-h-[150px] transition-all resize-none mb-6"
                             />
 
+                            {/* Image Previews */}
+                            {previewUrls.length > 0 && (
+                                <div className="flex flex-wrap gap-4 mb-6">
+                                    {previewUrls.map((url, index) => (
+                                        <div key={index} className="relative w-24 h-24 rounded-xl overflow-hidden group border border-white/10">
+                                            <img src={url} alt="Preview" className="w-full h-full object-cover" />
+                                            <button
+                                                onClick={() => handleRemoveImage(index)}
+                                                className="absolute top-1 right-1 bg-black/50 hover:bg-red-500/80 p-1 rounded-full text-white transition-colors"
+                                            >
+                                                <X size={12} />
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+
                             <div className="flex items-center justify-between">
                                 <div className="flex gap-2">
                                     <button className="w-10 h-10 bg-white/5 hover:bg-white/10 rounded-full flex items-center justify-center text-white/40 transition-colors">
                                         <Smile size={18} />
                                     </button>
-                                    <button className="w-10 h-10 bg-white/5 hover:bg-white/10 rounded-full flex items-center justify-center text-white/40 transition-colors">
-                                        <MapPin size={18} />
+                                    <button
+                                        onClick={handleSelectImage}
+                                        className="w-10 h-10 bg-white/5 hover:bg-white/10 rounded-full flex items-center justify-center text-white/40 transition-colors"
+                                    >
+                                        <CameraIcon size={18} />
                                     </button>
                                 </div>
                                 <button
                                     onClick={handleAddDiaryEntry}
-                                    disabled={isSavingDiary || !newDiaryContent.trim()}
+                                    disabled={isSavingDiary || (!newDiaryContent.trim() && selectedImages.length === 0)}
                                     className={`px-8 py-3 rounded-full text-[10px] font-black uppercase tracking-widest transition-all
-                                        ${newDiaryContent.trim()
+                                        ${newDiaryContent.trim() || selectedImages.length > 0
                                             ? 'bg-accent text-nautical-black shadow-lg shadow-accent/20 hover:scale-105'
                                             : 'bg-white/5 text-white/20'
                                         }`}
                                 >
-                                    {isSavingDiary ? 'Guardando...' : 'Guardar Entrada'}
+                                    {isSavingDiary || isUploading ? 'Guardando...' : 'Guardar Entrada'}
                                 </button>
                             </div>
                         </div>
@@ -512,6 +629,23 @@ export default function Logbook() {
                                             <p className="text-white/70 leading-relaxed italic font-serif">
                                                 "{entry.contenido}"
                                             </p>
+
+                                            {/* Gallery */}
+                                            {entry.bitacora_multimedia && entry.bitacora_multimedia.length > 0 && (
+                                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
+                                                    {entry.bitacora_multimedia.map((media: any) => (
+                                                        <div key={media.id} className="relative aspect-square rounded-xl overflow-hidden border border-white/10 group cursor-pointer">
+                                                            <img
+                                                                src={media.url}
+                                                                alt="Logbook Media"
+                                                                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                                                            />
+                                                            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors" />
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            )}
+
                                             {entry.tags && entry.tags.length > 0 && (
                                                 <div className="flex gap-2 mt-4">
                                                     {entry.tags.map((tag: string) => (
