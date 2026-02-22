@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { Geolocation, Position } from '@capacitor/geolocation';
+import { Geolocation } from '@capacitor/geolocation';
 import { Network, ConnectionStatus } from '@capacitor/network';
 // import { Capacitor } from '@capacitor/core';
 
@@ -15,7 +15,6 @@ export interface LocationPoint {
 }
 
 // Configurable constants
-const SCHOOL_WIFI_SSID = '5B00';
 const BASE_CAR_SPEED_THRESHOLD = 12.86; // ~46 km/h (25 knots)
 const HIGH_WIND_CAR_THRESHOLD = 20.57; // ~74 km/h (40 knots) for foiling/high performance
 
@@ -75,9 +74,6 @@ export function useSmartTracker() {
     const isAtSea = (lat: number, lng: number) => {
         return isPointInWater(lat, lng);
     };
-
-    // Helper: Convert m/s to knots
-    const msToKnots = (ms: number) => (ms * 1.94384);
 
     const startTracking = async (isAuto = false) => {
         if (watchId.current) return;
@@ -168,8 +164,9 @@ export function useSmartTracker() {
                     }
                 }
             );
-        } catch (err: any) {
-            setError(err.message || 'Error tracking');
+        } catch (err) {
+            const errorMessage = err instanceof Error ? err.message : 'Error tracking';
+            setError(errorMessage);
             setIsTracking(false);
         }
     };
@@ -201,13 +198,10 @@ export function useSmartTracker() {
             lastNetworkStatus.current = status;
 
             Network.addListener('networkStatusChange', status => {
-                console.log('Network status changed', status);
-
                 // Logic: If transitioned from WiFi to anything else (or disconnected)
                 // Note: We can't easily get SSID with standard Capacitor Network plugin 
                 // but we detect "WiFi Disconnection"
                 if (lastNetworkStatus.current?.connectionType === 'wifi' && status.connectionType !== 'wifi') {
-                    console.log('WiFi Disconnected - Potential start of sailing');
                     setStatusMessage('WiFi Desconectado - Iniciando Geo-Check');
                     startTracking(true); // Start in auto-mode
                 }
