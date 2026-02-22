@@ -58,3 +58,4 @@ gen_ssh.ps1
 !scripts/*.ps1
 !deploy.ps1
 !vuela.ps1
+*.failed

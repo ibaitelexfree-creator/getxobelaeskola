@@ -27,13 +27,29 @@ jobs:
                   # Grouping everything to stay within the "1-minute" billable window
                   echo "🏁 Starting parallel scans..."
 
-                  (oxlint ./src --quiet && echo "✅ Oxlint Passed") &
-                  (biome check ./src --diagnostic-level=error && echo "✅ Biome Passed") &
+                  # Run commands, redirect output to log files, and capture failure status
+                  (oxlint ./src --quiet > oxlint.log 2>&1 || touch oxlint.failed) &
+                  (biome check ./src --diagnostic-level=error > biome.log 2>&1 || touch biome.failed) &
 
                   # Wait for all background jobs
                   wait
 
+                  # Check for failures
+                  if [ -f oxlint.failed ] || [ -f biome.failed ]; then
+                      echo "❌ One or more checks failed."
+                      exit 1
+                  fi
+
                   echo "✨ All fast scans completed successfully!"
+
+            - name: "🚨 Self-Healing: Report Failure"
+              if: failure()
+              run: node scripts/ci-self-healing.js
+              env:
+                  GITHUB_REPOSITORY: ${{ github.repository }}
+                  GITHUB_REF_NAME: ${{ github.ref_name }}
+                  GITHUB_WORKFLOW: ${{ github.workflow }}
+                  GITHUB_RUN_NUMBER: ${{ github.run_number }}
 
     heavy-compute:
         name: "🏗️ Heavy CI (Conditional)"
