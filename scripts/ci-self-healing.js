@@ -6,12 +6,13 @@ async function main() {
 
     // Read environment variables
     const repo = process.env.GITHUB_REPOSITORY;
-    const branch = process.env.GITHUB_REF_NAME;
+    // Use GITHUB_HEAD_REF for PRs (to get the actual branch name), otherwise fallback to GITHUB_REF_NAME
+    const branch = process.env.GITHUB_HEAD_REF || process.env.GITHUB_REF_NAME;
     const workflow = process.env.GITHUB_WORKFLOW;
     const runNumber = process.env.GITHUB_RUN_NUMBER;
 
     if (!repo || !branch) {
-        console.error('Missing required environment variables (GITHUB_REPOSITORY, GITHUB_REF_NAME).');
+        console.error('Missing required environment variables (GITHUB_REPOSITORY, GITHUB_REF_NAME/HEAD_REF).');
         process.exit(1);
     }
 
@@ -59,12 +60,14 @@ async function main() {
         }
     };
 
+    const endpoint = 'https://antigravity-jules-orchestration.onrender.com/mcp/execute';
+
     console.log('Sending report to AI Orchestrator...');
-    console.log(`Endpoint: https://agent.scarmonit.com/mcp/execute`);
+    console.log(`Endpoint: ${endpoint}`);
     console.log(`Payload Summary: Tool=${payload.tool}, Source=${payload.parameters.source}, Branch=${payload.parameters.branch}`);
 
     try {
-        const response = await fetch('https://agent.scarmonit.com/mcp/execute', {
+        const response = await fetch(endpoint, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
