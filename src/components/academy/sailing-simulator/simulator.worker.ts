@@ -35,6 +35,7 @@ import { EventManager } from './EventManager';
 import { ScoringManager } from './ScoringManager';
 import { WindEffectManager } from './WindEffectManager';
 import { FloatingTextManager } from './FloatingTextManager';
+import { OpponentManager } from './OpponentManager';
 import * as turf from '@turf/turf';
 import waterGeometryData from '../../../data/geospatial/water-geometry.json';
 
@@ -68,13 +69,12 @@ let events: EventManager;
 let scoring: ScoringManager;
 let windEffect: WindEffectManager;
 let floatingText: FloatingTextManager;
-
-// Multiplayer Opponents
-let opponents: Map<string, BoatModel> = new Map();
+let opponentManager: OpponentManager;
 
 let animationFrameId: number;
 let lastTime = 0;
 let isGameOver = false;
+let latestOpponentsPayload: any[] = [];
 
 // Mock context for things that might expect window
 const inputState = {
@@ -96,41 +96,11 @@ self.onmessage = (e: MessageEvent) => {
         case 'INPUT':
             updateInput(payload);
             break;
-        case 'UPDATE_OPPONENTS':
-            updateOpponents(payload);
+        case 'OPPONENTS_UPDATE':
+            latestOpponentsPayload = payload;
             break;
     }
 };
-
-function updateOpponents(payload: any) {
-    const currentIds = new Set(Object.keys(payload));
-
-    // Remove missing
-    for (const id of opponents.keys()) {
-        if (!currentIds.has(id)) {
-            const boat = opponents.get(id);
-            if (boat) {
-                scene.remove(boat.group);
-            }
-            opponents.delete(id);
-        }
-    }
-
-    // Add or Update
-    for (const [id, state] of Object.entries(payload)) {
-        let boat = opponents.get(id);
-        if (!boat) {
-            boat = new BoatModel();
-            scene.add(boat.group);
-            opponents.set(id, boat);
-        }
-
-        const s = state as any;
-        if (s.position) {
-             boat.syncState(s.position, s.heading, s.heel || 0, s.sailAngle || 0);
-        }
-    }
-}
 
 function init(canvas: OffscreenCanvas, width: number, height: number, pixelRatio: number) {
     const context = RendererSetup.create(canvas, width, height, pixelRatio);
@@ -150,6 +120,7 @@ function init(canvas: OffscreenCanvas, width: number, height: number, pixelRatio
     scoring = new ScoringManager();
     windEffect = new WindEffectManager(scene);
     floatingText = new FloatingTextManager(scene);
+    opponentManager = new OpponentManager(scene);
 
     objectives.onObjectiveReached = () => {
         const points = scoring.addObjectiveBonus(objectives.state.distance);
@@ -216,6 +187,7 @@ function animate() {
 
         // Update Visuals
         boatModel.update(dt, elapsedTime, boatPhysics.state, apparentWind, inputState.sailAngle, inputState.rudderAngle);
+        opponentManager.update(dt, elapsedTime, latestOpponentsPayload);
         wake.update(dt, boatPhysics.state);
         windEffect.update(dt, apparentWind, boatPhysics.state.position, boatPhysics.state.velocity);
         floatingText.update(dt);
@@ -239,7 +211,9 @@ function animate() {
                 apparentWind,
                 trueWindAngle: wind.getDirection(),
                 objectiveState: objectives.state,
-                eventState: events.state
+                eventState: events.state,
+                sailAngle: inputState.sailAngle,
+                rudderAngle: inputState.rudderAngle
             }
         });
     }

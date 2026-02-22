@@ -1,5 +1,5 @@
 # Estado Global del Proyecto
-Última actualización: 2026-02-21 10:00 UTC
+Última actualización: 2026-02-20 22:25 UTC
 
 ## Ramas Activas
 | Rama | Agente | Estado | Descripción |
@@ -11,7 +11,7 @@
 |----|--------|-------|--------|--------|
 | T-003 | ClawdBot | Fix carousel navbar overlap | 2026-02-20 | en_curso |
 | T-004 | Jules | Move ScrollToTop button up | 2026-02-20 | completado |
-| T-005 | Jules | Implement Nautical Chart Tool | 2026-02-21 | completado |
+| T-005 | Jules | Multiplayer Regatta Mode | 2026-02-22 | completado |
 
 ## Bloqueos / Conflictos
 Ninguno actualmente.
