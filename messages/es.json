@@ -773,6 +773,7 @@
       "card_desc_inactive": "Accede a cursos teóricos online, exámenes oficiales y simulacros de navegación.",
       "stats_levels": "Niveles",
       "stats_certs": "Certificados",
+      "leaderboard": "Ver Ranking",
       "btn_continue": "Continuar Aprendiendo",
       "btn_start": "Empezar Ahora"
     },
@@ -948,5 +949,22 @@
     "history_direction": "Dirección",
     "history_temp": "Temp (ºC)",
     "history_tide": "Marea (m)"
+  },
+  "leaderboard": {
+    "title": "Ranking de Alumnos",
+    "subtitle": "Compara tu progreso con otros navegantes",
+    "my_position": "Tu Posición",
+    "xp": "XP",
+    "streak": "Racha",
+    "modules": "Módulos",
+    "privacy_title": "Privacidad del Ranking",
+    "privacy_desc": "Elige si quieres aparecer en el ranking público.",
+    "public": "Público",
+    "private": "Privado (Anónimo)",
+    "anonymous_user": "Usuario Anónimo",
+    "empty_state": "Aún no hay datos suficientes para mostrar el ranking.",
+    "rank": "Posición",
+    "sailor": "Navegante",
+    "level": "Nivel"
   }
 }

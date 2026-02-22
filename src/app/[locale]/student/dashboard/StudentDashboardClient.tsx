@@ -3,7 +3,7 @@
 import dynamic from 'next/dynamic';
 import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { getApiUrl } from '@/lib/platform';
-import { Menu, X, ChevronRight, Sparkles } from 'lucide-react';
+import { Menu, X, ChevronRight, Sparkles, Trophy } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
@@ -238,9 +238,15 @@ export default function StudentDashboardClient({
                             <section>
                                 <div className="flex justify-between items-end mb-8">
                                     <h2 className="text-xs uppercase tracking-widest text-accent font-bold">{t.academy_widget.title}</h2>
-                                    <Link href={`/${locale}/academy/dashboard`} className="text-[10px] uppercase tracking-widest text-foreground/40 hover:text-accent transition-colors">
-                                        {t.academy_widget.go_to_panel}
-                                    </Link>
+                                    <div className="flex gap-6">
+                                        <Link href={`/${locale}/student/leaderboard`} className="text-[10px] uppercase tracking-widest text-foreground/40 hover:text-accent transition-colors flex items-center gap-2">
+                                            <Trophy size={12} />
+                                            {t.academy_widget.leaderboard || 'Ranking'}
+                                        </Link>
+                                        <Link href={`/${locale}/academy/dashboard`} className="text-[10px] uppercase tracking-widest text-foreground/40 hover:text-accent transition-colors">
+                                            {t.academy_widget.go_to_panel}
+                                        </Link>
+                                    </div>
                                 </div>
 
                                 <div className="bg-gradient-to-br from-[#0a1628] to-[#010816] p-1 lg:p-1 border border-accent/20 rounded-sm relative overflow-hidden group">
