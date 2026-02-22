@@ -9,22 +9,53 @@ import {
     RefreshCw, Shield, Globe, Terminal, Activity,
     Zap, Lock, Radio
 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { getLivePreviewConfig, getVisualHistory, Screenshot } from '@/lib/api';
 
 export default function VisualRelay() {
     const { services, livePreviewUrl, setLivePreviewUrl } = useMissionStore();
+    const { t } = useTranslation();
     const [viewMode, setViewMode] = useState<'live' | 'history'>('live');
     const [isRefreshing, setIsRefreshing] = useState(false);
     const [iframeKey, setIframeKey] = useState(0);
     const [customUrl, setCustomUrl] = useState(livePreviewUrl);
     const [showSettings, setShowSettings] = useState(false);
+    const [tunnelSource, setTunnelSource] = useState<string | null>(null);
     const [screenshots, setScreenshots] = useState<Screenshot[]>([]);
 
     useEffect(() => {
+        const fetchConfig = async () => {
+            try {
+                const config = await getLivePreviewConfig();
+                if (config?.url) {
+                    setLivePreviewUrl(config.url);
+                    setCustomUrl(config.url);
+                    setTunnelSource(config.source || null);
+                    if (config.password) {
+                        useMissionStore.getState().setLivePreviewPassword(config.password);
+                    }
+                }
+            } catch (error) {
+                console.error('Failed to fetch live preview config:', error);
+            }
+        };
+
+        fetchConfig();
+
         if (viewMode === 'history') {
             loadHistory();
         }
-    }, [viewMode]);
+    }, [viewMode, setLivePreviewUrl]);
+
+    // Handle iframe source with proxy for Cloudflare tunnels
+    const getIframeSrc = () => {
+        if (!livePreviewUrl) return '';
+        if (tunnelSource === 'cloudflare') {
+            const serverUrl = useMissionStore.getState().serverUrl;
+            return `${serverUrl}/api/visual/proxy?t=${iframeKey}`;
+        }
+        return livePreviewUrl;
+    };
 
     const loadHistory = async () => {
         try {
@@ -61,46 +92,58 @@ export default function VisualRelay() {
     return (
         <div className="flex flex-col h-full bg-black/40 backdrop-blur-md rounded-3xl overflow-hidden border border-white/5">
             {/* HUD Header */}
-            <div className="p-4 flex items-center justify-between border-b border-white/5 bg-black/20">
+            <div className="p-4 flex items-center justify-between border-b border-white/5 bg-black/40 backdrop-blur-md relative z-50 pointer-events-auto">
                 <div className="flex items-center gap-3">
                     <div className="relative">
-                        <div className="w-2 h-2 rounded-full bg-status-green animate-pulse" />
-                        <div className="absolute inset-0 w-2 h-2 rounded-full bg-status-green/40 animate-ping" />
+                        <div className="w-2.5 h-2.5 rounded-full bg-status-green animate-pulse" />
+                        <div className="absolute inset-0 w-2.5 h-2.5 rounded-full bg-status-green/40 animate-ping" />
                     </div>
                     <div>
                         <h2 className="text-sm font-display text-white tracking-widest uppercase flex items-center gap-2">
-                            Visual Relay <span className="text-[10px] text-glimmer px-1.5 py-0.5 rounded border border-glimmer/20">V3.5</span>
+                            {t('visual.title')} <span className="text-[10px] text-glimmer px-1.5 py-0.5 rounded border border-glimmer/20">V3.5</span>
                         </h2>
-                        <p className="text-[9px] text-white/40 font-mono flex items-center gap-1 mt-0.5">
-                            <Shield size={10} className="text-status-green" /> ENCRYPTED TUNNEL ACTIVE
+                        <p className="text-[10px] text-white/40 font-mono flex items-center gap-1 mt-0.5 uppercase tracking-tighter">
+                            <Shield size={12} className="text-status-green" /> {t('visual.tunnel_active')}
                         </p>
                     </div>
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-3">
                     <button
-                        onClick={() => setViewMode(viewMode === 'live' ? 'history' : 'live')}
-                        className={`p-2 rounded-xl transition-all ${viewMode === 'live' ? 'bg-glimmer/10 text-glimmer' : 'text-white/40 hover:bg-white/5'}`}
+                        onPointerDown={(e) => {
+                            e.stopPropagation();
+                            setViewMode(viewMode === 'live' ? 'history' : 'live');
+                        }}
+                        className={`p-3 rounded-2xl transition-all active:scale-75 cursor-pointer touch-none ${viewMode === 'live' ? 'bg-glimmer/20 text-glimmer border border-glimmer/50 shadow-[0_0_15px_rgba(0,184,212,0.3)]' : 'bg-white/10 text-white/60 border border-white/20'}`}
+                        title={viewMode === 'live' ? 'Ver Historial' : 'Ver En Vivo'}
                     >
-                        {viewMode === 'live' ? <Activity size={18} /> : <ImageIcon size={18} />}
+                        {viewMode === 'live' ? <Activity size={24} /> : <ImageIcon size={24} />}
                     </button>
                     <button
-                        onClick={() => setShowSettings(!showSettings)}
-                        className="p-2 rounded-xl text-white/40 hover:bg-white/5"
+                        onPointerDown={(e) => {
+                            e.stopPropagation();
+                            setShowSettings(!showSettings);
+                        }}
+                        className="p-3 rounded-2xl bg-white/10 text-white/60 border border-white/20 active:scale-75 transition-all cursor-pointer touch-none"
+                        title="Configuración de Red"
                     >
-                        <Globe size={18} />
+                        <Globe size={24} />
                     </button>
                     <button
-                        onClick={handleRefresh}
-                        className={`p-2 rounded-xl text-white/40 hover:bg-white/5 transition-transform ${isRefreshing ? 'animate-spin' : ''}`}
+                        onPointerDown={(e) => {
+                            e.stopPropagation();
+                            handleRefresh();
+                        }}
+                        className={`p-3 rounded-2xl bg-white/10 text-white/60 border border-white/20 active:scale-75 transition-all cursor-pointer touch-none ${isRefreshing ? 'animate-spin' : ''}`}
+                        title="Refrescar Feed"
                     >
-                        <RefreshCw size={18} />
+                        <RefreshCw size={24} />
                     </button>
                 </div>
             </div>
 
             {/* Main Viewport */}
-            <div className="flex-1 relative overflow-hidden bg-[#050505]">
+            <div className="flex-1 relative overflow-hidden bg-[#050505] min-h-[400px]">
                 <AnimatePresence mode="wait">
                     {viewMode === 'live' ? (
                         <motion.div
@@ -114,35 +157,61 @@ export default function VisualRelay() {
                                 <>
                                     <iframe
                                         key={iframeKey}
-                                        src={livePreviewUrl}
-                                        className="w-full h-full border-none pointer-events-auto"
+                                        src={getIframeSrc()}
+                                        className="w-full h-full border-none pointer-events-auto bg-white"
                                         title="Jules Instant Preview"
+                                        onLoad={() => console.log('Iframe loaded')}
                                     />
                                     {/* Scanline Overlay */}
-                                    <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_2px,3px_100%] z-10 opacity-30" />
+                                    <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_2px,3px_100%] z-10 opacity-10" />
 
                                     {/* HUD Elements */}
                                     <div className="absolute top-4 left-4 z-20 pointer-events-none flex flex-col gap-2">
-                                        <div className="flex items-center gap-2 px-2 py-1 rounded bg-black/60 border border-white/10 backdrop-blur-sm">
-                                            <div className="w-1.5 h-1.5 rounded-full bg-status-green" />
-                                            <span className="text-[10px] font-mono text-white/80 tracking-tighter uppercase font-bold">LIVE_FEED: JULES_WORKSPACE</span>
+                                        <div className="flex items-center gap-2 px-2 py-1 rounded bg-black/80 border border-white/10 backdrop-blur-sm">
+                                            <div className="w-1.5 h-1.5 rounded-full bg-status-green animate-pulse" />
+                                            <span className="text-[10px] font-mono text-white/80 tracking-tighter uppercase font-bold">{t('visual.live_feed')}</span>
                                         </div>
 
                                         {useMissionStore.getState().livePreviewPassword && (
-                                            <div className="flex items-center gap-2 px-2 py-1 rounded bg-buoy-orange/80 border border-buoy-orange/20 backdrop-blur-sm shadow-[0_0_15px_rgba(255,107,0,0.3)] animate-pulse pointer-events-auto">
-                                                <Lock size={10} className="text-white" />
-                                                <span className="text-[10px] font-mono text-white tracking-tighter uppercase font-bold">PASS: {useMissionStore.getState().livePreviewPassword}</span>
+                                            <div
+                                                className="flex flex-col gap-1 pointer-events-auto cursor-pointer group"
+                                                onClick={() => {
+                                                    navigator.clipboard.writeText(useMissionStore.getState().livePreviewPassword);
+                                                    alert('Password copied to clipboard!');
+                                                }}
+                                            >
+                                                <div className="flex items-center gap-2 px-2 py-1.5 rounded bg-buoy-orange border border-white/20 shadow-[0_0_15px_rgba(255,107,0,0.4)] transition-transform active:scale-95">
+                                                    <Lock size={12} className="text-white" />
+                                                    <span className="text-[11px] font-mono text-white tracking-tighter uppercase font-black">
+                                                        TUNNEL_PWD: {useMissionStore.getState().livePreviewPassword}
+                                                    </span>
+                                                    <span className="text-[8px] bg-white/20 px-1 rounded text-white ml-auto">{t('visual.tap_to_copy')}</span>
+                                                </div>
+                                                <p className="text-[8px] text-white/40 font-mono italic ml-1 group-hover:text-white/60">{t('visual.pwd_help')}</p>
                                             </div>
                                         )}
+                                    </div>
+
+                                    <div className="absolute top-4 right-4 z-20 flex flex-col gap-2">
+                                        <button
+                                            onClick={() => {
+                                                if (confirm(t('visual.troubleshoot_msg'))) {
+                                                    handleRefresh();
+                                                }
+                                            }}
+                                            className="px-2 py-1 rounded bg-status-red/20 border border-status-red/40 backdrop-blur-sm text-[10px] font-mono text-status-red hover:bg-status-red/30 transition-colors pointer-events-auto"
+                                        >
+                                            {t('visual.troubleshoot')}
+                                        </button>
                                     </div>
 
                                     <div className="absolute bottom-4 right-4 z-20 pointer-events-none">
                                         <div className="flex flex-col items-end gap-1">
                                             <div className="px-2 py-1 rounded bg-black/60 border border-white/10 backdrop-blur-sm">
-                                                <span className="text-[10px] font-mono text-white/40 tracking-tighter uppercase font-bold text-right block">LATENCY: 42ms</span>
+                                                <span className="text-[10px] font-mono text-white/40 tracking-tighter uppercase font-bold text-right block">{t('visual.signal')}</span>
                                             </div>
                                             <div className="px-2 py-1 rounded bg-black/60 border border-white/10 backdrop-blur-sm">
-                                                <span className="text-[10px] font-mono text-glimmer tracking-tighter uppercase font-bold">HMR ACTIVE</span>
+                                                <span className="text-[10px] font-mono text-glimmer tracking-tighter uppercase font-bold">{t('visual.bypass')}</span>
                                             </div>
                                         </div>
                                     </div>
@@ -152,16 +221,16 @@ export default function VisualRelay() {
                                     <div className="w-20 h-20 rounded-full bg-glimmer/5 border border-glimmer/20 flex items-center justify-center mb-6">
                                         <Radio size={40} className="text-glimmer/40 animate-pulse" />
                                     </div>
-                                    <h3 className="text-lg font-display text-white mb-2">No Tunnel Detected</h3>
+                                    <h3 className="text-lg font-display text-white mb-2">{t('visual.no_tunnel')}</h3>
                                     <p className="text-sm text-white/40 max-w-xs mb-8">
-                                        Active your secure tunnel or enter a custom URL to see Jules' changes in real-time.
+                                        {t('visual.no_tunnel_desc')}
                                     </p>
                                     <button
                                         onClick={() => setShowSettings(true)}
                                         className="btn-primary px-8 py-3 rounded-2xl flex items-center gap-3"
                                     >
                                         <Globe size={18} />
-                                        <span>Establish Connection</span>
+                                        <span>{t('visual.establish')}</span>
                                     </button>
                                 </div>
                             )}
@@ -200,54 +269,54 @@ export default function VisualRelay() {
                             initial={{ opacity: 0, scale: 0.95 }}
                             animate={{ opacity: 1, scale: 1 }}
                             exit={{ opacity: 0, scale: 0.95 }}
-                            className="absolute inset-0 z-50 bg-black/90 backdrop-blur-xl flex flex-col p-8 items-center justify-center"
+                            className="absolute inset-0 z-[100] bg-black/95 backdrop-blur-2xl flex flex-col p-8 items-center justify-center pointer-events-auto"
                         >
                             <div className="w-full max-w-sm">
-                                <h3 className="text-xl font-display text-white mb-2 text-center">Visual Relay Setup</h3>
-                                <p className="text-xs text-white/40 mb-8 text-center font-mono uppercase tracking-widest">VPN / Secure Tunnel Configuration</p>
+                                <h3 className="text-2xl font-display text-white mb-2 text-center">{t('visual.settings_title')}</h3>
+                                <p className="text-[10px] text-glimmer mb-8 text-center font-mono uppercase tracking-[0.3em] font-black">{t('visual.settings_subtitle')}</p>
 
-                                <div className="space-y-6">
-                                    <div className="space-y-2">
-                                        <label className="text-[10px] font-mono uppercase text-white/40 ml-1">Live Preview URL</label>
+                                <div className="space-y-8">
+                                    <div className="space-y-3">
+                                        <label className="text-[11px] font-mono uppercase text-white/40 ml-1 font-bold tracking-widest">{t('visual.preview_url')}</label>
                                         <div className="relative group">
-                                            <Globe size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-glimmer transition-colors" />
+                                            <Globe size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-glimmer transition-colors" />
                                             <input
                                                 type="text"
                                                 value={customUrl}
                                                 onChange={(e) => setCustomUrl(e.target.value)}
                                                 placeholder="https://your-tunnel.loca.lt"
-                                                className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-sm text-white focus:outline-none focus:border-glimmer/50 transition-all font-mono"
+                                                className="w-full bg-white/5 border-2 border-white/10 rounded-[2rem] py-5 pl-14 pr-6 text-sm text-white focus:outline-none focus:border-glimmer/50 transition-all font-mono shadow-inner"
                                             />
                                         </div>
                                     </div>
 
-                                    <div className="grid grid-cols-2 gap-3">
+                                    <div className="grid grid-cols-2 gap-4">
                                         <button
-                                            onClick={() => setCustomUrl('http://192.168.1.50:3000')}
-                                            className="px-4 py-3 rounded-xl bg-white/5 border border-white/5 text-[10px] font-mono text-white/60 hover:bg-white/10 hover:text-white transition-all uppercase"
+                                            onPointerDown={() => setCustomUrl('http://192.168.1.50:3000')}
+                                            className="px-4 py-4 rounded-2xl bg-white/5 border border-white/10 text-[11px] font-mono font-black text-white/60 active:bg-white/20 active:scale-95 transition-all uppercase tracking-tighter"
                                         >
                                             Local Host (WiFi)
                                         </button>
                                         <button
-                                            onClick={() => setCustomUrl('https://getxobelaeskola.cloud')}
-                                            className="px-4 py-3 rounded-xl bg-white/5 border border-white/5 text-[10px] font-mono text-white/60 hover:bg-white/10 hover:text-white transition-all uppercase"
+                                            onPointerDown={() => setCustomUrl('https://getxobelaeskola.cloud')}
+                                            className="px-4 py-4 rounded-2xl bg-white/5 border border-white/10 text-[11px] font-mono font-black text-white/60 active:bg-white/20 active:scale-95 transition-all uppercase tracking-tighter"
                                         >
                                             Production CI
                                         </button>
                                     </div>
 
-                                    <div className="flex items-center gap-3 pt-4">
+                                    <div className="flex items-center gap-4 pt-6 border-t border-white/5">
                                         <button
-                                            onClick={() => setShowSettings(false)}
-                                            className="flex-1 py-4 rounded-2xl bg-white/5 text-white/60 font-bold text-sm"
+                                            onPointerDown={() => setShowSettings(false)}
+                                            className="flex-1 py-5 rounded-[2rem] bg-white/5 text-white/40 font-black text-xs uppercase tracking-widest active:bg-white/10 active:scale-95 transition-all border border-white/5"
                                         >
-                                            Dismiss
+                                            {t('visual.dismiss')}
                                         </button>
                                         <button
-                                            onClick={handleUpdateUrl}
-                                            className="flex-1 py-4 rounded-2xl bg-glimmer text-black font-bold text-sm shadow-[0_0_20px_rgba(0,184,212,0.4)]"
+                                            onPointerDown={handleUpdateUrl}
+                                            className="flex-1 py-5 rounded-[2rem] bg-glimmer text-black font-black text-xs uppercase tracking-widest shadow-[0_15px_35px_rgba(0,184,212,0.4)] active:scale-90 transition-all"
                                         >
-                                            Link Relay
+                                            {t('visual.link_relay')}
                                         </button>
                                     </div>
                                 </div>
@@ -261,7 +330,7 @@ export default function VisualRelay() {
             <div className="px-4 py-2 bg-black/20 border-t border-white/5 flex items-center justify-between">
                 <div className="flex items-center gap-2">
                     <Terminal size={12} className="text-white/20" />
-                    <span className="text-[10px] font-mono text-white/20 tracking-tighter select-none">SYSTEM_READY // REMOTE_VISUAL_ENABLED</span>
+                    <span className="text-[10px] font-mono text-white/20 tracking-tighter select-none">SYSTEM_READY // {t('visual.remote_enabled')}</span>
                 </div>
                 <div className="flex items-center gap-4">
                     <div className="flex items-center gap-1.5">

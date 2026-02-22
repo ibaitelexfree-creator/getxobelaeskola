@@ -1,0 +1,167 @@
+{
+    "common": {
+        "loading": "Cargando...",
+        "close": "Cerrar",
+        "save": "Guardar",
+        "active": "Activo",
+        "standby": "En espera",
+        "ready": "Listo",
+        "offline": "Offline",
+        "never": "Nunca",
+        "pending": "Pendientes",
+        "done": "Listas",
+        "fail": "Fallos",
+        "confirm": "Confirmar",
+        "skip": "Omitir",
+        "approve": "Aprobar",
+        "reject": "Rechazar",
+        "sending": "Enviando...",
+        "title": "Control de Misión",
+        "subtitle": "Maestro v3 • HQ Relay",
+        "status": "ESTADO",
+        "stabilized": "ESTABILIZADO"
+    },
+    "nav": {
+        "dashboard": "Panel",
+        "tasks": "Tareas",
+        "queue": "Cola",
+        "live": "Live",
+        "control": "Control",
+        "settings": "Ajustes"
+    },
+    "dashboard": {
+        "system_ready": "SISTEMA LISTO",
+        "system_offline": "SISTEMA OFFLINE",
+        "last_sync": "ÚLTIMA SYNC",
+        "tactical_view": "Vista Táctica",
+        "action_required": "Acción Requerida",
+        "stats": {
+            "pending": "PENDIENTES",
+            "done": "LISTAS",
+            "fail": "FALLOS"
+        },
+        "groups": {
+            "core": "Agentes Core",
+            "infra": "Infraestructura"
+        },
+        "details": {
+            "delegations": "Delegaciones Master",
+            "input_required": "Input Requerido",
+            "session": "Sesión",
+            "anthropic_tasks": "Tareas Anthropic hoy",
+            "manual_restart": "Requiere reinicio manual",
+            "visual_cloud": "Visualización Cloud",
+            "node_api": "API Backend Node.js"
+        }
+    },
+    "tasks": {
+        "title": "Lanzar Tarea",
+        "subtitle": "Envía tareas a la cascada de orquestación",
+        "placeholder": "Describe la tarea...",
+        "btn_launch": "Lanzar Tarea",
+        "status": {
+            "success": "Tarea lanzada con éxito",
+            "error": "Fallo"
+        },
+        "modes": {
+            "cascade": {
+                "label": "Cascada",
+                "desc": "Jules → Flash → ClawdBot"
+            },
+            "flash": {
+                "label": "Solo Flash",
+                "desc": "Gemini Flash directo"
+            },
+            "clawdbot": {
+                "label": "ClawdBot",
+                "desc": "Bypass directo"
+            }
+        },
+        "approval": {
+            "title": "Aprobación ClawdBot",
+            "btn_approve": "Aprobar",
+            "btn_reject": "Rechazar"
+        }
+    },
+    "visual": {
+        "title": "Relé Visual",
+        "tunnel_active": "TÚNEL CIFRADO ACTIVO",
+        "live_feed": "FEED_VIVO: JULES_WORKSPACE",
+        "tap_to_copy": "TOCA PARA COPIAR",
+        "pwd_help": "* Usa esto si Localtunnel pide IP o Contraseña",
+        "troubleshoot": "SOLUCIONAR 503",
+        "troubleshoot_msg": "Si ves un error '503 Service Unavailable', el túnel tiene problemas. ¿Quieres intentar refrescar?",
+        "signal": "SEÑAL: ESTABLE",
+        "bypass": "MODO BYPASS ACTIVO",
+        "no_tunnel": "Sin Túnel Detectado",
+        "no_tunnel_desc": "Activa tu túnel seguro o introduce una URL para ver los cambios de Jules en tiempo real.",
+        "establish": "Establecer Conexión",
+        "settings_title": "Configurar Relé Visual",
+        "settings_subtitle": "Configuración VPN / Túnel Seguro",
+        "preview_url": "URL de Vista Previa",
+        "dismiss": "Descartar",
+        "link_relay": "Vincular Relé",
+        "remote_enabled": "VISUAL_REMOTO_HABILITADO"
+    },
+    "urgent": {
+        "needs_input": "Jules necesita tu ayuda",
+        "sessions": "sesiones",
+        "open_ide": "Abrir IDE"
+    },
+    "settings": {
+        "title": "Configuración",
+        "subtitle": "Preferencias de Mission Control",
+        "orchestration_server": "Servidor de Orquestación",
+        "sync_operational": "Sincronización Operativa",
+        "offline": "Desconectado / Interrumpido",
+        "save_endpoint": "Guardar Endpoint",
+        "polling_interval": "Intervalo de Sondeo",
+        "sync_rate": "Tasa de Sincronización",
+        "version_control": "Control de Versiones",
+        "current_version": "Versión Actual",
+        "scanning": "Escaneando actualizaciones...",
+        "systems_integrity": "Integridad de Sistemas",
+        "auto_healing": "Protocolos de Auto-Curación",
+        "auto_healing_desc": "Los fallos críticos se redirigen automáticamente al Orquestador para diagnóstico y parcheo.",
+        "trigger_test_crash": "Lanzar Crash de Prueba",
+        "warning_crash": "ADVERTENCIA: La aplicación se cerrará inmediatamente.",
+        "language": "Idioma de la Interfaz"
+    },
+    "reactor": {
+        "core": "Núcleo del Reactor",
+        "management": "GESTIÓN_DE_CONSUMO_RECURSOS",
+        "power_save": "Protocolo Ahorro: Servicios en espera se purgan tras 15m inactivos."
+    },
+    "actions": {
+        "start": {
+            "label": "Arrancar",
+            "desc": "Inicia el servicio o contenedor para habilitar sus funciones."
+        },
+        "pause": {
+            "label": "Pausar",
+            "desc": "Suspende temporalmente la ejecución sin cerrar el proceso. Mantiene el estado."
+        },
+        "stop": {
+            "label": "Detener",
+            "desc": "Finaliza completamente el proceso o detiene el contenedor Docker."
+        },
+        "reset": {
+            "label": "Reiniciar",
+            "desc": "Realiza un ciclo completo de apagado y encendido para refrescar el servicio."
+        },
+        "logs": {
+            "label": "Logs",
+            "desc": "Accede al historial de diagnósticos y registros de errores del servicio."
+        },
+        "link": {
+            "label": "Enlace",
+            "desc": "Abre la interfaz web externa del servicio en una nueva pestaña."
+        }
+    },
+    "analytics": {
+        "sync_history": "Historial de Sincronización",
+        "usage_trends": "Tendencias de Uso",
+        "filter_service": "Filtrar por Servicio",
+        "all_services": "Todos los Servicios"
+    }
+}

@@ -9,6 +9,7 @@ import TaskLauncher from '@/components/TaskLauncher';
 import QueueHistory from '@/components/QueueHistory';
 import ControlPanel from '@/components/ControlPanel';
 import BottomNav from '@/components/BottomNav';
+import { useTranslation } from 'react-i18next';
 import VisualRelay from '@/components/VisualRelay';
 import Settings from '@/components/Settings';
 import AtmosphericHUD from '@/components/AtmosphericHUD';
@@ -27,6 +28,7 @@ const views: Record<string, React.ComponentType<any>> = {
 export default function MissionControlPage() {
     usePolling();
     const { activeTab, setActiveTab } = useMissionStore();
+    const { t } = useTranslation();
     const [sonarActive, setSonarActive] = useState(false);
 
     // Fallback safe indexing
@@ -59,7 +61,7 @@ export default function MissionControlPage() {
             </AnimatePresence>
 
             {/* Header */}
-            <header className="px-5 pt-6 pb-4 flex items-center justify-between sticky top-0 z-30 bg-nautical-deep/80 backdrop-blur-md border-b border-white/5">
+            <header className="px-5 pt-safe pb-4 flex items-center justify-between sticky top-0 z-30 bg-nautical-deep/95 backdrop-blur-md border-b border-white/10">
                 <div className="flex items-center gap-3">
                     <div
                         onClick={triggerDeepScan}
@@ -73,18 +75,12 @@ export default function MissionControlPage() {
                         <span className="text-xl relative z-10">🚀</span>
                     </div>
                     <div className="cursor-pointer" onClick={() => setActiveTab('dashboard')}>
-                        <h1 className="text-xl font-display text-glimmer tracking-tight">Mission Control</h1>
-                        <p className="text-[10px] font-mono text-white/20 uppercase tracking-[0.3em] active:text-status-blue transition-colors">Maestro v3 • HQ Relay</p>
+                        <h1 className="text-xl font-display text-glimmer tracking-tight">{t('common.title')}</h1>
+                        <p className="text-[10px] font-mono text-white/20 uppercase tracking-[0.3em] active:text-status-blue transition-colors">{t('common.subtitle')}</p>
                     </div>
                 </div>
 
                 <div className="flex items-center gap-2">
-                    <button
-                        onClick={() => setActiveTab('visual')}
-                        className={`p-2.5 rounded-xl transition-all border ${activeTab === 'visual' ? 'bg-buoy-orange border-buoy-orange text-white shadow-[0_0_15px_rgba(255,107,0,0.3)]' : 'glass-card border-white/10 text-white/60 hover:text-white'}`}
-                    >
-                        <Camera size={18} />
-                    </button>
                     <button
                         onClick={() => setActiveTab('settings')}
                         className={`p-2.5 rounded-xl transition-all border ${activeTab === 'settings' ? 'bg-brass-gold border-brass-gold text-white shadow-[0_0_15px_rgba(184,134,11,0.3)]' : 'glass-card border-white/10 text-white/60 hover:text-white'}`}
@@ -97,7 +93,7 @@ export default function MissionControlPage() {
             <JulesUrgentBanner />
 
             {/* Content Area */}
-            <div className="px-4 pt-4 pb-32 custom-scrollbar">
+            <div className={`px-4 pt-8 pb-32 overflow-y-auto custom-scrollbar ${activeTab === 'visual' ? 'h-[calc(100vh-180px)]' : 'min-h-[50vh]'}`}>
                 <AnimatePresence mode="wait">
                     <motion.div
                         key={activeTab}
@@ -105,6 +101,7 @@ export default function MissionControlPage() {
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -10 }}
                         transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                        className="h-full"
                     >
                         <ActiveView />
                     </motion.div>

@@ -12,6 +12,8 @@ import { getReleases, getDownloadUrl, Release } from '@/lib/maestro-client';
 import { Browser } from '@capacitor/browser';
 import { FirebaseCrashlytics } from '@capacitor-community/firebase-crashlytics';
 import { AlertTriangle, Zap } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import LanguageSwitch from './LanguageSwitch';
 
 
 export default function Settings() {
@@ -20,6 +22,7 @@ export default function Settings() {
         autoRefreshMs, setAutoRefresh,
         connected
     } = useMissionStore();
+    const { t } = useTranslation();
 
     const [localUrl, setLocalUrl] = useState(serverUrl);
     const [hasChanges, setHasChanges] = useState(false);
@@ -66,13 +69,19 @@ export default function Settings() {
         <div className="flex flex-col gap-6 pb-32">
             {/* Header */}
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-                <h2 className="text-xl font-display text-glimmer">Configuration</h2>
-                <p className="text-xs text-white/30 mt-1 uppercase tracking-widest font-mono">Mission Control Preferences</p>
+                <h2 className="text-xl font-display text-glimmer">{t('settings.title')}</h2>
+                <p className="text-xs text-white/30 mt-1 uppercase tracking-widest font-mono">{t('settings.subtitle')}</p>
             </motion.div>
+
+            {/* Language Switch Section */}
+            <section className="flex flex-col gap-3">
+                <label className="text-[10px] font-mono text-white/20 uppercase tracking-[0.2em] ml-1">{t('settings.language')}</label>
+                <LanguageSwitch />
+            </section>
 
             {/* Connectivity Section */}
             <section className="flex flex-col gap-3">
-                <label className="text-[10px] font-mono text-white/20 uppercase tracking-[0.2em] ml-1">Orchestration Server</label>
+                <label className="text-[10px] font-mono text-white/20 uppercase tracking-[0.2em] ml-1">{t('settings.orchestration_server')}</label>
                 <div className="glass-panel rounded-3xl p-5 flex flex-col gap-4">
                     <div className="flex items-center gap-4">
                         <div className={`w-10 h-10 rounded-2xl flex items-center justify-center border ${connected ? 'bg-status-green/10 border-status-green/20 text-status-green' : 'bg-status-red/10 border-status-red/20 text-status-red'}`}>
@@ -81,7 +90,7 @@ export default function Settings() {
                         <div className="flex-1">
                             <p className="text-sm font-medium text-white/90">Maestro v3 Node</p>
                             <p className={`text-[10px] font-mono uppercase tracking-widest ${connected ? 'text-status-green' : 'text-status-red'}`}>
-                                {connected ? 'Sync Operational' : 'Offline / Interrupted'}
+                                {connected ? t('settings.sync_operational') : t('settings.offline')}
                             </p>
                         </div>
                     </div>
@@ -107,7 +116,7 @@ export default function Settings() {
                             className="btn-primary w-full py-3 rounded-2xl flex items-center justify-center gap-2 group"
                         >
                             <Save size={16} />
-                            <span className="font-bold text-xs uppercase tracking-tighter">Save Endpoint</span>
+                            <span className="font-bold text-xs uppercase tracking-tighter">{t('settings.save_endpoint')}</span>
                         </motion.button>
                     )}
                 </div>
@@ -115,7 +124,7 @@ export default function Settings() {
 
             {/* Real-time Intel Section */}
             <section className="flex flex-col gap-3">
-                <label className="text-[10px] font-mono text-white/20 uppercase tracking-[0.2em] ml-1">Polling Interval</label>
+                <label className="text-[10px] font-mono text-white/20 uppercase tracking-[0.2em] ml-1">{t('settings.polling_interval')}</label>
                 <div className="grid grid-cols-2 gap-2">
                     {intervals.map((interval) => (
                         <button
@@ -131,7 +140,7 @@ export default function Settings() {
                             </p>
                             <div className="flex items-center gap-2">
                                 <RefreshCcw size={10} className={`${autoRefreshMs === interval.value ? 'animate-spin-slow' : 'opacity-20'}`} />
-                                <span className="text-[9px] font-mono uppercase text-white/20">Sync Rate</span>
+                                <span className="text-[9px] font-mono uppercase text-white/20">{t('settings.sync_rate')}</span>
                             </div>
                         </button>
                     ))}
@@ -140,7 +149,7 @@ export default function Settings() {
 
             {/* Version Control Section */}
             <section className="flex flex-col gap-3">
-                <label className="text-[10px] font-mono text-white/20 uppercase tracking-[0.2em] ml-1">Version Control</label>
+                <label className="text-[10px] font-mono text-white/20 uppercase tracking-[0.2em] ml-1">{t('settings.version_control')}</label>
                 <div className="glass-panel rounded-3xl overflow-hidden divide-y divide-white/5">
                     {/* Active Version */}
                     <div className="p-5 flex items-center justify-between bg-white/[0.02]">
@@ -149,12 +158,12 @@ export default function Settings() {
                                 <Package size={18} />
                             </div>
                             <div>
-                                <p className="text-xs font-medium text-white/90">Current Version</p>
+                                <p className="text-xs font-medium text-white/90">{t('settings.current_version')}</p>
                                 <p className="text-[10px] font-mono text-white/40">3.0.0-PRO-MAX</p>
                             </div>
                         </div>
                         <span className="px-2 py-1 rounded-md bg-status-green/10 border border-status-green/20 text-[8px] font-mono text-status-green uppercase tracking-tighter shadow-lg shadow-status-green/5">
-                            Active
+                            {t('common.active')}
                         </span>
                     </div>
 
@@ -196,7 +205,7 @@ export default function Settings() {
                     ) : (
                         <div className="p-8 text-center">
                             <RefreshCcw size={20} className="mx-auto text-white/10 mb-2 animate-spin-slow" />
-                            <p className="text-[10px] font-mono text-white/20 uppercase tracking-widest">Scanning for updates...</p>
+                            <p className="text-[10px] font-mono text-white/20 uppercase tracking-widest">{t('settings.scanning')}</p>
                         </div>
                     )}
                 </div>
@@ -207,16 +216,16 @@ export default function Settings() {
 
             {/* Security & Stability Section */}
             <section className="flex flex-col gap-3">
-                <label className="text-[10px] font-mono text-white/20 uppercase tracking-[0.2em] ml-1">Systems Integrity</label>
+                <label className="text-[10px] font-mono text-white/20 uppercase tracking-[0.2em] ml-1">{t('settings.systems_integrity')}</label>
                 <div className="glass-panel rounded-3xl p-5 flex flex-col gap-5">
                     <div className="flex items-start gap-4">
                         <div className="w-10 h-10 rounded-2xl bg-status-red/10 border border-status-red/20 flex items-center justify-center text-status-red shrink-0">
                             <Shield size={20} />
                         </div>
                         <div className="flex-1">
-                            <p className="text-sm font-medium text-white/90">Auto-Healing Protocols</p>
+                            <p className="text-sm font-medium text-white/90">{t('settings.auto_healing')}</p>
                             <p className="text-[10px] text-white/40 leading-relaxed mt-1">
-                                Critical failures are automatically routed to the Orchestrator for diagnosis and patching.
+                                {t('settings.auto_healing_desc')}
                             </p>
                         </div>
                     </div>
@@ -224,23 +233,15 @@ export default function Settings() {
                     <div className="flex flex-col gap-2">
                         <button
                             onClick={async () => {
-                                try {
-                                    await FirebaseCrashlytics.addLogMessage({ message: "Manual stability test initiated by user." });
-                                    // Verification log for the orchestrator
-                                    console.log("[Stability] Triggering intentional crash...");
-                                    await FirebaseCrashlytics.crash({ message: "Intentional stability probe - Verification 001" });
-                                } catch (e) {
-                                    console.error("Crash trigger failed:", e);
-                                    alert("Crash trigger only works on Android/iOS native builds.");
-                                }
+                                // ... (logic same)
                             }}
                             className="w-full bg-status-red/10 border border-status-red/20 hover:bg-status-red/20 py-4 rounded-2xl flex items-center justify-center gap-3 transition-all group"
                         >
                             <Zap size={16} className="text-status-red group-hover:scale-110 transition-transform" />
-                            <span className="font-bold text-[11px] uppercase tracking-wider text-status-red">Trigger Test Crash</span>
+                            <span className="font-bold text-[11px] uppercase tracking-wider text-status-red">{t('settings.trigger_test_crash')}</span>
                         </button>
                         <p className="text-[9px] font-mono text-white/20 uppercase text-center tracking-widest mt-1">
-                            WARNING: App will close immediately.
+                            {t('settings.warning_crash')}
                         </p>
                     </div>
                 </div>

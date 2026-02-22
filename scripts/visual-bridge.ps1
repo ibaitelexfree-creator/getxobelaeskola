@@ -1,85 +1,99 @@
-
 # ==========================================================
-# MISSION CONTROL: VISUAL BRIDGE (TUNNEL)
+# MISSION CONTROL: VISUAL BRIDGE (CLOUDFLARE TUNNEL)
 # ==========================================================
-# Este script levanta un túnel seguro para que puedas ver
-# los cambios de Jules instantáneamente en tu APK/móvil
-# incluso si no estás en la misma red WiFi.
+# Levanta un túnel de Cloudflare SIN CONTRASEÑA.
+# Compatible con el orquestador en local.
 # ==========================================================
 
 $Port = 3000
-$TunnelLog = "c:\Users\User\Desktop\Saili8ng School Test\antigravity\tunnel.log"
-$UrlFile = "c:\Users\User\Desktop\Saili8ng School Test\antigravity\last_tunnel_url.txt"
+$BaseDir = "c:\Users\User\Desktop\Saili8ng School Test\antigravity"
+$TunnelLog = "$BaseDir\tunnel.log"
+$ErrorLog = "$BaseDir\tunnel_error.log"
+$UrlFile = "$BaseDir\last_tunnel_url.txt"
 
-# 1. Obtener IP pública (necesaria para el password de localtunnel)
-Write-Host "🔍 Obteniendo IP pública..." -ForegroundColor Cyan
-$PublicIP = (Invoke-RestMethod -Uri "https://api.ipify.org").Trim()
-Write-Host "✅ Tu IP pública es: $PublicIP (Úsala como contraseña si el túnel la pide)" -ForegroundColor Green
+# 0. Limpiar logs anteriores
+foreach ($f in @($TunnelLog, $ErrorLog)) {
+    if (Test-Path $f) { Clear-Content $f -ErrorAction SilentlyContinue }
+}
 
-# 2. Iniciar Localtunnel
-Write-Host "🚀 Iniciando Bridge Visual en puerto $Port..." -ForegroundColor Cyan
-$TunnelProcess = Start-Process npx -ArgumentList "localtunnel", "--port", "$Port" -PassThru -NoNewWindow -RedirectStandardOutput $TunnelLog
+# 1. Iniciar Cloudflare Tunnel
+Write-Host "🚀 Iniciando Bridge Visual (Cloudflare) en puerto $Port..." -ForegroundColor Cyan
+$TunnelProcess = Start-Process cmd `
+    -ArgumentList "/c npx -y cloudflared tunnel --url http://localhost:$Port" `
+    -PassThru -NoNewWindow `
+    -RedirectStandardOutput $TunnelLog `
+    -RedirectStandardError  $ErrorLog
 
-# 3. Esperar a que la URL esté disponible en el log
-Write-Host "📡 Esperando URL del túnel..." -ForegroundColor Yellow
+# 2. Esperar a que la URL aparezca en los logs
+Write-Host "📡 Generando URL segura (Password-less)..." -ForegroundColor Yellow
 $TunnelUrl = $null
-$Timeout = 30 # segundos
+$Timeout = 60
 $Counter = 0
 
 while ($null -eq $TunnelUrl -and $Counter -lt $Timeout) {
-    Start-Sleep -Seconds 1
-    if (Test-Path $TunnelLog) {
-        $Content = Get-Content $TunnelLog
-        foreach ($Line in $Content) {
-            if ($Line -match "your url is: (https://.*)") {
-                $TunnelUrl = $Matches[1]
-                break
+    Start-Sleep -Seconds 2
+    foreach ($LogFile in @($TunnelLog, $ErrorLog)) {
+        if (Test-Path $LogFile) {
+            $Content = Get-Content $LogFile -ErrorAction SilentlyContinue
+            if ($Content) {
+                foreach ($Line in $Content) {
+                    if ($Line -match "\|\s+(https://\S+\.trycloudflare\.com)\s+\|") {
+                        $TunnelUrl = $Matches[1].Trim()
+                        break
+                    }
+                }
             }
         }
+        if ($TunnelUrl) { break }
     }
-    $Counter++
+    $Counter += 2
 }
 
 if ($null -ne $TunnelUrl) {
     Write-Host "✅ ¡Bridge Activo!: $TunnelUrl" -ForegroundColor Green
-    
-    # 4. Guardar para el Orquestador
-    $JsonData = @{
-        url = $TunnelUrl
-        password = $PublicIP
-        timestamp = (Get-Date).ToString("yyyy-MM-ddTHH:mm:ss.fffZ")
+    Write-Host "✨ Sin contraseña requerida." -ForegroundColor Green
+
+    # 3. Guardar JSON para el Orquestador
+    $JsonData = [ordered]@{
+        url       = $TunnelUrl
+        password  = $null
+        source    = "cloudflare"
+        timestamp = (Get-Date -Format "yyyy-MM-ddTHH:mm:ss.fffZ")
     } | ConvertTo-Json
-    
     $JsonData | Out-File -FilePath $UrlFile -Encoding utf8
-    
-    # 5. Notificar por Telegram (si hay token)
+
+    # 4. Notificar por Telegram
     $BotToken = "8375089119:AAFC4svZTAYtIRG13rwlgLOdpZjfVLMXt5U"
     $ChatId = "1567383226"
-    
-    $Msg = "👁️ *Visual Bridge Activado*`n`n"
-    $Msg += "El túnel para la preview instantánea está listo.`n`n"
-    $Msg += "*URL:* $TunnelUrl`n"
-    $Msg += "*Password (IP):* ``$PublicIP``"
-    
-    $Url = "https://api.telegram.org/bot$BotToken/sendMessage"
-    $Body = @{
-        chat_id = $ChatId
-        text = $Msg
-        parse_mode = "Markdown"
+    $Msg = "👁️ *Visual Bridge (Cloudflare)*`n`n*URL:* $TunnelUrl`n*Acceso:* Directo (sin password)"
+
+    try {
+        $Body = @{ chat_id = $ChatId; text = $Msg; parse_mode = "Markdown" }
+        Invoke-RestMethod -Uri "https://api.telegram.org/bot$BotToken/sendMessage" `
+            -Method Post -Body $Body | Out-Null
+        Write-Host "📢 Notificación de Telegram enviada." -ForegroundColor Cyan
     }
-    
-    Invoke-RestMethod -Uri $Url -Method Post -Body $Body | Out-Null
-    
-    Write-Host "📢 Notificación enviada. Puedes abrir la pestaña 'LIVE' en el APK." -ForegroundColor Cyan
-} else {
-    Write-Host "❌ Error: No se pudo obtener la URL del túnel. Revisa $TunnelLog" -ForegroundColor Red
+    catch {
+        Write-Host "⚠️ Telegram no disponible." -ForegroundColor DarkGray
+    }
+
+    Write-Host "`nAbre la pestaña LIVE en el APK para ver el preview." -ForegroundColor White
+
+}
+else {
+    Write-Host "❌ Error: No se obtuvo URL. Revisa $ErrorLog" -ForegroundColor Red
+    if ($TunnelProcess) { Stop-Process -Id $TunnelProcess.Id -Force -ErrorAction SilentlyContinue }
+    exit 1
 }
 
-# Mantener el script en espera si se desea cerrar manualmente
-Write-Host "`nPresiona CTRL+C para cerrar el túnel." -ForegroundColor Gray
+# 5. Mantener vivo el túnel
+Write-Host "`nPresiona CTRL+C para cerrar el túnel." -ForegroundColor DarkGray
 try {
-    while ($true) { Start-Sleep -Seconds 1 }
-} finally {
-    Stop-Process -Id $TunnelProcess.Id -Force -ErrorAction SilentlyContinue
+    while ($true) { Start-Sleep -Seconds 5 }
+}
+finally {
+    if ($TunnelProcess) {
+        Stop-Process -Id $TunnelProcess.Id -Force -ErrorAction SilentlyContinue
+    }
     Write-Host "`n🛑 Túnel cerrado." -ForegroundColor Yellow
 }
