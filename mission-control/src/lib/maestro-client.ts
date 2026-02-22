@@ -41,6 +41,25 @@ export async function sendTask(description: string, mode: 'cascade' | 'flash' | 
     });
 }
 
+/** Direct question to specific Jules via Telegram */
+export async function sendQuestion(text: string, julesId: string) {
+    const roles: Record<string, string> = {
+        '1': 'Arquitecto / Core',
+        '2': 'Producto / UI',
+        '3': 'Calidad / QA',
+    };
+
+    const role = roles[julesId] || 'Agente';
+
+    return maestroPost('/mcp/execute', {
+        tool: 'telegram_send_message',
+        parameters: {
+            text: `❓ *Pregunta para Jules ${julesId}* (${role})\n\n${text}`,
+            parseMode: 'Markdown',
+        },
+    });
+}
+
 /** /approve — Approve pending ClawdBot task */
 export async function approve() {
     return maestroPost('/watchdog/action', { action: 'feed', message: '/approve' });

@@ -1,10 +1,10 @@
 'use client';
 
 import { useState } from 'react';
-import { motion } from 'framer-motion';
-import { Send, Zap, Bot, Shuffle, ChevronDown } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Send, Zap, Bot, Shuffle, ChevronDown, MessagesSquare, Shield, Palette, CheckCircle } from 'lucide-react';
 import { useMissionStore } from '@/store/useMissionStore';
-import { sendTask, approve, reject } from '@/lib/maestro-client';
+import { sendTask, approve, reject, sendQuestion } from '@/lib/maestro-client';
 
 type ExecutionMode = 'cascade' | 'flash' | 'clawdbot';
 
@@ -19,6 +19,9 @@ export default function TaskLauncher() {
     const [mode, setMode] = useState<ExecutionMode>('cascade');
     const [sending, setSending] = useState(false);
     const [showModes, setShowModes] = useState(false);
+    const [question, setQuestion] = useState('');
+    const [selectedJules, setSelectedJules] = useState<'1' | '2' | '3'>('1');
+    const [asking, setAsking] = useState(false);
     const { pendingApproval, setPendingApproval, addToHistory } = useMissionStore();
 
     const handleSubmit = async () => {
@@ -52,7 +55,26 @@ export default function TaskLauncher() {
         setPendingApproval(null);
     };
 
+    const handleAsk = async () => {
+        if (!question.trim() || asking) return;
+        setAsking(true);
+        try {
+            await sendQuestion(question.trim(), selectedJules);
+            setQuestion('');
+        } catch (err) {
+            console.error('Question send failed:', err);
+        } finally {
+            setAsking(false);
+        }
+    };
+
     const currentMode = modeConfig[mode];
+
+    const julesConfig = {
+        '1': { label: 'Jules 1', role: 'Architect', icon: <Shield size={14} />, color: 'text-status-green' },
+        '2': { label: 'Jules 2', role: 'Product', icon: <Palette size={14} />, color: 'text-status-blue' },
+        '3': { label: 'Jules 3', role: 'QA', icon: <CheckCircle size={14} />, color: 'text-status-amber' },
+    };
 
     return (
         <div className="flex flex-col gap-4">
@@ -129,6 +151,71 @@ export default function TaskLauncher() {
                     )}
                     <span>{sending ? 'Sending...' : 'Launch Task'}</span>
                 </motion.button>
+            </motion.div>
+
+            {/* Direct Question Section */}
+            <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className="glass-panel rounded-2xl p-4 mt-2"
+            >
+                <div className="flex items-center gap-2 mb-4">
+                    <div className="w-8 h-8 rounded-lg bg-buoy-orange/10 flex items-center justify-center">
+                        <MessagesSquare size={16} className="text-buoy-orange" />
+                    </div>
+                    <div>
+                        <h3 className="text-sm font-display text-white/90">Preguntar a Jules</h3>
+                        <p className="text-2xs text-white/30 font-mono uppercase tracking-wider">Direct Consultation</p>
+                    </div>
+                </div>
+
+                {/* Jules Selector */}
+                <div className="flex gap-2 mb-4 p-1 bg-white/5 rounded-xl">
+                    {(['1', '2', '3'] as const).map((id) => (
+                        <button
+                            key={id}
+                            onClick={() => setSelectedJules(id)}
+                            className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-2xs font-mono transition-all ${selectedJules === id
+                                ? 'bg-white/10 text-white shadow-lg shadow-black/20'
+                                : 'text-white/30 hover:text-white/50'
+                                }`}
+                        >
+                            <span className={selectedJules === id ? julesConfig[id].color : ''}>
+                                {julesConfig[id].icon}
+                            </span>
+                            <span>{julesConfig[id].label}</span>
+                        </button>
+                    ))}
+                </div>
+
+                <div className="relative">
+                    <textarea
+                        value={question}
+                        onChange={(e) => setQuestion(e.target.value)}
+                        placeholder={`Haz una pregunta al ${julesConfig[selectedJules].role}...`}
+                        rows={3}
+                        className="w-full bg-white/3 rounded-xl p-3 text-sm text-white/90 placeholder:text-white/20 resize-none outline-none border border-white/5 focus:border-white/10 transition-colors"
+                    />
+
+                    <button
+                        onClick={handleAsk}
+                        disabled={!question.trim() || asking}
+                        className={`absolute bottom-3 right-3 p-2 rounded-lg bg-buoy-orange text-black transition-all ${
+                            !question.trim() || asking ? 'opacity-30 cursor-not-allowed scale-90' : 'hover:scale-105 active:scale-95 shadow-lg shadow-buoy-orange/20'
+                        }`}
+                    >
+                        {asking ? (
+                            <div className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" />
+                        ) : (
+                            <Send size={14} />
+                        )}
+                    </button>
+                </div>
+
+                <p className="text-[10px] text-white/20 mt-3 text-center italic">
+                    Las preguntas se envían al Hub Central de Telegram
+                </p>
             </motion.div>
 
             {/* Pending Approval */}
