@@ -37,6 +37,7 @@ export default async function LocaleLayout({
   return (
     <html lang={locale} className={`${cormorantGaramond.variable} ${outfit.variable} ${jetbrainsMono.variable}`} suppressHydrationWarning>
       <head>
+        <link rel="manifest" href="/manifest.json" />
         <link rel="dns-prefetch" href="https://xbledhifomblirxurtyv.supabase.co" />
       </head>
       <body suppressHydrationWarning>
