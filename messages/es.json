@@ -948,5 +948,17 @@
     "history_direction": "Dirección",
     "history_temp": "Temp (ºC)",
     "history_tide": "Marea (m)"
+  },
+  "glossary": {
+    "title": "Glosario Náutico",
+    "subtitle": "Diccionario completo de términos náuticos, maniobras y partes del barco.",
+    "description": "Domina el lenguaje del mar. Encuentra definiciones precisas de maniobras, partes del barco, meteorología y reglamento.",
+    "search_placeholder": "Buscar término (ej: babor, virada, barómetro...)",
+    "all": "Todos",
+    "view_in_module": "Ver en el módulo",
+    "no_results": "No se encontraron términos",
+    "no_results_desc": "Intenta con otra búsqueda o cambia los filtros.",
+    "clear_filters": "Limpiar filtros",
+    "showing_results": "Mostrando {count} de {total} términos náuticos"
   }
 }
