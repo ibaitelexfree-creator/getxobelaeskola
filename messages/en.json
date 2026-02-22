@@ -854,6 +854,39 @@
       "restart_btn": "PLAY AGAIN"
     }
   },
+  "tools": {
+    "title": "Nautical Calculator",
+    "coordinates": {
+      "title": "Coordinate Converter",
+      "dms": "Degrees, Minutes, Seconds",
+      "decimal": "Decimal",
+      "lat": "Latitude",
+      "lon": "Longitude",
+      "convert_to_decimal": "To Decimal ↓",
+      "convert_to_dms": "To DMS ↑",
+      "deg": "Degrees",
+      "min": "Minutes",
+      "sec": "Seconds"
+    },
+    "route": {
+      "title": "Route Calculation",
+      "point_a": "Starting Point (A)",
+      "point_b": "Destination Point (B)",
+      "speed": "Speed (Knots)",
+      "declination": "Magnetic Declination",
+      "east": "East (+)",
+      "west": "West (-)",
+      "calculate": "Calculate Course & Distance",
+      "results": "Navigation Results",
+      "distance": "Distance",
+      "true_bearing": "True Bearing",
+      "magnetic_bearing": "Magnetic Bearing",
+      "eta": "Estimated Time (ETA)",
+      "days": "d",
+      "hours": "h",
+      "minutes": "min"
+    }
+  },
   "validation": {
     "name_short": "Name too short",
     "last_name_short": "Surnames too short",
