@@ -14,8 +14,8 @@ export const RegattaGame = () => {
     useEffect(() => {
         // Fetch user
         const supabase = createClient();
-        supabase.auth.getUser().then(({ data }) => {
-            if (data.user) {
+        supabase.auth.getUser().then(({ data }: any) => {
+            if (data?.user) {
                 setUserId(data.user.id);
             }
         });
