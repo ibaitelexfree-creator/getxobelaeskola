@@ -64,3 +64,13 @@ export function rateLimit(key: string, limit: number, windowSeconds: number) {
     record.count += 1;
     return { success: true, remaining: limit - record.count, reset: record.resetTime };
 }
+
+/** @internal For testing only */
+export function _resetRateLimitStore() {
+    store.clear();
+}
+
+/** @internal For testing only */
+export function _getRateLimitStoreSize() {
+    return store.size;
+}
