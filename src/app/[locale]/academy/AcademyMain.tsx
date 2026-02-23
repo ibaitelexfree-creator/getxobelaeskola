@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { useAcademyData } from '@/hooks/useAcademyData';
@@ -13,6 +13,13 @@ export default function AcademyMain({ params }: { params: { locale: string } }) 
     const t = useTranslations('academy');
     const { niveles, progreso, cursosPorNivel, enrollments, loading, error, getEstadoNivel } = useAcademyData();
     const { addNotification } = useNotificationStore();
+
+    const nivelesMap = useMemo(() => {
+        return niveles.reduce((acc, n) => {
+            acc[n.id] = n;
+            return acc;
+        }, {} as Record<string, typeof niveles[number]>);
+    }, [niveles]);
 
     const locale = params.locale;
 
@@ -166,7 +173,7 @@ export default function AcademyMain({ params }: { params: { locale: string } }) 
                                 }
 
                                 const prereqNames = (nivel.prerequisitos || [])
-                                    .map(id => niveles.find(n => n.id === id))
+                                    .map(id => nivelesMap[id])
                                     .filter(Boolean)
                                     .map(n => (params.locale === 'eu' ? n!.nombre_eu : n!.nombre_es) || n!.nombre_es);
 
