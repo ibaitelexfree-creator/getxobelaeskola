@@ -11,6 +11,7 @@
 |----|--------|-------|--------|--------|
 | T-003 | ClawdBot | Fix carousel navbar overlap | 2026-02-20 | en_curso |
 | T-004 | Jules | Move ScrollToTop button up | 2026-02-20 | completado |
+| T-005 | Jules | Fix insecure cookie attribute in MobileProfileClient | 2026-02-21 | completado |
 
 ## Bloqueos / Conflictos
 Ninguno actualmente.

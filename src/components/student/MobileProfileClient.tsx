@@ -75,7 +75,7 @@ export default function MobileProfileClient({
 
     const handleLanguageSwitch = (targetLocale: string) => {
         if (targetLocale === locale) return;
-        document.cookie = `NEXT_LOCALE=${targetLocale}; path=/; max-age=31536000; SameSite=Lax`;
+        document.cookie = `NEXT_LOCALE=${targetLocale}; path=/; max-age=31536000; SameSite=Lax; Secure`;
         let path = window.location.pathname;
         if (path.startsWith(`/${locale}`)) {
             path = path.replace(`/${locale}`, `/${targetLocale}`);
