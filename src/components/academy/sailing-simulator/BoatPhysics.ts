@@ -6,10 +6,8 @@ export interface BoatState {
     velocity: Vector3;
     heading: number;
     angularVelocity: number;
-    liftCoeff: number;
     dragCoeff: number;
     efficiency: number; // 0 to 1
-    aoa: number; // Angle of Attack in radians
     tack: number; // 1 for Starboard, -1 for Port
     heel: number; // Heeling angle in radians
     speed: number; // Knots
@@ -22,10 +20,8 @@ export class BoatPhysics {
         velocity: new Vector3(),
         heading: 0,
         angularVelocity: 0,
-        liftCoeff: 0,
         dragCoeff: 0,
         efficiency: 0,
-        aoa: 0,
         tack: 1,
         heel: 0,
         speed: 0,
@@ -175,9 +171,6 @@ export class BoatPhysics {
         this.state.speed = speedMagnitude * 1.94384;
         this.state.speedKmh = speedMagnitude * 3.6;
 
-        // Debug info relative to user request
-        this.state.liftCoeff = driveForce; // Hack to show Drive in debug UI if needed
-        this.state.aoa = idealSailAngle; // Show ideal angle in debug
     }
 
     // Facade getters for legacy support in SailingSimulator.tsx
