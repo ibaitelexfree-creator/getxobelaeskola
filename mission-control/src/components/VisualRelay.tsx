@@ -16,7 +16,7 @@ import {
 } from '@/lib/api';
 
 export default function VisualRelay() {
-    const { services, livePreviewUrl, setLivePreviewUrl } = useMissionStore();
+    const { services, livePreviewUrl, setLivePreviewUrl, serverUrl } = useMissionStore();
     const { t } = useTranslation();
     const [viewMode, setViewMode] = useState<'live' | 'history'>('live');
     const [isRefreshing, setIsRefreshing] = useState(false);
@@ -72,7 +72,7 @@ export default function VisualRelay() {
             const data = await getVisualHistory();
             if (data?.screenshots) {
                 // Ensure URLs are absolute if they are relative
-                const baseUrl = window.location.origin.replace('3000', '3323'); // Hack for dev, but api handles it usually
+                const baseUrl = serverUrl;
                 const prepared = data.screenshots.map(s => ({
                     ...s,
                     url: s.url.startsWith('http') ? s.url : `${baseUrl}${s.url}`
