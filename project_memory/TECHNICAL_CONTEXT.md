@@ -10,11 +10,12 @@
 
     ## Dominios de Agentes
 
-    | Agente | Dominio Permitido | Rama Prefijo | Notas |
-    |--------|-------------------|--------------|-------|
-    | **Jules** | `/src/app/api`, `/src/lib`, `/supabase` | `feature/jules-*` | Backend, APIs, DB |
-    | **ClawdBot** | `/src/components`, `/messages`, `/public` | `feature/clawd-*` | UI, traducciones |
-    | **Antigravity** | Coordinación, PRs, docs, `/project_memory` | - | No genera código pesado |
+    | Agente | Dominio Permitido | MCP Server | Notas |
+    |--------|-------------------|------------|-------|
+    | **Jules 1 (Analytics)** | Read-Only (Logs/Metrics) | Tinybird | Auditoría de Previews |
+    | **Jules 2 (Data)** | `/supabase`, `/db` | Neon | Branching de Base de Datos |
+    | **Jules 3 (Dev/ORQ)** | `/src`, `/api`, `/lib` | Context7 + Render | Código, PRs y Despliegues |
+    | **Antigravity** | Orquestación Gral. | Maestro MCP | Gestión de `jules_delegate_trio` |
 
     ## Estructura Crítica
     ```
@@ -41,8 +42,16 @@
     - `TELEGRAM_BOT_TOKEN` - Bot de notificaciones
     - `JULES_API_KEY` - Acceso a Jules API
 
+    ## Pipeline de Despliegue Autónomo (MANDATORIO)
+    Todo cambio de código debe seguir el flujo documentado en `docs/AUTONOMOUS_PREVIEW_WORKFLOW.md`:
+    1. **Dev:** Crea Branch + Render Preview URL.
+    2. **Data:** Crea Neon Branch para esa Preview.
+    3. **Analytics:** Valida la Preview URL vía Tinybird.
+    4. **Merge:** Solo si Analytics emite un Veredicto Positivo.
+
     ## Convenciones
     - Componentes: PascalCase, archivos `.tsx`
     - APIs: kebab-case en rutas
     - Commits: `tipo(scope): descripción` (ej: `fix(api): corregir checkout`)
     - Tests: colocados junto al archivo (`Component.test.tsx`)
+    - **Validación Automática:** Todo PR debe pasar `verify_all.py` antes de merge.
