@@ -1522,6 +1522,24 @@ function initializeToolRegistry() {
 }
 
 // MCP Protocol - Execute tool with O(1) registry lookup
+
+// GET handler to provide helpful information and avoid 404s
+app.get('/mcp/execute', (req, res) => {
+  res.status(405).json({
+    success: false,
+    error: 'Method Not Allowed. This endpoint requires POST.',
+    usage: {
+      method: 'POST',
+      url: '/mcp/execute',
+      body: {
+        tool: 'tool_name',
+        parameters: { arg1: 'val1' }
+      }
+    },
+    discover_tools: 'GET /mcp/tools'
+  });
+});
+
 app.post('/mcp/execute', validateRequest(mcpExecuteSchema), async (req, res) => {
   const { tool, parameters = {} } = req.body;
 
