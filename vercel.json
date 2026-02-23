@@ -38,6 +38,10 @@
         {
             "path": "/api/admin/marketing/process",
             "schedule": "0 8 * * *"
+        },
+        {
+            "path": "/api/cron/telegram-report",
+            "schedule": "0 0 * * *"
         }
     ]
 }
