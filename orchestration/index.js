@@ -50,6 +50,8 @@ import { sendTelegramMessage } from './lib/telegram.js';
 import { readProjectMemory, writeProjectMemory, appendToProjectMemory, readAllContext } from './lib/project-memory.js';
 import { setupTelegramInbound } from './lib/telegram-inbound.js';
 import { initDb, query } from './lib/db.js';
+import { initMeteringTable } from './lib/postgres.js';
+import { tokenMetering } from './middleware/tokenMetering.js';
 
 dotenv.config();
 
@@ -170,6 +172,9 @@ app.use(express.json({
     }
   }
 }));
+
+// Global Token Metering Middleware
+app.use(tokenMetering);
 
 // Circuit Breaker for Jules API
 const circuitBreaker = {
@@ -1449,6 +1454,11 @@ const server = app.listen(PORT, '0.0.0.0', () => {
     console.log('Database system ready');
   }).catch(err => {
     console.warn('Database initialization failed, using local mode:', err.message);
+  });
+
+  // Initialize Metering Table (Postgres)
+  initMeteringTable().then(success => {
+    if (success) console.log('Metering system ready');
   });
 
   // Initialize modules after server starts
