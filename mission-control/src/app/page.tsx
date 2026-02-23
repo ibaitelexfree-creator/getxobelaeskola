@@ -26,7 +26,7 @@ export default function MissionControlPage() {
             <header className="px-5 pt-4 pb-2 flex items-center justify-between">
                 <div>
                     <h1 className="text-xl font-display text-glimmer tracking-tight">Mission Control</h1>
-                    <p className="text-2xs font-mono text-white/20 uppercase tracking-[0.3em]">Maestro v3</p>
+                    <p className="text-[10px] font-mono text-white/20 uppercase tracking-[0.3em] active:text-status-blue transition-colors">Maestro v3</p>
                 </div>
                 <div className="w-8 h-8 rounded-full bg-buoy-orange/10 flex items-center justify-center">
                     <span className="text-xs">🚀</span>
