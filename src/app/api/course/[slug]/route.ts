@@ -67,25 +67,19 @@ export async function GET(
             );
         }
 
-        const { data: modulos, error: modulosError } = await supabase
+        const { data: modulos, error: _modulosError } = await supabase
             .from('modulos')
-            .select('id, nombre_es, nombre_eu, descripcion_es, descripcion_eu, orden')
+            .select('id, nombre_es, nombre_eu, descripcion_es, descripcion_eu, orden, unidades_didacticas(id)')
             .eq('curso_id', curso.id)
             .order('orden');
 
-        const modulosConUnidades = await Promise.all(
-            (modulos || []).map(async (modulo) => {
-                const { count } = await supabase
-                    .from('unidades_didacticas')
-                    .select('*', { count: 'exact', head: true })
-                    .eq('modulo_id', modulo.id);
-
-                return {
-                    ...modulo,
-                    num_unidades: count || 0
-                };
-            })
-        );
+        const modulosConUnidades = (modulos || []).map((modulo: any) => {
+            const { unidades_didacticas, ...moduloData } = modulo;
+            return {
+                ...moduloData,
+                num_unidades: unidades_didacticas?.length || 0
+            };
+        });
 
         let progreso = null;
         try {
