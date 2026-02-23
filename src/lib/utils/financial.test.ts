@@ -16,6 +16,16 @@ describe('Financial Utils', () => {
             expect(parseAmount("123,45")).toBe(123.45);
         });
 
+        it('handles European thousand separators', () => {
+            expect(parseAmount("1.234,56")).toBe(1234.56);
+            expect(parseAmount("1.234.567,89")).toBe(1234567.89);
+        });
+
+        it('handles US thousand separators', () => {
+            expect(parseAmount("1,234.56")).toBe(1234.56);
+            expect(parseAmount("1,234,567.89")).toBe(1234567.89);
+        });
+
         it('removes currency symbols', () => {
             expect(parseAmount("200 €")).toBe(200);
             expect(parseAmount("€ 45,50")).toBe(45.5);
