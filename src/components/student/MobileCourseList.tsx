@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Search, ChevronRight, X, BookOpen } from 'lucide-react';
 import { getApiUrl } from '@/lib/platform';
 import StaggeredEntrance from '@/components/shared/StaggeredEntrance';
@@ -17,6 +18,58 @@ interface Course {
     precio: number;
     categoria?: { nombre_es: string; nombre_eu: string };
 }
+
+const CourseItem = ({ course, name, desc, category, locale, priority }: { course: Course, name: string, desc: string, category: string, locale: string, priority?: boolean }) => {
+    const [imageError, setImageError] = useState(false);
+
+    return (
+        <Link
+            href={`/${locale}/student/courses/${course.slug}`}
+            className="group relative bg-white/[0.02] border border-white/10 rounded-3xl overflow-hidden active:scale-[0.98] transition-all duration-300 hover:border-accent/30"
+        >
+            <div className="relative h-48 sm:h-64 bg-white/5">
+                {course.imagen_url && !imageError ? (
+                    <Image
+                        src={course.imagen_url}
+                        alt={name}
+                        fill
+                        sizes="(max-width: 768px) 100vw, 50vw"
+                        priority={priority}
+                        className="object-cover group-hover:scale-110 transition-transform duration-700"
+                        onError={() => setImageError(true)}
+                    />
+                ) : (
+                    <div className="w-full h-full flex items-center justify-center text-5xl bg-gradient-to-br from-nautical-black to-white/5">⛵</div>
+                )}
+
+                <div className="absolute inset-0 bg-gradient-to-t from-nautical-black via-transparent to-transparent opacity-60" />
+
+                <div className="absolute top-4 left-4 bg-accent/20 backdrop-blur-md border border-accent/30 px-3 py-1.5 rounded-full">
+                    <span className="text-[10px] font-black uppercase tracking-widest text-accent">
+                        {category}
+                    </span>
+                </div>
+            </div>
+
+            <div className="p-6 relative">
+                <h3 className="text-xl font-display text-white mb-2 group-hover:text-accent transition-colors">{name}</h3>
+                <p className="text-white/50 text-sm leading-relaxed line-clamp-2 mb-6 font-light">{desc}</p>
+
+                <div className="flex items-center justify-between">
+                    <div className="flex flex-col">
+                        <span className="text-xs uppercase tracking-widest text-white/30 font-bold mb-1">Precio</span>
+                        <span className="text-2xl font-bold text-white italic">
+                            {course.precio}<span className="text-accent text-sm not-italic ml-1">€</span>
+                        </span>
+                    </div>
+                    <div className="w-12 h-12 rounded-2xl bg-accent flex items-center justify-center text-nautical-black shadow-[0_0_20px_rgba(255,77,0,0.3)] group-hover:shadow-accent/50 transition-all">
+                        <ChevronRight className="w-6 h-6 stroke-[3]" />
+                    </div>
+                </div>
+            </div>
+        </Link>
+    );
+};
 
 const FALLBACK_COURSES: Course[] = [
     {
@@ -171,54 +224,15 @@ export default function MobileCourseList({ locale }: { locale: string }) {
                         const category = getCategory(course);
 
                         return (
-                            <Link
+                            <CourseItem
                                 key={course.id || `course-${idx}`}
-                                href={`/${locale}/student/courses/${course.slug}`}
-                                className="group relative bg-white/[0.02] border border-white/10 rounded-3xl overflow-hidden active:scale-[0.98] transition-all duration-300 hover:border-accent/30"
-                            >
-                                <div className="relative h-48 sm:h-64 bg-white/5">
-                                    {course.imagen_url ? (
-                                        <img
-                                            src={course.imagen_url}
-                                            alt={name}
-                                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                                            onError={(e) => {
-                                                (e.target as HTMLImageElement).style.display = 'none';
-                                                (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden');
-                                            }}
-                                        />
-                                    ) : (
-                                        <div className="w-full h-full flex items-center justify-center text-5xl bg-gradient-to-br from-nautical-black to-white/5">⛵</div>
-                                    )}
-                                    <div className="hidden absolute inset-0 flex items-center justify-center bg-nautical-black/50">
-                                        <span className="text-4xl">⛵</span>
-                                    </div>
-                                    <div className="absolute inset-0 bg-gradient-to-t from-nautical-black via-transparent to-transparent opacity-60" />
-
-                                    <div className="absolute top-4 left-4 bg-accent/20 backdrop-blur-md border border-accent/30 px-3 py-1.5 rounded-full">
-                                        <span className="text-[10px] font-black uppercase tracking-widest text-accent">
-                                            {category}
-                                        </span>
-                                    </div>
-                                </div>
-
-                                <div className="p-6 relative">
-                                    <h3 className="text-xl font-display text-white mb-2 group-hover:text-accent transition-colors">{name}</h3>
-                                    <p className="text-white/50 text-sm leading-relaxed line-clamp-2 mb-6 font-light">{desc}</p>
-
-                                    <div className="flex items-center justify-between">
-                                        <div className="flex flex-col">
-                                            <span className="text-xs uppercase tracking-widest text-white/30 font-bold mb-1">Precio</span>
-                                            <span className="text-2xl font-bold text-white italic">
-                                                {course.precio}<span className="text-accent text-sm not-italic ml-1">€</span>
-                                            </span>
-                                        </div>
-                                        <div className="w-12 h-12 rounded-2xl bg-accent flex items-center justify-center text-nautical-black shadow-[0_0_20px_rgba(255,77,0,0.3)] group-hover:shadow-accent/50 transition-all">
-                                            <ChevronRight className="w-6 h-6 stroke-[3]" />
-                                        </div>
-                                    </div>
-                                </div>
-                            </Link>
+                                course={course}
+                                name={name}
+                                desc={desc}
+                                category={category}
+                                locale={locale}
+                                priority={idx < 2}
+                            />
                         );
                     })
                 ) : (
