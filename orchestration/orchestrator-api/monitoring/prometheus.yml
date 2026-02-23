@@ -9,6 +9,11 @@ scrape_configs:
       - targets: ["jules-orchestrator:3002"]
     metrics_path: "/api/v1/metrics"
 
+  - job_name: "host-orchestrator"
+    static_configs:
+      - targets: ["host.docker.internal:3323"]
+    metrics_path: "/metrics"
+
   - job_name: "node-exporter"
     static_configs:
       - targets: ["node-exporter:9100"]
