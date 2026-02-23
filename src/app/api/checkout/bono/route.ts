@@ -40,7 +40,7 @@ export async function POST(req: Request) {
                         product_data: {
                             name: bono.nombre,
                             description: bono.descripcion || `Bono de ${bono.horas_totales} horas`,
-                            images: ['https://getxobelaeskola.com/images/bonos-placeholder.jpg'], // TODO: Add real image
+                            images: [`${origin}/images/home-hero-sailing-action.webp`],
                             metadata: {
                                 type: 'bono_horas',
                                 bono_id: bono.id,
@@ -64,10 +64,10 @@ export async function POST(req: Request) {
         });
 
         return NextResponse.json({ url: session.url });
-    } catch (err: any) {
+    } catch (err: unknown) {
         console.error('Stripe Checkout Error:', err);
         return NextResponse.json(
-            { error: err.message || 'Internal Server Error' },
+            { error: (err as Error).message || 'Internal Server Error' },
             { status: 500 }
         );
     }
