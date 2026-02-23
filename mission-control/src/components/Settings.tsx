@@ -36,7 +36,7 @@ export default function Settings() {
 
     useEffect(() => {
         if (connected) {
-            getReleases().then(res => {
+            getReleases().then((res: any) => {
                 if (res.success) setReleases(res.releases.slice(0, 5));
             }).catch(console.error);
         }
