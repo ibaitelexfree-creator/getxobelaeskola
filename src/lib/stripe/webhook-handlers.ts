@@ -1,7 +1,8 @@
 import { SupabaseClient } from '@supabase/supabase-js';
 import Stripe from 'stripe';
+import { stripe } from '../stripe';
 import { resend, DEFAULT_FROM_EMAIL } from '../resend';
-import { rentalTemplate, inscriptionTemplate, membershipTemplate, internalOrderNotificationTemplate } from '../email-templates';
+import { rentalTemplate, inscriptionTemplate, membershipTemplate, internalOrderNotificationTemplate, paymentFailedTemplate } from '../email-templates';
 import { createRentalGoogleEvent } from '../google-calendar';
 
 const STAFF_EMAIL = 'getxobelaeskola@gmail.com';
@@ -302,5 +303,55 @@ export class StripeHandlers {
 
         // 3. Optional: Send notification
         console.log(`✅ Bono ${bono_id} granted to user ${userId}`);
+    }
+
+    async handlePaymentFailed(paymentIntent: Stripe.PaymentIntent) {
+        console.log(`⚠️ Payment Failed: ${paymentIntent.id}`);
+
+        let email = paymentIntent.receipt_email;
+        let name = 'Cliente';
+
+        if (!email && paymentIntent.customer) {
+            try {
+                const customerId = typeof paymentIntent.customer === 'string' ? paymentIntent.customer : paymentIntent.customer.id;
+                const customer = await stripe.customers.retrieve(customerId);
+                if (!customer.deleted && customer.email) {
+                    email = customer.email;
+                    name = customer.name || 'Cliente';
+                }
+            } catch (e) {
+                console.warn('Could not fetch customer for failed payment', e);
+            }
+        }
+
+        if (!email) {
+            console.warn(`⚠️ No email found for payment intent ${paymentIntent.id}, cannot send failure notification.`);
+            return;
+        }
+
+        const amount = (paymentIntent.amount / 100).toFixed(2);
+        const currency = paymentIntent.currency.toUpperCase();
+        const locale = (paymentIntent.metadata?.locale as any) || 'es';
+
+        const subjects: any = {
+            es: 'Error en el Pago - Acción Requerida',
+            eu: 'Ordainketa Errorea - Ekintza Beharrezkoa',
+            en: 'Payment Failed - Action Required',
+            fr: 'Échec du paiement - Action requise'
+        };
+
+        try {
+            if (resend) {
+                await resend.emails.send({
+                    from: DEFAULT_FROM_EMAIL,
+                    to: email,
+                    subject: `${subjects[locale] || subjects.es} - Getxo Sailing School`,
+                    html: paymentFailedTemplate(name, amount, currency, locale)
+                });
+                console.log(`📧 Payment failed email sent to ${email}`);
+            }
+        } catch (e) {
+            console.error('Failed to send payment failed email', e);
+        }
     }
 }
