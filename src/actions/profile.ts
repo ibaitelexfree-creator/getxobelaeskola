@@ -1,27 +1,25 @@
-'use server';
-
-import { createClient } from '@/lib/supabase/server';
-import { revalidatePath } from 'next/cache';
+// This file no longer uses 'use server' to allow static export for Capacitor.
+// It now calls an API route instead.
+import { createClient } from '@/lib/supabase/client';
 
 export async function togglePublicProfile(userId: string, isPublic: boolean) {
-    const supabase = createClient();
+    try {
+        const res = await fetch('/api/user/settings/visibility', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ is_public: isPublic }),
+        });
 
-    // Verify user is owner
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user || user.id !== userId) {
-        throw new Error('Unauthorized');
-    }
+        if (!res.ok) {
+            const errorData = await res.json();
+            throw new Error(errorData.error || 'Failed to update visibility');
+        }
 
-    const { error } = await supabase
-        .from('profiles')
-        .update({ is_public: isPublic })
-        .eq('id', userId);
-
-    if (error) {
+        return await res.json();
+    } catch (error) {
         console.error('Error toggling public profile:', error);
-        throw new Error('Failed to update profile visibility');
+        throw error;
     }
-
-    revalidatePath(`/academy/perfil/${userId}`);
-    return { success: true };
 }
