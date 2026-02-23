@@ -1,7 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { PushNotifications } from '@capacitor/push-notifications';
 import { Capacitor } from '@capacitor/core';
-import { createClient } from '@/lib/supabase/client';
 
 export interface PushNotificationState {
     permission: PermissionState | 'prompt' | 'prompt-with-rationale';
@@ -67,10 +66,6 @@ export const usePushNotifications = () => {
         const registrationListener = PushNotifications.addListener('registration', async (token) => {
             console.log('Push Registration Token:', token.value);
             setState(prev => ({ ...prev, token: token.value }));
-
-            // Here you would typically send the token to your backend
-            // const supabase = createClient();
-            // await supabase.from('user_devices').upsert({ ... });
         });
 
         // Listener for registration error
