@@ -35,25 +35,7 @@ import { EventManager } from './EventManager';
 import { ScoringManager } from './ScoringManager';
 import { WindEffectManager } from './WindEffectManager';
 import { FloatingTextManager } from './FloatingTextManager';
-import * as turf from '@turf/turf';
-import waterGeometryData from '../../../data/geospatial/water-geometry.json';
-
-// Mapping simulator context to real world for geofencing
-const REAL_WORLD_CENTER = { lat: 43.3485, lng: -3.0185 }; // Getxo Port area
-const LAT_SCALE = 1 / 111320; // 1 meter approx
-const LNG_SCALE = 1 / 81000;  // 1 meter approx at 43 deg lat
-
-function checkWaterCollision(pos: Vector3): boolean {
-    const lat = REAL_WORLD_CENTER.lat - (pos.z * LAT_SCALE);
-    const lng = REAL_WORLD_CENTER.lng + (pos.x * LNG_SCALE);
-    const point = turf.point([lng, lat]);
-
-    const collection = waterGeometryData as any;
-    if (collection.features) {
-        return collection.features.some((f: any) => turf.booleanPointInPolygon(point, f));
-    }
-    return true; // Default to water if data structure is unexpected
-}
+import { CollisionSystem } from './CollisionSystem';
 
 let renderer: WebGLRenderer;
 let scene: Scene;
@@ -68,6 +50,7 @@ let events: EventManager;
 let scoring: ScoringManager;
 let windEffect: WindEffectManager;
 let floatingText: FloatingTextManager;
+let collisionSystem: CollisionSystem;
 
 let animationFrameId: number;
 let lastTime = 0;
@@ -114,6 +97,7 @@ function init(canvas: OffscreenCanvas, width: number, height: number, pixelRatio
     scoring = new ScoringManager();
     windEffect = new WindEffectManager(scene);
     floatingText = new FloatingTextManager(scene);
+    collisionSystem = new CollisionSystem();
 
     objectives.onObjectiveReached = () => {
         const points = scoring.addObjectiveBonus(objectives.state.distance);
@@ -165,18 +149,19 @@ function animate() {
 
         const trueWindSpeed = wind.getSpeed();
 
+        // Store previous position for collision response
+        const previousPosition = boatPhysics.state.position.clone();
+
         boatPhysics.update(dt, apparentWind, trueWindSpeed, twa, inputState.sailAngle, inputState.rudderAngle);
 
         // Water Geofencing Check
-        const inWater = checkWaterCollision(boatPhysics.state.position);
+        const inWater = collisionSystem.checkWaterCollision(boatPhysics.state.position);
         if (!inWater) {
-            // Collision with land: Hard stop and visual feedback
+            // Collision with land: Revert position and stop
+            boatPhysics.state.position.copy(previousPosition);
             boatPhysics.state.velocity.set(0, 0, 0);
             boatPhysics.state.speed = 0;
             boatPhysics.state.speedKmh = 0;
-
-            // Limit position slightly back or just stop
-            // For simplicity, we just stop the movement
 
             if (elapsedTime % 1 < 0.1) { // Throttle messages
                 floatingText.add("¡TIERRA!", boatPhysics.state.position.clone().add(new Vector3(0, 5, 0)));
