@@ -7,6 +7,8 @@ import { WebSocketServer } from 'ws';
 import { createServer } from 'http';
 import { GoogleAuth } from 'google-auth-library';
 import * as metrics from './metrics.js';
+import { FallbackChain } from './lib/fallback-chain.js';
+import { secondaryClient } from './lib/secondary-client.js';
 
 const app = express();
 
@@ -89,10 +91,13 @@ julesClient.interceptors.request.use((config) => {
   return config;
 });
 
+// Initialize Fallback Chain (Jules -> Secondary)
+const fallbackClient = new FallbackChain(julesClient, secondaryClient);
+
 // GitHub API client
 const githubClient = axios.create({
   baseURL: 'https://api.github.com',
-  headers: { 
+  headers: {
     'Accept': 'application/vnd.github+json'
   }
 });
@@ -118,7 +123,7 @@ app.get('/', (req, res) => {
 
 // Health Check
 app.get(['/health', '/api/v1/health'], async (req, res) => {
-  res.json({ 
+  res.json({
     status: 'ok',
     version: '1.5.0',
     services: {
@@ -126,7 +131,7 @@ app.get(['/health', '/api/v1/health'], async (req, res) => {
       julesApi: 'configured',
       githubApi: GITHUB_TOKEN ? 'configured' : 'not_configured'
     },
-    timestamp: new Date().toISOString() 
+    timestamp: new Date().toISOString()
   });
 });
 
@@ -200,32 +205,32 @@ app.post('/mcp/execute', async (req, res) => {
       hint: 'Tool names must be alphanumeric with underscores'
     });
   }
-  
+
   try {
     let result;
     if (toolName === 'jules_create_session') {
-      const response = await julesClient.post('/sessions', toolArgs);
+      const response = await fallbackClient.post('/sessions', toolArgs);
       result = response.data;
     } else if (toolName === 'jules_list_sessions') {
-      const response = await julesClient.get('/sessions');
+      const response = await fallbackClient.get('/sessions');
       result = response.data;
     } else if (toolName === 'jules_get_session') {
-      const response = await julesClient.get('/sessions/' + toolArgs.sessionId);
+      const response = await fallbackClient.get('/sessions/' + toolArgs.sessionId);
       result = response.data;
     } else {
       return res.status(404).json({ error: 'Tool ' + toolName + ' not found' });
     }
-    
-    res.json({ 
+
+    res.json({
       success: true,
       content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
-      result 
+      result
     });
   } catch (error) {
     console.error('MCP Execute Error (' + toolName + '):', error.response?.data || error.message);
-    res.status(500).json({ 
+    res.status(500).json({
       success: false,
-      error: error.response?.data?.error?.message || error.message 
+      error: error.response?.data?.error?.message || error.message
     });
   }
 });
