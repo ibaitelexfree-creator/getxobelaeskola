@@ -12,6 +12,7 @@ const ScrollUpButton = dynamic(() => import('@/components/shared/ScrollToTop'), 
 import { Viewport } from 'next';
 import { Suspense } from 'react';
 const StatusToast = dynamic(() => import('@/components/shared/StatusToast'), { ssr: false });
+const ServiceWorkerRegister = dynamic(() => import('@/components/shared/ServiceWorkerRegister'), { ssr: false });
 
 export const viewport: Viewport = {
   themeColor: '#001B3A', // Nautical Black
@@ -62,6 +63,7 @@ export default async function LocaleLayout({
             <Suspense fallback={null}>
               <StatusToast />
             </Suspense>
+            <ServiceWorkerRegister />
           </AcademyFeedbackProvider>
         </NextIntlClientProvider>
       </body>
