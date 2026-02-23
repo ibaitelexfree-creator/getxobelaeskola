@@ -19,8 +19,8 @@ export function calculateNextState(
     const selectedOption = currentStep.options[optionIndex];
 
     return {
-        nextStepId: selectedOption.next_step_id,
-        scoreDelta: selectedOption.score_delta || 0,
+        nextStepId: selectedOption.nextStepId || null,
+        scoreDelta: selectedOption.scoreDelta || 0,
         feedback: selectedOption.feedback || null,
     };
 }

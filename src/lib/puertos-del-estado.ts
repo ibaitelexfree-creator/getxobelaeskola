@@ -79,3 +79,52 @@ export async function fetchSeaState(): Promise<SeaStateData> {
 
     return getSimulatedSeaState();
 }
+
+/**
+ * Returns tide predictions for a given date.
+ * Currently simulated for Getxo area.
+ */
+export function getTidePredictions(date: Date = new Date()): any[] {
+    const predictions = [];
+    const day = new Date(date);
+    day.setHours(0, 0, 0, 0);
+
+    // 4 tides per day approx (every ~6 hours)
+    for (let i = 0; i < 4; i++) {
+        const time = new Date(day);
+        time.setHours(i * 6 + 2); // Offset
+        predictions.push({
+            time: time.toISOString(),
+            height: 2.5 + Math.sin(i * Math.PI / 2) * 1.5,
+            type: i % 2 === 0 ? 'High' : 'Low'
+        });
+    }
+    return predictions;
+}
+
+/**
+ * Returns simulated tide level for a specific time.
+ */
+export function getTideLevel(date: Date = new Date()): number {
+    const hours = date.getHours() + date.getMinutes() / 60;
+    // Simple 12.4h cycle approximation
+    return 2.5 + Math.sin((hours / 12.4) * 2 * Math.PI) * 1.5;
+}
+
+/**
+ * Returns simulated tide state summary.
+ */
+export function getTideState(date: Date = new Date()): any {
+    const level = getTideLevel(date);
+    const nextLevel = getTideLevel(new Date(date.getTime() + 30 * 60000));
+    const trend = nextLevel > level ? 'rising' : 'falling';
+
+    // Normalize level to 0-1 range [1.0, 4.0]
+    const percentage = (level - 1.0) / 3.0;
+
+    return {
+        height: level,
+        trend,
+        percentage: Math.max(0, Math.min(1, percentage))
+    };
+}
