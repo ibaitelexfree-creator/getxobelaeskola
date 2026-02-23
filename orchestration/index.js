@@ -902,7 +902,7 @@ const metrics = {
   sessionsCreated: 0
 };
 
-app.get('/metrics', (req, res) => {
+app.get(['/metrics', '/api/v1/metrics'], (req, res) => {
   res.set('Content-Type', 'text/plain');
   res.send(`
 # HELP jules_orchestrator_errors_total Total number of critical errors detected by self-healing
