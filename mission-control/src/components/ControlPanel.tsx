@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 
 import BuildTrigger from './BuildTrigger';
+import EnvironmentSelector from './EnvironmentSelector';
 
 function ToggleSwitch({
     on,
@@ -86,6 +87,16 @@ export default function ControlPanel() {
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
                 <h2 className="text-lg font-display text-glimmer">Control Panel</h2>
                 <p className="text-2xs text-white/30 mt-1">System controls & monitoring</p>
+            </motion.div>
+
+            {/* Environment Selection */}
+            <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.05 }}
+                className="glass-panel rounded-2xl p-4 border border-buoy-orange/20 shadow-lg shadow-buoy-orange/5"
+            >
+                <EnvironmentSelector />
             </motion.div>
 
             {/* Thermal Monitor */}
