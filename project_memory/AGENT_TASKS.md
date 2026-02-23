@@ -7,6 +7,9 @@
 | T-003 | 1 | clawdbot | Fix carrusel: textos bajo el navbar | running | 2026-02-21 |
 | ACA-007 | 2 | jules | Mapa Geoespacial de Navegación: En el componente geoespacial (`src/components/academy/geospatial`), integrar un mapa Leaflet real centrado en la Ría de Bilbao/Getxo con rutas de navegación marcadas, zonas de peligro, y la posición del club náutico. El alumno puede hacer clic en waypoints para aprender sobre cada punto. | running | 2026-02-21 |
 | T-001 | 2 | jules | Añadir imagen real al checkout de bonos | running | 2026-02-21 |
+| 15002951127122524161 | 3 | jules | Fix HACK: for dev, but api handles it usually... | running | 2026-02-23 |
+| T-MLXM4FQP | 3 | jules | en la aplicación de mission control en la primera pestaña en la de Dash ahí sigue offline no funciona mira a ver que puede estar pasando | pending_approval | 2026-02-22 |
+| T-MLXE01D4 | 3 | jules | Intercambia los logos de las aplicaciones apk, la de getxobela eskola tendra el logo de control manager apk y viceversa | pending_approval | 2026-02-22 |
 | TEST-TG-MLX5RAAA | 3 | jules | SIMULACIÓN TELEGRAM: Arreglar bug de colisión en simulador | pending_approval | 2026-02-22 |
 | 4957932573319767429 | 3 | jules | Mapa Geoespacial de Navegación: En el componente geoespacial (`src/components/academy/geospatial`), integrar un mapa Leaflet real centrado en la Ría de Bilbao/Getxo con rutas de navegación mar... | running | 2026-02-21 |
 | 7567651924309740607 | 3 | jules | enla apk de missiion control quita de la pesstania de tasks,  🚀
@@ -19,7 +22,6 @@ quiero que quites esta ultima parte HQ Relay, | running | 2026-02-21 |
 ## Tareas Completadas
 | ID | Agente | Tarea | Resultado | Fecha |
 |----|--------|-------|-----------|-------|
-| AGA-VERIFY-001 | antigravity | Verificación Visual de Academia (Home, Lab, Nomenclature, Logbook) | ✅ 4 Screenshots enviadas a Telegram exitosamente con Browserless. | 2026-02-22 |
 | 17091207529284488477 | jules | Verify that this test task is dispatched correctly. | Task finished successfully | 2026-02-22 |
 | ACA-001 | jules | Dashboard del Alumno — Streak & Progreso Real: Implementar un streak diario (racha de días consecutivos estudiados) visible en el dashboard con animación de fuego 🔥, usando datos reales de la base de datos Supabase. Incluir barra de progreso global del curso en % con tooltip que muestra módulos completados vs pendientes. | Matched to session: 12297462820068788179 (COMPLETED) | 2026-02-22 |
 | ACA-002 | jules | Simulador de Vela — Motor de Física del Viento: Mejorar el simulador de vela en `/simulador` para que el viento afecte la velocidad del barco según el ángulo de ceñida real (close-hauled, beam reach, broad reach, running). Implementar la fórmula polar de velocidad de vela con valores numéricos realistas en nudos. | Matched to session: 9590920399159640396 (COMPLETED) | 2026-02-22 |

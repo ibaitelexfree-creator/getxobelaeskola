@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState, useMemo } from 'react';
 import { MontessoriTopic, InteractionResult, TopicCategory } from './types';
 import { TopicCard } from './TopicCard';
@@ -42,7 +44,7 @@ export const MontessoriExplorer: React.FC<MontessoriExplorerProps> = ({
         return topics.filter(topic => {
             const matchesCategory = selectedCategory === 'all' || topic.category === selectedCategory;
             const matchesSearch = topic.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                                  topic.description.toLowerCase().includes(searchQuery.toLowerCase());
+                topic.description.toLowerCase().includes(searchQuery.toLowerCase());
             return matchesCategory && matchesSearch;
         });
     }, [topics, selectedCategory, searchQuery]);
@@ -86,11 +88,10 @@ export const MontessoriExplorer: React.FC<MontessoriExplorerProps> = ({
                         <button
                             key={cat.id}
                             onClick={() => setSelectedCategory(cat.id)}
-                            className={`px-4 py-2 rounded-full text-xs font-black uppercase tracking-widest whitespace-nowrap transition-all ${
-                                selectedCategory === cat.id
+                            className={`px-4 py-2 rounded-full text-xs font-black uppercase tracking-widest whitespace-nowrap transition-all ${selectedCategory === cat.id
                                     ? 'bg-accent text-nautical-black'
                                     : 'bg-white/5 text-white/60 hover:bg-white/10'
-                            }`}
+                                }`}
                         >
                             {cat.label}
                         </button>
@@ -137,3 +138,5 @@ export const MontessoriExplorer: React.FC<MontessoriExplorerProps> = ({
         </div>
     );
 };
+
+export default MontessoriExplorer;
