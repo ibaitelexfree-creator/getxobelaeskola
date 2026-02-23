@@ -86,6 +86,10 @@ interface MissionState {
     julesWaiting: boolean;
     waitingTasks: Array<{ id: string; title: string; url: string; state: string }>;
 
+    // Preview Environment
+    previewMode: 'render' | 'local';
+    latestPreviews: Array<{ branch: string; url: string; timestamp: number }>;
+
     // Settings
     autoRefreshMs: number;
 
@@ -109,6 +113,8 @@ interface MissionState {
     setTaskDraft: (draft: string) => void;
     updateJulesWaiting: (waiting: boolean, tasks: MissionState['waitingTasks']) => void;
     setSyncHistory: (history: MissionState['syncHistory']) => void;
+    setPreviewMode: (mode: 'render' | 'local') => void;
+    setLatestPreviews: (previews: MissionState['latestPreviews']) => void;
 
     // Task Operations
     updateTask: (id: string, updates: Partial<MissionState['queue'][0]>) => Promise<void>;
@@ -167,6 +173,8 @@ export const useMissionStore = create<MissionState>((set, get) => ({
     julesWaiting: false,
     waitingTasks: [],
     syncHistory: [],
+    previewMode: (typeof window !== 'undefined' ? (localStorage.getItem('mc_preview_mode') as 'render' | 'local') : 'render') || 'render',
+    latestPreviews: [],
 
     // Actions
     setServerUrl: (url) => {
@@ -207,6 +215,11 @@ export const useMissionStore = create<MissionState>((set, get) => ({
     setTaskDraft: (taskDraft) => set({ taskDraft }),
     updateJulesWaiting: (julesWaiting, waitingTasks) => set({ julesWaiting, waitingTasks }),
     setSyncHistory: (syncHistory) => set({ syncHistory }),
+    setPreviewMode: (previewMode) => {
+        if (typeof window !== 'undefined') localStorage.setItem('mc_preview_mode', previewMode);
+        set({ previewMode });
+    },
+    setLatestPreviews: (latestPreviews) => set({ latestPreviews }),
 
     // Task Operations
     updateTask: async (id, updates) => {
