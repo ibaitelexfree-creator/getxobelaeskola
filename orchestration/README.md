@@ -130,6 +130,7 @@ Autonomous AI orchestration architecture combining **Google Antigravity** with t
 |----------|-------------|---------|
 | PORT | Server port | 3323 |
 | JULES_API_KEY | Jules API key (required) | null |
+| GEMINI_API_KEYS | Comma-separated Gemini API keys for FlashExecutor | null |
 | GITHUB_TOKEN | GitHub token for issue integration | null |
 | DATABASE_URL | PostgreSQL connection string | null |
 | SLACK_WEBHOOK_URL | Slack notifications | null |

@@ -1,11 +1,11 @@
 /**
  * FlashExecutor — Gemini Flash Fast Execution Layer
- * 
+ *
  * Level 2 in the execution hierarchy:
  *   1. Jules Pool (primary)
  *   2. Gemini Flash (fast, low-cost) ← THIS
  *   3. ClawdBot (last resort, requires confirmation)
- * 
+ *
  * Uses Gemini Flash for sub-second task processing when Jules is saturated.
  * Monitors credit consumption and pauses automatically when low.
  */
@@ -20,9 +20,27 @@ const CREDIT_CHECK_INTERVAL = 5 * 60 * 1000; // 5 min
 export class FlashExecutor extends EventEmitter {
     constructor(options = {}) {
         super();
-        this.apiKey = options.apiKey || process.env.GEMINI_API_KEY;
+
+        // Handle API Keys (Single or Multiple for Round-Robin)
+        const envKeys = process.env.GEMINI_API_KEYS ? process.env.GEMINI_API_KEYS.split(',') : [];
+        const singleKey = process.env.GEMINI_API_KEY;
+        const fallbackKey = process.env.GOOGLE_API_KEY; // Common alternative
+
+        // Combine all sources, prioritize options > env list > env single
+        let keys = options.apiKeys || (envKeys.length > 0 ? envKeys : []);
+        if (keys.length === 0 && options.apiKey) keys.push(options.apiKey);
+        if (keys.length === 0 && singleKey) keys.push(singleKey);
+        if (keys.length === 0 && fallbackKey) keys.push(fallbackKey);
+
+        // Deduplicate and trim
+        this.apiKeys = [...new Set(keys.map(k => k.trim()).filter(k => k))];
+        this.currentKeyIndex = 0;
+
+        // Legacy support (though we should use _getNextKey)
+        this.apiKey = this.apiKeys[0];
+
         this.model = options.model || DEFAULT_MODEL;
-        this.enabled = !!this.apiKey;
+        this.enabled = this.apiKeys.length > 0;
 
         // Usage tracking
         this.stats = {
@@ -98,6 +116,8 @@ export class FlashExecutor extends EventEmitter {
             enabled: this.enabled,
             hasCredits: this.hasCredits(),
             model: this.model,
+            keyCount: this.apiKeys.length,
+            currentKeyIndex: this.currentKeyIndex,
             stats: { ...this.stats },
             credits: { ...this.credits }
         };
@@ -111,6 +131,7 @@ export class FlashExecutor extends EventEmitter {
             `⚡ **Flash Executor** ${emoji}`,
             `━━━━━━━━━━━━━━━━━━━━`,
             `Modelo: ${status.model}`,
+            `Pool: ${status.keyCount} keys (Index: ${status.currentKeyIndex})`,
             `Estado: ${status.hasCredits ? 'Disponible' : (status.enabled ? 'Sin créditos' : 'Desactivado')}`,
             `Tareas hoy: ${status.stats.tasksExecuted}`,
             `Tokens usados: ${status.stats.tokensUsed.toLocaleString()}`,
@@ -124,9 +145,20 @@ export class FlashExecutor extends EventEmitter {
             clearInterval(this._creditInterval);
             this._creditInterval = null;
         }
+        if (this._initialCheckTimeout) {
+            clearTimeout(this._initialCheckTimeout);
+            this._initialCheckTimeout = null;
+        }
     }
 
     // ───────── INTERNAL ─────────
+
+    _getNextKey() {
+        if (this.apiKeys.length === 0) return null;
+        const key = this.apiKeys[this.currentKeyIndex];
+        this.currentKeyIndex = (this.currentKeyIndex + 1) % this.apiKeys.length;
+        return key;
+    }
 
     _buildPrompt(task) {
         return [
@@ -137,8 +169,18 @@ export class FlashExecutor extends EventEmitter {
         ].filter(Boolean).join('\n');
     }
 
+    // Wrapper for https.request to enable mocking/testing
+    _makeRequest(options, callback) {
+        return https.request(options, callback);
+    }
+
     async _callGemini(prompt) {
         const startMs = Date.now();
+        const currentApiKey = this._getNextKey();
+
+        if (!currentApiKey) {
+            return Promise.reject(new Error('No API key configured'));
+        }
 
         return new Promise((resolve, reject) => {
             const body = JSON.stringify({
@@ -152,7 +194,7 @@ export class FlashExecutor extends EventEmitter {
             const options = {
                 hostname: GEMINI_API_BASE,
                 port: 443,
-                path: `/v1beta/models/${this.model}:generateContent?key=${this.apiKey}`,
+                path: `/v1beta/models/${this.model}:generateContent?key=${currentApiKey}`,
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -160,7 +202,7 @@ export class FlashExecutor extends EventEmitter {
                 }
             };
 
-            const req = https.request(options, (res) => {
+            const req = this._makeRequest(options, (res) => {
                 let data = '';
                 res.on('data', chunk => data += chunk);
                 res.on('end', () => {
@@ -201,6 +243,7 @@ export class FlashExecutor extends EventEmitter {
 
     async _checkCredits() {
         try {
+            // This will use a rotated key, helping to validate the pool health
             const result = await this._callGemini('ping');
             this.credits.available = true;
             this.credits.lastCheck = new Date().toISOString();
@@ -216,7 +259,7 @@ export class FlashExecutor extends EventEmitter {
 
     _startCreditMonitor() {
         // Initial check after 10s
-        setTimeout(() => this._checkCredits(), 10000);
+        this._initialCheckTimeout = setTimeout(() => this._checkCredits(), 10000);
         this._creditInterval = setInterval(() => this._checkCredits(), CREDIT_CHECK_INTERVAL);
     }
 
