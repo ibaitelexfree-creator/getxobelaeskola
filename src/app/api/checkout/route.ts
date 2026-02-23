@@ -1,6 +1,7 @@
 import { requireAuth } from '@/lib/auth-guard';
 import { NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe';
+import { Course, CourseEdition, Inscription } from '@/types/courses';
 
 export async function POST(request: Request) {
     try {
@@ -19,8 +20,8 @@ export async function POST(request: Request) {
         const protocol = request.headers.get('x-forwarded-proto') || (host.includes('localhost') ? 'http' : 'https');
         const origin = request.headers.get('origin') || `${protocol}://${host}`;
 
-        let course: any = null;
-        let edition: any = null;
+        let course: Course | null = null;
+        let edition: CourseEdition | null = null;
 
         // 1. Fetch Course Data
         if (editionId && !editionId.startsWith('ext_')) {
@@ -33,8 +34,8 @@ export async function POST(request: Request) {
             if (edError || !ed) {
                 return NextResponse.json({ error: 'Edición no encontrada' }, { status: 404 });
             }
-            edition = ed;
-            course = ed.cursos;
+            edition = ed as unknown as CourseEdition;
+            course = edition.cursos || null;
         } else if (courseId) {
             // Handle external calendar event or direct course booking
             const { data: c, error: cError } = await supabase
@@ -46,10 +47,14 @@ export async function POST(request: Request) {
             if (cError || !c) {
                 return NextResponse.json({ error: 'Curso no encontrado' }, { status: 404 });
             }
-            course = c;
+            course = c as unknown as Course;
             // edition remains null
         } else {
             return NextResponse.json({ error: 'Faltan datos (editionId o courseId)' }, { status: 400 });
+        }
+
+        if (!course) {
+            return NextResponse.json({ error: 'Curso no encontrado' }, { status: 404 });
         }
 
         // --- ENROLLMENT CHECK (Gating) ---
@@ -73,7 +78,7 @@ export async function POST(request: Request) {
         // --- ZERO PRICE BYPASS (Updated for Online Courses) ---
         if (course.precio === 0) {
 
-            const inscriptionData: any = {
+            const inscriptionData: Partial<Inscription> = {
                 perfil_id: user.id,
                 curso_id: course.id,
                 estado_pago: 'pagado',
