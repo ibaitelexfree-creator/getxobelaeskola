@@ -240,7 +240,7 @@ export default function WindStation() {
                                         boxShadow: '0 10px 30px -10px rgba(0,0,0,0.5)'
                                     }}
                                     itemStyle={{ fontSize: '12px', fontWeight: 'bold' }}
-                                    formatter={(value: number, name: string) => [
+                                    formatter={(value: any, name: string) => [
                                         `${value} kn`,
                                         name === 'speed_knots' ? 'Viento' : 'Racha'
                                     ]}

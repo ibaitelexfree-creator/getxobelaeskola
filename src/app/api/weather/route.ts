@@ -57,6 +57,7 @@ export async function GET(request: NextRequest) {
                 const shouldSave = !lastEntry || (now.getTime() - new Date(lastEntry?.timestamp).getTime() > 15 * 60 * 1000);
 
                 if (shouldSave) {
+                    // @ts-ignore
                     await supabase.from('weather_history').insert({
                         station: weather.station,
                         wind_speed: weather.knots,
