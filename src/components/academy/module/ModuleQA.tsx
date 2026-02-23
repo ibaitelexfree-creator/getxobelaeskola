@@ -106,7 +106,7 @@ export default function ModuleQA({ moduleId, locale }: ModuleQAProps) {
 
                 if (questionsError) throw questionsError;
 
-                const questionIds = questionsData.map(q => q.id);
+                const questionIds = (questionsData || []).map((q: any) => q.id);
                 let answersData: any[] = [];
 
                 if (questionIds.length > 0) {
@@ -138,7 +138,7 @@ export default function ModuleQA({ moduleId, locale }: ModuleQAProps) {
                     }
                 }
 
-                const mergedQuestions: ModuleQuestion[] = questionsData.map(q => {
+                const mergedQuestions: ModuleQuestion[] = (questionsData || []).map((q: any) => {
                     const qVotes = userVotes.find(v => v.item_id === q.id && v.item_type === 'question');
                     const qAnswers = answersData
                         .filter(a => a.question_id === q.id)
@@ -514,7 +514,7 @@ export default function ModuleQA({ moduleId, locale }: ModuleQAProps) {
                                                     {question.user?.nombre} {question.user?.apellidos}
                                                 </span>
                                                 {question.user?.rol === 'instructor' && (
-                                                    <BadgeCheck className="w-4 h-4 text-accent" title="Instructor" />
+                                                    <BadgeCheck className="w-4 h-4 text-accent" />
                                                 )}
                                             </div>
                                             <span className="text-[10px] text-white/40 mt-1 uppercase tracking-wider">

@@ -1,9 +1,9 @@
 
 import { create } from 'zustand';
+import { MissionStatus } from './types';
 
 // --- Types ---
 
-export type MissionStatus = 'idle' | 'playing' | 'paused' | 'completed' | 'failed';
 export type FeedbackType = 'success' | 'error' | 'info';
 
 interface FeedbackState {

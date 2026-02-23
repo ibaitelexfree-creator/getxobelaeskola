@@ -21,6 +21,7 @@ interface Profile {
 interface Session {
     id: string;
     curso_id: string;
+    instructor_id: string;
     fecha_inicio: string;
     fecha_fin: string;
     estado: string;
@@ -265,9 +266,9 @@ export default function InstructorClient({ profile, initialSessions, initialInsc
             {/* Session Detail Modal */}
             {selectedSession && (
                 <SessionDetailModal
-                    session={selectedSession}
+                    session={selectedSession as any}
                     onClose={() => setSelectedSession(null)}
-                    onSave={async (updated) => {
+                    onUpdate={async (updated: any) => {
                         // Optimistic update
                         setSessions(prev => prev.map(s => s.id === updated.id ? updated : s));
                         setSelectedSession(null);
