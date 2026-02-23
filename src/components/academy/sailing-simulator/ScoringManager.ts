@@ -1,4 +1,3 @@
-// import * as THREE from 'three'; // Unused
 import { BoatState } from './BoatPhysics';
 import { ObjectiveState } from './ObjectiveManager';
 
@@ -22,11 +21,11 @@ export class ScoringManager {
         this.buoyStartTime = performance.now() / 1000;
     }
 
-    public update(dt: number, boatState: BoatState, objective: ObjectiveState) {
+    public update(_dt: number, _boatState: BoatState, _objective: ObjectiveState) {
         // Only accumulating time for the current buoy
     }
 
-    public addObjectiveBonus(distance: number): number {
+    public addObjectiveBonus(_distance: number): number {
         if (this.buoysCollected >= this.MAX_BUOYS) return 0;
 
         const now = performance.now() / 1000;

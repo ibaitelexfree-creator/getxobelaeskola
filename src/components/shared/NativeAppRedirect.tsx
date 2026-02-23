@@ -1,7 +1,6 @@
 'use client';
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-// import { Capacitor } from '@capacitor/core';
 
 
 export default function NativeAppRedirect({ locale }: { locale: string }) {
