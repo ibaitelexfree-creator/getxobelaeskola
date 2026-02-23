@@ -896,6 +896,35 @@ app.get('/api/visual/screenshot/:filename', (req, res) => {
 });
 
 
+// Prometheus Metrics State
+const metrics = {
+  errorsTotal: 0,
+  sessionsCreated: 0
+};
+
+app.get('/metrics', (req, res) => {
+  res.set('Content-Type', 'text/plain');
+  res.send(`
+# HELP jules_orchestrator_errors_total Total number of critical errors detected by self-healing
+# TYPE jules_orchestrator_errors_total counter
+jules_orchestrator_errors_total ${metrics.errorsTotal}
+
+# HELP jules_orchestrator_sessions_total Total number of Jules sessions created
+# TYPE jules_orchestrator_sessions_total counter
+jules_orchestrator_sessions_total ${metrics.sessionsCreated}
+  `.trim());
+});
+
+app.get('/api/test/crash', (req, res) => {
+  try {
+    const allTasks = dbTasks.getAll();
+    res.json(allTasks);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+
 // ============ TASK MANAGEMENT ============
 
 // List all tasks (pending + completed)
