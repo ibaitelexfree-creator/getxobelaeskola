@@ -1,15 +1,10 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { Geolocation, Position } from '@capacitor/geolocation';
-// import { Capacitor } from '@capacitor/core';
+import { Geolocation } from '@capacitor/geolocation';
+import { LocationPoint } from '@/lib/geospatial/types';
 
-
-export interface LocationPoint {
-    lat: number;
-    lng: number;
-    timestamp: number;
-}
+export type { LocationPoint };
 
 export function useGeolocation() {
     const [isTracking, setIsTracking] = useState(false);
@@ -53,7 +48,8 @@ export function useGeolocation() {
                         const newPoint: LocationPoint = {
                             lat: position.coords.latitude,
                             lng: position.coords.longitude,
-                            timestamp: position.timestamp
+                            timestamp: position.timestamp,
+                            speed: position.coords.speed
                         };
                         setCurrentPosition(newPoint);
                         setPoints(prev => {
@@ -67,8 +63,8 @@ export function useGeolocation() {
                     }
                 }
             );
-        } catch (err: any) {
-            setError(err.message || 'Error al iniciar el seguimiento');
+        } catch (err: unknown) {
+            setError(err instanceof Error ? err.message : 'Error al iniciar el seguimiento');
             setIsTracking(false);
         }
     };
