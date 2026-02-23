@@ -8,7 +8,7 @@ export async function GET(
     const hash = params.hash;
 
     // Crear cliente admin para saltar RLS (Verificación Pública)
-    const supabaseAdmin = createClient(
+    const supabaseAdmin = createClient<any>(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
         process.env.SUPABASE_SERVICE_ROLE_KEY!
     );

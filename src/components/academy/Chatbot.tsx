@@ -104,26 +104,27 @@ export default function Chatbot() {
                                         }`}
                                     >
                                         {msg.role === 'model' ? (
-                                            <ReactMarkdown
-                                                className="text-sm space-y-2"
-                                                remarkPlugins={[remarkGfm]}
-                                                components={{
-                                                    p: ({node, ...props}) => <p {...props} className="leading-relaxed" />,
-                                                    a: ({node, ...props}) => <a {...props} className="text-blue-400 hover:text-blue-300 underline" target="_blank" rel="noopener noreferrer" />,
-                                                    ul: ({node, ...props}) => <ul {...props} className="list-disc pl-4 space-y-1 my-2" />,
-                                                    ol: ({node, ...props}) => <ol {...props} className="list-decimal pl-4 space-y-1 my-2" />,
-                                                    li: ({node, ...props}) => <li {...props} className="pl-1" />,
-                                                    strong: ({node, ...props}) => <strong {...props} className="font-semibold text-blue-200" />,
-                                                    em: ({node, ...props}) => <em {...props} className="italic text-slate-300" />,
-                                                    h1: ({node, ...props}) => <h1 {...props} className="text-lg font-bold text-white mt-4 mb-2" />,
-                                                    h2: ({node, ...props}) => <h2 {...props} className="text-base font-bold text-white mt-3 mb-2" />,
-                                                    h3: ({node, ...props}) => <h3 {...props} className="text-sm font-bold text-white mt-2 mb-1" />,
-                                                    blockquote: ({node, ...props}) => <blockquote {...props} className="border-l-2 border-blue-500 pl-3 italic text-slate-400 my-2" />,
-                                                    code: ({node, ...props}) => <code {...props} className="bg-slate-800 px-1 py-0.5 rounded text-xs font-mono text-blue-200" />
-                                                }}
-                                            >
-                                                {msg.content}
-                                            </ReactMarkdown>
+                                            <div className="text-sm space-y-2">
+                                                <ReactMarkdown
+                                                    remarkPlugins={[remarkGfm]}
+                                                    components={{
+                                                        p: ({node, ...props}: any) => <p {...props} className="leading-relaxed" />,
+                                                        a: ({node, ...props}: any) => <a {...props} className="text-blue-400 hover:text-blue-300 underline" target="_blank" rel="noopener noreferrer" />,
+                                                        ul: ({node, ...props}: any) => <ul {...props} className="list-disc pl-4 space-y-1 my-2" />,
+                                                        ol: ({node, ...props}: any) => <ol {...props} className="list-decimal pl-4 space-y-1 my-2" />,
+                                                        li: ({node, ...props}: any) => <li {...props} className="pl-1" />,
+                                                        strong: ({node, ...props}: any) => <strong {...props} className="font-semibold text-blue-200" />,
+                                                        em: ({node, ...props}: any) => <em {...props} className="italic text-slate-300" />,
+                                                        h1: ({node, ...props}: any) => <h1 {...props} className="text-lg font-bold text-white mt-4 mb-2" />,
+                                                        h2: ({node, ...props}: any) => <h2 {...props} className="text-base font-bold text-white mt-3 mb-2" />,
+                                                        h3: ({node, ...props}: any) => <h3 {...props} className="text-sm font-bold text-white mt-2 mb-1" />,
+                                                        blockquote: ({node, ...props}: any) => <blockquote {...props} className="border-l-2 border-blue-500 pl-3 italic text-slate-400 my-2" />,
+                                                        code: ({node, ...props}: any) => <code {...props} className="bg-slate-800 px-1 py-0.5 rounded text-xs font-mono text-blue-200" />
+                                                    }}
+                                                >
+                                                    {msg.content}
+                                                </ReactMarkdown>
+                                            </div>
                                         ) : (
                                             msg.content
                                         )}

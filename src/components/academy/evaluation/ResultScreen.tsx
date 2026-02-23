@@ -86,7 +86,7 @@ export default function ResultScreen({
 
                 if (data) {
                     const map: Record<string, any> = {};
-                    data.forEach(item => {
+                    data.forEach((item: any) => {
                         if (item.pregunta_id) {
                             map[item.pregunta_id] = item;
                         }
@@ -104,10 +104,10 @@ export default function ResultScreen({
                 .from('evaluacion_feedback')
                 .select('*')
                 .eq('intento_id', attemptId)
-                .then(({ data }) => {
+                .then(({ data }: any) => {
                     if (data) {
                         const map: Record<string, any> = {};
-                        data.forEach(item => {
+                        data.forEach((item: any) => {
                             if (item.pregunta_id) {
                                 map[item.pregunta_id] = item;
                             }

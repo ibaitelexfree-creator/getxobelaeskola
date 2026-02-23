@@ -8,7 +8,7 @@ export function createClient() {
     } catch {
         // Fallback for static generation / build time
         // This allows the build to proceed for public pages
-        return createServerClient(
+        return createServerClient<any>(
             process.env.NEXT_PUBLIC_SUPABASE_URL!,
             process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
             {
@@ -20,7 +20,7 @@ export function createClient() {
         );
     }
 
-    return createServerClient(
+    return createServerClient<any>(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
         process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
         {

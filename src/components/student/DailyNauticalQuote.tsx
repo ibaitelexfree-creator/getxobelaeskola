@@ -53,7 +53,7 @@ const quoteVariants = {
     visible: {
         opacity: 1,
         y: 0,
-        transition: { duration: 0.7, ease: [0.16, 1, 0.3, 1] },
+        transition: { duration: 0.7, ease: [0.16, 1, 0.3, 1] as any },
     },
 };
 
@@ -62,7 +62,7 @@ const authorVariants = {
     visible: {
         opacity: 1,
         x: 0,
-        transition: { duration: 0.5, delay: 0.4, ease: [0.16, 1, 0.3, 1] },
+        transition: { duration: 0.5, delay: 0.4, ease: [0.16, 1, 0.3, 1] as any },
     },
 };
 
@@ -71,7 +71,7 @@ const headerVariants = {
     visible: {
         opacity: 1,
         scale: 1,
-        transition: { duration: 0.4, ease: [0.16, 1, 0.3, 1] },
+        transition: { duration: 0.4, ease: [0.16, 1, 0.3, 1] as any },
     },
 };
 
@@ -112,7 +112,7 @@ export default function DailyNauticalQuote({ locale }: DailyNauticalQuoteProps) 
                 >
                     <motion.div
                         animate={{ rotate: isHovered ? 360 : 0 }}
-                        transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+                        transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] as any }}
                     >
                         <Compass size={14} strokeWidth={2.5} />
                     </motion.div>

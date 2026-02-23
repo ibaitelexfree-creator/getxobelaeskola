@@ -13,7 +13,7 @@ import Link from 'next/link';
 export default async function PublicProfilePage({ params }: { params: { locale: string; userId: string } }) {
     const { userId, locale } = params;
 
-    const data = await getPublicProfile(userId);
+    const data: any = await getPublicProfile(userId);
 
     if (!data) {
         notFound();
