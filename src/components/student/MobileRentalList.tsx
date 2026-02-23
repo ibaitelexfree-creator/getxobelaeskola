@@ -150,7 +150,7 @@ export default function MobileRentalList({
 
             {/* List */}
             <StaggeredEntrance className="px-6 grid gap-4 mt-6" type="recombine">
-                {services.map((service) => (
+                {services.map((service, idx) => (
                     <button
                         key={service.id}
                         onClick={() => openBooking(service)}
@@ -158,10 +158,13 @@ export default function MobileRentalList({
                     >
                         <div className="h-40 relative bg-white/5">
                             {service.imagen_url ? (
-                                <img
+                                <Image
                                     src={service.imagen_url}
                                     alt={getServiceName(service)}
-                                    className="w-full h-full object-cover"
+                                    fill
+                                    sizes="(max-width: 768px) 100vw, 50vw"
+                                    priority={idx < 2}
+                                    className="object-cover"
                                 />
                             ) : (
                                 <div className="w-full h-full flex items-center justify-center text-4xl">⚓</div>
