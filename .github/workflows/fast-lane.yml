@@ -35,4 +35,6 @@ jobs:
               run: npm ci --legacy-peer-deps --prefer-offline --no-audit --no-fund --loglevel=error
 
             - name: "🧪 Type Check"
+              env:
+                  NODE_OPTIONS: "--max_old_space_size=4096"
               run: npx tsc --noEmit && echo "✅ TypeScript Passed"
