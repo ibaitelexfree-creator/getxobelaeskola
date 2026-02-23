@@ -131,6 +131,14 @@ export function formatIssueForPrompt(issue) {
 }
 
 /**
+ * Find a Pull Request by branch name
+ */
+export async function getPrByBranch(owner, repo, branch, token = null) {
+  const prs = await githubRequest(`/repos/${owner}/${repo}/pulls?head=${owner}:${branch}&state=open`, token);
+  return prs.length > 0 ? prs[0] : null;
+}
+
+/**
  * Get repository information
  */
 export async function getRepoInfo(owner, repo, token = null) {
@@ -161,6 +169,7 @@ export async function downloadAsset(owner, repo, assetId, token = null) {
 export default {
   getIssue,
   getIssuesByLabel,
+  getPrByBranch,
   formatIssueForPrompt,
   getRepoInfo,
   listReleases,

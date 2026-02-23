@@ -21,6 +21,9 @@ import {
   getWebhookSecret,
   listServices
 } from './render-client.js';
+import { sendTelegramMessage } from './telegram.js';
+import { getPrByBranch } from './github.js';
+import { writeProjectMemory } from './project-memory.js';
 
 // Track active auto-fix operations to prevent duplicates
 const activeAutoFixes = new Map();
@@ -135,6 +138,28 @@ export function parseWebhookEvent(body) {
 
   if (!branch) {
     return { isRelevant: false, reason: 'No branch info in deploy' };
+  }
+
+  // Check if this is a success
+  if (deploy.status === 'live') {
+    return {
+      isRelevant: true,
+      event: {
+        type: 'deploy_success',
+        serviceId: deploy.serviceId || data.serviceId,
+        deployId: deploy.id,
+        branch,
+        url: deploy.url,
+        commit: deploy.commit,
+        status: deploy.status,
+        timestamp: deploy.createdAt || new Date().toISOString()
+      }
+    };
+  }
+
+  // Check if this is a build failure
+  if (deploy.status !== 'build_failed' && deploy.status !== 'deploy_failed') {
+    return { isRelevant: false, reason: `Deploy status is ${deploy.status}, not a failure or success we track` };
   }
 
   // Check if this is a Jules branch
@@ -452,6 +477,30 @@ export async function handleWebhook(req, createSession, sendMessage) {
 
   // Security: Sanitize branch name before using in prompts
   parsed.event.branch = sanitizeBranchName(parsed.event.branch);
+
+  // Handle successful deploy (Preview Notification)
+  if (parsed.event.type === 'deploy_success') {
+    console.log(`[Render Webhook] Success on ${parsed.event.branch}. URL: ${parsed.event.url}`);
+
+    // Notify Telegram
+    if (parsed.event.url) {
+      await sendTelegramMessage(
+        `✅ *Preview Lista: ${parsed.event.branch}*\n\n` +
+        `🌐 *URL:* ${parsed.event.url}\n` +
+        `📦 *Servicio:* \`${parsed.event.serviceId}\`\n\n` +
+        `_Accede al entorno de pruebas al instante desde tu VPN o local._`
+      ).catch(e => console.error('[Telegram] Error notifications:', e.message));
+
+      // Save to project memory for Control Manager
+      try {
+        writeProjectMemory('PREVIEW_URLS.md', `| Branch | URL | Timestamp |\n|---|---|---|\n| ${parsed.event.branch} | [Open](${parsed.event.url}) | ${new Date().toISOString()} |`, true);
+      } catch (e) {
+        console.error('[Memory] Failed to save preview URL:', e.message);
+      }
+    }
+
+    return { status: 200, message: 'Success event processed', processed: true };
+  }
 
   // Check if we should auto-fix
   const check = shouldAutoFix(parsed.event);
