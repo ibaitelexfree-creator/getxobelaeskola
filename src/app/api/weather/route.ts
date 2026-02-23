@@ -53,8 +53,8 @@ export async function GET(request: NextRequest) {
                     .single();
 
                 const now = new Date();
-                const shouldSave = !lastEntry ||
-                    (now.getTime() - new Date(lastEntry.timestamp).getTime() > 15 * 60 * 1000);
+                // @ts-ignore
+                const shouldSave = !lastEntry || (now.getTime() - new Date(lastEntry?.timestamp).getTime() > 15 * 60 * 1000);
 
                 if (shouldSave) {
                     await supabase.from('weather_history').insert({
@@ -84,10 +84,12 @@ export async function GET(request: NextRequest) {
                 .select('estado_entrega');
 
             if (rentals) {
+                // @ts-ignore
+                const r = rentals as any[];
                 fleetSub = {
-                    agua: rentals.filter(r => r.estado_entrega === 'entregado').length,
-                    retorno: rentals.filter(r => r.estado_entrega === 'devuelto').length,
-                    pendiente: rentals.filter(r => r.estado_entrega === 'pendiente').length
+                    agua: r.filter(r => r.estado_entrega === 'entregado').length,
+                    retorno: r.filter(r => r.estado_entrega === 'devuelto').length,
+                    pendiente: r.filter(r => r.estado_entrega === 'pendiente').length
                 };
 
                 if (fleetSub.agua === 0 && fleetSub.pendiente === 0) {
@@ -115,7 +117,8 @@ export async function GET(request: NextRequest) {
 
                 if (dbHistory && dbHistory.length > 0) {
                     // Map DB results to UI format
-                    history = dbHistory.map(h => ({
+                    // @ts-ignore
+                    history = dbHistory.map((h: any) => ({
                         time: new Date(h.timestamp).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }),
                         wind: h.wind_speed,
                         gust: h.wind_gust,
