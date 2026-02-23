@@ -1,8 +1,8 @@
 "use client";
 
-import { apiUrl } from "@/lib/api";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { apiUrl } from "@/lib/api";
 
 interface Logro {
 	id: string;
@@ -25,11 +25,11 @@ interface LogroAlumno {
 
 export default function AchievementsPage({
 	params,
-}: { params: { locale: string } }) {
+}: {
+	params: { locale: string };
+}) {
 	const [allLogros, setAllLogros] = useState<Logro[]>([]);
-	const [userLogros, setUserLogros] = useState<Record<string, LogroAlumno>>(
-		{},
-	);
+	const [userLogros, setUserLogros] = useState<Record<string, LogroAlumno>>({});
 	const [loading, setLoading] = useState(true);
 	const [filter, setFilter] = useState("todos");
 
@@ -165,9 +165,7 @@ export default function AchievementsPage({
 									<div>
 										<h3
 											className={`text-lg font-bold mb-1 ${
-												obtenido
-													? "text-white"
-													: "text-white/40"
+												obtenido ? "text-white" : "text-white/40"
 											}`}
 										>
 											{params.locale === "eu"
@@ -198,9 +196,7 @@ export default function AchievementsPage({
 										{obtenido && (
 											<span className="text-[10px] text-accent/60 font-mono">
 												Obtenido el{" "}
-												{new Date(
-													obtenido.fecha_obtenido,
-												).toLocaleDateString()}
+												{new Date(obtenido.fecha_obtenido).toLocaleDateString()}
 											</span>
 										)}
 									</div>
@@ -209,9 +205,7 @@ export default function AchievementsPage({
 								{/* Banner de puntos si obtenido */}
 								<div
 									className={`absolute top-4 right-4 text-[10px] font-black ${
-										obtenido
-											? "text-accent"
-											: "text-white/10"
+										obtenido ? "text-accent" : "text-white/10"
 									}`}
 								>
 									+{logro.puntos} PTS

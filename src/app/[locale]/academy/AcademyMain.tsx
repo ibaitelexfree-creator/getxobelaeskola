@@ -1,9 +1,5 @@
 "use client";
 
-import AcademySkeleton from "@/components/academy/AcademySkeleton";
-import StaggeredEntrance from "@/components/shared/StaggeredEntrance";
-import { useAcademyData } from "@/hooks/useAcademyData";
-import { useNotificationStore } from "@/lib/store/useNotificationStore";
 import {
 	AlertCircle,
 	Anchor,
@@ -14,13 +10,19 @@ import {
 	Ship,
 	Wind,
 } from "lucide-react";
-import { useTranslations } from "next-intl";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { useEffect } from "react";
+import AcademySkeleton from "@/components/academy/AcademySkeleton";
+import StaggeredEntrance from "@/components/shared/StaggeredEntrance";
+import { useAcademyData } from "@/hooks/useAcademyData";
+import { useNotificationStore } from "@/lib/store/useNotificationStore";
 
 export default function AcademyMain({
 	params,
-}: { params: { locale: string } }) {
+}: {
+	params: { locale: string };
+}) {
 	const t = useTranslations("academy");
 	const {
 		niveles,
@@ -131,16 +133,11 @@ export default function AcademyMain({
 			<main className="container mx-auto px-6 py-24">
 				<div className="max-w-6xl mx-auto space-y-32">
 					<section className="space-y-12">
-						<StaggeredEntrance
-							type="recombine"
-							className="space-y-12"
-						>
+						<StaggeredEntrance type="recombine" className="space-y-12">
 							{error && niveles.length === 0 && (
 								<div className="text-center py-20 animate-fade-in">
 									<div className="inline-block p-6 glass-card border-red-500/20 bg-red-500/5 mb-8">
-										<span className="text-4xl mb-4 block">
-											⚠️
-										</span>
+										<span className="text-4xl mb-4 block">⚠️</span>
 										<h2 className="text-xl font-display italic text-white mb-2">
 											{t("connection_error.title")}
 										</h2>
@@ -149,9 +146,7 @@ export default function AcademyMain({
 										</p>
 										<button
 											type="button"
-											onClick={() =>
-												window.location.reload()
-											}
+											onClick={() => window.location.reload()}
 											className="px-8 py-3 bg-accent text-nautical-black text-xs font-black uppercase tracking-widest hover:bg-white transition-all"
 										>
 											{t("connection_error.retry")}
@@ -173,9 +168,8 @@ export default function AcademyMain({
 											Viaje en Calma
 										</h3>
 										<p className="text-white/70 max-w-md mx-auto">
-											No hay niveles de formación
-											disponibles en este momento. Vuelve
-											pronto para comenzar tu travesía.
+											No hay niveles de formación disponibles en este momento.
+											Vuelve pronto para comenzar tu travesía.
 										</p>
 									</div>
 								</div>
@@ -186,20 +180,15 @@ export default function AcademyMain({
 								const progresoNivel = progreso.find(
 									(p) => p.nivel_id === nivel.id,
 								);
-								const porcentaje =
-									progresoNivel?.porcentaje || 0;
+								const porcentaje = progresoNivel?.porcentaje || 0;
 								const isLocked =
-									estado === "bloqueado" &&
-									Number(nivel.orden) !== 1;
-								const nivelCursos =
-									cursosPorNivel[nivel.id] || [];
+									estado === "bloqueado" && Number(nivel.orden) !== 1;
+								const nivelCursos = cursosPorNivel[nivel.id] || [];
 
 								const isPaywallLocked =
 									isLocked &&
 									nivelCursos.length > 0 &&
-									!nivelCursos.some((c) =>
-										enrollments.includes(c.id),
-									);
+									!nivelCursos.some((c) => enrollments.includes(c.id));
 
 								let targetHref = "#";
 								if (isPaywallLocked && nivelCursos.length > 0) {
@@ -213,15 +202,11 @@ export default function AcademyMain({
 								}
 
 								const prereqNames = (nivel.prerequisitos || [])
-									.map((id) =>
-										niveles.find((n) => n.id === id),
-									)
+									.map((id) => niveles.find((n) => n.id === id))
 									.filter(Boolean)
 									.map(
 										(n) =>
-											(params.locale === "eu"
-												? n?.nombre_eu
-												: n?.nombre_es) ||
+											(params.locale === "eu" ? n?.nombre_eu : n?.nombre_es) ||
 											n?.nombre_es,
 									);
 
@@ -230,16 +215,11 @@ export default function AcademyMain({
 									: isLocked
 										? `${
 												nivel.nombre_es
-											}. Nivel bloqueado. Requiere: ${prereqNames.join(
-												", ",
-											)}.`
+											}. Nivel bloqueado. Requiere: ${prereqNames.join(", ")}.`
 										: `${nivel.nombre_es}. Nivel ${estado}. Ver cursos disponibles.`;
 
 								return (
-									<div
-										key={nivel.id}
-										className="relative group"
-									>
+									<div key={nivel.id} className="relative group">
 										{index < niveles.length - 1 && (
 											<>
 												<div
@@ -263,9 +243,7 @@ export default function AcademyMain({
 											}`}
 											aria-label={ariaLabel}
 											onClick={(e) =>
-												isLocked &&
-												!isPaywallLocked &&
-												e.preventDefault()
+												isLocked && !isPaywallLocked && e.preventDefault()
 											}
 											prefetch={false}
 										>
@@ -273,24 +251,24 @@ export default function AcademyMain({
 												className={`
                                             relative p-8 lg:p-12 glass-card overflow-hidden transition-all duration-700
                                             ${
-												isLocked
-													? "opacity-40 grayscale blur-[1px] hover:blur-0 hover:opacity-60"
-													: "hover:scale-[1.01] hover:border-accent/40"
-											}
+																							isLocked
+																								? "opacity-40 grayscale blur-[1px] hover:blur-0 hover:opacity-60"
+																								: "hover:scale-[1.01] hover:border-accent/40"
+																						}
                                             ${
-												estado === "completado"
-													? "border-accent/40 bg-accent/[0.03]"
-													: ""
-											}
+																							estado === "completado"
+																								? "border-accent/40 bg-accent/[0.03]"
+																								: ""
+																						}
                                         `}
 											>
 												<div
 													className={`absolute top-0 right-0 w-64 h-64 blur-[100px] -translate-y-1/2 translate-x-1/2 rounded-full pointer-events-none transition-opacity duration-700
                                                 ${
-													estado === "completado"
-														? "bg-accent/20 opacity-100"
-														: "bg-white/5 opacity-0 group-hover:opacity-100"
-												}
+																									estado === "completado"
+																										? "bg-accent/20 opacity-100"
+																										: "bg-white/5 opacity-0 group-hover:opacity-100"
+																								}
                                             `}
 													aria-hidden="true"
 												/>
@@ -302,27 +280,24 @@ export default function AcademyMain({
                                                         w-24 h-24 lg:w-32 lg:h-32 rounded-full flex items-center justify-center text-4xl lg:text-6xl
                                                         border-2 transition-all duration-700
                                                         ${
-															isLocked
-																? "bg-white/5 border-white/10"
-																: "bg-accent/10 border-accent/40 group-hover:bg-accent/20 group-hover:border-accent"
-														}
+																													isLocked
+																														? "bg-white/5 border-white/10"
+																														: "bg-accent/10 border-accent/40 group-hover:bg-accent/20 group-hover:border-accent"
+																												}
                                                         ${
-															estado ===
-															"completado"
-																? "bg-accent/30 border-accent scale-110 shadow-[0_0_30px_rgba(255,77,0,0.2)]"
-																: ""
-														}
+																													estado ===
+																													"completado"
+																														? "bg-accent/30 border-accent scale-110 shadow-[0_0_30px_rgba(255,77,0,0.2)]"
+																														: ""
+																												}
                                                     `}
 															aria-hidden="true"
 														>
-															{isLocked
-																? "🔒"
-																: nivel.icono}
+															{isLocked ? "🔒" : nivel.icono}
 														</div>
 														<div className="text-center mt-4">
 															<span className="text-sm uppercase tracking-[0.4em] text-white/70 font-black">
-																Nivel{" "}
-																{nivel.orden}
+																Nivel {nivel.orden}
 															</span>
 														</div>
 													</div>
@@ -330,28 +305,19 @@ export default function AcademyMain({
 													<div className="flex-1 text-center lg:text-left">
 														<header className="mb-4">
 															<h2 className="text-3xl lg:text-5xl font-display italic text-white mb-4 group-hover:text-accent transition-colors leading-tight">
-																{(params.locale ===
-																"eu"
+																{(params.locale === "eu"
 																	? nivel.nombre_eu
-																	: nivel.nombre_es) ||
-																	nivel.nombre_es}
+																	: nivel.nombre_es) || nivel.nombre_es}
 															</h2>
-															{isLocked &&
-															prereqNames.length >
-																0 ? (
+															{isLocked && prereqNames.length > 0 ? (
 																<div className="bg-red-500/10 border border-red-500/20 rounded-sm py-2 px-4 mb-4 inline-block">
 																	<p className="text-[10px] font-black uppercase tracking-widest text-red-400">
-																		Requiere
-																		completar:{" "}
-																		{prereqNames.join(
-																			", ",
-																		)}
+																		Requiere completar: {prereqNames.join(", ")}
 																	</p>
 																</div>
 															) : (
 																<p className="text-lg text-white/60 font-light leading-relaxed max-w-2xl">
-																	{(params.locale ===
-																	"eu"
+																	{(params.locale === "eu"
 																		? nivel.descripcion_eu
 																		: nivel.descripcion_es) ||
 																		nivel.descripcion_es}
@@ -368,10 +334,7 @@ export default function AcademyMain({
 																	>
 																		📚
 																	</span>{" "}
-																	{
-																		nivel.duracion_teorica_h
-																	}
-																	h Teoría
+																	{nivel.duracion_teorica_h}h Teoría
 																</div>
 																<div className="flex items-center gap-2">
 																	<span
@@ -380,34 +343,21 @@ export default function AcademyMain({
 																	>
 																		⛵
 																	</span>{" "}
-																	{
-																		nivel.duracion_practica_h
-																	}
-																	h Práctica
+																	{nivel.duracion_practica_h}h Práctica
 																</div>
 															</div>
 														)}
 
 														{!isLocked &&
-															(estado ===
-																"en_progreso" ||
-																(porcentaje >
-																	0 &&
-																	porcentaje <
-																		100)) && (
+															(estado === "en_progreso" ||
+																(porcentaje > 0 && porcentaje < 100)) && (
 																<div className="mt-8 max-w-sm mx-auto lg:mx-0">
 																	<div
 																		className="h-1 bg-white/10 rounded-full overflow-hidden"
 																		role="progressbar"
-																		aria-valuenow={
-																			porcentaje
-																		}
-																		aria-valuemin={
-																			0
-																		}
-																		aria-valuemax={
-																			100
-																		}
+																		aria-valuenow={porcentaje}
+																		aria-valuemin={0}
+																		aria-valuemax={100}
 																		aria-label={`Progreso del nivel: ${porcentaje}%`}
 																	>
 																		<div
@@ -418,19 +368,14 @@ export default function AcademyMain({
 																		/>
 																	</div>
 																	<span className="text-[9px] uppercase tracking-[0.3em] font-black text-accent mt-2 block">
-																		{
-																			porcentaje
-																		}
-																		%
-																		COMPLETADO
+																		{porcentaje}% COMPLETADO
 																	</span>
 																</div>
 															)}
 													</div>
 
 													<div className="flex-shrink-0 pt-2 lg:min-w-[140px] text-right">
-														{estado ===
-															"completado" && (
+														{estado === "completado" && (
 															<div className="inline-block px-6 py-2 bg-accent text-nautical-black text-xs font-black uppercase tracking-[0.2em] rounded-sm shadow-xl animate-fade-in">
 																✓ Alcanzado
 															</div>
@@ -438,31 +383,23 @@ export default function AcademyMain({
 
 														{isPaywallLocked && (
 															<div className="inline-block px-6 py-2 bg-accent/10 border border-accent/40 text-accent text-xs font-black uppercase tracking-[0.2em] rounded-sm flex items-center justify-center gap-2 animate-pulse">
-																<span>🛍️</span>{" "}
-																Adquirir
+																<span>🛍️</span> Adquirir
 															</div>
 														)}
 
-														{isLocked &&
-															!isPaywallLocked && (
-																<div className="inline-block px-6 py-2 bg-white/5 border border-white/10 text-white/70 text-xs font-black uppercase tracking-[0.2em] rounded-sm flex items-center justify-center gap-2">
-																	<span aria-hidden="true">
-																		🔒
-																	</span>{" "}
-																	Bloqueado
-																</div>
-															)}
+														{isLocked && !isPaywallLocked && (
+															<div className="inline-block px-6 py-2 bg-white/5 border border-white/10 text-white/70 text-xs font-black uppercase tracking-[0.2em] rounded-sm flex items-center justify-center gap-2">
+																<span aria-hidden="true">🔒</span> Bloqueado
+															</div>
+														)}
 
-														{!isLocked &&
-															estado !==
-																"completado" && (
-																<div className="text-accent font-black text-sm uppercase tracking-widest mt-4 lg:mt-0 lg:opacity-0 lg:group-hover:opacity-100 lg:translate-x-4 lg:group-hover:translate-x-0 transition-all duration-500 whitespace-nowrap">
-																	{nivel.orden ===
-																	1
-																		? "Iniciar Aventura"
-																		: "Siguiente Paso →"}
-																</div>
-															)}
+														{!isLocked && estado !== "completado" && (
+															<div className="text-accent font-black text-sm uppercase tracking-widest mt-4 lg:mt-0 lg:opacity-0 lg:group-hover:opacity-100 lg:translate-x-4 lg:group-hover:translate-x-0 transition-all duration-500 whitespace-nowrap">
+																{nivel.orden === 1
+																	? "Iniciar Aventura"
+																	: "Siguiente Paso →"}
+															</div>
+														)}
 													</div>
 												</div>
 											</article>
@@ -474,17 +411,13 @@ export default function AcademyMain({
 					</section>
 
 					{/* Tools Section */}
-					<section
-						className="animate-fade-in"
-						aria-labelledby="tools-title"
-					>
+					<section className="animate-fade-in" aria-labelledby="tools-title">
 						<div className="text-center mb-16">
 							<h2
 								id="tools-title"
 								className="text-3xl font-display text-white mb-4 italic"
 							>
-								Herramientas de{" "}
-								<span className="text-accent">Navegación</span>
+								Herramientas de <span className="text-accent">Navegación</span>
 							</h2>
 							<p className="text-white/70 uppercase tracking-widest text-[10px] font-black">
 								Instrumentos esenciales para tu formación
