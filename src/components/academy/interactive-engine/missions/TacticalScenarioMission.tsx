@@ -1,5 +1,6 @@
 
 import React, { useEffect, useCallback, useState } from 'react';
+import Image from 'next/image';
 import { useMissionStore } from '../store';
 import { MissionData } from '../types';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -115,11 +116,13 @@ export const TacticalScenarioMission: React.FC<Props> = ({ data, onComplete }) =
                     {/* Image Area */}
                     <div className="aspect-video bg-nautical-black/50 rounded-lg overflow-hidden border border-white/10 mb-6 relative group shadow-2xl">
                         {currentScenario.imagen_url ? (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img
+                            <Image
                                 src={currentScenario.imagen_url}
                                 alt="Scenario"
-                                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                                fill
+                                sizes="(max-width: 768px) 100vw, 800px"
+                                priority
+                                className="object-cover transition-transform duration-700 group-hover:scale-105"
                             />
                         ) : (
                             <div className="w-full h-full flex items-center justify-center bg-white/5">

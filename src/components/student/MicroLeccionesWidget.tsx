@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { getApiUrl } from '@/lib/platform';
 import { Play, Clock } from 'lucide-react';
+import Image from 'next/image';
 import dynamic from 'next/dynamic';
 
 // Dynamically import the player to avoid SSR issues and load only when needed
@@ -66,11 +67,13 @@ export default function MicroLeccionesWidget({ locale, translations, preloadedLe
                         className="flex-shrink-0 w-32 md:w-40 aspect-[9/16] relative group cursor-pointer rounded-sm overflow-hidden border border-white/5 hover:border-accent/50 transition-all snap-start bg-nautical-black"
                     >
                         {/* Thumbnail */}
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
+                        <Image
                             src={lesson.thumbnail_url || '/images/placeholder-vertical.jpg'}
                             alt={locale === 'es' ? lesson.titulo_es : lesson.titulo_eu}
-                            className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 opacity-60 group-hover:opacity-100"
+                            fill
+                            sizes="(max-width: 768px) 128px, 160px"
+                            priority={index < 2}
+                            className="object-cover transition-transform duration-700 group-hover:scale-110 opacity-60 group-hover:opacity-100"
                         />
 
                         {/* Gradient Overlay */}
