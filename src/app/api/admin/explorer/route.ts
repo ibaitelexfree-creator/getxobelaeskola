@@ -1,7 +1,6 @@
 
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import { cookies } from 'next/headers';
 
 // Simple map of important relations to check
 const RELATIONS: Record<string, { table: string, fk: string, label: string }[]> = {
@@ -9,7 +8,7 @@ const RELATIONS: Record<string, { table: string, fk: string, label: string }[]> 
         { table: 'reservas_alquiler', fk: 'perfil_id', label: 'Alquileres' },
         { table: 'inscripciones', fk: 'perfil_id', label: 'Cursos Inscritos' },
         { table: 'mensajes_contacto', fk: 'email', label: 'Mensajes (por Email)' }, // Special email linkage
-        { table: 'newsletter_subscriptions', fk: 'email', label: 'Susufrpcioines (por Email)' }
+        { table: 'newsletter_subscriptions', fk: 'email', label: 'Suscripciones (por Email)' }
     ],
     cursos: [
         { table: 'ediciones_curso', fk: 'curso_id', label: 'Ediciones Programadas' },
@@ -29,6 +28,16 @@ const SEARCHABLE_COLS: Record<string, string[]> = {
     newsletter_subscriptions: ['email']
 };
 
+interface SearchResult {
+    id: string;
+    nombre?: string;
+    name?: string;
+    title?: string;
+    asunto?: string;
+    email?: string;
+    [key: string]: unknown;
+}
+
 export async function GET(req: Request) {
     const { searchParams } = new URL(req.url);
     const query = searchParams.get('q') || '';
@@ -37,16 +46,24 @@ export async function GET(req: Request) {
     if (!query) return NextResponse.json({ results: [] });
 
     const supabase = createClient();
-    let results: any[] = [];
+    let results: SearchResult[] = [];
 
     const searchTable = async (tableName: string) => {
         const cols = SEARCHABLE_COLS[tableName] || ['id'];
         // Construct OR filter: col1.ilike.%q%,col2.ilike.%q%
         const orFilter = cols.map(c => `${c}.ilike.%${query}%`).join(',');
 
+        const rels = RELATIONS[tableName] || [];
+        // Construct select with resource embedding for counts to avoid N+1 queries
+        // Format: *, related_table!fk_col(count)
+        const selectCols = [
+            '*',
+            ...rels.map(rel => `${rel.table}!${rel.fk}(count)`)
+        ].join(',');
+
         const { data, error } = await supabase
             .from(tableName)
-            .select('*')
+            .select(selectCols)
             .or(orFilter)
             .limit(5);
 
@@ -55,36 +72,28 @@ export async function GET(req: Request) {
             return [];
         }
 
-        // Enrich with relations count
-        const enriched = await Promise.all((data || []).map(async (item) => {
-            const relations: any[] = [];
-            const rels = RELATIONS[tableName] || [];
+        // Enrich with relations count from embedded data
+        const enriched = (data || []).map((item: SearchResult) => {
+            const relations: { label: string; count: number; table: string }[] = [];
 
             for (const rel of rels) {
-                // Determine FK value (handle email special case)
-                let fkValue = item[rel.fk === 'email' ? 'email' : 'id'];
-                if (rel.fk === 'email') fkValue = item.email; // Source is email
+                // Embedded counts return as an array with a single object: [{ count: N }]
+                // This is much more efficient than performing a separate query for each item
+                const embedded = item[rel.table] as { count: number }[] | undefined;
+                const count = (embedded && Array.isArray(embedded)) ? (embedded[0]?.count || 0) : 0;
 
-                // Skip if no key to join
-                if (!fkValue) continue;
-
-                // Simple count query
-                const { count, error: countError } = await supabase
-                    .from(rel.table)
-                    .select('*', { count: 'exact', head: true })
-                    .eq(rel.fk, fkValue);
-
-                if (!countError && count !== null && count > 0) {
+                if (count > 0) {
                     relations.push({ label: rel.label, count, table: rel.table });
                 }
             }
+
             return {
                 ...item,
                 _table: tableName,
                 _title: item.nombre || item.title || item.name || item.asunto || item.id, // Best effort title
                 _relations: relations
             };
-        }));
+        });
 
         return enriched;
     };
@@ -93,11 +102,11 @@ export async function GET(req: Request) {
         // Search key tables
         const tablesToSearch = ['profiles', 'cursos', 'embarcaciones', 'reservas_alquiler'];
         for (const t of tablesToSearch) {
-            const res = await searchTable(t);
+            const res = await searchTable(t) as SearchResult[];
             results = [...results, ...res];
         }
     } else {
-        results = await searchTable(table);
+        results = await searchTable(table) as SearchResult[];
     }
 
     return NextResponse.json({ results });
