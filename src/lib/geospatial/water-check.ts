@@ -1,33 +1,66 @@
 import * as turf from '@turf/turf';
 import waterGeometryData from '../../data/geospatial/water-geometry.json';
+import RBush from 'rbush';
+
+// Define the item type for the R-tree
+interface WaterPolygonItem {
+    minX: number;
+    minY: number;
+    maxX: number;
+    maxY: number;
+    feature: any; // The geojson feature
+}
+
+// Initialize the R-tree index
+const tree = new RBush<WaterPolygonItem>();
+const featureCollection = waterGeometryData as any;
+
+// Populate the index once
+if (featureCollection.features) {
+    const items: WaterPolygonItem[] = featureCollection.features.map((feature: any) => {
+        const bbox = turf.bbox(feature);
+        return {
+            minX: bbox[0],
+            minY: bbox[1],
+            maxX: bbox[2],
+            maxY: bbox[3],
+            feature: feature
+        };
+    });
+    tree.load(items);
+} else {
+    // Fallback if it's a single feature
+    const bbox = turf.bbox(featureCollection);
+    tree.load([{
+        minX: bbox[0],
+        minY: bbox[1],
+        maxX: bbox[2],
+        maxY: bbox[3],
+        feature: featureCollection
+    }]);
+}
 
 // Simple check if a point (lat, lng) is within the water polygons
 export function isPointInWater(lat: number, lng: number): boolean {
     const point = turf.point([lng, lat]);
 
-    // The JSON is a FeatureCollection of Polygons
-    const featureCollection = waterGeometryData as any;
+    // Query the R-tree for candidates
+    // The search box is just the point itself
+    const candidates = tree.search({
+        minX: lng,
+        minY: lat,
+        maxX: lng,
+        maxY: lat
+    });
 
-    // Turf can handle FeatureCollection in booleanPointInPolygon if we iterate or if the library supports it directly
-    // Actually booleanPointInPolygon takes a Polygon, MultiPolygon or Feature
-    // We should check against each feature in the collection
-
-    if (featureCollection.features) {
-        return featureCollection.features.some((feature: any) => {
-            try {
-                return turf.booleanPointInPolygon(point, feature);
-            } catch (e) {
-                return false;
-            }
-        });
-    }
-
-    // Fallback if it's a single feature
-    try {
-        return turf.booleanPointInPolygon(point, featureCollection);
-    } catch (e) {
-        return false;
-    }
+    // Only iterate through candidates that might contain the point
+    return candidates.some((item) => {
+        try {
+            return turf.booleanPointInPolygon(point, item.feature);
+        } catch (e) {
+            return false;
+        }
+    });
 }
 
 /**
