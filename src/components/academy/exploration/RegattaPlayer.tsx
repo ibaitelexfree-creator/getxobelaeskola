@@ -82,11 +82,10 @@ export default function RegattaPlayer() {
                                 <button
                                     key={regatta.id}
                                     onClick={() => handleRegattaChange(regatta)}
-                                    className={`w-full text-left p-4 rounded-lg border transition-all duration-300 group ${
-                                        selectedRegatta.id === regatta.id
-                                        ? 'bg-accent/10 border-accent/50 shadow-[0_0_15px_rgba(251,191,36,0.1)]'
-                                        : 'bg-white/5 border-white/10 hover:bg-white/10 hover:border-white/20'
-                                    }`}
+                                    className={`w-full text-left p-4 rounded-lg border transition-all duration-300 group ${selectedRegatta.id === regatta.id
+                                            ? 'bg-accent/10 border-accent/50 shadow-[0_0_15px_rgba(251,191,36,0.1)]'
+                                            : 'bg-white/5 border-white/10 hover:bg-white/10 hover:border-white/20'
+                                        }`}
                                 >
                                     <div className="flex justify-between items-start mb-2">
                                         <h3 className={`font-bold text-sm ${selectedRegatta.id === regatta.id ? 'text-accent' : 'text-white group-hover:text-accent transition-colors'}`}>
@@ -118,8 +117,8 @@ export default function RegattaPlayer() {
                 {/* Map Layer */}
                 <div className="absolute inset-0 z-0">
                     <RegattaMap
-                        steps={selectedRegatta.steps}
-                        currentStepIndex={currentStepIndex}
+                        route={selectedRegatta.steps.map(s => s.coordinates)}
+                        currentStep={currentStepIndex}
                     />
                 </div>
 
@@ -164,15 +163,15 @@ export default function RegattaPlayer() {
 
                         {/* 2. Timeline Controls (Center) */}
                         <div className="flex flex-col items-center justify-end pb-2">
-                             {/* Step Info */}
-                             <div className="mb-4 text-center">
+                            {/* Step Info */}
+                            <div className="mb-4 text-center">
                                 <p className="text-accent text-xs uppercase tracking-[0.2em] mb-1">Etapa {currentStepIndex + 1} / {selectedRegatta.steps.length}</p>
                                 <h2 className="text-xl font-bold text-white mb-1">{currentStep.name}</h2>
                                 <p className="text-sm text-white/60 max-w-sm mx-auto leading-relaxed">{currentStep.description}</p>
-                             </div>
+                            </div>
 
-                             {/* Player Controls */}
-                             <div className="flex items-center gap-4 bg-white/5 border border-white/10 rounded-full px-6 py-3 backdrop-blur-xl shadow-lg">
+                            {/* Player Controls */}
+                            <div className="flex items-center gap-4 bg-white/5 border border-white/10 rounded-full px-6 py-3 backdrop-blur-xl shadow-lg">
                                 <button onClick={handlePrev} disabled={currentStepIndex === 0} className="text-white/50 hover:text-white disabled:opacity-30 transition-colors">
                                     <SkipBack size={24} />
                                 </button>
@@ -185,22 +184,22 @@ export default function RegattaPlayer() {
                                 <button onClick={handleNext} disabled={currentStepIndex === selectedRegatta.steps.length - 1} className="text-white/50 hover:text-white disabled:opacity-30 transition-colors">
                                     <SkipForward size={24} />
                                 </button>
-                             </div>
+                            </div>
 
-                             {/* Progress Bar */}
-                             <div className="w-full h-1 bg-white/10 rounded-full mt-4 overflow-hidden">
+                            {/* Progress Bar */}
+                            <div className="w-full h-1 bg-white/10 rounded-full mt-4 overflow-hidden">
                                 <motion.div
                                     className="h-full bg-accent"
                                     initial={{ width: 0 }}
                                     animate={{ width: `${((currentStepIndex + 1) / selectedRegatta.steps.length) * 100}%` }}
                                     transition={{ duration: 0.5 }}
                                 />
-                             </div>
+                            </div>
                         </div>
 
                         {/* 3. Weather Stats */}
                         <div className="bg-[#0a1628]/90 backdrop-blur border border-white/10 rounded-xl p-5 shadow-2xl">
-                             <div className="flex items-center gap-2 mb-3 border-b border-white/10 pb-2">
+                            <div className="flex items-center gap-2 mb-3 border-b border-white/10 pb-2">
                                 <Wind size={16} className="text-blue-400" />
                                 <h3 className="text-xs uppercase tracking-widest text-white/70 font-bold">Condiciones Históricas</h3>
                             </div>

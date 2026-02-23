@@ -24,7 +24,7 @@ export async function GET(request: Request) {
             return NextResponse.json({ students: [] });
         }
 
-        const profileIds = inscriptions.map(i => i.perfil_id).filter(Boolean);
+        const profileIds = inscriptions.map((i: any) => i.perfil_id).filter(Boolean);
 
         const { data: students, error: profError } = await supabaseAdmin
             .from('profiles')

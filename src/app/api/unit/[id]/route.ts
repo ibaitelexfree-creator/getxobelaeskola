@@ -94,7 +94,7 @@ export async function GET(
             .eq('tipo', 'ejercicio_escrito');
 
         // Fetch user attempts for these activities
-        let intentos = [];
+        let intentos: any[] = [];
         if (actividades && actividades.length > 0) {
             const actividadIds = actividades.map((a: any) => a.id);
             const { data: intentosData } = await supabase

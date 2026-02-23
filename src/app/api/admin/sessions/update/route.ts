@@ -24,8 +24,8 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: 'ID es obligatorio' }, { status: 400 });
         }
 
-        const isAdmin = profile.rol === 'admin';
-        const isInstructor = profile.rol === 'instructor';
+        const isAdmin = profile?.rol === 'admin';
+        const isInstructor = profile?.rol === 'instructor';
 
         // Fetch current session for permissions and history comparison
         const { data: currentSession, error: fetchError } = await supabaseAdmin

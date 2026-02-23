@@ -36,7 +36,7 @@ export async function GET(request: Request) {
         return NextResponse.json({ error: 'Debes completar el módulo para acceder a las revisiones.' }, { status: 403 });
     }
 
-    const adminClient = createAdminClient();
+    const adminClient = createAdminClient() as any;
 
     const { data: units } = await supabase
         .from('unidades_didacticas')
@@ -66,7 +66,7 @@ export async function GET(request: Request) {
 
     if (!attempts) return NextResponse.json({ reviews: [] });
 
-    const reviews = attempts.map(attempt => {
+    const reviews = (attempts as any[]).map((attempt: any) => {
         const activity = activities.find(a => a.id === attempt.actividad_id);
         return {
             id: attempt.id,
@@ -97,7 +97,7 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: 'No autorizado: Debes completar el módulo primero.' }, { status: 403 });
     }
 
-    const adminClient = createAdminClient();
+    const adminClient = createAdminClient() as any;
 
     const { error: insertError } = await adminClient
         .from('peer_reviews')

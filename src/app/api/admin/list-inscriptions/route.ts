@@ -28,10 +28,10 @@ export async function GET(request: Request) {
         ]);
 
         // 3. Manually combine data
-        const enrichedInscriptions = (rawInscriptions || []).map(ins => {
-            const ed = (editions || []).find(e => e.id === ins.edicion_id);
-            const courseDirect = (allCourses || []).find(c => c.id === ins.curso_id);
-            const courseViaEd = ed ? (allCourses || []).find(c => c.id === ed.curso_id) : null;
+        const enrichedInscriptions = (rawInscriptions || []).map((ins: any) => {
+            const ed = (editions || []).find((e: any) => e.id === ins.edicion_id);
+            const courseDirect = (allCourses || []).find((c: any) => c.id === ins.curso_id);
+            const courseViaEd = ed ? (allCourses || []).find((c: any) => c.id === ed.curso_id) : null;
 
             return {
                 ...ins,

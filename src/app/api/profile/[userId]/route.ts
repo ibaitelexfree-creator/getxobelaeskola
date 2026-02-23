@@ -24,11 +24,13 @@ export async function GET(request: Request, { params }: { params: { userId: stri
 
         // 2. FETCH TARGET PROFILE (Use Admin Client to bypass RLS for the check)
         const supabaseAdmin = createAdminClient();
-        const { data: profile, error: profileError } = await supabaseAdmin
+        const { data, error: profileError } = await supabaseAdmin
             .from('profiles')
             .select('*')
             .eq('id', userId)
             .single();
+
+        const profile = data as any;
 
         if (profileError || !profile) {
             return withCors(NextResponse.json({ error: 'Profile not found' }, { status: 404 }), request);
@@ -43,7 +45,7 @@ export async function GET(request: Request, { params }: { params: { userId: stri
         // Fallback: Check auth metadata if column is missing or false (maybe user set it via settings API fallback)
         if (!isPublic && !isOwner) {
             const { data: authUser, error: authError } = await supabaseAdmin.auth.admin.getUserById(userId);
-            if (!authError && authUser?.user_metadata?.is_public_profile === true) {
+            if (!authError && (authUser as any)?.user?.user_metadata?.is_public_profile === true) {
                 isPublic = true;
             }
         }
@@ -74,7 +76,7 @@ export async function GET(request: Request, { params }: { params: { userId: stri
         const levelMap = allLevels.reduce((acc: any, n: any) => ({ ...acc, [n.id]: n }), {});
 
         const filteredProgress = rawProgress.map((p: any) => {
-             if (p.tipo_entidad === 'curso' && courseMap[p.entidad_id]) {
+            if (p.tipo_entidad === 'curso' && courseMap[p.entidad_id]) {
                 return { ...p, slug: courseMap[p.entidad_id].slug, nombre: locale === 'eu' ? courseMap[p.entidad_id].nombre_eu : courseMap[p.entidad_id].nombre_es };
             }
             if (p.tipo_entidad === 'nivel' && levelMap[p.entidad_id]) {

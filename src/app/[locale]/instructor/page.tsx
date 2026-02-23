@@ -28,7 +28,7 @@ export default async function InstructorPage({
         .from('profiles')
         .select('*')
         .eq('id', user.id)
-        .single();
+        .single() as { data: any, error: any };
 
     if (!profile || (profile.rol !== 'instructor' && profile.rol !== 'admin')) {
         redirect(`/${locale}/student/dashboard`);

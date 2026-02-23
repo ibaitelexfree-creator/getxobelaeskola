@@ -27,7 +27,7 @@ export default async function FinancialReportsPage({
         .from('profiles')
         .select('rol')
         .eq('id', user.id)
-        .single();
+        .single() as { data: any, error?: any };
 
     if (profile?.rol !== 'admin') {
         redirect(`/${locale}/staff`);
@@ -48,10 +48,10 @@ export default async function FinancialReportsPage({
         console.error('Error fetching rentals:', rError);
     }
 
-    const enrichedRentals = (rawRentals || []).map(r => ({
+    const enrichedRentals = (rawRentals || []).map((r: any) => ({
         ...r,
-        profiles: allProfiles?.find(p => p.id === r.perfil_id),
-        servicios_alquiler: allServices?.find(s => s.id === r.servicio_id)
+        profiles: allProfiles?.find((p: any) => p.id === r.perfil_id),
+        servicios_alquiler: allServices?.find((s: any) => s.id === r.servicio_id)
     }));
 
     return (

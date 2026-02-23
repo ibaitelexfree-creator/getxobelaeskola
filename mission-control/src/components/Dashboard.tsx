@@ -74,6 +74,27 @@ export default function Dashboard() {
     const { services, stats, pendingApproval, connected, lastSync, setActiveTab, julesWaiting } = useMissionStore();
     const { t } = useTranslation();
     const [alertService, setAlertService] = useState<ServiceItem | null>(null);
+    const [isGeneratingReport, setIsGeneratingReport] = useState(false);
+
+    const generateReport = async () => {
+        setIsGeneratingReport(true);
+        try {
+            const { triggerNotebookLMReport } = await import('@/lib/api');
+            const result = await triggerNotebookLMReport();
+
+            if (result.success) {
+                console.log("Report generation workflow triggered successfully:", result.message);
+            } else {
+                throw new Error(result.message || 'Error desconocido al generar informe');
+            }
+        } catch (e: any) {
+            console.error("Error triggering NotebookLM Report:", e);
+            alert(`Error: ${e.message}`);
+        } finally {
+            setIsGeneratingReport(false);
+        }
+    };
+
 
     const watchdogS = services.watchdog.state || 'UNKNOWN';
 
@@ -224,6 +245,45 @@ export default function Dashboard() {
 
             {/* ── Resource Management ── */}
             <ResourceManager />
+
+            {/* ── AI Intelligence Hub ── */}
+            <div className="glass-panel p-6 rounded-[2.5rem] border-4 border-status-blue/20 bg-status-blue/5 relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-status-blue/20 blur-[100px] rounded-full pointer-events-none" />
+                <div className="flex items-center justify-between mb-6 relative z-10">
+                    <h2 className="text-white text-2xl font-black uppercase tracking-tight flex items-center gap-2">
+                        <span className="text-status-blue text-3xl">🧠</span>
+                        AI Intelligence Hub
+                    </h2>
+                    <span className="bg-status-blue text-black text-[12px] font-black px-4 py-1.5 rounded-full uppercase tracking-widest">
+                        Notebook LM
+                    </span>
+                </div>
+
+                <p className="text-white/70 mb-6 font-bold text-lg max-w-2xl">
+                    Sintetiza la actividad técnica de los últimos 7 días y obtén una infografía y un podcast en audio español para compartir los avances del desarrollo.
+                </p>
+
+                <motion.button
+                    whileTap={{ scale: 0.95 }}
+                    disabled={isGeneratingReport}
+                    onClick={generateReport}
+                    className={`w-full lg:w-auto px-8 py-5 text-xl font-black rounded-3xl uppercase tracking-tighter border-2 flex items-center justify-center gap-3 transition-all ${isGeneratingReport
+                        ? 'bg-status-amber text-black border-status-amber/40 animate-pulse'
+                        : 'bg-status-blue text-black border-status-blue hover:bg-white hover:border-white shadow-[0_0_30px_rgba(0,180,216,0.3)]'
+                        }`}
+                >
+                    {isGeneratingReport ? (
+                        <>
+                            <Activity className="animate-spin" size={24} />
+                            Generando Reporte...
+                        </>
+                    ) : (
+                        <>
+                            🎙️ Crear Podcast e Infografía
+                        </>
+                    )}
+                </motion.button>
+            </div>
 
             {/* ── Pending Approvals (High Visibility) ── */}
             {pendingApproval && (

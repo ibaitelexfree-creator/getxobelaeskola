@@ -39,7 +39,7 @@ export default async function PublicProfilePage({ params }: { params: { locale: 
         );
     }
 
-    const profile = data.profile || {};
+    const profile = (data.profile || {}) as any;
     const stats = data.stats || { modulesCompleted: 0, coursesCompleted: 0, totalHours: 0, totalMiles: "0.0" };
     const { badges, logbook, certificates, isOwner } = data;
 
@@ -53,7 +53,7 @@ export default async function PublicProfilePage({ params }: { params: { locale: 
                             <span>👋 Vista de Propietario</span>
                         </div>
                         <div className="flex items-center gap-4">
-                            <ProfileVisibilityToggle userId={userId} initialIsPublic={!!profile.is_public} />
+                            <ProfileVisibilityToggle userId={userId} initialIsPublic={!!profile?.is_public} />
                             <Link
                                 href={`/${locale}/academy/dashboard`}
                                 className="text-[10px] uppercase tracking-widest text-white/40 hover:text-white transition-colors"
@@ -67,16 +67,16 @@ export default async function PublicProfilePage({ params }: { params: { locale: 
 
             <div className="container mx-auto px-6 py-12 max-w-5xl">
                 <div className="flex flex-col md:flex-row items-start justify-between gap-8 mb-8">
-                    <PublicProfileHeader profile={profile as any} />
+                    <PublicProfileHeader profile={profile} />
                     <ShareProfileButton userId={userId} />
                 </div>
 
                 <PublicStatsGrid stats={stats} />
 
                 <div className="space-y-16">
-                    <PublicBadgesGrid badges={badges} />
-                    <PublicLogbookList logbook={logbook} />
-                    <PublicCertificatesGrid certificates={certificates} studentName={`${profile.nombre || ''} ${profile.apellidos || ''}`} />
+                    <PublicBadgesGrid badges={(badges as any) || []} />
+                    <PublicLogbookList logbook={(logbook as any) || []} />
+                    <PublicCertificatesGrid certificates={(certificates as any) || []} studentName={`${profile?.nombre || ''} ${profile?.apellidos || ''}`} />
                 </div>
 
                 <div className="mt-20 pt-10 border-t border-white/5 text-center">

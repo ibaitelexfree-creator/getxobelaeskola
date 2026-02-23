@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        const supabase = createAdminClient();
+        const supabase = createAdminClient() as any;
 
         const { error } = await supabase
             .from('iot_wind_readings')

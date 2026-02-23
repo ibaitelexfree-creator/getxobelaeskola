@@ -1,6 +1,6 @@
 {
     "baseUrl": "https://n8n.srv1368175.hstgr.cloud",
-    "apiKey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlYmY3NGMyNS0yMTNjLTQ2YjktYTYzYi1lMzQ5ZGUwMjE5NWYiLCJpc3MiOiJuOG4iLCJhdWQiOiJwdWJsaWMtYXBpIiwianRpIjoiNjU5ODI0MjYtOTlmNi00YWY1LTg2MjgtZjBlMzZiMzRiNjQzIiwiaWF0IjoxNzcxMDA0MDc5fQ.Y-rwX5etRvPMA2Bk18t87JnATXzOsFrj-yqEiup9ha0",
+    "apiKey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlYmY3NGMyNS0yMTNjLTQ2YjktYTYzYi1lMzQ5ZGUwMjE5NWYiLCJpc3MiOiJuOG4iLCJhdWQiOiJwdWJsaWMtYXBpIiwianRpIjoiOGZiZGUwYTUtMWIwOS00NGQ1LWI5MDMtOGRiMDg1NWM1NzdiIiwiaWF0IjoxNzcxODY3NDYyfQ.GJK66l15JkC1QITHal-HN4eyqWbSMLyWfCmpYNrPh8A",
     "vps": {
         "ip": "76.13.52.6",
         "user": "root",

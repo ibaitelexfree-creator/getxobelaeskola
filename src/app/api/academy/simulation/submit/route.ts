@@ -24,7 +24,7 @@ export async function POST(request: Request) {
         const questionIds = Object.keys(answers);
 
         if (questionIds.length === 0) {
-             return NextResponse.json({
+            return NextResponse.json({
                 puntuacion: 0,
                 aprobado: false,
                 detalles: [],
@@ -49,7 +49,7 @@ export async function POST(request: Request) {
         let earnedPoints = 0;
         let correctCount = 0;
 
-        const details = correctData?.map(q => {
+        const details = (correctData as any[])?.map((q: any) => {
             const userAnswer = answers[q.id];
             const isCorrect = userAnswer === q.respuesta_correcta;
 

@@ -38,7 +38,7 @@ export async function GET(request: NextRequest) {
             lastFetchTime = now;
         }
 
-        const supabase = createAdminClient();
+        const supabase = createAdminClient() as any;
 
         // 1. Data Collection: Save snapshot to history (max once every 15 mins)
         try {
@@ -85,9 +85,9 @@ export async function GET(request: NextRequest) {
 
             if (rentals) {
                 fleetSub = {
-                    agua: rentals.filter(r => r.estado_entrega === 'entregado').length,
-                    retorno: rentals.filter(r => r.estado_entrega === 'devuelto').length,
-                    pendiente: rentals.filter(r => r.estado_entrega === 'pendiente').length
+                    agua: rentals.filter((r: any) => r.estado_entrega === 'entregado').length,
+                    retorno: rentals.filter((r: any) => r.estado_entrega === 'devuelto').length,
+                    pendiente: rentals.filter((r: any) => r.estado_entrega === 'pendiente').length
                 };
 
                 if (fleetSub.agua === 0 && fleetSub.pendiente === 0) {
@@ -115,7 +115,7 @@ export async function GET(request: NextRequest) {
 
                 if (dbHistory && dbHistory.length > 0) {
                     // Map DB results to UI format
-                    history = dbHistory.map(h => ({
+                    history = dbHistory.map((h: any) => ({
                         time: new Date(h.timestamp).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }),
                         wind: h.wind_speed,
                         gust: h.wind_gust,

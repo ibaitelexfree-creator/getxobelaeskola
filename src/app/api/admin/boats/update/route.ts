@@ -23,7 +23,7 @@ export async function POST(_request: Request) {
             return NextResponse.json({ error: 'ID es obligatorio' }, { status: 400 });
         }
 
-        const isAdmin = profile.rol === 'admin';
+        const isAdmin = profile?.rol === 'admin';
 
         const updateData: Record<string, unknown> = {};
 

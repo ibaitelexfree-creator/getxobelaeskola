@@ -41,10 +41,10 @@ export async function POST(req: Request) {
 
         // Simplified Check: If coords empty, try to find any lat/lon attributes even if not strictly trkpt (unlikely for valid GPX)
         if (coords.length === 0) {
-             // Fallback regex for very broken GPX
-             const fallbackRegex = /lat="([-+]?\d*\.?\d+)"[^>]*lon="([-+]?\d*\.?\d+)"/g;
-             let match;
-             while ((match = fallbackRegex.exec(text)) !== null) {
+            // Fallback regex for very broken GPX
+            const fallbackRegex = /lat="([-+]?\d*\.?\d+)"[^>]*lon="([-+]?\d*\.?\d+)"/g;
+            let match;
+            while ((match = fallbackRegex.exec(text)) !== null) {
                 coords.push({
                     lat: parseFloat(match[1]),
                     lng: parseFloat(match[2])
@@ -61,13 +61,13 @@ export async function POST(req: Request) {
             // 1. Calculate Distance & Speed
             for (let i = 0; i < coords.length - 1; i++) {
                 const from = turf.point([coords[i].lng, coords[i].lat]);
-                const to = turf.point([coords[i+1].lng, coords[i+1].lat]);
+                const to = turf.point([coords[i + 1].lng, coords[i + 1].lat]);
                 const d = turf.distance(from, to, { units: 'nauticalmiles' });
                 totalDistanceNm += d;
 
-                if (coords[i].time && coords[i+1].time) {
+                if (coords[i].time && coords[i + 1].time) {
                     const t1 = new Date(coords[i].time!).getTime();
-                    const t2 = new Date(coords[i+1].time!).getTime();
+                    const t2 = new Date(coords[i + 1].time!).getTime();
                     const diffH = (t2 - t1) / (1000 * 3600);
                     if (diffH > 0) {
                         const speed = d / diffH;
@@ -80,8 +80,10 @@ export async function POST(req: Request) {
             }
 
             // 2. Calculate Duration
-            const startTime = coords[0].time ? new Date(coords[0].time).getTime() : 0;
-            const endTime = coords[coords.length - 1].time ? new Date(coords[coords.length - 1].time).getTime() : 0;
+            const statTimeStr = coords[0].time;
+            const startTime = statTimeStr ? new Date(statTimeStr).getTime() : 0;
+            const endTimeStr = coords[coords.length - 1].time;
+            const endTime = endTimeStr ? new Date(endTimeStr).getTime() : 0;
             if (startTime && endTime) {
                 durationH = (endTime - startTime) / (1000 * 3600);
             }
@@ -148,7 +150,7 @@ export async function POST(req: Request) {
                 .from('horas_navegacion')
                 .insert({
                     alumno_id: user.id,
-                    fecha: coords[0].time ? new Date(coords[0].time).toISOString() : new Date().toISOString(),
+                    fecha: coords[0].time ? new Date(coords[0].time!).toISOString() : new Date().toISOString(),
                     duracion_h: durationH > 0 ? parseFloat(durationH.toFixed(2)) : 0.1, // Minimum 0.1h
                     tipo: 'Travesía Importada',
                     embarcacion: 'Desconocido', // Can be edited later

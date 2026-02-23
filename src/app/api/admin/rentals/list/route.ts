@@ -35,7 +35,7 @@ export async function GET(_request: Request) {
                 .or(`nombre.ilike.%${query}%,apellidos.ilike.%${query}%`)
                 .limit(50);
 
-            const matchedProfileIds = matchedProfiles?.map(p => p.id) || [];
+            const matchedProfileIds = matchedProfiles?.map((p: any) => p.id) || [];
 
             // Search services for matching names
             const { data: matchedServices } = await supabaseAdmin
@@ -44,7 +44,7 @@ export async function GET(_request: Request) {
                 .or(`nombre_es.ilike.%${query}%,nombre_eu.ilike.%${query}%`)
                 .limit(50);
 
-            const matchedServiceIds = matchedServices?.map(s => s.id) || [];
+            const matchedServiceIds = matchedServices?.map((s: any) => s.id) || [];
 
             // Combine filters: 
             // 1. Matches in profile or service (from previous queries)
@@ -105,7 +105,7 @@ export async function GET(_request: Request) {
         }
 
         // Manual join for profiles since the FK might be missing
-        const profileIds = Array.from(new Set(rentalsData?.map(r => r.perfil_id).filter(Boolean) || []));
+        const profileIds = Array.from(new Set(rentalsData?.map((r: any) => r.perfil_id).filter(Boolean) || []));
         let profilesData: any[] = [];
 
         if (profileIds.length > 0) {
@@ -119,9 +119,9 @@ export async function GET(_request: Request) {
             }
         }
 
-        const enrichedRentals = (rentalsData || []).map(r => ({
+        const enrichedRentals = (rentalsData || []).map((r: any) => ({
             ...r,
-            profiles: profilesData.find(p => p.id === r.perfil_id) || null
+            profiles: profilesData.find((p: any) => p.id === r.perfil_id) || null
         }));
 
         return NextResponse.json({

@@ -6,7 +6,9 @@ import { NAUTICAL_TERMS, NomenclatureCard } from '@/data/academy/nautical-nomenc
 import { Shuffle, Check, RefreshCw, X } from 'lucide-react';
 
 import ThreePartCard from './ThreePartCard';
-import Nomenclature3DView from './Nomenclature3DView';
+import dynamic from 'next/dynamic';
+
+const Nomenclature3DView = dynamic(() => import('./Nomenclature3DView'), { ssr: false });
 
 interface NomenclatureLessonProps {
     locale: string;

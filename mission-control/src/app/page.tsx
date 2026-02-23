@@ -6,6 +6,8 @@ import Dashboard from '@/components/Dashboard';
 import TaskLauncher from '@/components/TaskLauncher';
 import QueueHistory from '@/components/QueueHistory';
 import ControlPanel from '@/components/ControlPanel';
+import VisualRelay from '@/components/VisualRelay';
+import Settings from '@/components/Settings';
 import BottomNav from '@/components/BottomNav';
 
 const views = {
@@ -13,6 +15,8 @@ const views = {
     tasks: TaskLauncher,
     queue: QueueHistory,
     control: ControlPanel,
+    visual: VisualRelay,
+    settings: Settings,
 } as const;
 
 export default function MissionControlPage() {

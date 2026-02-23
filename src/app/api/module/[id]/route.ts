@@ -116,7 +116,7 @@ export async function GET(
                     .select('*')
                     .eq('alumno_id', user.id)
                     .eq('tipo_entidad', 'unidad')
-                    .in('entidad_id', unidades.map(u => u.id));
+                    .in('entidad_id', unidades.map((u: any) => u.id));
                 progresoUnidades = progresoUni || [];
             }
         } catch { }

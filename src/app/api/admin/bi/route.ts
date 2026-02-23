@@ -75,13 +75,13 @@ export async function GET(request: Request) {
         // A. Profitability (Rentals by Service/Boat Type)
         const boatStats: Record<string, { revenue: number, cost: number }> = {};
 
-        rentals?.forEach(r => {
+        rentals?.forEach((r: any) => {
             const name = r.servicios_alquiler?.nombre_es || 'Otros';
             if (!boatStats[name]) boatStats[name] = { revenue: 0, cost: 0 };
             boatStats[name].revenue += (r.monto_total || 0);
         });
 
-        maintenance?.forEach(m => {
+        maintenance?.forEach((m: any) => {
             // Map boat type to service category for comparison
             // Simplified mapping: "vela_ligera" -> "Optimist/Laser/Raquero", "crucero" -> "Veleros J80"
             let category = 'Otros';
@@ -99,7 +99,7 @@ export async function GET(request: Request) {
 
         // B. Course Demand by Month
         const courseCategoryDemand: Record<string, Record<string, number>> = {};
-        inscriptions?.forEach(ins => {
+        inscriptions?.forEach((ins: any) => {
             const date = new Date(ins.created_at);
             const monthKey = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}`;
             const cat = ins.cursos?.nombre_es || 'General';
@@ -115,11 +115,11 @@ export async function GET(request: Request) {
 
         // Combine all income
         const allIncome = [
-            ...(rentals || []).map(r => ({ date: r.fecha_pago || r.created_at, amount: r.monto_total })),
-            ...(inscriptions || []).map(i => ({ date: i.created_at, amount: i.monto_total || 0 }))
+            ...(rentals || []).map((r: any) => ({ date: r.fecha_pago || r.created_at, amount: r.monto_total })),
+            ...(inscriptions || []).map((i: any) => ({ date: i.created_at, amount: i.monto_total || 0 }))
         ];
 
-        allIncome.forEach(item => {
+        allIncome.forEach((item: any) => {
             const date = new Date(item.date);
             const key = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}`;
             if (!monthlyRevenue[key]) monthlyRevenue[key] = { actual: 0, forecast: 0 };
@@ -132,7 +132,7 @@ export async function GET(request: Request) {
         let cumulativeForecast = 0;
         const avgMonthly = 5000; // Hardcoded baseline or could be calculated
 
-        const chartRevenue = sortedMonths.map((m, i) => {
+        const chartRevenue = sortedMonths.map((m: any, i: any) => {
             cumulativeActual += monthlyRevenue[m].actual;
             cumulativeForecast += avgMonthly * 1.2; // 20% growth target
             return {
@@ -149,8 +149,8 @@ export async function GET(request: Request) {
 
         // Process ALL historical data for these students to determine retention
         const allStudentIds = Array.from(new Set([
-            ...(inscriptions?.map(i => i.perfil_id) || []),
-            ...(rentals?.map(r => r.perfil_id) || [])
+            ...(inscriptions?.map((i: any) => i.perfil_id) || []),
+            ...(rentals?.map((r: any) => r.perfil_id) || [])
         ]));
 
         const [{ data: historyInscriptions }, { data: historyRentals }] = await Promise.all([
@@ -158,7 +158,7 @@ export async function GET(request: Request) {
             supabaseAdmin.from('reservas_alquiler').select('perfil_id, fecha_pago').in('perfil_id', allStudentIds)
         ]);
 
-        historyInscriptions?.forEach(i => {
+        historyInscriptions?.forEach((i: any) => {
             if (!studentActivity[i.perfil_id]) {
                 studentActivity[i.perfil_id] = { sessions: 0, rentals: 0, firstDate: new Date(i.created_at) };
             }
@@ -167,7 +167,7 @@ export async function GET(request: Request) {
             if (d < studentActivity[i.perfil_id].firstDate) studentActivity[i.perfil_id].firstDate = d;
         });
 
-        historyRentals?.forEach(r => {
+        historyRentals?.forEach((r: any) => {
             if (!studentActivity[r.perfil_id]) {
                 studentActivity[r.perfil_id] = { sessions: 0, rentals: 0, firstDate: new Date(r.fecha_pago) };
             }
@@ -177,13 +177,13 @@ export async function GET(request: Request) {
         });
 
         const totalStudents = Object.keys(studentActivity).length;
-        const recurringStudents = Object.values(studentActivity).filter(s => s.sessions > 1).length;
-        const studentRenters = Object.values(studentActivity).filter(s => s.sessions > 0 && s.rentals > 0).length;
-        const loyalCustomerCount = Object.values(studentActivity).filter(s => (s.sessions + s.rentals) > 3).length;
+        const recurringStudents = Object.values(studentActivity).filter((s: any) => s.sessions > 1).length;
+        const studentRenters = Object.values(studentActivity).filter((s: any) => s.sessions > 0 && s.rentals > 0).length;
+        const loyalCustomerCount = Object.values(studentActivity).filter((s: any) => (s.sessions + s.rentals) > 3).length;
 
         const funnel = [
             { step: 'Base de Usuarios', value: totalStudents, fill: '#8884d8' },
-            { step: 'Alumnos Activos', value: Object.values(studentActivity).filter(s => s.sessions > 0).length, fill: '#83a6ed' },
+            { step: 'Alumnos Activos', value: Object.values(studentActivity).filter((s: any) => s.sessions > 0).length, fill: '#83a6ed' },
             { step: 'Alumnos Recurrentes', value: recurringStudents, fill: '#8dd1e1' },
             { step: 'Alumnos -> Alquiler', value: studentRenters, fill: '#82ca9d' },
             { step: 'Club (Fieles)', value: loyalCustomerCount, fill: '#a4de6c' }
@@ -203,13 +203,13 @@ export async function GET(request: Request) {
             kpis: {
                 totalRevenue: allIncome.reduce((acc, curr) => acc + (Number(curr.amount) || 0), 0),
                 totalCouponRevenue: [
-                    ...(rentals || []).filter(r => (r as any).cupon_usado),
-                    ...(inscriptions || []).filter(i => (i as any).cupon_usado)
-                ].reduce((acc, curr) => acc + (Number(curr.monto_total) || 0), 0),
-                totalCost: (maintenance || []).reduce((acc, curr) => acc + (Number(curr.coste) || 0), 0),
+                    ...(rentals || []).filter((r: any) => (r as any).cupon_usado),
+                    ...(inscriptions || []).filter((i: any) => (i as any).cupon_usado)
+                ].reduce((acc: any, curr: any) => acc + (Number(curr.monto_total) || 0), 0),
+                totalCost: (maintenance || []).reduce((acc: any, curr: any) => acc + (Number(curr.coste) || 0), 0),
                 totalRentals: rentals?.length || 0,
                 totalInscriptions: inscriptions?.length || 0,
-                activeBoats: boats?.filter(b => b.estado === 'disponible').length || 0,
+                activeBoats: boats?.filter((b: any) => b.estado === 'disponible').length || 0,
                 prevPeriodRevenue,
                 retentionRate: totalStudents > 0 ? (recurringStudents / totalStudents * 100).toFixed(1) : 0
             }

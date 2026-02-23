@@ -177,4 +177,7 @@ export const getSyncHistory = (days = 7) => request<any[]>('GET', `/api/analytic
 export const triggerBuild = (workflow_id = 'android-build.yml') =>
     request<{ success: boolean; message: string }>('POST', '/api/v1/github/trigger-build', { workflow_id });
 
+export const triggerNotebookLMReport = () =>
+    request<{ success: boolean; message: string; details?: string }>('POST', '/api/v1/notebooklm/report');
+
 export { getBaseUrl, DEFAULT_BASE };

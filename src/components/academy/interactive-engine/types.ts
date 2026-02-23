@@ -35,6 +35,8 @@ export interface MissionState {
     score: number;
     maxScore: number;
     currentStep: number;
+    currentStepId: string | null;
+    history: string[];
     totalSteps: number;
     errors: number;
     feedbackMessage: string | null;
@@ -49,4 +51,62 @@ export interface MissionActions {
     addScore: (points: number) => void;
     setFeedback: (message: string | null, type?: 'success' | 'error' | 'info') => void;
     reset: () => void;
+}
+
+export interface BranchOption {
+    label: string;
+    nextStepId?: string;
+    scoreDelta?: number;
+    feedback?: string;
+}
+
+export interface MissionStep {
+    id: string;
+    type: 'info' | 'question' | 'video' | 'summary' | 'interactive';
+    title: string;
+    content: string;
+    position?: number;
+    options?: BranchOption[];
+    videoUrl?: string;
+    metadata?: any;
+    mission_id?: string;
+}
+
+export interface BranchingMissionData extends MissionData {
+    id?: string;
+    initial_step_id: string;
+    steps: MissionStep[];
+}
+
+export interface MissionProgress {
+    id?: string;
+    user_id: string;
+    mission_id: string;
+    current_step_id: string;
+    status: string;
+    score: number;
+    history?: any[];
+    created_at?: string;
+    updated_at?: string;
+}
+
+export interface MissionOption {
+    id: string;
+    label: string;
+    is_correct?: boolean;
+    score_impact?: number;
+    feedback?: string;
+    next_step_id?: string;
+}
+
+export interface GraphMissionStep {
+    id: string;
+    content: string;
+    media_url?: string;
+    options?: MissionOption[];
+}
+
+export interface GraphMissionData extends MissionData {
+    initial_step_id: string;
+    steps: Record<string, GraphMissionStep>;
 }

@@ -35,7 +35,7 @@ export async function GET(request: Request) {
 
         // Filtramos la sesión actual si se proporciona el ID
         const filteredSessions = excludeSessionId
-            ? overlappingSessions.filter(s => s.id !== excludeSessionId)
+            ? overlappingSessions.filter((s: any) => s.id !== excludeSessionId)
             : overlappingSessions;
 
         // Mapeamos los IDs de embarcación a la información de la sesión que la ocupa

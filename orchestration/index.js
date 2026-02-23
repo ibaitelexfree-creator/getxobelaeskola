@@ -49,7 +49,7 @@ import {
 import {
   getSuggestedTasks,
   clearCache as clearSuggestedTasksCache,
-  generateFixPrompt as generateSuggestedTaskFixPrompt,
+  generateFixPrompt as generateFixPrompt,
 } from './lib/suggested-tasks.js';
 import { AgentWatchdog } from './lib/watchdog.js';
 import compressionMiddleware from './middleware/compressionMiddleware.js';
@@ -1437,7 +1437,7 @@ function initializeToolRegistry() {
       return { success: false, error: `Invalid task index: ${p.taskIndex}. Found ${result.tasks.length} tasks.` };
     }
     const task = result.tasks[p.taskIndex];
-    const prompt = generateSuggestedTaskFixPrompt(task, p.directory);
+    const prompt = generateFixPrompt(task, p.directory);
     return createJulesSession({
       prompt,
       source: p.source,
@@ -1493,31 +1493,31 @@ function initializeToolRegistry() {
 
   // Custom Semantic Memory
   toolRegistry.set('search_nautical_knowledge', async (p) => {
-      const openRouterKey = process.env.OPEN_ROUTER_API_KEY;
-      const qdrantUrl = process.env.QDRANT_URL || 'http://localhost:6333';
-      if (!openRouterKey) throw new Error('OPEN_ROUTER_API_KEY missing.');
-      
-      const embRes = await fetch('https://openrouter.ai/api/v1/embeddings', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + openRouterKey },
-          body: JSON.stringify({ model: 'openai/text-embedding-3-small', input: p.query.substring(0, 1000) })
+    const openRouterKey = process.env.OPEN_ROUTER_API_KEY;
+    const qdrantUrl = process.env.QDRANT_URL || 'http://localhost:6333';
+    if (!openRouterKey) throw new Error('OPEN_ROUTER_API_KEY missing.');
+
+    const embRes = await fetch('https://openrouter.ai/api/v1/embeddings', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + openRouterKey },
+      body: JSON.stringify({ model: 'openai/text-embedding-3-small', input: p.query.substring(0, 1000) })
+    });
+    const embData = await embRes.json();
+    const vector = embData.data[0].embedding;
+
+    const qResp = await fetch(qdrantUrl + '/collections/nautical_knowledge/points/search', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ vector: vector, limit: 3, with_payload: true })
+    });
+    const qData = await qResp.json();
+    let context = [];
+    if (qData.result && qData.result.length > 0) {
+      qData.result.forEach(hit => {
+        if (hit.score > 0.3) context.push('--- [' + hit.payload.title + ' / Cat: ' + hit.payload.category + '] ---\n' + hit.payload.content);
       });
-      const embData = await embRes.json();
-      const vector = embData.data[0].embedding;
-      
-      const qResp = await fetch(qdrantUrl + '/collections/nautical_knowledge/points/search', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ vector: vector, limit: 3, with_payload: true })
-      });
-      const qData = await qResp.json();
-      let context = [];
-      if (qData.result && qData.result.length > 0) {
-          qData.result.forEach(hit => {
-              if (hit.score > 0.3) context.push('--- [' + hit.payload.title + ' / Cat: ' + hit.payload.category + '] ---\n' + hit.payload.content);
-          });
-      }
-      return { _text: context.length > 0 ? context.join('\n\n') : 'No relevant information found in the knowledge base.' };
+    }
+    return { _text: context.length > 0 ? context.join('\n\n') : 'No relevant information found in the knowledge base.' };
   });
 }
 
@@ -2460,6 +2460,102 @@ const server = app.listen(PORT, '0.0.0.0', () => {
   setTimeout(recordHistory, 20_000); // delay first run to allow modules to init
 
   console.log('[AutoDispatch] Loop scheduled — will check for pending Jules tasks every 90s');
+
+  // ── CHAIN 3/4: NIGHTLY EVOLUTION & SELF-HEALING ────────────────────────
+  let lastEvolutionDay = -1;
+  async function runNightlyCodeEvolution() {
+    try {
+      if (process.env.JULES_DISABLE_AUTO_EVOLUTION === 'true') return;
+      const now = new Date();
+      // Asegurar que la hora es la de Getxo, Bizkaia (Europe/Madrid)
+      const getxoHour = parseInt(now.toLocaleString('en-US', { timeZone: 'Europe/Madrid', hour: 'numeric', hour12: false }), 10);
+
+      if (getxoHour !== 3) return; // Silent unless 3 AM Getxo
+      if (now.getDate() === lastEvolutionDay) return;
+      lastEvolutionDay = now.getDate();
+
+      console.log('[Code Evolution] 🌙 3 AM en Getxo. Iniciando turno de evolución autónoma...');
+      const { getSuggestedTasks, generateFixPrompt } = await import('./lib/suggested-tasks.js');
+      const parentDir = path.resolve(process.cwd(), '..');
+      const result = getSuggestedTasks(parentDir, { limit: 50 });
+
+      const codeTasks = result.tasks.filter(t => !t.location.includes('.agent') && !t.location.includes('docs') && !t.location.includes('.github') && !t.location.includes('.md'));
+      if (codeTasks.length === 0) return;
+
+      const task = codeTasks[0];
+      const prompt = generateFixPrompt(task, parentDir);
+
+      await createJulesSession({
+        prompt,
+        source: process.env.JULES_DEFAULT_SOURCE || 'sources/github/ibaitelexfree-creator/getxobelaeskola',
+        title: `Auto-Evolve: Fix ${task.type}`,
+        automationMode: 'AUTO_CREATE_PR'
+      });
+
+      sendTelegramMessage(`🦇 *Autonomía Nocturna (Getxo 03:00)*\nEjecutando mejora en: \`${task.location}\``);
+    } catch (err) {
+      console.error('[Evolution] Error:', err.message);
+    }
+  }
+
+  setInterval(runNightlyCodeEvolution, 60 * 60 * 1000);
+  console.log('[Chain 4] Nightly-Watch (Getxo 3 AM) & Self-Healing Registry ACTIVE');
+
+  // ── SAILING GHOST (QA Robot - 4 AM Getxo) ────────────────────────
+  async function runNightlyQARobot() {
+    try {
+      if (process.env.JULES_DISABLE_QA_ROBOT === 'true') return;
+      const now = new Date();
+      // Ensure time is retrieved in Getxo, Bizkaia (Europe/Madrid)
+      const getxoHour = parseInt(now.toLocaleString('en-US', { timeZone: 'Europe/Madrid', hour: 'numeric', hour12: false }), 10);
+
+      if (getxoHour !== 4) return; // Trigger 1 hour after Code Evolution
+
+      console.log('[QA Robot] ⛵ Desplegando Sailing Ghost (QA E2E)...');
+
+      await createJulesSession({
+        prompt: `MISSION: SAILING GHOST QA AUDIT
+        1. Access the web app.
+        2. Create a NEW test user account.
+        3. Navigate to a course or membership page.
+        4. Use Stripe Test Card (4242 4242 4242 4242) to perform a fake purchase.
+        5. Verify the purchase is reflected in the user dashboard and membership is ACTIVE.
+        6. Capture screenshots of every step. 
+        7. Record a video of the interaction if possible.
+        8. If any step FAILS, identify the reason and create a PR with the fix.
+        9. Generate a nightly-qa-report branch with all media and a summary.md.`,
+        source: process.env.JULES_DEFAULT_SOURCE || 'sources/github/ibaitelexfree-creator/getxobelaeskola',
+        title: '⛵ Sailing Ghost: Nightly QA Audit',
+        automationMode: 'AUTO_CREATE_PR'
+      });
+
+      sendTelegramMessage(`⛵ *Sailing Ghost: Zarpa la patrulla de QA (04:00 Getxo)*\nEl robot está recorriendo la web y verificando pagos Stripe...`);
+    } catch (err) {
+      console.error('[QA Robot] Error:', err.message);
+    }
+  }
+
+  setInterval(runNightlyQARobot, 60 * 60 * 1000);
+  console.log('[Chain 4] Nightly-Watch (Getxo 3 AM) & Self-Healing & QA Robot ACTIVE');
+  // ── SELF-HEALING ENGINE (Chain 4) ────────────────────────
+  async function triggerSelfHealing(errorMsg, stack) {
+    if (process.env.JULES_DISABLE_SELF_HEALING === 'true') return;
+    console.log('[Self-Healing] 🤖 Crítico detectado. Iniciando reparación autónoma...');
+
+    try {
+      await createJulesSession({
+        prompt: `CRITICAL ERROR DETECTED IN PRODUCTION:\nError: ${errorMsg}\nStack: ${stack}\n\nTask: Find the root cause, fix it, and create a PR. Check logs and recent changes.`,
+        source: process.env.JULES_DEFAULT_SOURCE || 'sources/github/ibaitelexfree-creator/getxobelaeskola',
+        title: '🆘 Self-Healing: Repairing Crash',
+        automationMode: 'AUTO_CREATE_PR'
+      });
+
+      sendTelegramMessage(`🆘 *Self-Healing Activado*\nHe detectado un crash crítico y he lanzado a Jules para repararlo automáticamente.`);
+    } catch (e) {
+      console.error('[Self-Healing] Failed to launch:', e.message);
+    }
+  }
+
 });
 
 process.on('SIGTERM', () => {
@@ -2469,8 +2565,10 @@ process.on('SIGTERM', () => {
 
 process.on('uncaughtException', (err) => {
   console.error('Uncaught exception:', err);
+  triggerSelfHealing(err.message, err.stack);
 });
 
 process.on('unhandledRejection', (reason, promise) => {
   console.error('Unhandled rejection at:', promise, 'reason:', reason);
+  triggerSelfHealing(reason instanceof Error ? reason.message : String(reason), reason instanceof Error ? reason.stack : '');
 });
