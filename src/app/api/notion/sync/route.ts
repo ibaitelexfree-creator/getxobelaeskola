@@ -1,4 +1,3 @@
-
 import { NextResponse } from 'next/server';
 import { exec } from 'child_process';
 import path from 'path';
@@ -8,8 +7,9 @@ export async function POST(req: Request) {
     const secret = searchParams.get('secret');
     const mode = searchParams.get('mode') || 'pull'; // 'pull' or 'push'
     const table = searchParams.get('table');
+    const syncSecret = process.env.NOTION_SYNC_SECRET;
 
-    if (secret !== 'getxo_notion_sync_2026_pro') {
+    if (!syncSecret || secret !== syncSecret) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
