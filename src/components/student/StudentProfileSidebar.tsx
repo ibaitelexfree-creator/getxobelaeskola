@@ -8,18 +8,7 @@ import { useTranslations } from 'next-intl';
 import EditProfileModal from './EditProfileModal';
 import LogoutButton from '@/components/auth/LogoutButton';
 import { apiUrl } from '@/lib/api';
-
-
-interface Profile {
-    id: string;
-    nombre: string;
-    apellidos: string;
-    telefono: string;
-    rol: string;
-    status_socio?: string;
-    xp?: number;
-    total_xp?: number;
-}
+import { Profile } from '@/types/student';
 
 interface StudentProfileSidebarProps {
     profile: Profile;
