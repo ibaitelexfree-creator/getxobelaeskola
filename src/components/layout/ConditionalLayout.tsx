@@ -22,6 +22,7 @@ export default function ConditionalLayout({ children, navbar, footer }: Conditio
     const pathname = usePathname();
     const isAcademy = pathname.includes('/academy');
     const isAuth = pathname.includes('/auth/');
+    const isLanding = pathname.includes('/iaas');
 
     // Default to false (SSR/Web)
     const [isNativeApp, setIsNativeApp] = useState(false);
@@ -53,6 +54,15 @@ export default function ConditionalLayout({ children, navbar, footer }: Conditio
                 <SafetyMonitor />
                 <ActivityTracker />
             </>
+        );
+    }
+
+    // Landing mode — no nav/footer, just content (IAaaS)
+    if (isLanding) {
+        return (
+            <main className="flex-grow flex flex-col relative w-full min-h-screen bg-slate-950 text-white overflow-x-hidden">
+                {children}
+            </main>
         );
     }
 
