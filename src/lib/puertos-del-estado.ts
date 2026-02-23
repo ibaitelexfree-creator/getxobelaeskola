@@ -133,3 +133,152 @@ export async function fetchSeaState(): Promise<SeaStateData> {
 
     return getSimulatedSeaState();
 }
+
+// ----------------------------------------------------------------------
+// Tide Simulation Logic (Restored)
+// ----------------------------------------------------------------------
+
+export interface TidePrediction {
+    time: Date;
+    height: number;
+    type: 'HIGH' | 'LOW';
+}
+
+export interface TideState {
+    height: number;
+    trend: 'RISING' | 'FALLING';
+    percentage: number; // 0-1 (low to high)
+    nextHigh: Date;
+    nextLow: Date;
+}
+
+// M2 Tidal Constituent (Principal Lunar Semidiurnal)
+// Period: 12.42 hours
+const M2_PERIOD_HOURS = 12.4206012;
+const M2_AMPLITUDE = 1.5; // meters (approx for Bilbao)
+const MEAN_SEA_LEVEL = 2.5; // meters
+
+// Epoch for M2 phase calculation (arbitrary reference)
+const TIDE_EPOCH = new Date('2024-01-01T00:00:00Z').getTime();
+
+/**
+ * Calculates the tide height at a specific date using a simplified harmonic model (M2 only).
+ * h(t) = Mean + Amplitude * cos(2 * PI * (t - epoch) / period)
+ */
+export function getTideLevel(date: Date): number {
+    const t = date.getTime();
+    const hoursSinceEpoch = (t - TIDE_EPOCH) / (1000 * 3600);
+    const phase = (hoursSinceEpoch % M2_PERIOD_HOURS) / M2_PERIOD_HOURS;
+    const angle = phase * 2 * Math.PI;
+
+    // Cosine wave: 1 at high tide, -1 at low tide
+    return MEAN_SEA_LEVEL + M2_AMPLITUDE * Math.cos(angle);
+}
+
+/**
+ * Generates high and low tide predictions for a given day.
+ */
+export function getTidePredictions(date: Date): TidePrediction[] {
+    const startOfDay = new Date(date);
+    startOfDay.setHours(0, 0, 0, 0);
+
+    const endOfDay = new Date(date);
+    endOfDay.setHours(23, 59, 59, 999);
+
+    const predictions: TidePrediction[] = [];
+    const periodMs = M2_PERIOD_HOURS * 3600 * 1000;
+
+    // Find the first high tide relative to epoch
+    // High tide happens when cos(angle) = 1, i.e., angle = 0, 2PI, etc.
+    // t = epoch + k * period
+    // We want to find k such that t is near startOfDay.
+
+    const timeSinceEpoch = startOfDay.getTime() - TIDE_EPOCH;
+    const periodsSinceEpoch = timeSinceEpoch / periodMs;
+
+    // Start searching a bit before the day starts to catch any tide right at 00:00
+    let k = Math.floor(periodsSinceEpoch) - 1;
+
+    // Search for next 4 peaks/troughs
+    for (let i = 0; i < 5; i++) {
+        // High tide
+        const tHigh = TIDE_EPOCH + (k + i) * periodMs;
+        const dHigh = new Date(tHigh);
+
+        if (dHigh >= startOfDay && dHigh <= endOfDay) {
+            predictions.push({
+                time: dHigh,
+                height: MEAN_SEA_LEVEL + M2_AMPLITUDE,
+                type: 'HIGH'
+            });
+        }
+
+        // Low tide (half period offset)
+        const tLow = tHigh + (periodMs / 2);
+        const dLow = new Date(tLow);
+
+        if (dLow >= startOfDay && dLow <= endOfDay) {
+            predictions.push({
+                time: dLow,
+                height: MEAN_SEA_LEVEL - M2_AMPLITUDE,
+                type: 'LOW'
+            });
+        }
+    }
+
+    return predictions.sort((a, b) => a.time.getTime() - b.time.getTime());
+}
+
+/**
+ * Determines the current state of the tide.
+ */
+export function getTideState(date: Date): TideState {
+    const currentHeight = getTideLevel(date);
+
+    // Calculate a small delta to determine trend
+    const futureDate = new Date(date.getTime() + 60000); // +1 minute
+    const futureHeight = getTideLevel(futureDate);
+    const trend = futureHeight > currentHeight ? 'RISING' : 'FALLING';
+
+    // Percentage (0 = Low Tide, 1 = High Tide)
+    // Range is [Mean - Amp, Mean + Amp]
+    const min = MEAN_SEA_LEVEL - M2_AMPLITUDE;
+    const max = MEAN_SEA_LEVEL + M2_AMPLITUDE;
+    const percentage = (currentHeight - min) / (max - min);
+
+    // Find next tides
+    const predictions = getTidePredictions(date);
+    // If no predictions left today, check tomorrow (simplified for now to just return null/mock if empty,
+    // but the getTidePredictions above only returns today's.
+    // For robust 'next' finding we'd need to look ahead.
+    // For this simulation, let's just create them on the fly.)
+
+    const periodMs = M2_PERIOD_HOURS * 3600 * 1000;
+    const t = date.getTime();
+    const timeSinceEpoch = t - TIDE_EPOCH;
+
+    // Phase 0 to 1
+    const phase = (timeSinceEpoch % periodMs) / periodMs;
+
+    // High tide is at phase 0 (or 1). Low tide is at phase 0.5.
+    let timeToNextHigh: number;
+    let timeToNextLow: number;
+
+    if (phase < 0.5) {
+        // Before low tide
+        timeToNextLow = (0.5 - phase) * periodMs;
+        timeToNextHigh = (1.0 - phase) * periodMs;
+    } else {
+        // After low tide
+        timeToNextLow = (1.5 - phase) * periodMs;
+        timeToNextHigh = (1.0 - phase) * periodMs; // Wait, if phase is 0.8, next high is at 1.0. Correct.
+    }
+
+    return {
+        height: currentHeight,
+        trend,
+        percentage: Math.max(0, Math.min(1, percentage)),
+        nextHigh: new Date(t + timeToNextHigh),
+        nextLow: new Date(t + timeToNextLow)
+    };
+}
