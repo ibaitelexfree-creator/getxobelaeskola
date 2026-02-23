@@ -34,7 +34,13 @@ jobs:
             - name: "📦 Install Deps (Cached)"
               run: npm ci --legacy-peer-deps --prefer-offline --no-audit --no-fund --loglevel=error
 
-            - name: "🧪 Type Check"
+            - name: "🧪 Type Check (Root)"
               env:
                   NODE_OPTIONS: "--max_old_space_size=4096"
-              run: npx tsc --noEmit && echo "✅ TypeScript Passed"
+              run: npx tsc --noEmit && echo "✅ Root TypeScript Passed"
+
+            - name: "🧪 Type Check (Mission Control)"
+              run: |
+                  cd mission-control
+                  npm ci --legacy-peer-deps --prefer-offline --no-audit --no-fund --loglevel=error
+                  npx tsc --noEmit && echo "✅ Mission Control TypeScript Passed"
