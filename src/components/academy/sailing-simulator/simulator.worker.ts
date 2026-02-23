@@ -37,11 +37,32 @@ import { WindEffectManager } from './WindEffectManager';
 import { FloatingTextManager } from './FloatingTextManager';
 import * as turf from '@turf/turf';
 import waterGeometryData from '../../../data/geospatial/water-geometry.json';
+import RBush from 'rbush';
 
 // Mapping simulator context to real world for geofencing
 const REAL_WORLD_CENTER = { lat: 43.3485, lng: -3.0185 }; // Getxo Port area
 const LAT_SCALE = 1 / 111320; // 1 meter approx
 const LNG_SCALE = 1 / 81000;  // 1 meter approx at 43 deg lat
+
+interface SpatialIndexItem {
+    minX: number;
+    minY: number;
+    maxX: number;
+    maxY: number;
+    feature: any;
+}
+
+const waterIndex = new RBush<SpatialIndexItem>();
+
+// Initialize spatial index for faster collision detection
+const collection = waterGeometryData as any;
+if (collection.features) {
+    const items: SpatialIndexItem[] = collection.features.map((f: any) => {
+        const [minX, minY, maxX, maxY] = turf.bbox(f);
+        return { minX, minY, maxX, maxY, feature: f };
+    });
+    waterIndex.load(items);
+}
 
 function checkWaterCollision(pos: Vector3): boolean {
     const lat = REAL_WORLD_CENTER.lat - (pos.z * LAT_SCALE);
@@ -49,10 +70,18 @@ function checkWaterCollision(pos: Vector3): boolean {
     const point = turf.point([lng, lat]);
 
     const collection = waterGeometryData as any;
-    if (collection.features) {
-        return collection.features.some((f: any) => turf.booleanPointInPolygon(point, f));
+    if (!collection.features) {
+        return true; // Default to water if data structure is unexpected
     }
-    return true; // Default to water if data structure is unexpected
+
+    const candidates = waterIndex.search({
+        minX: lng,
+        minY: lat,
+        maxX: lng,
+        maxY: lat
+    });
+
+    return candidates.some(c => turf.booleanPointInPolygon(point, c.feature));
 }
 
 let renderer: WebGLRenderer;
@@ -70,7 +99,7 @@ let windEffect: WindEffectManager;
 let floatingText: FloatingTextManager;
 
 // Multiplayer Opponents
-let opponents: Map<string, BoatModel> = new Map();
+const opponents: Map<string, BoatModel> = new Map();
 
 let animationFrameId: number;
 let lastTime = 0;
