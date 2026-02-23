@@ -12,6 +12,7 @@ const ScrollUpButton = dynamic(() => import('@/components/shared/ScrollToTop'), 
 import { Viewport } from 'next';
 import { Suspense } from 'react';
 const StatusToast = dynamic(() => import('@/components/shared/StatusToast'), { ssr: false });
+import GlobalErrorBoundary from '@/components/shared/GlobalErrorBoundary';
 
 export const viewport: Viewport = {
   themeColor: '#001B3A', // Nautical Black
@@ -43,27 +44,29 @@ export default async function LocaleLayout({
         <a href="#main-content" className="skip-link">
           {locale === 'eu' ? 'Edukira jo' : locale === 'en' ? 'Skip to content' : locale === 'fr' ? 'Aller au contenu' : 'Saltar al contenido'}
         </a>
-        <NextIntlClientProvider messages={messages} locale={locale} timeZone="Europe/Madrid">
-          <AcademyFeedbackProvider>
-            <PushNotificationInitializer />
-            <div className="min-h-screen flex flex-col relative w-full overflow-x-hidden">
-              <ConditionalLayout
-                locale={locale}
-                navbar={<Navbar locale={locale} />}
-                footer={<Footer locale={locale} />}
-              >
-                <main id="main-content" className="flex-grow">
-                  {children}
-                </main>
-              </ConditionalLayout>
-            </div>
-            <ScrollUpButton />
+        <GlobalErrorBoundary>
+          <NextIntlClientProvider messages={messages} locale={locale} timeZone="Europe/Madrid">
+            <AcademyFeedbackProvider>
+              <PushNotificationInitializer />
+              <div className="min-h-screen flex flex-col relative w-full overflow-x-hidden">
+                <ConditionalLayout
+                  locale={locale}
+                  navbar={<Navbar locale={locale} />}
+                  footer={<Footer locale={locale} />}
+                >
+                  <main id="main-content" className="flex-grow">
+                    {children}
+                  </main>
+                </ConditionalLayout>
+              </div>
+              <ScrollUpButton />
 
-            <Suspense fallback={null}>
-              <StatusToast />
-            </Suspense>
-          </AcademyFeedbackProvider>
-        </NextIntlClientProvider>
+              <Suspense fallback={null}>
+                <StatusToast />
+              </Suspense>
+            </AcademyFeedbackProvider>
+          </NextIntlClientProvider>
+        </GlobalErrorBoundary>
       </body>
     </html>
   );
