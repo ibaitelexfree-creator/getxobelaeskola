@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
-import { useAcademyData } from '@/hooks/useAcademyData';
+import { useAcademyData, Nivel } from '@/hooks/useAcademyData';
 import { useNotificationStore } from '@/lib/store/useNotificationStore';
 import AcademySkeleton from '@/components/academy/AcademySkeleton';
 import { Compass, Book, Ship, Anchor, Globe, Shield, Wind, ChevronRight, AlertCircle } from 'lucide-react';
@@ -77,6 +77,13 @@ export default function AcademyMain({ params }: { params: { locale: string } }) 
             });
         }
     }, [error, addNotification, t]);
+
+    const nivelesMap = useMemo(() => {
+        return niveles.reduce((acc, nivel) => {
+            acc[nivel.id] = nivel;
+            return acc;
+        }, {} as Record<string, Nivel>);
+    }, [niveles]);
 
     if (loading) {
         return <AcademySkeleton />;
@@ -166,7 +173,7 @@ export default function AcademyMain({ params }: { params: { locale: string } }) 
                                 }
 
                                 const prereqNames = (nivel.prerequisitos || [])
-                                    .map(id => niveles.find(n => n.id === id))
+                                    .map(id => nivelesMap[id])
                                     .filter(Boolean)
                                     .map(n => (params.locale === 'eu' ? n!.nombre_eu : n!.nombre_es) || n!.nombre_es);
 
