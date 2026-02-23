@@ -2,6 +2,7 @@
 import { requireInstructor } from '@/lib/auth-guard';
 import { NextResponse } from 'next/server';
 import { createGoogleEvent, updateGoogleEvent } from '@/lib/google-calendar';
+import { validateSessionOverlap } from '@/lib/academy/session-validation';
 
 export async function POST(request: Request) {
     try {
@@ -29,13 +30,26 @@ export async function POST(request: Request) {
         }
 
         const isNoCourse = !curso_id || curso_id === '' || curso_id === 'null' || curso_id === '00000000-0000-0000-0000-000000000000';
+        const cleanEmbarcacionId = (embarcacion_id === '' || embarcacion_id === 'null' || !embarcacion_id) ? null : embarcacion_id;
+
+        // Check for overlaps
+        const { allowed, error: overlapError } = await validateSessionOverlap(supabaseAdmin as any, {
+            instructor_id,
+            embarcacion_id: cleanEmbarcacionId,
+            fecha_inicio,
+            fecha_fin
+        });
+
+        if (!allowed) {
+            return NextResponse.json({ error: overlapError }, { status: 409 });
+        }
 
         const { data, error } = await supabaseAdmin
             .from('sesiones')
             .insert({
                 curso_id: isNoCourse ? null : curso_id,
                 instructor_id,
-                embarcacion_id: (embarcacion_id === '' || embarcacion_id === 'null' || !embarcacion_id) ? null : embarcacion_id,
+                embarcacion_id: cleanEmbarcacionId,
                 fecha_inicio,
                 fecha_fin,
                 estado: estado || 'programada',

@@ -2,6 +2,7 @@
 import { requireInstructor } from '@/lib/auth-guard';
 import { NextResponse } from 'next/server';
 import { createGoogleEvent, updateGoogleEvent } from '@/lib/google-calendar';
+import { validateSessionOverlap } from '@/lib/academy/session-validation';
 
 export async function POST(request: Request) {
     try {
@@ -62,6 +63,40 @@ export async function POST(request: Request) {
         if (fecha_fin !== undefined) updateData.fecha_fin = fecha_fin;
         if (estado !== undefined) updateData.estado = estado;
         if (observaciones !== undefined) updateData.observaciones = observaciones;
+
+        // Check for overlaps if any relevant field is updated
+        // Also check if reactivating a cancelled session
+        const isReactivating = currentSession.estado === 'cancelada' && updateData.estado && updateData.estado !== 'cancelada';
+
+        const checkOverlap =
+            updateData.instructor_id !== undefined ||
+            updateData.embarcacion_id !== undefined ||
+            updateData.fecha_inicio !== undefined ||
+            updateData.fecha_fin !== undefined ||
+            isReactivating;
+
+        if (checkOverlap) {
+            // Determine effective values
+            const nextInstructor = updateData.instructor_id !== undefined ? updateData.instructor_id : currentSession.instructor_id;
+            const nextBoat = updateData.embarcacion_id !== undefined ? updateData.embarcacion_id : currentSession.embarcacion_id;
+            const nextStart = updateData.fecha_inicio !== undefined ? updateData.fecha_inicio : currentSession.fecha_inicio;
+            const nextEnd = updateData.fecha_fin !== undefined ? updateData.fecha_fin : currentSession.fecha_fin;
+
+            // Only validate if we have a valid time range
+            if (nextStart && nextEnd) {
+                const { allowed, error: overlapError } = await validateSessionOverlap(supabaseAdmin as any, {
+                    instructor_id: nextInstructor,
+                    embarcacion_id: nextBoat,
+                    fecha_inicio: nextStart,
+                    fecha_fin: nextEnd,
+                    exclude_session_id: id
+                });
+
+                if (!allowed) {
+                    return NextResponse.json({ error: overlapError }, { status: 409 });
+                }
+            }
+        }
 
         // Perform update
         const { data, error } = await supabaseAdmin
