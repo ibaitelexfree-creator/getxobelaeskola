@@ -59,32 +59,35 @@ export default function HeroCarousel({ initialSlides }: HeroCarouselProps) {
     ];
 
     useEffect(() => {
+        let timerId: NodeJS.Timeout | null = null;
+        let ricId: number | null = null;
+        let startTimeoutId: NodeJS.Timeout | null = null;
+
         // Delay timer start to give priority to hydration and initial render
         const startTimer = () => {
-            const timer = setInterval(() => {
+            timerId = setInterval(() => {
                 setCurrent((prev) => (prev + 1) % slides.length);
             }, 6000);
-            return timer;
         };
 
-        let timerId: NodeJS.Timeout;
-
-        if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
-            window.requestIdleCallback(() => {
-                timerId = startTimer();
-            });
-        } else {
-            const timeout = setTimeout(() => {
-                timerId = startTimer();
-            }, 2000);
-            return () => {
-                clearTimeout(timeout);
-                if (timerId) clearInterval(timerId);
-            };
+        if (typeof window !== 'undefined') {
+            if ('requestIdleCallback' in window) {
+                ricId = (window as any).requestIdleCallback(() => {
+                    startTimer();
+                });
+            } else {
+                startTimeoutId = setTimeout(() => {
+                    startTimer();
+                }, 2000);
+            }
         }
 
         return () => {
             if (timerId) clearInterval(timerId);
+            if (ricId !== null && 'cancelIdleCallback' in window) {
+                (window as any).cancelIdleCallback(ricId);
+            }
+            if (startTimeoutId) clearTimeout(startTimeoutId);
         };
     }, [slides.length]);
 
