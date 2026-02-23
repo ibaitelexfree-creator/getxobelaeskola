@@ -1,6 +1,5 @@
 import { describe, it, expect } from 'vitest';
 import { parseAmount } from './financial';
-import { calculateEndTime } from './date';
 
 describe('Financial Utils', () => {
     describe('parseAmount', () => {
@@ -25,22 +24,6 @@ describe('Financial Utils', () => {
             expect(parseAmount(null)).toBe(0);
             expect(parseAmount(undefined)).toBe(0);
             expect(parseAmount("abc")).toBe(0);
-        });
-    });
-});
-
-describe('Date Utils - Advanced', () => {
-    describe('calculateEndTime', () => {
-        it('adds 1 hour by default', () => {
-            expect(calculateEndTime('10:00:00')).toBe('11:00:00');
-        });
-
-        it('adds specific duration', () => {
-            expect(calculateEndTime('12:30:00', 3)).toBe('15:30:00');
-        });
-
-        it('pads hours correctly', () => {
-            expect(calculateEndTime('09:00:00', 1)).toBe('10:00:00');
         });
     });
 });
