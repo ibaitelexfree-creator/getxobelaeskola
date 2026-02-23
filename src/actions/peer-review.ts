@@ -98,6 +98,10 @@ export async function submitExerciseAttempt(data: {
         }
     }
 
-    revalidatePath(`/academy/unit/${data.unitId}`);
+    try {
+        revalidatePath(`/academy/unit/${data.unitId}`);
+    } catch (e) {
+        console.log('Revalidation skipped (likely non-server environment)');
+    }
     return { success: true };
 }

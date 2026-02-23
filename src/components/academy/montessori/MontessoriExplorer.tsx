@@ -27,12 +27,12 @@ const CATEGORIES: { id: TopicCategory | 'all'; label: string }[] = [
     { id: 'radio', label: 'Radio' }
 ];
 
-export const MontessoriExplorer: React.FC<MontessoriExplorerProps> = ({
-    topics,
-    history,
-    ability,
-    recommendedTopic,
-    onRecordInteraction
+export const MontessoriExplorer: React.FC<Partial<MontessoriExplorerProps>> = ({
+    topics = [],
+    history = [],
+    ability = 0.5,
+    recommendedTopic = null,
+    onRecordInteraction = () => { }
 }) => {
     const [selectedCategory, setSelectedCategory] = useState<TopicCategory | 'all'>('all');
     const [searchQuery, setSearchQuery] = useState('');
@@ -89,8 +89,8 @@ export const MontessoriExplorer: React.FC<MontessoriExplorerProps> = ({
                             key={cat.id}
                             onClick={() => setSelectedCategory(cat.id)}
                             className={`px-4 py-2 rounded-full text-xs font-black uppercase tracking-widest whitespace-nowrap transition-all ${selectedCategory === cat.id
-                                    ? 'bg-accent text-nautical-black'
-                                    : 'bg-white/5 text-white/60 hover:bg-white/10'
+                                ? 'bg-accent text-nautical-black'
+                                : 'bg-white/5 text-white/60 hover:bg-white/10'
                                 }`}
                         >
                             {cat.label}
