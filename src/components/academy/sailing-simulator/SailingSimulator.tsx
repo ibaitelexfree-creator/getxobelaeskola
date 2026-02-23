@@ -11,6 +11,8 @@ import { OpponentState } from '../../../types/regatta';
 interface SailingSimulatorProps {
     onStateUpdate?: (state: any) => void;
     opponents?: OpponentState[];
+    mode?: 'single' | 'multiplayer' | 'training';
+    lobbyCode?: string;
 }
 
 /**
@@ -18,7 +20,7 @@ interface SailingSimulatorProps {
  * This component acts as a bridge between the browser DOM/Inputs
  * and the Web Worker where the 3D engine (Three.js) and Physics run.
  */
-export const SailingSimulator: React.FC<SailingSimulatorProps> = ({ onStateUpdate, opponents }) => {
+export const SailingSimulator: React.FC<SailingSimulatorProps> = ({ onStateUpdate, opponents, mode, lobbyCode }) => {
     const t = useTranslations('wind_lab');
     const locale = useLocale();
     const containerRef = useRef<HTMLDivElement>(null);

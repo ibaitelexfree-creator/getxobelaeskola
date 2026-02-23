@@ -6,6 +6,7 @@
 import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
+import { fileURLToPath } from 'url';
 import { ollamaCompletion } from './ollama.js';
 
 // In-memory index (for simplicity - production would use vector DB)
@@ -109,13 +110,20 @@ export async function ragIndexDirectory(params) {
         excludePatterns = ['node_modules', '.git', 'dist', 'build', '__pycache__']
     } = params;
 
-    // SECURITY FIX: Validate directory is within project root to prevent path traversal
-    const projectRoot = process.cwd();
-    const resolvedDir = path.resolve(projectRoot, directory);
+    // Resolve project root relative to this file's location (.../orchestration/lib/rag.js)
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = path.dirname(__filename);
+    const projectRoot = path.resolve(__dirname, '../../').toLowerCase();
 
-    // Ensure the resolved path is within the project root
+    // Resolve target directory relative to current process working directory
+    const resolvedDir = path.resolve(process.cwd(), directory).toLowerCase();
+
+    // SECURITY: Ensure the resolved path is within the project root
     if (!resolvedDir.startsWith(projectRoot)) {
-        return { success: false, error: 'Path traversal is not allowed. Directory must be within project root.' };
+        return {
+            success: false,
+            error: `Path traversal is not allowed. Directory must be within project root.\nResolved: ${resolvedDir}\nProject Root: ${projectRoot}`
+        };
     }
 
     try {
@@ -131,11 +139,6 @@ export async function ragIndexDirectory(params) {
 
         try {
             const entries = await fs.promises.readdir(dir, { withFileTypes: true });
-
-            // Process subdirectories sequentially to respect maxFiles early exit (mostly)
-            // or parallel if we don't care about strict order or over-fetching a bit.
-            // For simplicity and strictness on maxFiles, we can do it somewhat sequentially or accumulate.
-            // Given the original was sync and DFS, let's keep it simple but async.
 
             for (const entry of entries) {
                 if (files.length >= maxFiles) break;
@@ -171,7 +174,7 @@ export async function ragIndexDirectory(params) {
 
         for (const doc of results) {
             if (doc) {
-                 // Check if already indexed
+                // Check if already indexed
                 const existing = ragIndex.documents.findIndex(d => d.path === doc.path);
                 if (existing >= 0) {
                     ragIndex.documents[existing] = doc;

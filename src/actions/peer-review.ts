@@ -1,5 +1,7 @@
 // This file no longer uses 'use server' to allow static export for Capacitor.
 // It now calls an API route instead.
+import { revalidatePath } from 'next/cache';
+import { createClient } from '@/lib/supabase/client';
 
 export async function getPendingReviews(moduleId: string) {
     try {
@@ -64,7 +66,7 @@ export async function submitExerciseAttempt(data: {
         // Update existing attempt if it's not approved yet? Or just return error?
         // Let's allow updating if it's still pending or rejected.
         if (existing.estado_revision === 'aprobado') {
-             return { error: 'Este ejercicio ya ha sido aprobado.' };
+            return { error: 'Este ejercicio ya ha sido aprobado.' };
         }
 
         const { error } = await supabase
