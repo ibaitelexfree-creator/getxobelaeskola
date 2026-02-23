@@ -8,6 +8,7 @@ export function corsHeaders(request: Request) {
     const allowedOrigins = [
         'https://getxobelaeskola.cloud',
         'http://localhost:3000',
+        'http://127.0.0.1:3000',
         'capacitor://localhost',
         'https://localhost',
         'http://localhost'
@@ -21,17 +22,11 @@ export function corsHeaders(request: Request) {
 
     if (origin && allowedOrigins.includes(origin)) {
         headers['Access-Control-Allow-Origin'] = origin;
-    } else if (!origin) {
-        // If no origin (Server to Server or similar), allow all
-        headers['Access-Control-Allow-Origin'] = '*';
     } else {
-        // For development and simplicity, we can allow the current origin if it's localhost
-        if (origin.includes('localhost') || origin.includes('127.0.0.1')) {
-            headers['Access-Control-Allow-Origin'] = origin;
-        } else {
-            // Default to production domain
-            headers['Access-Control-Allow-Origin'] = 'https://getxobelaeskola.cloud';
-        }
+        // If the origin is not allowed or missing, default to the production domain.
+        // This ensures that Cross-Origin requests from unauthorized domains are blocked by the browser.
+        // Note: Using '*' with Access-Control-Allow-Credentials: true is not allowed.
+        headers['Access-Control-Allow-Origin'] = 'https://getxobelaeskola.cloud';
     }
 
     return headers;
