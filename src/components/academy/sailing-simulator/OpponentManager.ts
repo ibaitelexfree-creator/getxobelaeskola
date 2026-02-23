@@ -1,6 +1,6 @@
 import { Scene, Vector3 } from 'three';
 import { BoatModel } from './BoatModel';
-import { OpponentState } from '../../../types/regatta'; // Adjust path
+import { OpponentState } from '@/types/regatta'; // Adjust path
 import { ApparentWind } from './WindManager';
 
 export class OpponentManager {
@@ -37,8 +37,8 @@ export class OpponentManager {
             // We set angleToBoat to PI (180) so windex points back? No, windex points INTO wind.
             // Let's just default to 0.
             const mockApparentWind: ApparentWind = {
+                vector: new Vector3(),
                 speed: 10,
-                angle: 0,
                 angleToBoat: 0
             };
 

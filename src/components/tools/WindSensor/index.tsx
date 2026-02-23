@@ -50,7 +50,7 @@ export default function WindSensor() {
                     schema: 'public',
                     table: 'weather_logs'
                 },
-                (payload) => {
+                (payload: any) => {
                     console.log('New weather data received:', payload.new);
                     setData(payload.new as WeatherLog);
                 }
