@@ -1,10 +1,14 @@
 
 import { NextResponse } from 'next/server';
+import { requireAdmin } from '@/lib/auth-guard';
 
 const NOTION_TOKEN = process.env.NOTION_TOKEN;
 const FLEET_DB_ID = '30c31210-b1a1-813b-a949-d7ddf66d84c9';
 
 export async function GET() {
+    const { error: authError } = await requireAdmin();
+    if (authError) return authError;
+
     try {
         const res = await fetch(`https://api.notion.com/v1/databases/${FLEET_DB_ID}/query`, {
             method: 'POST',

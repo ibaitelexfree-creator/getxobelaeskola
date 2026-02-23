@@ -1,16 +1,19 @@
 
 import { NextResponse } from 'next/server';
-import { exec } from 'child_process';
+import { execFile } from 'child_process';
 import path from 'path';
+import { requireAdmin } from '@/lib/auth-guard';
 
 export async function POST(req: Request) {
+    const { error: authError } = await requireAdmin();
+    if (authError) return authError;
+
     const { direction = 'pull', table } = await req.json();
 
     return new Promise((resolve) => {
         const scriptPath = path.join(process.cwd(), 'scripts', 'supabase-notion-bridge.js');
-        const command = `node ${scriptPath} ${direction} ${table || ''}`;
 
-        exec(command, {
+        execFile('node', [scriptPath, direction, table || ''], {
             env: {
                 ...process.env,
                 SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY || '',
