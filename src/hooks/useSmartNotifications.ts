@@ -38,11 +38,11 @@ export const useSmartNotifications = () => {
             if (!attempts || attempts.length === 0) return;
 
             // Calculate most frequent hour (mode)
-            const hours = attempts.map(a => new Date(a.created_at).getHours());
+            const hours = (attempts as any[]).map((a: any) => new Date(a.created_at).getHours());
             if (hours.length === 0) return;
 
-            const modeHour = hours.sort((a,b) =>
-                hours.filter(v => v===a).length - hours.filter(v => v===b).length
+            const modeHour = hours.sort((a: number, b: number) =>
+                hours.filter((v: number) => v === a).length - hours.filter((v: number) => v === b).length
             ).pop() || 18; // Default to 18:00 if calculation fails
 
             // Schedule notification for tomorrow at modeHour
@@ -138,7 +138,7 @@ export const useSmartNotifications = () => {
                     table: 'progreso_alumno',
                     filter: `alumno_id=eq.${userId}`
                 },
-                async (payload) => {
+                async (payload: any) => {
                     const newData = payload.new as any;
                     // Check if status changed to 'completado' and it's a module
                     if (newData.estado === 'completado' && newData.tipo_entidad === 'modulo') {

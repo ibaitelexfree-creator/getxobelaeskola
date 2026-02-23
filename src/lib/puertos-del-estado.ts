@@ -79,3 +79,44 @@ export async function fetchSeaState(): Promise<SeaStateData> {
 
     return getSimulatedSeaState();
 }
+
+export interface TidePrediction {
+    time: string;
+    height: number;
+    type: 'HIGH' | 'LOW';
+}
+
+export function getTidePredictions(date: Date): TidePrediction[] {
+    // Generate 4 predictions for the day (2 high, 2 low)
+    // Roughly every 6.2 hours
+    const predictions: TidePrediction[] = [];
+    const startOfDay = new Date(date);
+    startOfDay.setHours(0, 0, 0, 0);
+
+    for (let i = 0; i < 4; i++) {
+        const t = new Date(startOfDay.getTime() + i * 6.2 * 3600000 + 3 * 3600000); // offset 3h
+        predictions.push({
+            time: t.toISOString(),
+            height: i % 2 === 0 ? 4.0 : 1.0,
+            type: i % 2 === 0 ? 'HIGH' : 'LOW'
+        });
+    }
+    return predictions;
+}
+
+export function getTideLevel(date: Date): number {
+    const t = date.getTime() / 1000;
+    const period = 12.42 * 3600;
+    return 2.5 + Math.sin((t / period) * 2 * Math.PI) * 1.5;
+}
+
+export function getTideState(date: Date) {
+    const level = getTideLevel(date);
+    const nextLevel = getTideLevel(new Date(date.getTime() + 15 * 60000));
+    const trend = nextLevel > level ? 'rising' : 'falling';
+    return {
+        height: level,
+        trend,
+        percentage: (level - 1.0) / 3.0
+    };
+}
