@@ -62,13 +62,23 @@ export const MultiplayerLobby = ({ onJoin, userId }: MultiplayerLobbyProps) => {
             return;
         }
 
+        // Fetch user profile
+        const { data: profile } = await supabase
+            .from('profiles')
+            .select('nombre, apellidos')
+            .eq('id', userId)
+            .single();
+
+        const fullName = profile ? `${profile.nombre || ''} ${profile.apellidos || ''}`.trim() : '';
+        const username = fullName || `Piloto ${userId.substring(0, 4)}`;
+
         // Add participant
         const { error: joinError } = await supabase
             .from('regatta_participants')
             .insert({
                 match_id: match.id,
                 user_id: userId,
-                username: 'Piloto ' + userId.substring(0,4), // TODO: Fetch real username
+                username,
                 score: 0
             });
 
