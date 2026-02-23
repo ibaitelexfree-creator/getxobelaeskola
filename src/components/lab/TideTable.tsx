@@ -79,7 +79,7 @@ export default function TideTable({ date, onDateChange }: TideTableProps) {
                 <div className="p-6 lg:col-span-1 space-y-4">
                     <h3 className="text-xs font-black uppercase tracking-widest text-white/40 mb-4">Predicciones del Día</h3>
                     <div className="space-y-3">
-                        {predictions.map((pred, idx) => (
+                        {predictions.map((pred: any, idx: number) => (
                             <div key={idx} className="flex items-center justify-between p-3 bg-white/5 rounded-lg border border-white/5 hover:bg-white/10 transition-colors group">
                                 <div className="flex items-center gap-3">
                                     <div className={`p-2 rounded-full ${pred.type === 'HIGH' ? 'bg-blue-500/20 text-blue-400' : 'bg-orange-500/20 text-orange-400'}`}>
@@ -149,7 +149,7 @@ export default function TideTable({ date, onDateChange }: TideTableProps) {
                                         color: '#fff'
                                     }}
                                     itemStyle={{ color: '#60a5fa' }}
-                                    formatter={(value: number) => [`${value.toFixed(2)} m`, 'Altura']}
+                                    formatter={(value: any) => [`${value.toFixed(2)} m`, 'Altura']}
                                     labelStyle={{ color: '#94a3b8', marginBottom: '4px' }}
                                 />
                                 <Area

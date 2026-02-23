@@ -7,7 +7,7 @@ describe('Puertos del Estado Simulation', () => {
         const predictions = getTidePredictions(date);
 
         expect(predictions.length).toBeGreaterThan(0);
-        predictions.forEach(p => {
+        predictions.forEach((p: any) => {
             expect(p).toHaveProperty('time');
             expect(p).toHaveProperty('height');
             expect(p).toHaveProperty('type');
