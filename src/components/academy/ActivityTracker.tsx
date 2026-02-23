@@ -14,6 +14,17 @@ export default function ActivityTracker() {
             try {
                 const { data: { user } } = await supabase.auth.getUser();
                 if (user) {
+                    // Limit RPC calls to once per hour to avoid excessive database writes
+                    // This improves performance by reducing redundant network requests and server load
+                    const LAST_TRACK_KEY = `last_activity_track_${user.id}`;
+                    const lastTrack = typeof window !== 'undefined' ? localStorage.getItem(LAST_TRACK_KEY) : null;
+                    const now = Date.now();
+                    const ONE_HOUR = 3600000;
+
+                    if (lastTrack && now - parseInt(lastTrack) < ONE_HOUR) {
+                        return;
+                    }
+
                     // Llamar al RPC para registrar actividad diaria y rachas
                     try {
                         const { error: rpcError } = await supabase.rpc('registrar_actividad_alumno', { p_alumno_id: user.id });
@@ -48,6 +59,11 @@ export default function ActivityTracker() {
                         }
                     } catch (err) {
                         console.warn('Exception fetching profile streak:', err);
+                    }
+
+                    // Mark as tracked to prevent redundant calls in the next hour
+                    if (typeof window !== 'undefined') {
+                        localStorage.setItem(LAST_TRACK_KEY, now.toString());
                     }
                 }
             } catch (e) {
