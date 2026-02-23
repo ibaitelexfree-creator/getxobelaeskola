@@ -1,5 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
+import { esquemaCursos } from '@/lib/academy/course-schema';
+import { calculateAcademyProgress } from '@/lib/academy/progress-calculator';
 
 export async function GET() {
     try {
@@ -40,6 +42,14 @@ export async function GET() {
         const coursesEnrolled = progress?.filter(p => p.tipo_entidad === 'curso').length || 0;
         const coursesCompleted = progress?.filter(p => p.tipo_entidad === 'curso' && p.estado === 'completado').length || 0;
         const unitsCompleted = progress?.filter(p => p.tipo_entidad === 'unidad' && p.estado === 'completado').length || 0;
+
+        // Calcular Progreso de Academia (Refactor con esquema estático)
+        const completedModuleIds = new Set(
+            progress?.filter(p => p.tipo_entidad === 'modulo' && p.estado === 'completado')
+                .map(p => p.entidad_id) || []
+        );
+
+        const academyProgress = calculateAcademyProgress(completedModuleIds, esquemaCursos.modules);
 
         // 3. Logros Recientes
         const { data: recentAchievements } = await supabase
@@ -94,6 +104,7 @@ export async function GET() {
                 coursesEnrolled,
                 coursesCompleted,
                 unitsCompleted,
+                academyProgress,
                 totalHours,
                 totalPoints
             },
