@@ -4,7 +4,6 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useState } from 'react';
-import { createClient } from '@/lib/supabase/client';
 import { useTranslations } from 'next-intl';
 import { apiUrl } from '@/lib/api';
 
@@ -54,9 +53,10 @@ export default function ContactForm() {
 
             setSuccess(true);
             reset();
-        } catch (err: any) {
+        } catch (err: unknown) {
             console.error('Contact Form Error:', err);
-            setError(err.message || t('error'));
+            const errorMessage = err instanceof Error ? err.message : t('error');
+            setError(errorMessage);
         } finally {
             setIsSubmitting(false);
         }

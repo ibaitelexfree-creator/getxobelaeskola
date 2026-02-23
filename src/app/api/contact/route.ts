@@ -43,7 +43,7 @@ export async function POST(request: Request) {
                     subject: `[Web Contact] ${asunto}`,
                     html: contactNotificationTemplate({ nombre, email, asunto, mensaje, telefono }),
                 });
-            } catch (emailError) {
+            } catch (emailError: unknown) {
                 console.error('Email Error (Contact):', emailError);
             }
         } else {
@@ -56,7 +56,7 @@ export async function POST(request: Request) {
 
         return NextResponse.json({ success: true, message: 'Mensaje recibido correctamente' });
 
-    } catch (err: any) {
+    } catch (err: unknown) {
         console.error('API Contact Error:', err);
         return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
     }
