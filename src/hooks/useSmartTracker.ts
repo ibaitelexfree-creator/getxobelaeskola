@@ -1,9 +1,8 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { Geolocation, Position } from '@capacitor/geolocation';
+import { Geolocation } from '@capacitor/geolocation';
 import { Network, ConnectionStatus } from '@capacitor/network';
-// import { Capacitor } from '@capacitor/core';
 
 import { isPointInWater } from '@/lib/geospatial/water-check';
 
@@ -15,7 +14,6 @@ export interface LocationPoint {
 }
 
 // Configurable constants
-const SCHOOL_WIFI_SSID = '5B00';
 const BASE_CAR_SPEED_THRESHOLD = 12.86; // ~46 km/h (25 knots)
 const HIGH_WIND_CAR_THRESHOLD = 20.57; // ~74 km/h (40 knots) for foiling/high performance
 
@@ -76,8 +74,6 @@ export function useSmartTracker() {
         return isPointInWater(lat, lng);
     };
 
-    // Helper: Convert m/s to knots
-    const msToKnots = (ms: number) => (ms * 1.94384);
 
     const startTracking = async (isAuto = false) => {
         if (watchId.current) return;

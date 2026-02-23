@@ -1,8 +1,6 @@
 'use client';
 import { usePathname } from 'next/navigation';
 import { ReactNode, useEffect, useState } from 'react';
-// Capacitor will be dynamically checked in the effect to avoid SSR issues
-// import { Capacitor } from '@capacitor/core';
 
 import AcademyControls from '@/components/layout/AcademyControls';
 import MobileBottomNav from '@/components/layout/MobileBottomNav';
