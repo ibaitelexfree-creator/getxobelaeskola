@@ -146,7 +146,7 @@ export const ParticleSystemCanvas: React.FC<ParticleSystemCanvasProps> = ({ stat
                 let saturation = 80;
                 let lightness = 60;
 
-                if (currentPhysics.isStalled) {
+                if (currentPhysics.mainIsStalled) {
                     hue = 0;
                     lightness = 50 + Math.random() * 20;
                 } else if (currentPhysics.efficiency > 0.8) {

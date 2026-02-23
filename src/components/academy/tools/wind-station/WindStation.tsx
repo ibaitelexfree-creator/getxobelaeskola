@@ -34,7 +34,7 @@ export default function WindStation() {
                     schema: 'public',
                     table: 'iot_wind_readings'
                 },
-                (payload) => {
+                (payload: any) => {
                     const newReading = payload.new as WindReading;
                     setCurrentReading(newReading);
                     setReadings(prev => {
@@ -43,7 +43,7 @@ export default function WindStation() {
                     });
                 }
             )
-            .subscribe((status) => {
+            .subscribe((status: string) => {
                 setConnected(status === 'SUBSCRIBED');
             });
 
@@ -240,8 +240,8 @@ export default function WindStation() {
                                         boxShadow: '0 10px 30px -10px rgba(0,0,0,0.5)'
                                     }}
                                     itemStyle={{ fontSize: '12px', fontWeight: 'bold' }}
-                                    formatter={(value: number, name: string) => [
-                                        `${value} kn`,
+                                    formatter={(value: number | undefined, name: string | number) => [
+                                        `${value ?? 0} kn`,
                                         name === 'speed_knots' ? 'Viento' : 'Racha'
                                     ]}
                                     labelFormatter={(label) => formatTime(label)}

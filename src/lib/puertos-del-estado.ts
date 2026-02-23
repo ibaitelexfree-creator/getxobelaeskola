@@ -79,3 +79,39 @@ export async function fetchSeaState(): Promise<SeaStateData> {
 
     return getSimulatedSeaState();
 }
+
+// Mock Tide Functions to satisfy import requirements in TideTable and CurrentMap
+export const getTideLevel = (timestamp: number): number => {
+    // Simple sine wave simulation for tide level
+    // Period approx 12.4 hours
+    const period = 12.4 * 3600 * 1000;
+    const phase = (timestamp % period) / period;
+    return 2 + Math.sin(phase * 2 * Math.PI) * 1.5; // Base 2m +/- 1.5m
+};
+
+export const getTidePredictions = (date: Date): any[] => {
+    // Generate 4 high/low tides for the day
+    const start = new Date(date);
+    start.setHours(0, 0, 0, 0);
+    const predictions = [];
+    let current = start.getTime();
+    // Start with a mock offset
+    current += 2 * 3600 * 1000;
+
+    for (let i = 0; i < 4; i++) {
+        predictions.push({
+            timestamp: current,
+            type: i % 2 === 0 ? 'HIGH' : 'LOW',
+            level: i % 2 === 0 ? 3.5 : 0.5,
+            time: new Date(current).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        });
+        current += 6.2 * 3600 * 1000; // Approx 6h 12m between tides
+    }
+    return predictions;
+};
+
+export const getTideState = (level: number): string => {
+    if (level > 3) return 'HIGH';
+    if (level < 1) return 'LOW';
+    return 'MID';
+};

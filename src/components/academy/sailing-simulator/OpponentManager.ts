@@ -38,7 +38,7 @@ export class OpponentManager {
             // Let's just default to 0.
             const mockApparentWind: ApparentWind = {
                 speed: 10,
-                angle: 0,
+                vector: new Vector3(),
                 angleToBoat: 0
             };
 
