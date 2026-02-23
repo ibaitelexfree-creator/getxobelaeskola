@@ -107,7 +107,8 @@ export async function POST(req: Request) {
         const stats = {
             distance_nm: parseFloat(totalDistanceNm.toFixed(2)),
             avg_speed_kn: durationH > 0 ? parseFloat((totalDistanceNm / durationH).toFixed(2)) : 0,
-            max_speed_kn: parseFloat(maxSpeedKn.toFixed(2))
+            max_speed_kn: parseFloat(maxSpeedKn.toFixed(2)),
+            duration_h: parseFloat(durationH.toFixed(2)) // Add duration to stats object as expected by test
         };
 
         // 1. Upload original GPX to Storage

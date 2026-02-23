@@ -50,10 +50,25 @@ export function generateStaticParams() {
     return ['es', 'eu', 'en', 'fr'].map(locale => ({ locale }));
 }
 
+interface RentalService {
+    id: string;
+    slug: string;
+    nombre: string;
+    nombre_eu?: string;
+    nombre_en?: string;
+    descripcion: string;
+    descripcion_eu?: string;
+    descripcion_en?: string;
+    imagen_url?: string;
+    precio_base?: number;
+    precio_hora?: number;
+    activo: boolean;
+}
+
 export default async function RentalPage({ params: { locale } }: { params: { locale: string } }) {
     const t = await getTranslations({ locale, namespace: 'rental_page' });
     const supabase = createClient();
-    let services = [];
+    let services: RentalService[] = [];
     const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://getxobelaeskola.cloud';
 
     try {
@@ -79,7 +94,10 @@ export default async function RentalPage({ params: { locale } }: { params: { loc
                 'alquiler-raquero'
             ];
 
-            services = (data || []).sort((a, b) => {
+            // Explicitly cast data to RentalService[] to avoid 'never' inference if empty
+            const rawData = (data || []) as unknown as RentalService[];
+
+            services = rawData.sort((a, b) => {
                 const indexA = priorityOrder.indexOf(a.slug);
                 const indexB = priorityOrder.indexOf(b.slug);
 
@@ -152,7 +170,7 @@ export default async function RentalPage({ params: { locale } }: { params: { loc
             {/* Main Interactive Fleet Section */}
             <section className="pb-48 relative">
                 <div className="container mx-auto px-6 relative z-10">
-                    <RentalClient services={services || []} locale={locale} />
+                    <RentalClient services={services} locale={locale} />
                 </div>
 
                 {/* Bottom Note / Disclosure */}
@@ -171,4 +189,3 @@ export default async function RentalPage({ params: { locale } }: { params: { loc
         </main>
     );
 }
-

@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { isPointInWater } from './water-check';
+import { isPointInWater, _reloadWaterData_TEST_ONLY } from './water-check';
 
-// Hoist the mock data container so we can modify it
+// Hoist the mock data container
 const mockData = vi.hoisted(() => ({
     data: {
         type: 'FeatureCollection',
@@ -52,9 +52,11 @@ describe('isPointInWater', () => {
                 }
             }
         ];
-        // Ensure geometry property is removed if it was added
-        if (mockData.data.geometry) {
-             delete mockData.data.geometry;
+        if (mockData.data.geometry) delete mockData.data.geometry;
+
+        // Reload the R-tree with the reset mock data
+        if (_reloadWaterData_TEST_ONLY) {
+            _reloadWaterData_TEST_ONLY();
         }
     });
 
@@ -75,11 +77,7 @@ describe('isPointInWater', () => {
     });
 
     it('handles single Feature fallback', () => {
-        // Modify mock data to look like a single Feature
-        // Remove 'features' array
         delete mockData.data.features;
-
-        // Add geometry directly
         mockData.data.type = 'Feature';
         mockData.data.geometry = {
             type: 'Polygon',
@@ -94,15 +92,19 @@ describe('isPointInWater', () => {
             ]
         };
 
-        // Inside
+        // Reload with single feature data
+        if (_reloadWaterData_TEST_ONLY) _reloadWaterData_TEST_ONLY();
+
         expect(isPointInWater(5, 5)).toBe(true);
-        // Outside
         expect(isPointInWater(15, 15)).toBe(false);
     });
 
     it('returns false gracefully when geometry data is invalid', () => {
-        // Case: features array exists but contains invalid objects
         mockData.data.features = [{}];
+
+        // Reload with invalid data
+        if (_reloadWaterData_TEST_ONLY) _reloadWaterData_TEST_ONLY();
+
         expect(isPointInWater(5, 5)).toBe(false);
     });
 });

@@ -35,33 +35,56 @@ export async function generateMetadata({
             nombre_es: 'Iniciación J80',
             nombre_eu: 'J80 Hastapena',
             descripcion_es: 'Iníciate en el mundo de la navegación a vela en veleros J80. Aprende maniobras básicas en Getxo.',
-            descripcion_eu: 'Hasi nabigazio munduan J80 belaontzietan. Ikasi oinarrizko maniobrak Getxon.'
+            descripcion_eu: 'Hasi nabigazio munduan J80 belaontzietan. Ikasi oinarrizko maniobrak Getxon.',
+            nombre_en: 'J80 Initiation',
+            descripcion_en: 'Get started in the world of sailing on J80 sailboats. Learn basic maneuvers in Getxo.',
+            nombre_fr: 'Initiation J80',
+            descripcion_fr: 'Initiez-vous au monde de la voile sur des voiliers J80. Apprenez les manœuvres de base à Getxo.'
         },
         'perfeccionamiento-vela': {
             nombre_es: 'Perfeccionamiento Vela',
             nombre_eu: 'Bela Hobetzea',
             descripcion_es: 'Mejora tu técnica, táctica y seguridad a bordo. Navegación competitiva y autónoma.',
-            descripcion_eu: 'Hobetu zure teknika, taktika eta segurtasuna ontzian. Nabigazio lehiakorra.'
+            descripcion_eu: 'Hobetu zure teknika, taktika eta segurtasuna ontzian. Nabigazio lehiakorra.',
+            nombre_en: 'Sailing Improvement',
+            descripcion_en: 'Improve your technique, tactics and safety on board. Competitive and autonomous navigation.',
+            nombre_fr: 'Perfectionnement Voile',
+            descripcion_fr: 'Améliorez votre technique, tactique et sécurité à bord. Navigation compétitive et autonome.'
         },
         'licencia-navegacion': {
             nombre_es: 'Licencia de Navegación',
             nombre_eu: 'Nabigazio Lizentzia',
             descripcion_es: 'Obtén tu titulación oficial en un solo día, sin examen. Válida para barcos de hasta 6m.',
-            descripcion_eu: 'Lortu zure titulu ofiziala egun bakar batean, azterketarik gabe. 6 metrorainoko ontziak.'
+            descripcion_eu: 'Lortu zure titulu ofiziala egun bakar batean, azterketarik gabe. 6 metrorainoko ontziak.',
+            nombre_en: 'Navigation License',
+            descripcion_en: 'Get your official title in a single day, without exam. Valid for boats up to 6m.',
+            nombre_fr: 'Licence de Navigation',
+            descripcion_fr: 'Obtenez votre titre officiel en une seule journée, sans examen. Valable pour les bateaux jusqu\'à 6m.'
         },
         'vela-ligera': {
             nombre_es: 'Curso de Vela Ligera',
             nombre_eu: 'Bela Arina Ikastaroa',
             descripcion_es: 'Entrenamientos en Optimist, Laser y 420. Ideal para formación continua escolar.',
-            descripcion_eu: 'Optimist, Laser eta 420 ontzietan entrenamenduak. Eskola urtean zehar.'
+            descripcion_eu: 'Optimist, Laser eta 420 ontzietan entrenamenduak. Eskola urtean zehar.',
+            nombre_en: 'Dinghy Sailing Course',
+            descripcion_en: 'Training in Optimist, Laser and 420. Ideal for continuous school training.',
+            nombre_fr: 'Cours de Voile Légère',
+            descripcion_fr: 'Entraînements en Optimist, Laser et 420. Idéal pour la formation scolaire continue.'
         }
     };
 
     const displayCourse = course || fallbacks[slug];
     if (!displayCourse) return { title: 'Curso no encontrado' };
 
-    const name = locale === 'es' ? displayCourse.nombre_es : displayCourse.nombre_eu;
-    const description = locale === 'es' ? displayCourse.descripcion_es : displayCourse.descripcion_eu;
+    const name = locale === 'es' ? displayCourse.nombre_es :
+                 locale === 'eu' ? displayCourse.nombre_eu :
+                 locale === 'en' ? displayCourse.nombre_en :
+                 locale === 'fr' ? displayCourse.nombre_fr : displayCourse.nombre_es;
+
+    const description = locale === 'es' ? displayCourse.descripcion_es :
+                        locale === 'eu' ? displayCourse.descripcion_eu :
+                        locale === 'en' ? displayCourse.descripcion_en :
+                        locale === 'fr' ? displayCourse.descripcion_fr : displayCourse.descripcion_es;
 
     return {
         title: name,
@@ -111,8 +134,12 @@ export default async function CourseDetailPage({
         id: string;
         nombre_es: string;
         nombre_eu: string;
+        nombre_en?: string;
+        nombre_fr?: string;
         descripcion_es: string;
         descripcion_eu: string;
+        descripcion_en?: string;
+        descripcion_fr?: string;
         precio: number;
         duracion_h: number;
         nivel: string;
@@ -202,7 +229,11 @@ export default async function CourseDetailPage({
             detalles: {
                 es: ['Navegación en grupo', 'Seguridad en el mar', 'Juegos y actividades', '20 horas semanales'],
                 eu: ['Taldeko nabigazioa', 'Segurtasuna itsasoan', 'Jolasak eta jarduerak', 'Astean 20 ordu']
-            }
+            },
+            nombre_en: 'Summer Campus (Residents)',
+            descripcion_en: 'Summer campus for children and young people from 5 to 21 years old registered in Getxo.',
+            nombre_fr: 'Campus d\'été (Résidents)',
+            descripcion_fr: 'Campus d\'été pour les enfants et les jeunes de 5 à 21 ans inscrits à Getxo.'
         },
         'iniciacion-adultos': {
             id: 'd8db9369-020c-4ffb-9a91-8dec67aacb0c',
@@ -217,7 +248,11 @@ export default async function CourseDetailPage({
             detalles: {
                 es: ['Fundamentos de vela', 'Maniobras básicas', '12 horas de clase', 'Grupos de adultos'],
                 eu: ['Belaren oinarriak', 'Oinarrizko maniobrak', '12 orduko klaseak', 'Helduen taldeak']
-            }
+            },
+            nombre_en: 'Adult Initiation',
+            descripcion_en: 'Basic course for adults who want to start in the world of sailing.',
+            nombre_fr: 'Initiation Adultes',
+            descripcion_fr: 'Cours de base pour les adultes qui veulent commencer dans le monde de la voile.'
         },
         'licencia-navegacion': {
             id: 'f67462a1-fb29-4188-b298-bd529b457853',
@@ -232,7 +267,11 @@ export default async function CourseDetailPage({
             detalles: {
                 es: ['Título oficial sin examen', 'Gobierno de barcos hasta 6m', 'Motos náuticas hasta 55CV', 'Navegación diurna (2 millas)'],
                 eu: ['Azterketarik gabeko titulu ofiziala', '6 metrorainoko ontzien gobernua', '55CV-rainoko motorrak', 'Eguneko nabigazioa (2 milia)']
-            }
+            },
+            nombre_en: 'Navigation License',
+            descripcion_en: 'Get your official title in a single day, without exam. Valid for boats up to 6 meters and jet skis up to 55 hp.',
+            nombre_fr: 'Licence de Navigation',
+            descripcion_fr: 'Obtenez votre titre officiel en une seule journée, sans examen. Valable pour les bateaux jusqu\'à 6 mètres et les jet-skis jusqu\'à 55 ch.'
         },
         'vela-ligera': {
             id: '5eafb0a1-72ae-4d4b-85a1-7ab392f71894',
@@ -247,7 +286,11 @@ export default async function CourseDetailPage({
             detalles: {
                 es: ['Optimist, Laser y 420', 'Octubre a Junio', '3 domingos al mes', 'Incluye monitor y equipo'],
                 eu: ['Optimist, Laser eta 420', 'Urritik Ekainera', 'Hilean 3 igande', 'Monitorea eta ekipoa barne']
-            }
+            },
+            nombre_en: 'Dinghy Sailing Course',
+            descripcion_en: 'Training in Optimist, Laser and 420. Ideal for continuous training throughout the school year, with weekend training sessions.',
+            nombre_fr: 'Cours de Voile Légère',
+            descripcion_fr: 'Entraînements en Optimist, Laser et 420. Idéal pour la formation continue tout au long de l\'année scolaire, avec des séances d\'entraînement le week-end.'
         }
     };
 
