@@ -59,32 +59,38 @@ export default function HeroCarousel({ initialSlides }: HeroCarouselProps) {
     ];
 
     useEffect(() => {
+        let isMounted = true;
+        let timerId: NodeJS.Timeout | null = null;
+        let idleId: number | null = null;
+        let timeoutId: NodeJS.Timeout | null = null;
+
         // Delay timer start to give priority to hydration and initial render
         const startTimer = () => {
-            const timer = setInterval(() => {
-                setCurrent((prev) => (prev + 1) % slides.length);
+            if (!isMounted) return;
+            timerId = setInterval(() => {
+                if (isMounted) {
+                    setCurrent((prev) => (prev + 1) % slides.length);
+                }
             }, 6000);
-            return timer;
         };
 
-        let timerId: NodeJS.Timeout;
-
         if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
-            window.requestIdleCallback(() => {
-                timerId = startTimer();
+            idleId = (window as unknown as { requestIdleCallback: (cb: () => void) => number }).requestIdleCallback(() => {
+                startTimer();
             });
         } else {
-            const timeout = setTimeout(() => {
-                timerId = startTimer();
+            timeoutId = setTimeout(() => {
+                startTimer();
             }, 2000);
-            return () => {
-                clearTimeout(timeout);
-                if (timerId) clearInterval(timerId);
-            };
         }
 
         return () => {
+            isMounted = false;
             if (timerId) clearInterval(timerId);
+            if (timeoutId) clearTimeout(timeoutId);
+            if (idleId !== null && typeof window !== 'undefined' && 'cancelIdleCallback' in window) {
+                (window as unknown as { cancelIdleCallback: (id: number) => void }).cancelIdleCallback(idleId);
+            }
         };
     }, [slides.length]);
 
