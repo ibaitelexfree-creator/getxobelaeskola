@@ -15,6 +15,22 @@ export async function POST(request: Request) {
 
         // 2. Save to Database
         const supabase = await createClient();
+
+        // Check for duplicates (Idempotency)
+        const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
+        const { data: existingMessages } = await supabase
+            .from('mensajes_contacto')
+            .select('id')
+            .eq('email', email)
+            .eq('asunto', asunto)
+            .eq('mensaje', mensaje)
+            .gt('created_at', fiveMinutesAgo);
+
+        if (existingMessages && existingMessages.length > 0) {
+            console.log(`Duplicate message from ${email} detected. Skipping.`);
+            return NextResponse.json({ success: true, message: 'Mensaje recibido correctamente' });
+        }
+
         const { error: dbError } = await supabase
             .from('mensajes_contacto')
             .insert([{
