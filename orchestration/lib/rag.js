@@ -118,6 +118,10 @@ export async function ragIndexDirectory(params) {
     // Resolve target directory relative to current process working directory
     const resolvedDir = path.resolve(process.cwd(), directory).toLowerCase();
 
+    console.log('[RAG DEBUG] projectRoot:', projectRoot);
+    console.log('[RAG DEBUG] resolvedDir:', resolvedDir);
+    console.log('[RAG DEBUG] startsWith:', resolvedDir.startsWith(projectRoot));
+
     // SECURITY: Ensure the resolved path is within the project root
     if (!resolvedDir.startsWith(projectRoot)) {
         return {

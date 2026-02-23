@@ -23,7 +23,7 @@ export async function POST(request: Request) {
                 const { data: { users }, error: listError } = await supabaseAdmin.auth.admin.listUsers();
                 if (listError) throw listError;
 
-                const existing = users.find(u => u.email?.toLowerCase() === requestedEmail);
+                const existing = users.find((u: any) => u.email?.toLowerCase() === requestedEmail);
                 if (!existing) {
                     throw new Error(`El usuario ${requestedEmail} parece existir pero no pudimos encontrar su registro. Contacte con soporte.`);
                 }

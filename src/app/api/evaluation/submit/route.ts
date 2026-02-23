@@ -135,7 +135,7 @@ export async function POST(request: Request) {
                     .from('srs_user_questions')
                     .select('*')
                     .eq('user_id', user.id)
-                    .in('question_id', allQuestions.map(q => q.id));
+                    .in('question_id', (allQuestions as any[]).map((q: any) => q.id));
 
                 const srsMap = new Map();
                 if (currentSrs) {
@@ -144,7 +144,7 @@ export async function POST(request: Request) {
                 }
 
                 const updates = [];
-                for (const q of allQuestions) {
+                for (const q of (allQuestions as any[])) {
                     const userAnswer = respuestasMerged[q.id];
                     // Si no respondió, consideramos incorrecto
                     const isCorrect = userAnswer === q.respuesta_correcta;
@@ -168,7 +168,7 @@ export async function POST(request: Request) {
                 }
             }
         } catch (e) {
-             console.error("Error updating SRS:", e);
+            console.error("Error updating SRS:", e);
         }
         // --- SRS UPDATE LOGIC END ---
 
@@ -176,7 +176,7 @@ export async function POST(request: Request) {
         let respuestasCorrectas = null;
         if (intento.evaluacion.mostrar_respuestas) {
             // Ya las tenemos en allQuestions si hicimos SRS, pero necesitamos explanations y el formato correcto
-             const { data: preguntas } = await supabaseAdmin
+            const { data: preguntas } = await supabaseAdmin
                 .from('preguntas')
                 .select('id, respuesta_correcta, explicacion_es, explicacion_eu')
                 .in('id', intento.preguntas_json);

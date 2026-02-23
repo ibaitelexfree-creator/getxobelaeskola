@@ -1,4 +1,4 @@
-import MontessoriExplorer from '@/components/academy/montessori/MontessoriExplorer';
+import { MontessoriMode } from '@/components/academy/montessori/MontessoriMode';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -8,8 +8,8 @@ export const metadata: Metadata = {
 
 export default function MontessoriPage() {
     return (
-        <main className="min-h-screen bg-nautical-deep py-8 md:py-12">
-            <MontessoriExplorer />
+        <main className="min-h-screen bg-nautical-deep">
+            <MontessoriMode />
         </main>
     );
 }

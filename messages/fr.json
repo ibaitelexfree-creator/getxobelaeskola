@@ -521,6 +521,11 @@
       "efficiency": "Efficacité",
       "aoa": "Angle d'Attaque"
     },
+    "forces": {
+      "lift": "PORTANCE",
+      "drag": "TRAÎNÉE",
+      "aw": "VA"
+    },
     "feedback": {
       "perfect": "PARFAIT",
       "good": "BON",
@@ -538,6 +543,16 @@
       "save_btn": "ENREGISTRER",
       "ranking_title": "CLASSEMENT - TOP 10",
       "restart_btn": "REJOUER"
+    },
+    "interactive_rose": {
+      "title": "Rose Interactive",
+      "drag_instruction": "Faites glisser l'indicateur de vent (flèche bleue) pour voir comment la navigation change.",
+      "close_hauled": "Près",
+      "optimal_angle": "Angle Optimal",
+      "vmg": "VMG",
+      "boat_heading": "Cap du Bateau",
+      "twa": "Angle du Vent Réel",
+      "speed": "Vitesse"
     }
   },
   "profile_modal": {

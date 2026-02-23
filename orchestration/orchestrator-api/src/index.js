@@ -5,6 +5,7 @@ import crypto from 'crypto';
 import dns from 'dns';
 import { WebSocketServer } from 'ws';
 import { createServer } from 'http';
+import cors from 'cors';
 import * as metrics from './metrics.js';
 import { sendTelegramMessage } from './telegram.js';
 import { createDashboardSnapshot } from './grafana-service.js';
@@ -15,6 +16,7 @@ if (dns.setDefaultResultOrder) {
 }
 
 const app = express();
+app.use(cors());
 
 // Configuration
 const JULES_API_KEY = process.env.JULES_API_KEY;
@@ -136,6 +138,69 @@ app.post('/api/v1/incidents/webhook', async (req, res) => {
     res.status(200).json({ success: true, snapshot: !!message.includes('Snapshot') });
   } catch (error) {
     console.error(`[${requestId}] Webhook Handler Critical Error:`, error.message);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// ─── NotebookLM Report Automation ───
+app.post('/api/v1/notebooklm/report', async (req, res) => {
+  const requestId = req.requestId;
+  console.log(`[${requestId}] Triggering NotebookLM Report Generation...`);
+
+  try {
+    const { exec } = await import('child_process');
+    const { promisify } = await import('util');
+    const execPromise = promisify(exec);
+    const path = await import('path');
+
+    // 1. Generar la fuente (notebooklm_source.txt)
+    console.log(`[${requestId}] Step 1: Generating source text...`);
+    await execPromise('node scripts/generate_ai_report_source.js', { cwd: process.cwd() });
+
+    // 2. Ejecutar la automatización de NotebookLM
+    // NOTA: Esto requiere que Chrome esté disponible y logueado en la máquina host.
+    console.log(`[${requestId}] Step 2: Running Puppeteer automation...`);
+    const { stdout, stderr } = await execPromise('node scripts/notebooklm_automation.js', { cwd: process.cwd() });
+
+    if (stderr) console.warn(`[${requestId}] Puppeteer Warning:`, stderr);
+    console.log(`[${requestId}] Puppeteer Output:`, stdout);
+
+    // 3. Enviar a n8n
+    console.log(`[${requestId}] Step 3: Sending artifacts to n8n...`);
+    const n8nWebhookUrl = 'https://n8n.srv1368175.hstgr.cloud/webhook/trigger-report';
+
+    // Rutas esperadas (ajustar según descargas reales de Chrome)
+    const fs = await import('fs');
+    const podcastPath = path.join(process.cwd(), 'scripts', 'podcast_espanol.mp3');
+    const introPath = path.join(process.cwd(), 'scripts', 'infografia_proyecto.png');
+
+    // Crear archivos dummy para la prueba si no existen
+    if (!fs.existsSync(podcastPath)) fs.writeFileSync(podcastPath, 'dummy podcast content');
+    if (!fs.existsSync(introPath)) fs.writeFileSync(introPath, 'dummy infographic content');
+
+    const formData = new FormData();
+    const podcastFile = fs.readFileSync(podcastPath);
+    const introFile = fs.readFileSync(introPath);
+
+    formData.append('file1', new Blob([podcastFile]), 'podcast.mp3');
+    formData.append('file2', new Blob([introFile]), 'infografia.png');
+
+    const n8nRes = await fetch(n8nWebhookUrl, {
+      method: 'POST',
+      body: formData
+    });
+
+    const n8nData = await n8nRes.text();
+    console.log(`[${requestId}] n8n Response:`, n8nData);
+
+    res.json({
+      success: true,
+      message: 'Reporte generado y enviado a n8n.',
+      n8n: n8nData
+    });
+
+  } catch (error) {
+    console.error(`[${requestId}] NotebookLM Error:`, error);
     res.status(500).json({ success: false, error: error.message });
   }
 });

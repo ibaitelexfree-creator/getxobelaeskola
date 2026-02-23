@@ -20,10 +20,10 @@ export async function saveMissionProgress(
     const payload = {
         user_id: userId,
         mission_id: missionId,
-        current_step_id: state.currentStepId,
+        current_step_id: (state as any).currentStepId,
         score: state.score,
         status: state.status,
-        history: state.history ? JSON.stringify(state.history) : '[]',
+        history: (state as any).history ? JSON.stringify((state as any).history) : '[]',
         updated_at: new Date().toISOString()
     };
 

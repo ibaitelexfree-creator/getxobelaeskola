@@ -7,6 +7,9 @@
 | T-003 | 1 | clawdbot | Fix carrusel: textos bajo el navbar | running | 2026-02-21 |
 | ACA-007 | 2 | jules | Mapa Geoespacial de Navegación: En el componente geoespacial (`src/components/academy/geospatial`), integrar un mapa Leaflet real centrado en la Ría de Bilbao/Getxo con rutas de navegación marcadas, zonas de peligro, y la posición del club náutico. El alumno puede hacer clic en waypoints para aprender sobre cada punto. | running | 2026-02-21 |
 | T-001 | 2 | jules | Añadir imagen real al checkout de bonos | running | 2026-02-21 |
+| 7729579668030089349 | 3 | jules | Fix TODO: Fetch real username in MultiplayerLobby | running | 2026-02-23 |
+| 9932070147807647779 | 3 | jules | Fix TODO: Save onboarding answers | running | 2026-02-23 |
+| 4860108095586288277 | 3 | jules | Fix TODO: Parse real data in puertos-del-estado.ts | running | 2026-02-23 |
 | 15002951127122524161 | 3 | jules | Fix HACK: for dev, but api handles it usually... | running | 2026-02-23 |
 | T-MLXM4FQP | 3 | jules | en la aplicación de mission control en la primera pestaña en la de Dash ahí sigue offline no funciona mira a ver que puede estar pasando | pending_approval | 2026-02-22 |
 | T-MLXE01D4 | 3 | jules | Intercambia los logos de las aplicaciones apk, la de getxobela eskola tendra el logo de control manager apk y viceversa | pending_approval | 2026-02-22 |

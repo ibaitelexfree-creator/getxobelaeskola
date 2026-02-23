@@ -12,7 +12,7 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-    const supabase = createAdminClient();
+    const supabase = createAdminClient() as any;
     const handlers = new StripeHandlers(supabase);
 
     try {

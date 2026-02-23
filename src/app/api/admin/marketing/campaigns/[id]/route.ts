@@ -6,11 +6,11 @@ export async function PATCH(
     { params }: { params: { id: string } }
 ) {
     try {
-        const supabase = createAdminClient();
+        const supabase = createAdminClient() as any;
         const body = await request.json();
         const { data, error } = await supabase
             .from('marketing_campaigns')
-            .update(body)
+            .update(body as any)
             .eq('id', params.id)
             .select()
             .single();
@@ -27,7 +27,7 @@ export async function DELETE(
     { params }: { params: { id: string } }
 ) {
     try {
-        const supabase = createAdminClient();
+        const supabase = createAdminClient() as any;
         const { error } = await supabase
             .from('marketing_campaigns')
             .delete()

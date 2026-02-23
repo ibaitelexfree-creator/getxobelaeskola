@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: 'Invalid data format. wind_speed and wind_direction are required numbers.' }, { status: 400 });
         }
 
-        const supabase = createAdminClient();
+        const supabase = createAdminClient() as any;
 
         const { data, error } = await supabase
             .from('weather_logs')

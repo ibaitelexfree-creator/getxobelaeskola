@@ -6,7 +6,7 @@ import {
     BranchingMissionData,
     MissionStep,
     MissionProgress
-} from '../../types';
+} from '../types';
 import { InfoStep } from './steps/InfoStep';
 import { QuestionStep } from './steps/QuestionStep';
 import { VideoStep } from './steps/VideoStep';
@@ -48,7 +48,7 @@ export default function BranchingMission({ data, onComplete }: BranchingMissionP
     }, [data.id, data.initial_step_id]);
 
     // Step Rendering Logic
-    const currentStep = data.steps?.find(s => s.id === currentStepId);
+    const currentStep = data.steps?.find((s: any) => s.id === currentStepId);
 
     const handleOptionSelect = async (optionIndex: number) => {
         if (!currentStep) return;
@@ -65,7 +65,7 @@ export default function BranchingMission({ data, onComplete }: BranchingMissionP
         const supabase = createClient();
         const { data: { user } } = await supabase.auth.getUser();
 
-        if (user) {
+        if (user && data.id) {
             const historyEntry = {
                 step_id: currentStepId,
                 answer_idx: optionIndex,

@@ -102,7 +102,7 @@ export async function GET() {
             .filter((d): d is string => Boolean(d))
             .sort((a, b) => b.localeCompare(a));
 
-        const uniqueDates = [...new Set(activityDates)];
+        const uniqueDates = Array.from(new Set(activityDates));
 
         let currentStreak = 0;
         const today = new Date().toISOString().split('T')[0];

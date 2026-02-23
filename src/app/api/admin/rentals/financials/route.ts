@@ -29,7 +29,7 @@ export async function GET() {
         }
 
         // Manual join for profiles since the FK might be missing in DB schema cache
-        const profileIds = Array.from(new Set(rentalsData?.map(r => r.perfil_id).filter(Boolean) || []));
+        const profileIds = Array.from(new Set(rentalsData?.map((r: any) => r.perfil_id).filter(Boolean) || []));
         let profilesData: any[] = [];
 
         if (profileIds.length > 0) {
@@ -49,16 +49,16 @@ export async function GET() {
         const { data: historyData, error: historyError } = await supabaseAdmin
             .from('financial_edits')
             .select('*, profiles(nombre, apellidos)')
-            .in('reserva_id', rentalsData?.map(r => r.id) || []);
+            .in('reserva_id', rentalsData?.map((r: any) => r.id) || []);
 
         if (historyError) {
             console.error('API History Error:', historyError);
         }
 
-        const enrichedRentals = rentalsData?.map(r => ({
+        const enrichedRentals = rentalsData?.map((r: any) => ({
             ...r,
-            profiles: profilesData.find(p => p.id === r.perfil_id) || null,
-            history: historyData?.filter(h => h.reserva_id === r.id) || []
+            profiles: profilesData.find((p: any) => p.id === r.perfil_id) || null,
+            history: historyData?.filter((h: any) => h.reserva_id === r.id) || []
         })) || [];
 
         const { count, error: countError } = await supabaseAdmin

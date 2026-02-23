@@ -63,9 +63,9 @@ export async function POST(request: Request) {
         // 1. Buscar el logro por slug
         const { data: achievement, error: achievementError } = await supabase
             .from('logros')
-            .select('id, nombre_es, puntos')
+            .select('id, slug, nombre_es, puntos')
             .eq('slug', slug)
-            .single();
+            .single() as { data: any, error: any };
 
         if (achievementError || !achievement) {
             return NextResponse.json({ error: 'Logro no encontrado' }, { status: 404 });

@@ -82,6 +82,7 @@
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
+    "@types/jest": "^30.0.0",
     "@types/leaflet": "^1.9.21",
     "@types/node": "^20.19.33",
     "@types/qrcode": "^1.5.6",
@@ -91,6 +92,8 @@
     "eslint": "^8",
     "eslint-config-next": "14.2.16",
     "jsdom": "^28.1.0",
+    "puppeteer": "^24.37.5",
+    "puppeteer-core": "^24.37.5",
     "typescript": "^5.9.3",
     "vite": "^7.3.1",
     "vitest": "^4.0.18"

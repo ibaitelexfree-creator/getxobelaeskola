@@ -66,18 +66,15 @@ export default function BadgeUnlockedModal() {
                                     body: `Has conseguido: ${badgeNotification.title}`,
                                     id: Math.floor(Math.random() * 10000),
                                     schedule: { at: new Date(Date.now() + 100) },
-                                    sound: null,
-                                    attachments: null,
-                                    actionTypeId: "",
-                                    extra: null
+                                    actionTypeId: ""
                                 }]
                             });
                         }
                     } else if ('Notification' in window && Notification.permission === 'granted') {
-                         new Notification("¡Badge Desbloqueado!", {
-                             body: `Has conseguido: ${badgeNotification.title}`,
-                             icon: '/favicon.ico' // fallback
-                         });
+                        new Notification("¡Badge Desbloqueado!", {
+                            body: `Has conseguido: ${badgeNotification.title}`,
+                            icon: '/favicon.ico' // fallback
+                        });
                     }
                 } catch (e) {
                     console.log('Notification trigger failed (this is expected in browser/sim without plugins):', e);

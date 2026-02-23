@@ -8,13 +8,13 @@ interface FeedbackProps {
 }
 
 export const MissionFeedback: React.FC<FeedbackProps> = ({ onRetry, onNext }) => {
-    const { feedbackMessage, feedbackType, status } = useMissionStore();
+    const { feedback, status } = useMissionStore();
 
-    if (!feedbackMessage) return null;
+    if (!feedback.message) return null;
 
-    const isSuccess = feedbackType === 'success';
-    const isError = feedbackType === 'error';
-    const isInfo = feedbackType === 'info';
+    const isSuccess = feedback.type === 'success';
+    const isError = feedback.type === 'error';
+    const isInfo = feedback.type === 'info';
 
     return (
         <div className={`
@@ -32,7 +32,7 @@ export const MissionFeedback: React.FC<FeedbackProps> = ({ onRetry, onNext }) =>
                     </span>
                     <p className={`text-sm font-medium ${isSuccess ? 'text-green-100' : isError ? 'text-red-100' : 'text-blue-100'
                         }`}>
-                        {feedbackMessage}
+                        {feedback.message}
                     </p>
                 </div>
 

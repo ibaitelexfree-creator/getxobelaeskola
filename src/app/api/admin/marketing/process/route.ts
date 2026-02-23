@@ -46,9 +46,9 @@ export async function POST(request: Request) {
         const result = await processMarketingAutomations();
 
         return NextResponse.json({
+            ...result,
             success: true,
-            timestamp: new Date().toISOString(),
-            ...result
+            timestamp: new Date().toISOString()
         });
 
     } catch (error: any) {

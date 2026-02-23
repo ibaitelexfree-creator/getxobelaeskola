@@ -37,7 +37,9 @@ export async function requireAuth() {
 
 export async function requireAdmin() {
     const { user, profile, supabaseAdmin, error } = await checkAuth();
-    if (error || !profile) return { error: error || NextResponse.json({ error: 'Perfil no encontrado' }, { status: 404 }) };
+    if (error || !profile) {
+        return { error: NextResponse.json({ error: error?.message || 'Perfil no encontrado' }, { status: 401 }) };
+    }
 
     if (profile.rol !== 'admin') {
         return { error: NextResponse.json({ error: 'Acceso restringido a administradores' }, { status: 403 }) };
@@ -48,7 +50,9 @@ export async function requireAdmin() {
 
 export async function requireInstructor() {
     const { user, profile, supabaseAdmin, error } = await checkAuth();
-    if (error || !profile) return { error: error || NextResponse.json({ error: 'Perfil no encontrado' }, { status: 404 }) };
+    if (error || !profile) {
+        return { error: NextResponse.json({ error: error?.message || 'Perfil no encontrado' }, { status: 401 }) };
+    }
 
     if (profile.rol !== 'admin' && profile.rol !== 'instructor') {
         return { error: NextResponse.json({ error: 'Acceso restringido a instructores o administradores' }, { status: 403 }) };

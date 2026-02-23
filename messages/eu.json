@@ -929,6 +929,16 @@
       "save_btn": "GORDE",
       "ranking_title": "RANKINGA - TOP 10",
       "restart_btn": "BERRIRO JOKATU"
+    },
+    "interactive_rose": {
+      "title": "Errosita Elkarreragilea",
+      "drag_instruction": "Arrastatu haize-adierazlea (gezi urdina) nabigazioa nola aldatzen den ikusteko.",
+      "close_hauled": "Zehar-nabigazioa",
+      "optimal_angle": "Angelu Optimoa",
+      "vmg": "VMG",
+      "boat_heading": "Ontziaren Norabidea",
+      "twa": "Benetako Haize-angelua",
+      "speed": "Abiadura"
     }
   },
   "validation": {
