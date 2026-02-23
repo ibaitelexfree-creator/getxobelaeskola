@@ -15,7 +15,7 @@ const supabase = createClient(env.NEXT_PUBLIC_SUPABASE_URL, env.SUPABASE_SERVICE
 async function fix() {
     console.log('--- Fixing Evaluations Structure ---');
     const sql = `
-        ALTER TABLE public.evaluaciones 
+        ALTER TABLE public.evaluaciones
         ADD COLUMN IF NOT EXISTS cooldown_minutos INT DEFAULT 0,
         ADD COLUMN IF NOT EXISTS intentos_ventana_limite INT,
         ADD COLUMN IF NOT EXISTS intentos_ventana_horas INT;

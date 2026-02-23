@@ -39,7 +39,7 @@ async function optimize() {
             console.log(`[Done] ${imgPath} -> ${path.basename(webpPath)}`);
             console.log(`       Size: ${(statsBefore.size / 1024 / 1024).toFixed(2)}MB -> ${(statsAfter.size / 1024 / 1024).toFixed(2)}MB (-${reduction}%)`);
 
-            // Note: We keep the original for now to avoid breaking imports immediately, 
+            // Note: We keep the original for now to avoid breaking imports immediately,
             // but the goal is to shift the code to use webp.
         } catch (err) {
             console.error(`[Error] Failed to optimize ${imgPath}:`, err.message);

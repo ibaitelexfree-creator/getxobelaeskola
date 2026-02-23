@@ -33,7 +33,7 @@ async function introspect() {
     // List ALL tables if possible using information_schema
     const { data: allTables, error: allTablesError } = await supabase.rpc('get_table_names'); // maybe this one exists?
     if (allTablesError) {
-        // Last resort: query information_schema directly if possible. 
+        // Last resort: query information_schema directly if possible.
         // Some supabase setups allow it with service role.
         const { data: infoTables, error: infoError } = await supabase.from('pg_tables').select('tablename').eq('schemaname', 'public');
         // wait, pg_tables isnt usually exposed as a table view in PostgREST unless configured.

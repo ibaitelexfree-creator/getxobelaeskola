@@ -36,7 +36,7 @@ async function checkColumns() {
         if (data.length > 0) {
             console.log(Object.keys(data[0]));
         } else {
-            // If no data, we can try to get column names via an RPC if it exists, 
+            // If no data, we can try to get column names via an RPC if it exists,
             // but usually we can infer from an insert error
             console.log('Table is empty. Attempting a probe insert...');
             const { error: insertError } = await supabase

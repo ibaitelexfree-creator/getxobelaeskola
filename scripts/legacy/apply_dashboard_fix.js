@@ -26,7 +26,7 @@ const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
 async function runSQL(sql) {
     // Try to use a common RPC if available 'exec_sql' or similar if implemented in previous migrations.
-    // If not, we might have to use the REST API if we have the service role key and permissions? 
+    // If not, we might have to use the REST API if we have the service role key and permissions?
     // Actually, supabase-js doesn't support raw SQL execution directly unless via RPC.
     // However, the previous script `fix_missing_column.js` used `supabase.rpc('exec_sql', { sql })`.
     // This implies `exec_sql` RPC exists! If so, we are golden.

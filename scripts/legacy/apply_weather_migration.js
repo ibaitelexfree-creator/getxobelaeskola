@@ -42,10 +42,10 @@ async function applyMigration() {
 
         ALTER TABLE public.weather_history ENABLE ROW LEVEL SECURITY;
 
-        DO $$ 
+        DO $$
         BEGIN
             IF NOT EXISTS (
-                SELECT 1 FROM pg_policies 
+                SELECT 1 FROM pg_policies
                 WHERE tablename = 'weather_history' AND policyname = 'Public weather history access'
             ) THEN
                 CREATE POLICY "Public weather history access" ON public.weather_history

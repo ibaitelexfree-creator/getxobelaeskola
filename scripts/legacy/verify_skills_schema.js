@@ -48,7 +48,7 @@ async function checkSchema() {
     console.log("Checking for functions...");
     const { data: functions, error: err3 } = await supabase
         .rpc('evaluar_habilidades', { p_alumno_id: '00000000-0000-0000-0000-000000000000' });
-    // This will likely fail with invalid input syntax for uuid if function exists but I pass dummy, 
+    // This will likely fail with invalid input syntax for uuid if function exists but I pass dummy,
     // or just return empty. If function doesn't exist, it will say function not found.
 
     if (err3) {

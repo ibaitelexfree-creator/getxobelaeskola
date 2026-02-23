@@ -26,7 +26,7 @@ async function run() {
     console.log('Adding cupon_usado column to tracking tables...');
 
     const sql = `
-        DO $$ 
+        DO $$
         BEGIN
             IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'inscripciones' AND column_name = 'cupon_usado') THEN
                 ALTER TABLE public.inscripciones ADD COLUMN cupon_usado TEXT;

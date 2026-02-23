@@ -38,7 +38,7 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 async function check() {
     console.log('Checking distinct tipo_entidad in progreso_alumno...');
 
-    // We can't do distinct directly easily with JS client without RPC or raw SQL, 
+    // We can't do distinct directly easily with JS client without RPC or raw SQL,
     // but check specific counts for suspected bug.
 
     const { count: courseCount, error: courseError } = await supabase

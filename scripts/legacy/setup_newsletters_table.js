@@ -25,9 +25,9 @@ async function run() {
         ALTER TABLE public.newsletters ENABLE ROW LEVEL SECURITY;
 
         -- Admin/Staff can do everything
-        CREATE POLICY "Admins can manage newsletters" 
-        ON public.newsletters 
-        FOR ALL 
+        CREATE POLICY "Admins can manage newsletters"
+        ON public.newsletters
+        FOR ALL
         USING (true);
     `;
 

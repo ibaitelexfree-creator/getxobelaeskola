@@ -26,7 +26,7 @@ async function run() {
     console.log('Adding stripe_coupon_id column to marketing_campaigns...');
 
     const sql = `
-        DO $$ 
+        DO $$
         BEGIN
             IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'marketing_campaigns' AND column_name = 'stripe_coupon_id') THEN
                 ALTER TABLE public.marketing_campaigns ADD COLUMN stripe_coupon_id TEXT;

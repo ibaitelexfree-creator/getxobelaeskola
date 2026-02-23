@@ -14,14 +14,14 @@ async function prepareWaterData() {
       // All natural water (sea, rivers, etc)
       way["natural"="water"](${bbox});
       relation["natural"="water"](${bbox});
-      
+
       // Specifically bays and docks
       way["natural"="bay"](${bbox});
       relation["natural"="bay"](${bbox});
-      
+
       way["waterway"="dock"](${bbox});
       relation["waterway"="dock"](${bbox});
-      
+
       // Harbor areas
       way["harbour"="yes"](${bbox});
       relation["harbour"="yes"](${bbox});

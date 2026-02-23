@@ -19,7 +19,7 @@ async function run() {
         { slug: 'alquiler-kayak-2', imagen_url: '/images/home-hero-sailing-action.webp' }, // Generic action
         { slug: 'alquiler-piragua-1', imagen_url: '/images/home-hero-sailing-action.webp' }, // Generic action
         { slug: 'alquiler-piragua-2', imagen_url: '/images/home-hero-sailing-action.webp' }, // Generic action
-        { slug: 'alquiler-optimist', imagen_url: '/images/courses/CursodeVelaLigera.png' }, // Note: Script used png, filesystem showed webp. Let's check if png exists. 
+        { slug: 'alquiler-optimist', imagen_url: '/images/courses/CursodeVelaLigera.png' }, // Note: Script used png, filesystem showed webp. Let's check if png exists.
         // File listing showed: courses/CursodeVelaLigera.webp. I should use webp.
         { slug: 'alquiler-optimist', imagen_url: '/images/courses/CursodeVelaLigera.webp' },
         { slug: 'alquiler-laser', imagen_url: '/images/courses/CursodeVelaLigera.webp' },

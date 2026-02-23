@@ -36,8 +36,8 @@ async function checkRLS() {
 
     const checkTablesSql = `
         SELECT tablename, rowsecurity
-        FROM pg_tables 
-        WHERE schemaname = 'public' 
+        FROM pg_tables
+        WHERE schemaname = 'public'
         AND tablename IN ('reservas_alquiler', 'inscripciones', 'profiles');
     `;
 
@@ -58,8 +58,8 @@ async function checkRLS() {
 
     const checkPoliciesSql = `
         SELECT tablename, policyname, cmd, qual, with_check
-        FROM pg_policies 
-        WHERE schemaname = 'public' 
+        FROM pg_policies
+        WHERE schemaname = 'public'
         AND tablename IN ('reservas_alquiler', 'inscripciones', 'profiles');
     `;
 

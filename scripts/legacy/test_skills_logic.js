@@ -49,7 +49,7 @@ async function testSkills() {
     const { data: { users }, error: authListError } = await supabase.auth.admin.listUsers();
 
     if (authListError) {
-        // console.error("Error listing users:", authListError); 
+        // console.error("Error listing users:", authListError);
     } else {
         const found = users.find(u => u.email === email);
         if (found) userId = found.id;
