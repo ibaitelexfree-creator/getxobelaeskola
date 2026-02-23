@@ -19,89 +19,17 @@ const BITab = dynamic(() => import('./BITab'), { ssr: false });
 const DriveExplorerTab = dynamic(() => import('./DriveExplorerTab'), { ssr: false });
 const DataExplorerTab = dynamic(() => import('./DataExplorerTab'), { ssr: false });
 
-import AccessibleModal from '../shared/AccessibleModal';
 import { apiUrl } from '@/lib/api';
+import { ClientDate } from './StaffShared';
+import { StaffProfile, Rental, AuditLog, StaffStats, Newsletter, Inscription } from './types';
 
-
-import { ClientDate, StaffProfile } from './StaffShared';
-
-interface Rental {
-    id: string;
-    perfil_id: string;
-    fecha_reserva: string;
-    hora_inicio: string;
-    monto_total: number;
-    estado_entrega: string;
-    profiles?: StaffProfile;
-    servicios_alquiler?: {
-        nombre_es: string;
-    };
-    log_seguimiento?: {
-        timestamp: string;
-        status: string;
-        note: string;
-        staff: string;
-    }[];
-}
-
-interface AuditLog {
-    id: string;
-    staff_id: string;
-    target_id: string;
-    target_type: string;
-    action_type: string;
-    description: string;
-    metadata?: Record<string, unknown>;
-    created_at: string;
-}
-
-interface StaffStats {
-    todayRevenue: number;
-    monthlyRevenue: number;
-    yearlyRevenue: number;
-    studentCount: number;
-    socioCount: number;
-    studentRentersCount: number;
-    nonStudentRentersCount: number;
-}
-
-interface Newsletter {
-    id: string;
-    title: string;
-    content: string;
-    status: string;
-    created_at: string;
-    scheduled_for?: string;
-    sent_at?: string;
-    recipients_count?: number;
-}
-
-interface Inscription {
-    id: string;
-    perfil_id: string;
-    curso_id?: string;
-    edicion_id?: string;
-    estado_pago: string;
-    created_at: string;
-    log_seguimiento?: {
-        timestamp: string;
-        status: string;
-        note: string;
-        staff: string;
-    }[];
-    cursos?: {
-        nombre_es: string;
-        nombre_eu: string;
-    } | null;
-    ediciones_curso?: {
-        id: string;
-        fecha_inicio: string;
-        cursos?: {
-            nombre_es: string;
-            nombre_eu: string;
-        } | null;
-    } | null;
-}
+// Modals
+import StatusChangeModal from './modals/StatusChangeModal';
+import InscriptionStatusModal from './modals/InscriptionStatusModal';
+import InscriptionHistoryModal from './modals/InscriptionHistoryModal';
+import RentalHistoryModal from './modals/RentalHistoryModal';
+import StaffEditModal from './modals/StaffEditModal';
+import AuditLogEditModal from './modals/AuditLogEditModal';
 
 interface StaffClientProps {
     userProfile: StaffProfile;
@@ -717,6 +645,35 @@ export default function StaffClient({
         }
     };
 
+    const handleAddInscriptionLog = async (note: string) => {
+        if (!viewingInsHistory || !note.trim()) return;
+        const currentLog = Array.isArray(viewingInsHistory.log_seguimiento) ? viewingInsHistory.log_seguimiento : [];
+        const newEntry = {
+            timestamp: new Date().toISOString(),
+            status: viewingInsHistory.estado_pago,
+            note: note,
+            staff: userProfile?.nombre || 'Personal Escuela'
+        };
+        const newLog = [...currentLog, newEntry];
+
+        try {
+            const res = await fetch(apiUrl('/api/admin/update-inscription'), {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: viewingInsHistory.id, log_seguimiento: newLog })
+            });
+            if (res.ok) {
+                const data = await res.json();
+                const updated = data.inscription || { ...viewingInsHistory, log_seguimiento: newLog };
+                setStudentInscriptions(prev => prev.map(i => i.id === updated.id ? updated : i));
+                setViewingInsHistory(updated);
+                setStatusNote('');
+            }
+        } catch (err) {
+            alert('Error al añadir entrada');
+        }
+    };
+
     const confirmStatusChange = async () => {
         if (!updatingStatus) return;
         const { id, nextStatus } = updatingStatus;
@@ -863,165 +820,36 @@ export default function StaffClient({
                     </nav>
                 </header>
 
-                {/* Status Change Modal */}
-                {updatingStatus && (
-                    <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-nautical-black/80 backdrop-blur-xl">
-                        <header>
-                            <span className="text-technical text-accent block mb-3">{t('rentals.status_modal.title')}</span>
-                            <h3 className="text-3xl font-display text-white italic">{t('rentals.status_modal.change_to', { status: updatingStatus.nextStatus.toUpperCase() })}</h3>
-                        </header>
+                <StatusChangeModal
+                    updatingStatus={updatingStatus}
+                    setUpdatingStatus={setUpdatingStatus}
+                    statusNote={statusNote}
+                    setStatusNote={setStatusNote}
+                    confirmStatusChange={confirmStatusChange}
+                />
 
-                        <textarea
-                            value={statusNote}
-                            onChange={(e) => setStatusNote(e.target.value)}
-                            placeholder={t('rentals.status_modal.note_placeholder')}
-                            className="w-full h-32 bg-white/5 border border-white/10 p-4 text-sm text-white/80 outline-none focus:border-accent resize-none rounded-sm"
-                        />
+                <InscriptionStatusModal
+                    updatingInscription={updatingInscription}
+                    setUpdatingInscription={setUpdatingInscription}
+                    statusNote={statusNote}
+                    setStatusNote={setStatusNote}
+                    confirmInscriptionStatusChange={confirmInscriptionStatusChange}
+                />
 
-                        <div className="flex gap-4">
-                            <button onClick={() => setUpdatingStatus(null)} className="flex-1 py-4 border border-white/10 text-3xs uppercase tracking-widest text-white/40">{t('audit_editor.cancel')}</button>
-                            <button onClick={confirmStatusChange} className="flex-1 py-4 bg-accent text-nautical-black text-3xs uppercase tracking-widest font-bold">{t('rentals.status_modal.confirm')}</button>
-                        </div>
-                    </div>
-                )}
+                <InscriptionHistoryModal
+                    viewingInsHistory={viewingInsHistory}
+                    setViewingInsHistory={setViewingInsHistory}
+                    statusNote={statusNote}
+                    setStatusNote={setStatusNote}
+                    onAddLog={handleAddInscriptionLog}
+                    onDeleteLog={async (ts) => { if (viewingInsHistory) await deleteInsLogEntry(viewingInsHistory.id, ts); }}
+                />
 
-                {/* Inscription Status Modal */}
-                {updatingInscription && (
-                    <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-nautical-black/80 backdrop-blur-xl">
-                        <div className="w-full max-w-md glass-panel p-10 rounded-sm space-y-8 animate-premium-in">
-                            <header>
-                                <span className="text-technical text-accent block mb-3">{t('courses.payment_modal.title')}</span>
-                                <h3 className="text-3xl font-display text-white italic">{t('courses.payment_modal.change_to', { status: updatingInscription.nextStatus.toUpperCase() })}</h3>
-                            </header>
-                            <textarea
-                                value={statusNote}
-                                onChange={(e) => setStatusNote(e.target.value)}
-                                placeholder={t('courses.payment_modal.reason_placeholder')}
-                                className="w-full h-32 bg-white/5 border border-white/10 p-4 text-sm text-white/80 outline-none focus:border-accent resize-none rounded-sm font-mono"
-                            />
-                            <div className="flex gap-4 pt-4">
-                                <button onClick={() => setUpdatingInscription(null)} className="flex-1 py-4 border border-white/10 text-3xs uppercase tracking-widest text-white/40 hover:text-white transition-colors">{t('audit_editor.cancel')}</button>
-                                <button onClick={confirmInscriptionStatusChange} className="flex-1 py-4 bg-accent text-nautical-black text-3xs uppercase tracking-widest font-black shadow-lg shadow-accent/20">{t('courses.update_payment')}</button>
-                            </div>
-                        </div>
-                    </div>
-                )}
-
-                {/* Inscription History Modal */}
-                <AccessibleModal
-                    isOpen={!!viewingInsHistory}
-                    onClose={() => setViewingInsHistory(null)}
-                    title={viewingInsHistory?.ediciones_curso?.cursos?.nombre_es || viewingInsHistory?.cursos?.nombre_es || 'Registro Académico'}
-                    maxWidth="max-w-3xl"
-                >
-                    {viewingInsHistory && (
-                        <div className="space-y-8">
-                            {/* Quick Add Log Entry */}
-                            <div className="p-6 bg-white/5 border border-white/10 rounded-sm space-y-4">
-                                <h4 className="text-3xs uppercase tracking-[0.3em] text-accent font-bold">Añadir Entrada a Bitácora</h4>
-                                <div className="flex gap-4">
-                                    <textarea
-                                        value={statusNote}
-                                        onChange={(e) => setStatusNote(e.target.value)}
-                                        placeholder="Escribe una observación en el historial..."
-                                        className="flex-1 bg-white/5 border border-white/10 p-4 text-sm text-white/80 outline-none focus:border-accent resize-none rounded-sm min-h-[80px]"
-                                    />
-                                    <button
-                                        onClick={async () => {
-                                            if (!statusNote.trim()) return;
-                                            const currentLog = Array.isArray(viewingInsHistory.log_seguimiento) ? viewingInsHistory.log_seguimiento : [];
-                                            const newEntry = {
-                                                timestamp: new Date().toISOString(),
-                                                status: viewingInsHistory.estado_pago,
-                                                note: statusNote,
-                                                staff: userProfile?.nombre || 'Personal Escuela'
-                                            };
-                                            const newLog = [...currentLog, newEntry];
-
-                                            try {
-                                                const res = await fetch(apiUrl('/api/admin/update-inscription'), {
-                                                    method: 'POST',
-                                                    headers: { 'Content-Type': 'application/json' },
-                                                    body: JSON.stringify({ id: viewingInsHistory.id, log_seguimiento: newLog })
-                                                });
-                                                if (res.ok) {
-                                                    const data = await res.json();
-                                                    const updated = data.inscription || { ...viewingInsHistory, log_seguimiento: newLog };
-                                                    setStudentInscriptions(prev => prev.map(i => i.id === updated.id ? updated : i));
-                                                    setViewingInsHistory(updated);
-                                                    setStatusNote('');
-                                                }
-                                            } catch (err) {
-                                                alert('Error al añadir entrada');
-                                            }
-                                        }}
-                                        className="px-8 bg-accent text-nautical-black text-3xs uppercase font-black tracking-widest hover:bg-white transition-all self-end h-[80px]"
-                                    >
-                                        Añadir
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div className="space-y-6">
-                                {(Array.isArray(viewingInsHistory.log_seguimiento) ? viewingInsHistory.log_seguimiento : []).slice().reverse().map((log, idx) => (
-                                    <div key={idx} className="p-6 bg-white/5 border border-white/5 rounded-sm relative group/log hover:bg-white/10 transition-all">
-                                        <div className="flex justify-between items-center mb-4">
-                                            <span className={`text-technical px-3 py-1 border ${log.status === 'pagado' ? 'border-accent text-accent bg-accent/5' : 'border-white/20 text-white/40'}`}>{log.status}</span>
-                                            <div className="text-white/40 text-3xs">
-                                                <ClientDate date={log.timestamp} format="short" />
-                                                <button
-                                                    onClick={() => deleteInsLogEntry(viewingInsHistory.id, log.timestamp)}
-                                                    className="opacity-0 group-hover/log:opacity-100 text-3xs hover:text-red-500 transition-all ml-4"
-                                                >
-                                                    BORRAR
-                                                </button>
-                                            </div>
-                                        </div>
-                                        <p className="text-lg font-display text-white/80 italic leading-relaxed">&quot;{log.note}&quot;</p>
-                                        <div className="mt-4 pt-4 border-t border-white/5 flex justify-between items-center">
-                                            <span className="text-3xs text-white/20 uppercase font-black tracking-widest">Oficial de Cargo: {log.staff || 'Sistemas'}</span>
-                                            <span className="text-3xs text-white/10 font-mono tracking-tighter">#{idx.toString(16).padStart(4, '0')}</span>
-                                        </div>
-                                    </div>
-                                ))}
-                                {(!viewingInsHistory.log_seguimiento || viewingInsHistory.log_seguimiento.length === 0) && (
-                                    <p className="text-center text-white/20 italic py-12">No hay registros en el historial.</p>
-                                )}
-                            </div>
-                        </div>
-                    )}
-                </AccessibleModal>
-
-                <AccessibleModal
-                    isOpen={!!viewingHistory}
-                    onClose={() => setViewingHistory(null)}
-                    title={viewingHistory?.servicios_alquiler?.nombre_es || 'Historial de Alquiler'}
-                    maxWidth="max-w-2xl"
-                >
-                    {viewingHistory && (
-                        <div className="space-y-4">
-                            {(Array.isArray(viewingHistory.log_seguimiento) ? viewingHistory.log_seguimiento : []).slice().reverse().map((log, idx) => (
-                                <div key={idx} className="p-4 bg-white/5 border border-white/5 rounded-sm relative group/log">
-                                    <div className="flex justify-between text-3xs mb-2">
-                                        <span className="text-accent font-bold uppercase">{log.status}</span>
-                                        <div className="flex items-center gap-4">
-                                            <span className="text-white/20"><ClientDate date={log.timestamp} format="short" /></span>
-                                            <button
-                                                onClick={() => deleteLogEntry(viewingHistory.id, log.timestamp)}
-                                                className="opacity-0 group-hover/log:opacity-100 text-3xs hover:text-red-500 transition-all px-2"
-                                                title="Borrar registro"
-                                            >
-                                                🗑️
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <p className="text-sm text-white/60 italic">&quot;{log.note}&quot;</p>
-                                    <p className="text-[8px] text-white/20 mt-2 uppercase font-black">Registrado por: {log.staff || 'N/A'}</p>
-                                </div>
-                            ))}
-                        </div>
-                    )}
-                </AccessibleModal>
+                <RentalHistoryModal
+                    viewingHistory={viewingHistory}
+                    setViewingHistory={setViewingHistory}
+                    onDeleteLog={async (ts) => { if (viewingHistory) await deleteLogEntry(viewingHistory.id, ts); }}
+                />
 
                 {/* TAB CONTENT: OVERVIEW */}
                 {activeTab === 'overview' && (
@@ -1171,149 +999,22 @@ export default function StaffClient({
                     />
                 )}
 
-                {/* Staff Edit Modal */}
-                {isEditingStaff && editStaffData && (
-                    <div className="fixed inset-0 z-[110] flex items-center justify-center p-6 bg-nautical-black/90 backdrop-blur-2xl">
-                        <div className="w-full max-w-lg glass-panel p-12 rounded-sm space-y-10 animate-premium-in border border-white/10 shadow-2xl">
-                            <header>
-                                <span className="text-accent uppercase tracking-[0.4em] text-3xs font-bold mb-4 block">{t('staff_mgmt.edit_modal.title')}</span>
-                                <h3 className="text-4xl font-display text-white italic">{t('staff_mgmt.edit_modal.edit_profile')}</h3>
-                                <p className="text-technical text-white/40 mt-2">{t('staff_mgmt.edit_modal.id')}: {editStaffData.id}</p>
-                            </header>
+                <StaffEditModal
+                    isEditingStaff={isEditingStaff}
+                    setIsEditingStaff={setIsEditingStaff}
+                    editStaffData={editStaffData}
+                    setEditStaffData={setEditStaffData}
+                    handleUpdateStaff={handleUpdateStaff}
+                    isSavingStaff={isSavingStaff}
+                />
 
-                            <div className="grid gap-6">
-                                <div className="grid grid-cols-2 gap-6">
-                                    <div className="space-y-2">
-                                        <label className="text-3xs uppercase tracking-widest text-white/40 font-bold ml-1">{t('staff_mgmt.edit_modal.name')}</label>
-                                        <input
-                                            value={editStaffData.nombre || ''}
-                                            onChange={(e) => setEditStaffData({ ...editStaffData, nombre: e.target.value })}
-                                            className="w-full bg-white/5 border border-white/10 p-5 text-lg font-display italic text-white outline-none focus:border-accent"
-                                        />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <label className="text-3xs uppercase tracking-widest text-white/40 font-bold ml-1">{t('staff_mgmt.edit_modal.last_name')}</label>
-                                        <input
-                                            value={editStaffData.apellidos || ''}
-                                            onChange={(e) => setEditStaffData({ ...editStaffData, apellidos: e.target.value })}
-                                            className="w-full bg-white/5 border border-white/10 p-5 text-lg font-display italic text-white outline-none focus:border-accent"
-                                        />
-                                    </div>
-                                </div>
+                <AuditLogEditModal
+                    editingLog={editingLog}
+                    setEditingLog={setEditingLog}
+                    handleUpdateLog={handleUpdateLog}
+                    isSavingLog={isSavingLog}
+                />
 
-                                <div className="space-y-2">
-                                    <label className="text-3xs uppercase tracking-widest text-white/40 font-bold ml-1">{t('staff_mgmt.edit_modal.email')}</label>
-                                    <input
-                                        value={editStaffData.email || ''}
-                                        onChange={(e) => setEditStaffData({ ...editStaffData, email: e.target.value })}
-                                        className="w-full bg-white/5 border border-white/10 p-5 text-sm font-mono text-white outline-none focus:border-accent"
-                                    />
-                                </div>
-
-                                <div className="space-y-2">
-                                    <label className="text-3xs uppercase tracking-widest text-white/40 font-bold ml-1">{t('staff_mgmt.edit_modal.phone')}</label>
-                                    <input
-                                        value={editStaffData.telefono || ''}
-                                        onChange={(e) => setEditStaffData({ ...editStaffData, telefono: e.target.value })}
-                                        className="w-full bg-white/5 border border-white/10 p-5 text-lg font-display italic text-white outline-none focus:border-accent"
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="flex gap-4 pt-6">
-                                <button
-                                    onClick={() => setIsEditingStaff(false)}
-                                    className="flex-1 py-5 border border-white/10 text-3xs uppercase tracking-widest text-white/40 hover:text-white transition-all font-bold"
-                                >
-                                    {t('staff_mgmt.edit_modal.discard')}
-                                </button>
-                                <button
-                                    onClick={handleUpdateStaff}
-                                    disabled={isSavingStaff}
-                                    className="flex-1 py-5 bg-accent text-nautical-black text-3xs uppercase tracking-widest font-black hover:bg-white transition-all shadow-xl shadow-accent/20 disabled:opacity-50"
-                                >
-                                    {isSavingStaff ? t('staff_mgmt.edit_modal.saving') : t('staff_mgmt.edit_modal.apply_changes')}
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                )}
-
-                {/* Audit Log Edit Modal */}
-                {editingLog && (
-                    <div className="fixed inset-0 z-[120] flex items-center justify-center p-6 bg-nautical-black/95 backdrop-blur-2xl">
-                        <div className="w-full max-w-2xl glass-panel p-12 rounded-sm space-y-10 animate-premium-in border border-white/10 shadow-3xl">
-                            <header className="flex justify-between items-start">
-                                <div className="space-y-2">
-                                    <span className="text-accent uppercase tracking-[0.4em] text-3xs font-bold block mb-4">{t('audit_editor.title')}</span>
-                                    <h3 className="text-4xl font-display text-white italic">{t('audit_editor.header')}</h3>
-                                </div>
-                                <button onClick={() => setEditingLog(null)} className="text-white/20 hover:text-white transition-colors text-2xl">×</button>
-                            </header>
-
-                            <div className="space-y-6">
-                                <div className="space-y-2">
-                                    <label className="text-3xs uppercase tracking-widest text-white/40 font-bold ml-1">{t('audit_editor.description')}</label>
-                                    <input
-                                        value={editingLog.description || ''}
-                                        onChange={(e) => setEditingLog({ ...editingLog, description: e.target.value })}
-                                        className="w-full bg-white/5 border border-white/10 p-5 text-white font-display italic text-xl outline-none focus:border-accent"
-                                    />
-                                </div>
-
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div className="space-y-2">
-                                        <label className="text-3xs uppercase tracking-widest text-white/40 font-bold ml-1">{t('audit_editor.target_id')}</label>
-                                        <input
-                                            value={editingLog.target_id || ''}
-                                            onChange={(e) => setEditingLog({ ...editingLog, target_id: e.target.value })}
-                                            className="w-full bg-white/5 border border-white/10 p-5 text-white font-mono text-2xs outline-none focus:border-accent"
-                                        />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <label className="text-3xs uppercase tracking-widest text-white/40 font-bold ml-1">{t('audit_editor.target_type')}</label>
-                                        <input
-                                            value={editingLog.target_type || ''}
-                                            onChange={(e) => setEditingLog({ ...editingLog, target_type: e.target.value })}
-                                            className="w-full bg-white/5 border border-white/10 p-5 text-white font-mono text-2xs outline-none focus:border-accent"
-                                        />
-                                    </div>
-                                </div>
-
-                                <div className="space-y-2">
-                                    <label className="text-3xs uppercase tracking-widest text-white/40 font-bold ml-1">{t('audit_editor.metadata_json')}</label>
-                                    <textarea
-                                        rows={8}
-                                        value={JSON.stringify(editingLog.metadata, null, 2)}
-                                        onChange={(e) => {
-                                            try {
-                                                const parsed = JSON.parse(e.target.value);
-                                                setEditingLog({ ...editingLog, metadata: parsed });
-                                            } catch { }
-                                        }}
-                                        className="w-full bg-white/5 border border-white/10 p-5 text-white font-mono text-2xs outline-none focus:border-accent resize-none custom-scrollbar"
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="flex gap-4 pt-6">
-                                <button
-                                    onClick={() => setEditingLog(null)}
-                                    className="flex-1 py-5 border border-white/10 text-3xs uppercase tracking-widest text-white/40 hover:text-white transition-all font-bold"
-                                >
-                                    {t('audit_editor.cancel')}
-                                </button>
-                                <button
-                                    onClick={handleUpdateLog}
-                                    disabled={isSavingLog}
-                                    className="flex-1 py-5 bg-accent text-nautical-black text-3xs uppercase tracking-widest font-black hover:bg-white transition-all shadow-xl shadow-accent/20"
-                                >
-                                    {isSavingLog ? t('audit_editor.saving') : t('audit_editor.update')}
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                )}
                 {/* Debug Indicator */}
                 {isAdmin && (
                     <div className="fixed bottom-4 right-4 text-[8px] text-white/10 z-[1000] pointer-events-none font-mono">

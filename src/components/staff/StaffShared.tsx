@@ -39,14 +39,3 @@ export const WindGauge = ({ knots }: { knots: number }) => {
         </div>
     );
 };
-
-export interface StaffProfile {
-    id: string;
-    nombre: string;
-    apellidos: string;
-    email: string;
-    rol: string;
-    telefono?: string;
-    created_at?: string;
-    [key: string]: any;
-}

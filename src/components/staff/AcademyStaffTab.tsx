@@ -1,7 +1,8 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
-import { ClientDate, StaffProfile } from './StaffShared';
+import { ClientDate } from './StaffShared';
+import { StaffProfile } from './types';
 import { generateCertificatePDF } from '@/lib/certificates/pdfGenerator';
 
 interface AcademyData {

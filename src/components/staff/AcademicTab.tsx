@@ -1,36 +1,9 @@
 'use client';
 import React from 'react';
 import { useTranslations } from 'next-intl';
-import { ClientDate, StaffProfile } from './StaffShared';
+import { ClientDate } from './StaffShared';
+import { StaffProfile, Inscription } from './types';
 import { apiUrl } from '@/lib/api';
-
-
-interface Inscription {
-    id: string;
-    perfil_id: string;
-    curso_id?: string;
-    edicion_id?: string;
-    estado_pago: string;
-    created_at: string;
-    log_seguimiento?: {
-        timestamp: string;
-        status: string;
-        note: string;
-        staff: string;
-    }[];
-    cursos?: {
-        nombre_es: string;
-        nombre_eu: string;
-    } | null;
-    ediciones_curso?: {
-        id: string;
-        fecha_inicio: string;
-        cursos?: {
-            nombre_es: string;
-            nombre_eu: string;
-        } | null;
-    } | null;
-}
 
 interface AcademicTabProps {
     searchTerm: string;

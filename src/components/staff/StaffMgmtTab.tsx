@@ -2,7 +2,8 @@
 import React from 'react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
-import { ClientDate, StaffProfile } from './StaffShared';
+import { ClientDate } from './StaffShared';
+import { StaffProfile } from './types';
 import { apiUrl } from '@/lib/api';
 
 
