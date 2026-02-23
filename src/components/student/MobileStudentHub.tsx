@@ -6,12 +6,13 @@ import { useRouter } from 'next/navigation';
 import { BookOpen, Sailboat, GraduationCap, User, Trophy, Calendar, ChevronRight, Anchor, Compass, Book } from 'lucide-react';
 import DailyNauticalQuote from '@/components/student/DailyNauticalQuote';
 import StaggeredEntrance from '@/components/shared/StaggeredEntrance';
+import { Profile, Inscripcion, Rental, AcademyStats } from '@/types/student';
 
 interface MobileStudentHubProps {
-    profile: any;
-    upcomingInscripciones: any[];
-    upcomingRentals: any[];
-    academyStats?: any;
+    profile: Profile | null | undefined;
+    upcomingInscripciones: Inscripcion[];
+    upcomingRentals: Rental[];
+    academyStats?: Partial<AcademyStats>;
     locale: string;
     t: any;
 }
@@ -59,7 +60,7 @@ export default function MobileStudentHub({
         },
     ];
 
-    const formatDate = (dateStr: string) => {
+    const formatDate = (dateStr: string | undefined) => {
         if (!dateStr) return '';
         const date = new Date(dateStr);
         return date.toLocaleDateString(locale, { day: 'numeric', month: 'short' });
@@ -140,7 +141,7 @@ export default function MobileStudentHub({
                     </div>
 
                     <div className="flex gap-4 overflow-x-auto pb-8 pr-6 snap-x snap-mandatory scrollbar-hide">
-                        {upcomingInscripciones.map((ins: any, i: number) => {
+                        {upcomingInscripciones.map((ins: Inscripcion, i: number) => {
                             const date = ins.ediciones_curso?.fecha_inicio || ins.metadata?.start_date;
                             const name = ins.cursos?.nombre_es || 'Curso de Vela';
                             return (
@@ -162,7 +163,7 @@ export default function MobileStudentHub({
                             );
                         })}
 
-                        {upcomingRentals.map((rent: any, i: number) => {
+                        {upcomingRentals.map((rent: Rental, i: number) => {
                             const date = rent.fecha_reserva;
                             return (
                                 <div key={`rental-${i}`} className="min-w-[85%] sm:min-w-[300px] snap-center bg-nautical-black border border-white/10 rounded-2xl p-5 relative overflow-hidden h-32 flex flex-col justify-between">

@@ -4,15 +4,7 @@ import { useRouter } from 'next/navigation';
 import { createPortal } from 'react-dom';
 import { useTranslations } from 'next-intl';
 import { apiUrl } from '@/lib/api';
-
-
-interface Profile {
-    id: string;
-    nombre: string;
-    apellidos: string;
-    telefono: string;
-    rol: string;
-}
+import { Profile } from '@/types/student';
 
 interface EditProfileModalProps {
     isOpen: boolean;
