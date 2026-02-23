@@ -33,7 +33,6 @@ async function renameCourse() {
     if (error) console.error(error);
     else console.log('✓ Renamed course "Iniciación a la Vela Ligera" to "Iniciación a la Vela"');
 
-    // Check others (although they have no courses yet, we should fix the logic if they are added later)
 }
 
 renameCourse();
