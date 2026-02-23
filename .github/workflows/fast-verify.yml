@@ -18,22 +18,14 @@ jobs:
               with:
                   node-version: 22
 
-            - name: "⚡ Parallel Execution: Lint & Logic"
+            - name: "⚡ Auditor Agent Verification"
               run: |
                   # 1. Install ultra-fast tools (binaries, no full npm install)
                   npm install -g oxlint@latest @biomejs/biome@latest --no-progress --loglevel=error
 
-                  # 2. RUN PARALLEL JOBS
-                  # Grouping everything to stay within the "1-minute" billable window
-                  echo "🏁 Starting parallel scans..."
-
-                  (oxlint ./src --quiet && echo "✅ Oxlint Passed") &
-                  (biome check ./src --diagnostic-level=error && echo "✅ Biome Passed") &
-
-                  # Wait for all background jobs
-                  wait
-
-                  echo "✨ All fast scans completed successfully!"
+                  # 2. Run Auditor Agent
+                  echo "🏁 Starting Auditor Agent..."
+                  node scripts/auditor-agent.js
 
     heavy-compute:
         name: "🏗️ Heavy CI (Conditional)"
