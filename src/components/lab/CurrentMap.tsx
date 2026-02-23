@@ -23,8 +23,8 @@ export default function CurrentMap({ date }: CurrentMapProps) {
         // Calculate current based on rate of change
         const t0 = date;
         const t1 = addMinutes(date, 5);
-        const h0 = getTideLevel(t0);
-        const h1 = getTideLevel(t1);
+        const h0 = getTideLevel(t0.getTime());
+        const h1 = getTideLevel(t1.getTime());
         const delta = h1 - h0; // Change in 5 mins
 
         // Max range is approx 3m. Max change in 6h (360m) is 3m. Avg 0.008 m/min.

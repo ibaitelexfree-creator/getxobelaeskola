@@ -240,8 +240,8 @@ export default function WindStation() {
                                         boxShadow: '0 10px 30px -10px rgba(0,0,0,0.5)'
                                     }}
                                     itemStyle={{ fontSize: '12px', fontWeight: 'bold' }}
-                                    formatter={(value: number | undefined, name: string | number) => [
-                                        `${value ?? 0} kn`,
+                                    formatter={(value: any, name: any) => [
+                                        `${Number(value || 0).toFixed(1)} kn`,
                                         name === 'speed_knots' ? 'Viento' : 'Racha'
                                     ]}
                                     labelFormatter={(label) => formatTime(label)}

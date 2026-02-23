@@ -27,7 +27,7 @@ export default function TideTable({ date, onDateChange }: TideTableProps) {
         while (current <= end) {
             data.push({
                 time: format(current, 'HH:mm'),
-                height: getTideLevel(current),
+                height: getTideLevel(current.getTime()),
                 timestamp: current.getTime()
             });
             current = new Date(current.getTime() + 15 * 60000); // Add 15 min
@@ -149,7 +149,7 @@ export default function TideTable({ date, onDateChange }: TideTableProps) {
                                         color: '#fff'
                                     }}
                                     itemStyle={{ color: '#60a5fa' }}
-                                    formatter={(value: number) => [`${value.toFixed(2)} m`, 'Altura']}
+                                    formatter={(value: any) => [`${Number(value).toFixed(2)} m`, 'Altura']}
                                     labelStyle={{ color: '#94a3b8', marginBottom: '4px' }}
                                 />
                                 <Area

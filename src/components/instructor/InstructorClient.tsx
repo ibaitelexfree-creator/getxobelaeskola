@@ -268,6 +268,9 @@ export default function InstructorClient({ profile, initialSessions, initialInsc
                 <SessionDetailModal
                     session={selectedSession}
                     onClose={() => setSelectedSession(null)}
+                    allInstructors={[]}
+                    allBoats={[]}
+                    allCourses={[]}
                     onUpdate={async (updated: Session) => {
                         // Optimistic update
                         setSessions(prev => prev.map(s => s.id === updated.id ? updated : s));

@@ -19,7 +19,7 @@ export function calculateNextState(
     const selectedOption = currentStep.options[optionIndex];
 
     return {
-        nextStepId: selectedOption.nextStepId,
+        nextStepId: selectedOption.nextStepId || null,
         scoreDelta: selectedOption.scoreDelta || 0,
         feedback: selectedOption.feedback || null,
     };
