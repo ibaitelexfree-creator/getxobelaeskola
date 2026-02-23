@@ -73,7 +73,7 @@ export async function GET(req: Request) {
         }
 
         // Enrich with relations count from embedded data
-        const enriched = (data || []).map((item: SearchResult) => {
+        const enriched = (data || []).map((item: any) => {
             const relations: { label: string; count: number; table: string }[] = [];
 
             for (const rel of rels) {
@@ -89,10 +89,11 @@ export async function GET(req: Request) {
 
             return {
                 ...item,
+                id: item.id || 'unknown', // Ensure ID is present
                 _table: tableName,
-                _title: item.nombre || item.title || item.name || item.asunto || item.id, // Best effort title
+                _title: item.nombre || item.title || item.name || item.asunto || item.id || 'Untitled', // Best effort title
                 _relations: relations
-            };
+            } as SearchResult;
         });
 
         return enriched;
@@ -102,11 +103,11 @@ export async function GET(req: Request) {
         // Search key tables
         const tablesToSearch = ['profiles', 'cursos', 'embarcaciones', 'reservas_alquiler'];
         for (const t of tablesToSearch) {
-            const res = await searchTable(t) as SearchResult[];
+            const res = await searchTable(t);
             results = [...results, ...res];
         }
     } else {
-        results = await searchTable(table) as SearchResult[];
+        results = await searchTable(table);
     }
 
     return NextResponse.json({ results });

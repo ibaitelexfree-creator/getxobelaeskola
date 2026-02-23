@@ -3,8 +3,13 @@
 import React, { useState, useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
-const generateData = () => {
-    const data = [];
+interface ChartDataPoint {
+    timestamp: number;
+    value: number;
+}
+
+const generateData = (): ChartDataPoint[] => {
+    const data: ChartDataPoint[] = [];
     const now = Date.now();
     for (let i = 0; i < 24; i++) {
         data.push({
@@ -17,8 +22,11 @@ const generateData = () => {
 
 const data = generateData();
 
-const formatTime = (timestamp: number) => {
-    return new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+const formatTime = (timestamp: number | string) => {
+    // Recharts can pass string or number
+    const time = typeof timestamp === 'number' ? timestamp : Number(timestamp);
+    if (isNaN(time)) return '';
+    return new Date(time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 };
 
 export default function TestChartPage() {
@@ -45,7 +53,7 @@ export default function TestChartPage() {
                         />
                         <YAxis stroke="#888" />
                         <Tooltip
-                            labelFormatter={(label) => formatTime(label)}
+                            labelFormatter={(label: any) => formatTime(label)}
                             contentStyle={{ backgroundColor: '#333', border: 'none', color: '#fff' }}
                         />
                         <Line type="monotone" dataKey="value" stroke="#8884d8" strokeWidth={2} dot={{ r: 4 }} activeDot={{ r: 8 }} />

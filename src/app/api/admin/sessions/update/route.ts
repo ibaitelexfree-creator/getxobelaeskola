@@ -6,8 +6,15 @@ import { validateSessionOverlap } from '@/lib/session-validation';
 
 export async function POST(request: Request) {
     try {
-        const { user, profile, supabaseAdmin, error: authError } = await requireInstructor();
-        if (authError) return authError;
+        const authResult = await requireInstructor();
+
+        // Type guard to check if authResult is an error response
+        if ('error' in authResult && authResult.error instanceof NextResponse) {
+            return authResult.error;
+        }
+
+        // If not error, it's the success object
+        const { user, profile, supabaseAdmin } = authResult as { user: any; profile: any; supabaseAdmin: any };
 
         const body = await request.json();
         const {
@@ -29,15 +36,18 @@ export async function POST(request: Request) {
         const isInstructor = profile?.rol === 'instructor';
 
         // Fetch current session for permissions and history comparison
-        const { data: currentSession, error: fetchError } = await supabaseAdmin
+        const { data: currentSessionData, error: fetchError } = await supabaseAdmin
             .from('sesiones')
             .select('*')
             .eq('id', id)
             .single();
 
-        if (fetchError || !currentSession) {
+        if (fetchError || !currentSessionData) {
             return NextResponse.json({ error: 'Sesión no encontrada' }, { status: 404 });
         }
+
+        // Cast to Record for dynamic access
+        const currentSession = currentSessionData as Record<string, any>;
 
         // Instructors can only update their own sessions (to change status/obs)
         if (isInstructor && !isAdmin && currentSession.instructor_id !== user.id) {
@@ -134,7 +144,7 @@ export async function POST(request: Request) {
         // --- GOOGLE CALENDAR SYNC ---
         try {
             // Re-fetch with joins to get names
-            const { data: sessionData, error: sessionError } = await supabaseAdmin
+            const { data: sessionDataRaw, error: sessionError } = await supabaseAdmin
                 .from('sesiones')
                 .select(`
                     *,
@@ -143,6 +153,9 @@ export async function POST(request: Request) {
                 `)
                 .eq('id', id)
                 .single();
+
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const sessionData = sessionDataRaw as any;
 
             if (!sessionError && sessionData) {
                 const courseName = sessionData.curso?.nombre_es || 'Clase';

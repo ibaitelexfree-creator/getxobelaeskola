@@ -12,13 +12,21 @@ import { getSpainTimeInfo, getInitialBookingDate } from '@/lib/utils/date';
 
 interface RentalService {
     id: string;
+    nombre: string;
     nombre_es: string;
-    nombre_eu: string;
+    nombre_eu?: string;
+    nombre_en?: string;
     categoria: string;
     slug: string;
-    precio_base: number;
-    opciones: { label: string; extra: number }[];
-    imagen_url: string;
+    precio_base?: number;
+    precio_hora?: number;
+    opciones?: { label: string; extra: number }[];
+    imagen_url?: string;
+    activo: boolean;
+    descripcion: string;
+    descripcion_es?: string;
+    descripcion_eu?: string;
+    descripcion_en?: string;
 }
 
 export default function RentalClient({
