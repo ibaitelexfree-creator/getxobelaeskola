@@ -1,7 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { PushNotifications } from '@capacitor/push-notifications';
 import { Capacitor } from '@capacitor/core';
-import { createClient } from '@/lib/supabase/client';
 
 export interface PushNotificationState {
     permission: PermissionState | 'prompt' | 'prompt-with-rationale';
@@ -65,7 +64,6 @@ export const usePushNotifications = () => {
 
         // Listener for registration success (Token received)
         const registrationListener = PushNotifications.addListener('registration', async (token) => {
-            console.log('Push Registration Token:', token.value);
             setState(prev => ({ ...prev, token: token.value }));
 
             // Here you would typically send the token to your backend
@@ -80,14 +78,12 @@ export const usePushNotifications = () => {
         });
 
         // Listener for incoming notifications
-        const notificationListener = PushNotifications.addListener('pushNotificationReceived', (notification) => {
-            console.log('Push Notification Received:', notification);
+        const notificationListener = PushNotifications.addListener('pushNotificationReceived', (_notification) => {
             // You can add logic here to show a local toast/banner if app is open
         });
 
         // Listener for notification actions (tapping the notification)
-        const actionListener = PushNotifications.addListener('pushNotificationActionPerformed', (notification) => {
-            console.log('Push Notification Action Performed:', notification.actionId, notification.inputValue);
+        const actionListener = PushNotifications.addListener('pushNotificationActionPerformed', (_notification) => {
         });
 
         return () => {
