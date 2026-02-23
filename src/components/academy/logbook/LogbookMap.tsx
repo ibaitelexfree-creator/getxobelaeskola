@@ -12,7 +12,7 @@ const LeafletLogbookMap = dynamic(() => import('./LeafletLogbookMap'), {
 interface NavigationPoint {
     id: string;
     fecha: string;
-    zona_nombre: string;
+    zona_nombre?: string;
     ubicacion?: { lat: number, lng: number };
     tipo: string;
     duracion_h: number;
@@ -64,7 +64,7 @@ export default function LogbookMap({ sessions }: LogbookMapProps) {
                         </div>
                         <div>
                             <h4 className="text-accent font-black uppercase text-[10px] tracking-widest">Travesía</h4>
-                            <p className="text-white font-bold">{selectedPoint.zona_nombre}</p>
+                            <p className="text-white font-bold">{selectedPoint.zona_nombre || selectedPoint.tipo}</p>
                         </div>
                     </div>
 

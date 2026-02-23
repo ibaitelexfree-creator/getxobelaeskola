@@ -64,7 +64,7 @@ export interface MissionStep {
     id: string;
     type: 'info' | 'question' | 'video' | 'summary' | 'interactive';
     title: string;
-    content: string;
+    content: any; // Flexible for various step payloads
     position?: number;
     options?: BranchOption[];
     videoUrl?: string;
