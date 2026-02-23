@@ -2,6 +2,9 @@
 
 import React, { useEffect, useRef } from 'react';
 import 'leaflet/dist/leaflet.css';
+import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
+import markerIcon from 'leaflet/dist/images/marker-icon.png';
+import markerShadow from 'leaflet/dist/images/marker-shadow.png';
 
 const MOCK_ROUTE = [
     [43.345, -3.025], // Getxo Puerto
@@ -37,7 +40,13 @@ export default function KioskMap() {
             }
 
             // Fix marker icons
-            // Delete _getIconUrl to force Leaflet to use the default one, but better to just use circles or custom icons to avoid assets issues
+            delete (L.Icon.Default.prototype as any)._getIconUrl;
+
+            L.Icon.Default.mergeOptions({
+                iconRetinaUrl: markerIcon2x.src,
+                iconUrl: markerIcon.src,
+                shadowUrl: markerShadow.src,
+            });
 
             const map = L.map(mapRef.current, {
                 zoomControl: false,
@@ -55,7 +64,7 @@ export default function KioskMap() {
             }).addTo(map);
 
             // Add Route
-            const polyline = L.polyline(MOCK_ROUTE, {
+            const polyline = L.polyline(MOCK_ROUTE as any, {
                 color: '#fbbf24', // Amber/Accent
                 weight: 4,
                 opacity: 0.8,
@@ -63,21 +72,9 @@ export default function KioskMap() {
             }).addTo(map);
 
             // Add Start/End Markers
-            L.circleMarker(MOCK_ROUTE[0], {
-                radius: 8,
-                fillColor: '#0ea5e9', // Sky Blue
-                color: '#ffffff',
-                weight: 2,
-                fillOpacity: 1
-            }).addTo(map).bindPopup("Salida: Getxo");
+            L.marker(MOCK_ROUTE[0] as any).addTo(map).bindPopup("Salida: Getxo");
 
-            L.circleMarker(MOCK_ROUTE[MOCK_ROUTE.length - 1], {
-                radius: 8,
-                fillColor: '#22c55e', // Green
-                color: '#ffffff',
-                weight: 2,
-                fillOpacity: 1
-            }).addTo(map).bindPopup("Llegada: Castro");
+            L.marker(MOCK_ROUTE[MOCK_ROUTE.length - 1] as any).addTo(map).bindPopup("Llegada: Castro");
 
             // Fit bounds to route
             map.fitBounds(polyline.getBounds(), { padding: [50, 50] });
