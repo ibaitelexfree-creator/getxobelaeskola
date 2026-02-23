@@ -7,6 +7,7 @@ import { useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useTranslations } from 'next-intl';
 import { apiUrl } from '@/lib/api';
+import { useDebouncedCallback } from '@/hooks/useDebouncedCallback';
 
 
 export default function ContactForm() {
@@ -62,6 +63,8 @@ export default function ContactForm() {
         }
     };
 
+    const debouncedSubmit = useDebouncedCallback(onSubmit, 500);
+
     if (success) {
         return (
             <div className="bg-card border border-accent/20 p-12 text-center animate-fade-in">
@@ -80,7 +83,7 @@ export default function ContactForm() {
     }
 
     return (
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-8 animate-fade-in">
+        <form onSubmit={handleSubmit(debouncedSubmit)} className="space-y-8 animate-fade-in">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div className="space-y-2">
                     <label htmlFor="nombre" className="text-xs uppercase tracking-widest text-accent font-semibold ml-1">{t('name')}</label>
