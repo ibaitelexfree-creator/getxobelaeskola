@@ -1,4 +1,3 @@
-
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { cookies } from 'next/headers';
@@ -56,25 +55,60 @@ export async function GET(req: Request) {
         }
 
         // Enrich with relations count
-        const enriched = await Promise.all((data || []).map(async (item) => {
+        const rels = RELATIONS[tableName] || [];
+        const relationCounts: Record<string, Record<string, number>> = {}; // label -> { fkValue -> count }
+
+        // Batch fetch counts for each relation type
+        for (const rel of rels) {
+            const isEmail = rel.fk === 'email';
+            // Collect all FK values from the current page of results
+            const fkValues = (data || [])
+                .map((item: any) => isEmail ? item.email : item.id)
+                .filter(Boolean); // Filter out null/undefined/empty
+
+            // Deduplicate FKs
+            const uniqueFkValues = Array.from(new Set(fkValues));
+
+            if (uniqueFkValues.length === 0) continue;
+
+            // Fetch all related items that match any of the FKs
+            // We only need the FK column to count groupings in memory
+            const { data: relatedData, error: relatedError } = await supabase
+                .from(rel.table)
+                .select(rel.fk)
+                .in(rel.fk, uniqueFkValues);
+
+            if (relatedError || !relatedData) {
+                console.error(`Error fetching relation ${rel.label}:`, relatedError);
+                continue;
+            }
+
+            // Count occurrences in memory
+            const counts = relatedData.reduce((acc: any, curr: any) => {
+                const key = curr[rel.fk];
+                if (key) {
+                    acc[key] = (acc[key] || 0) + 1;
+                }
+                return acc;
+            }, {});
+
+            relationCounts[rel.label] = counts;
+        }
+
+        // Map counts back to items
+        const enriched = (data || []).map((item: any) => {
             const relations: any[] = [];
-            const rels = RELATIONS[tableName] || [];
 
             for (const rel of rels) {
-                // Determine FK value (handle email special case)
-                let fkValue = item[rel.fk === 'email' ? 'email' : 'id'];
-                if (rel.fk === 'email') fkValue = item.email; // Source is email
+                const isEmail = rel.fk === 'email';
+                const fkValue = isEmail ? item.email : item.id;
 
-                // Skip if no key to join
                 if (!fkValue) continue;
 
-                // Simple count query
-                const { count, error: countError } = await supabase
-                    .from(rel.table)
-                    .select('*', { count: 'exact', head: true })
-                    .eq(rel.fk, fkValue);
+                // Lookup count
+                const count = relationCounts[rel.label]?.[fkValue];
 
-                if (!countError && count !== null && count > 0) {
+                if (count && count > 0) {
                     relations.push({ label: rel.label, count, table: rel.table });
                 }
             }
@@ -84,7 +118,7 @@ export async function GET(req: Request) {
                 _title: item.nombre || item.title || item.name || item.asunto || item.id, // Best effort title
                 _relations: relations
             };
-        }));
+        });
 
         return enriched;
     };
