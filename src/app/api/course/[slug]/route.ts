@@ -73,19 +73,34 @@ export async function GET(
             .eq('curso_id', curso.id)
             .order('orden');
 
-        const modulosConUnidades = await Promise.all(
-            (modulos || []).map(async (modulo) => {
-                const { count } = await supabase
-                    .from('unidades_didacticas')
-                    .select('*', { count: 'exact', head: true })
-                    .eq('modulo_id', modulo.id);
+        // OPTIMIZATION: Fetch unit counts in a single query instead of N+1
+        let counts: Record<string, number> = {};
+        const modulosList = modulos || [];
 
-                return {
-                    ...modulo,
-                    num_unidades: count || 0
-                };
-            })
-        );
+        if (modulosList.length > 0) {
+            const moduloIds = modulosList.map((m) => m.id);
+            const { data: unidades, error: unidadesError } = await supabase
+                .from('unidades_didacticas')
+                .select('modulo_id')
+                .in('modulo_id', moduloIds);
+
+            if (unidadesError) {
+                console.error('Error fetching units count:', unidadesError);
+            } else if (unidades) {
+                counts = unidades.reduce((acc: Record<string, number>, unit: any) => {
+                    const mId = unit.modulo_id;
+                    if (mId) {
+                        acc[mId] = (acc[mId] || 0) + 1;
+                    }
+                    return acc;
+                }, {});
+            }
+        }
+
+        const modulosConUnidades = modulosList.map((modulo) => ({
+            ...modulo,
+            num_unidades: counts[modulo.id] || 0
+        }));
 
         let progreso = null;
         try {
