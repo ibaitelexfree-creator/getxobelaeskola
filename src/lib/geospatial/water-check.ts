@@ -12,8 +12,12 @@ export function isPointInWater(lat: number, lng: number): boolean {
     // Actually booleanPointInPolygon takes a Polygon, MultiPolygon or Feature
     // We should check against each feature in the collection
 
-    if (featureCollection.features) {
+    if (featureCollection.features && Array.isArray(featureCollection.features)) {
         return featureCollection.features.some((feature: any) => {
+            // Validate feature structure before turf check to be robust
+            if (!feature || !feature.geometry || !feature.geometry.coordinates) {
+                return false;
+            }
             try {
                 return turf.booleanPointInPolygon(point, feature);
             } catch (e) {
