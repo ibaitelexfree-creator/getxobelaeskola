@@ -6,10 +6,10 @@ export interface BoatState {
     velocity: Vector3;
     heading: number;
     angularVelocity: number;
-    liftCoeff: number;
-    dragCoeff: number;
+    driveForce: number; // Formalized for debug
+    idealSailAngle: number; // Formalized for debug
+    dragCoeff: number; // Kept for legacy/future use
     efficiency: number; // 0 to 1
-    aoa: number; // Angle of Attack in radians
     tack: number; // 1 for Starboard, -1 for Port
     heel: number; // Heeling angle in radians
     speed: number; // Knots
@@ -22,10 +22,10 @@ export class BoatPhysics {
         velocity: new Vector3(),
         heading: 0,
         angularVelocity: 0,
-        liftCoeff: 0,
+        driveForce: 0,
+        idealSailAngle: 0,
         dragCoeff: 0,
         efficiency: 0,
-        aoa: 0,
         tack: 1,
         heel: 0,
         speed: 0,
@@ -176,12 +176,19 @@ export class BoatPhysics {
         this.state.speedKmh = speedMagnitude * 3.6;
 
         // Debug info relative to user request
-        this.state.liftCoeff = driveForce; // Hack to show Drive in debug UI if needed
-        this.state.aoa = idealSailAngle; // Show ideal angle in debug
+        this.state.driveForce = driveForce; // Formalized for debug
+        this.state.idealSailAngle = idealSailAngle; // Show ideal angle in debug
     }
 
     // Facade getters for legacy support in SailingSimulator.tsx
     get position() { return this.state.position; }
     get velocity() { return this.state.velocity; }
     get heading() { return this.state.heading; }
+    get driveForce() { return this.state.driveForce; }
+    get idealSailAngle() { return this.state.idealSailAngle; }
+
+    /** @deprecated Use driveForce instead */
+    get liftCoeff() { return this.state.driveForce; }
+    /** @deprecated Use idealSailAngle instead */
+    get aoa() { return this.state.idealSailAngle; }
 }
