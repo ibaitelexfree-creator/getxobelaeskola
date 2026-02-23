@@ -180,4 +180,7 @@ export const triggerBuild = (workflow_id = 'android-build.yml') =>
 export const triggerNotebookLMReport = () =>
     request<{ success: boolean; message: string; details?: string }>('POST', '/api/v1/notebooklm/report');
 
+export const getPreviews = () =>
+    request<{ success: boolean; previews: any[] }>('GET', '/api/v1/previews');
+
 export { getBaseUrl, DEFAULT_BASE };
