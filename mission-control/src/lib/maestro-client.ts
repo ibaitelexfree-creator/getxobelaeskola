@@ -44,9 +44,9 @@ export async function sendTask(description: string, mode: 'cascade' | 'flash' | 
 /** Direct question to specific Jules via Telegram */
 export async function sendQuestion(text: string, julesId: string) {
     const roles: Record<string, string> = {
-        '1': 'Arquitecto / Core',
-        '2': 'Producto / UI',
-        '3': 'Calidad / QA',
+        '1': 'Analytics',
+        '2': 'Data Engineering',
+        '3': 'Dev / Orquestador',
     };
 
     const role = roles[julesId] || 'Agente';

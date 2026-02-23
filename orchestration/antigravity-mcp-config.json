@@ -101,7 +101,11 @@
       "workflows": {
         "autonomous": {
           "enabled": true,
-          "triggers": ["github-push", "api-request", "schedule"],
+          "triggers": [
+            "github-push",
+            "api-request",
+            "schedule"
+          ],
           "approvalRequired": true
         },
         "ci-cd": {
@@ -149,6 +153,21 @@
           "type": "string",
           "required": true,
           "description": "Session ID to query"
+        }
+      }
+    },
+    "jules_delegate_trio": {
+      "description": "Delegate a task to 3 specialized Jules domains (Analytics -> Data Engineering -> Dev/Orchestrator). Strict validation and order.",
+      "parameters": {
+        "task": {
+          "type": "string",
+          "required": true,
+          "description": "The task to perform and delegate across the 3 domains"
+        },
+        "requires_db_review": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether the task requires Data Engineering (Neon MCP) module"
         }
       }
     }

@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Zap, Bot, Shuffle, ChevronDown, MessagesSquare, Shield, Palette, CheckCircle } from 'lucide-react';
+import { Send, Zap, Bot, Shuffle, ChevronDown, MessagesSquare, Shield, Palette, CheckCircle, Database, Eye, Terminal, Info } from 'lucide-react';
 import { useMissionStore } from '@/store/useMissionStore';
 import { sendTask, approve, reject, sendQuestion } from '@/lib/maestro-client';
 
@@ -71,9 +71,9 @@ export default function TaskLauncher() {
     const currentMode = modeConfig[mode];
 
     const julesConfig = {
-        '1': { label: 'Jules 1', role: 'Architect', icon: <Shield size={14} />, color: 'text-status-green' },
-        '2': { label: 'Jules 2', role: 'Product', icon: <Palette size={14} />, color: 'text-status-blue' },
-        '3': { label: 'Jules 3', role: 'QA', icon: <CheckCircle size={14} />, color: 'text-status-amber' },
+        '1': { label: 'Jules 1', role: 'Analytics', icon: <Eye size={14} />, color: 'text-status-blue', desc: 'Tinybird MCP (Read Only). Detecta anomalías y testea entornos Preview de Render.' },
+        '2': { label: 'Jules 2', role: 'Data Eng', icon: <Database size={14} />, color: 'text-status-green', desc: 'Neon MCP. Opera en branches, no edita código. Reportes SQL.' },
+        '3': { label: 'Jules 3', role: 'Dev ORQ', icon: <Terminal size={14} />, color: 'text-status-amber', desc: 'Context7 + Render MCP. Modifica código, genera branches, previews y aprueba merges.' },
     };
 
     return (
@@ -189,6 +189,13 @@ export default function TaskLauncher() {
                     ))}
                 </div>
 
+                <div className="flex items-start gap-2 mb-4 p-2 bg-white/5 rounded-lg text-xs">
+                    <Info size={14} className="text-white/40 flex-shrink-0 mt-0.5" />
+                    <p className="text-white/60 leading-tight">
+                        <strong className="text-white/80">{julesConfig[selectedJules].role}:</strong> {julesConfig[selectedJules].desc}
+                    </p>
+                </div>
+
                 <div className="relative">
                     <textarea
                         value={question}
@@ -201,9 +208,8 @@ export default function TaskLauncher() {
                     <button
                         onClick={handleAsk}
                         disabled={!question.trim() || asking}
-                        className={`absolute bottom-3 right-3 p-2 rounded-lg bg-buoy-orange text-black transition-all ${
-                            !question.trim() || asking ? 'opacity-30 cursor-not-allowed scale-90' : 'hover:scale-105 active:scale-95 shadow-lg shadow-buoy-orange/20'
-                        }`}
+                        className={`absolute bottom-3 right-3 p-2 rounded-lg bg-buoy-orange text-black transition-all ${!question.trim() || asking ? 'opacity-30 cursor-not-allowed scale-90' : 'hover:scale-105 active:scale-95 shadow-lg shadow-buoy-orange/20'
+                            }`}
                     >
                         {asking ? (
                             <div className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" />

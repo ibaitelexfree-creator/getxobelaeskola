@@ -1482,6 +1482,79 @@ function initializeToolRegistry() {
     return { success: true, handoffId, message: 'Task delegated to Antigravity' };
   });
 
+  // v2.10.0: Jules Trio Delegation with Preview Deployments
+  toolRegistry.set('jules_delegate_trio', async (p) => {
+    const trioId = `TRIO-${Date.now().toString(36).toUpperCase()}`;
+    const baseTask = p.task || 'Undefined task';
+    const requiresDbReview = p.requires_db_review === true;
+
+    const tasksToCreate = [
+      {
+        id: `${trioId}-1-DEV-BRANCH`,
+        title: `[Dev] Create Branch & Deploy Preview: ${baseTask}`,
+        executor: 'jules_dev',
+        status: 'pending',
+        priority: 1,
+        source: 'jules_delegate_trio',
+        metadata: JSON.stringify({ domain: 'Dev Orquestador', toolToUse: 'Context7 + Render MCP', createsPreview: true })
+      }
+    ];
+
+    let currentPriority = 2;
+
+    if (requiresDbReview) {
+      tasksToCreate.push({
+        id: `${trioId}-${currentPriority}-DATA`,
+        title: `[Data Engineering] DB Review & Migrate branch: ${baseTask}`,
+        executor: 'jules_data_engineer',
+        status: 'pending',
+        priority: currentPriority++,
+        source: 'jules_delegate_trio',
+        metadata: JSON.stringify({ domain: 'Data Engineering', toolToUse: 'Neon MCP', modifyBranchOnly: true })
+      });
+    }
+
+    tasksToCreate.push({
+      id: `${trioId}-${currentPriority}-ANALYTICS`,
+      title: `[Analytics] Test Render Preview & Metrics: ${baseTask}`,
+      executor: 'jules_analytics',
+      status: 'pending',
+      priority: currentPriority++,
+      source: 'jules_delegate_trio',
+      metadata: JSON.stringify({ domain: 'Analytics', toolToUse: 'Tinybird MCP', readOnly: true, testsPreviewEnv: true })
+    });
+
+    tasksToCreate.push({
+      id: `${trioId}-${currentPriority}-DEV-MERGE`,
+      title: `[Dev] Merge PR if Analytics Approved: ${baseTask}`,
+      executor: 'jules_dev',
+      status: 'pending',
+      priority: currentPriority,
+      source: 'jules_delegate_trio',
+      metadata: JSON.stringify({ domain: 'Dev Orquestador', toolToUse: 'Context7 + Render MCP', runsVerifyAll: true, mergesPR: true })
+    });
+
+    for (let t of tasksToCreate) {
+      dbTasks.add(t);
+    }
+    await syncTasksToMarkdown();
+
+    const msgText = `🤝 **Delegación con Preview (TRIO ID: ${trioId})**\n1. Dev crea branch y Render Preview\n` +
+      (requiresDbReview ? `2. Data Engineering (Neon branch)\n3. Analytics testea Preview\n` : `2. Analytics testea Preview\n`) +
+      `${requiresDbReview ? 4 : 3}. Dev aprueba Merge si OK`;
+
+    if (typeof sendTelegramMessage === 'function') {
+      await sendTelegramMessage([msgText].join('\\n'));
+    }
+
+    return {
+      success: true,
+      trioId,
+      message: 'Task divided with Preview Deployments: Dev -> ' + (requiresDbReview ? 'Data -> ' : '') + 'Analytics -> Dev(Merge).',
+      tasks: tasksToCreate.map(t => t.id)
+    };
+  });
+
   // v2.7.0: Telegram Integration
   toolRegistry.set('telegram_send_message', (p) => sendTelegramMessage(p.text, { parseMode: p.parseMode }));
 
