@@ -1,5 +1,6 @@
 import { requireAdmin } from '@/lib/auth-guard';
 import { NextResponse } from 'next/server';
+import { BoatCreateSchema } from '@/lib/validators/boat';
 
 export async function POST(request: Request) {
     try {
@@ -7,34 +8,38 @@ export async function POST(request: Request) {
         if (authError) return authError;
 
         const body = await request.json();
-        const nombre = body.nombre?.trim();
-        const tipo = body.tipo?.trim();
-        const capacidad = body.capacidad;
-        const matricula = body.matricula?.trim();
-        const estado = body.estado?.trim();
-        const notas = body.notas?.trim();
-        const imagen_url = body.imagen_url?.trim();
 
-        if (!nombre || !tipo || capacidad === undefined || capacidad === null) {
-            return NextResponse.json({ error: 'Faltan campos obligatorios (Nombre, Tipo, Capacidad)' }, { status: 400 });
+        const validation = BoatCreateSchema.safeParse(body);
+
+        if (!validation.success) {
+            return NextResponse.json({
+                error: 'Datos inválidos',
+                details: validation.error.format()
+            }, { status: 400 });
         }
 
-        const capacityInt = parseInt(capacidad);
-        if (isNaN(capacityInt) || capacityInt <= 0) {
-            return NextResponse.json({ error: 'La capacidad debe ser un número positivo' }, { status: 400 });
-        }
+        const {
+            nombre,
+            tipo,
+            capacidad,
+            matricula,
+            estado,
+            notas,
+            imagen_url,
+            notion_threshold
+        } = validation.data;
 
         const { data, error } = await supabaseAdmin
             .from('embarcaciones')
             .insert({
                 nombre,
                 tipo,
-                capacidad: capacityInt,
+                capacidad,
                 matricula: matricula || '',
-                estado: estado || 'disponible',
+                estado,
                 notas: notas || '',
                 imagen_url: imagen_url || '',
-                notion_threshold: body.notion_threshold !== undefined ? body.notion_threshold : 0.2
+                notion_threshold
             })
             .select()
             .single();
