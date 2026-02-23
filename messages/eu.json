@@ -72,6 +72,7 @@
     "footer_note": "* Belaontzien alokairurako gutxieneko titulazioa behar da. Turbinadun Paddle Surferako oinarrizko prestakuntza sartzen da.",
     "categories": {
       "all": "Guztiak",
+      "alquileres": "Alokairuak",
       "veleros": "Belaontziak",
       "windsurf": "Windsurfa",
       "paddlesurf": "Paddle Surfa",
@@ -79,8 +80,7 @@
       "piragua": "Piragua",
       "membresias": "Bazkidetzak",
       "bonos": "Bonuak",
-      "eventos": "Ekitaldiak",
-      "alquileres": "Alokairuak"
+      "eventos": "Ekitaldiak"
     },
     "booking": {
       "from": "hemendik",
@@ -559,6 +559,7 @@
       "sort_by": "Ordenatu",
       "apply_btn": "BILAKETA EXEKUTATU 🔍",
       "results_found": "Aurkitutako emaitzak",
+      "filter_active": "Iragazki aktiboa: {term}",
       "no_results": "Ez da aurkitu erregistrorik irizpide horiekin.",
       "clear_filters": "Iragazkiak Garbitu",
       "responsible": "Arduraduna (Monitorea)",
@@ -582,11 +583,11 @@
         "returned": "ITZULITA (AMATITUTA)"
       },
       "update_error": "Errorea erregistroa eguneratzean",
-      "connection_error": "Konexio errorea",
-      "filter_active": "Iragazki aktiboa: {term}"
+      "connection_error": "Konexio errorea"
     },
     "financials": {
       "today": "Gaur",
+      "week": "Azken Astea",
       "month": "Hilabete Hau",
       "year": "Urtekoa",
       "from": "Noiztik",
@@ -607,7 +608,6 @@
       "no_records": "Ez da aurkitu erregistrorik.",
       "various": "Hainbat",
       "reporting_scan": "Finantza Azterketa",
-      "week": "Azken Astea",
       "search_placeholder": "Bezeroa edo zerbitzua bilatu...",
       "filter_status": "Egoera",
       "filter_service": "Zerbitzua",
@@ -646,24 +646,24 @@
       "title": "Online Akademia",
       "subtitle": "Online Espedienteen Kontrola",
       "search_student": "Bilatu nabigatzailea izenaren bidez...",
-      "unidades_leidas": "Irakurritako Unitateak",
-      "quizzes_aprobados": "Gainditutako Quiz-ak",
+      "academic_progress": "Aurrerapen Akademikoa",
       "skills": "Lortutako Gaitasunak",
       "logros": "Lorpenak eta Domina",
       "certificates": "Diplomak eta Ziurtagiriak",
+      "no_data": "Hautatu ikasle bat bere historial akademiko digitala kontsultatzeko",
+      "unidades_leidas": "Irakurritako Unitateak",
+      "quizzes_aprobados": "Gainditutako Quiz-ak",
       "download_certificate": "PDF Deskargatu",
       "no_certificates": "Ez dago emandako ziurtagiririk",
       "progress_details": "Nabigazio Xehetasunak",
       "no_records": "Ez dago progresio erregistrorik",
-      "no_data": "Hautatu ikasle bat bere historial akademiko digitala kontsultatzeko",
-      "loading_record": "Espedientea kargatzen...",
-      "found_no_students": "Ez da aurkitu nabigatzailerik \"{query}\"-rako",
       "skills_count": "{count} Gaitasun",
       "diplomas_count": "{count} Diploma",
       "official_cert": "ZIURTAGIRI OFIZIALA",
       "nautical_formation": "Nautika Prestakuntza",
-      "online_control": "Espediente online kontrola",
-      "academic_progress": "Aurrerapen Akademikoa"
+      "loading_record": "Espedientea kargatzen...",
+      "found_no_students": "Ez da aurkitu nabigatzailerik \"{query}\"-rako",
+      "online_control": "Espediente online kontrola"
     },
     "maintenance_modal": {
       "update_status_title": "Gertakariaren Egoera Eguneratu",
@@ -701,11 +701,11 @@
     "rental": "Alokairua",
     "school": "Eskola",
     "contact": "Kontaktua",
+    "privacy": "Pribatasuna",
+    "cookies": "Cookieak",
     "copyright": "© 2026 Getxo Bela Eskola · Premium Itsas Esperientzia",
     "slogan": "Getxo Bela Eskola  Itsas esperientzia bikaina Getxoko Kirol Portuan.",
-    "privacy": "Pribatasuna",
-    "terms": "Baldintzak",
-    "cookies": "Cookieak"
+    "terms": "Baldintzak"
   },
   "academy": {
     "title": "Akademia Digital",
@@ -715,12 +715,12 @@
       "eyebrow": "Nautika Eskola Digitala",
       "title_prefix": "Zure",
       "title_highlight": "Prestakuntza",
-      "title_suffix": "Bidaia",
       "description": "Nabigatu prestakuntza nautikoko 7 mailetatik. Maila bakoitzak hurrengorako prestatzen zaitu, hasiberri den marinelaz kapitain esperientziadunera.",
       "theory_hours": "o teoria",
       "practice_hours": "o praktika",
       "view_courses": "Ikastaroak Ikusi →",
-      "transversal": "Zeharkakoa"
+      "transversal": "Zeharkakoa",
+      "title_suffix": "Bidaia"
     },
     "status": {
       "completed": "✓ Osatua",
@@ -829,6 +829,9 @@
       "title": "Azken Historiala",
       "completed": "Osatua"
     },
+    "micro_lessons": {
+      "title": "[TODO: EU] Micro-Lecciones"
+    },
     "daily_challenge": {
       "title": "Eguneko Erronka",
       "subtitle": "Ikasi zerbait berria gaur",
@@ -900,11 +903,11 @@
     "message_short": "Mezua laburregia da"
   },
   "legal": {
+    "privacy_title": "Pribatutasun Politika",
+    "cookies_title": "Cookien Politika",
     "rental_contract": "MATERIAL NAUTIKOA ALOKATZEKO KONTRATUA - GETXO BELA ESKOLA\n\n1. ERRENTATSAILEAREN BALDINTZAK: Bezeroak adierazten du alokatutako materiala modu seguruan erabiltzeko beharrezko ezagutza teknikoak dituela. Aisialdiko belaontzien kasuan, dagokion gutxieneko titulazioa beharrezkoa da.\n\n2. EGOERA ETA ITZULTZEA: Materiala funtzionamendu-egoera egokian entregatzen da. Bezeroak egoera berean itzultzeko konpromisoa hartzen du. Ardura gabekeriagatik sortutako edozein kalte bezeroaren ardura esklusiboa izango da.\n\n3. NABIGAZIO EREMUAK: Nabigazioa baimendutako eremuetara eta adostutako denborara mugatuko da. Bezeroak Getxoko Kirol Portuko arauak eta Itsas Kapaintzaren araudia errespetatzeko konpromisoa hartzen du.\n\n4. SEGURTASUNA: Salbamendu-txalekoa erabiltzea nahitaezkoa eta pertsonala da uretan geratzen den denbora guztian.\n\n5. RESKATEA ETA LAGUNTZA: Bezeroak zuhurtzia faltagatik edo baimendutako eremuetatik kanpo ateratzeagatik laguntza edo erreskatea behar badu, sor daitezkeen gastuak bere kontu izango dira.\n\n6. SINADURA DIGITALA: Onarpen-laukia markatzean, bezeroak berresten du aurreko puntu guztiak ulertu dituela eta bere legezko erantzukizuna onartzen duela.",
     "consent_acceptance": "Goian zehaztutako legezko baldintzak irakurri eta berariaz onartzen ditut. Ulertzen dut onarpen honek sinadura digital lotesle baten balioa duela.",
-    "error_log_consent": "Ezin izan da legezko sinadura erregistratu. Saiatu berriro.",
-    "privacy_title": "Pribatutasun Politika",
-    "cookies_title": "Cookien Politika"
+    "error_log_consent": "Ezin izan da legezko sinadura erregistratu. Saiatu berriro."
   },
   "legal_modal": {
     "viewing_doc": "Dokumentua Ikusten",
@@ -949,9 +952,13 @@
     "title": "Nabigazio Radarra \"Puente de Mando\"",
     "location": "Arriluze Kaia — Getxo",
     "loading": "Tresnak Kargatzen...",
+    "live_status": "BIZIRIK",
+    "connecting_status": "KONEKTATZEN...",
     "wind": "Benetako Haizea",
     "knots": "Korapiloak",
     "aws": "Haize abiadura",
+    "syncing": "Sinkronizatzen...",
+    "action_close": "Itxi historikoa",
     "gust": "Haize-bolada",
     "twa": "Haize angelua",
     "tide": "Getxoko Marea",
@@ -960,6 +967,8 @@
     "falling": "Jaisten",
     "stable": "Egonkorra",
     "next_tide": "Hurrengoa: {time} ({type})",
+    "tide_high": "G",
+    "tide_low": "B",
     "temp": "Aire Tenp.",
     "pressure": "Presioa",
     "visibility": "Ikusgarritasuna",
@@ -977,12 +986,6 @@
     "history_gusts": "Boladak",
     "history_direction": "Norabidea",
     "history_temp": "Tenp (ºC)",
-    "history_tide": "Marea (m)",
-    "live_status": "BIZIRIK",
-    "connecting_status": "KONEKTATZEN...",
-    "syncing": "Sinkronizatzen...",
-    "action_close": "Itxi historikoa",
-    "tide_high": "G",
-    "tide_low": "B"
+    "history_tide": "Marea (m)"
   }
 }
