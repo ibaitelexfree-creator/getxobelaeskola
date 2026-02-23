@@ -8,6 +8,7 @@ import { KnotMission } from './missions/KnotMission';
 import { InventoryMission } from './missions/InventoryMission';
 import { SimulatorEmbedMission } from './missions/SimulatorEmbedMission';
 import { HotspotMission } from './missions/HotspotMission';
+import { TideMission } from './missions/TideMission';
 
 // Registry Map
 export const MISSION_REGISTRY: Record<MissionType, React.ComponentType<any>> = {
@@ -15,7 +16,8 @@ export const MISSION_REGISTRY: Record<MissionType, React.ComponentType<any>> = {
     'mision_nudos': KnotMission,
     'inventario': InventoryMission,
     'simulador': SimulatorEmbedMission,
-    'hotspot': HotspotMission
+    'hotspot': HotspotMission,
+    'calculo_mareas': TideMission
 };
 
 export const getMissionComponent = (type: MissionType) => {
