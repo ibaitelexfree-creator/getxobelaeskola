@@ -151,7 +151,6 @@ export default function StaffClient({
 
     const userRole = (userProfile?.rol || '').toLowerCase();
     const isAdmin = userRole === 'admin';
-    const isInstructor = userRole === 'instructor' || userRole === 'admin';
 
     const [searchTerm, setSearchTerm] = useState('');
     const [students, setStudents] = useState<StaffProfile[]>([]);
@@ -654,7 +653,6 @@ export default function StaffClient({
         };
         const newLog = [...currentLog, newLogEntry];
 
-        console.log('Confirming Inscription Status Change:', { id, nextStatus, newLog });
         try {
             const res = await fetch(apiUrl('/api/admin/update-inscription'), {
                 method: 'POST',
@@ -806,23 +804,8 @@ export default function StaffClient({
         }
     };
 
-    // Debug roles if needed
-    useEffect(() => {
-        console.log("Session Role:", userProfile?.rol, "isAdmin:", isAdmin, "isInstructor:", isInstructor);
-        console.log("Data Stats - Rentals:", rentals.length, "Staff:", staffProfiles.length);
-    }, [userProfile, isAdmin, isInstructor, rentals, staffProfiles]);
 
     // Simplified Stats Logic
-    const displayStats = stats || initialStats || {
-        todayRevenue: 0,
-        monthlyRevenue: 0,
-        yearlyRevenue: 0,
-        studentCount: 0,
-        socioCount: 0,
-        studentRentersCount: 0,
-        nonStudentRentersCount: 0
-    };
-
     return (
         <div className="min-h-screen bg-premium-mesh p-4 lg:p-6 space-y-4 pb-20 relative overflow-hidden">
             {/* Ambient background glow */}
