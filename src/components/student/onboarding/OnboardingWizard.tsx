@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl';
 import confetti from 'canvas-confetti';
 import { X, ChevronRight, Check, Anchor, Map, Compass, Award } from 'lucide-react';
 import { createPortal } from 'react-dom';
+import { apiUrl } from '@/lib/api';
 
 interface OnboardingWizardProps {
     userId?: string;
@@ -31,12 +32,19 @@ export default function OnboardingWizard({ userId }: OnboardingWizardProps) {
         }
     }, [userId]);
 
-    const handleComplete = () => {
+    const handleComplete = async () => {
         if (userId) {
             localStorage.setItem(`onboarding_completed_${userId}`, 'true');
-            // TODO: Save answers (level test, goals) to the backend.
-            // currently this is a frontend-only implementation.
-            console.log('Onboarding Answers:', answers);
+
+            try {
+                await fetch(apiUrl('/api/onboarding/complete'), {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(answers)
+                });
+            } catch (error) {
+                console.error('Failed to save onboarding answers:', error);
+            }
         }
         setIsVisible(false);
     };
@@ -385,7 +393,7 @@ function BadgeStep({ t, onClose }: { t: any, onClose: () => void }) {
             className="bg-gradient-to-br from-accent to-yellow-500 p-1 rounded-sm shadow-[0_0_100px_rgba(var(--accent-rgb),0.5)] max-w-md mx-auto relative"
         >
             <div className="bg-nautical-black p-10 text-center relative overflow-hidden">
-                <div className="absolute inset-0 bg-[url('/noise.png')] opacity-20 mix-blend-overlay" />
+                <div className="absolute inset-0 bg-[url('/noise.png')] opacity-20 mix-blend-overlay pointer-events-none" />
 
                 <div className="w-24 h-24 bg-accent rounded-full flex items-center justify-center mx-auto mb-6 text-nautical-black shadow-[0_0_30px_rgba(var(--accent-rgb),0.6)] animate-pulse">
                     <Award size={48} />
