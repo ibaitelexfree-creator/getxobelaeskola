@@ -308,7 +308,6 @@ export default function FinancialReportsClient({ initialData, initialView, total
 
         const diffMs = end.getTime() - start.getTime();
         const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
-        const diffMonths = (ey - sy) * 12 + (em - sm);
 
         // Protect against massive loops if date range is bogus
         if (diffDays > 365 * 10) return []; // Increased limit for long history
@@ -320,14 +319,6 @@ export default function FinancialReportsClient({ initialData, initialView, total
         const isMonthly = diffDays > 45;
 
         let monthStep = 1;
-        // User requested strict "one bar per month" for "Todos los datos"
-        // Removing dynamic step logic to force 1 month granularity
-        // if (isMonthly) {
-        //      // Target ~30-40 bars
-        //      if (diffMonths > 40) {
-        //          monthStep = Math.ceil(diffMonths / 30);
-        //      }
-        // }
 
         if (isHourly) {
             for (let h = 0; h < 24; h++) {
@@ -392,14 +383,6 @@ export default function FinancialReportsClient({ initialData, initialView, total
                 // Buckets are generated with monthStep.
                 // We can iterate buckets to find the one that covers this date.
                 // Buckets are sorted by date.
-
-                // Get Year-Month of item
-                // const parts = new Intl.DateTimeFormat('en-CA', {
-                //    timeZone: 'Europe/Madrid', year: 'numeric', month: '2-digit'
-                // }).formatToParts(rawDate);
-                // const y = parseInt(parts.find(p => p.type === 'year')?.value || '0');
-                // const m = parseInt(parts.find(p => p.type === 'month')?.value || '0');
-                // const itemDate = new Date(Date.UTC(y, m - 1, 1));
 
                 // Easier: just loop through agg keys (which are YYYY-MM) and find the best fit
                 // Since `monthStep` > 1 means we have gaps in keys, we need to map Item -> Closest Previous Bucket
