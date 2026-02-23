@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { PushNotifications } from '@capacitor/push-notifications';
 import { Capacitor } from '@capacitor/core';
 import { createClient } from '@/lib/supabase/client';
+import type { AuthChangeEvent, Session } from '@supabase/supabase-js';
 
 export interface PushNotificationState {
     permission: PermissionState | 'prompt' | 'prompt-with-rationale';
@@ -59,18 +60,55 @@ export const usePushNotifications = () => {
         }
     }, []);
 
+    // Internal helper to sync token with Supabase
+    const syncTokenWithBackend = useCallback(async (tokenValue: string) => {
+        if (!Capacitor.isNativePlatform()) return;
+
+        try {
+            const supabase = createClient();
+            const { data: { user } } = await supabase.auth.getUser();
+
+            if (user) {
+                console.log('Syncing push token with backend:', tokenValue);
+
+                // 1. Update user_devices (Modern approach)
+                const { error: deviceError } = await supabase
+                    .from('user_devices')
+                    .upsert({
+                        user_id: user.id,
+                        fcm_token: tokenValue,
+                        platform: Capacitor.getPlatform(),
+                        last_seen_at: new Date().toISOString()
+                    }, { onConflict: 'fcm_token' });
+
+                if (deviceError) console.error('Error syncing device token:', deviceError);
+
+                // 2. Update profiles (Backward compatibility)
+                const { error: profileError } = await supabase
+                    .from('profiles')
+                    .update({ fcm_token: tokenValue, updated_at: new Date().toISOString() })
+                    .eq('id', user.id);
+
+                if (profileError) console.error('Error syncing profile token:', profileError);
+
+                if (!deviceError && !profileError) {
+                    console.log('Push token successfully synced');
+                }
+            }
+        } catch (error) {
+            console.error('Unexpected error during token sync:', error);
+        }
+    }, []);
+
     // Register listeners for token and notifications
     useEffect(() => {
         if (!Capacitor.isNativePlatform()) return;
 
         // Listener for registration success (Token received)
-        const registrationListener = PushNotifications.addListener('registration', async (token) => {
-            console.log('Push Registration Token:', token.value);
+        const registrationListener = PushNotifications.addListener('registration', (token) => {
+            console.log('Push Registration Token received:', token.value);
             setState(prev => ({ ...prev, token: token.value }));
-
-            // Here you would typically send the token to your backend
-            // const supabase = createClient();
-            // await supabase.from('user_devices').upsert({ ... });
+            syncTokenWithBackend(token.value);
         });
 
         // Listener for registration error
@@ -97,6 +135,22 @@ export const usePushNotifications = () => {
             actionListener.then(listener => listener.remove());
         };
     }, []);
+
+    // Listen for auth changes to sync token when user logs in
+    useEffect(() => {
+        if (!Capacitor.isNativePlatform()) return;
+
+        const supabase = createClient();
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((event: AuthChangeEvent, session: Session | null) => {
+            if ((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && session?.user && state.token) {
+                syncTokenWithBackend(state.token);
+            }
+        });
+
+        return () => {
+            subscription.unsubscribe();
+        };
+    }, [state.token, syncTokenWithBackend]);
 
     // Initial check on mount
     useEffect(() => {
