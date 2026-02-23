@@ -29,30 +29,11 @@ export default async function FinancialReportsPage({
         .eq('id', user.id)
         .single();
 
-    if (profile?.rol !== 'admin') {
+    if ((profile as any)?.rol !== 'admin') {
         redirect(`/${locale}/staff`);
     }
 
-    // 3. Fetch all data in parallel (Manual join since DB relations aren't auto-discovered)
-    const [
-        { data: rawRentals, error: rError },
-        { data: allProfiles },
-        { data: allServices }
-    ] = await Promise.all([
-        supabaseAdmin.from('reservas_alquiler').select('*').order('fecha_reserva', { ascending: false }).limit(2000),
-        supabaseAdmin.from('profiles').select('id, nombre, apellidos'),
-        supabaseAdmin.from('servicios_alquiler').select('id, nombre_es')
-    ]);
-
-    if (rError) {
-        console.error('Error fetching rentals:', rError);
-    }
-
-    const enrichedRentals = (rawRentals || []).map(r => ({
-        ...r,
-        profiles: allProfiles?.find(p => p.id === r.perfil_id),
-        servicios_alquiler: allServices?.find(s => s.id === r.servicio_id)
-    }));
+    // No longer fetching 2000 records here. Client fetches data.
 
     return (
         <div className="bg-nautical-black text-white min-h-screen">
@@ -74,7 +55,7 @@ export default async function FinancialReportsPage({
                         <p className="text-technical animate-pulse">Cargando bitácora financiera...</p>
                     </div>
                 }>
-                    <FinancialReportsClient initialData={enrichedRentals} />
+                    <FinancialReportsClient />
                 </React.Suspense>
             </div>
         </div>
