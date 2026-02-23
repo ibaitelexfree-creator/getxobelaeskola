@@ -53,7 +53,7 @@ const quoteVariants = {
     visible: {
         opacity: 1,
         y: 0,
-        transition: { duration: 0.7, ease: [0.16, 1, 0.3, 1] },
+        transition: { duration: 0.7, ease: [0.16, 1, 0.3, 1] as any },
     },
 };
 
@@ -62,7 +62,7 @@ const authorVariants = {
     visible: {
         opacity: 1,
         x: 0,
-        transition: { duration: 0.5, delay: 0.4, ease: [0.16, 1, 0.3, 1] },
+        transition: { duration: 0.5, delay: 0.4, ease: [0.16, 1, 0.3, 1] as any },
     },
 };
 
@@ -71,7 +71,7 @@ const headerVariants = {
     visible: {
         opacity: 1,
         scale: 1,
-        transition: { duration: 0.4, ease: [0.16, 1, 0.3, 1] },
+        transition: { duration: 0.4, ease: [0.16, 1, 0.3, 1] as any },
     },
 };
 
@@ -106,13 +106,13 @@ export default function DailyNauticalQuote({ locale }: DailyNauticalQuoteProps) 
             <div className="flex items-center gap-3 px-5 pt-4 pb-3 border-b border-white/[0.06]">
                 <motion.div
                     className="w-8 h-8 bg-accent/10 border border-accent/20 flex items-center justify-center rounded-full text-accent shrink-0"
-                    variants={headerVariants}
+                    variants={headerVariants as any}
                     initial="hidden"
                     animate={isInView ? 'visible' : 'hidden'}
                 >
                     <motion.div
                         animate={{ rotate: isHovered ? 360 : 0 }}
-                        transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+                        transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] as any }}
                     >
                         <Compass size={14} strokeWidth={2.5} />
                     </motion.div>
@@ -120,7 +120,7 @@ export default function DailyNauticalQuote({ locale }: DailyNauticalQuoteProps) 
 
                 <motion.div
                     className="flex items-center gap-2 flex-1 min-w-0"
-                    variants={headerVariants}
+                    variants={headerVariants as any}
                     initial="hidden"
                     animate={isInView ? 'visible' : 'hidden'}
                 >
@@ -146,7 +146,7 @@ export default function DailyNauticalQuote({ locale }: DailyNauticalQuoteProps) 
                 <blockquote className="relative z-10">
                     <motion.p
                         className="text-white/85 text-[0.84rem] italic leading-[1.75] font-serif pl-3"
-                        variants={quoteVariants}
+                        variants={quoteVariants as any}
                         initial="hidden"
                         animate={isInView ? 'visible' : 'hidden'}
                     >
@@ -155,7 +155,7 @@ export default function DailyNauticalQuote({ locale }: DailyNauticalQuoteProps) 
 
                     <motion.footer
                         className="mt-4 flex items-center gap-2 pl-3"
-                        variants={authorVariants}
+                        variants={authorVariants as any}
                         initial="hidden"
                         animate={isInView ? 'visible' : 'hidden'}
                     >

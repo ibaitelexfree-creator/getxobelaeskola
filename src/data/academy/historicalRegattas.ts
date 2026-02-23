@@ -32,7 +32,7 @@ const generateWeather = (steps: number): WeatherCondition[] => {
 };
 
 // Simplified Routes (approximate coordinates)
-const ROUTES = {
+const ROUTES: Record<string, [number, number][]> = {
     americasCup: [
         [41.3851, 2.1734], [41.3800, 2.1800], [41.3750, 2.1750], [41.3820, 2.1650], [41.3851, 2.1734] // Barcelona Course
     ],

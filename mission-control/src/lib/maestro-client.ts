@@ -151,3 +151,36 @@ export const pauseWatchdog = () => maestroPost('/watchdog/action', { action: 'pa
 
 /** /watchdog resume */
 export const resumeWatchdog = () => maestroPost('/watchdog/action', { action: 'resume' });
+
+// ─── Release Management ───
+
+export interface Release {
+    id: number;
+    name: string;
+    tagName: string;
+    publishDate: string;
+    body: string;
+    assets: Array<{ id: number; name: string }>;
+}
+
+/** Get list of releases from Maestro Proxy */
+export async function getReleases(): Promise<{ success: boolean; releases: Release[] }> {
+    return maestroGet('/api/releases');
+}
+
+/** Get download URL for a specific asset */
+export function getDownloadUrl(assetId: number): string {
+    return `${getMaestroUrl()}/api/releases/download/${assetId}`;
+}
+
+// ─── Trust Tunnel ───
+
+/** Get current trust status */
+export async function getTrustStatus(): Promise<{ active: boolean }> {
+    return maestroGet('/api/trust/status');
+}
+
+/** Toggle trust tunnel state */
+export async function toggleTrustTunnel(password: string): Promise<{ active: boolean }> {
+    return maestroPost('/api/trust/toggle', { password });
+}

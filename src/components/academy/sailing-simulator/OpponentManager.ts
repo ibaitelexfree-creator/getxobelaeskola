@@ -38,8 +38,8 @@ export class OpponentManager {
             // Let's just default to 0.
             const mockApparentWind: ApparentWind = {
                 speed: 10,
-                angle: 0,
-                angleToBoat: 0
+                angleToBoat: 0,
+                vector: new Vector3(0, 0, 10)
             };
 
             // Construct a partial BoatState required by BoatModel.update

@@ -45,12 +45,16 @@ export default async function LandingPage({ params: { locale } }: { params: { lo
   const tFeat = await getTranslations({ locale, namespace: 'home.features' });
 
   // Fetch boat count
-  const supabase = createAdminClient();
-  const { count } = await supabase
-    .from('embarcaciones')
-    .select('*', { count: 'exact', head: true });
-
-  const flotaValue = count?.toString() || '12';
+  let flotaValue = '12';
+  try {
+    const supabase = createAdminClient();
+    const { count } = await supabase
+      .from('embarcaciones')
+      .select('*', { count: 'exact', head: true });
+    if (count !== null) flotaValue = count.toString();
+  } catch (e) {
+    console.warn('Could not fetch boat count for landing page, using fallback:', e);
+  }
 
   const jsonLd = {
     "@context": "https://schema.org",

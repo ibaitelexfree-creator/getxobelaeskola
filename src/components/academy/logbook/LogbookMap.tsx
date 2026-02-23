@@ -2,22 +2,13 @@
 
 import React, { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
-import { MapPin, Anchor, Waves } from 'lucide-react';
+import { Anchor, Waves } from 'lucide-react';
+import { NavigationPoint } from '@/types/navigation';
 
 const LeafletLogbookMap = dynamic(() => import('./LeafletLogbookMap'), {
     ssr: false,
     loading: () => <div className="w-full h-full bg-[#050b14] animate-pulse flex items-center justify-center text-blue-500/20">Cargando Carta de Navegación...</div>
 });
-
-interface NavigationPoint {
-    id: string;
-    fecha: string;
-    zona_nombre: string;
-    ubicacion?: { lat: number, lng: number };
-    tipo: string;
-    duracion_h: number;
-    track_log?: { lat: number, lng: number }[];
-}
 
 interface LogbookMapProps {
     sessions: NavigationPoint[];
