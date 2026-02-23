@@ -11,7 +11,7 @@ export interface SeaStateData {
 
 // Bilbao-Vizcaya Buoy (2630) - Deep Water
 const BUOY_ID = '2630';
-const BUOY_NAME = 'Bilbao-Vizcaya';
+// const BUOY_NAME = 'Bilbao-Vizcaya'; // Unused in new API
 
 // Fallback mock data generator based on season and typical Cantabrian sea conditions
 function getSimulatedSeaState(): SeaStateData {
@@ -45,37 +45,91 @@ function getSimulatedSeaState(): SeaStateData {
     };
 }
 
-export async function fetchSeaState(): Promise<SeaStateData> {
-    // Currently relying on simulation as the official API requires authentication/tokens
-    // that are not available in the context.
-    // We return simulated data immediately to avoid performance penalties (latency)
-    // on the dashboard weather endpoint.
+interface PortusDataValue {
+    id: number;
+    nombreParametro: string;
+    nombreColumna: string;
+    paramEseoo: string;
+    valor: string;
+    factor: number;
+    unidad: string;
+    paramQC: boolean;
+    variable: string;
+    averia: boolean;
+}
 
-    /*
+interface PortusResponse {
+    fecha: string;
+    datos: PortusDataValue[];
+}
+
+function parsePortusData(data: PortusResponse): SeaStateData {
+    const { fecha, datos } = data;
+
+    // Helper to find value
+    const findValue = (paramEseoo: string): number | null => {
+        const item = datos.find(d => d.paramEseoo === paramEseoo && !d.averia);
+        if (!item || item.valor === null || item.valor === undefined) return null;
+        return parseFloat(item.valor) / item.factor;
+    };
+
+    const waveHeight = findValue('Hm0'); // Significant Wave Height
+    const period = findValue('Tm02'); // Mean Period
+    const waterTemp = findValue('WaterTemp');
+    const windSpeedMs = findValue('WindSpeed');
+    const windDirection = findValue('WindDir');
+
+    if (waveHeight === null || period === null || waterTemp === null || windSpeedMs === null || windDirection === null) {
+        throw new Error('Missing critical data from Portus API');
+    }
+
+    // Convert Wind Speed m/s to knots
+    const windSpeed = parseFloat((windSpeedMs * 1.94384).toFixed(1));
+
+    // Parse date: "2026-02-23 14:00:00.0" -> "2026-02-23T14:00:00.0Z"
+    // Assuming the timestamp is in UTC as commonly provided by scientific buoys
+    const timestamp = fecha.replace(' ', 'T') + 'Z';
+
+    return {
+        waveHeight,
+        period,
+        waterTemp,
+        windSpeed,
+        windDirection,
+        timestamp,
+        isSimulated: false
+    };
+}
+
+export async function fetchSeaState(): Promise<SeaStateData> {
     try {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 2000);
+        const timeoutId = setTimeout(() => controller.abort(), 5000); // 5s timeout
 
-        const response = await fetch(`https://bancodatos.puertos.es/TablaAccesoSimplificado/util/get_data.php?station=${BUOY_ID}&name=${BUOY_NAME}`, {
+        const response = await fetch(`https://portus.puertos.es/portussvr/api/lastData/station/${BUOY_ID}?locale=es`, {
+            method: 'POST',
             signal: controller.signal,
             headers: {
                 'User-Agent': 'Mozilla/5.0 (compatible; GetxoBelaEskola/1.0)',
-                'Accept': 'application/json'
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
             },
-            next: { revalidate: 1800 }
+            body: JSON.stringify(["WIND", "WAVE", "WATER_TEMP"]),
+            // @ts-ignore - Next.js extension
+            next: { revalidate: 1800 } // Cache for 30 minutes
         });
 
         clearTimeout(timeoutId);
 
         if (response.ok) {
-            const data = await response.json();
-            // TODO: Parse real data when endpoint is confirmed working
-            // return mapApiData(data);
+            const data: PortusResponse = await response.json();
+            return parsePortusData(data);
+        } else {
+             console.warn(`Sea state API returned ${response.status}: ${response.statusText}`);
         }
     } catch (error) {
-        console.warn('Sea state API unreachable');
+        console.warn('Sea state API unreachable or parsing error:', error);
     }
-    */
 
     return getSimulatedSeaState();
 }
