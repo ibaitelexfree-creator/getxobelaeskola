@@ -1,0 +1,14 @@
+Uncaught exception: Error: TEST_CRASH_AUTO: Simulación de fallo crítico para validar Self-Healing.
+    at Timeout._onTimeout (file:///C:/Users/User/Desktop/Saili8ng%20School%20Test/orchestration/index.js:922:11)
+    at listOnTimeout (node:internal/timers:605:17)
+    at process.processTimers (node:internal/timers:541:7)
+file:///C:/Users/User/Desktop/Saili8ng%20School%20Test/orchestration/index.js:2597
+  triggerSelfHealing(err.message, err.stack);
+  ^
+
+ReferenceError: triggerSelfHealing is not defined
+    at process.<anonymous> (file:///C:/Users/User/Desktop/Saili8ng%20School%20Test/orchestration/index.js:2597:3)
+    at process.emit (node:events:508:28)
+    at process._fatalException (node:internal/process/execution:159:25)
+
+Node.js v24.13.0
