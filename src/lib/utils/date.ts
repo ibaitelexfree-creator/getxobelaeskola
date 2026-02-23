@@ -1,4 +1,3 @@
-
 /**
  * Utility to handle date and time in Spain timezone.
  */
@@ -51,7 +50,12 @@ export function getInitialBookingDate(nowInfo: ReturnType<typeof getSpainTimeInf
  */
 export function calculateEndTime(startTime: string, durationHours: number = 1): string {
     const [h, m, s] = startTime.split(':').map(Number);
-    const endH = h + durationHours;
+
+    // Convert everything to minutes to handle decimal duration and minute overflow
+    const totalMinutes = h * 60 + m + durationHours * 60;
+    const endH = Math.floor(totalMinutes / 60);
+    const endM = Math.floor(totalMinutes % 60);
+
     // Simple pad, handles daytime rentals. Does not handle overflow past 24h as not expected.
-    return `${String(endH).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s || 0).padStart(2, '0')}`;
+    return `${String(endH).padStart(2, '0')}:${String(endM).padStart(2, '0')}:${String(s || 0).padStart(2, '0')}`;
 }
