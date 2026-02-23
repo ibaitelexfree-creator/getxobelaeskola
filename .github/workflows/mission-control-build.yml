@@ -1,6 +1,8 @@
 name: Build Mission Control APK
 
 on:
+  push:
+    branches: [main]
   workflow_dispatch:
 
 concurrency:
