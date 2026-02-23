@@ -916,12 +916,11 @@ jules_orchestrator_sessions_total ${metrics.sessionsCreated}
 });
 
 app.get('/api/test/crash', (req, res) => {
-  try {
-    const allTasks = dbTasks.getAll();
-    res.json(allTasks);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
+  console.log('[Test] Triggering a controlled crash for Self-Healing validation...');
+  res.send('<h1>🚀 Simulando Crash Crítico...</h1><p>Revisa Telegram y los logs del orquestador.</p>');
+  setTimeout(() => {
+    throw new Error('TEST_CRASH_AUTO: Simulación de fallo crítico para validar Self-Healing.');
+  }, 1000);
 });
 
 
@@ -2642,6 +2641,7 @@ const server = app.listen(PORT, '0.0.0.0', () => {
   // ── SELF-HEALING ENGINE (Chain 4) ────────────────────────
   async function triggerSelfHealing(errorMsg, stack) {
     if (process.env.JULES_DISABLE_SELF_HEALING === 'true') return;
+    metrics.errorsTotal++;
     console.log('[Self-Healing] 🤖 Crítico detectado. Iniciando reparación autónoma...');
 
     try {
