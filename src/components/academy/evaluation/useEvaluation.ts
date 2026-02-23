@@ -1,6 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { EvaluationState, BlockReason, Question, DetailedResult } from './types';
-import { useNotificationStore } from '@/lib/store/useNotificationStore';
 import { getMotivationalMessage } from '@/lib/academy/motivational-messages';
 import { apiUrl } from '@/lib/api';
 
@@ -35,12 +34,7 @@ const AUTOSAVE_DEBOUNCE_MS = 2000;
  * - Autoguardado de respuestas con debounce
  * - Recuperación al recargar la página
  */
-import { useAcademyFeedback } from '@/hooks/useAcademyFeedback';
-
 export function useEvaluation({ evaluacionId, onComplete, onError }: UseEvaluationOptions): UseEvaluationReturn {
-    const { showAchievement, showSkillUnlocked } = useAcademyFeedback();
-    const addNotification = useNotificationStore(state => state.addNotification);
-
     const [state, setState] = useState<EvaluationState>({
         status: 'idle',
         evaluacionId,
@@ -200,7 +194,7 @@ export function useEvaluation({ evaluacionId, onComplete, onError }: UseEvaluati
             }));
             onError?.(errorMsg);
         }
-    }, [state.answers, state.questions, startTime, onComplete, onError, flushAutosave, addNotification]);
+    }, [state.answers, state.questions, startTime, onComplete, onError, flushAutosave]);
 
     // Temporizador
     useEffect(() => {
