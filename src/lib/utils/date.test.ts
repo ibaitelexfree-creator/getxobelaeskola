@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { getSpainTimeInfo, getInitialBookingDate } from './date';
+import { getSpainTimeInfo, getInitialBookingDate, calculateEndTime } from './date';
 
 describe('getSpainTimeInfo', () => {
     it('returns segments correctly for a known date', () => {
@@ -29,5 +29,35 @@ describe('getInitialBookingDate', () => {
         const initial = getInitialBookingDate(evening);
         expect(initial.day).toBe('16'); // Tomorrow
         expect(initial.month).toBe('05');
+    });
+});
+
+describe('calculateEndTime', () => {
+    it('adds 1 hour by default', () => {
+        expect(calculateEndTime('10:00:00')).toBe('11:00:00');
+    });
+
+    it('adds specific duration', () => {
+        expect(calculateEndTime('12:30:00', 3)).toBe('15:30:00');
+    });
+
+    it('pads hours correctly', () => {
+        expect(calculateEndTime('09:00:00', 1)).toBe('10:00:00');
+    });
+
+    it('handles decimal duration correctly', () => {
+        // 1.5 hours = 1 hour 30 minutes
+        expect(calculateEndTime('10:00:00', 1.5)).toBe('11:30:00');
+    });
+
+    it('handles minute overflow from decimal duration', () => {
+        // 10:45 + 0.5 hours (30 mins) -> 11:15
+        expect(calculateEndTime('10:45:00', 0.5)).toBe('11:15:00');
+    });
+
+    it('handles overflow past 24h by extending hours (known limitation)', () => {
+        // Current behavior: returns 25:00:00.
+        // This confirms the function does not wrap around (modulo 24) or crash.
+        expect(calculateEndTime('23:00:00', 2)).toBe('25:00:00');
     });
 });
