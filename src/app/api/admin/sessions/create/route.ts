@@ -2,6 +2,7 @@
 import { requireInstructor } from '@/lib/auth-guard';
 import { NextResponse } from 'next/server';
 import { createGoogleEvent, updateGoogleEvent } from '@/lib/google-calendar';
+import { validateSessionOverlap } from '@/lib/session-validation';
 
 export async function POST(request: Request) {
     try {
@@ -26,6 +27,17 @@ export async function POST(request: Request) {
 
         if (isNaN(new Date(fecha_inicio).getTime()) || isNaN(new Date(fecha_fin).getTime())) {
             return NextResponse.json({ error: 'Formato de fecha inválido' }, { status: 400 });
+        }
+
+        const validation = await validateSessionOverlap(supabaseAdmin, {
+            instructor_id,
+            embarcacion_id,
+            fecha_inicio,
+            fecha_fin
+        });
+
+        if (validation.error) {
+            return NextResponse.json({ error: validation.error }, { status: 409 });
         }
 
         const isNoCourse = !curso_id || curso_id === '' || curso_id === 'null' || curso_id === '00000000-0000-0000-0000-000000000000';
