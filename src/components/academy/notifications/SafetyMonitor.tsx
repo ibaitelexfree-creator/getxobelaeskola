@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
@@ -6,6 +5,7 @@ import { createClient } from '@/lib/supabase/client';
 import { useNotificationStore } from '@/lib/store/useNotificationStore';
 import { nuclearAlert } from '@/lib/safety/NuclearAlertSystem';
 import { useSmartTracker } from '@/hooks/useSmartTracker';
+import { useUserStore } from '@/lib/store/useUserStore';
 
 import { useSafetySettingsStore } from '@/lib/store/useSafetySettingsStore';
 
@@ -18,26 +18,11 @@ export default function SafetyMonitor() {
     const { notificationsEnabled, soundEnabled } = useSafetySettingsStore();
     const { isTracking, currentPosition, statusMessage } = useSmartTracker();
     const supabase = createClient();
-    const [userRole, setUserRole] = useState<string | null>(null);
+    const { profile } = useUserStore();
+    const userRole = profile?.rol || null;
     const [lastAlertId, setLastAlertId] = useState<string | null>(null);
     const [isAlertingInWater, setIsAlertingInWater] = useState(false);
     const pollerRef = useRef<NodeJS.Timeout | null>(null);
-
-    // 1. Initial Profile Check
-    useEffect(() => {
-        async function fetchProfile() {
-            const { data: { user } } = await supabase.auth.getUser();
-            if (user) {
-                const { data: profile } = await supabase
-                    .from('profiles')
-                    .select('rol')
-                    .eq('id', user.id)
-                    .single();
-                if (profile) setUserRole(profile.rol);
-            }
-        }
-        fetchProfile();
-    }, [supabase]);
 
     // 2. Work Hours Utility
     const isWorkHours = () => {

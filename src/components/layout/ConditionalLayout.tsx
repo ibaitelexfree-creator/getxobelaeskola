@@ -1,6 +1,8 @@
 'use client';
 import { usePathname } from 'next/navigation';
 import { ReactNode, useEffect, useState } from 'react';
+import { createClient } from '@/lib/supabase/client';
+import { useUserStore } from '@/lib/store/useUserStore';
 // Capacitor will be dynamically checked in the effect to avoid SSR issues
 // import { Capacitor } from '@capacitor/core';
 
@@ -33,6 +35,25 @@ export default function ConditionalLayout({ children, navbar, footer }: Conditio
                 setIsNativeApp(true);
             }
         });
+
+        // Initialize user store and auth listener
+        const supabase = createClient();
+        const fetchUser = useUserStore.getState().fetchUser;
+        const clearUser = useUserStore.getState().clearUser;
+
+        fetchUser();
+
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((event: string, _session: any) => {
+            if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+                fetchUser(true);
+            } else if (event === 'SIGNED_OUT') {
+                clearUser();
+            }
+        });
+
+        return () => {
+            subscription.unsubscribe();
+        };
     }, []);
 
     // Academy mode — no nav, show academy controls

@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { createClient } from '@/lib/supabase/client';
+import { useUserStore } from '@/lib/store/useUserStore';
 import { getApiUrl } from '@/lib/platform';
 import { ChevronRight, Calendar, Clock, Anchor } from 'lucide-react';
 import LegalConsentModal from '@/components/shared/LegalConsentModal';
@@ -41,22 +41,8 @@ export default function MobileRentalList({
     const [isLegalModalOpen, setIsLegalModalOpen] = useState(false);
     const [isSheetOpen, setIsSheetOpen] = useState(false);
 
-    // Auth state for legal modal
-    const [user, setUser] = useState<any>(null);
-    const [profile, setProfile] = useState<any>(null);
-    const supabase = createClient();
-
-    useEffect(() => {
-        const checkUser = async () => {
-            const { data: { user } } = await supabase.auth.getUser();
-            setUser(user);
-            if (user) {
-                const { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).single();
-                setProfile(profile);
-            }
-        };
-        checkUser();
-    }, []);
+    // Auth state from global store
+    const { user, profile } = useUserStore();
 
     const times = ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00'];
     const today = new Date().toISOString().split('T')[0];
@@ -274,4 +260,3 @@ export default function MobileRentalList({
         </div>
     );
 }
-

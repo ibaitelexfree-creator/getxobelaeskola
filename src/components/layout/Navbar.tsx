@@ -7,7 +7,7 @@ import { useParams, useRouter, usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { X, ChevronDown, Anchor, Wind, Sailboat, Users, GraduationCap, Phone, School, Compass, Sparkles } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
-import { apiUrl } from '@/lib/api';
+import { useUserStore } from '@/lib/store/useUserStore';
 
 interface NavDropdownItem {
     href: string;
@@ -32,42 +32,13 @@ export default function Navbar({ locale: propLocale }: { locale?: string }) {
 
     const locale = propLocale || (params.locale as string) || 'es';
 
-    interface AuthUser {
-        id: string;
-        email?: string;
-        rol?: string;
-        status_socio?: string;
-        [key: string]: unknown;
-    }
-    const [user, setUser] = useState<AuthUser | null>(null);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        const supabase = createClient();
-        (async () => {
-            try {
-                const { data: { user: authUser } } = await supabase.auth.getUser();
-                if (authUser) {
-                    const res = await fetch(apiUrl(`/api/profile?user_id=${authUser.id}`));
-                    if (res.ok) {
-                        const profile = await res.json();
-                        setUser({ ...authUser, ...profile });
-                    } else {
-                        setUser(authUser as AuthUser);
-                    }
-                }
-            } catch {
-                // Silently handle auth errors
-            } finally {
-                setLoading(false);
-            }
-        })();
-    }, []);
+    const { user: authUser, profile, loading, clearUser } = useUserStore();
+    const user = authUser ? { ...authUser, ...profile } : null;
 
     const handleLogout = async () => {
         const supabase = createClient();
         await supabase.auth.signOut();
-        setUser(null);
+        clearUser();
         setIsMenuOpen(false);
         router.push(`/${locale}`);
     };
