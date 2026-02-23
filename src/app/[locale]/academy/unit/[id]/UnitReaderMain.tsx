@@ -15,6 +15,7 @@ import { checkAchievements } from '@/lib/gamification/AchievementEngine';
 import { useAcademyMode } from '@/lib/store/useAcademyMode';
 import { InteractiveMission, useMissionStore } from '@/components/academy/interactive-engine';
 import { apiUrl } from '@/lib/api';
+import { sanitizeHtml } from '@/lib/security/sanitizer';
 
 interface Unidad {
     id: string;
@@ -421,7 +422,7 @@ export default function UnitReaderMain({
                                     <div className="space-y-8">
                                         <div className="bg-white/5 border border-white/10 rounded-sm p-8">
                                             <div className="text-white/90 leading-relaxed whitespace-pre-wrap"
-                                                dangerouslySetInnerHTML={{ __html: params.locale === 'eu' ? unidad.contenido_teorico_eu || '' : unidad.contenido_teorico_es || '' }}
+                                                dangerouslySetInnerHTML={{ __html: sanitizeHtml(params.locale === 'eu' ? unidad.contenido_teorico_eu || '' : unidad.contenido_teorico_es || '') }}
                                             />
                                         </div>
                                     </div>
@@ -439,7 +440,7 @@ export default function UnitReaderMain({
                                 {activeTab === 'practica' && (
                                     <div className="bg-accent/5 border border-accent/20 rounded-sm p-8">
                                         <div className="text-white/90 leading-relaxed whitespace-pre-wrap"
-                                            dangerouslySetInnerHTML={{ __html: params.locale === 'eu' ? unidad.contenido_practico_eu || '' : unidad.contenido_practico_es || '' }}
+                                            dangerouslySetInnerHTML={{ __html: sanitizeHtml(params.locale === 'eu' ? unidad.contenido_practico_eu || '' : unidad.contenido_practico_es || '') }}
                                         />
                                     </div>
                                 )}
