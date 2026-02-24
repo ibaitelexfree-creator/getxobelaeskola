@@ -312,7 +312,7 @@ export function useEvaluation({ evaluacionId, onComplete, onError }: UseEvaluati
                 }
 
                 // Calcular tiempo restante si hay límite
-                let timeLeft = undefined;
+                let timeLeft: number | undefined = undefined;
                 if (data.evaluacion.tiempo_limite_min) {
                     const durationSecs = data.evaluacion.tiempo_limite_min * 60;
                     const startTimeDate = new Date(data.tiempo_inicio).getTime();

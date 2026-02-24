@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
         }
 
-        let audio_url = null;
+        let audio_url: string | null = null;
 
         // Upload Audio if present
         if (audioFile && audioFile.size > 0) {
