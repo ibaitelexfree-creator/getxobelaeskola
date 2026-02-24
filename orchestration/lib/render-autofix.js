@@ -39,6 +39,9 @@ const MAX_WEBHOOK_TIMESTAMP_DRIFT = 5 * 60 * 1000; // 5 minutes
 let autoFixEnabled = true;
 const monitoredServices = new Set();
 
+// Session Reuse Policy Constants
+const REUSABLE_STATES = ['PLANNING', 'EXECUTING'];
+
 /**
  * Clean up old processed webhook entries to prevent memory leak
  */
@@ -218,8 +221,9 @@ export function shouldAutoFix(event) {
  * @param {object} event - Build failure event
  * @param {function} createSession - Function to create Jules session
  * @param {function} sendMessage - Function to send message to session
+ * @param {function} listSessions - Function to list active sessions (optional)
  */
-export async function startAutoFix(event, createSession, sendMessage) {
+export async function startAutoFix(event, createSession, sendMessage, listSessions) {
   const fixKey = `${event.serviceId}:${event.deployId}`;
 
   // Register this auto-fix
@@ -262,24 +266,48 @@ export async function startAutoFix(event, createSession, sendMessage) {
 
     console.log(`[Auto-Fix] Found ${analysis.errors.length} actionable errors`);
 
-    // 3. Try to find existing Jules session for this branch
-    // For now, create a new session with the fix prompt
-    const sessionResult = await createSession({
-      prompt: analysis.promptContext,
-      source: extractSourceFromBranch(event.branch, event.serviceId),
-      title: `Auto-Fix: Build failure on ${event.branch}`,
-      branch: event.branch,
-      requirePlanApproval: false, // Auto-approve for auto-fix
-      automationMode: 'AUTO_CREATE_PR'
-    });
+    const source = extractSourceFromBranch(event.branch, event.serviceId);
+
+    // 3. Try to find existing Jules session for this branch (Session Reuse Policy)
+    let sessionResult;
+    let reused = false;
+
+    const reusableSession = await findReusableSession(event.branch, source, listSessions);
+
+    if (reusableSession) {
+      console.log(`[Auto-Fix] Reusing session ${reusableSession.name}`);
+      const sessionId = reusableSession.name.split('/').pop() || reusableSession.id;
+
+      const retryMessage = `[Auto-Fix Retry]
+Build failed again on branch ${event.branch}.
+New errors detected:
+${analysis.promptContext}`;
+
+      await sendMessage(sessionId, { prompt: retryMessage });
+
+      sessionResult = { id: sessionId, name: reusableSession.name };
+      reused = true;
+    } else {
+      console.log('[Auto-Fix] Creating new session');
+      // Create a new session with the fix prompt
+      sessionResult = await createSession({
+        prompt: analysis.promptContext,
+        source: source,
+        title: `Auto-Fix: Build failure on ${event.branch}`,
+        branch: event.branch,
+        requirePlanApproval: false, // Auto-approve for auto-fix
+        automationMode: 'AUTO_CREATE_PR'
+      });
+    }
 
     autoFixRecord.sessionId = sessionResult.name || sessionResult.id;
-    autoFixRecord.status = 'session_created';
+    autoFixRecord.status = reused ? 'session_reused' : 'session_created';
 
-    console.log(`[Auto-Fix] Created session ${autoFixRecord.sessionId}`);
+    console.log(`[Auto-Fix] ${reused ? 'Reused' : 'Created'} session ${autoFixRecord.sessionId}`);
 
-    // 4. Send additional context if needed
-    if (logs.errors.length > 5) {
+    // 4. Send additional context if needed (only if not reused, or maybe append?)
+    // If reused, we already sent the context in the retry message.
+    if (!reused && logs.errors.length > 5) {
       await sendMessage(autoFixRecord.sessionId, {
         prompt: `Additional build errors:\n${logs.errors.slice(5, 10).map(e => e.message).join('\n')}`
       });
@@ -290,7 +318,8 @@ export async function startAutoFix(event, createSession, sendMessage) {
       sessionId: autoFixRecord.sessionId,
       branch: event.branch,
       errorsFound: analysis.errors.length,
-      message: `Auto-fix started for build failure on branch ${event.branch}`
+      reused,
+      message: `Auto-fix ${reused ? 'continued' : 'started'} for build failure on branch ${event.branch}`
     };
   } catch (error) {
     autoFixRecord.status = 'failed';
@@ -303,6 +332,48 @@ export async function startAutoFix(event, createSession, sendMessage) {
       success: false,
       error: error.message
     };
+  }
+}
+
+/**
+ * Find a reusable session based on branch, source, and state policy
+ */
+export async function findReusableSession(branch, source, listSessions) {
+  if (!listSessions || typeof listSessions !== 'function') {
+    return null;
+  }
+
+  try {
+    const sessions = await listSessions();
+    if (!sessions || !Array.isArray(sessions)) return null;
+
+    // Filter sessions matching policy
+    const matchingSessions = sessions.filter(session => {
+      // Check state
+      if (!REUSABLE_STATES.includes(session.state)) return false;
+
+      // Check source
+      const sessionSource = session.sourceContext?.source || session.source;
+      if (sessionSource !== source) return false;
+
+      // Check branch
+      const sessionBranch = session.sourceContext?.githubRepoContext?.startingBranch;
+      if (sessionBranch !== branch) return false;
+
+      return true;
+    });
+
+    // Sort by creation time (descending) to get the most recent one
+    matchingSessions.sort((a, b) => {
+      const dateA = new Date(a.createTime || a.createdAt).getTime();
+      const dateB = new Date(b.createTime || b.createdAt).getTime();
+      return dateB - dateA;
+    });
+
+    return matchingSessions.length > 0 ? matchingSessions[0] : null;
+  } catch (error) {
+    console.warn('[Auto-Fix] Failed to find reusable session:', error.message);
+    return null;
   }
 }
 
@@ -441,8 +512,9 @@ function sanitizeBranchName(branch) {
  * @param {object} req - Express request
  * @param {function} createSession - Jules session creator
  * @param {function} sendMessage - Jules message sender
+ * @param {function} listSessions - Function to list active sessions
  */
-export async function handleWebhook(req, createSession, sendMessage) {
+export async function handleWebhook(req, createSession, sendMessage, listSessions) {
   const { body, headers } = req;
   const signature = headers['x-render-signature'];
 
@@ -510,7 +582,7 @@ export async function handleWebhook(req, createSession, sendMessage) {
   }
 
   // Start auto-fix
-  const result = await startAutoFix(parsed.event, createSession, sendMessage);
+  const result = await startAutoFix(parsed.event, createSession, sendMessage, listSessions);
 
   return {
     status: result.success ? 200 : 500,
