@@ -1,10 +1,11 @@
 # Estado Global del Proyecto
-Última actualización: 2026-02-20 22:25 UTC
+Última actualización: 2026-02-24 06:50 UTC
 
 ## Ramas Activas
 | Rama | Agente | Estado | Descripción |
 |------|--------|--------|-------------|
 | main | - | Estable | Producción |
+| feature/jules-weather-tests | Jules | en_curso | Testing improvements for weather data |
 
 ## Tareas en Curso
 | ID | Agente | Tarea | Inicio | Estado |
@@ -13,8 +14,9 @@
 | T-005 | Antigravity | Mission Control: Mobile Setup & Push | 2026-02-21 | completado |
 | T-004 | Jules | Move ScrollToTop button up | 2026-02-20 | completado |
 | T-005 | Jules | Integrate Leaflet Map in Academy Geospatial | 2026-02-20 | completado |
-| T-006 | Antigravity | NotebookLM Report Automation (Orchestrator + n8n + Evolution) | 2026-02-23 | completado |
-| T-007 | Antigravity | Notion Premium Dashboard Refactor & Update | 2026-02-23 | completado |
+| T-006 | Antigravity | NotebookLM Report Automation | 2026-02-23 | completado |
+| T-007 | Antigravity | Notion Premium Dashboard Refactor | 2026-02-23 | completado |
+| T-008 | Jules | Strengthen edge-case coverage for fetchWeatherData | 2026-02-24 | completado |
 
 ## Bloqueos / Conflictos
 Ninguno actualmente.

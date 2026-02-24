@@ -104,7 +104,7 @@ export async function fetchWeatherData(): Promise<WeatherData> {
                 const dir = galea.readings.find((r) => r.sensorId === 'wind_direction');
                 const temp = galea.readings.find((r) => r.sensorId === 'temperature');
 
-                if (wind) {
+                if (wind && !isNaN(wind.value)) {
                     const ms = wind.value; // Euskalmet usually gives m/s
                     const knots = parseFloat((ms * 1.94384).toFixed(1));
                     return {
@@ -129,7 +129,7 @@ export async function fetchWeatherData(): Promise<WeatherData> {
             const puerto = await fetchEuskalmetStationData('B090') as EuskalmetStationData | null;
             if (puerto && puerto.readings) {
                 const wind = puerto.readings.find((r) => r.sensorId === 'wind_speed');
-                if (wind) {
+                if (wind && !isNaN(wind.value)) {
                     const ms = wind.value;
                     const knots = parseFloat((ms * 1.94384).toFixed(1));
                     return {
