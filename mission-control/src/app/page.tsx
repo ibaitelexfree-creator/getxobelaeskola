@@ -32,9 +32,6 @@ export default function MissionControlPage() {
                     <h1 className="text-xl font-display text-glimmer tracking-tight">Mission Control</h1>
                     <p className="text-[10px] font-mono text-white/20 uppercase tracking-[0.3em] active:text-status-blue transition-colors">Maestro v3</p>
                 </div>
-                <div className="w-8 h-8 rounded-full bg-buoy-orange/10 flex items-center justify-center">
-                    <span className="text-xs">🚀</span>
-                </div>
             </header>
 
             {/* Content */}

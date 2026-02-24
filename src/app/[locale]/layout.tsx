@@ -50,7 +50,6 @@ export default async function LocaleLayout({
             <OfflineSyncProvider />
             <div className="min-h-screen flex flex-col relative w-full overflow-x-hidden">
               <ConditionalLayout
-                locale={locale}
                 navbar={<Navbar locale={locale} />}
                 footer={<Footer locale={locale} />}
               >
