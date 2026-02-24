@@ -2,12 +2,24 @@ name: "⚡ Fast Lane: Parallel Verification"
 
 on:
     push:
-        branches: [main, "feature/**", "fix/**"]
+        branches: ["feature/**", "fix/**"]
+        paths:
+            - "src/**"
+            - "package.json"
     pull_request:
         branches: [main]
+        paths:
+            - "src/**"
+            - "package.json"
+    workflow_dispatch:
+
+concurrency:
+    group: fast-verify-${{ github.ref }}
+    cancel-in-progress: true
 
 jobs:
     fast-scan:
+        if: "!contains(github.event.head_commit.message, '[skip ci]')"
         name: "🚀 Parallel Scan (<30s)"
         runs-on: ubuntu-latest
         steps:

@@ -1,6 +1,7 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import https from 'https';
+import { GoogleAuth } from 'google-auth-library';
 import { getIssue, getIssuesByLabel, formatIssueForPrompt } from './lib/github.js';
 import { BatchProcessor } from './lib/batch.js';
 import { SessionMonitor } from './lib/monitor.js';
@@ -63,8 +64,24 @@ const julesAgent = new https.Agent({
 
 const PORT = process.env.PORT || 3323;
 const JULES_API_KEY = process.env.JULES_API_KEY;
+const JULES_API_KEY_2 = process.env.JULES_API_KEY_2;
+const JULES_API_KEY_3 = process.env.JULES_API_KEY_3;
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN || null;
 const VERSION = '2.6.2';
+
+// Initialize Google Auth
+let googleAuth = null;
+if (process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON) {
+  try {
+    googleAuth = new GoogleAuth({
+      credentials: JSON.parse(process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON),
+      scopes: ['https://www.googleapis.com/auth/cloud-platform']
+    });
+    console.log('✅ Google Auth initialized with Service Account');
+  } catch (err) {
+    console.error('❌ Failed to parse GOOGLE_APPLICATION_CREDENTIALS_JSON:', err.message);
+  }
+}
 
 // ============ v2.5.0 INFRASTRUCTURE ============
 
@@ -820,9 +837,11 @@ function initializeToolRegistry() {
 
 // MCP Protocol - Execute tool with O(1) registry lookup
 app.post('/mcp/execute', validateRequest(mcpExecuteSchema), async (req, res) => {
-  const { tool, parameters = {} } = req.body;
+  const { name, arguments: args, tool, parameters } = req.body;
+  const toolName = tool || name;
+  const toolParams = parameters || args || {};
 
-  if (!tool) {
+  if (!toolName) {
     return res.status(400).json({ error: 'Tool name required' });
   }
 
@@ -831,19 +850,19 @@ app.post('/mcp/execute', validateRequest(mcpExecuteSchema), async (req, res) => 
   }
 
   // O(1) lookup instead of O(n) switch comparison
-  const handler = toolRegistry.get(tool);
+  const handler = toolRegistry.get(toolName);
   if (!handler) {
-    return res.status(400).json({ error: 'Unknown tool: ' + tool });
+    return res.status(400).json({ error: 'Unknown tool: ' + toolName });
   }
 
-  console.log('[MCP] Executing tool:', tool, parameters);
+  console.log('[MCP] Executing tool:', toolName, toolParams);
 
   try {
-    const result = await handler(parameters);
-    console.log('[MCP] Tool', tool, 'completed successfully');
+    const result = await handler(toolParams);
+    console.log('[MCP] Tool', toolName, 'completed successfully');
     res.json({ success: true, result });
   } catch (error) {
-    console.error('[MCP] Tool', tool, 'failed:', error.message);
+    console.error('[MCP] Tool', toolName, 'failed:', error.message);
     res.status(500).json({ success: false, error: error.message });
   }
 });
@@ -865,59 +884,87 @@ function julesRequest(method, path, body = null) {
       method: method,
       agent: julesAgent, // Connection pooling for 25-30% latency reduction
       headers: {
-        'X-Goog-Api-Key': JULES_API_KEY,
         'Content-Type': 'application/json'
       }
     };
 
-    console.log('[Jules API]', method, path);
-
-    const req = https.request(options, (response) => {
-      let data = '';
-      const MAX_RESPONSE_SIZE = 10 * 1024 * 1024; // 10MB limit
-      response.on('data', chunk => {
-        data += chunk;
-        if (data.length > MAX_RESPONSE_SIZE) {
-          response.destroy();
-          circuitBreaker.recordFailure();
-          reject(new Error('Response too large (exceeded 10MB limit)'));
-        }
-      });
-      response.on('end', () => {
-        if (response.statusCode >= 200 && response.statusCode < 300) {
-          circuitBreaker.recordSuccess();
-          try {
-            resolve(JSON.parse(data));
-          } catch {
-            resolve(data);
+    // Inject Authentication
+    const applyAuth = async () => {
+      try {
+        if (googleAuth) {
+          const client = await googleAuth.getClient();
+          const token = await client.getAccessToken();
+          if (token && token.token) {
+            options.headers['Authorization'] = `Bearer ${token.token}`;
+            if (JULES_API_KEY) options.headers['X-Goog-Api-Key'] = JULES_API_KEY;
+            return;
           }
-        } else {
-          circuitBreaker.recordFailure();
-          console.error('[Jules API] Error', response.statusCode + ':', data);
-          reject(new Error('Jules API error: ' + response.statusCode + ' - ' + data));
         }
+
+        // Fallback to API Keys
+        if (JULES_API_KEY) {
+          options.headers['X-Goog-Api-Key'] = JULES_API_KEY;
+          // Only add Bearer if it's potentially an OAuth token (not an AQ. key)
+          if (!JULES_API_KEY.startsWith('AQ.')) {
+            options.headers['Authorization'] = `Bearer ${JULES_API_KEY}`;
+          }
+        }
+      } catch (err) {
+        console.warn('[Jules API] Auth injection failed:', err.message);
+        if (JULES_API_KEY) options.headers['X-Goog-Api-Key'] = JULES_API_KEY;
+      }
+    };
+
+    applyAuth().then(() => {
+      console.log('[Jules API]', method, path);
+
+      const req = https.request(options, (response) => {
+        let data = '';
+        const MAX_RESPONSE_SIZE = 10 * 1024 * 1024; // 10MB limit
+        response.on('data', chunk => {
+          data += chunk;
+          if (data.length > MAX_RESPONSE_SIZE) {
+            response.destroy();
+            circuitBreaker.recordFailure();
+            reject(new Error('Response too large (exceeded 10MB limit)'));
+          }
+        });
+        response.on('end', () => {
+          if (response.statusCode >= 200 && response.statusCode < 300) {
+            circuitBreaker.recordSuccess();
+            try {
+              resolve(JSON.parse(data));
+            } catch {
+              resolve(data);
+            }
+          } else {
+            circuitBreaker.recordFailure();
+            console.error('[Jules API] Error', response.statusCode + ':', data);
+            reject(new Error('Jules API error: ' + response.statusCode + ' - ' + data));
+          }
+        });
       });
-    });
 
-    // 30 second timeout to prevent hanging requests
-    req.setTimeout(30000, () => {
-      req.destroy();
-      circuitBreaker.recordFailure();
-      reject(new Error('Request timeout after 30 seconds'));
-    });
+      // 30 second timeout to prevent hanging requests
+      req.setTimeout(30000, () => {
+        req.destroy();
+        circuitBreaker.recordFailure();
+        reject(new Error('Request timeout after 30 seconds'));
+      });
 
-    req.on('error', (err) => {
-      circuitBreaker.recordFailure();
-      console.error('[Jules API] Request error:', err.message);
-      reject(err);
-    });
+      req.on('error', (err) => {
+        circuitBreaker.recordFailure();
+        console.error('[Jules API] Request error:', err.message);
+        reject(err);
+      });
 
-    if (body) {
-      const jsonBody = JSON.stringify(body);
-      req.setHeader('Content-Length', Buffer.byteLength(jsonBody));
-      req.write(jsonBody);
-    }
-    req.end();
+      if (body) {
+        const jsonBody = JSON.stringify(body);
+        req.setHeader('Content-Length', Buffer.byteLength(jsonBody));
+        req.write(jsonBody);
+      }
+      req.end();
+    });
   });
 }
 

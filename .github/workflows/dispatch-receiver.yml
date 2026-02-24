@@ -5,6 +5,10 @@ on:
   repository_dispatch:
     types: [bitbucket-signal]
 
+concurrency:
+  group: bitbucket-dispatch-${{ github.event.client_payload.branch || github.ref }}
+  cancel-in-progress: true
+
 env:
   NODE_VERSION: "22"
   JAVA_VERSION: "17"
@@ -15,6 +19,7 @@ jobs:
   # Job 1: Web Lint + Build (Next.js)
   # ──────────────────────────────────────────────
   web-ci:
+    if: "!contains(github.event.head_commit.message, '[skip ci]')"
     name: "🌐 Web CI"
     runs-on: ubuntu-latest
     steps:
@@ -61,6 +66,7 @@ jobs:
   # Job 2: Android Build (Capacitor + Gradle)
   # ──────────────────────────────────────────────
   android-ci:
+    if: "!contains(github.event.head_commit.message, '[skip ci]')"
     name: "📱 Android CI"
     runs-on: ubuntu-latest
     steps:
@@ -134,7 +140,7 @@ jobs:
     name: "📊 Report"
     runs-on: ubuntu-latest
     needs: [web-ci, android-ci]
-    if: always()
+    if: "always() && !contains(github.event.head_commit.message, '[skip ci]')"
     steps:
       - name: "📊 CI Summary"
         run: |

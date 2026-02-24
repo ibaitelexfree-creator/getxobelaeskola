@@ -1,5 +1,5 @@
-// orchestrator-api/src/index.js
 import express from 'express';
+import dotenv from 'dotenv';
 import pg from 'pg';
 import axios from 'axios';
 import crypto from 'crypto';
@@ -7,6 +7,9 @@ import { WebSocketServer } from 'ws';
 import { createServer } from 'http';
 import { GoogleAuth } from 'google-auth-library';
 import * as metrics from './metrics.js';
+
+dotenv.config({ path: '../.env' }); // Load from parent dir if available
+dotenv.config(); // Also try local .env
 
 const app = express();
 
@@ -71,6 +74,21 @@ app.get('/api/v1/metrics', async (req, res) => {
   res.end(await metrics.getMetrics());
 });
 
+// Google Auth Setup
+let auth = null;
+if (process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON) {
+  try {
+    const creds = JSON.parse(process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON);
+    auth = new GoogleAuth({
+      credentials: creds,
+      scopes: ['https://www.googleapis.com/auth/cloud-platform']
+    });
+    console.log('✅ Google Auth initialized with Service Account');
+  } catch (err) {
+    console.error('❌ Failed to parse GOOGLE_APPLICATION_CREDENTIALS_JSON:', err.message);
+  }
+}
+
 // Jules API client (Simple Auth for Stability)
 const julesClient = axios.create({
   baseURL: 'https://jules.googleapis.com/v1alpha',
@@ -81,10 +99,39 @@ const julesClient = axios.create({
 });
 
 // Add auth interceptor
-julesClient.interceptors.request.use((config) => {
-  if (JULES_API_KEY) {
-    config.headers.Authorization = 'Bearer ' + JULES_API_KEY;
+julesClient.interceptors.request.use(async (config) => {
+  try {
+    if (auth) {
+      const client = await auth.getClient();
+      const token = await client.getAccessToken();
+      if (token && token.token) {
+        config.headers.Authorization = `Bearer ${token.token}`;
+        // Also include X-Goog-Api-Key if configured as a secondary auth measure (some endpoints prefer it)
+        if (JULES_API_KEY) {
+          config.headers['X-Goog-Api-Key'] = JULES_API_KEY;
+        }
+      } else {
+        console.warn('[Jules Client] Failed to get OAuth token, falling back to API Key');
+        if (JULES_API_KEY) {
+          config.headers['X-Goog-Api-Key'] = JULES_API_KEY;
+        }
+      }
+    } else if (JULES_API_KEY) {
+      // If only API key is available, use standard Google API Key header
+      config.headers['X-Goog-Api-Key'] = JULES_API_KEY;
+      // Also try Bearer if it's actually an OAuth token (as some legacy code suggested)
+      if (!JULES_API_KEY.startsWith('AQ.')) {
+        config.headers.Authorization = 'Bearer ' + JULES_API_KEY;
+      }
+    }
+  } catch (err) {
+    console.error('[Jules Client] Auth Interceptor Error:', err.message);
+    // Fallback to API Key if everything else fails
+    if (JULES_API_KEY) {
+      config.headers['X-Goog-Api-Key'] = JULES_API_KEY;
+    }
   }
+
   console.log('[Jules Client] Requesting ' + config.url);
   return config;
 });
@@ -92,7 +139,7 @@ julesClient.interceptors.request.use((config) => {
 // GitHub API client
 const githubClient = axios.create({
   baseURL: 'https://api.github.com',
-  headers: { 
+  headers: {
     'Accept': 'application/vnd.github+json'
   }
 });
@@ -118,7 +165,7 @@ app.get('/', (req, res) => {
 
 // Health Check
 app.get(['/health', '/api/v1/health'], async (req, res) => {
-  res.json({ 
+  res.json({
     status: 'ok',
     version: '1.5.0',
     services: {
@@ -126,7 +173,7 @@ app.get(['/health', '/api/v1/health'], async (req, res) => {
       julesApi: 'configured',
       githubApi: GITHUB_TOKEN ? 'configured' : 'not_configured'
     },
-    timestamp: new Date().toISOString() 
+    timestamp: new Date().toISOString()
   });
 });
 
@@ -186,9 +233,9 @@ app.post('/mcp/execute', async (req, res) => {
   if (!toolName) {
     console.error(`[${req.requestId}] MCP Error: Missing tool name`);
     return res.status(400).json({
-        error: 'Tool name required (use "name" or "tool" field)',
-        requestId: req.requestId,
-        hint: 'Ensure Content-Type is application/json'
+      error: 'Tool name required (use "name" or "tool" field)',
+      requestId: req.requestId,
+      hint: 'Ensure Content-Type is application/json'
     });
   }
 
@@ -200,7 +247,7 @@ app.post('/mcp/execute', async (req, res) => {
       hint: 'Tool names must be alphanumeric with underscores'
     });
   }
-  
+
   try {
     let result;
     if (toolName === 'jules_create_session') {
@@ -215,17 +262,17 @@ app.post('/mcp/execute', async (req, res) => {
     } else {
       return res.status(404).json({ error: 'Tool ' + toolName + ' not found' });
     }
-    
-    res.json({ 
+
+    res.json({
       success: true,
       content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
-      result 
+      result
     });
   } catch (error) {
     console.error('MCP Execute Error (' + toolName + '):', error.response?.data || error.message);
-    res.status(500).json({ 
+    res.status(500).json({
       success: false,
-      error: error.response?.data?.error?.message || error.message 
+      error: error.response?.data?.error?.message || error.message
     });
   }
 });

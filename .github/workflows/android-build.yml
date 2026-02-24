@@ -2,11 +2,27 @@ name: Build & Distribute Android
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [main, master]
+    paths:
+      - "src/**"
+      - "package.json"
+      - "android/**"
+      - ".github/workflows/android-build.yml"
+  pull_request:
+    branches: [main, master]
+    paths:
+      - "src/**"
+      - "package.json"
+      - "android/**"
   workflow_dispatch:
+
+concurrency:
+  group: android-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build:
+    if: "!contains(github.event.head_commit.message, '[skip ci]')"
     name: Build & Distribute
     runs-on: ubuntu-latest
     steps:
@@ -17,7 +33,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: 'npm'
+          cache: "npm"
 
       # Cache Next.js build
       - name: Cache Next.js build
@@ -49,10 +65,10 @@ jobs:
       - name: Java Setup
         uses: actions/setup-java@v4
         with:
-          distribution: 'zulu'
-          java-version: '17'
+          distribution: "zulu"
+          java-version: "17"
           # Gradle caching is built into setup-java@v4
-          cache: 'gradle'
+          cache: "gradle"
 
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3

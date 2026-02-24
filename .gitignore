@@ -10,8 +10,8 @@
 /coverage
 
 # next.js
-/.next/
-/out/
+**/.next/
+**/out/
 
 # production
 /build
@@ -58,3 +58,14 @@ gen_ssh.ps1
 !scripts/*.ps1
 !deploy.ps1
 !vuela.ps1
+
+# agent internals & workspaces
+.jules_bases/
+.swarm_*/
+.agent/scripts/.jules_bases/
+.agent/scripts/.swarm_*/
+.agent/scripts/.jules_*/
+.agent/scripts/worktrees/
+**/node_modules/
+**/.git/
+

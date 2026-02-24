@@ -3,12 +3,14 @@ import createNextIntlPlugin from 'next-intl/plugin';
 const withNextIntl = createNextIntlPlugin('./i18n.ts');
 
 const isCapacitor = process.env.IS_CAPACITOR === 'true';
+const isCloudflare = process.env.CF_PAGES === '1';
+const isStatic = isCapacitor || isCloudflare;
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
     trailingSlash: true,
     images: {
-        unoptimized: isCapacitor, // Only unoptimized for Capacitor/Static export
+        unoptimized: isStatic, // Required for static export (Capacitor/Cloudflare)
         formats: ['image/avif', 'image/webp'],
         remotePatterns: [
             {
@@ -33,7 +35,7 @@ const nextConfig = {
     },
     compress: true,
     poweredByHeader: false,
-    output: isCapacitor ? 'export' : 'standalone',
+    output: isStatic ? 'export' : 'standalone',
     staticPageGenerationTimeout: 300, // Increase timeout to 5 minutes
     transpilePackages: [
         '@capacitor/core',
