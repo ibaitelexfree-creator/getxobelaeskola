@@ -5,7 +5,7 @@ import { useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { apiUrl } from '@/lib/api';
 import { parseAmount } from '@/lib/utils/financial';
-import { FinancialTransaction, FinancialReportsClientProps } from './financials/types';
+import { FinancialTransaction, FinancialReportsClientProps, ChartDataPoint } from './financials/types';
 import FinancialReportsToolbar from './financials/FinancialReportsToolbar';
 import FinancialReportsChart from './financials/FinancialReportsChart';
 import FinancialReportsTable from './financials/FinancialReportsTable';
@@ -238,7 +238,7 @@ export default function FinancialReportsClient({ initialData, initialView, total
     };
 
     // Data for the simple chart (Smart Aggregation with GAP FILLING)
-    const chartData = useMemo(() => {
+    const chartData = useMemo<ChartDataPoint[]>(() => {
         let effectiveStart = startDate;
         let effectiveEnd = endDate;
 
