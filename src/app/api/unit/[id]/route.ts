@@ -6,6 +6,7 @@ import { verifyUnitAccess } from '@/lib/academy/enrollment';
 // Import Rate Limiter
 import { rateLimit } from '@/lib/security/rate-limit';
 import { withCors, corsHeaders } from '@/lib/api-headers';
+import { sanitizeHTML } from '@/lib/security/html-sanitizer';
 
 export const dynamic = 'force-dynamic';
 
@@ -117,6 +118,13 @@ export async function GET(
         const unidadSiguiente = currentIndex >= 0 && currentIndex < (unidadesHermanas?.length ?? 0) - 1
             ? unidadesHermanas?.[currentIndex + 1]
             : null;
+
+        // --- SECURITY: SANITIZE CONTENT (PR #314, #233, #232) ---
+        if (unidad.contenido_teorico_es) unidad.contenido_teorico_es = sanitizeHTML(unidad.contenido_teorico_es);
+        if (unidad.contenido_teorico_eu) unidad.contenido_teorico_eu = sanitizeHTML(unidad.contenido_teorico_eu);
+        if (unidad.contenido_practico_es) unidad.contenido_practico_es = sanitizeHTML(unidad.contenido_practico_es);
+        if (unidad.contenido_practico_eu) unidad.contenido_practico_eu = sanitizeHTML(unidad.contenido_practico_eu);
+        // -------------------------------------------------------
 
         return withCors(NextResponse.json({
             unidad,

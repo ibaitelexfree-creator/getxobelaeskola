@@ -39,6 +39,18 @@ services:
     depends_on:
       - tailscale
 
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: openclaw-qdrant
+    restart: always
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - ./data/qdrant:/qdrant/storage
+    networks:
+      - openclaw-net
+
 networks:
   openclaw-net:
     driver: bridge

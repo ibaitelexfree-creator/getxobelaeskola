@@ -99,12 +99,10 @@ export function calculateWindStats(windAngleRelative: number, windSpeed: number)
   // Logic: Max at 45-90, drops off after 90.
   let heel = 0;
   if (absAngle > 40 && absAngle < 160) {
-      // Peak around 60-80 degrees
-      const heelFactor = Math.sin((absAngle * Math.PI) / 180); // 90 is max 1.0
-      // Actually close hauled heels more due to lift/drag ratio.
-      // Let's simplify: Max heel at 50-90.
-      if (absAngle < 90) heel = 20 * (windSpeed / 15);
-      else heel = 20 * (windSpeed / 15) * (1 - (absAngle - 90)/90);
+    // Actually close hauled heels more due to lift/drag ratio.
+    // Let's simplify: Max heel at 50-90.
+    if (absAngle < 90) heel = 20 * (windSpeed / 15);
+    else heel = 20 * (windSpeed / 15) * (1 - (absAngle - 90) / 90);
   }
   heel = Math.min(heel, 35); // Cap at 35 degrees
 

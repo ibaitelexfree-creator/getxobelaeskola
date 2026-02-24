@@ -98,8 +98,7 @@ describe('POST /api/logbook/upload-track', () => {
         const data = await res.json();
 
         expect(data.success).toBe(true);
-        // Corrected key to match API implementation
-        expect(data.stats.distance_nm).toBeGreaterThan(0);
+        expect(data.stats.total_distance_nm).toBeGreaterThan(0);
 
         expect(mockUpload).toHaveBeenCalled();
         expect(mockInsert).toHaveBeenCalled();

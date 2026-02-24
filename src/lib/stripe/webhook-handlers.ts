@@ -22,7 +22,7 @@ export class StripeHandlers {
         } else if (mode === 'course' || mode === 'edition') {
             await this.processCourse(session, user_id, locale);
         } else if (mode === 'bono_horas' || metadata.purchase_type === 'bono_horas') {
-            await this.processBonoPurchase(session, user_id, locale);
+            await this.processBonoPurchase(session, user_id);
         } else {
             console.warn(`Unknown checkout mode: ${mode}`);
         }
@@ -264,7 +264,7 @@ export class StripeHandlers {
         }
     }
 
-    private async processBonoPurchase(session: Stripe.Checkout.Session, userId: string, locale: string) {
+    private async processBonoPurchase(session: Stripe.Checkout.Session, userId: string) {
         const { bono_id, horas } = session.metadata || {};
         if (!bono_id) throw new Error('Missing bono_id in metadata');
 
