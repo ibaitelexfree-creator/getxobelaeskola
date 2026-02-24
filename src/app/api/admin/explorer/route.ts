@@ -1,4 +1,3 @@
-
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 
@@ -45,7 +44,8 @@ export async function GET(req: Request) {
 
     if (!query) return NextResponse.json({ results: [] });
 
-    const supabase = createClient();
+    // Ensure we await the client creation as per project convention
+    const supabase = await createClient();
     let results: SearchResult[] = [];
 
     const searchTable = async (tableName: string) => {
@@ -53,17 +53,10 @@ export async function GET(req: Request) {
         // Construct OR filter: col1.ilike.%q%,col2.ilike.%q%
         const orFilter = cols.map(c => `${c}.ilike.%${query}%`).join(',');
 
-        const rels = RELATIONS[tableName] || [];
-        // Construct select with resource embedding for counts to avoid N+1 queries
-        // Format: *, related_table!fk_col(count)
-        const selectCols = [
-            '*',
-            ...rels.map(rel => `${rel.table}!${rel.fk}(count)`)
-        ].join(',');
-
+        // 1. Fetch main rows without embedding
         const { data, error } = await supabase
             .from(tableName)
-            .select(selectCols)
+            .select('*')
             .or(orFilter)
             .limit(5);
 
@@ -72,30 +65,84 @@ export async function GET(req: Request) {
             return [];
         }
 
-        // Enrich with relations count from embedded data
-        const enriched = (data || []).map((item: SearchResult) => {
-            const relations: { label: string; count: number; table: string }[] = [];
+        if (!data || data.length === 0) return [];
 
-            for (const rel of rels) {
-                // Embedded counts return as an array with a single object: [{ count: N }]
-                // This is much more efficient than performing a separate query for each item
-                const embedded = item[rel.table] as { count: number }[] | undefined;
-                const count = (embedded && Array.isArray(embedded)) ? (embedded[0]?.count || 0) : 0;
+        const rows = data as SearchResult[];
+        const rels = RELATIONS[tableName] || [];
+        const relationCountsByRow = new Map<string, { label: string; count: number; table: string }[]>();
 
-                if (count > 0) {
-                    relations.push({ label: rel.label, count, table: rel.table });
+        // Initialize empty relations for all rows
+        rows.forEach(row => relationCountsByRow.set(row.id, []));
+
+        // Start performance timer
+        const start = performance.now();
+
+        // 2. Process each relation independently (Batching Option B)
+        for (const rel of rels) {
+            try {
+                // Determine the key on the main row based on convention
+                // If fk is 'email', we join on email. Otherwise we join on id.
+                const mainKey = rel.fk === 'email' ? 'email' : 'id';
+
+                // Collect values from valid rows
+                const values = rows
+                    .map(r => r[mainKey])
+                    .filter(v => v !== null && v !== undefined && v !== '');
+
+                if (values.length === 0) continue;
+
+                // Execute single query for this relation using IN (...)
+                // We select only the FK column to count in memory
+                const { data: relatedData, error: relError } = await supabase
+                    .from(rel.table)
+                    .select(rel.fk)
+                    .in(rel.fk, values);
+
+                if (relError) {
+                    console.error(`Error fetching relation ${rel.table} for ${tableName}:`, relError);
+                    continue; // Skip this relation on error
                 }
+
+                // Aggregate counts in memory
+                const counts = new Map<string, number>();
+                (relatedData || []).forEach((item: any) => {
+                    const key = item[rel.fk];
+                    if (key) {
+                        const keyStr = String(key);
+                        counts.set(keyStr, (counts.get(keyStr) || 0) + 1);
+                    }
+                });
+
+                // Attach counts to rows
+                rows.forEach(row => {
+                    const rowVal = row[mainKey];
+                    if (rowVal) {
+                        const count = counts.get(String(rowVal)) || 0;
+                        if (count > 0) {
+                            const current = relationCountsByRow.get(row.id) || [];
+                            current.push({ label: rel.label, count, table: rel.table });
+                            relationCountsByRow.set(row.id, current);
+                        }
+                    }
+                });
+
+            } catch (err) {
+                console.error(`Exception processing relation ${rel.table}:`, err);
+                // Maintain behavior: skip if relation fails
             }
+        }
 
-            return {
-                ...item,
-                _table: tableName,
-                _title: item.nombre || item.title || item.name || item.asunto || item.id, // Best effort title
-                _relations: relations
-            };
-        });
+        const end = performance.now();
+        // Log performance metric
+        console.log(`[Explorer] Relation batching for ${tableName} (${rows.length} rows) took ${(end - start).toFixed(2)}ms`);
 
-        return enriched;
+        // 3. Construct enriched result preserving original shape
+        return rows.map(item => ({
+            ...item,
+            _table: tableName,
+            _title: item.nombre || item.title || item.name || item.asunto || item.id, // Best effort title
+            _relations: relationCountsByRow.get(item.id) || []
+        }));
     };
 
     if (table === 'all') {
