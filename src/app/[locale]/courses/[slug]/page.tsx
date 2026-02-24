@@ -17,7 +17,7 @@ export async function generateMetadata({
     params: { locale: string; slug: string }
 }): Promise<Metadata> {
     const supabase = createClient();
-    let course = null;
+    let course: any = null;
     try {
         const { data } = await supabase
             .from('cursos')
@@ -111,6 +111,10 @@ export default async function CourseDetailPage({
         id: string;
         nombre_es: string;
         nombre_eu: string;
+        nombre_en?: string;
+        nombre_fr?: string;
+        descripcion_en?: string;
+        descripcion_fr?: string;
         descripcion_es: string;
         descripcion_eu: string;
         precio: number;
@@ -125,7 +129,7 @@ export default async function CourseDetailPage({
     const supabase = createClient();
 
     // 1. Fetch main course data
-    let course = null;
+    let course: any = null;
     try {
         const { data } = await supabase
             .from('cursos')

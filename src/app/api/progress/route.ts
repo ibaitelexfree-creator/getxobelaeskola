@@ -158,7 +158,7 @@ export async function GET(request: Request) {
         });
 
         // 6. ADVANCED CAREER ADVISOR ENGINE (V2)
-        const recommendations = [];
+        const recommendations: any[] = [];
         const userHabilidades = (skills || []).map((s: any) =>
             Array.isArray(s.habilidad) ? s.habilidad[0]?.slug : s.habilidad?.slug
         );
