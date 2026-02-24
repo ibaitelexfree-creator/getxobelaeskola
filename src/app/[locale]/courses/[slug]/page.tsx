@@ -111,8 +111,12 @@ export default async function CourseDetailPage({
         id: string;
         nombre_es: string;
         nombre_eu: string;
+        nombre_en?: string;
+        nombre_fr?: string;
         descripcion_es: string;
         descripcion_eu: string;
+        descripcion_en?: string;
+        descripcion_fr?: string;
         precio: number;
         duracion_h: number;
         nivel: string;
