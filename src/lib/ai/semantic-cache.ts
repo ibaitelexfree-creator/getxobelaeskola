@@ -34,6 +34,7 @@ export class SemanticCache {
       const embedding = await this.generateEmbedding(query);
       const supabase = createAdminClient();
 
+      // @ts-ignore - Supabase types might not have the table yet
       const { data, error } = await supabase.rpc('match_cached_response', {
         query_embedding: embedding,
         match_threshold: customThreshold ?? this.threshold,
@@ -81,5 +82,4 @@ export class SemanticCache {
     }
   }
 }
-
-export const semanticCache = new SemanticCache();
+// export const semanticCache = new SemanticCache(); // Removed to prevent build failure on missing API key

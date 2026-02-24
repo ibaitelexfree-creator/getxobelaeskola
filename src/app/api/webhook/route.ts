@@ -12,6 +12,10 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
+    if (!stripe) {
+        return NextResponse.json({ error: 'Stripe configuration missing' }, { status: 503 });
+    }
+
     const supabase = createAdminClient() as any;
     const handlers = new StripeHandlers(supabase);
 
