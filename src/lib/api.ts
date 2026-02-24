@@ -24,6 +24,10 @@ export const getApiBaseUrl = () => {
 };
 
 export const apiUrl = (path: string) => {
+    if (path.startsWith('http://') || path.startsWith('https://')) {
+        return path;
+    }
+
     const base = getApiBaseUrl();
     const cleanPath = path.startsWith('/') ? path : `/${path}`;
 
