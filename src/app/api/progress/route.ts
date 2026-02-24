@@ -158,7 +158,7 @@ export async function GET(request: Request) {
         });
 
         // 6. ADVANCED CAREER ADVISOR ENGINE (V2)
-        const recommendations = [];
+        const recommendations: any[] = [];
         const userHabilidades = (skills || []).map((s: any) =>
             Array.isArray(s.habilidad) ? s.habilidad[0]?.slug : s.habilidad?.slug
         );
@@ -188,7 +188,7 @@ export async function GET(request: Request) {
         };
 
         // Decision Tree for "Smart Next Step"
-        // LOCALIZED LINKS: /${locale}/...
+        // LOCALIZED LINKS: //...
         if (nivelesCompletados === 0 && totalSessions === 0) {
             recommendations.push({
                 id: 'path-initiation',
@@ -289,4 +289,3 @@ export async function GET(request: Request) {
         ), request);
     }
 }
-
