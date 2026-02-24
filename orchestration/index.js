@@ -2621,7 +2621,7 @@ const server = app.listen(PORT, '0.0.0.0', () => {
         3. Navigate to a course or membership page.
         4. Use Stripe Test Card (4242 4242 4242 4242) to perform a fake purchase.
         5. Verify the purchase is reflected in the user dashboard and membership is ACTIVE.
-        6. Capture screenshots of every step. 
+        6. Capture screenshots of every step.
         7. Record a video of the interaction if possible.
         8. If any step FAILS, identify the reason and create a PR with the fix.
         9. Generate a nightly-qa-report branch with all media and a summary.md.`,
@@ -2638,27 +2638,27 @@ const server = app.listen(PORT, '0.0.0.0', () => {
 
   setInterval(runNightlyQARobot, 60 * 60 * 1000);
   console.log('[Chain 4] Nightly-Watch (Getxo 3 AM) & Self-Healing & QA Robot ACTIVE');
-  // ── SELF-HEALING ENGINE (Chain 4) ────────────────────────
-  async function triggerSelfHealing(errorMsg, stack) {
-    if (process.env.JULES_DISABLE_SELF_HEALING === 'true') return;
-    metrics.errorsTotal++;
-    console.log('[Self-Healing] 🤖 Crítico detectado. Iniciando reparación autónoma...');
-
-    try {
-      await createJulesSession({
-        prompt: `CRITICAL ERROR DETECTED IN PRODUCTION:\nError: ${errorMsg}\nStack: ${stack}\n\nTask: Find the root cause, fix it, and create a PR. Check logs and recent changes.`,
-        source: process.env.JULES_DEFAULT_SOURCE || 'sources/github/ibaitelexfree-creator/getxobelaeskola',
-        title: '🆘 Self-Healing: Repairing Crash',
-        automationMode: 'AUTO_CREATE_PR'
-      });
-
-      sendTelegramMessage(`🆘 *Self-Healing Activado*\nHe detectado un crash crítico y he lanzado a Jules para repararlo automáticamente.`);
-    } catch (e) {
-      console.error('[Self-Healing] Failed to launch:', e.message);
-    }
-  }
-
 });
+
+// ── SELF-HEALING ENGINE (Chain 4) ────────────────────────
+async function triggerSelfHealing(errorMsg, stack) {
+  if (process.env.JULES_DISABLE_SELF_HEALING === 'true') return;
+  metrics.errorsTotal++;
+  console.log('[Self-Healing] 🤖 Crítico detectado. Iniciando reparación autónoma...');
+
+  try {
+    await createJulesSession({
+      prompt: `CRITICAL ERROR DETECTED IN PRODUCTION:\nError: ${errorMsg}\nStack: ${stack}\n\nTask: Find the root cause, fix it, and create a PR. Check logs and recent changes.`,
+      source: process.env.JULES_DEFAULT_SOURCE || 'sources/github/ibaitelexfree-creator/getxobelaeskola',
+      title: '🆘 Self-Healing: Repairing Crash',
+      automationMode: 'AUTO_CREATE_PR'
+    });
+
+    sendTelegramMessage(`🆘 *Self-Healing Activado*\nHe detectado un crash crítico y he lanzado a Jules para repararlo automáticamente.`);
+  } catch (e) {
+    console.error('[Self-Healing] Failed to launch:', e.message);
+  }
+}
 
 process.on('SIGTERM', () => {
   console.log('SIGTERM received, shutting down gracefully');
@@ -2666,17 +2666,18 @@ process.on('SIGTERM', () => {
 });
 
 process.on('uncaughtException', (err) => {
-  if (err.message && err.message.includes('TEST_CRASH_AUTO')) {
+  const msg = (err && err.message) || String(err);
+  if (msg.includes('TEST_CRASH_AUTO') || msg.toLowerCase().includes('test_crash')) {
     console.log('✅ Self-Healing Validation Test Caught. System operational.');
     return;
   }
   console.error('Uncaught exception:', err);
-  triggerSelfHealing(err.message, err.stack);
+  triggerSelfHealing(msg, err.stack || '');
 });
 
 process.on('unhandledRejection', (reason, promise) => {
   const message = reason instanceof Error ? reason.message : String(reason);
-  if (message.includes('TEST_CRASH_AUTO')) {
+  if (message.includes('TEST_CRASH_AUTO') || message.toLowerCase().includes('test_crash')) {
     console.log('✅ Self-Healing Validation Test Caught (Rejection). System operational.');
     return;
   }
