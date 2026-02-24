@@ -1,0 +1,10 @@
+{
+  "merge_plan": [
+    { "branch": "fix/notion-sync-secret", "risk": "low" },
+    { "branch": "chore/jules-code-health", "risk": "low" },
+    { "branch": "fix/simulator-scoring-manager", "risk": "medium" },
+    { "branch": "fix/regatta-username-fetch", "risk": "medium" },
+    { "branch": "jules/autofix-session-reuse", "risk": "high" },
+    { "branch": "jules-video-checkpoints", "risk": "high" }
+  ]
+}
