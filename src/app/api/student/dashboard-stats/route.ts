@@ -148,20 +148,21 @@ export async function GET() {
             }
         });
 
-    } catch (error: any) {
+    } catch (error: unknown) {
+        const err = error as Record<string, unknown>;
         console.error('CRITICAL: Error fetching dashboard stats:', error);
 
         // Detailed error logging for debugging
-        if (error.code) console.error('Error Code:', error.code);
-        if (error.message) console.error('Error Message:', error.message);
-        if (error.details) console.error('Error Details:', error.details);
-        if (error.stack) console.error('Error Stack:', error.stack);
+        if (err.code) console.error('Error Code:', err.code);
+        if (err.message) console.error('Error Message:', err.message);
+        if (err.details) console.error('Error Details:', err.details);
+        if (err.stack) console.error('Error Stack:', err.stack);
 
         return NextResponse.json(
             {
                 error: 'Internal Server Error',
-                message: error.message || 'Unknown error',
-                code: error.code || 'UNKNOWN'
+                message: String(err.message || 'Unknown error'),
+                code: String(err.code || 'UNKNOWN')
             },
             { status: 500 }
         );
