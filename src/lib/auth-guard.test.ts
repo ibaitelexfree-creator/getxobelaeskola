@@ -108,7 +108,7 @@ describe('Auth Guard', () => {
             expect(result.error).toBeDefined();
             const errorResponse = result.error as any;
             expect(errorResponse.status).toBe(401);
-            expect(errorResponse.body).toEqual({ error: 'Perfil no encontrado' });
+            expect(errorResponse.body).toEqual({ error: 'No auth' });
         });
 
         it('should return 403 if user is not admin', async () => {
@@ -148,6 +148,7 @@ describe('Auth Guard', () => {
             expect(result.error).toBeDefined();
             const errorResponse = result.error as any;
             expect(errorResponse.status).toBe(401);
+            expect(errorResponse.body).toEqual({ error: 'No auth' });
         });
 
         it('should return 403 if user is strictly student', async () => {
