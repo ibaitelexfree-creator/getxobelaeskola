@@ -53,10 +53,12 @@ export function generateStaticParams() {
 export default async function RentalPage({ params: { locale } }: { params: { locale: string } }) {
     const t = await getTranslations({ locale, namespace: 'rental_page' });
     const supabase = createClient();
+
     interface RentalService {
         id: string;
         slug: string;
         nombre: string;
+        nombre_es: string;
         nombre_en?: string;
         nombre_eu?: string;
         descripcion: string;
@@ -66,7 +68,10 @@ export default async function RentalPage({ params: { locale } }: { params: { loc
         precio_hora: number;
         imagen_url: string;
         activo: boolean;
+        categoria?: string;
+        opciones?: { label: string; extra: number }[];
     }
+
     let services: RentalService[] = [];
     const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://getxobelaeskola.cloud';
 
@@ -93,7 +98,7 @@ export default async function RentalPage({ params: { locale } }: { params: { loc
                 'alquiler-raquero'
             ];
 
-            services = (data || []).sort((a, b) => {
+            services = (data as unknown as RentalService[] || []).sort((a, b) => {
                 const indexA = priorityOrder.indexOf(a.slug);
                 const indexB = priorityOrder.indexOf(b.slug);
 
@@ -166,7 +171,7 @@ export default async function RentalPage({ params: { locale } }: { params: { loc
             {/* Main Interactive Fleet Section */}
             <section className="pb-48 relative">
                 <div className="container mx-auto px-6 relative z-10">
-                    <RentalClient services={services || []} locale={locale} />
+                    <RentalClient services={services} locale={locale} />
                 </div>
 
                 {/* Bottom Note / Disclosure */}
@@ -185,4 +190,3 @@ export default async function RentalPage({ params: { locale } }: { params: { loc
         </main>
     );
 }
-
