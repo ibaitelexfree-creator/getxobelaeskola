@@ -5,7 +5,7 @@ import { useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { apiUrl } from '@/lib/api';
 import { parseAmount } from '@/lib/utils/financial';
-import { FinancialTransaction, FinancialReportsClientProps, ChartDataPoint } from './financials/types';
+import { FinancialTransaction, FinancialReportsClientProps, ChartDataPoint, HistoryEntry } from './financials/types';
 import FinancialReportsToolbar from './financials/FinancialReportsToolbar';
 import FinancialReportsChart from './financials/FinancialReportsChart';
 import FinancialReportsTable from './financials/FinancialReportsTable';
@@ -194,9 +194,8 @@ export default function FinancialReportsClient({ initialData, initialView, total
             if (response.ok) {
                 // Update local state optimistically or with API data if we had it
                 // We'll create a mock history entry for immediate feedback
-                const newHistoryEntry = {
+                const newHistoryEntry: HistoryEntry = {
                     id: `temp-${Date.now()}`,
-                    reserva_id: editingTx.id,
                     created_at: new Date().toISOString(),
                     field_name: field,
                     old_value: String(oldValue),
@@ -230,11 +229,11 @@ export default function FinancialReportsClient({ initialData, initialView, total
     };
 
     const hasHistory = (item: FinancialTransaction, field: string) => {
-        return item.history?.some((h: any) => h.field_name === field);
+        return item.history?.some((h: HistoryEntry) => h.field_name === field) || false;
     };
 
-    const getHistoryForField = (item: FinancialTransaction, field: string) => {
-        return item.history?.filter((h: any) => h.field_name === field) || [];
+    const getHistoryForField = (item: FinancialTransaction, field: string): HistoryEntry[] => {
+        return (item.history?.filter((h: HistoryEntry) => h.field_name === field) || []) as HistoryEntry[];
     };
 
     // Data for the simple chart (Smart Aggregation with GAP FILLING)
