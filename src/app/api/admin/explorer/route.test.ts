@@ -1,4 +1,3 @@
-
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { GET } from './route';
 import { createClient } from '@/lib/supabase/server';
@@ -32,10 +31,10 @@ describe('Admin Explorer API Performance Optimization', () => {
             {
                 id: 'user1',
                 nombre: 'John',
-                reservas_alquiler: [{ count: 2 }],
-                inscripciones: [{ count: 1 }],
-                mensajes_contacto: [{ count: 0 }],
-                newsletter_subscriptions: [{ count: 5 }]
+                count_reservas_alquiler_perfil_id: [{ count: 2 }],
+                count_inscripciones_perfil_id: [{ count: 1 }],
+                count_mensajes_contacto_email: [{ count: 0 }],
+                count_newsletter_subscriptions_email: [{ count: 5 }]
             }
         ];
 
@@ -48,14 +47,14 @@ describe('Admin Explorer API Performance Optimization', () => {
         // Verify that from was called with 'profiles'
         expect(mockSupabase.from).toHaveBeenCalledWith('profiles');
 
-        // Verify that select was called with the optimized embedding string
+        // Verify that select was called with the optimized embedding string with aliases
         const selectCall = mockSupabase.select.mock.calls[0][0];
-        expect(selectCall).toContain('reservas_alquiler!perfil_id(count)');
-        expect(selectCall).toContain('inscripciones!perfil_id(count)');
-        expect(selectCall).toContain('mensajes_contacto!email(count)');
-        expect(selectCall).toContain('newsletter_subscriptions!email(count)');
+        expect(selectCall).toContain('count_reservas_alquiler_perfil_id:reservas_alquiler!perfil_id(count)');
+        expect(selectCall).toContain('count_inscripciones_perfil_id:inscripciones!perfil_id(count)');
+        expect(selectCall).toContain('count_mensajes_contacto_email:mensajes_contacto!email(count)');
+        expect(selectCall).toContain('count_newsletter_subscriptions_email:newsletter_subscriptions!email(count)');
 
-        // Verify output format is correctly mapped from embedded results
+        // Verify output format is correctly mapped from aliased results
         expect(json.results[0]._relations).toHaveLength(3); // 2 rentals + 1 inscripcion + 5 subscriptions (0 messages skipped)
         expect(json.results[0]._relations).toContainEqual({ label: 'Alquileres', count: 2, table: 'reservas_alquiler' });
         expect(json.results[0]._relations).toContainEqual({ label: 'Cursos Inscritos', count: 1, table: 'inscripciones' });
@@ -79,14 +78,19 @@ describe('Admin Explorer API Performance Optimization', () => {
         expect(mockSupabase.from).toHaveBeenCalledTimes(1);
     });
 
-    it('should search all tables and perform one query per table', async () => {
+    it('should search all tables in parallel and perform one query per table', async () => {
         mockSupabase.limit.mockResolvedValue({ data: [], error: null });
 
         const req = new Request('http://localhost/api/admin/explorer?q=test&table=all');
         await GET(req);
 
-        // Should call from once for each table in tablesToSearch:
-        // ['profiles', 'cursos', 'embarcaciones', 'reservas_alquiler']
-        expect(mockSupabase.from).toHaveBeenCalledTimes(4);
+        // Should call from once for each table in SEARCHABLE_COLS (6 tables)
+        expect(mockSupabase.from).toHaveBeenCalledTimes(6);
+        expect(mockSupabase.from).toHaveBeenCalledWith('profiles');
+        expect(mockSupabase.from).toHaveBeenCalledWith('cursos');
+        expect(mockSupabase.from).toHaveBeenCalledWith('embarcaciones');
+        expect(mockSupabase.from).toHaveBeenCalledWith('reservas_alquiler');
+        expect(mockSupabase.from).toHaveBeenCalledWith('mensajes_contacto');
+        expect(mockSupabase.from).toHaveBeenCalledWith('newsletter_subscriptions');
     });
 });
