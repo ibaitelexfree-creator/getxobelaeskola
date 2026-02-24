@@ -9,6 +9,7 @@ import { X, ChevronDown, Anchor, Wind, Sailboat, Users, GraduationCap, Phone, Sc
 import { createClient } from '@/lib/supabase/client';
 import { apiUrl } from '@/lib/api';
 import dynamic from 'next/dynamic';
+import { User } from '@supabase/supabase-js';
 
 const ThemeToggle = dynamic(() => import('@/components/shared/ThemeToggle'), { ssr: false });
 
@@ -25,6 +26,12 @@ interface NavItem {
     dropdown?: NavDropdownItem[];
 }
 
+interface AuthUser extends User {
+    rol?: string;
+    status_socio?: string;
+    [key: string]: unknown;
+}
+
 export default function Navbar({ locale: propLocale }: { locale?: string }) {
     const t = useTranslations('nav');
     const params = useParams();
@@ -35,13 +42,6 @@ export default function Navbar({ locale: propLocale }: { locale?: string }) {
 
     const locale = propLocale || (params.locale as string) || 'es';
 
-    interface AuthUser {
-        id: string;
-        email?: string;
-        rol?: string;
-        status_socio?: string;
-        [key: string]: unknown;
-    }
     const [user, setUser] = useState<AuthUser | null>(null);
     const [loading, setLoading] = useState(true);
 
@@ -54,7 +54,7 @@ export default function Navbar({ locale: propLocale }: { locale?: string }) {
                     const res = await fetch(apiUrl(`/api/profile?user_id=${authUser.id}`));
                     if (res.ok) {
                         const profile = await res.json();
-                        setUser({ ...authUser, ...profile });
+                        setUser({ ...authUser, ...profile } as AuthUser);
                     } else {
                         setUser(authUser as AuthUser);
                     }

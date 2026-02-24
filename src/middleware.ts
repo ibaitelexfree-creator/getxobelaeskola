@@ -1,6 +1,7 @@
 import createMiddleware from 'next-intl/middleware';
 import { createServerClient } from '@supabase/ssr';
 import { type NextRequest, NextResponse } from 'next/server';
+import { User } from '@supabase/supabase-js';
 
 const intlMiddleware = createMiddleware({
     locales: ['es', 'eu', 'en', 'fr'],
@@ -47,7 +48,7 @@ export default async function middleware(request: NextRequest) {
         }
     );
 
-    let user = null;
+    let user: User | null = null;
     try {
         const { data } = await supabase.auth.getUser();
         user = data.user;
@@ -93,5 +94,5 @@ export default async function middleware(request: NextRequest) {
 
 export const config = {
     // Include API routes to support metering logic
-    matcher: ['/((?!_next|_vercel|.*\\..*).*)']
+    matcher: ['/((?!_next|_vercel|.*\..*).*)']
 };
