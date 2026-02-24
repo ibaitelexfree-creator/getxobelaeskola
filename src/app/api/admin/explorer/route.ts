@@ -54,12 +54,6 @@ export async function GET(req: Request) {
         const orFilter = cols.map(c => `${c}.ilike.%${query}%`).join(',');
 
         const rels = RELATIONS[tableName] || [];
-        // Construct select with resource embedding for counts to avoid N+1 queries
-        // Format: *, related_table!fk_col(count)
-        const selectCols = [
-            '*',
-            ...rels.map(rel => `count_${rel.table}_${rel.fk}:${rel.table}!${rel.fk}(count)`)
-        ].join(',');
 
         const { data, error } = await supabase
             .from(tableName)
@@ -74,11 +68,8 @@ export async function GET(req: Request) {
 
         if (!data || data.length === 0) return [];
 
-            for (const rel of rels) {
-                // Embedded counts return as an array with a single object: [{ count: N }]
-                // This is much more efficient than performing a separate query for each item
-                const embedded = item[`count_${rel.table}_${rel.fk}`] as { count: number }[] | undefined;
-                const count = (embedded && Array.isArray(embedded)) ? (embedded[0]?.count || 0) : 0;
+        const rows = data as any[];
+        const relationCountsByRow = new Map<string, { label: string; count: number; table: string }[]>();
 
         // Initialize empty relations for all rows
         rows.forEach(row => relationCountsByRow.set(row.id, []));
@@ -114,8 +105,8 @@ export async function GET(req: Request) {
 
                 // Aggregate counts in memory
                 const counts = new Map<string, number>();
-                (relatedData || []).forEach((item: any) => {
-                    const key = item[rel.fk];
+                (relatedData || []).forEach((relatedItem: any) => {
+                    const key = relatedItem[rel.fk];
                     if (key) {
                         const keyStr = String(key);
                         counts.set(keyStr, (counts.get(keyStr) || 0) + 1);
