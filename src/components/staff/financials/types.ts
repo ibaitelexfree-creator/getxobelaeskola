@@ -1,3 +1,12 @@
+export interface HistoryEntry {
+    id: string;
+    created_at: string;
+    field_name: string;
+    old_value: string;
+    new_value: string;
+    profiles?: { nombre: string; apellidos?: string };
+}
+
 export interface FinancialTransaction {
     id: string;
     created_at?: string;
@@ -7,7 +16,7 @@ export interface FinancialTransaction {
     estado_pago: string;
     profiles?: { nombre: string; apellidos?: string };
     servicios_alquiler?: { nombre_es: string };
-    history?: any[];
+    history?: HistoryEntry[];
     _field?: string;
     [key: string]: any;
 }

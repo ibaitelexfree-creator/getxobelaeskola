@@ -4,7 +4,7 @@ import React from 'react';
 import { useTranslations } from 'next-intl';
 import { parseAmount } from '@/lib/utils/financial';
 import ClientDate from './ClientDate';
-import { FinancialTransaction } from './types';
+import { FinancialTransaction, HistoryEntry } from './types';
 
 interface FinancialReportsTableProps {
     transactions: FinancialTransaction[];
@@ -12,7 +12,7 @@ interface FinancialReportsTableProps {
     setSortBy: (sort: string) => void;
     setEditingTx: (tx: FinancialTransaction) => void;
     hasHistory: (item: FinancialTransaction, field: string) => boolean;
-    getHistoryForField: (item: FinancialTransaction, field: string) => any[];
+    getHistoryForField: (item: FinancialTransaction, field: string) => HistoryEntry[];
     mounted: boolean;
     totalRecords: number;
     initialData: FinancialTransaction[];
@@ -145,7 +145,7 @@ export default function FinancialReportsTable({
                                                     <div className="absolute left-0 bottom-full mb-2 hidden group-hover/hist:block z-50 w-64 p-3 bg-nautical-deep border border-white/10 rounded-lg shadow-2xl glass-panel">
                                                         <p className="text-3xs uppercase tracking-tighter text-white/40 mb-2 border-b border-white/5 pb-1">Historial de fecha</p>
                                                         <div className="space-y-2 max-h-40 overflow-y-auto custom-scrollbar">
-                                                            {getHistoryForField(item, 'fecha_pago').map((h: any) => (
+                                                            {getHistoryForField(item, 'fecha_pago').map((h: HistoryEntry) => (
                                                                 <div key={h.id} className="text-3xs border-l border-accent/20 pl-2">
                                                                     <div className="flex justify-between text-white/30">
                                                                         <span>
@@ -194,7 +194,7 @@ export default function FinancialReportsTable({
                                                     <div className="absolute left-0 bottom-full mb-2 hidden group-hover/hist:block z-50 w-64 p-3 bg-nautical-deep border border-white/10 rounded-lg shadow-2xl glass-panel">
                                                         <p className="text-3xs uppercase tracking-tighter text-white/40 mb-2 border-b border-white/5 pb-1">Historial de servicio</p>
                                                         <div className="space-y-2 max-h-40 overflow-y-auto custom-scrollbar">
-                                                            {getHistoryForField(item, 'servicio_id').map((h: any) => (
+                                                            {getHistoryForField(item, 'servicio_id').map((h: HistoryEntry) => (
                                                                 <div key={h.id} className="text-3xs border-l border-accent/20 pl-2">
                                                                     <div className="flex justify-between text-white/30">
                                                                         <span>{new Date(h.created_at).toLocaleDateString()}</span>
@@ -238,7 +238,7 @@ export default function FinancialReportsTable({
                                                     <div className="absolute left-0 bottom-full mb-2 hidden group-hover/hist:block z-50 w-64 p-3 bg-nautical-deep border border-white/10 rounded-lg shadow-2xl glass-panel">
                                                         <p className="text-3xs uppercase tracking-tighter text-white/40 mb-2 border-b border-white/5 pb-1">Historial de estado</p>
                                                         <div className="space-y-2 max-h-40 overflow-y-auto custom-scrollbar">
-                                                            {getHistoryForField(item, 'estado_pago').map((h: any) => (
+                                                            {getHistoryForField(item, 'estado_pago').map((h: HistoryEntry) => (
                                                                 <div key={h.id} className="text-3xs border-l border-accent/20 pl-2">
                                                                     <div className="flex justify-between text-white/30">
                                                                         <span>{new Date(h.created_at).toLocaleDateString()}</span>
@@ -269,7 +269,7 @@ export default function FinancialReportsTable({
                                                     <div className="absolute right-0 bottom-full mb-2 hidden group-hover/hist:block z-50 w-64 p-3 bg-nautical-deep border border-white/10 rounded-lg shadow-2xl glass-panel text-left">
                                                         <p className="text-3xs uppercase tracking-tighter text-white/40 mb-2 border-b border-white/5 pb-1">Historial de monto</p>
                                                         <div className="space-y-2 max-h-40 overflow-y-auto custom-scrollbar">
-                                                            {getHistoryForField(item, 'monto_total').map((h: any) => (
+                                                            {getHistoryForField(item, 'monto_total').map((h: HistoryEntry) => (
                                                                 <div key={h.id} className="text-3xs border-l border-accent/20 pl-2">
                                                                     <div className="flex justify-between text-white/30">
                                                                         <span>{new Date(h.created_at).toLocaleDateString()}</span>
