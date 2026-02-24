@@ -1,7 +1,7 @@
 import React from 'react';
 import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
-import FinancialReportsClient from '@/components/staff/FinancialReportsClient';
+import FinancialReportsClient from '@/components/staff/financial-reports/FinancialReportsClient';
 import Link from 'next/link';
 
 export function generateStaticParams() {
