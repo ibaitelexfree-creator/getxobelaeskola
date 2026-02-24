@@ -1,61 +1,118 @@
 import * as turf from '@turf/turf';
-import waterGeometryData from '../../data/geospatial/water-geometry.json';
 import RBush from 'rbush';
+import fs from 'fs';
+import path from 'path';
 
-// Define the item type for the R-tree
-interface WaterPolygonItem {
+// Define types for our spatial index
+interface GeoJSONFeature {
+    type: 'Feature';
+    geometry: {
+        type: 'Polygon' | 'MultiPolygon';
+        coordinates: any[];
+    };
+    properties: any;
+}
+
+interface SpatialItem {
     minX: number;
     minY: number;
     maxX: number;
     maxY: number;
-    feature: any; // The geojson feature
+    feature: GeoJSONFeature;
 }
 
-// Initialize the R-tree index
-const tree = new RBush<WaterPolygonItem>();
-const featureCollection = waterGeometryData as any;
+// Global variable to hold the index in memory
+// We use a global variable so the index persists across API calls in a serverless environment (like Vercel)
+// as long as the container is warm.
+let spatialIndex: RBush<SpatialItem> | null = null;
 
-// Populate the index once
-if (featureCollection.features) {
-    const items: WaterPolygonItem[] = featureCollection.features.map((feature: any) => {
-        const bbox = turf.bbox(feature);
-        return {
-            minX: bbox[0],
-            minY: bbox[1],
-            maxX: bbox[2],
-            maxY: bbox[3],
-            feature: feature
-        };
-    });
-    tree.load(items);
-} else {
-    // Fallback if it's a single feature
-    const bbox = turf.bbox(featureCollection);
-    tree.load([{
-        minX: bbox[0],
-        minY: bbox[1],
-        maxX: bbox[2],
-        maxY: bbox[3],
-        feature: featureCollection
-    }]);
+/**
+ * Loads the water polygon data from the GeoJSON file and builds the spatial index.
+ * This function should be called once at startup or lazily when needed.
+ */
+function initializeSpatialIndex() {
+    if (spatialIndex) return;
+
+    try {
+        const filePath = path.join(process.cwd(), 'src/data/water_polygons.json');
+
+        // Check if file exists
+        if (!fs.existsSync(filePath)) {
+            console.warn('Water polygons file not found at:', filePath);
+            // Initialize empty index to avoid crashing
+            spatialIndex = new RBush();
+            return;
+        }
+
+        const fileContent = fs.readFileSync(filePath, 'utf-8');
+        const geojson = JSON.parse(fileContent);
+
+        spatialIndex = new RBush();
+        const items: SpatialItem[] = [];
+
+        if (geojson.type === 'FeatureCollection' && Array.isArray(geojson.features)) {
+            geojson.features.forEach((feature: GeoJSONFeature) => {
+                if (!feature.geometry) return;
+
+                try {
+                    const bbox = turf.bbox(feature);
+                    items.push({
+                        minX: bbox[0],
+                        minY: bbox[1],
+                        maxX: bbox[2],
+                        maxY: bbox[3],
+                        feature: feature
+                    });
+                } catch (e) {
+                    console.warn('Failed to process feature for spatial index', e);
+                }
+            });
+        }
+
+        spatialIndex.load(items);
+        console.log(`Spatial index initialized with ${items.length} water polygons.`);
+
+    } catch (error) {
+        console.error('Error initializing spatial index:', error);
+        // Ensure index is not null to prevent repeated failures
+        spatialIndex = new RBush();
+    }
 }
 
-// Simple check if a point (lat, lng) is within the water polygons
+/**
+ * Checks if a given coordinate (lat, lng) is inside any water polygon.
+ * Uses RBush spatial index for performance.
+ *
+ * @param lat Latitude
+ * @param lng Longitude
+ * @returns true if the point is in water, false otherwise (or if on land)
+ */
 export function isPointInWater(lat: number, lng: number): boolean {
+    // Lazy initialization
+    if (!spatialIndex) {
+        initializeSpatialIndex();
+    }
+
+    if (!spatialIndex) return false; // Should not happen due to init logic
+
     const point = turf.point([lng, lat]);
 
-    // Query the R-tree for candidates
-    // The search box is just the point itself
-    const candidates = tree.search({
+    // First, find candidate polygons using the bounding box index (fast)
+    const candidates = spatialIndex.search({
         minX: lng,
         minY: lat,
         maxX: lng,
         maxY: lat
     });
 
-    // Only iterate through candidates that might contain the point
+    if (candidates.length === 0) {
+        return false;
+    }
+
+    // Iterate through candidates that might contain the point
     return candidates.some((item) => {
         try {
+            if (!item.feature) return false;
             return turf.booleanPointInPolygon(point, item.feature);
         } catch (e) {
             return false;

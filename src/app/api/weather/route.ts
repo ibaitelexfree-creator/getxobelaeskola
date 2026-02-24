@@ -1,4 +1,3 @@
-
 import { NextRequest, NextResponse } from 'next/server';
 import { fetchWeatherData } from '@/lib/weather';
 import { createAdminClient } from '@/lib/supabase/admin';
@@ -20,25 +19,31 @@ export async function GET(request: NextRequest) {
         const includeHistory = searchParams.get('history') === 'true';
 
         const now = Date.now();
-        let weather, alerts, seaState;
+        let weather: any;
+        let alerts: any[] = [];
+        let seaState: any;
 
         if (cachedWeather && cachedAlerts && cachedSeaState && (now - lastFetchTime < CACHE_DURATION)) {
             weather = cachedWeather;
             alerts = cachedAlerts;
             seaState = cachedSeaState;
         } else {
-            [weather, alerts, seaState] = await Promise.all([
+            const [w, a, s] = await Promise.all([
                 fetchWeatherData(),
                 fetchEuskalmetAlerts(),
                 fetchSeaState()
             ]);
+            weather = w;
+            alerts = Array.isArray(a) ? a : [];
+            seaState = s;
+
             cachedWeather = weather;
             cachedAlerts = alerts;
             cachedSeaState = seaState;
             lastFetchTime = now;
         }
 
-        const supabase = createAdminClient() as any;
+        const supabase = createAdminClient();
 
         // 1. Data Collection: Save snapshot to history (max once every 15 mins)
         try {
@@ -52,9 +57,9 @@ export async function GET(request: NextRequest) {
                     .limit(1)
                     .single();
 
-                const now = new Date();
+                const nowTime = new Date();
                 const shouldSave = !lastEntry ||
-                    (now.getTime() - new Date(lastEntry.timestamp).getTime() > 15 * 60 * 1000);
+                    (nowTime.getTime() - new Date(lastEntry.timestamp).getTime() > 15 * 60 * 1000);
 
                 if (shouldSave) {
                     await supabase.from('weather_history').insert({
@@ -63,7 +68,7 @@ export async function GET(request: NextRequest) {
                         wind_gust: weather.gusts || weather.knots,
                         wind_direction: weather.direction,
                         temperature: weather.temp,
-                        timestamp: now.toISOString()
+                        timestamp: nowTime.toISOString()
                     });
                 }
             }
@@ -72,7 +77,7 @@ export async function GET(request: NextRequest) {
             console.warn('Weather history persistence skipped (table might not exist)');
         }
 
-        let fleetSub = {
+        let fleetSub: { agua: number; retorno: number; pendiente: number } = {
             agua: 1,
             retorno: 0,
             pendiente: 2
@@ -99,12 +104,14 @@ export async function GET(request: NextRequest) {
         }
 
         // Filter alerts (only yellow/orange/red)
-        const warningAlerts = (alerts || []).filter((a: any) =>
+        const warningAlerts = alerts.filter((a: any) =>
             a.level && !['verde', 'green', 'null'].includes(a.level.toLowerCase())
         );
 
         // 2. Fetch History from DB or Fallback to mock
-        let history = undefined;
+        // Use 'any' to avoid TypeScript narrowing issues when reassigning inside if blocks
+        let history: any = undefined;
+
         if (includeHistory) {
             try {
                 const { data: dbHistory, error: historyError } = await supabase
@@ -130,9 +137,9 @@ export async function GET(request: NextRequest) {
 
             // Fallback to mock if DB empty or error
             if (!history) {
-                const now = new Date();
+                const nowTime = new Date();
                 history = Array.from({ length: 24 }).map((_, i) => {
-                    const hour = new Date(now.getTime() - (23 - i) * 3600000);
+                    const hour = new Date(nowTime.getTime() - (23 - i) * 3600000);
                     const baseWind = 10 + Math.sin(i / 3) * 5 + Math.random() * 3;
                     return {
                         time: `${hour.getHours().toString().padStart(2, '0')}:00`,
