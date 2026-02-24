@@ -143,7 +143,7 @@ export async function POST(request: Request) {
                     currentSrs.forEach((s: any) => srsMap.set(s.question_id, s));
                 }
 
-                const updates = [];
+                const updates: { user_id: string; question_id: any; interval: number; ease_factor: number; next_review: string; last_answered: string; }[] = [];
                 for (const q of (allQuestions as any[])) {
                     const userAnswer = respuestasMerged[q.id];
                     // Si no respondió, consideramos incorrecto
@@ -173,7 +173,7 @@ export async function POST(request: Request) {
         // --- SRS UPDATE LOGIC END ---
 
         // Obtener las respuestas correctas si está configurado para el cliente
-        let respuestasCorrectas = null;
+        let respuestasCorrectas: any[] | null = null;
         if (intento.evaluacion.mostrar_respuestas) {
             // Ya las tenemos en allQuestions si hicimos SRS, pero necesitamos explanations y el formato correcto
             const { data: preguntas } = await supabaseAdmin
