@@ -10,7 +10,7 @@ export function useNetworkMonitor(onWifiDisconnect: () => void) {
     const lastNetworkStatus = useRef<ConnectionStatus | null>(null);
 
     useEffect(() => {
-        let listenerHandle: any | null = null;
+        let listenerHandle: any = null;
 
         const setupNetworkListener = async () => {
             try {

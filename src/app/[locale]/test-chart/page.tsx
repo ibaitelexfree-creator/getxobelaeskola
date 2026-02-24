@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 const generateData = () => {
-    const data = [];
+    const data: any[] = [];
     const now = Date.now();
     for (let i = 0; i < 24; i++) {
         data.push({

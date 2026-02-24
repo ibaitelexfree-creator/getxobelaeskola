@@ -104,7 +104,7 @@ export async function POST(request: Request) {
 
         // --- HISTORY LOGGING ---
         // Compare values and log changes
-        const historyEntries = [];
+        const historyEntries: any[] = [];
         for (const [key, newValue] of Object.entries(updateData)) {
             const oldValue = currentSession[key];
             // Simple comparison, might need refinement for dates/objects
@@ -123,7 +123,7 @@ export async function POST(request: Request) {
         if (historyEntries.length > 0) {
             const { error: historyError } = await supabaseAdmin
                 .from('session_edits')
-                .insert(historyEntries);
+                .insert(historyEntries as any);
 
             if (historyError) {
                 console.error('Error logging session history:', historyError);

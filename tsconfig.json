@@ -40,6 +40,7 @@
     "mission-control",
     "orchestration",
     "scripts",
-    "mission-control.db"
+    "mission-control.db",
+    "supabase/functions"
   ]
 }
