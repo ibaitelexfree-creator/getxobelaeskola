@@ -38,6 +38,7 @@ function initializeSpatialIndex() {
         spatialIndex = new RBush();
         const items: SpatialItem[] = [];
 
+        // Support for FeatureCollection
         if (geojson.type === 'FeatureCollection' && Array.isArray(geojson.features)) {
             geojson.features.forEach((feature: any) => {
                 if (!feature.geometry) return;
@@ -55,6 +56,21 @@ function initializeSpatialIndex() {
                     console.warn('Failed to process feature for spatial index', e);
                 }
             });
+        }
+        // Support for single Feature fallback (Jules' fix)
+        else if (geojson.type === 'Feature' && geojson.geometry) {
+            try {
+                const bbox = turf.bbox(geojson);
+                items.push({
+                    minX: bbox[0],
+                    minY: bbox[1],
+                    maxX: bbox[2],
+                    maxY: bbox[3],
+                    feature: geojson as GeoJSONFeature
+                });
+            } catch (e) {
+                console.warn('Failed to process single feature for spatial index', e);
+            }
         }
 
         spatialIndex.load(items);

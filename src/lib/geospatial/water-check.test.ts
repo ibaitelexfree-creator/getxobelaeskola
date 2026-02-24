@@ -57,11 +57,13 @@ describe('isPointInWater', () => {
         expect(isPointInWater(15, 15)).toBe(false);
     });
 
-    it('returns false for negative coordinates outside the polygon', () => {
+    it('returns false for negative coordinates outside the polygon', async () => {
+        const { isPointInWater } = await import('./water-check');
         expect(isPointInWater(-5, -5)).toBe(false);
     });
 
-    it('returns true for a point on the edge', () => {
+    it('returns true for a point on the edge', async () => {
+         const { isPointInWater } = await import('./water-check');
          expect(isPointInWater(5, 0)).toBe(true);
     });
 
