@@ -108,6 +108,10 @@ export default async function CourseDetailPage({
     }
 
     interface CourseFallback {
+        nombre_en?: string;
+        nombre_fr?: string;
+        descripcion_en?: string;
+        descripcion_fr?: string;
         id: string;
         nombre_es: string;
         nombre_eu: string;
