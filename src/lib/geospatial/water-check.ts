@@ -17,27 +17,37 @@ const featureCollection = waterGeometryData as any;
 
 // Populate the index once
 if (featureCollection.features) {
-    const items: WaterPolygonItem[] = featureCollection.features.map((feature: any) => {
-        const bbox = turf.bbox(feature);
-        return {
+    const items: WaterPolygonItem[] = featureCollection.features
+        .map((feature: any) => {
+            try {
+                const bbox = turf.bbox(feature);
+                return {
+                    minX: bbox[0],
+                    minY: bbox[1],
+                    maxX: bbox[2],
+                    maxY: bbox[3],
+                    feature: feature
+                };
+            } catch (e) {
+                return null;
+            }
+        })
+        .filter((item: any): item is WaterPolygonItem => item !== null);
+    tree.load(items);
+} else {
+    try {
+        // Fallback if it's a single feature
+        const bbox = turf.bbox(featureCollection);
+        tree.load([{
             minX: bbox[0],
             minY: bbox[1],
             maxX: bbox[2],
             maxY: bbox[3],
-            feature: feature
-        };
-    });
-    tree.load(items);
-} else {
-    // Fallback if it's a single feature
-    const bbox = turf.bbox(featureCollection);
-    tree.load([{
-        minX: bbox[0],
-        minY: bbox[1],
-        maxX: bbox[2],
-        maxY: bbox[3],
-        feature: featureCollection
-    }]);
+            feature: featureCollection
+        }]);
+    } catch (e) {
+        // Ignore invalid single feature
+    }
 }
 
 // Simple check if a point (lat, lng) is within the water polygons
