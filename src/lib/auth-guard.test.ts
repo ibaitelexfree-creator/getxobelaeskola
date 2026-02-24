@@ -62,7 +62,7 @@ describe('Auth Guard', () => {
 
     describe('checkAuth', () => {
         it('should return 401 if no user is authenticated', async () => {
-            mockGetUser.mockResolvedValue({ data: { user: null } });
+            mockGetUser.mockResolvedValue({ data: { user: null }, error: { message: 'No autenticado', status: 401 } });
 
             const result = await checkAuth();
 
@@ -70,13 +70,13 @@ describe('Auth Guard', () => {
             // Cast to any to access mocked properties
             const errorResponse = result.error as any;
             expect(errorResponse.status).toBe(401);
-            expect(errorResponse.body).toEqual({ error: 'No autenticado' });
+            expect(errorResponse.message).toEqual('No autenticado');
         });
 
         it('should return 404 if user is authenticated but profile is not found', async () => {
             const user = { id: 'user-123' };
             mockGetUser.mockResolvedValue({ data: { user } });
-            mockSingle.mockResolvedValue({ data: null });
+            mockSingle.mockResolvedValue({ data: null, error: { message: 'Perfil no encontrado', status: 404 } });
 
             const result = await checkAuth();
 
@@ -87,7 +87,7 @@ describe('Auth Guard', () => {
             expect(result.error).toBeDefined();
             const errorResponse = result.error as any;
             expect(errorResponse.status).toBe(404);
-            expect(errorResponse.body).toEqual({ error: 'Perfil no encontrado' });
+            expect(errorResponse.message).toEqual('Perfil no encontrado');
         });
 
         it('should return user, profile, and clients if authenticated and profile exists', async () => {
@@ -98,7 +98,7 @@ describe('Auth Guard', () => {
 
             const result = await checkAuth();
 
-            expect(result.error).toBeUndefined();
+            expect(result.error).toBeNull();
             expect(result.user).toEqual(user);
             expect(result.profile).toEqual(profile);
             expect(result.supabase).toBe(mockSupabase);
@@ -108,7 +108,7 @@ describe('Auth Guard', () => {
 
     describe('requireAdmin', () => {
         it('should return error if checkAuth fails', async () => {
-            mockGetUser.mockResolvedValue({ data: { user: null } });
+            mockGetUser.mockResolvedValue({ data: { user: null }, error: { message: 'No autenticado', status: 401 } });
 
             const result = await requireAdmin();
 
@@ -147,7 +147,7 @@ describe('Auth Guard', () => {
 
     describe('requireInstructor', () => {
         it('should return error if checkAuth fails', async () => {
-            mockGetUser.mockResolvedValue({ data: { user: null } });
+            mockGetUser.mockResolvedValue({ data: { user: null }, error: { message: 'No autenticado', status: 401 } });
 
             const result = await requireInstructor();
 

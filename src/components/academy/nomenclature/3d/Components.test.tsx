@@ -1,5 +1,4 @@
-
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import React from 'react';
 import { render } from '@testing-library/react';
 import InfoOverlay from './InfoOverlay';
@@ -11,6 +10,19 @@ global.ResizeObserver = class ResizeObserver {
   unobserve() {}
   disconnect() {}
 };
+
+// Mock React Three Fiber and Drei
+vi.mock('@react-three/fiber', () => ({
+  Canvas: ({ children }: any) => <div>{children}</div>,
+  useFrame: () => {},
+  useThree: () => ({ camera: {}, gl: {} }),
+  extend: () => {},
+}));
+
+vi.mock('@react-three/drei', () => ({
+  Float: ({ children }: any) => <group>{children}</group>,
+  Html: ({ children }: any) => <div>{children}</div>,
+}));
 
 describe('Nomenclature 3D Components', () => {
   it('InfoOverlay renders without crashing', () => {
