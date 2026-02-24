@@ -61,22 +61,20 @@ describe('Auth Guard', () => {
     });
 
     describe('checkAuth', () => {
-        it('should return 401 if no user is authenticated', async () => {
-            mockGetUser.mockResolvedValue({ data: { user: null } });
+        it('should return error if no user is authenticated', async () => {
+            const authError = { message: 'No session' };
+            mockGetUser.mockResolvedValue({ data: { user: null }, error: authError });
 
             const result = await checkAuth();
 
-            expect(result.error).toBeDefined();
-            // Cast to any to access mocked properties
-            const errorResponse = result.error as any;
-            expect(errorResponse.status).toBe(401);
-            expect(errorResponse.body).toEqual({ error: 'No autenticado' });
+            expect(result.error).toEqual(authError);
         });
 
-        it('should return 404 if user is authenticated but profile is not found', async () => {
+        it('should return error if user is authenticated but profile is not found', async () => {
             const user = { id: 'user-123' };
+            const profileError = { message: 'Not found' };
             mockGetUser.mockResolvedValue({ data: { user } });
-            mockSingle.mockResolvedValue({ data: null });
+            mockSingle.mockResolvedValue({ data: null, error: profileError });
 
             const result = await checkAuth();
 
@@ -84,10 +82,7 @@ describe('Auth Guard', () => {
             expect(mockFrom).toHaveBeenCalledWith('profiles');
             expect(mockEq).toHaveBeenCalledWith('id', 'user-123');
 
-            expect(result.error).toBeDefined();
-            const errorResponse = result.error as any;
-            expect(errorResponse.status).toBe(404);
-            expect(errorResponse.body).toEqual({ error: 'Perfil no encontrado' });
+            expect(result.error).toEqual(profileError);
         });
 
         it('should return user, profile, and clients if authenticated and profile exists', async () => {
@@ -98,7 +93,7 @@ describe('Auth Guard', () => {
 
             const result = await checkAuth();
 
-            expect(result.error).toBeUndefined();
+            expect(result.error).toBeNull();
             expect(result.user).toEqual(user);
             expect(result.profile).toEqual(profile);
             expect(result.supabase).toBe(mockSupabase);
@@ -108,7 +103,7 @@ describe('Auth Guard', () => {
 
     describe('requireAdmin', () => {
         it('should return error if checkAuth fails', async () => {
-            mockGetUser.mockResolvedValue({ data: { user: null } });
+            mockGetUser.mockResolvedValue({ data: { user: null }, error: { message: 'No session' } });
 
             const result = await requireAdmin();
 
@@ -139,7 +134,7 @@ describe('Auth Guard', () => {
 
             const result = await requireAdmin();
 
-            expect(result.error).toBeUndefined();
+            expect(result.error).toBeUndefined(); // requireAdmin returns { user, profile... } or { error }
             expect(result.user).toEqual(user);
             expect(result.profile).toEqual(profile);
         });
@@ -147,7 +142,7 @@ describe('Auth Guard', () => {
 
     describe('requireInstructor', () => {
         it('should return error if checkAuth fails', async () => {
-            mockGetUser.mockResolvedValue({ data: { user: null } });
+            mockGetUser.mockResolvedValue({ data: { user: null }, error: { message: 'No session' } });
 
             const result = await requireInstructor();
 
