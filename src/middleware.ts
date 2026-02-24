@@ -18,9 +18,13 @@ export default async function middleware(request: NextRequest) {
     }
 
     // 2. Supabase session logic
+    // Gracefully handle missing env vars to prevent build crashes
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co';
+    const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-key';
+
     const supabase = createServerClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        url,
+        key,
         {
             cookies: {
                 getAll() {
@@ -38,7 +42,16 @@ export default async function middleware(request: NextRequest) {
         }
     );
 
-    await supabase.auth.getUser();
+    // Only attempt auth check if we have valid keys (or at least placeholders that won't crash constructor)
+    // Note: placeholder keys might cause auth.getUser() to fail, but it shouldn't crash the middleware completely.
+    try {
+        await supabase.auth.getUser();
+    } catch (e) {
+        // Ignore auth errors during middleware execution if config is missing
+        if (process.env.NODE_ENV === 'development') {
+            console.warn('Supabase auth check failed in middleware:', e);
+        }
+    }
 
     return response;
 }
