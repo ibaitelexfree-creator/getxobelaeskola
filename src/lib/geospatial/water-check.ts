@@ -12,40 +12,57 @@ interface WaterPolygonItem {
 }
 
 // Initialize the R-tree index
-const tree = new RBush<WaterPolygonItem>();
-const featureCollection = waterGeometryData as any;
+let tree = new RBush<WaterPolygonItem>();
 
-// Populate the index once
-if (featureCollection.features) {
-    const items: WaterPolygonItem[] = featureCollection.features.map((feature: any) => {
-        const bbox = turf.bbox(feature);
-        return {
-            minX: bbox[0],
-            minY: bbox[1],
-            maxX: bbox[2],
-            maxY: bbox[3],
-            feature: feature
-        };
-    });
-    tree.load(items);
-} else {
-    // Fallback if it's a single feature
-    const bbox = turf.bbox(featureCollection);
-    tree.load([{
-        minX: bbox[0],
-        minY: bbox[1],
-        maxX: bbox[2],
-        maxY: bbox[3],
-        feature: featureCollection
-    }]);
+export function initWaterIndex(data: any = waterGeometryData) {
+    tree = new RBush<WaterPolygonItem>();
+    const featureCollection = data as any;
+
+    try {
+        // Populate the index
+        if (featureCollection.features) {
+            const items: WaterPolygonItem[] = featureCollection.features
+                .filter((f: any) => f && (f.geometry || f.type === 'Feature'))
+                .map((feature: any) => {
+                    try {
+                        const bbox = turf.bbox(feature);
+                        return {
+                            minX: bbox[0],
+                            minY: bbox[1],
+                            maxX: bbox[2],
+                            maxY: bbox[3],
+                            feature: feature
+                        };
+                    } catch (e) {
+                        return null;
+                    }
+                })
+                .filter((item: any) => item !== null);
+            tree.load(items as WaterPolygonItem[]);
+        } else if (featureCollection.type === 'Feature' || featureCollection.geometry) {
+            // Fallback if it's a single feature
+            const bbox = turf.bbox(featureCollection);
+            tree.load([{
+                minX: bbox[0],
+                minY: bbox[1],
+                maxX: bbox[2],
+                maxY: bbox[3],
+                feature: featureCollection
+            }]);
+        }
+    } catch (e) {
+        console.error('Failed to initialize water index:', e);
+    }
 }
+
+// Initial populate
+initWaterIndex();
 
 // Simple check if a point (lat, lng) is within the water polygons
 export function isPointInWater(lat: number, lng: number): boolean {
     const point = turf.point([lng, lat]);
 
     // Query the R-tree for candidates
-    // The search box is just the point itself
     const candidates = tree.search({
         minX: lng,
         minY: lat,

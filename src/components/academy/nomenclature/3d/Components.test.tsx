@@ -1,11 +1,16 @@
-
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import React from 'react';
 import { render } from '@testing-library/react';
 import InfoOverlay from './InfoOverlay';
+
+// Mock BoatModel to avoid R3F/Three.js issues in test environment
+vi.mock('./BoatModel', () => ({
+  default: () => <div data-testid="boat-model-mock" />
+}));
+
 import BoatModel from './BoatModel';
 
-// Mock ResizeObserver for R3F if needed, though we might not render Canvas here
+// Mock ResizeObserver for R3F if needed
 global.ResizeObserver = class ResizeObserver {
   observe() {}
   unobserve() {}

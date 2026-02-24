@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { isPointInWater } from './water-check';
+import { isPointInWater, initWaterIndex } from './water-check';
 
 // Hoist the mock data container so we can modify it
 const mockData = vi.hoisted(() => ({
@@ -56,6 +56,9 @@ describe('isPointInWater', () => {
         if (mockData.data.geometry) {
              delete mockData.data.geometry;
         }
+
+        // Re-initialize index with fresh mock data
+        initWaterIndex(mockData.data);
     });
 
     it('returns true for a point clearly inside the water polygon (FeatureCollection)', () => {
@@ -76,23 +79,24 @@ describe('isPointInWater', () => {
 
     it('handles single Feature fallback', () => {
         // Modify mock data to look like a single Feature
-        // Remove 'features' array
-        delete mockData.data.features;
-
-        // Add geometry directly
-        mockData.data.type = 'Feature';
-        mockData.data.geometry = {
-            type: 'Polygon',
-            coordinates: [
-                [
-                    [0, 0],
-                    [10, 0],
-                    [10, 10],
-                    [0, 10],
-                    [0, 0]
+        const singleFeature = {
+            type: 'Feature',
+            geometry: {
+                type: 'Polygon',
+                coordinates: [
+                    [
+                        [0, 0],
+                        [10, 0],
+                        [10, 10],
+                        [0, 10],
+                        [0, 0]
+                    ]
                 ]
-            ]
+            }
         };
+
+        // Re-initialize index with single feature
+        initWaterIndex(singleFeature);
 
         // Inside
         expect(isPointInWater(5, 5)).toBe(true);
@@ -102,7 +106,11 @@ describe('isPointInWater', () => {
 
     it('returns false gracefully when geometry data is invalid', () => {
         // Case: features array exists but contains invalid objects
-        mockData.data.features = [{}];
+        const invalidData = {
+            type: 'FeatureCollection',
+            features: [{}]
+        };
+        initWaterIndex(invalidData);
         expect(isPointInWater(5, 5)).toBe(false);
     });
 });
