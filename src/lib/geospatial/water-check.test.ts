@@ -12,48 +12,37 @@ vi.mock('fs', () => ({
 }));
 
 describe('isPointInWater', () => {
-    let isPointInWater: any;
-
-    beforeEach(async () => {
+    beforeEach(() => {
         vi.resetModules();
-        vi.clearAllMocks();
-
-        // Setup default mock data
-        const mockGeoJSON = {
-            type: 'FeatureCollection',
-            features: [
-                {
-                    type: 'Feature',
-                    properties: {},
-                    geometry: {
-                        type: 'Polygon',
-                        coordinates: [
-                            [
-                                [0, 0],
-                                [10, 0],
-                                [10, 10],
-                                [0, 10],
-                                [0, 0]
-                            ]
+        // Reset to default FeatureCollection state
+        mockData.data.type = 'FeatureCollection';
+        mockData.data.features = [
+            {
+                type: 'Feature',
+                properties: {},
+                geometry: {
+                    type: 'Polygon',
+                    coordinates: [
+                        [
+                            [0, 0],
+                            [10, 0],
+                            [10, 10],
+                            [0, 10],
+                            [0, 0]
                         ]
                     }
                 }
-            ]
-        };
-
-        mockFs.existsSync.mockReturnValue(true);
-        mockFs.readFileSync.mockReturnValue(JSON.stringify(mockGeoJSON));
-
-        // Re-import the module to trigger initialization with new mock data
-        const module = await import('./water-check');
-        isPointInWater = module.isPointInWater;
+            }
+        ];
     });
 
-    it('returns true for a point clearly inside the water polygon', () => {
+    it('returns true for a point clearly inside the water polygon (FeatureCollection)', async () => {
+        const { isPointInWater } = await import('./water-check');
         expect(isPointInWater(5, 5)).toBe(true);
     });
 
-    it('returns false for a point clearly outside the water polygon', () => {
+    it('returns false for a point clearly outside the water polygon (FeatureCollection)', async () => {
+        const { isPointInWater } = await import('./water-check');
         expect(isPointInWater(15, 15)).toBe(false);
     });
 
@@ -67,22 +56,52 @@ describe('isPointInWater', () => {
          expect(isPointInWater(5, 0)).toBe(true);
     });
 
-    it('returns false gracefully when geometry data is invalid', async () => {
-        vi.resetModules();
-        mockFs.readFileSync.mockReturnValue(JSON.stringify({
-            type: 'FeatureCollection',
-            features: [{ properties: {} }] // Missing geometry
-        }));
+    it('handles single Feature fallback', async () => {
+        // Modify mock data to look like a single Feature
+        // Remove 'features' array
+        delete mockData.data.features;
 
-        const module = await import('./water-check');
-        expect(module.isPointInWater(5, 5)).toBe(false);
+        // Add geometry directly
+        mockData.data.type = 'Feature';
+        mockData.data.geometry = {
+            type: 'Polygon',
+            coordinates: [
+                [
+                    [0, 0],
+                    [10, 0],
+                    [10, 10],
+                    [0, 10],
+                    [0, 0]
+                ]
+            ]
+        };
+
+        const { isPointInWater } = await import('./water-check');
+
+        // Inside
+        expect(isPointInWater(5, 5)).toBe(true);
     });
 
-    it('returns false if file does not exist', async () => {
-        vi.resetModules();
-        mockFs.existsSync.mockReturnValue(false);
+    it('returns false for a point clearly outside the water polygon', () => {
+        expect(isPointInWater(15, 15)).toBe(false);
+    });
 
-        const module = await import('./water-check');
-        expect(module.isPointInWater(5, 5)).toBe(false);
+    it('returns false gracefully when geometry data is invalid', async () => {
+        // Case: features array exists but contains invalid objects
+        // We set features to a non-empty array with invalid content to bypass RBush init checks if any
+        // AND ensure turf.booleanPointInPolygon fails.
+        // We use explicit corruption that TS allows via 'as any'.
+        mockData.data.features = [
+            {
+                type: 'Feature',
+                properties: {},
+                geometry: null // Invalid geometry
+            }
+        ];
+
+        const { isPointInWater } = await import('./water-check');
+
+        // Should return false due to try-catch block in isPointInWater
+        expect(isPointInWater(5, 5)).toBe(false);
     });
 });

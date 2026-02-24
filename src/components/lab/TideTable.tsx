@@ -17,7 +17,7 @@ export default function TideTable({ date, onDateChange }: TideTableProps) {
 
     // Generate chart data for every 15 minutes
     const chartData = useMemo(() => {
-        const data = [];
+        const data: any[] = [];
         const start = new Date(date);
         start.setHours(0, 0, 0, 0);
         const end = new Date(date);
