@@ -53,7 +53,7 @@ export function generateStaticParams() {
 export default async function RentalPage({ params: { locale } }: { params: { locale: string } }) {
     const t = await getTranslations({ locale, namespace: 'rental_page' });
     const supabase = createClient();
-    let services = [];
+    let services: any[] = [];
     const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://getxobelaeskola.cloud';
 
     try {

@@ -393,7 +393,7 @@ export default function FinancialReportsClient({ initialData, initialView, total
                 // (Approximation is fine for visualisation)
                 const itemTime = rawDate.getTime();
 
-                let targetBucket = null;
+                let targetBucket: any = null;
                 for (let i = aggValues.length - 1; i >= 0; i--) {
                     // Compare year/month
                     const bucketDate = aggValues[i].dateObj;

@@ -85,7 +85,7 @@ export async function fetchSeaState(): Promise<SeaStateData> {
  * Currently simulated for Getxo area.
  */
 export function getTidePredictions(date: Date = new Date()): any[] {
-    const predictions = [];
+    const predictions: any[] = [];
     const day = new Date(date);
     day.setHours(0, 0, 0, 0);
 
