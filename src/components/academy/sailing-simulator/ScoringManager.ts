@@ -15,7 +15,7 @@ export class ScoringManager {
     public leaderboard: ScoreEntry[] = [];
 
     constructor() {
-        // No time initialization needed
+        this.currentBuoyTime = 0;
     }
 
     public update(dt: number) {
