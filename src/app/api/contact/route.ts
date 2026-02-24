@@ -56,7 +56,7 @@ export async function POST(request: Request) {
 
         return NextResponse.json({ success: true, message: 'Mensaje recibido correctamente' });
 
-    } catch (err: any) {
+    } catch (err: unknown) {
         console.error('API Contact Error:', err);
         return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
     }
