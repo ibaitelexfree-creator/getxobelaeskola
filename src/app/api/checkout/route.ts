@@ -4,6 +4,9 @@ import { stripe } from '@/lib/stripe';
 import { Course, CourseEdition, Inscription } from '@/types/courses';
 
 export async function POST(request: Request) {
+    if (!stripe) {
+        return NextResponse.json({ error: 'Stripe configuration missing' }, { status: 503 });
+    }
     try {
         const { editionId, courseId, locale = 'es', startDate, endDate, legalName, legalDni } = await request.json();
 
