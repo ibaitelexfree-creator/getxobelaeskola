@@ -53,7 +53,14 @@ export async function GET(req: Request) {
         // Construct OR filter: col1.ilike.%q%,col2.ilike.%q%
         const orFilter = cols.map(c => `${c}.ilike.%${query}%`).join(',');
 
-        // 1. Fetch main rows without embedding
+        const rels = RELATIONS[tableName] || [];
+        // Construct select with resource embedding for counts to avoid N+1 queries
+        // Format: *, related_table!fk_col(count)
+        const selectCols = [
+            '*',
+            ...rels.map(rel => `count_${rel.table}_${rel.fk}:${rel.table}!${rel.fk}(count)`)
+        ].join(',');
+
         const { data, error } = await supabase
             .from(tableName)
             .select('*')
@@ -67,9 +74,11 @@ export async function GET(req: Request) {
 
         if (!data || data.length === 0) return [];
 
-        const rows = data as SearchResult[];
-        const rels = RELATIONS[tableName] || [];
-        const relationCountsByRow = new Map<string, { label: string; count: number; table: string }[]>();
+            for (const rel of rels) {
+                // Embedded counts return as an array with a single object: [{ count: N }]
+                // This is much more efficient than performing a separate query for each item
+                const embedded = item[`count_${rel.table}_${rel.fk}`] as { count: number }[] | undefined;
+                const count = (embedded && Array.isArray(embedded)) ? (embedded[0]?.count || 0) : 0;
 
         // Initialize empty relations for all rows
         rows.forEach(row => relationCountsByRow.set(row.id, []));
@@ -147,11 +156,10 @@ export async function GET(req: Request) {
 
     if (table === 'all') {
         // Search key tables
-        const tablesToSearch = ['profiles', 'cursos', 'embarcaciones', 'reservas_alquiler'];
-        for (const t of tablesToSearch) {
-            const res = await searchTable(t) as SearchResult[];
-            results = [...results, ...res];
-        }
+        const tablesToSearch = Object.keys(SEARCHABLE_COLS);
+        const searchPromises = tablesToSearch.map(t => searchTable(t));
+        const searchResults = await Promise.all(searchPromises);
+        results = searchResults.flat() as SearchResult[];
     } else {
         results = await searchTable(table) as SearchResult[];
     }

@@ -4,9 +4,11 @@ import { checkAuth, requireAdmin, requireInstructor } from './auth-guard';
 // Mock NextResponse
 vi.mock('next/server', () => ({
     NextResponse: {
-        json: (body: any, init?: { status?: number }) => ({ body, status: init?.status }),
+        json: vi.fn((body: any, init?: { status?: number }) => ({ body, status: init?.status })),
     },
 }));
+
+import { NextResponse } from 'next/server';
 
 // Create mocked functions and objects using vi.hoisted
 const { mockGetUser, mockSingle, mockEq, mockSelect, mockFrom, mockSupabase, mockSupabaseAdmin } = vi.hoisted(() => {
@@ -109,6 +111,7 @@ describe('Auth Guard', () => {
             expect(result.error).toBeDefined();
             const errorResponse = result.error as any;
             expect(errorResponse.status).toBe(401);
+            expect(errorResponse.body).toEqual({ error: 'Perfil no encontrado' });
         });
 
         it('should return 403 if user is not admin', async () => {

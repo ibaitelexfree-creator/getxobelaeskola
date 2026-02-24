@@ -70,7 +70,7 @@ describe('isPointInWater', () => {
                     [0, 10],
                     [0, 0]
                 ]
-            ]
+            }
         };
 
         const { isPointInWater } = await import('./water-check');
