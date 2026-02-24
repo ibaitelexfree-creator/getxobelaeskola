@@ -57,7 +57,7 @@ export async function generateMetadata({
         }
     };
 
-    const displayCourse = course || fallbacks[slug];
+    const displayCourse = (course || fallbacks[slug]) as any;
     if (!displayCourse) return { title: 'Curso no encontrado' };
 
     const name = locale === 'es' ? displayCourse.nombre_es : displayCourse.nombre_eu;
@@ -261,7 +261,7 @@ export default async function CourseDetailPage({
         }
     };
 
-    const displayCourse = course || fallbacks[slug];
+    const displayCourse = (course || fallbacks[slug]) as any;
 
     if (!displayCourse) {
         notFound();

@@ -73,7 +73,7 @@ describe('Auth Guard', () => {
         it('should return null profile if user is authenticated but profile is not found', async () => {
             const user = { id: 'user-123' };
             mockGetUser.mockResolvedValue({ data: { user } });
-            mockSingle.mockResolvedValue({ data: null });
+            mockSingle.mockResolvedValue({ data: null, error: { message: 'Not found' } });
 
             const result = await checkAuth();
 
