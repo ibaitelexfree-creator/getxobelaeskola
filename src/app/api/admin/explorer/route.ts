@@ -53,14 +53,6 @@ export async function GET(req: Request) {
         // Construct OR filter: col1.ilike.%q%,col2.ilike.%q%
         const orFilter = cols.map(c => `${c}.ilike.%${query}%`).join(',');
 
-        const rels = RELATIONS[tableName] || [];
-        // Construct select with resource embedding for counts to avoid N+1 queries
-        // Format: *, related_table!fk_col(count)
-        const selectCols = [
-            '*',
-            ...rels.map(rel => `count_${rel.table}_${rel.fk}:${rel.table}!${rel.fk}(count)`)
-        ].join(',');
-
         const { data, error } = await supabase
             .from(tableName)
             .select('*')
@@ -74,11 +66,9 @@ export async function GET(req: Request) {
 
         if (!data || data.length === 0) return [];
 
-            for (const rel of rels) {
-                // Embedded counts return as an array with a single object: [{ count: N }]
-                // This is much more efficient than performing a separate query for each item
-                const embedded = item[`count_${rel.table}_${rel.fk}`] as { count: number }[] | undefined;
-                const count = (embedded && Array.isArray(embedded)) ? (embedded[0]?.count || 0) : 0;
+        const rows = data as SearchResult[];
+        const rels = RELATIONS[tableName] || [];
+        const relationCountsByRow = new Map<string, { label: string; count: number; table: string }[]>();
 
         // Initialize empty relations for all rows
         rows.forEach(row => relationCountsByRow.set(row.id, []));
