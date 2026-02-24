@@ -116,8 +116,7 @@ export function isPointInWater(lat: number, lng: number): boolean {
     // Iterate through candidates that might contain the point
     return candidates.some((item) => {
         try {
-            if (!item.feature) return false;
-            return turf.booleanPointInPolygon(point, item.feature);
+            if (!item.feature || !item.feature.geometry) return false; return turf.booleanPointInPolygon(point, item.feature);
         } catch (e) {
             return false;
         }
