@@ -3,6 +3,9 @@ import { NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe';
 
 export async function POST(request: Request) {
+    if (!stripe) {
+        return NextResponse.json({ error: 'Stripe configuration missing' }, { status: 503 });
+    }
     try {
         const { serviceId, optionIndex, locale = 'es', reservedDate, reservedTime, legalName, legalDni } = await request.json();
 

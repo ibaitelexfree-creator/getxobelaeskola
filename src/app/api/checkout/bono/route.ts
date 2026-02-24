@@ -1,9 +1,11 @@
-
 import { createClient } from '@/lib/supabase/server';
 import { stripe } from '@/lib/stripe';
 import { NextResponse } from 'next/server';
 
 export async function POST(req: Request) {
+    if (!stripe) {
+        return NextResponse.json({ error: 'Stripe configuration missing' }, { status: 503 });
+    }
     try {
         const { bonoId, locale = 'es' } = await req.json();
 
