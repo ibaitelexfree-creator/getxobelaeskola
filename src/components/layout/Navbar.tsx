@@ -56,7 +56,7 @@ export default function Navbar({ locale: propLocale }: { locale?: string }) {
                         const profile = await res.json();
                         setUser({ ...authUser, ...profile });
                     } else {
-                        setUser(authUser as AuthUser);
+                        setUser(authUser as unknown as AuthUser);
                     }
                 }
             } catch {
