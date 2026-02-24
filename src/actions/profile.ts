@@ -1,6 +1,6 @@
 // This file no longer uses 'use server' to allow static export for Capacitor.
 // It now calls an API route instead.
-import { createClient } from '@/lib/supabase/client';
+
 
 export async function togglePublicProfile(userId: string, isPublic: boolean) {
     try {

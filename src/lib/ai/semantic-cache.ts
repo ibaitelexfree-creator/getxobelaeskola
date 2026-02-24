@@ -46,7 +46,6 @@ export class SemanticCache {
       const embedding = await this.generateEmbedding(query);
       const supabase = createAdminClient();
 
-      // @ts-ignore - Supabase types might not have the table yet
       const { data, error } = await supabase.rpc('match_cached_response', {
         query_embedding: embedding,
         match_threshold: customThreshold ?? this.threshold,
@@ -70,7 +69,7 @@ export class SemanticCache {
     } catch (error) {
       console.error('Semantic Cache find error:', error);
       if (error instanceof Error && error.message.includes('OpenAI API Key is missing')) {
-          throw error;
+        throw error;
       }
       return null;
     }
@@ -81,7 +80,6 @@ export class SemanticCache {
       const embedding = await this.generateEmbedding(query);
       const supabase = createAdminClient();
 
-      // @ts-ignore - Supabase types might not have the table yet
       const { error } = await supabase.from('semantic_cache').insert({
         query_text: query,
         query_embedding: embedding,

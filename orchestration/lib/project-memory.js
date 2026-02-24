@@ -7,7 +7,7 @@ const PROJECT_ROOT = resolve(__dirname, '../..');
 const MEMORY_DIR = join(PROJECT_ROOT, 'project_memory');
 
 function getFilePath(file) {
-    const allowed = ['GLOBAL_STATE.md', 'DECISIONS_LOG.md', 'TECHNICAL_CONTEXT.md', 'AGENT_TASKS.md'];
+    const allowed = ['GLOBAL_STATE.md', 'DECISIONS_LOG.md', 'TECHNICAL_CONTEXT.md', 'AGENT_TASKS.md', 'PREVIEW_URLS.md'];
     if (!allowed.includes(file)) {
         throw new Error(`File "${file}" not allowed. Use: ${allowed.join(', ')}`);
     }

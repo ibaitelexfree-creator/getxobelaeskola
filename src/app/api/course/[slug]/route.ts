@@ -67,7 +67,7 @@ export async function GET(
             );
         }
 
-        const { data: modulos, error: modulosError } = await supabase
+        const { data: modulos } = await supabase
             .from('modulos')
             .select('id, nombre_es, nombre_eu, descripcion_es, descripcion_eu, orden')
             .eq('curso_id', curso.id)

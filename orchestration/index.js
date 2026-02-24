@@ -52,6 +52,9 @@ import {
   startCleanupInterval as startRenderCleanupInterval,
 } from './lib/render-autofix.js';
 import {
+  handleVercelWebhook
+} from './lib/vercel.js';
+import {
   getSuggestedTasks,
   clearCache as clearSuggestedTasksCache,
   generateFixPrompt as generateFixPrompt,
@@ -664,6 +667,18 @@ app.get('/api/releases/download/:assetId', async (req, res) => {
 });
 
 // ============ WEBHOOKS ============
+
+// Vercel webhook for deployment notifications
+app.post('/webhooks/vercel', async (req, res) => {
+  console.log('[Webhook] Received Vercel webhook');
+  try {
+    const result = await handleVercelWebhook(req);
+    res.status(result.status || 200).json(result);
+  } catch (error) {
+    console.error('[Webhook] Vercel Error:', error.message);
+    res.status(500).json({ error: error.message });
+  }
+});
 
 // Render webhook for build failure auto-fix
 app.post('/webhooks/render', async (req, res) => {
@@ -2680,27 +2695,30 @@ const server = app.listen(PORT, '0.0.0.0', () => {
 
   setInterval(runNightlyQARobot, 60 * 60 * 1000);
   console.log('[Chain 4] Nightly-Watch (Getxo 3 AM) & Self-Healing & QA Robot ACTIVE');
-  // ── SELF-HEALING ENGINE (Chain 4) ────────────────────────
-  async function triggerSelfHealing(errorMsg, stack) {
-    if (process.env.JULES_DISABLE_SELF_HEALING === 'true') return;
-    metrics.errorsTotal++;
-    console.log('[Self-Healing] 🤖 Crítico detectado. Iniciando reparación autónoma...');
 
-    try {
-      await createJulesSession({
-        prompt: `CRITICAL ERROR DETECTED IN PRODUCTION:\nError: ${errorMsg}\nStack: ${stack}\n\nTask: Find the root cause, fix it, and create a PR. Check logs and recent changes.`,
-        source: process.env.JULES_DEFAULT_SOURCE || 'sources/github/ibaitelexfree-creator/getxobelaeskola',
-        title: '🆘 Self-Healing: Repairing Crash',
-        automationMode: 'AUTO_CREATE_PR'
-      });
-
-      sendTelegramMessage(`🆘 *Self-Healing Activado*\nHe detectado un crash crítico y he lanzado a Jules para repararlo automáticamente.`);
-    } catch (e) {
-      console.error('[Self-Healing] Failed to launch:', e.message);
-    }
-  }
 
 });
+
+
+// ── SELF-HEALING ENGINE (Chain 4) ────────────────────────
+async function triggerSelfHealing(errorMsg, stack) {
+  if (process.env.JULES_DISABLE_SELF_HEALING === 'true') return;
+  metrics.errorsTotal++;
+  console.log('[Self-Healing] 🤖 Crítico detectado. Iniciando reparación autónoma...');
+
+  try {
+    await createJulesSession({
+      prompt: `CRITICAL ERROR DETECTED IN PRODUCTION:\nError: ${errorMsg}\nStack: ${stack}\n\nTask: Find the root cause, fix it, and create a PR. Check logs and recent changes.`,
+      source: process.env.JULES_DEFAULT_SOURCE || 'sources/github/ibaitelexfree-creator/getxobelaeskola',
+      title: '🆘 Self-Healing: Repairing Crash',
+      automationMode: 'AUTO_CREATE_PR'
+    });
+
+    sendTelegramMessage(`🆘 *Self-Healing Activado*\nHe detectado un crash crítico y he lanzado a Jules para repararlo automáticamente.`);
+  } catch (e) {
+    console.error('[Self-Healing] Failed to launch:', e.message);
+  }
+}
 
 process.on('SIGTERM', () => {
   console.log('SIGTERM received, shutting down gracefully');

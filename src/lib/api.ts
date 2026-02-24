@@ -5,8 +5,8 @@ export const getApiBaseUrl = () => {
         const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
         const isCapacitor = window.location.protocol === 'capacitor:' || window.location.protocol === 'file:';
 
-        // If we are on localhost in a browser, use the current origin
-        if (isLocalhost && !isCapacitor) {
+        // If we are on development browser, use the current origin
+        if (isLocalhost && !isCapacitor && process.env.NODE_ENV === 'development') {
             return window.location.origin;
         }
 

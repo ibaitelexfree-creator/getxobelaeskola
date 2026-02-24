@@ -112,7 +112,7 @@ export async function GET(request: NextRequest) {
         let history: any[] | undefined = undefined;
         if (includeHistory) {
             try {
-                const { data: dbHistory, error: historyError } = await supabase
+                const { data: dbHistory } = await supabase
                     .from('weather_history')
                     .select('*')
                     .order('timestamp', { ascending: false })

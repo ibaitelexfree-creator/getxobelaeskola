@@ -42,7 +42,11 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
         }
 
-        const { data, error } = await (supabaseAdmin as any)
+        if (!supabaseAdmin) {
+            return NextResponse.json({ error: 'Supabase admin client not initialized' }, { status: 500 });
+        }
+
+        const { data, error } = await supabaseAdmin
             .from('mantenimiento_logs')
             .insert({
                 embarcacion_id,
@@ -60,7 +64,7 @@ export async function POST(request: Request) {
 
         // --- NEW: SMART AUTO-UPDATE BOAT STATUS ---
         // A boat should be 'mantenimiento' if ANY log is 'pendiente' or 'en_proceso'
-        const { data: activeLogs } = await (supabaseAdmin as any)
+        const { data: activeLogs } = await supabaseAdmin
             .from('mantenimiento_logs')
             .select('id')
             .eq('embarcacion_id', embarcacion_id)
@@ -69,7 +73,7 @@ export async function POST(request: Request) {
         const hasActiveMaintenance = activeLogs && activeLogs.length > 0;
         const newBoatStatus = hasActiveMaintenance ? 'mantenimiento' : 'disponible';
 
-        await (supabaseAdmin as any)
+        await supabaseAdmin
             .from('embarcaciones')
             .update({ estado: newBoatStatus })
             .eq('id', embarcacion_id);

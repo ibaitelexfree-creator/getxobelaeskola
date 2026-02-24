@@ -28,8 +28,8 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: 'Bono not found' }, { status: 404 });
         }
 
-        const host = req.headers.get('host') || 'localhost:3000';
-        const protocol = req.headers.get('x-forwarded-proto') || (host.includes('localhost') ? 'http' : 'https');
+        const host = req.headers.get('host') || 'getxobelaeskola.cloud';
+        const protocol = req.headers.get('x-forwarded-proto') || 'https';
         const origin = req.headers.get('origin') || `${protocol}://${host}`;
 
         const session = await stripe.checkout.sessions.create({

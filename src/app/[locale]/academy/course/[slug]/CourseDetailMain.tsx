@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
-import { UnlockStatusBadge, UnlockStatusResponse, LockedContentOverlay } from '@/components/academy/UnlockStatusBadge';
+import { UnlockStatusBadge, UnlockStatusResponse } from '@/components/academy/UnlockStatusBadge';
 import { SimpleEvaluation } from '@/components/academy/evaluation';
 import { apiUrl } from '@/lib/api';
 
@@ -54,7 +54,7 @@ export default function CourseDetailMain({
 }: {
     params: { locale: string; slug: string }
 }) {
-    const t = useTranslations('academy');
+
     const [curso, setCurso] = useState<Curso | null>(null);
     const [modulos, setModulos] = useState<Modulo[]>([]);
     const [progreso, setProgreso] = useState<Progreso | null>(null);
@@ -116,14 +116,14 @@ export default function CourseDetailMain({
         );
     }
 
-    const currentCourseStatus = unlockStatus?.cursos?.[curso.id] || 'bloqueado';
+
     // isCourseLocked is handled below
 
 
     // We no longer block the entire course view if locked. 
     // This allows users to see the "Career Plan" (modules) before enrolling.
     // The modules themselves will still appear as locked.
-    const isCourseLocked = false;
+
 
 
     const totalUnidades = modulos.reduce((sum, m) => sum + m.num_unidades, 0);
@@ -215,7 +215,7 @@ export default function CourseDetailMain({
                     </header>
 
                     <div className="grid gap-6">
-                        {modulos.map((modulo, idx) => {
+                        {modulos.map((modulo) => {
                             const status = unlockStatus?.modulos?.[modulo.id] || 'bloqueado';
                             const isLocked = status === 'locked' || status === 'bloqueado';
                             const ariaLabel = isLocked

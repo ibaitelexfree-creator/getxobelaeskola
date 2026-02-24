@@ -27,7 +27,7 @@ export async function GET(request: Request) {
             ), request);
         }
 
-        const is_staff = profile?.rol === 'admin' || profile?.rol === 'instructor';
+
 
         // 2. AUTHORIZATION
         const enrolledCourseIds = await getUserEnrollments(user.id);

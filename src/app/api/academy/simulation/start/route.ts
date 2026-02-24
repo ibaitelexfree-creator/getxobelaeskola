@@ -31,7 +31,7 @@ export async function POST() {
 
         // 2. Shuffle and pick 60
         const shuffled = allQuestions.sort(() => 0.5 - Math.random());
-        const selectedIds = (shuffled as any[]).slice(0, 60).map((q: any) => q.id);
+        const selectedIds = shuffled.slice(0, 60).map((q: { id: string }) => q.id);
 
         // 3. Fetch details for selected questions
         const { data: questions, error: detailsError } = await supabaseAdmin

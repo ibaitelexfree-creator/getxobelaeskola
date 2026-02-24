@@ -2,14 +2,14 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
+
 import { useTranslations } from 'next-intl';
-import { X, Book, Ship, Globe, Anchor, Wind, Shield, ChevronRight } from 'lucide-react';
+import { X, Book, Ship, Globe, Anchor, Wind, Shield } from 'lucide-react';
 import { useNotificationStore } from '@/lib/store/useNotificationStore';
 import dynamic from 'next/dynamic';
 
 const CertificateCard = dynamic(() => import('@/components/academy/CertificateCard'), { ssr: false });
-const EmptyState = dynamic(() => import('@/components/academy/EmptyState'), { ssr: false });
+
 const RankProgress = dynamic(() => import('@/components/academy/gamification/RankProgress'), { ssr: false });
 const ActivityHeatmap = dynamic(() => import('@/components/academy/dashboard/ActivityHeatmap'), { ssr: false });
 const SkillRadar = dynamic(() => import('@/components/academy/dashboard/SkillRadar'), { ssr: false });
@@ -29,28 +29,9 @@ import { apiUrl } from '@/lib/api';
 
 // --- Interfaces ---
 
-interface Habilidad {
-    id: string;
-    slug: string;
-    nombre_es: string;
-    nombre_eu: string;
-    descripcion_es: string;
-    descripcion_eu: string;
-    icono: string;
-    categoria: string;
-}
 
-interface Logro {
-    id: string;
-    slug: string;
-    nombre_es: string;
-    nombre_eu: string;
-    descripcion_es: string;
-    descripcion_eu: string;
-    icono: string;
-    puntos: number;
-    rareza: string;
-}
+
+
 
 interface Curso {
     id: string;
@@ -63,15 +44,7 @@ interface Curso {
     nivel_formacion_id: string;
 }
 
-interface ProgresoItem {
-    id: string;
-    tipo_entidad: 'nivel' | 'curso' | 'modulo' | 'unidad';
-    entidad_id: string;
-    estado: 'bloqueado' | 'disponible' | 'en_progreso' | 'completado';
-    porcentaje: number;
-    updated_at: string;
-    secciones_vistas?: any;
-}
+
 
 interface Stats {
     horas_totales: number;

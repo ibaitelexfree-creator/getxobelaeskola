@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
         // Upload Audio if present
         if (audioFile && audioFile.size > 0) {
             const fileName = `${student_id}/${Date.now()}_feedback.webm`;
-            const { data: uploadData, error: uploadError } = await supabase
+            const { error: uploadError } = await supabase
                 .storage
                 .from('feedback-audio')
                 .upload(fileName, audioFile, {
@@ -110,7 +110,7 @@ export async function GET(req: NextRequest) {
     const supabase = createClient();
     const { searchParams } = new URL(req.url);
     const context_id = searchParams.get('context_id');
-    const context_type = searchParams.get('context_type');
+
 
     if (!context_id) {
         return NextResponse.json({ error: 'Missing context_id' }, { status: 400 });

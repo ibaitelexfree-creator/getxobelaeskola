@@ -60,13 +60,13 @@ export async function GET(request: Request) {
             const prevStart = new Date(start.getFullYear() - 1, start.getMonth(), start.getDate()).toISOString();
             const prevEnd = new Date(end.getFullYear() - 1, end.getMonth(), end.getDate()).toISOString();
 
-            const [{ data: pRentals }, { data: pInscriptions }, { data: pMaintenance }] = await Promise.all([
+            const [{ data: pRentals }, { data: pInscriptions }] = await Promise.all([
                 supabaseAdmin.from('reservas_alquiler').select('monto_total').eq('estado_pago', 'pagado').gte('fecha_pago', prevStart).lte('fecha_pago', prevEnd),
                 supabaseAdmin.from('inscripciones').select('monto_total').eq('estado_pago', 'pagado').gte('created_at', prevStart).lte('created_at', prevEnd),
                 supabaseAdmin.from('mantenimiento_logs').select('coste').gte('fecha_inicio', prevStart).lte('fecha_inicio', prevEnd)
             ]);
 
-            const sumIncome = (arr: any[]) => (arr || []).reduce((acc, curr) => acc + (Number(curr.monto_total) || 0), 0);
+            const sumIncome = (arr: { monto_total?: number }[]) => (arr || []).reduce((acc, curr) => acc + (Number(curr.monto_total) || 0), 0);
             prevPeriodRevenue = sumIncome(pRentals || []) + sumIncome(pInscriptions || []);
         }
 
@@ -75,13 +75,13 @@ export async function GET(request: Request) {
         // A. Profitability (Rentals by Service/Boat Type)
         const boatStats: Record<string, { revenue: number, cost: number }> = {};
 
-        rentals?.forEach((r: any) => {
+        rentals?.forEach((r: { monto_total?: number, servicios_alquiler?: { nombre_es: string } }) => {
             const name = r.servicios_alquiler?.nombre_es || 'Otros';
             if (!boatStats[name]) boatStats[name] = { revenue: 0, cost: 0 };
             boatStats[name].revenue += (r.monto_total || 0);
         });
 
-        maintenance?.forEach((m: any) => {
+        maintenance?.forEach((m: { coste?: number, embarcaciones?: { tipo: string, nombre: string } }) => {
             // Map boat type to service category for comparison
             // Simplified mapping: "vela_ligera" -> "Optimist/Laser/Raquero", "crucero" -> "Veleros J80"
             let category = 'Otros';
@@ -99,7 +99,7 @@ export async function GET(request: Request) {
 
         // B. Course Demand by Month
         const courseCategoryDemand: Record<string, Record<string, number>> = {};
-        inscriptions?.forEach((ins: any) => {
+        inscriptions?.forEach((ins: { created_at: string, cursos?: { nombre_es: string } }) => {
             const date = new Date(ins.created_at);
             const monthKey = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}`;
             const cat = ins.cursos?.nombre_es || 'General';
@@ -115,11 +115,11 @@ export async function GET(request: Request) {
 
         // Combine all income
         const allIncome = [
-            ...(rentals || []).map((r: any) => ({ date: r.fecha_pago || r.created_at, amount: r.monto_total })),
-            ...(inscriptions || []).map((i: any) => ({ date: i.created_at, amount: i.monto_total || 0 }))
+            ...(rentals || []).map((r: { fecha_pago?: string, created_at: string, monto_total?: number }) => ({ date: r.fecha_pago || r.created_at, amount: r.monto_total })),
+            ...(inscriptions || []).map((i: { created_at: string, monto_total?: number }) => ({ date: i.created_at, amount: i.monto_total || 0 }))
         ];
 
-        allIncome.forEach((item: any) => {
+        allIncome.forEach((item: { date: string, amount: number }) => {
             const date = new Date(item.date);
             const key = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}`;
             if (!monthlyRevenue[key]) monthlyRevenue[key] = { actual: 0, forecast: 0 };
@@ -132,7 +132,7 @@ export async function GET(request: Request) {
         let cumulativeForecast = 0;
         const avgMonthly = 5000; // Hardcoded baseline or could be calculated
 
-        const chartRevenue = sortedMonths.map((m: any, i: any) => {
+        const chartRevenue = sortedMonths.map((m: string) => {
             cumulativeActual += monthlyRevenue[m].actual;
             cumulativeForecast += avgMonthly * 1.2; // 20% growth target
             return {
@@ -149,8 +149,8 @@ export async function GET(request: Request) {
 
         // Process ALL historical data for these students to determine retention
         const allStudentIds = Array.from(new Set([
-            ...(inscriptions?.map((i: any) => i.perfil_id) || []),
-            ...(rentals?.map((r: any) => r.perfil_id) || [])
+            ...(inscriptions?.map((i: { perfil_id: string }) => i.perfil_id) || []),
+            ...(rentals?.map((r: { perfil_id: string }) => r.perfil_id) || [])
         ]));
 
         const [{ data: historyInscriptions }, { data: historyRentals }] = await Promise.all([
@@ -158,7 +158,7 @@ export async function GET(request: Request) {
             supabaseAdmin.from('reservas_alquiler').select('perfil_id, fecha_pago').in('perfil_id', allStudentIds)
         ]);
 
-        historyInscriptions?.forEach((i: any) => {
+        historyInscriptions?.forEach((i: { perfil_id: string, created_at: string }) => {
             if (!studentActivity[i.perfil_id]) {
                 studentActivity[i.perfil_id] = { sessions: 0, rentals: 0, firstDate: new Date(i.created_at) };
             }
@@ -167,7 +167,7 @@ export async function GET(request: Request) {
             if (d < studentActivity[i.perfil_id].firstDate) studentActivity[i.perfil_id].firstDate = d;
         });
 
-        historyRentals?.forEach((r: any) => {
+        historyRentals?.forEach((r: { perfil_id: string, fecha_pago: string }) => {
             if (!studentActivity[r.perfil_id]) {
                 studentActivity[r.perfil_id] = { sessions: 0, rentals: 0, firstDate: new Date(r.fecha_pago) };
             }
@@ -177,13 +177,13 @@ export async function GET(request: Request) {
         });
 
         const totalStudents = Object.keys(studentActivity).length;
-        const recurringStudents = Object.values(studentActivity).filter((s: any) => s.sessions > 1).length;
-        const studentRenters = Object.values(studentActivity).filter((s: any) => s.sessions > 0 && s.rentals > 0).length;
-        const loyalCustomerCount = Object.values(studentActivity).filter((s: any) => (s.sessions + s.rentals) > 3).length;
+        const recurringStudents = Object.values(studentActivity).filter((s) => s.sessions > 1).length;
+        const studentRenters = Object.values(studentActivity).filter((s) => s.sessions > 0 && s.rentals > 0).length;
+        const loyalCustomerCount = Object.values(studentActivity).filter((s) => (s.sessions + s.rentals) > 3).length;
 
         const funnel = [
             { step: 'Base de Usuarios', value: totalStudents, fill: '#8884d8' },
-            { step: 'Alumnos Activos', value: Object.values(studentActivity).filter((s: any) => s.sessions > 0).length, fill: '#83a6ed' },
+            { step: 'Alumnos Activos', value: Object.values(studentActivity).filter((s) => s.sessions > 0).length, fill: '#83a6ed' },
             { step: 'Alumnos Recurrentes', value: recurringStudents, fill: '#8dd1e1' },
             { step: 'Alumnos -> Alquiler', value: studentRenters, fill: '#82ca9d' },
             { step: 'Club (Fieles)', value: loyalCustomerCount, fill: '#a4de6c' }
@@ -203,19 +203,20 @@ export async function GET(request: Request) {
             kpis: {
                 totalRevenue: allIncome.reduce((acc, curr) => acc + (Number(curr.amount) || 0), 0),
                 totalCouponRevenue: [
-                    ...(rentals || []).filter((r: any) => (r as any).cupon_usado),
-                    ...(inscriptions || []).filter((i: any) => (i as any).cupon_usado)
-                ].reduce((acc: any, curr: any) => acc + (Number(curr.monto_total) || 0), 0),
-                totalCost: (maintenance || []).reduce((acc: any, curr: any) => acc + (Number(curr.coste) || 0), 0),
+                    ...(rentals || []).filter((r: { cupon_usado?: boolean }) => r.cupon_usado),
+                    ...(inscriptions || []).filter((i: { cupon_usado?: boolean }) => i.cupon_usado)
+                ].reduce((acc, curr) => acc + (Number(curr.monto_total) || 0), 0),
+                totalCost: (maintenance || []).reduce((acc, curr) => acc + (Number((curr as { coste?: number }).coste) || 0), 0),
                 totalRentals: rentals?.length || 0,
                 totalInscriptions: inscriptions?.length || 0,
-                activeBoats: boats?.filter((b: any) => b.estado === 'disponible').length || 0,
+                activeBoats: boats?.filter((b: { estado: string }) => b.estado === 'disponible').length || 0,
                 prevPeriodRevenue,
                 retentionRate: totalStudents > 0 ? (recurringStudents / totalStudents * 100).toFixed(1) : 0
             }
         });
 
-    } catch (error: any) {
-        return NextResponse.json({ error: error.message }, { status: 500 });
+    } catch (error: unknown) {
+        const msg = error instanceof Error ? error.message : 'Unknown error';
+        return NextResponse.json({ error: msg }, { status: 500 });
     }
 }

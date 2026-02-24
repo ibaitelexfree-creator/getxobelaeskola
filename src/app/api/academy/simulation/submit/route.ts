@@ -49,8 +49,8 @@ export async function POST(request: Request) {
         let earnedPoints = 0;
         let correctCount = 0;
 
-        const details = (correctData as any[])?.map((q: any) => {
-            const userAnswer = answers[q.id];
+        const details = correctData?.map((q) => {
+            const userAnswer = answers[q.id as string];
             const isCorrect = userAnswer === q.respuesta_correcta;
 
             if (isCorrect) {

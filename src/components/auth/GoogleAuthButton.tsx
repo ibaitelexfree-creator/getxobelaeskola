@@ -15,8 +15,8 @@ export default function GoogleAuthButton() {
         try {
             const locale = window.location.pathname.split('/')[1] || 'es';
 
-            // Detect if we are on localhost to use the correct redirect URL
-            const isLocal = window.location.hostname === 'localhost';
+            // Detect environment to use the correct redirect URL
+            const isLocal = process.env.NODE_ENV === 'development';
             const appUrl = isLocal
                 ? window.location.origin
                 : (process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, '') || window.location.origin);

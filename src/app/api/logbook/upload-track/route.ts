@@ -116,7 +116,7 @@ export async function POST(req: Request) {
         const finalSessionId = sessionId || `imported_${Date.now()}`;
         const filePath = `tracks/${user.id}/${finalSessionId}.gpx`;
 
-        const { data: uploadData, error: uploadError } = await supabase.storage
+        const { error: uploadError } = await supabase.storage
             .from('academy-assets')
             .upload(filePath, file);
 

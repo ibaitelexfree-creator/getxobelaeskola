@@ -112,7 +112,7 @@ export async function POST(request: Request) {
 
         const origin = request.headers.get('origin') || '';
         const host = request.headers.get('host') || '';
-        const protocol = request.headers.get('x-forwarded-proto') || (host.includes('localhost') ? 'http' : 'https');
+        const protocol = request.headers.get('x-forwarded-proto') || 'https';
         const appUrl = process.env.NEXT_PUBLIC_APP_URL || (origin || `${protocol}://${host}`);
 
         // 4. Create Stripe Session

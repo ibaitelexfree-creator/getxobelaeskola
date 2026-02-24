@@ -9,7 +9,7 @@ vi.mock('@/lib/supabase/server', () => ({
 
 describe('Dashboard Stats API', () => {
     let mockSupabase: any;
-    let mockUser = { id: 'test-user-id', email: 'test@example.com' };
+    const mockUser = { id: 'test-user-id', email: 'test@example.com' };
 
     beforeEach(() => {
         vi.clearAllMocks();
@@ -22,7 +22,7 @@ describe('Dashboard Stats API', () => {
                 single: vi.fn().mockResolvedValue({ data: null, error: null }),
                 maybeSingle: vi.fn().mockResolvedValue({ data: null, error: null }),
                 // Handle the case where it's awaited directly (like .select().eq()...)
-                then: vi.fn().mockImplementation(function(onfulfilled) {
+                then: vi.fn().mockImplementation(function (onfulfilled) {
                     let data: any = [];
                     if (table === 'profiles') data = { id: 'test-user-id', nombre: 'Test' };
                     if (table === 'inscripciones') data = [

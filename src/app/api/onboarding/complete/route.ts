@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server';
+
 import { NextResponse } from 'next/server';
 import { requireAuth } from '@/lib/auth-guard';
 import { withCors, corsHeaders } from '@/lib/api-headers';
@@ -46,12 +46,14 @@ export async function POST(request: Request) {
 
         // 2. Update User Metadata (Store level test and goal in auth.users)
         if (level || finalGoal) {
-             const { error: metaError } = await supabaseAdmin.auth.admin.updateUserById(
+            const { error: metaError } = await supabaseAdmin.auth.admin.updateUserById(
                 user.id,
-                { user_metadata: {
-                    ...(level ? { level_test: level } : {}),
-                    ...(finalGoal ? { onboarding_goal: finalGoal } : {})
-                }}
+                {
+                    user_metadata: {
+                        ...(level ? { level_test: level } : {}),
+                        ...(finalGoal ? { onboarding_goal: finalGoal } : {})
+                    }
+                }
             );
 
             if (metaError) {
@@ -86,7 +88,7 @@ export async function POST(request: Request) {
                     });
 
                 if (awardError) {
-                     console.error('Error awarding badge:', awardError);
+                    console.error('Error awarding badge:', awardError);
                 }
             }
         }

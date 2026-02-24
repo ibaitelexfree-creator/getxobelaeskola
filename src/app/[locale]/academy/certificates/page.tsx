@@ -22,7 +22,7 @@ interface Certificado {
 }
 
 export default function CertificatesPage({ params }: { params: { locale: string } }) {
-    const t = useTranslations('academy');
+
     const [certificados, setCertificados] = useState<Certificado[]>([]);
     const [loading, setLoading] = useState(true);
     const [studentName, setStudentName] = useState<string>('Navegante');

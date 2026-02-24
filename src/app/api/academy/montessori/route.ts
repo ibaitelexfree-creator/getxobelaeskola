@@ -17,19 +17,17 @@ export async function GET() {
 
         // 1. Fetch User Progress (Scores & Completions)
         const [
-            { data: progressData },
-            { data: attemptsData }
+            { data: progressData }
         ] = await Promise.all([
-            supabase.from('progreso_alumno').select('*').eq('alumno_id', user.id),
-            supabase.from('intentos_evaluacion').select('*').eq('alumno_id', user.id)
+            supabase.from('progreso_alumno').select('*').eq('alumno_id', user.id)
         ]);
 
         // 2. Build Progress Map
         const progressMap: Record<string, UserProgress> = {};
 
-        const { data: dbUnits } = await supabase.from('unidades_didacticas').select('id, titulo, modulo_id');
+        // const { data: dbUnits } = await supabase.from('unidades_didacticas').select('id, titulo, modulo_id');
 
-        let nodes: MontessoriNode[] = MOCK_TOPICS;
+        const nodes: MontessoriNode[] = MOCK_TOPICS;
 
         const realCompletedCount = progressData?.filter(p => p.estado === 'completado').length || 0;
 

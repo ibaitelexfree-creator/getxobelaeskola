@@ -12,7 +12,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import { ollamaCompletion } from './ollama.js';
 
 const COLLECTION_NAME = 'getxobelaeskola_code';
-const VECTOR_SIZE = 768; // Gemini text-embedding-004 dimension
+const VECTOR_SIZE = 3072; // Gemini gemini-embedding-001 dimension
 
 let qdrantClient = null;
 let genAI = null;
@@ -36,7 +36,7 @@ function getGenAI() {
 
 async function getEmbedding(text) {
     const ai = getGenAI();
-    const model = ai.getGenerativeModel({ model: "text-embedding-004" });
+    const model = ai.getGenerativeModel({ model: "gemini-embedding-001" });
     const result = await model.embedContent(text);
     return result.embedding.values;
 }

@@ -33,13 +33,22 @@ export async function GET(request: Request) {
 
         if (sessionError) throw sessionError;
 
+        interface SessionData {
+            id: string;
+            embarcacion_id: string;
+            fecha_inicio: string;
+            fecha_fin: string;
+            curso?: { nombre_es?: string } | { nombre_es?: string }[];
+            instructor?: { nombre?: string; apellidos?: string } | { nombre?: string; apellidos?: string }[];
+        }
+
         // Filtramos la sesión actual si se proporciona el ID
         const filteredSessions = excludeSessionId
-            ? overlappingSessions.filter((s: any) => s.id !== excludeSessionId)
+            ? overlappingSessions.filter((s: SessionData) => s.id !== excludeSessionId)
             : overlappingSessions;
 
         // Mapeamos los IDs de embarcación a la información de la sesión que la ocupa
-        const availability = (filteredSessions || []).reduce((acc: Record<string, any>, session: any) => {
+        const availability = (filteredSessions || []).reduce((acc: Record<string, { occupiedBy: string, instructor: string, start: string, end: string }>, session: SessionData) => {
             if (session.embarcacion_id) {
                 // Manejar tanto si es objeto como si es array (dependiendo de la relación en Supabase)
                 const curso = Array.isArray(session.curso) ? session.curso[0] : session.curso;

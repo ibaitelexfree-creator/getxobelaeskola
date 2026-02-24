@@ -61,7 +61,7 @@ export async function GET() {
             history: historyData?.filter((h: any) => h.reserva_id === r.id) || []
         })) || [];
 
-        const { count, error: countError } = await supabaseAdmin
+        const { count } = await supabaseAdmin
             .from('reservas_alquiler')
             .select('*', { count: 'exact', head: true });
 

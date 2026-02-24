@@ -65,7 +65,7 @@ export async function POST(request: Request) {
             .from('logros')
             .select('id, slug, nombre_es, puntos')
             .eq('slug', slug)
-            .single() as { data: any, error: any };
+            .single() as { data: { id: string, slug: string, nombre_es: string, puntos: number } | null, error: unknown };
 
         if (achievementError || !achievement) {
             return NextResponse.json({ error: 'Logro no encontrado' }, { status: 404 });

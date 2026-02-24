@@ -2,7 +2,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { POST as startPOST } from './start/route';
 import { POST as submitPOST } from './submit/route';
-import { NextResponse } from 'next/server';
+
 
 // --- MOCKS ---
 
@@ -82,13 +82,13 @@ describe('Simulation API Logic', () => {
         });
 
         it('should handle error when fetching IDs fails', async () => {
-             mockSelect.mockResolvedValueOnce({ data: null, error: { message: 'DB Error' } });
+            mockSelect.mockResolvedValueOnce({ data: null, error: { message: 'DB Error' } });
 
-             const response = await startPOST();
-             const data = await response.json();
+            const response = await startPOST();
+            const data = await response.json();
 
-             expect(response.status).toBe(500);
-             expect(data.error).toBe('Error al obtener preguntas');
+            expect(response.status).toBe(500);
+            expect(data.error).toBe('Error al obtener preguntas');
         });
     });
 
@@ -129,8 +129,8 @@ describe('Simulation API Logic', () => {
         });
 
         it('should return 400 if no answers provided', async () => {
-             const request = {
-                json: async () => ({ }),
+            const request = {
+                json: async () => ({}),
             } as unknown as Request;
 
             const response = await submitPOST(request);

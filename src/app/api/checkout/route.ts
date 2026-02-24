@@ -19,8 +19,8 @@ export async function POST(request: Request) {
 
         const { data: profile } = await supabase.from('profiles').select('nombre, apellidos').eq('id', user.id).single();
 
-        const host = request.headers.get('host') || 'localhost:3000';
-        const protocol = request.headers.get('x-forwarded-proto') || (host.includes('localhost') ? 'http' : 'https');
+        const host = request.headers.get('host') || 'getxobelaeskola.cloud';
+        const protocol = request.headers.get('x-forwarded-proto') || 'https';
         const origin = request.headers.get('origin') || `${protocol}://${host}`;
 
         let course: Course | null = null;

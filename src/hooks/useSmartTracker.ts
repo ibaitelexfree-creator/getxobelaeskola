@@ -14,6 +14,7 @@ import {
 import { getDistance } from '@/lib/geospatial/utils';
 import { useWindSpeed } from '@/hooks/useWindSpeed';
 import { useNetworkMonitor } from '@/hooks/useNetworkMonitor';
+import { useDynamicHeartbeat } from '@/hooks/useDynamicHeartbeat';
 
 export type { LocationPoint };
 
@@ -37,6 +38,9 @@ export function useSmartTracker() {
     // Use refs for values needed in the watch callback to avoid stale closures
     const pointsRef = useRef<LocationPoint[]>([]);
     const currentSpeedThresholdRef = useRef(BASE_CAR_SPEED_THRESHOLD);
+
+    // Dynamic heartbeat to Sync positions
+    useDynamicHeartbeat(isTracking, currentPosition);
 
     // Sync refs with state/props
     useEffect(() => {
