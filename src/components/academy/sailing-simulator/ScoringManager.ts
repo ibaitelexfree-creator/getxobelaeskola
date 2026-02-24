@@ -1,6 +1,3 @@
-import { BoatState } from './BoatPhysics';
-import { ObjectiveState } from './ObjectiveManager';
-
 export interface ScoreEntry {
     name: string;
     score: number;
@@ -10,7 +7,7 @@ export interface ScoreEntry {
 export class ScoringManager {
     public totalScore: number = 0;
     public buoysCollected: number = 0;
-    private buoyStartTime: number = 0;
+    private currentBuoyTime: number = 0;
     public readonly MAX_BUOYS = 5;
     private readonly POINTS_PER_BUOY = 1000;
 
@@ -18,19 +15,18 @@ export class ScoringManager {
     public leaderboard: ScoreEntry[] = [];
 
     constructor() {
-        this.buoyStartTime = performance.now() / 1000;
+        // No time initialization needed
     }
 
-    public update(dt: number, boatState: BoatState, objective: ObjectiveState) {
-        // Only accumulating time for the current buoy
+    public update(dt: number) {
+        this.currentBuoyTime += dt;
     }
 
-    public addObjectiveBonus(distance: number): number {
+    public addObjectiveBonus(): number {
         if (this.buoysCollected >= this.MAX_BUOYS) return 0;
 
-        const now = performance.now() / 1000;
-        const timeTaken = now - this.buoyStartTime;
-        this.buoyStartTime = now;
+        const timeTaken = this.currentBuoyTime;
+        this.currentBuoyTime = 0;
 
         // Score: Max points minus time taken (seconds). Minimum 10 points.
         const points = Math.max(10, Math.floor(this.POINTS_PER_BUOY - timeTaken * 8));

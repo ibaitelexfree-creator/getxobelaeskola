@@ -116,7 +116,7 @@ function init(canvas: OffscreenCanvas, width: number, height: number, pixelRatio
     floatingText = new FloatingTextManager(scene);
 
     objectives.onObjectiveReached = () => {
-        const points = scoring.addObjectiveBonus(objectives.state.distance);
+        const points = scoring.addObjectiveBonus();
         floatingText.add(`+${points}`, objectives.state.position.clone());
 
         if (scoring.isGameOver() && !isGameOver) {
@@ -186,7 +186,7 @@ function animate() {
         // Update Gameplay
         objectives.update(dt, elapsedTime, boatPhysics.state.position);
         events.update(dt, elapsedTime, boatPhysics.state.position);
-        scoring.update(dt, boatPhysics.state, objectives.state);
+        scoring.update(dt);
 
         // Update Visuals
         boatModel.update(dt, elapsedTime, boatPhysics.state, apparentWind, inputState.sailAngle, inputState.rudderAngle);
