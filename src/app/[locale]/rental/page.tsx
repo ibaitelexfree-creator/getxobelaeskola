@@ -53,8 +53,7 @@ export function generateStaticParams() {
 export default async function RentalPage({ params: { locale } }: { params: { locale: string } }) {
     const t = await getTranslations({ locale, namespace: 'rental_page' });
     const supabase = createClient();
-    interface Service { slug: string; nombre: string; nombre_eu?: string; nombre_en?: string; descripcion: string; descripcion_eu?: string; descripcion_en?: string; imagen_url?: string; precio_base?: number; precio_hora?: number; [key: string]: any; }
-    let services: Service[] = [];
+    let services = [];
     const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://getxobelaeskola.cloud';
 
     try {

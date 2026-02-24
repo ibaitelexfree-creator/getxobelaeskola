@@ -59,7 +59,7 @@ describe('isPointInWater', () => {
     });
 
     it('returns true for a point clearly inside the water polygon (FeatureCollection)', () => {
-        expect(isPointInWater(5, 5)).toBe(false);
+        expect(isPointInWater(5, 5)).toBe(true);
     });
 
     it('returns false for a point clearly outside the water polygon (FeatureCollection)', () => {
@@ -71,7 +71,7 @@ describe('isPointInWater', () => {
     });
 
     it('returns true for a point on the edge', () => {
-         expect(isPointInWater(5, 0)).toBe(false);
+         expect(isPointInWater(5, 0)).toBe(true);
     });
 
     it('handles single Feature fallback', () => {
@@ -95,16 +95,12 @@ describe('isPointInWater', () => {
         };
 
         // Inside
-        expect(isPointInWater(5, 5)).toBe(false);
+        expect(isPointInWater(5, 5)).toBe(true);
         // Outside
         expect(isPointInWater(15, 15)).toBe(false);
     });
 
     it('returns false gracefully when geometry data is invalid', () => {
-        // Case: features array exists but contains invalid objects
-        mockData.data.features = [{}]; // @ts-ignore
-        expect(isPointInWater(5, 5)).toBe(false);
-    });
         // Case: features array exists but contains invalid objects
         mockData.data.features = [{}];
         expect(isPointInWater(5, 5)).toBe(false);
