@@ -1,0 +1,119 @@
+{
+  "id": "night_mission_getxo",
+  "name": "Navegación Nocturna: Salida de Getxo",
+  "location": {
+    "name": "Puerto Deportivo de Getxo",
+    "lat": 43.3485,
+    "lng": -3.0185
+  },
+  "type": "simulation",
+  "difficulty": "intermediate",
+  "conditions": {
+    "time_of_day": "night",
+    "visibility": "low",
+    "weather": "clear",
+    "wind": {
+      "speed": 10,
+      "direction": "NW"
+    }
+  },
+  "initial_state": "at_dock",
+  "states": {
+    "at_dock": {
+      "description": "Amarrado en el Puerto Deportivo de Getxo. Preparar la embarcación para salida nocturna.",
+      "tasks": [
+        {
+          "id": "check_nav_lights",
+          "description": "Verificar luces de navegación (Babor, Estribor, Alcance)",
+          "action": "toggle_nav_lights",
+          "expected_result": "on"
+        },
+        {
+          "id": "check_safety_gear",
+          "description": "Verificar equipo de seguridad (Chalecos, Pirotecnia)",
+          "action": "inspect_safety_gear",
+          "expected_result": "ok"
+        }
+      ],
+      "transitions": {
+        "ALL_TASKS_COMPLETE": "engine_start"
+      }
+    },
+    "engine_start": {
+      "description": "Encender motor y verificar instrumentos.",
+      "tasks": [
+        {
+          "id": "start_engine",
+          "description": "Arrancar motor",
+          "action": "engine_on",
+          "expected_result": "running"
+        },
+        {
+          "id": "check_gauges",
+          "description": "Verificar presión de aceite y temperatura",
+          "action": "check_gauges",
+          "expected_result": "normal"
+        }
+      ],
+      "transitions": {
+        "ENGINE_RUNNING": "departing"
+      }
+    },
+    "departing": {
+      "description": "Maniobrar para salir del amarre. Velocidad máxima 3 nudos.",
+      "constraints": {
+        "max_speed": 3.0
+      },
+      "tasks": [
+        {
+          "id": "leave_slip",
+          "description": "Soltar amarras y salir del puesto",
+          "action": "undock",
+          "expected_result": "moving"
+        }
+      ],
+      "transitions": {
+        "ENTER_CHANNEL": "channel_navigation"
+      }
+    },
+    "channel_navigation": {
+      "description": "Navegar por el canal de salida. Identificar balizamiento lateral.",
+      "tasks": [
+        {
+          "id": "identify_port_light",
+          "description": "Identificar luz roja (Babor) de salida",
+          "action": "identify_light",
+          "target": "port_marker_1"
+        },
+        {
+          "id": "identify_starboard_light",
+          "description": "Identificar luz verde (Estribor) de salida",
+          "action": "identify_light",
+          "target": "starboard_marker_1"
+        }
+      ],
+      "transitions": {
+        "PASS_BREAKWATER": "open_sea"
+      }
+    },
+    "open_sea": {
+      "description": "Navegación en aguas abiertas. Rumbo a Punta Galea.",
+      "tasks": [
+        {
+          "id": "set_course_galea",
+          "description": "Establecer rumbo a Punta Galea (aprox 315°)",
+          "action": "set_heading",
+          "target_value": 315,
+          "tolerance": 10
+        }
+      ],
+      "transitions": {
+        "REACH_WAYPOINT": "complete"
+      }
+    },
+    "complete": {
+      "description": "Misión completada exitosamente.",
+      "type": "final"
+    }
+  }
+}

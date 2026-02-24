@@ -32,6 +32,7 @@
 ## Fase 8: Refactorización Progresiva
 - [x] Subfase 8.1 — Limpieza de Raíz
 - [x] Subfase 8.2 — Refactorización de Código (Assets y Timezone)
+- [x] Subfase 8.3 — Renombrado de Proyecto y Portabilidad (Rutas Relativas)
 
 ## Fase 9: Testing Automatizado
 - [x] Subfase 9.1 — Setup de Testing (Configuración Vitest y primer test unitario)

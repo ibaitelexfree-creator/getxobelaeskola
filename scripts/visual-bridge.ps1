@@ -17,7 +17,7 @@ if (-not $currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Adm
 # ==========================================================
 
 $Port = 3000
-$BaseDir = "c:\Users\User\Desktop\Saili8ng School Test\antigravity"
+$BaseDir = Join-Path (Split-Path -Parent $PSScriptRoot) "antigravity"
 $TunnelLog = "$BaseDir\tunnel.log"
 $ErrorLog = "$BaseDir\tunnel_error.log"
 $UrlFile = "$BaseDir\last_tunnel_url.txt"
