@@ -58,7 +58,7 @@ export async function GET(req: Request) {
         // Format: *, related_table!fk_col(count)
         const selectCols = [
             '*',
-            ...rels.map(rel => `${rel.table}!${rel.fk}(count)`)
+            ...rels.map(rel => `count_${rel.table}_${rel.fk}:${rel.table}!${rel.fk}(count)`)
         ].join(',');
 
         const { data, error } = await supabase
@@ -79,7 +79,7 @@ export async function GET(req: Request) {
             for (const rel of rels) {
                 // Embedded counts return as an array with a single object: [{ count: N }]
                 // This is much more efficient than performing a separate query for each item
-                const embedded = item[rel.table] as { count: number }[] | undefined;
+                const embedded = item[`count_${rel.table}_${rel.fk}`] as { count: number }[] | undefined;
                 const count = (embedded && Array.isArray(embedded)) ? (embedded[0]?.count || 0) : 0;
 
                 if (count > 0) {
@@ -100,11 +100,10 @@ export async function GET(req: Request) {
 
     if (table === 'all') {
         // Search key tables
-        const tablesToSearch = ['profiles', 'cursos', 'embarcaciones', 'reservas_alquiler'];
-        for (const t of tablesToSearch) {
-            const res = await searchTable(t) as SearchResult[];
-            results = [...results, ...res];
-        }
+        const tablesToSearch = Object.keys(SEARCHABLE_COLS);
+        const searchPromises = tablesToSearch.map(t => searchTable(t));
+        const searchResults = await Promise.all(searchPromises);
+        results = searchResults.flat() as SearchResult[];
     } else {
         results = await searchTable(table) as SearchResult[];
     }
