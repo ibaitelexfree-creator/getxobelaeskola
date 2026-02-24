@@ -58,10 +58,7 @@ describe('isPointInWater', () => {
 
     it('handles single Feature fallback', async () => {
         // Modify mock data to look like a single Feature
-        // Remove 'features' array
         delete mockData.data.features;
-
-        // Add geometry directly
         mockData.data.type = 'Feature';
         mockData.data.geometry = {
             type: 'Polygon',
