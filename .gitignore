@@ -62,3 +62,30 @@ gen_ssh.ps1
 !vuela.ps1
 orchestration/*.db
 orchestration/*.err
+
+# Vector DB & local data volumes
+data/
+volumes.tar.gz
+deployment_bundle.tar.gz
+project_source.tar.gz
+deploy.zip
+*.tar.gz
+*.zip
+
+# Large generated files
+mission-control.db
+supabase_schema.json
+tsconfig.tsbuildinfo
+
+# Build logs
+build-log.txt
+build_attempt*.log
+build_errors.log
+lint*.txt
+lint_output*.log
+lint_output*.txt
+full_lint.txt
+full_test_results.txt
+test_results.txt
+current_test_results.txt
+diff.txt
