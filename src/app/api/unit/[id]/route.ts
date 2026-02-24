@@ -1,4 +1,3 @@
-
 import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
 import { requireAuth } from '@/lib/auth-guard';
@@ -6,6 +5,7 @@ import { verifyUnitAccess } from '@/lib/academy/enrollment';
 // Import Rate Limiter
 import { rateLimit } from '@/lib/security/rate-limit';
 import { withCors, corsHeaders } from '@/lib/api-headers';
+import DOMPurify from 'isomorphic-dompurify';
 
 export const dynamic = 'force-dynamic';
 
@@ -85,6 +85,25 @@ export async function GET(
                 { status: 404 }
             ), request);
         }
+
+        // --- SANITIZATION (Security Decision) ---
+        // Allowed HTML: p, br, strong, em, ul, ol, li, h1-h4
+        // Strip scripts, event handlers, iframes, style attributes, javascript: URLs
+        const sanitize = (content: string) => {
+             if (!content) return '';
+             return DOMPurify.sanitize(content, {
+                 ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'ul', 'ol', 'li', 'h1', 'h2', 'h3', 'h4'],
+                 ALLOWED_ATTR: [] // Strip all attributes to ensure safety
+             });
+        };
+
+        if (unidad) {
+            unidad.contenido_teorico_es = sanitize(unidad.contenido_teorico_es);
+            unidad.contenido_teorico_eu = sanitize(unidad.contenido_teorico_eu);
+            unidad.contenido_practico_es = sanitize(unidad.contenido_practico_es);
+            unidad.contenido_practico_eu = sanitize(unidad.contenido_practico_eu);
+        }
+        // ----------------------------------------
 
         // Fetch activities (Specifically written exercises for peer review)
         const { data: actividades } = await supabase
