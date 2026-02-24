@@ -106,13 +106,16 @@ export default async function CourseDetailPage({
         plazas_ocupadas: number;
         is_calendar_event?: boolean;
     }
-
     interface CourseFallback {
         id: string;
         nombre_es: string;
         nombre_eu: string;
+        nombre_en?: string;
+        nombre_fr?: string;
         descripcion_es: string;
         descripcion_eu: string;
+        descripcion_en?: string;
+        descripcion_fr?: string;
         precio: number;
         duracion_h: number;
         nivel: string;
@@ -120,6 +123,8 @@ export default async function CourseDetailPage({
         detalles?: {
             es: string[];
             eu: string[];
+            en?: string[];
+            fr?: string[];
         };
     }
     const supabase = createClient();

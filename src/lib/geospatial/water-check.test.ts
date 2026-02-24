@@ -1,5 +1,4 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { isPointInWater } from './water-check';
 
 // Hoist the mock data container so we can modify it
 const mockData = vi.hoisted(() => ({
@@ -31,7 +30,10 @@ vi.mock('../../data/geospatial/water-geometry.json', () => ({
 }));
 
 describe('isPointInWater', () => {
-    beforeEach(() => {
+    let isPointInWater: (lat: number, lng: number) => boolean;
+
+    beforeEach(async () => {
+        vi.resetModules();
         // Reset to default FeatureCollection state
         mockData.data.type = 'FeatureCollection';
         mockData.data.features = [
@@ -52,10 +54,10 @@ describe('isPointInWater', () => {
                 }
             }
         ];
-        // Ensure geometry property is removed if it was added
-        if (mockData.data.geometry) {
-             delete mockData.data.geometry;
-        }
+        delete mockData.data.geometry;
+
+        const module = await import('./water-check');
+        isPointInWater = module.isPointInWater;
     });
 
     it('returns true for a point clearly inside the water polygon (FeatureCollection)', () => {
@@ -74,12 +76,10 @@ describe('isPointInWater', () => {
          expect(isPointInWater(5, 0)).toBe(true);
     });
 
-    it('handles single Feature fallback', () => {
+    it('handles single Feature fallback', async () => {
+        vi.resetModules();
         // Modify mock data to look like a single Feature
-        // Remove 'features' array
         delete mockData.data.features;
-
-        // Add geometry directly
         mockData.data.type = 'Feature';
         mockData.data.geometry = {
             type: 'Polygon',
@@ -94,15 +94,23 @@ describe('isPointInWater', () => {
             ]
         };
 
+        const module = await import('./water-check');
+        isPointInWater = module.isPointInWater;
+
         // Inside
         expect(isPointInWater(5, 5)).toBe(true);
         // Outside
         expect(isPointInWater(15, 15)).toBe(false);
     });
 
-    it('returns false gracefully when geometry data is invalid', () => {
+    it('returns false gracefully when geometry data is invalid', async () => {
+        vi.resetModules();
         // Case: features array exists but contains invalid objects
         mockData.data.features = [{}];
+
+        const module = await import('./water-check');
+        isPointInWater = module.isPointInWater;
+
         expect(isPointInWater(5, 5)).toBe(false);
     });
 });
