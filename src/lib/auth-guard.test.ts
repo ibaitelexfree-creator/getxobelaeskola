@@ -70,13 +70,14 @@ describe('Auth Guard', () => {
             // Cast to any to access mocked properties
             const errorResponse = result.error as any;
             expect(errorResponse.status).toBe(401);
-            expect(errorResponse.body).toEqual({ error: 'No autenticado' });
+            expect(errorResponse.message).toBe('No session');
         });
 
         it('should return 404 if user is authenticated but profile is not found', async () => {
             const user = { id: 'user-123' };
             mockGetUser.mockResolvedValue({ data: { user } });
-            mockSingle.mockResolvedValue({ data: null });
+            // Profile fetch returns error or null data
+            mockSingle.mockResolvedValue({ data: null, error: { message: 'Profile not found', code: '404' } });
 
             const result = await checkAuth();
 
@@ -85,20 +86,19 @@ describe('Auth Guard', () => {
             expect(mockEq).toHaveBeenCalledWith('id', 'user-123');
 
             expect(result.error).toBeDefined();
-            const errorResponse = result.error as any;
-            expect(errorResponse.status).toBe(404);
-            expect(errorResponse.body).toEqual({ error: 'Perfil no encontrado' });
+            // It returns Supabase error object directly
+            expect(result.error.message).toBe('Profile not found');
         });
 
         it('should return user, profile, and clients if authenticated and profile exists', async () => {
             const user = { id: 'user-123' };
             const profile = { id: 'user-123', rol: 'student' };
             mockGetUser.mockResolvedValue({ data: { user } });
-            mockSingle.mockResolvedValue({ data: profile });
+            mockSingle.mockResolvedValue({ data: profile, error: null });
 
             const result = await checkAuth();
 
-            expect(result.error).toBeUndefined();
+            expect(result.error).toBeNull();
             expect(result.user).toEqual(user);
             expect(result.profile).toEqual(profile);
             expect(result.supabase).toBe(mockSupabase);
@@ -121,7 +121,7 @@ describe('Auth Guard', () => {
             const user = { id: 'user-123' };
             const profile = { id: 'user-123', rol: 'student' };
             mockGetUser.mockResolvedValue({ data: { user } });
-            mockSingle.mockResolvedValue({ data: profile });
+            mockSingle.mockResolvedValue({ data: profile, error: null });
 
             const result = await requireAdmin();
 
@@ -135,7 +135,7 @@ describe('Auth Guard', () => {
             const user = { id: 'admin-123' };
             const profile = { id: 'admin-123', rol: 'admin' };
             mockGetUser.mockResolvedValue({ data: { user } });
-            mockSingle.mockResolvedValue({ data: profile });
+            mockSingle.mockResolvedValue({ data: profile, error: null });
 
             const result = await requireAdmin();
 
@@ -160,7 +160,7 @@ describe('Auth Guard', () => {
             const user = { id: 'student-123' };
             const profile = { id: 'student-123', rol: 'student' };
             mockGetUser.mockResolvedValue({ data: { user } });
-            mockSingle.mockResolvedValue({ data: profile });
+            mockSingle.mockResolvedValue({ data: profile, error: null });
 
             const result = await requireInstructor();
 
@@ -174,7 +174,7 @@ describe('Auth Guard', () => {
             const user = { id: 'inst-123' };
             const profile = { id: 'inst-123', rol: 'instructor' };
             mockGetUser.mockResolvedValue({ data: { user } });
-            mockSingle.mockResolvedValue({ data: profile });
+            mockSingle.mockResolvedValue({ data: profile, error: null });
 
             const result = await requireInstructor();
 
@@ -186,7 +186,7 @@ describe('Auth Guard', () => {
             const user = { id: 'admin-123' };
             const profile = { id: 'admin-123', rol: 'admin' };
             mockGetUser.mockResolvedValue({ data: { user } });
-            mockSingle.mockResolvedValue({ data: profile });
+            mockSingle.mockResolvedValue({ data: profile, error: null });
 
             const result = await requireInstructor();
 

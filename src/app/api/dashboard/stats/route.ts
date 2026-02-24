@@ -73,7 +73,7 @@ export async function GET() {
         // Buscamos la primera unidad que esté 'en_progreso' o 'disponible' en un curso activo
         // Para simplificar buscamos el curso con mayor progreso incompleto
         const activeCourse = progress?.find(p => p.tipo_entidad === 'curso' && p.estado === 'en_progreso');
-        let nextUnit = null;
+        let nextUnit: any = null;
 
         if (activeCourse) {
             // Buscar unidades de este curso que no estén completadas
