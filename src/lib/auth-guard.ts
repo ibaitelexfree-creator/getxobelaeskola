@@ -16,7 +16,7 @@ export async function checkAuth(): Promise<{
     const { data: { user }, error: authError } = await supabase.auth.getUser();
 
     if (authError || !user) {
-        return { user: null, profile: null, supabaseAdmin: null, supabase, error: authError };
+        return { user: null, profile: null, supabaseAdmin: null, supabase, error: authError || { message: 'No session', status: 401 } };
     }
 
     const supabaseAdmin = createAdminClient();
