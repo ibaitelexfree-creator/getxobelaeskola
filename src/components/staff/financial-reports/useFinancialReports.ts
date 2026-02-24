@@ -23,6 +23,13 @@ interface UseFinancialReportsProps {
     initialView?: 'today' | 'month' | 'year' | undefined | null;
 }
 
+interface ChartItem {
+    label: string;
+    amount: number;
+    sortKey: string;
+    dateObj: Date;
+}
+
 export function useFinancialReports({ initialData, initialView }: UseFinancialReportsProps) {
     const t = useTranslations('staff_panel.financials');
     const searchParams = useSearchParams();
@@ -174,7 +181,7 @@ export function useFinancialReports({ initialData, initialView }: UseFinancialRe
 
         if (!effectiveStart || !effectiveEnd) return [];
 
-        const agg: Record<string, { label: string, amount: number, sortKey: string, dateObj: Date }> = {};
+        const agg: Record<string, ChartItem> = {};
 
         const [sy, sm, sd] = effectiveStart.split('-').map(Number);
         const [ey, em, ed] = effectiveEnd.split('-').map(Number);
@@ -234,7 +241,7 @@ export function useFinancialReports({ initialData, initialView }: UseFinancialRe
                 if (agg[key]) agg[key].amount += parseAmount(item.monto_total);
             } else if (isMonthly) {
                 const aggValues = Object.values(agg).sort((a, b) => a.dateObj.getTime() - b.dateObj.getTime());
-                let targetBucket = null;
+                let targetBucket: ChartItem | null = null;
                 for (let i = aggValues.length - 1; i >= 0; i--) {
                     const bucketDate = aggValues[i].dateObj;
                     if (rawDate >= bucketDate) {
@@ -245,7 +252,12 @@ export function useFinancialReports({ initialData, initialView }: UseFinancialRe
                 if (targetBucket) {
                     targetBucket.amount += parseAmount(item.monto_total);
                 } else if (aggValues.length > 0) {
-                    aggValues[0].amount += parseAmount(item.monto_total);
+                    // This case handles items slightly before the first bucket (edge case)
+                    // Ensure we don't crash and assign to first bucket
+                    const firstBucket = aggValues[0];
+                    if (firstBucket) {
+                         firstBucket.amount += parseAmount(item.monto_total);
+                    }
                 }
             } else {
                 const isoLike = new Intl.DateTimeFormat('en-CA', {
