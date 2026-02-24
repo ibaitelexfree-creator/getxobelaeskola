@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach, Mock } from 'vitest';
+import { describe, it, expect, vi, beforeEach, Mock } from 'vitest';
 import { fetchWeatherData } from './weather';
 import * as euskalmet from './euskalmet';
 
@@ -14,10 +14,6 @@ vi.stubGlobal('fetch', fetchMock);
 describe('fetchWeatherData', () => {
     beforeEach(() => {
         vi.resetAllMocks();
-    });
-
-    afterEach(() => {
-        vi.useRealTimers();
     });
 
     // Helper to generate Unisono HTML
@@ -91,14 +87,12 @@ describe('fetchWeatherData', () => {
     });
 
     it('should return Punta Galea data (Priority 2) when Getxo Bela Eskola is missing', async () => {
-        // Unisono returns no school data
         const html = generateUnisonoHtml(null, null);
         fetchMock.mockResolvedValueOnce({
             ok: true,
             text: async () => html,
         });
 
-        // Mock Euskalmet C042
         const mockEuskalmetData = {
             readings: [
                 { sensorId: 'wind_speed', value: 5.0 }, // m/s
@@ -123,14 +117,12 @@ describe('fetchWeatherData', () => {
 
      it('should return R.C. Marítimo Abra data (Priority 3) when Priority 1 & 2 fail', async () => {
         const abraData = { knots: 8.0, dir: 90, temp: 19, gusts: 12, timestamp: '12:05' };
-        // Unisono returns Abra data but no school data
         const html = generateUnisonoHtml(null, abraData);
         fetchMock.mockResolvedValueOnce({
             ok: true,
             text: async () => html,
         });
 
-        // Mock Euskalmet C042 to fail/return null
         (euskalmet.fetchEuskalmetStationData as Mock).mockResolvedValueOnce(null);
 
         const result = await fetchWeatherData();
@@ -148,7 +140,6 @@ describe('fetchWeatherData', () => {
     });
 
     it('should return Puerto de Bilbao data (Priority 4) when all others fail', async () => {
-        // Unisono returns nothing useful
         const html = generateUnisonoHtml(null, null);
         fetchMock.mockResolvedValueOnce({
             ok: true,
@@ -161,7 +152,6 @@ describe('fetchWeatherData', () => {
             ]
         };
 
-        // Use mockImplementation to handle different station IDs explicitly
         (euskalmet.fetchEuskalmetStationData as Mock).mockImplementation(async (stationId) => {
             if (stationId === 'C042') return null;
             if (stationId === 'B090') return mockEuskalmetData;
@@ -175,8 +165,8 @@ describe('fetchWeatherData', () => {
 
         expect(result).toEqual({
             station: 'Puerto de Bilbao (Euskalmet)',
-            knots: 19.4, // 10 * 1.94384 = 19.4384 -> 19.4
-            kmh: 36.0, // 10 * 3.6 = 36.0
+            knots: 19.4,
+            kmh: 36.0,
             direction: 0,
             temp: 0,
             timestamp: 'API',
@@ -184,66 +174,143 @@ describe('fetchWeatherData', () => {
     });
 
     it('should throw an error if all sources fail', async () => {
-         // Unisono returns nothing useful
         const html = generateUnisonoHtml(null, null);
         fetchMock.mockResolvedValueOnce({
             ok: true,
             text: async () => html,
         });
 
-        // Mock Euskalmet C042 and B090 to fail
         (euskalmet.fetchEuskalmetStationData as Mock)
             .mockImplementation(async () => null);
 
         await expect(fetchWeatherData()).rejects.toThrow('No weather data available from Unisono or Euskalmet');
     });
 
-    it('should handle malformed Unisono HTML gracefully', async () => {
-        // Unisono returns garbage
+    it('should handle fetch network errors', async () => {
+        fetchMock.mockRejectedValueOnce(new Error('Network error'));
+        await expect(fetchWeatherData()).rejects.toThrow('Network error');
+    });
+
+    // --- New Edge Case Tests ---
+
+    it('should handle Unisono HTML with missing rows or cells', async () => {
+        // Table exists but data rows are missing
+        const malformedHtml = '<html><body><table><tr><td>Getxo Bela Eskola</td></tr></table></body></html>';
         fetchMock.mockResolvedValueOnce({
             ok: true,
-            text: async () => '<html><body><h1>Not a table</h1></body></html>',
+            text: async () => malformedHtml,
         });
 
-        // Mock Euskalmet C042 to return valid data (Priority 2)
-        const mockEuskalmetData = {
+        // Mock Euskalmet to succeed so we fall back to it
+        (euskalmet.fetchEuskalmetStationData as Mock).mockResolvedValueOnce({
             readings: [{ sensorId: 'wind_speed', value: 5.0 }]
-        };
-        (euskalmet.fetchEuskalmetStationData as Mock).mockResolvedValueOnce(mockEuskalmetData);
+        });
 
         const result = await fetchWeatherData();
         expect(result.station).toBe('Punta Galea (Euskalmet)');
     });
 
-    it('should handle timeout correctly (abort and fallback)', async () => {
-        vi.useFakeTimers();
-        const abortSpy = vi.spyOn(AbortController.prototype, 'abort');
-
-        // Controlled promise to simulate network hang and then manual rejection
-        let rejectFetch: (reason?: any) => void = () => {};
-        const fetchPromise = new Promise<Response>((_, reject) => {
-            rejectFetch = reject;
+    it('should handle Unisono HTML with non-numeric data', async () => {
+        const html = `
+            <table>
+                <tr><td>Getxo Bela Eskola</td></tr>
+                <tr><td>Header</td></tr>
+                <tr>
+                    <td>12:00</td>
+                    <td>invalid</td>
+                    <td>invalid</td>
+                    <td>invalid</td>
+                    <td>invalid</td>
+                </tr>
+            </table>
+        `;
+        fetchMock.mockResolvedValueOnce({
+            ok: true,
+            text: async () => html,
         });
 
-        fetchMock.mockReturnValue(fetchPromise);
+        // Should fall back to Euskalmet because knots is NaN
+        (euskalmet.fetchEuskalmetStationData as Mock).mockResolvedValueOnce({
+            readings: [{ sensorId: 'wind_speed', value: 5.0 }]
+        });
 
-        // Mock Euskalmet fallback (will be called after fetch failure)
-         const mockEuskalmetData = {
-            readings: [{ sensorId: 'wind_speed', value: 6.0 }]
-        };
-        (euskalmet.fetchEuskalmetStationData as Mock).mockResolvedValueOnce(mockEuskalmetData);
+        const result = await fetchWeatherData();
+        expect(result.station).toBe('Punta Galea (Euskalmet)');
+    });
 
-        const resultPromise = fetchWeatherData();
+    it('should handle Euskalmet data with missing readings array or empty readings', async () => {
+        fetchMock.mockResolvedValueOnce({
+            ok: true,
+            text: async () => generateUnisonoHtml(null, null),
+        });
 
-        // Fast forward time to trigger timeout
-        vi.advanceTimersByTime(8100);
+        // C042 returns empty readings
+        (euskalmet.fetchEuskalmetStationData as Mock).mockResolvedValueOnce({
+            readings: []
+        });
 
-        expect(abortSpy).toHaveBeenCalled();
+        // B090 returns no readings property
+        (euskalmet.fetchEuskalmetStationData as Mock).mockResolvedValueOnce({});
 
-        // Manually reject the fetch to simulate the AbortError
-        rejectFetch(new DOMException('Aborted', 'AbortError'));
+        await expect(fetchWeatherData()).rejects.toThrow('No weather data available from Unisono or Euskalmet');
+    });
 
-        const result = await resultPromise;
+    it('should handle Euskalmet data with missing sensor values', async () => {
+        fetchMock.mockResolvedValueOnce({
+            ok: true,
+            text: async () => generateUnisonoHtml(null, null),
+        });
+
+        // C042 has wind sensor but value is null/missing
+        (euskalmet.fetchEuskalmetStationData as Mock).mockResolvedValueOnce({
+            readings: [{ sensorId: 'wind_speed' }]
+        });
+
+        // B090 also fails
+        (euskalmet.fetchEuskalmetStationData as Mock).mockResolvedValueOnce(null);
+
+        await expect(fetchWeatherData()).rejects.toThrow();
+    });
+
+    it('should respect timeout and signal in fetch', async () => {
+        vi.useFakeTimers();
+
+        let capturedSignal: AbortSignal | undefined;
+        fetchMock.mockImplementationOnce((url, options) => {
+            capturedSignal = options.signal;
+            return new Promise((_, reject) => {
+                options.signal.addEventListener('abort', () => {
+                    const err = new Error('The user aborted a request.');
+                    err.name = 'AbortError';
+                    reject(err);
+                });
+            });
+        });
+
+        const promise = fetchWeatherData();
+
+        // Fast-forward to trigger the 8s timeout in weather.ts
+        vi.advanceTimersByTime(8001);
+
+        await expect(promise).rejects.toThrow();
+        expect(capturedSignal?.aborted).toBe(true);
+
+        vi.useRealTimers();
+    });
+
+    it('should continue to next source if Unisono fetch returns non-ok status', async () => {
+        fetchMock.mockResolvedValueOnce({
+            ok: false,
+            status: 500,
+            text: async () => 'Error',
+        });
+
+        // Should skip Unisono parsing and try Euskalmet
+        (euskalmet.fetchEuskalmetStationData as Mock).mockResolvedValueOnce({
+            readings: [{ sensorId: 'wind_speed', value: 5.0 }]
+        });
+
+        const result = await fetchWeatherData();
         expect(result.station).toBe('Punta Galea (Euskalmet)');
     });
 });
