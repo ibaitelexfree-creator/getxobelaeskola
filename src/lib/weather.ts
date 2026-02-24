@@ -1,3 +1,4 @@
+
 import { load } from 'cheerio';
 import { fetchEuskalmetStationData } from './euskalmet';
 
@@ -29,71 +30,66 @@ export async function fetchWeatherData(): Promise<WeatherData> {
     // 4. Puerto de Bilbao (Euskalmet B090)
 
     try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 second timeout
+
+        // --- 1. Try Unisono for Getxo Bela Eskola ---
+        const unisonoRes = await fetch('https://unisono.connect.ninja/lecturas.php?refresh=true', {
+            cache: 'no-store',
+            signal: controller.signal
+        });
+        clearTimeout(timeoutId);
+        const html = await unisonoRes.text();
+        const $ = load(html);
+
+
+        const tables = $('table');
         let schoolData: WeatherData | null = null;
         let abraData: WeatherData | null = null;
 
-        try {
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 second timeout
+        tables.each((_, table) => {
+            const tableText = $(table).text();
 
-            // --- 1. Try Unisono for Getxo Bela Eskola ---
-            const unisonoRes = await fetch('https://unisono.connect.ninja/lecturas.php?refresh=true', {
-                cache: 'no-store',
-                signal: controller.signal
-            });
-            clearTimeout(timeoutId);
-            const html = await unisonoRes.text();
-            const $ = load(html);
-
-
-            const tables = $('table');
-
-            tables.each((_, table) => {
-                const tableText = $(table).text();
-
-                // Getxo Bela Eskola
-                if (tableText.includes('Getxo Bela') && tableText.includes('Eskola')) {
-                    const row = $(table).find('tr').eq(2);
-                    if (row.length > 0) {
-                        const cells = row.find('td');
-                        const knots = parseFloat(cells.eq(1).text());
-                        if (!isNaN(knots)) {
-                            schoolData = {
-                                station: 'Getxo Bela Eskola',
-                                knots,
-                                kmh: parseFloat((knots * 1.852).toFixed(1)),
-                                direction: parseFloat(cells.eq(3).text()) || 0,
-                                temp: parseFloat(cells.eq(4).text()) || 0,
-                                timestamp: cells.eq(0).text().trim(),
-                                gusts: parseFloat(cells.eq(2).text()) || 0
-                            };
-                        }
+            // Getxo Bela Eskola
+            if (tableText.includes('Getxo Bela') && tableText.includes('Eskola')) {
+                const row = $(table).find('tr').eq(2);
+                if (row.length > 0) {
+                    const cells = row.find('td');
+                    const knots = parseFloat(cells.eq(1).text());
+                    if (!isNaN(knots)) {
+                        schoolData = {
+                            station: 'Getxo Bela Eskola',
+                            knots,
+                            kmh: parseFloat((knots * 1.852).toFixed(1)),
+                            direction: parseFloat(cells.eq(3).text()) || 0,
+                            temp: parseFloat(cells.eq(4).text()) || 0,
+                            timestamp: cells.eq(0).text().trim(),
+                            gusts: parseFloat(cells.eq(2).text()) || 0
+                        };
                     }
                 }
+            }
 
-                // RC Maritimo Abra
-                if (tableText.includes('R.C. Marítimo Abra') && tableText.includes('(minutos)')) {
-                    const row = $(table).find('tr').eq(2);
-                    if (row.length > 0) {
-                        const cells = row.find('td');
-                        const knots = parseFloat(cells.eq(1).text());
-                        if (!isNaN(knots)) {
-                            abraData = {
-                                station: 'R.C. Marítimo Abra',
-                                knots,
-                                kmh: parseFloat((knots * 1.852).toFixed(1)),
-                                direction: parseFloat(cells.eq(3).text()) || 0,
-                                temp: parseFloat(cells.eq(4).text()) || 0,
-                                timestamp: cells.eq(0).text().trim(),
-                                gusts: parseFloat(cells.eq(2).text()) || 0
-                            };
-                        }
+            // RC Maritimo Abra
+            if (tableText.includes('R.C. Marítimo Abra') && tableText.includes('(minutos)')) {
+                const row = $(table).find('tr').eq(2);
+                if (row.length > 0) {
+                    const cells = row.find('td');
+                    const knots = parseFloat(cells.eq(1).text());
+                    if (!isNaN(knots)) {
+                        abraData = {
+                            station: 'R.C. Marítimo Abra',
+                            knots,
+                            kmh: parseFloat((knots * 1.852).toFixed(1)),
+                            direction: parseFloat(cells.eq(3).text()) || 0,
+                            temp: parseFloat(cells.eq(4).text()) || 0,
+                            timestamp: cells.eq(0).text().trim(),
+                            gusts: parseFloat(cells.eq(2).text()) || 0
+                        };
                     }
                 }
-            });
-        } catch (e) {
-            console.error('Unisono fetch/parse error:', e);
-        }
+            }
+        });
 
         // Priority 1: School Data
         if (schoolData) return schoolData;
@@ -108,7 +104,7 @@ export async function fetchWeatherData(): Promise<WeatherData> {
                 const dir = galea.readings.find((r) => r.sensorId === 'wind_direction');
                 const temp = galea.readings.find((r) => r.sensorId === 'temperature');
 
-                if (wind) {
+                if (wind && !isNaN(wind.value)) {
                     const ms = wind.value; // Euskalmet usually gives m/s
                     const knots = parseFloat((ms * 1.94384).toFixed(1));
                     return {
@@ -133,7 +129,7 @@ export async function fetchWeatherData(): Promise<WeatherData> {
             const puerto = await fetchEuskalmetStationData('B090') as EuskalmetStationData | null;
             if (puerto && puerto.readings) {
                 const wind = puerto.readings.find((r) => r.sensorId === 'wind_speed');
-                if (wind) {
+                if (wind && !isNaN(wind.value)) {
                     const ms = wind.value;
                     const knots = parseFloat((ms * 1.94384).toFixed(1));
                     return {
