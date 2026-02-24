@@ -18,7 +18,7 @@ This document provides an overview of the project's source code structure and ex
 ### peer-review.ts
 
 | Export Name | Type | Description |
-| :--- | :--- | :--- |
+| :--- | :--- | :--- | 
 | `getPendingReviews` | Function | - | 
 | `submitReview` | Function | - |
 
