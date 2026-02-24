@@ -52,10 +52,6 @@ describe('isPointInWater', () => {
                 }
             }
         ];
-        // Ensure geometry property is removed if it was added
-        if (mockData.data.geometry) {
-             delete mockData.data.geometry;
-        }
     });
 
     it('returns true for a point clearly inside the water polygon (FeatureCollection)', async () => {
@@ -108,10 +104,20 @@ describe('isPointInWater', () => {
 
     it('returns false gracefully when geometry data is invalid', async () => {
         // Case: features array exists but contains invalid objects
-        mockData.data.features[0].geometry = null as any;
+        // We set features to a non-empty array with invalid content to bypass RBush init checks if any
+        // AND ensure turf.booleanPointInPolygon fails.
+        // We use explicit corruption that TS allows via 'as any'.
+        mockData.data.features = [
+            {
+                type: 'Feature',
+                properties: {},
+                geometry: null // Invalid geometry
+            }
+        ];
 
         const { isPointInWater } = await import('./water-check');
 
+        // Should return false due to try-catch block in isPointInWater
         expect(isPointInWater(5, 5)).toBe(false);
     });
 });
