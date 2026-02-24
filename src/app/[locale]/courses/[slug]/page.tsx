@@ -11,13 +11,33 @@ import JsonLd from '@/components/shared/JsonLd';
 
 import { Metadata } from 'next';
 
+interface CourseFallback {
+    id: string;
+    nombre_es: string;
+    nombre_eu: string;
+    nombre_en?: string;
+    nombre_fr?: string;
+    descripcion_es: string;
+    descripcion_eu: string;
+    descripcion_en?: string;
+    descripcion_fr?: string;
+    precio: number;
+    duracion_h: number;
+    nivel: string;
+    imagen_url: string;
+    detalles?: {
+        es: string[];
+        eu: string[];
+    };
+}
+
 export async function generateMetadata({
     params: { locale, slug }
 }: {
     params: { locale: string; slug: string }
 }): Promise<Metadata> {
     const supabase = createClient();
-    let course = null;
+    let course: any = null;
     try {
         const { data } = await supabase
             .from('cursos')
@@ -30,34 +50,54 @@ export async function generateMetadata({
     }
 
     // Re-use fallback logic for metadata
-    const fallbacks: Record<string, any> = {
+    const fallbacks: Record<string, CourseFallback> = {
         'iniciacion-j80': {
+            id: 'fallback-1',
             nombre_es: 'Iniciación J80',
             nombre_eu: 'J80 Hastapena',
             descripcion_es: 'Iníciate en el mundo de la navegación a vela en veleros J80. Aprende maniobras básicas en Getxo.',
-            descripcion_eu: 'Hasi nabigazio munduan J80 belaontzietan. Ikasi oinarrizko maniobrak Getxon.'
+            descripcion_eu: 'Hasi nabigazio munduan J80 belaontzietan. Ikasi oinarrizko maniobrak Getxon.',
+            precio: 0,
+            duracion_h: 0,
+            nivel: 'iniciacion',
+            imagen_url: ''
         },
         'perfeccionamiento-vela': {
+            id: 'fallback-2',
             nombre_es: 'Perfeccionamiento Vela',
             nombre_eu: 'Bela Hobetzea',
             descripcion_es: 'Mejora tu técnica, táctica y seguridad a bordo. Navegación competitiva y autónoma.',
-            descripcion_eu: 'Hobetu zure teknika, taktika eta segurtasuna ontzian. Nabigazio lehiakorra.'
+            descripcion_eu: 'Hobetu zure teknika, taktika eta segurtasuna ontzian. Nabigazio lehiakorra.',
+            precio: 0,
+            duracion_h: 0,
+            nivel: 'perfeccionamiento',
+            imagen_url: ''
         },
         'licencia-navegacion': {
+            id: 'f67462a1-fb29-4188-b298-bd529b457853',
             nombre_es: 'Licencia de Navegación',
             nombre_eu: 'Nabigazio Lizentzia',
             descripcion_es: 'Obtén tu titulación oficial en un solo día, sin examen. Válida para barcos de hasta 6m.',
-            descripcion_eu: 'Lortu zure titulu ofiziala egun bakar batean, azterketarik gabe. 6 metrorainoko ontziak.'
+            descripcion_eu: 'Lortu zure titulu ofiziala egun bakar batean, azterketarik gabe. 6 metrorainoko ontziak.',
+            precio: 149,
+            duracion_h: 6,
+            nivel: 'iniciacion',
+            imagen_url: '/images/courses/LicenciadeNavegacion.webp'
         },
         'vela-ligera': {
+            id: '5eafb0a1-72ae-4d4b-85a1-7ab392f71894',
             nombre_es: 'Curso de Vela Ligera',
             nombre_eu: 'Bela Arina Ikastaroa',
             descripcion_es: 'Entrenamientos en Optimist, Laser y 420. Ideal para formación continua escolar.',
-            descripcion_eu: 'Optimist, Laser eta 420 ontzietan entrenamenduak. Eskola urtean zehar.'
+            descripcion_eu: 'Optimist, Laser eta 420 ontzietan entrenamenduak. Eskola urtean zehar.',
+            precio: 100,
+            duracion_h: 12,
+            nivel: 'iniciacion',
+            imagen_url: '/images/courses/CursodeVelaLigera.webp'
         }
     };
 
-    const displayCourse = course || fallbacks[slug];
+    const displayCourse = (course as CourseFallback) || fallbacks[slug];
     if (!displayCourse) return { title: 'Curso no encontrado' };
 
     const name = locale === 'es' ? displayCourse.nombre_es : displayCourse.nombre_eu;
@@ -107,25 +147,10 @@ export default async function CourseDetailPage({
         is_calendar_event?: boolean;
     }
 
-    interface CourseFallback {
-        id: string;
-        nombre_es: string;
-        nombre_eu: string;
-        descripcion_es: string;
-        descripcion_eu: string;
-        precio: number;
-        duracion_h: number;
-        nivel: string;
-        imagen_url: string;
-        detalles?: {
-            es: string[];
-            eu: string[];
-        };
-    }
     const supabase = createClient();
 
     // 1. Fetch main course data
-    let course = null;
+    let course: any = null;
     try {
         const { data } = await supabase
             .from('cursos')
@@ -251,7 +276,7 @@ export default async function CourseDetailPage({
         }
     };
 
-    const displayCourse = course || fallbacks[slug];
+    const displayCourse = (course as CourseFallback) || fallbacks[slug];
 
     if (!displayCourse) {
         notFound();
