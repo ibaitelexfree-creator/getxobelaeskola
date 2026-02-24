@@ -23,9 +23,16 @@ describe('Admin Explorer API Performance Optimization', () => {
         (createClient as any).mockReturnValue(mockSupabase);
     });
 
-    it('should use batching (Option B) and avoid N+1 queries for profiles', async () => {
-        const mockProfiles = [
-            { id: 'user1', nombre: 'John', email: 'john@example.com' }
+    it('should use resource embedding and avoid N+1 queries for profiles', async () => {
+        const mockData = [
+            {
+                id: 'user1',
+                nombre: 'John',
+                count_reservas_alquiler_perfil_id: [{ count: 2 }],
+                count_inscripciones_perfil_id: [{ count: 1 }],
+                count_mensajes_contacto_email: [{ count: 0 }],
+                count_newsletter_subscriptions_email: [{ count: 5 }]
+            }
         ];
 
         // Setup mock responses based on table
@@ -80,15 +87,18 @@ describe('Admin Explorer API Performance Optimization', () => {
         // Verify that from was called with 'profiles'
         expect(mockSupabase.from).toHaveBeenCalledWith('profiles');
 
-        // Verify relations queries were made (Batching Option B: 1 query per relation type)
-        expect(mockSupabase.from).toHaveBeenCalledWith('reservas_alquiler');
-        expect(mockSupabase.from).toHaveBeenCalledWith('inscripciones');
-        expect(mockSupabase.from).toHaveBeenCalledWith('mensajes_contacto');
-        expect(mockSupabase.from).toHaveBeenCalledWith('newsletter_subscriptions');
+        // Verify that select was called with the optimized embedding string with aliases
+        const selectCall = mockSupabase.select.mock.calls[0][0];
+        expect(selectCall).toContain('count_reservas_alquiler_perfil_id:reservas_alquiler!perfil_id(count)');
+        expect(selectCall).toContain('count_inscripciones_perfil_id:inscripciones!perfil_id(count)');
+        expect(selectCall).toContain('count_mensajes_contacto_email:mensajes_contacto!email(count)');
+        expect(selectCall).toContain('count_newsletter_subscriptions_email:newsletter_subscriptions!email(count)');
 
-        // Verify output format
-        const rels = json.results[0]._relations;
-        expect(rels).toHaveLength(3); // 2 rentals + 1 inscripcion + 5 subscriptions (0 messages skipped)
+        // Verify output format is correctly mapped from aliased results
+        expect(json.results[0]._relations).toHaveLength(3); // 2 rentals + 1 inscripcion + 5 subscriptions (0 messages skipped)
+        expect(json.results[0]._relations).toContainEqual({ label: 'Alquileres', count: 2, table: 'reservas_alquiler' });
+        expect(json.results[0]._relations).toContainEqual({ label: 'Cursos Inscritos', count: 1, table: 'inscripciones' });
+        expect(json.results[0]._relations).toContainEqual({ label: 'Suscripciones (por Email)', count: 5, table: 'newsletter_subscriptions' });
 
         const rentalRel = rels.find((r: any) => r.table === 'reservas_alquiler');
         expect(rentalRel).toEqual({ label: 'Alquileres', count: 2, table: 'reservas_alquiler' });
@@ -130,8 +140,8 @@ describe('Admin Explorer API Performance Optimization', () => {
         expect(mockSupabase.from).toHaveBeenCalledTimes(1);
     });
 
-    it('should handle relation query errors gracefully', async () => {
-        const mockProfiles = [{ id: 'user1', email: 'john@example.com' }];
+    it('should search all tables in parallel and perform one query per table', async () => {
+        mockSupabase.limit.mockResolvedValue({ data: [], error: null });
 
         mockSupabase.from.mockImplementation((table: string) => {
             if (table === 'profiles') {
@@ -157,17 +167,13 @@ describe('Admin Explorer API Performance Optimization', () => {
             };
         });
 
-        const req = new Request('http://localhost/api/admin/explorer?q=john&table=profiles');
-        const response = await GET(req);
-        const json = await response.json();
-
-        // Should return profiles but rentals count should be missing or 0 (skipped)
-        // Since we skip relations on error, it won't be in _relations
-        const rels = json.results[0]._relations;
-        const rentalRel = rels.find((r: any) => r.table === 'reservas_alquiler');
-        expect(rentalRel).toBeUndefined();
-
-        // Other relations should still run
-        expect(mockSupabase.from).toHaveBeenCalledWith('inscripciones');
+        // Should call from once for each table in SEARCHABLE_COLS (6 tables)
+        expect(mockSupabase.from).toHaveBeenCalledTimes(6);
+        expect(mockSupabase.from).toHaveBeenCalledWith('profiles');
+        expect(mockSupabase.from).toHaveBeenCalledWith('cursos');
+        expect(mockSupabase.from).toHaveBeenCalledWith('embarcaciones');
+        expect(mockSupabase.from).toHaveBeenCalledWith('reservas_alquiler');
+        expect(mockSupabase.from).toHaveBeenCalledWith('mensajes_contacto');
+        expect(mockSupabase.from).toHaveBeenCalledWith('newsletter_subscriptions');
     });
 });
