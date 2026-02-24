@@ -38,6 +38,7 @@ import { ClawdBotBridge } from './clawdbot-bridge.js';
 import { FlashExecutor } from './flash-executor.js';
 import { VisualRelay } from './visual-relay.js';
 import { CreditMonitor } from './credit-monitor.js';
+import { VercelMonitor } from './vercel-monitor.js';
 import { AgentWatchdog } from './watchdog.js';
 import { appendToProjectMemory, readProjectMemory } from './project-memory.js';
 import { config } from 'dotenv';
@@ -60,7 +61,8 @@ export class Maestro {
         this.clawdbot = new ClawdBotBridge(options.clawdbot || {});
         this.flash = new FlashExecutor(options.flash || {});
         this.visual = new VisualRelay(options.visual || {});
-        this.credits = new CreditMonitor(this.pool, this.flash, this.clawdbot, this.visual);
+        this.vercel = new VercelMonitor();
+        this.credits = new CreditMonitor(this.pool, this.flash, this.clawdbot, this.visual, this.vercel);
         this.watchdog = new AgentWatchdog(options.watchdog || {});
 
         // Task queue for when pool is exhausted and ClawdBot not available
@@ -398,7 +400,7 @@ export class Maestro {
     }
 
     async _cmdUsage() {
-        await this._send(this.credits.getSummaryMessage());
+        await this._send(await this.credits.getSummaryMessage());
     }
 
     async _cmdDoctor() {

@@ -2,13 +2,15 @@ import { exec, spawn } from 'child_process';
 import { promisify } from 'util';
 import http from 'http';
 import { VisualRelay } from './visual-relay.js';
+import { VercelMonitor } from './vercel-monitor.js';
 import { logs } from './db.js';
 import path from 'path';
 
 const execAsync = promisify(exec);
 
-// Initialize visual relay for stats
+// Initialize modules
 const visualRelay = new VisualRelay();
+const vercelMonitor = new VercelMonitor();
 
 // Configuration
 const SERVICES = {
@@ -58,9 +60,15 @@ const SERVICES = {
         type: 'process',
         displayName: 'Mission Control',
         description: 'Web Dashboard & Mission Management',
+        port: 3324,
         command: 'npm run dev', // or npm start
         cwd: 'mission-control',
         apiCheck: 'http://localhost:3100'
+    },
+    VERCEL: {
+        type: 'cloud',
+        displayName: 'Vercel Deployment',
+        description: 'Edge Functions & Frontend Hosting Quotas'
     },
     MAIN_APP: {
         type: 'process',
@@ -155,6 +163,40 @@ export async function getResourceStatus() {
         };
     } catch (error) {
         status.BROWSERLESS = { running: false, error: error.message };
+    }
+
+    // Check Vercel Quotas
+    try {
+        const vercelData = vercelMonitor.getStatus();
+        const warnings = vercelMonitor.getWarnings(80);
+
+        // Find most critical quota to show as summary
+        let mostUsedKey = 'edgeConfigReads'; // Default
+        let maxPct = -1;
+
+        for (const key of Object.keys(vercelData.quotas)) {
+            const pct = vercelMonitor.getUsagePct(key);
+            if (pct > maxPct) {
+                maxPct = pct;
+                mostUsedKey = key;
+            }
+        }
+
+        const mainQuota = vercelData.quotas[mostUsedKey] || { used: 0, limit: 100, unit: '%' };
+
+        status.VERCEL = {
+            name: SERVICES.VERCEL.displayName,
+            running: true,
+            type: 'cloud',
+            description: SERVICES.VERCEL.description,
+            used: mainQuota.used,
+            limit: mainQuota.limit,
+            unit: mainQuota.unit,
+            warning: warnings.length > 0,
+            allQuotas: vercelData.quotas
+        };
+    } catch (error) {
+        status.VERCEL = { running: false, error: error.message };
     }
 
     // Check Orchestrator (self)

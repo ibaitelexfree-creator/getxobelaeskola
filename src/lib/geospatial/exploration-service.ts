@@ -1,6 +1,6 @@
 import * as turf from '@turf/turf';
-import { createAdminClient } from '@/lib/supabase/server';
-import { LocationPoint } from './types';
+import { createAdminClient } from '@/lib/supabase/admin';
+import { LocationPoint } from '@/lib/geospatial/types';
 
 export class ExplorationService {
     /**

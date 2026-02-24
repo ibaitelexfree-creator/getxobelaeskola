@@ -3,8 +3,9 @@ import { NextResponse } from 'next/server';
 
 export async function GET(request: Request) {
     try {
-        const { supabaseAdmin, error: authError } = await requireInstructor();
-        if (authError) return authError;
+        const auth = await requireInstructor();
+        if (auth.error) return auth.error;
+        const { supabaseAdmin } = auth;
 
         const { searchParams } = new URL(request.url);
         const courseId = searchParams.get('courseId');
@@ -24,7 +25,7 @@ export async function GET(request: Request) {
             return NextResponse.json({ students: [] });
         }
 
-        const profileIds = inscriptions.map((i: any) => i.perfil_id).filter(Boolean);
+        const profileIds = (inscriptions as { perfil_id: string }[]).map((i) => i.perfil_id).filter(Boolean);
 
         const { data: students, error: profError } = await supabaseAdmin
             .from('profiles')
@@ -34,7 +35,8 @@ export async function GET(request: Request) {
         if (profError) throw profError;
 
         return NextResponse.json({ students: students || [] });
-    } catch (err: any) {
-        return NextResponse.json({ error: err.message }, { status: 500 });
+    } catch (err: unknown) {
+        const error = err as Error;
+        return NextResponse.json({ error: error.message }, { status: 500 });
     }
 }

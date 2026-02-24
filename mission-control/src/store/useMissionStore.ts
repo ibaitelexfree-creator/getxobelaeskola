@@ -33,6 +33,8 @@ interface MissionState {
             type: string;
             used?: number;
             limit?: number;
+            unit?: string;
+            warning?: boolean;
             url?: string;
             description?: string;
         }>;

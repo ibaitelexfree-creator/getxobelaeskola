@@ -3,8 +3,9 @@ import { NextResponse } from 'next/server';
 
 export async function POST(request: Request) {
     try {
-        const { supabaseAdmin, error: authError } = await requireAdmin();
-        if (authError) return authError;
+        const auth = await requireAdmin();
+        if (auth.error) return auth.error;
+        const { supabaseAdmin } = auth;
 
         const { email, nombre, apellidos, telefono } = await request.json();
 
@@ -23,7 +24,7 @@ export async function POST(request: Request) {
                 const { data: { users }, error: listError } = await supabaseAdmin.auth.admin.listUsers();
                 if (listError) throw listError;
 
-                const existing = users.find((u: any) => u.email?.toLowerCase() === requestedEmail);
+                const existing = users.find((u) => u.email?.toLowerCase() === requestedEmail);
                 if (!existing) {
                     throw new Error(`El usuario ${requestedEmail} parece existir pero no pudimos encontrar su registro. Contacte con soporte.`);
                 }
@@ -51,8 +52,6 @@ export async function POST(request: Request) {
             console.error('Profile upsert error:', profileError);
             throw profileError;
         }
-
-        if (profileError) throw profileError;
 
         return NextResponse.json({ success: true, message: 'Instructor creado correctamente' });
     } catch (err: unknown) {

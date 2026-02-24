@@ -1,14 +1,15 @@
-import { createAdminClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
 import { NextResponse } from 'next/server';
 import { requireInstructor } from '@/lib/auth-guard';
+import { LocationPoint } from '@/lib/geospatial/types';
 
 export async function GET(
     req: Request,
     { params }: { params: { userId: string } }
 ) {
     try {
-        const { user: admin, error: authError } = await requireInstructor();
-        if (authError || !admin) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        const auth = await requireInstructor();
+        if (auth.error) return auth.error;
 
         const userId = params.userId;
         const supabaseAdmin = createAdminClient();

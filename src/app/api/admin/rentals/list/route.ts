@@ -4,8 +4,9 @@ import { NextResponse } from 'next/server';
 
 export async function GET(_request: Request) {
     try {
-        const { supabaseAdmin, error: authError } = await requireInstructor();
-        if (authError) return authError;
+        const auth = await requireInstructor();
+        if (auth.error) return auth.error;
+        const { supabaseAdmin } = auth;
 
         const { searchParams } = new URL(_request.url);
         const page = parseInt(searchParams.get('page') || '1');
@@ -35,7 +36,7 @@ export async function GET(_request: Request) {
                 .or(`nombre.ilike.%${query}%,apellidos.ilike.%${query}%`)
                 .limit(50);
 
-            const matchedProfileIds = matchedProfiles?.map((p: any) => p.id) || [];
+            const matchedProfileIds = (matchedProfiles as { id: string }[] || []).map((p) => p.id);
 
             // Search services for matching names
             const { data: matchedServices } = await supabaseAdmin
@@ -44,7 +45,7 @@ export async function GET(_request: Request) {
                 .or(`nombre_es.ilike.%${query}%,nombre_eu.ilike.%${query}%`)
                 .limit(50);
 
-            const matchedServiceIds = matchedServices?.map((s: any) => s.id) || [];
+            const matchedServiceIds = (matchedServices as { id: string }[] || []).map((s) => s.id);
 
             // Combine filters: 
             // 1. Matches in profile or service (from previous queries)
@@ -104,9 +105,24 @@ export async function GET(_request: Request) {
             throw error;
         }
 
+        interface Rental {
+            id: string;
+            perfil_id: string;
+            [key: string]: unknown;
+        }
+        interface Profile {
+            id: string;
+            nombre: string;
+            apellidos: string;
+            email: string;
+            rol: string;
+        }
+
+        const typedRentals = (rentalsData || []) as unknown as Rental[];
+
         // Manual join for profiles since the FK might be missing
-        const profileIds = Array.from(new Set(rentalsData?.map((r: any) => r.perfil_id).filter(Boolean) || []));
-        let profilesData: any[] = [];
+        const profileIds = Array.from(new Set(typedRentals.map(r => r.perfil_id).filter(Boolean)));
+        let profilesData: Profile[] = [];
 
         if (profileIds.length > 0) {
             const { data: pData, error: pError } = await supabaseAdmin
@@ -115,13 +131,13 @@ export async function GET(_request: Request) {
                 .in('id', profileIds);
 
             if (!pError && pData) {
-                profilesData = pData;
+                profilesData = pData as Profile[];
             }
         }
 
-        const enrichedRentals = (rentalsData || []).map((r: any) => ({
+        const enrichedRentals = typedRentals.map(r => ({
             ...r,
-            profiles: profilesData.find((p: any) => p.id === r.perfil_id) || null
+            profiles: profilesData.find(p => p.id === r.perfil_id) || null
         }));
 
         return NextResponse.json({

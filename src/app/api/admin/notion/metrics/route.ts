@@ -6,8 +6,8 @@ export const dynamic = 'force-dynamic';
 
 export async function GET() {
     try {
-        const { error: authError } = await requireAdmin();
-        if (authError) return authError;
+        const auth = await requireAdmin();
+        if (auth.error) return auth.error;
 
         const syncService = new NotionSyncService();
         const metrics = await syncService.getGlobalMetrics();
@@ -15,8 +15,9 @@ export async function GET() {
         return NextResponse.json({
             summary: metrics
         });
-    } catch (error: any) {
-        console.error('Error fetching global metrics:', error);
-        return NextResponse.json({ error: error.message || 'Failed to fetch global metrics' }, { status: 500 });
+    } catch (error: unknown) {
+        const err = error as Error;
+        console.error('Error fetching global metrics:', err);
+        return NextResponse.json({ error: err.message || 'Failed to fetch global metrics' }, { status: 500 });
     }
 }

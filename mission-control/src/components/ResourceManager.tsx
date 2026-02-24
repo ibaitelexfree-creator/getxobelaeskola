@@ -410,6 +410,23 @@ export default function ResourceManager() {
                                             {svc.description}
                                         </span>
                                     )}
+                                    {svc.used !== undefined && svc.limit !== undefined && (
+                                        <div className="flex flex-col gap-1 mt-1">
+                                            <div className="flex justify-between items-center text-[7px] font-mono uppercase tracking-tighter">
+                                                <span className="text-white/30">Usage</span>
+                                                <span className={((svc.used / svc.limit) >= 0.9) ? 'text-status-red' : ((svc.used / svc.limit) >= 0.7) ? 'text-status-amber' : 'text-white/60'}>
+                                                    {svc.used} / {svc.limit} {svc.unit || ''}
+                                                </span>
+                                            </div>
+                                            <div className="w-24 h-0.5 bg-white/5 rounded-full overflow-hidden">
+                                                <motion.div
+                                                    initial={{ width: 0 }}
+                                                    animate={{ width: `${Math.min((svc.used / svc.limit) * 100, 100)}%` }}
+                                                    className={`h-full ${((svc.used / svc.limit) >= 0.9) ? 'bg-status-red' : ((svc.used / svc.limit) >= 0.7) ? 'bg-status-amber' : 'bg-status-green'}`}
+                                                />
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </div>

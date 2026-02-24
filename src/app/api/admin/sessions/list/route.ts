@@ -4,8 +4,9 @@ import { NextResponse } from 'next/server';
 
 export async function GET() {
     try {
-        const { supabaseAdmin, error: authError } = await requireInstructor();
-        if (authError) return authError;
+        const auth = await requireInstructor();
+        if (auth.error) return auth.error;
+        const { supabaseAdmin } = auth;
 
         // Fetch sessions with joins
         const { data, error } = await supabaseAdmin

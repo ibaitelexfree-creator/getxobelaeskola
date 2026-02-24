@@ -3,8 +3,9 @@ import { NextResponse } from 'next/server';
 
 export async function POST(request: Request) {
     try {
-        const { user: requester, supabaseAdmin, error: authError } = await requireInstructor();
-        if (authError) return authError;
+        const auth = await requireInstructor();
+        if (auth.error) return auth.error;
+        const { user: requester, supabaseAdmin } = auth;
 
         const { action_type, target_id, target_type, description, metadata } = await request.json();
 

@@ -5,8 +5,8 @@ import { listGoogleEvents } from '@/lib/google-calendar';
 
 export async function GET(request: Request) {
     try {
-        const { error: authError } = await requireInstructor();
-        if (authError) return authError;
+        const auth = await requireInstructor();
+        if (auth.error) return auth.error;
 
         const { searchParams } = new URL(request.url);
         const timeMin = searchParams.get('timeMin');

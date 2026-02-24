@@ -6,14 +6,15 @@ export const dynamic = 'force-dynamic';
 
 export async function POST() {
     try {
-        const { error: authError } = await requireAdmin();
-        if (authError) return authError;
+        const auth = await requireAdmin();
+        if (auth.error) return auth.error;
 
         const syncService = new NotionSyncService();
         await syncService.updateDashboard();
         return NextResponse.json({ success: true });
-    } catch (error: any) {
-        console.error('Dashboard Update Error:', error);
-        return NextResponse.json({ error: error.message }, { status: 500 });
+    } catch (error: unknown) {
+        const err = error as Error;
+        console.error('Dashboard Update Error:', err);
+        return NextResponse.json({ error: err.message }, { status: 500 });
     }
 }

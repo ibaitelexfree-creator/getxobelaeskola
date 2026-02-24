@@ -51,11 +51,12 @@ export async function POST(request: Request) {
             timestamp: new Date().toISOString()
         });
 
-    } catch (error: any) {
-        console.error('Marketing process API error:', error);
+    } catch (error: unknown) {
+        const err = error as Error;
+        console.error('Marketing process API error:', err);
         return NextResponse.json({
             success: false,
-            error: error.message || 'Error interno del servidor'
+            error: err.message || 'Error interno del servidor'
         }, { status: 500 });
     }
 }

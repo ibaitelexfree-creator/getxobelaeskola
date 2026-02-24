@@ -4,12 +4,12 @@ import { requireAdmin } from '@/lib/auth-guard';
 
 export async function POST(req: Request) {
     try {
-        const { error: authError } = await requireAdmin();
-        if (authError) return authError;
+        const auth = await requireAdmin();
+        if (auth.error) return auth.error;
 
         const { direction = 'pull', table } = await req.json();
 
-        if (!table) {
+        if (!table || typeof table !== 'string') {
             return NextResponse.json({ error: 'Table is required' }, { status: 400 });
         }
 
@@ -24,8 +24,9 @@ export async function POST(req: Request) {
         const result = await syncService.syncTable(table, direction);
 
         return NextResponse.json(result);
-    } catch (error: any) {
-        console.error('Notion Sync Error:', error);
-        return NextResponse.json({ error: error.message }, { status: 500 });
+    } catch (error: unknown) {
+        const err = error as Error;
+        console.error('Notion Sync Error:', err);
+        return NextResponse.json({ error: err.message }, { status: 500 });
     }
 }

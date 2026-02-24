@@ -6,15 +6,16 @@ export const dynamic = 'force-dynamic';
 
 export async function GET() {
     try {
-        const { error: authError } = await requireAdmin();
-        if (authError) return authError;
+        const auth = await requireAdmin();
+        if (auth.error) return auth.error;
 
         const syncService = new NotionSyncService();
         const fleet = await syncService.getFleetMetrics();
 
         return NextResponse.json({ fleet });
-    } catch (error: any) {
-        console.error('Notion API Error:', error);
-        return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });
+    } catch (error: unknown) {
+        const err = error as Error;
+        console.error('Notion API Error:', err);
+        return NextResponse.json({ error: err.message || 'Internal Server Error' }, { status: 500 });
     }
 }

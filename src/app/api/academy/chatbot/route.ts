@@ -28,7 +28,12 @@ export async function POST(req: NextRequest) {
 
     // 1. Retrieve relevant content from database
     let dbContext = "";
-    let sources: any[] = [];
+    interface Source {
+      title: string;
+      id: string;
+      module: string | null;
+    }
+    let sources: Source[] = [];
 
     // Try a text search or fallback to simple ilike on title
     // Since we don't know if FTS is set up, we'll try a simple ilike on name for now
@@ -36,6 +41,16 @@ export async function POST(req: NextRequest) {
 
     // Sanitize input to avoid breaking PostgREST syntax (commas)
     const sanitizedQuery = message.replace(/[^\w\s\u00C0-\u00FF]/g, ' ').trim();
+
+    interface DBUnit {
+      id: string;
+      nombre_es: string;
+      contenido_teoria_es: string | null;
+      modulo_id: string;
+      modulos: {
+        nombre_es: string;
+      } | null;
+    }
 
     const { data: units } = await supabase
       .from('unidades_didacticas')
@@ -52,13 +67,14 @@ export async function POST(req: NextRequest) {
       .limit(3);
 
     if (units && units.length > 0) {
-      sources = units.map((u: any) => ({
+      const typedUnits = units as unknown as DBUnit[];
+      sources = typedUnits.map((u) => ({
         title: u.nombre_es,
         id: u.id,
-        module: u.modulos?.nombre_es
+        module: u.modulos?.nombre_es ?? null
       }));
 
-      dbContext = units.map((u: any) => `
+      dbContext = typedUnits.map((u) => `
 Module: ${u.modulos?.nombre_es}
 Unit: ${u.nombre_es} (ID: ${u.id})
 Content: ${u.contenido_teoria_es?.substring(0, 1500)}...

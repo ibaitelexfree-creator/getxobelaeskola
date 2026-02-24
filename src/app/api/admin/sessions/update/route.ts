@@ -1,4 +1,5 @@
 
+
 import { requireInstructor } from '@/lib/auth-guard';
 import { NextResponse } from 'next/server';
 import { createGoogleEvent, updateGoogleEvent } from '@/lib/google-calendar';
@@ -6,8 +7,9 @@ import { validateSessionOverlap } from '@/lib/session-validation';
 
 export async function POST(request: Request) {
     try {
-        const { user, profile, supabaseAdmin, error: authError } = await requireInstructor();
-        if (authError) return authError;
+        const auth = await requireInstructor();
+        if (auth.error) return auth.error;
+        const { user, profile, supabaseAdmin } = auth;
 
         const body = await request.json();
         const {
@@ -44,7 +46,7 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: 'No puedes modificar sesiones que no tienes asignadas' }, { status: 403 });
         }
 
-        const updateData: Record<string, any> = {};
+        const updateData: Record<string, unknown> = {};
 
         // Anyone with access to this route (Instructors/Admins) can update these fields
         if (curso_id !== undefined) {
@@ -103,18 +105,22 @@ export async function POST(request: Request) {
         if (error) throw error;
 
         // --- HISTORY LOGGING ---
-        // Compare values and log changes
-        const historyEntries: any[] = [];
+        interface HistoryEntry {
+            session_id: string;
+            staff_id: string;
+            field_name: string;
+            old_value: string;
+            new_value: string;
+        }
+        const historyEntries: HistoryEntry[] = [];
         for (const [key, newValue] of Object.entries(updateData)) {
-            const oldValue = currentSession[key];
-            // Simple comparison, might need refinement for dates/objects
+            const oldValue = (currentSession as Record<string, unknown>)[key];
             if (String(newValue) !== String(oldValue)) {
-                // If value changed, log it
                 historyEntries.push({
                     session_id: id,
-                    staff_id: user.id, // Log who made the change
+                    staff_id: user.id,
                     field_name: key,
-                    old_value: String(oldValue || ''), // Handle nulls
+                    old_value: String(oldValue || ''),
                     new_value: String(newValue || '')
                 });
             }
@@ -123,11 +129,10 @@ export async function POST(request: Request) {
         if (historyEntries.length > 0) {
             const { error: historyError } = await supabaseAdmin
                 .from('session_edits')
-                .insert(historyEntries as any);
+                .insert(historyEntries);
 
             if (historyError) {
                 console.error('Error logging session history:', historyError);
-                // Don't fail the request, just log error
             }
         }
 
@@ -168,3 +173,4 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: err.message }, { status: 500 });
     }
 }
+

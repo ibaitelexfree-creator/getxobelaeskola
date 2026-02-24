@@ -8,11 +8,36 @@
  */
 
 export class CreditMonitor {
-    constructor(julesPool, flashExecutor, clawdbot, visualRelay) {
+    constructor(julesPool, flashExecutor, clawdbot, visualRelay, vercelMonitor) {
         this.pool = julesPool;
         this.flash = flashExecutor;
         this.clawdbot = clawdbot;
         this.visual = visualRelay;
+        this.vercel = vercelMonitor;
+    }
+
+    vercelUsage() {
+        if (!this.vercel) return null;
+        const status = this.vercel.getStatus();
+
+        // Pick primary metrics to display in summary
+        const primaryMetrics = [
+            'fast_data_transfer',
+            'function_invocations',
+            'edge_requests',
+            'image_transformations'
+        ];
+
+        return primaryMetrics.map(key => {
+            const m = status.quotas[key];
+            return {
+                name: m.displayName,
+                used: m.used,
+                limit: m.limit,
+                unit: m.unit,
+                pct: Math.round((m.used / m.limit) * 100)
+            };
+        });
     }
 
     julesUsage() {
@@ -69,12 +94,19 @@ export class CreditMonitor {
         const flash = this.flashCredits();
         const claw = this.clawdbotCost();
         const browse = await this.browserlessUsage();
+        const vercel = this.vercelUsage();
 
         const julesLines = jules.accounts.map(a => {
             const bar = this._progressBar(a.used, a.limit);
             const emoji = a.paused ? '⏸️' : (a.used >= a.limit ? '🔴' : '🟢');
             return `  ${emoji} ${a.name}: ${a.used}/${a.limit} ${bar}`;
         });
+
+        const vercelLines = vercel ? vercel.map(v => {
+            const bar = this._progressBar(v.used, v.limit);
+            const emoji = v.pct >= 90 ? '🔴' : (v.pct >= 70 ? '🟡' : '🟢');
+            return `  ${emoji} ${v.name}: ${v.used}/${v.limit} ${v.unit} ${bar}`;
+        }) : [];
 
         const flashEmoji = flash.hasCredits ? '🟢' : (flash.enabled ? '🟡' : '🔴');
         const clawEmoji = claw.available ? '🟢' : '🔴';
@@ -85,6 +117,9 @@ export class CreditMonitor {
             '',
             `**Jules Pool** (${jules.totalUsed}/${jules.totalLimit})`,
             ...julesLines,
+            '',
+            `**Vercel Quotas** (Limit 100%)`,
+            ...vercelLines,
             '',
             `**Flash** ${flashEmoji} — ${flash.tasksToday} tareas | ${flash.tokensUsed.toLocaleString()} tokens`,
             `**ClawdBot** ${clawEmoji} — ${claw.sessionsToday} sesiones hoy`,

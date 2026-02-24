@@ -3,7 +3,7 @@ import { createAdminClient } from '@/lib/supabase/admin';
 
 export async function GET() {
     try {
-        const supabase = createAdminClient() as any;
+        const supabase = createAdminClient();
         const { data, error } = await supabase
             .from('marketing_campaigns')
             .select(`
@@ -15,14 +15,15 @@ export async function GET() {
 
         if (error) throw error;
         return NextResponse.json({ campaigns: data });
-    } catch (error: any) {
-        return NextResponse.json({ error: error.message }, { status: 500 });
+    } catch (error: unknown) {
+        const err = error as Error;
+        return NextResponse.json({ error: err.message }, { status: 500 });
     }
 }
 
 export async function POST(request: Request) {
     try {
-        const supabase = createAdminClient() as any;
+        const supabase = createAdminClient();
         const body = await request.json();
         const { data, error } = await supabase
             .from('marketing_campaigns')
@@ -32,7 +33,8 @@ export async function POST(request: Request) {
 
         if (error) throw error;
         return NextResponse.json({ campaign: data });
-    } catch (error: any) {
-        return NextResponse.json({ error: error.message }, { status: 500 });
+    } catch (error: unknown) {
+        const err = error as Error;
+        return NextResponse.json({ error: err.message }, { status: 500 });
     }
 }

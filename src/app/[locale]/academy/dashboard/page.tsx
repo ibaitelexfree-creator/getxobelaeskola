@@ -12,13 +12,14 @@ const CertificateCard = dynamic(() => import('@/components/academy/CertificateCa
 
 const RankProgress = dynamic(() => import('@/components/academy/gamification/RankProgress'), { ssr: false });
 const ActivityHeatmap = dynamic(() => import('@/components/academy/dashboard/ActivityHeatmap'), { ssr: false });
+const NavigationExperienceMap = dynamic(() => import('@/components/academy/dashboard/NavigationExperienceMap'), { ssr: false });
+const FogOfWarMap = dynamic(() => import('@/components/academy/exploration/FogOfWarMap'), { ssr: false });
+const DailyChallengeWidget = dynamic(() => import('@/components/academy/dashboard/DailyChallengeWidget'), { ssr: false });
+const AchievementsWidget = dynamic(() => import('@/components/academy/dashboard/AchievementsWidget'), { ssr: false });
 const SkillRadar = dynamic(() => import('@/components/academy/dashboard/SkillRadar'), { ssr: false });
 const BoatMastery = dynamic(() => import('@/components/academy/dashboard/BoatMastery'), { ssr: false });
 const NauticalRadar = dynamic(() => import('@/components/academy/dashboard/NauticalRadar'), { ssr: false });
 const CareerAdvisor = dynamic(() => import('@/components/academy/dashboard/CareerAdvisor'), { ssr: false });
-const NavigationExperienceMap = dynamic(() => import('@/components/academy/dashboard/NavigationExperienceMap'), { ssr: false });
-const DailyChallengeWidget = dynamic(() => import('@/components/academy/dashboard/DailyChallengeWidget'), { ssr: false });
-const AchievementsWidget = dynamic(() => import('@/components/academy/dashboard/AchievementsWidget'), { ssr: false });
 
 import AcademySkeleton from '@/components/academy/AcademySkeleton';
 import { getRank, calculateEstimatedXP } from '@/lib/gamification/ranks';
@@ -401,9 +402,26 @@ export default function DashboardPage({ params }: { params: { locale: string } }
             <div className="container mx-auto px-6 py-12 grid grid-cols-1 lg:grid-cols-3 gap-12">
                 <div className="lg:col-span-2 space-y-12">
                     <CareerAdvisor recommendations={data.recommendations || []} />
+
+                    <div className="grid grid-cols-1 xl:grid-cols-2 gap-12">
+                        <div className="space-y-6">
+                            <h2 className="text-xl font-display italic flex items-center gap-3">
+                                <span className="text-accent">▶</span> Historial Reciente
+                            </h2>
+                            <NavigationExperienceMap sessions={data.horas || []} />
+                        </div>
+                        <div className="space-y-6">
+                            <h2 className="text-xl font-display italic flex items-center gap-3">
+                                <span className="text-accent">▶</span> Exploración (Fog of War)
+                            </h2>
+                            <div className="h-[400px] rounded-2xl overflow-hidden border border-white/10">
+                                <FogOfWarMap />
+                            </div>
+                        </div>
+                    </div>
+
                     <ActivityHeatmap data={data.estadisticas.activity_heatmap || []} />
 
-                    <NavigationExperienceMap sessions={data.horas || []} />
 
                     {/* Certificates Section */}
                     {data.certificados && data.certificados.length > 0 && (

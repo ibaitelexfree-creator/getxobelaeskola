@@ -171,6 +171,20 @@ export async function POST(req: Request) {
             resultData = data;
         }
 
+        // 3. Save to Exploration System
+        try {
+            const { ExplorationService } = await import('@/lib/geospatial/exploration-service');
+            const explorationPoints = coords.map(c => ({
+                lat: c.lat,
+                lng: c.lng,
+                timestamp: c.time ? new Date(c.time).getTime() : Date.now(),
+                speed: 0 // Speed is not directly used for exploration rendering yet
+            }));
+            await ExplorationService.saveExplorationSegment(user.id, explorationPoints);
+        } catch (e) {
+            console.error('Exploration sync error from GPX:', e);
+        }
+
         return NextResponse.json({
             success: true,
             sessionId: resultData.id,

@@ -3,8 +3,9 @@ import { NextResponse } from 'next/server';
 
 export async function POST(request: Request) {
     try {
-        const { supabaseAdmin, error: authError } = await requireAdmin();
-        if (authError) return authError;
+        const auth = await requireAdmin();
+        if (auth.error) return auth.error;
+        const { supabaseAdmin } = auth;
 
         const { userId } = await request.json();
         if (!userId) return NextResponse.json({ error: 'Falta userId' }, { status: 400 });

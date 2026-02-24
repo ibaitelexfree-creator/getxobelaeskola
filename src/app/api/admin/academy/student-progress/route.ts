@@ -3,8 +3,9 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
     try {
-        const { supabaseAdmin, error: authError } = await requireInstructor();
-        if (authError) return authError;
+        const auth = await requireInstructor();
+        if (auth.error) return auth.error;
+        const { supabaseAdmin } = auth;
 
         const { searchParams } = new URL(request.url);
         const studentId = searchParams.get('student_id');

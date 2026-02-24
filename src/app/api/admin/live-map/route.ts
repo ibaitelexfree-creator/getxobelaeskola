@@ -1,11 +1,11 @@
-import { createAdminClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
 import { NextResponse } from 'next/server';
 import { requireInstructor } from '@/lib/auth-guard';
 
 export async function GET() {
     try {
-        const { user, error: authError } = await requireInstructor();
-        if (authError || !user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        const auth = await requireInstructor();
+        if (auth.error) return auth.error;
 
         const supabaseAdmin = createAdminClient();
 
@@ -35,8 +35,18 @@ export async function GET() {
 
         if (error) throw error;
 
+        interface LocationRow {
+            user_id: string;
+            lat: number;
+            lng: number;
+            speed: number;
+            heading: number;
+            updated_at: string;
+            profiles: unknown;
+        }
+
         // Clean up the structure for the frontend
-        const locations = (data || []).map((loc: any) => ({
+        const locations = (data as unknown as LocationRow[] || []).map((loc) => ({
             userId: loc.user_id,
             lat: loc.lat,
             lng: loc.lng,

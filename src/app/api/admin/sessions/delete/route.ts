@@ -5,8 +5,9 @@ import { deleteGoogleEvent } from '@/lib/google-calendar';
 
 export async function POST(request: Request) {
     try {
-        const { supabaseAdmin, error: authError } = await requireAdmin();
-        if (authError) return authError;
+        const auth = await requireAdmin();
+        if (auth.error) return auth.error;
+        const { supabaseAdmin } = auth;
 
         const { id } = await request.json();
 

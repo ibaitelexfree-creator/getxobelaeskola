@@ -1,0 +1,152 @@
+version: '3.8'
+
+services:
+  traefik:
+    image: traefik:v2.10
+    container_name: traefik
+    command:
+      - "--api.insecure=false"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.mytlschallenge.acme.tlschallenge=true"
+      - "--certificatesresolvers.mytlschallenge.acme.email=info@getxobelaeskola.cloud"
+      - "--certificatesresolvers.mytlschallenge.acme.storage=/letsencrypt/acme.json"
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "./letsencrypt:/letsencrypt"
+    restart: always
+    networks:
+      - orchestrator-network
+
+  # Core Orchestrator Service
+  orchestrator:
+    build:
+      context: ./orchestration
+      dockerfile: Dockerfile
+    container_name: getxo-orchestrator
+    expose:
+      - "3323"
+    environment:
+      - PORT=3323
+      - NODE_ENV=production
+      - JULES_API_KEY=${JULES_API_KEY}
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - QDRANT_URL=http://qdrant:6333
+      - REDIS_URL=redis://redis:6379
+      - DATABASE_URL=postgresql://user:password@postgres:5432/jules
+    depends_on:
+      - postgres
+      - redis
+      - qdrant
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.orchestrator.rule=Host(`control.getxobelaeskola.cloud`)"
+      - "traefik.http.routers.orchestrator.entrypoints=websecure"
+      - "traefik.http.routers.orchestrator.tls.certresolver=mytlschallenge"
+      - "traefik.http.services.orchestrator.loadbalancer.server.port=3323"
+    volumes:
+      - "./orchestration/mission-control.db:/usr/src/app/mission-control.db"
+    restart: unless-stopped
+    networks:
+      - orchestrator-network
+
+  jules-api:
+    build:
+      context: ./orchestration/orchestrator-api
+      dockerfile: Dockerfile
+    container_name: jules-orchestrator-api
+    expose:
+      - "3002"
+    environment:
+      - DATABASE_URL=postgresql://user:password@postgres:5432/jules
+      - REDIS_URL=redis://redis:6379
+      - JULES_API_KEY=${JULES_API_KEY}
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+      - NODE_ENV=production
+      - PORT=3002
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.jules-api.rule=Host(`jules-api.getxobelaeskola.cloud`)"
+      - "traefik.http.routers.jules-api.entrypoints=websecure"
+      - "traefik.http.routers.jules-api.tls.certresolver=mytlschallenge"
+      - "traefik.http.services.jules-api.loadbalancer.server.port=3002"
+    restart: unless-stopped
+    networks:
+      - orchestrator-network
+
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: qdrant
+    expose:
+      - "6333"
+    volumes:
+      - "./data/qdrant:/qdrant/storage"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.qdrant.rule=Host(`rag.getxobelaeskola.cloud`)"
+      - "traefik.http.routers.qdrant.entrypoints=websecure"
+      - "traefik.http.routers.qdrant.tls.certresolver=mytlschallenge"
+    restart: unless-stopped
+    networks:
+      - orchestrator-network
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: orchestrator-db
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: jules
+    volumes:
+      - "./data/postgres:/var/lib/postgresql/data"
+    restart: unless-stopped
+    networks:
+      - orchestrator-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d jules"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: orchestrator-redis
+    volumes:
+      - "./data/redis:/data"
+    restart: unless-stopped
+    networks:
+      - orchestrator-network
+    command: redis-server --appendonly yes
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: orchestrator-grafana
+    expose:
+      - "3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin}
+    volumes:
+      - "./data/grafana:/var/lib/grafana"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.grafana.rule=Host(`stats.getxobelaeskola.cloud`)"
+      - "traefik.http.routers.grafana.entrypoints=websecure"
+      - "traefik.http.routers.grafana.tls.certresolver=mytlschallenge"
+    restart: unless-stopped
+    networks:
+      - orchestrator-network
+
+networks:
+  orchestrator-network:
+    driver: bridge

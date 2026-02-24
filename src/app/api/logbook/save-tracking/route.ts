@@ -46,6 +46,14 @@ export async function POST(req: Request) {
 
         if (error) throw error;
 
+        // 3. Save to Exploration System
+        try {
+            const { ExplorationService } = await import('@/lib/geospatial/exploration-service');
+            await ExplorationService.saveExplorationSegment(user.id, points);
+        } catch (e) {
+            console.error('Exploration sync error from tracking:', e);
+        }
+
         return NextResponse.json({
             success: true,
             sessionId: data.id,

@@ -4,8 +4,9 @@ import { NextResponse } from 'next/server';
 
 export async function GET(request: Request) {
     try {
-        const { supabaseAdmin, error: authError } = await requireAdmin();
-        if (authError) return authError;
+        const auth = await requireAdmin();
+        if (auth.error) return auth.error;
+        const { supabaseAdmin } = auth;
 
         const { searchParams } = new URL(request.url);
         const startDate = searchParams.get('startDate');
@@ -119,7 +120,7 @@ export async function GET(request: Request) {
             ...(inscriptions || []).map((i: { created_at: string, monto_total?: number }) => ({ date: i.created_at, amount: i.monto_total || 0 }))
         ];
 
-        allIncome.forEach((item: { date: string, amount: number }) => {
+        allIncome.forEach((item: { date: string, amount: number | undefined }) => {
             const date = new Date(item.date);
             const key = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}`;
             if (!monthlyRevenue[key]) monthlyRevenue[key] = { actual: 0, forecast: 0 };

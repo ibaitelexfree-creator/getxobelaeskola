@@ -6,19 +6,20 @@ export async function PATCH(
     { params }: { params: { id: string } }
 ) {
     try {
-        const supabase = createAdminClient() as any;
+        const supabase = createAdminClient();
         const body = await request.json();
         const { data, error } = await supabase
             .from('marketing_campaigns')
-            .update(body as any)
+            .update(body)
             .eq('id', params.id)
             .select()
             .single();
 
         if (error) throw error;
         return NextResponse.json({ campaign: data });
-    } catch (error: any) {
-        return NextResponse.json({ error: error.message }, { status: 500 });
+    } catch (error: unknown) {
+        const err = error as Error;
+        return NextResponse.json({ error: err.message }, { status: 500 });
     }
 }
 
@@ -27,7 +28,7 @@ export async function DELETE(
     { params }: { params: { id: string } }
 ) {
     try {
-        const supabase = createAdminClient() as any;
+        const supabase = createAdminClient();
         const { error } = await supabase
             .from('marketing_campaigns')
             .delete()
@@ -35,7 +36,8 @@ export async function DELETE(
 
         if (error) throw error;
         return NextResponse.json({ success: true });
-    } catch (error: any) {
-        return NextResponse.json({ error: error.message }, { status: 500 });
+    } catch (error: unknown) {
+        const err = error as Error;
+        return NextResponse.json({ error: err.message }, { status: 500 });
     }
 }

@@ -68,11 +68,11 @@ export async function GET(req: Request) {
 
         if (!data || data.length === 0) return [];
 
-        const rows = data as any[];
+        const rows = data as Record<string, unknown>[];
         const relationCountsByRow = new Map<string, { label: string; count: number; table: string }[]>();
 
         // Initialize empty relations for all rows
-        rows.forEach(row => relationCountsByRow.set(row.id, []));
+        rows.forEach(row => relationCountsByRow.set(String(row.id), []));
 
         // Start performance timer
         const start = performance.now();
@@ -105,7 +105,7 @@ export async function GET(req: Request) {
 
                 // Aggregate counts in memory
                 const counts = new Map<string, number>();
-                (relatedData || []).forEach((relatedItem: any) => {
+                (relatedData as unknown as Record<string, unknown>[] || []).forEach((relatedItem) => {
                     const key = relatedItem[rel.fk];
                     if (key) {
                         const keyStr = String(key);
@@ -119,9 +119,9 @@ export async function GET(req: Request) {
                     if (rowVal) {
                         const count = counts.get(String(rowVal)) || 0;
                         if (count > 0) {
-                            const current = relationCountsByRow.get(row.id) || [];
+                            const current = relationCountsByRow.get(String(row.id)) || [];
                             current.push({ label: rel.label, count, table: rel.table });
-                            relationCountsByRow.set(row.id, current);
+                            relationCountsByRow.set(String(row.id), current);
                         }
                     }
                 });
@@ -139,9 +139,10 @@ export async function GET(req: Request) {
         // 3. Construct enriched result preserving original shape
         return rows.map(item => ({
             ...item,
+            id: String(item.id), // Ensure ID is present for SearchResult
             _table: tableName,
-            _title: item.nombre || item.title || item.name || item.asunto || item.id, // Best effort title
-            _relations: relationCountsByRow.get(item.id) || []
+            _title: (item.nombre as string) || (item.title as string) || (item.name as string) || (item.asunto as string) || String(item.id), // Best effort title
+            _relations: relationCountsByRow.get(String(item.id)) || []
         }));
     };
 
@@ -150,9 +151,9 @@ export async function GET(req: Request) {
         const tablesToSearch = Object.keys(SEARCHABLE_COLS);
         const searchPromises = tablesToSearch.map(t => searchTable(t));
         const searchResults = await Promise.all(searchPromises);
-        results = searchResults.flat() as SearchResult[];
+        results = searchResults.flat() as unknown[] as SearchResult[];
     } else {
-        results = await searchTable(table) as SearchResult[];
+        results = await searchTable(table) as unknown[] as SearchResult[];
     }
 
     return NextResponse.json({ results });

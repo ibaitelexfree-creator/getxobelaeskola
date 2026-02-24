@@ -4,8 +4,9 @@ import { NextResponse } from 'next/server';
 
 export async function PATCH(request: Request) {
     try {
-        const { supabaseAdmin, error: authError } = await requireAdmin();
-        if (authError) return authError;
+        const auth = await requireAdmin();
+        if (auth.error) return auth.error;
+        const { supabaseAdmin } = auth;
 
         const { id, fecha_pago } = await request.json();
 
@@ -21,9 +22,10 @@ export async function PATCH(request: Request) {
         if (error) throw error;
 
         return NextResponse.json({ success: true });
-    } catch (error: any) {
-        console.error('Update date error:', error);
-        let message = error.message;
+    } catch (error: unknown) {
+        const err = error as Error;
+        console.error('Update date error:', err);
+        let message = err.message;
         if (message.includes('column') && message.includes('fecha_pago')) {
             message = 'Error: La columna "fecha_pago" no existe en la base de datos. Por favor, ejecuta el script de migración en el SQL Editor de Supabase.';
         }

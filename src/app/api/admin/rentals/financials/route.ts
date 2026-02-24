@@ -5,12 +5,13 @@ import { NextResponse } from 'next/server';
 export async function GET() {
     try {
         console.log('API: Fetching financial reports...');
-        const { supabaseAdmin, error: authError } = await requireInstructor();
+        const auth = await requireInstructor();
 
-        if (authError) {
+        if (auth.error) {
             console.error('API Error: Not an instructor or admin');
-            return authError;
+            return auth.error;
         }
+        const { supabaseAdmin } = auth;
 
         const { data: rentalsData, error } = await supabaseAdmin
             .from('reservas_alquiler')
@@ -28,9 +29,28 @@ export async function GET() {
             throw error;
         }
 
+        interface Rental {
+            id: string;
+            perfil_id: string;
+            [key: string]: unknown;
+        }
+        interface Profile {
+            id: string;
+            nombre: string;
+            apellidos: string;
+            email: string;
+            rol: string;
+        }
+        interface HistoryEntry {
+            reserva_id: string;
+            [key: string]: unknown;
+        }
+
+        const typedRentals = (rentalsData || []) as unknown as Rental[];
+
         // Manual join for profiles since the FK might be missing in DB schema cache
-        const profileIds = Array.from(new Set(rentalsData?.map((r: any) => r.perfil_id).filter(Boolean) || []));
-        let profilesData: any[] = [];
+        const profileIds = Array.from(new Set(typedRentals.map(r => r.perfil_id).filter(Boolean)));
+        let profilesData: Profile[] = [];
 
         if (profileIds.length > 0) {
             const { data: pData, error: pError } = await supabaseAdmin
@@ -39,7 +59,7 @@ export async function GET() {
                 .in('id', profileIds);
 
             if (!pError && pData) {
-                profilesData = pData;
+                profilesData = pData as Profile[];
             } else if (pError) {
                 console.error('API Profiles Error:', pError);
             }
@@ -49,17 +69,19 @@ export async function GET() {
         const { data: historyData, error: historyError } = await supabaseAdmin
             .from('financial_edits')
             .select('*, profiles(nombre, apellidos)')
-            .in('reserva_id', rentalsData?.map((r: any) => r.id) || []);
+            .in('reserva_id', typedRentals.map(r => r.id));
+
+        const typedHistory = (historyData || []) as unknown as HistoryEntry[];
 
         if (historyError) {
             console.error('API History Error:', historyError);
         }
 
-        const enrichedRentals = rentalsData?.map((r: any) => ({
+        const enrichedRentals = typedRentals.map(r => ({
             ...r,
-            profiles: profilesData.find((p: any) => p.id === r.perfil_id) || null,
-            history: historyData?.filter((h: any) => h.reserva_id === r.id) || []
-        })) || [];
+            profiles: profilesData.find(p => p.id === r.perfil_id) || null,
+            history: typedHistory.filter(h => h.reserva_id === r.id) || []
+        }));
 
         const { count } = await supabaseAdmin
             .from('reservas_alquiler')
@@ -72,8 +94,9 @@ export async function GET() {
             rentals: enrichedRentals,
             totalCount: count || 0
         });
-    } catch (error: any) {
-        console.error('API Fatal Error:', error.message);
-        return NextResponse.json({ error: error.message }, { status: 500 });
+    } catch (error: unknown) {
+        const err = error as Error;
+        console.error('API Fatal Error:', err.message);
+        return NextResponse.json({ error: err.message }, { status: 500 });
     }
 }

@@ -74,8 +74,9 @@ export async function GET() {
 
         return NextResponse.json(graph);
 
-    } catch (error: any) {
-        console.error('Montessori API Error:', error);
+    } catch (error: unknown) {
+        const err = error as Error;
+        console.error('Montessori API Error:', err);
         return NextResponse.json(
             { error: 'Internal Server Error' },
             { status: 500 }

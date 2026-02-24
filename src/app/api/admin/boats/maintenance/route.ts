@@ -6,8 +6,9 @@ export async function GET(request: Request) {
     const boatId = searchParams.get('boatId');
 
     try {
-        const { supabaseAdmin, error: authError } = await requireInstructor();
-        if (authError) return authError;
+        const auth = await requireInstructor();
+        if (auth.error) return auth.error;
+        const { supabaseAdmin } = auth;
 
         let query = supabaseAdmin
             .from('mantenimiento_logs')
@@ -32,8 +33,9 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
     try {
-        const { supabaseAdmin, user, error: authError } = await requireInstructor();
-        if (authError) return authError;
+        const auth = await requireInstructor();
+        if (auth.error) return auth.error;
+        const { supabaseAdmin, user } = auth;
 
         const body = await request.json();
         const { embarcacion_id, tipo, descripcion, coste, estado, notas } = body;
@@ -42,9 +44,6 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
         }
 
-        if (!supabaseAdmin) {
-            return NextResponse.json({ error: 'Supabase admin client not initialized' }, { status: 500 });
-        }
 
         const { data, error } = await supabaseAdmin
             .from('mantenimiento_logs')

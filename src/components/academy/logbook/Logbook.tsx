@@ -12,20 +12,8 @@ import { useAcademyFeedback } from '@/hooks/useAcademyFeedback';
 import { useSmartTracker } from '@/hooks/useSmartTracker';
 
 // Direct dynamic import with explicit default handling
-const LeafletMap = dynamic(
-    () => import('./LeafletLogbookMap').then((mod) => mod.default),
-    {
-        ssr: false,
-        loading: () => (
-            <div className="w-full h-full bg-[#050b14] animate-pulse flex items-center justify-center text-blue-500/20">
-                <div className="flex flex-col items-center gap-4">
-                    <div className="w-12 h-12 border-4 border-blue-500/30 border-t-blue-500 rounded-full animate-spin"></div>
-                    <span className="text-[10px] uppercase tracking-widest">Cargando Mapa...</span>
-                </div>
-            </div>
-        )
-    }
-);
+const LeafletLogbookMap = dynamic(() => import('./LeafletLogbookMap'), { ssr: false });
+const FogOfWarMap = dynamic(() => import('../exploration/FogOfWarMap'), { ssr: false });
 
 export default function Logbook() {
     const [activeTab, setActiveTab] = useState<'official' | 'map' | 'skills' | 'diary'>('official');
@@ -338,21 +326,35 @@ export default function Logbook() {
 
                 {activeTab === 'map' && (
                     <div className="relative w-full h-[650px] bg-[#050b14] rounded-[2.5rem] border border-white/10 overflow-hidden shadow-2xl flex flex-col">
-                        <div className="absolute top-8 left-8 z-[1000] pointer-events-none">
-                            <div className="bg-black/40 backdrop-blur-xl border border-white/10 p-4 rounded-3xl">
-                                <h3 className="text-white font-bold text-sm mb-1 italic">Mapa de Travesías</h3>
-                                <p className="text-white/40 text-[10px] uppercase tracking-widest">Visualización de Millas</p>
+                        <div className="flex-1 min-h-0 overflow-hidden m-4 sm:m-8">
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 h-full">
+                                <div className="flex flex-col gap-4 min-h-0">
+                                    <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest px-2 shrink-0 flex items-center gap-2">
+                                        <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+                                        Historial de Travesías
+                                    </h3>
+                                    <div className="flex-1 rounded-3xl overflow-hidden border border-white/5 shadow-2xl relative group bg-[#050b14]">
+                                        <LeafletLogbookMap
+                                            sessions={sessions}
+                                            selectedPoint={selectedPoint}
+                                            setSelectedPoint={setSelectedPoint}
+                                            activePoints={trackedPoints}
+                                            isTracking={isTracking}
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="flex flex-col gap-4 min-h-0">
+                                    <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest px-2 shrink-0 flex items-center gap-2">
+                                        <div className="w-1.5 h-1.5 rounded-full bg-sky-400" />
+                                        Resumen de Exploración
+                                    </h3>
+                                    <div className="flex-1 rounded-3xl overflow-hidden border border-white/5 shadow-2xl bg-slate-950">
+                                        <FogOfWarMap />
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        {/* We render the dynamic component only when on the map tab */}
-                        <LeafletMap
-                            sessions={sessions}
-                            selectedPoint={selectedPoint}
-                            setSelectedPoint={setSelectedPoint}
-                            activePoints={trackedPoints}
-                            isTracking={isTracking}
-                        />
-
                         {/* Floating Tracker Controls */}
                         <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-[1000] flex flex-col items-center gap-4">
                             {isTracking && (
