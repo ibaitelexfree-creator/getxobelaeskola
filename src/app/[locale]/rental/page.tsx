@@ -53,7 +53,7 @@ export function generateStaticParams() {
 export default async function RentalPage({ params: { locale } }: { params: { locale: string } }) {
     const t = await getTranslations({ locale, namespace: 'rental_page' });
     const supabase = createClient();
-    let services = [];
+    let services: any[] = [];
     const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://getxobelaeskola.cloud';
 
     try {
@@ -79,7 +79,7 @@ export default async function RentalPage({ params: { locale } }: { params: { loc
                 'alquiler-raquero'
             ];
 
-            services = (data || []).sort((a, b) => {
+            services = (data || []).sort((a: any, b: any) => {
                 const indexA = priorityOrder.indexOf(a.slug);
                 const indexB = priorityOrder.indexOf(b.slug);
 
@@ -101,17 +101,23 @@ export default async function RentalPage({ params: { locale } }: { params: { loc
         'name': `${t('title_prefix')} ${t('title_highlight')}`,
         'description': t('description'),
         'numberOfItems': services.length,
-        'itemListElement': services.map((service, index) => ({
+        'itemListElement': services.map((service: any, index: number) => ({
             '@type': 'ListItem',
             'position': index + 1,
             'item': {
                 '@type': 'Product',
-                'name': locale === 'eu' ? (service.nombre_eu || service.nombre) : locale === 'en' ? (service.nombre_en || service.nombre) : service.nombre,
-                'description': locale === 'eu' ? (service.descripcion_eu || service.descripcion) : locale === 'en' ? (service.descripcion_en || service.descripcion) : service.descripcion,
+                'name': locale === 'eu' ? (service.nombre_eu || service.nombre_es || service.nombre) :
+                        locale === 'en' ? (service.nombre_en || service.nombre_es || service.nombre) :
+                        locale === 'fr' ? (service.nombre_fr || service.nombre_es || service.nombre) :
+                        (service.nombre_es || service.nombre),
+                'description': locale === 'eu' ? (service.descripcion_eu || service.descripcion_es || service.descripcion) :
+                               locale === 'en' ? (service.descripcion_en || service.descripcion_es || service.descripcion) :
+                               locale === 'fr' ? (service.descripcion_fr || service.descripcion_es || service.descripcion) :
+                               (service.descripcion_es || service.descripcion),
                 'image': `${siteUrl}${service.imagen_url || '/images/home-hero-sailing-action.webp'}`,
                 'offers': {
                     '@type': 'Offer',
-                    'price': service.precio_base || service.precio_hora,
+                    'price': service.precio_base || service.precio_hora || 0,
                     'priceCurrency': 'EUR',
                     'availability': 'https://schema.org/InStock',
                     'url': `${siteUrl}/${locale}/rental`
@@ -171,4 +177,3 @@ export default async function RentalPage({ params: { locale } }: { params: { loc
         </main>
     );
 }
-
