@@ -1,5 +1,6 @@
 'use client';
 
+import { RentalService } from '@/types/student';
 import { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
@@ -9,19 +10,6 @@ import { getApiUrl } from '@/lib/platform';
 import { ChevronRight, Calendar, Clock, Anchor } from 'lucide-react';
 import LegalConsentModal from '@/components/shared/LegalConsentModal';
 import StaggeredEntrance from '@/components/shared/StaggeredEntrance';
-
-interface RentalService {
-    id: string;
-    nombre_es: string;
-    nombre_eu: string;
-    nombre_en?: string;
-    nombre_fr?: string;
-    categoria: string;
-    slug: string;
-    precio_base: number;
-    opciones: { label: string; extra: number }[];
-    imagen_url: string;
-}
 
 export default function MobileRentalList({
     services,
@@ -229,11 +217,11 @@ export default function MobileRentalList({
                                 </div>
                             </div>
 
-                            {selectedService.opciones?.length > 0 && (
+                            { (selectedService.opciones?.length || 0) > 0 && (
                                 <div className="space-y-2">
                                     <label className="text-xs uppercase tracking-widest text-accent font-bold block">{t('booking.extra_option')}</label>
                                     <div className="grid gap-2">
-                                        {selectedService.opciones.map((opt, idx) => (
+                                        {selectedService.opciones?.map((opt, idx) => (
                                             <button
                                                 key={idx}
                                                 onClick={() => setSelectedOption(selectedOption === idx ? null : idx)}
@@ -255,7 +243,7 @@ export default function MobileRentalList({
                                 disabled={!selectedDate || !selectedTime || loading}
                                 className="w-full h-14 bg-accent text-nautical-black font-black uppercase tracking-widest rounded-xl disabled:opacity-50 mt-4"
                             >
-                                {loading ? t('booking.processing') || 'Procesando...' : `${t('booking.confirm')} (${selectedService.precio_base + (selectedOption !== null ? selectedService.opciones[selectedOption].extra : 0)}€)`}
+                                {loading ? t('booking.processing') || 'Procesando...' : `${t('booking.confirm')} (${(selectedService.precio_base || 0) + (selectedOption !== null ? (selectedService.opciones?.[selectedOption]?.extra || 0) : 0)}€)`}
                             </button>
                         </div>
                     </div>

@@ -1,5 +1,6 @@
 'use client';
 
+import { RentalService } from '@/types/student';
 import { useState, useRef, useEffect, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
@@ -9,17 +10,6 @@ import { createClient } from '@/lib/supabase/client';
 import RentalCard from './RentalCard';
 import { apiUrl } from '@/lib/api';
 import { getSpainTimeInfo, getInitialBookingDate } from '@/lib/utils/date';
-
-interface RentalService {
-    id: string;
-    nombre_es: string;
-    nombre_eu: string;
-    categoria: string;
-    slug: string;
-    precio_base: number;
-    opciones: { label: string; extra: number }[];
-    imagen_url: string;
-}
 
 export default function RentalClient({
     services,

@@ -1,3 +1,4 @@
+import { Course } from '@/types/student';
 import { createClient } from '@/lib/supabase/server';
 import Image from 'next/image';
 import { getTranslations } from 'next-intl/server';
@@ -17,7 +18,7 @@ export async function generateMetadata({
     params: { locale: string; slug: string }
 }): Promise<Metadata> {
     const supabase = createClient();
-    let course = null;
+    let course: Course | null = null;
     try {
         const { data } = await supabase
             .from('cursos')
@@ -130,7 +131,7 @@ export default async function CourseDetailPage({
     const supabase = createClient();
 
     // 1. Fetch main course data
-    let course = null;
+    let course: Course | null = null;
     try {
         const { data } = await supabase
             .from('cursos')
@@ -325,7 +326,7 @@ export default async function CourseDetailPage({
                                 <h3 className="font-display text-4xl mb-6 text-sea-foam">Reserva tu plaza</h3>
                                 <BookingSelector
                                     editions={displayEditions}
-                                    coursePrice={displayCourse.precio}
+                                    coursePrice={displayCourse.precio || 0}
                                     courseId={displayCourse.id}
                                     activityType={slug.includes('campus') || slug.includes('udalekus') ? 'udalekus' : (slug.includes('vela-ligera') ? 'training' : 'course')}
                                 />
@@ -358,7 +359,7 @@ export default async function CourseDetailPage({
                                 <div className="space-y-4 pt-12">
                                     <h4 className="text-xs uppercase tracking-widest font-bold text-accent">Lo que aprenderás</h4>
                                     <ul className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        {(locale === 'es' ? displayCourse.detalles.es : displayCourse.detalles.eu).map((detail: string, i: number) => (
+                                        {(locale === 'es' ? (displayCourse.detalles?.es || []) : (displayCourse.detalles?.eu || [])).map((detail: string, i: number) => (
                                             <li key={i} className="flex items-center gap-3 text-sm font-light text-foreground/70">
                                                 <div className="w-1 h-1 bg-accent/40 rounded-full" />
                                                 {detail}

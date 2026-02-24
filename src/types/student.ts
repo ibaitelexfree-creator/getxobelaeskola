@@ -69,6 +69,8 @@ export interface RentalService {
   precio_hora?: number;
   slug?: string;
   activo?: boolean;
+  categoria?: string;
+  opciones?: { extra: number; [key: string]: any }[];
 }
 
 export interface Rental {
