@@ -10,8 +10,8 @@ export interface SeaStateData {
 }
 
 // Bilbao-Vizcaya Buoy (2630) - Deep Water
-const BUOY_ID = '2630';
-const BUOY_NAME = 'Bilbao-Vizcaya';
+// const BUOY_ID = '2630';
+// const BUOY_NAME = 'Bilbao-Vizcaya';
 
 // Fallback mock data generator based on season and typical Cantabrian sea conditions
 function getSimulatedSeaState(): SeaStateData {
@@ -22,10 +22,10 @@ function getSimulatedSeaState(): SeaStateData {
     const isWinter = month >= 10 || month <= 2;
 
     // Base values
-    let baseWaveHeight = isWinter ? 2.5 : 1.0;
-    let basePeriod = isWinter ? 10 : 7;
-    let baseWaterTemp = isWinter ? 13 : 20;
-    let baseWindSpeed = isWinter ? 15 : 8;
+    const baseWaveHeight = isWinter ? 2.5 : 1.0;
+    const basePeriod = isWinter ? 10 : 7;
+    const baseWaterTemp = isWinter ? 13 : 20;
+    const baseWindSpeed = isWinter ? 15 : 8;
 
     // Add randomness
     const waveHeight = parseFloat((baseWaveHeight + (Math.random() * 1.5 - 0.5)).toFixed(2));

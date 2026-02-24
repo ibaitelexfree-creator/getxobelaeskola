@@ -1,6 +1,6 @@
 
 import { describe, it, expect } from 'vitest';
-import { calculateJ80Speed, J80_POLAR_DATA } from './polars';
+import { calculateJ80Speed } from './polars';
 
 describe('calculateJ80Speed', () => {
   it('should return exact values for points in the data table', () => {
@@ -76,7 +76,7 @@ describe('calculateJ80Speed', () => {
   });
 
   it('should handle TWA 180 correctly', () => {
-      // TWS 10, TWA 180 -> 5.5
-      expect(calculateJ80Speed(10, 180)).toBe(5.5);
+    // TWS 10, TWA 180 -> 5.5
+    expect(calculateJ80Speed(10, 180)).toBe(5.5);
   });
 });
