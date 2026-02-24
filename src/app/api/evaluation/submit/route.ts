@@ -164,7 +164,7 @@ export async function POST(request: Request) {
                 }
 
                 if (updates.length > 0) {
-                    await supabase.from('srs_user_questions').upsert(updates);
+                    await supabase.from('srs_user_questions').upsert(updates as any);
                 }
             }
         } catch (e) {
@@ -173,7 +173,7 @@ export async function POST(request: Request) {
         // --- SRS UPDATE LOGIC END ---
 
         // Obtener las respuestas correctas si está configurado para el cliente
-        let respuestasCorrectas = null;
+        let respuestasCorrectas: any = null;
         if (intento.evaluacion.mostrar_respuestas) {
             // Ya las tenemos en allQuestions si hicimos SRS, pero necesitamos explanations y el formato correcto
             const { data: preguntas } = await supabaseAdmin
