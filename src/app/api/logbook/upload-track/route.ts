@@ -105,10 +105,9 @@ export async function POST(req: Request) {
 
         const supabase = createClient();
         const stats = {
-            total_distance_nm: parseFloat(totalDistanceNm.toFixed(2)),
+            distance_nm: parseFloat(totalDistanceNm.toFixed(2)),
             avg_speed_kn: durationH > 0 ? parseFloat((totalDistanceNm / durationH).toFixed(2)) : 0,
-            max_speed_kn: parseFloat(maxSpeedKn.toFixed(2)),
-            duration_h: durationH > 0 ? parseFloat(durationH.toFixed(2)) : 0
+            max_speed_kn: parseFloat(maxSpeedKn.toFixed(2)), duration_h: parseFloat(durationH.toFixed(2))
         };
 
         // 1. Upload original GPX to Storage

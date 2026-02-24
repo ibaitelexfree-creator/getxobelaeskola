@@ -1,3 +1,4 @@
+
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { NextResponse } from 'next/server';
@@ -15,7 +16,7 @@ export async function checkAuth(): Promise<{
     const { data: { user }, error: authError } = await supabase.auth.getUser();
 
     if (authError || !user) {
-        return { user: null, profile: null, supabaseAdmin: null, supabase, error: authError || { message: 'No autenticado' } };
+        return { user: null, profile: null, supabaseAdmin: null, supabase, error: authError || { message: 'No session', status: 401 } };
     }
 
     const supabaseAdmin = createAdminClient();
