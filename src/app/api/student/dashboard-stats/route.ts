@@ -19,35 +19,31 @@ export async function GET() {
             .eq('id', user.id)
             .single();
 
-        // 2. Fetch Inscriptions
-        const { data: rawInscriptions } = await supabase
+        // 2. Fetch Inscriptions with nested joins
+        const startInscriptions = performance.now();
+        const { data: inscriptionsData, error: inscriptionsError } = await supabase
             .from('inscripciones')
-            .select('*')
+            .select(`
+                *,
+                cursos:curso_id(id, nombre_es, nombre_eu, slug),
+                ediciones_curso:edicion_id(
+                    id,
+                    curso_id,
+                    fecha_inicio,
+                    fecha_fin,
+                    cursos:curso_id(id, nombre_es, nombre_eu, slug)
+                )
+            `)
             .eq('perfil_id', user.id);
 
-        // Fetch Reference data for Inscriptions (minimal set for performance)
-        const [
-            { data: editions },
-            { data: allCourses }
-        ] = await Promise.all([
-            supabase.from('ediciones_curso').select('id, curso_id, fecha_inicio, fecha_fin'),
-            supabase.from('cursos').select('id, nombre_es, nombre_eu, slug')
-        ]);
+        const endInscriptions = performance.now();
+        console.log(`[DashboardStats] Inscriptions fetch took: ${(endInscriptions - startInscriptions).toFixed(2)}ms`);
 
-        const enrichedInscriptions = (rawInscriptions || []).map(ins => {
-            const ed = (editions || []).find(e => e.id === ins.edicion_id);
-            const courseDirect = (allCourses || []).find(c => c.id === ins.curso_id);
-            const courseViaEd = ed ? (allCourses || []).find(c => c.id === ed.curso_id) : null;
+        if (inscriptionsError) {
+            console.error('Error fetching inscriptions:', inscriptionsError);
+        }
 
-            return {
-                ...ins,
-                cursos: courseDirect || null,
-                ediciones_curso: ed ? {
-                    ...ed,
-                    cursos: courseViaEd || null
-                } : null
-            };
-        });
+        const enrichedInscriptions = inscriptionsData || [];
 
         // 3. Fetch Rentals
         const { data: rentals } = await supabase
