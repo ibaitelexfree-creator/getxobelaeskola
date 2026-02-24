@@ -109,9 +109,7 @@ export async function GET(request: NextRequest) {
         );
 
         // 2. Fetch History from DB or Fallback to mock
-        // Use 'any' to avoid TypeScript narrowing issues when reassigning inside if blocks
-        let history: any = undefined;
-
+        let history: any[] | undefined = undefined;
         if (includeHistory) {
             try {
                 const { data: dbHistory, error: historyError } = await supabase

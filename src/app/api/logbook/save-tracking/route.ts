@@ -53,8 +53,8 @@ export async function POST(req: Request) {
             durationH
         });
 
-    } catch (err: any) {
+    } catch (err: unknown) {
         console.error('Error saving tracking session:', err);
-        return NextResponse.json({ error: err.message || 'Internal Server Error' }, { status: 500 });
+        return NextResponse.json({ error: err instanceof Error ? err.message : 'Internal Server Error' }, { status: 500 });
     }
 }

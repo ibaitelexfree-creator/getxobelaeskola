@@ -17,7 +17,7 @@ export async function generateMetadata({
     params: { locale: string; slug: string }
 }): Promise<Metadata> {
     const supabase = createClient();
-    let course = null;
+    let course: any = null;
     try {
         const { data } = await supabase
             .from('cursos')
@@ -57,7 +57,7 @@ export async function generateMetadata({
         }
     };
 
-    const displayCourse = course || fallbacks[slug];
+    const displayCourse = (course || fallbacks[slug]) as any;
     if (!displayCourse) return { title: 'Curso no encontrado' };
 
     const name = locale === 'es' ? displayCourse.nombre_es : displayCourse.nombre_eu;
@@ -108,11 +108,21 @@ export default async function CourseDetailPage({
     }
 
     interface CourseFallback {
+        nombre_en?: string;
+        nombre_fr?: string;
+        descripcion_en?: string;
+        descripcion_fr?: string;
         id: string;
         nombre_es: string;
         nombre_eu: string;
+        nombre_en?: string;
+        nombre_fr?: string;
+        descripcion_en?: string;
+        descripcion_fr?: string;
         descripcion_es: string;
         descripcion_eu: string;
+        descripcion_en?: string;
+        descripcion_fr?: string;
         precio: number;
         duracion_h: number;
         nivel: string;
@@ -125,7 +135,7 @@ export default async function CourseDetailPage({
     const supabase = createClient();
 
     // 1. Fetch main course data
-    let course = null;
+    let course: any = null;
     try {
         const { data } = await supabase
             .from('cursos')
@@ -251,7 +261,7 @@ export default async function CourseDetailPage({
         }
     };
 
-    const displayCourse = course || fallbacks[slug];
+    const displayCourse = (course || fallbacks[slug]) as any;
 
     if (!displayCourse) {
         notFound();
@@ -263,13 +273,13 @@ export default async function CourseDetailPage({
     const currentLocale = locale as 'es' | 'eu' | 'en' | 'fr';
 
     const name = (currentLocale === 'eu' && displayCourse.nombre_eu) ? displayCourse.nombre_eu :
-        (currentLocale === 'en' && displayCourse.nombre_en) ? displayCourse.nombre_en :
-            (currentLocale === 'fr' && displayCourse.nombre_fr) ? displayCourse.nombre_fr :
-                displayCourse.nombre_es || displayCourse.nombre_en || displayCourse.nombre_eu || 'Course';
+        (currentLocale === 'en' && displayCourse.nombre_es) ? displayCourse.nombre_es :
+            (currentLocale === 'fr' && displayCourse.nombre_es) ? displayCourse.nombre_es :
+                displayCourse.nombre_es || displayCourse.nombre_es || displayCourse.nombre_eu || 'Course';
 
     const description = (currentLocale === 'eu' && displayCourse.descripcion_eu) ? displayCourse.descripcion_eu :
-        (currentLocale === 'en' && displayCourse.descripcion_en) ? displayCourse.descripcion_en :
-            (currentLocale === 'fr' && displayCourse.descripcion_fr) ? displayCourse.descripcion_fr :
+        (currentLocale === 'en' && displayCourse.descripcion_es) ? displayCourse.descripcion_es :
+            (currentLocale === 'fr' && displayCourse.descripcion_es) ? displayCourse.descripcion_es :
                 displayCourse.descripcion_es || 'Course description...';
 
     const jsonLd = {

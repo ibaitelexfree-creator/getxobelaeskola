@@ -101,7 +101,7 @@ export default function PlannerContainer({ locale }: { locale: string }) {
     };
 
     // Generate days for view
-    const days = [];
+    const days: Date[] = [];
     const { start } = getWeekRange(currentDate);
     for (let i = 0; i < 7; i++) {
         const d = new Date(start);

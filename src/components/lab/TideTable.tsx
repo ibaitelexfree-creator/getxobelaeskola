@@ -17,7 +17,7 @@ export default function TideTable({ date, onDateChange }: TideTableProps) {
 
     // Generate chart data for every 15 minutes
     const chartData = useMemo(() => {
-        const data = [];
+        const data: any[] = [];
         const start = new Date(date);
         start.setHours(0, 0, 0, 0);
         const end = new Date(date);
@@ -149,7 +149,7 @@ export default function TideTable({ date, onDateChange }: TideTableProps) {
                                         color: '#fff'
                                     }}
                                     itemStyle={{ color: '#60a5fa' }}
-                                    formatter={(value: any) => [`${value.toFixed(2)} m`, 'Altura']}
+                                    formatter={(value: number) => [`${value.toFixed(2)} m`, 'Altura']}
                                     labelStyle={{ color: '#94a3b8', marginBottom: '4px' }}
                                 />
                                 <Area

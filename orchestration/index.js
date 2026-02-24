@@ -3,6 +3,8 @@ import axios from 'axios';
 import dotenv from 'dotenv';
 import https from 'https';
 import dns from 'dns';
+import { GoogleAuth } from 'google-auth-library';
+import { fileURLToPath } from 'url';
 
 // Fix connection hangs to Telegram/Browserless by prioritizing IPv4
 if (dns.setDefaultResultOrder) {
@@ -11,6 +13,9 @@ if (dns.setDefaultResultOrder) {
 import fs, { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs';
 import path, { join } from 'path';
 import os from 'os';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 import admin from 'firebase-admin';
 import { getIssue, getIssuesByLabel, formatIssueForPrompt, listReleases, downloadAsset } from './lib/github.js';
 import { BatchProcessor } from './lib/batch.js';
@@ -96,6 +101,21 @@ const JULES_API_KEY = JULES_API_KEYS[0] || null;
 
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN || null;
 const VERSION = '2.6.0';
+
+let julesAuth = null;
+try {
+  const saPath = path.join(__dirname, 'firebase-auth.json');
+  if (fs.existsSync(saPath)) {
+    julesAuth = new GoogleAuth({
+      keyFile: saPath,
+      scopes: ['https://www.googleapis.com/auth/cloud-platform']
+    });
+    console.log('[Jules] Google Auth initialized via firebase-auth.json');
+  }
+} catch (err) {
+  console.warn('[Jules] Google Auth init failed:', err.message);
+}
+
 console.log(`[Jules] Pool de ${JULES_API_KEYS.length} cuenta(s) configurada(s)`);
 
 // ============ v2.5.0 INFRASTRUCTURE ============
@@ -652,7 +672,8 @@ app.post('/webhooks/render', async (req, res) => {
     const result = await handleRenderWebhook(
       req,
       createJulesSession,
-      (sessionId, msg) => julesRequest('POST', `/sessions/${sessionId}:sendMessage`, msg)
+      (sessionId, msg) => julesRequest('POST', `/sessions/${sessionId}:sendMessage`, msg),
+      () => sessionMonitor.getAllSessions()
     );
     res.status(result.status || 200).json(result);
   } catch (error) {
@@ -1447,7 +1468,8 @@ function initializeToolRegistry() {
     return startRenderAutoFix(
       { serviceId: p.serviceId, deployId: failure.deploy.id, branch: failure.branch },
       createJulesSession,
-      (sessionId, msg) => julesRequest('POST', `/sessions/${sessionId}:sendMessage`, msg)
+      (sessionId, msg) => julesRequest('POST', `/sessions/${sessionId}:sendMessage`, msg),
+      () => sessionMonitor.getAllSessions()
     );
   });
 
@@ -1690,7 +1712,27 @@ function julesRequest(method, path, body = null) {
     return Promise.reject(new Error('Circuit breaker is open - Jules API temporarily unavailable'));
   }
 
-  return new Promise((resolve, reject) => {
+  return new Promise(async (resolve, reject) => {
+    let authHeader = {};
+    const apiKey = getJulesApiKey();
+
+    if (julesAuth) {
+      try {
+        const client = await julesAuth.getClient();
+        const token = await client.getAccessToken();
+        authHeader = { 'Authorization': `Bearer ${token.token}` };
+      } catch (err) {
+        console.warn('[Jules API] Auth fallback to API Key:', err.message);
+        authHeader = apiKey?.startsWith('AQ.') || apiKey?.startsWith('ya29.')
+          ? { 'Authorization': `Bearer ${apiKey}` }
+          : { 'X-Goog-Api-Key': apiKey };
+      }
+    } else {
+      authHeader = apiKey?.startsWith('AQ.') || apiKey?.startsWith('ya29.')
+        ? { 'Authorization': `Bearer ${apiKey}` }
+        : { 'X-Goog-Api-Key': apiKey };
+    }
+
     const options = {
       hostname: 'jules.googleapis.com',
       port: 443,
@@ -1698,7 +1740,7 @@ function julesRequest(method, path, body = null) {
       method: method,
       agent: julesAgent, // Connection pooling for 25-30% latency reduction
       headers: {
-        'X-Goog-Api-Key': getJulesApiKey(), // Rotativo entre las 3 cuentas
+        ...authHeader,
         'Content-Type': 'application/json'
       }
     };
@@ -2621,7 +2663,7 @@ const server = app.listen(PORT, '0.0.0.0', () => {
         3. Navigate to a course or membership page.
         4. Use Stripe Test Card (4242 4242 4242 4242) to perform a fake purchase.
         5. Verify the purchase is reflected in the user dashboard and membership is ACTIVE.
-        6. Capture screenshots of every step. 
+        6. Capture screenshots of every step.
         7. Record a video of the interaction if possible.
         8. If any step FAILS, identify the reason and create a PR with the fix.
         9. Generate a nightly-qa-report branch with all media and a summary.md.`,

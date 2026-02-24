@@ -290,7 +290,7 @@ export default function FinancialReportsClient({ initialData, initialView, total
 
         if (!effectiveStart || !effectiveEnd) return [];
 
-        const agg: Record<string, { label: string, amount: number, sortKey: string, dateObj: Date }> = {};
+        const agg: Record<string, { label: string, amount: number, sortKey: string, dateObj: Date } | null> = {};
 
         const [sy, sm, sd] = effectiveStart.split('-').map(Number);
         const [ey, em, ed] = effectiveEnd.split('-').map(Number);
@@ -373,7 +373,7 @@ export default function FinancialReportsClient({ initialData, initialView, total
                     hour: '2-digit', hour12: false, timeZone: 'Europe/Madrid'
                 }).format(rawDate);
                 key = `${hourStr}:00`;
-                if (agg[key]) agg[key].amount += parseAmount(item.monto_total);
+                if (agg[key]) agg[key]!.amount += parseAmount(item.monto_total);
             } else if (isMonthly) {
                 // Find correct bucket
                 // We need to match rawDate to one of our generated buckets
@@ -383,7 +383,7 @@ export default function FinancialReportsClient({ initialData, initialView, total
 
                 // Easier: just loop through agg keys (which are YYYY-MM) and find the best fit
 
-                const aggValues = Object.values(agg).sort((a, b) => a.dateObj.getTime() - b.dateObj.getTime());
+                const aggValues = Object.values(agg).sort((a, b) => ((a && a.dateObj) ? a.dateObj.getTime() : 0) - ((b && b.dateObj) ? b.dateObj.getTime() : 0));
 
                 // Find the bucket where bucketDate <= itemDate < nextBucketDate
                 // Note: rawDate needs to be reasonably compared.
@@ -393,10 +393,10 @@ export default function FinancialReportsClient({ initialData, initialView, total
                 // (Approximation is fine for visualisation)
                 const itemTime = rawDate.getTime();
 
-                let targetBucket = null;
+                let targetBucket: any = null;
                 for (let i = aggValues.length - 1; i >= 0; i--) {
                     // Compare year/month
-                    const bucketDate = aggValues[i].dateObj;
+                    const bucketDate = aggValues[i]!.dateObj;
 
                     // Check if item is after or in the same month as bucket
                     if (rawDate >= bucketDate) {
@@ -413,10 +413,10 @@ export default function FinancialReportsClient({ initialData, initialView, total
                 }
 
                 if (targetBucket) {
-                    targetBucket.amount += parseAmount(item.monto_total);
+                    targetBucket!.amount += parseAmount(item.monto_total);
                 } else if (aggValues.length > 0) {
                     // Add to first bucket if earlier (shouldn't happen with correct loop, but safety)
-                    aggValues[0].amount += parseAmount(item.monto_total);
+                    aggValues[0]!.amount += parseAmount(item.monto_total);
                 }
 
             } else {
@@ -425,17 +425,17 @@ export default function FinancialReportsClient({ initialData, initialView, total
                     timeZone: 'Europe/Madrid', year: 'numeric', month: '2-digit', day: '2-digit'
                 }).format(rawDate);
                 key = isoLike;
-                if (agg[key]) agg[key].amount += parseAmount(item.monto_total);
+                if (agg[key]) agg[key]!.amount += parseAmount(item.monto_total);
             }
         });
 
-        return Object.values(agg).sort((a, b) => a.sortKey.localeCompare(b.sortKey));
+        const aggValues = Object.values(agg); return aggValues.sort((a, b) => ((a && a.dateObj) ? a.dateObj.getTime() : 0) - ((b && b.dateObj) ? b.dateObj.getTime() : 0));
     }, [filteredData, startDate, endDate, forceShowAll]);
 
     const maxChartValue = useMemo(() => {
         if (chartData.length === 0) return 100;
-        const amounts = chartData.map(d => d.amount);
-        const max = Math.max(...amounts);
+        const amounts = chartData.map(d => d?.amount || 0);
+        const max = Math.max(...amounts, 0);
         return max > 0 ? max : 100;
     }, [chartData]);
 
@@ -567,23 +567,23 @@ export default function FinancialReportsClient({ initialData, initialView, total
                             {t('loading_chart')}
                         </div>
                     ) : chartData.length > 0 ? chartData.map((d, i) => {
-                        const barHeight = Math.max((d.amount / maxChartValue) * CHART_H, 4);
+                        const barHeight = Math.max(((d?.amount || 0) / maxChartValue) * CHART_H, 4);
                         return (
                             <div
                                 key={i}
                                 className="flex-1 flex flex-col justify-end items-center group/bar h-full relative"
-                                title={`${d.label}: ${d.amount.toLocaleString()}€`}
+                                title={`${d?.label}: ${(d?.amount || 0).toLocaleString()}€`}
                             >
                                 <div
                                     className="w-full bg-accent/40 border-t-2 border-accent group-hover/bar:bg-accent/80 transition-all duration-500 rounded-t-xs relative shadow-[0_0_15px_rgba(var(--accent-rgb),0.1)]"
                                     style={{ height: `${barHeight}px` }}
                                 >
                                     <div className="absolute top-[-28px] left-1/2 -translate-x-1/2 opacity-0 group-hover/bar:opacity-100 transition-opacity text-3xs text-accent font-black font-mono whitespace-nowrap bg-nautical-black/80 px-2 py-1 rounded-sm">
-                                        {mounted ? d.amount.toLocaleString() : '...'}€
+                                        {mounted ? (d?.amount || 0).toLocaleString() : '...'}€
                                     </div>
                                 </div>
                                 <span className="absolute bottom-[-32px] text-3xs text-white/30 font-mono -rotate-45 origin-right lg:rotate-0 lg:origin-center group-hover/bar:text-accent transition-colors tracking-tighter">
-                                    {d.label}
+                                    {d?.label}
                                 </span>
                             </div>
                         );

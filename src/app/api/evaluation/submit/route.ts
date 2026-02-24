@@ -143,7 +143,7 @@ export async function POST(request: Request) {
                     currentSrs.forEach((s: any) => srsMap.set(s.question_id, s));
                 }
 
-                const updates = [];
+                const updates: any[] = [];
                 for (const q of (allQuestions as any[])) {
                     const userAnswer = respuestasMerged[q.id];
                     // Si no respondió, consideramos incorrecto
@@ -153,7 +153,8 @@ export async function POST(request: Request) {
 
                     const next = calculateNextReview(current.interval, current.ease_factor, isCorrect);
 
-                    updates.push({
+                    updates.push({ // @ts-ignore
+
                         user_id: user.id,
                         question_id: q.id,
                         interval: next.interval,
@@ -164,7 +165,7 @@ export async function POST(request: Request) {
                 }
 
                 if (updates.length > 0) {
-                    await supabase.from('srs_user_questions').upsert(updates);
+                    await supabase.from('srs_user_questions').upsert(updates as any);
                 }
             }
         } catch (e) {
@@ -173,7 +174,7 @@ export async function POST(request: Request) {
         // --- SRS UPDATE LOGIC END ---
 
         // Obtener las respuestas correctas si está configurado para el cliente
-        let respuestasCorrectas = null;
+        let respuestasCorrectas: any = null;
         if (intento.evaluacion.mostrar_respuestas) {
             // Ya las tenemos en allQuestions si hicimos SRS, pero necesitamos explanations y el formato correcto
             const { data: preguntas } = await supabaseAdmin
@@ -181,7 +182,7 @@ export async function POST(request: Request) {
                 .select('id, respuesta_correcta, explicacion_es, explicacion_eu')
                 .in('id', intento.preguntas_json);
 
-            respuestasCorrectas = preguntas;
+            respuestasCorrectas = preguntas as any;
         }
 
         return NextResponse.json({

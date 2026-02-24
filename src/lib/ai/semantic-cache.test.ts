@@ -96,4 +96,22 @@ describe('SemanticCache', () => {
       metadata: { key: 'value' },
     });
   });
+
+  it('should throw error if API key is missing', async () => {
+    // Manually remove environment variable for this test
+    const originalEnv = process.env.OPENAI_API_KEY;
+    delete process.env.OPENAI_API_KEY;
+
+    try {
+      // Pass empty config to rely on environment variable which is now missing
+      // Note: Constructor takes apiKey from config OR env.
+      // If we pass {}, it checks env. If env is missing, it stores undefined.
+      // Then getOpenAI checks this.apiKey and throws.
+      const cacheNoKey = new SemanticCache({});
+
+      await expect(cacheNoKey.findSimilar('test')).rejects.toThrow('OpenAI API Key is missing');
+    } finally {
+      process.env.OPENAI_API_KEY = originalEnv;
+    }
+  });
 });

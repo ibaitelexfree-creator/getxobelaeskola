@@ -8,18 +8,22 @@ describe('ScoringManager', () => {
         scoring = new ScoringManager();
     });
 
-    it('should initialize with zero score and buoys collected', () => {
+    it('should initialize with zero score and buoys', () => {
         expect(scoring.totalScore).toBe(0);
         expect(scoring.buoysCollected).toBe(0);
+        expect(scoring.isGameOver()).toBe(false);
     });
 
-    it('should accumulate time in update() and calculate score correctly', () => {
+    it('should accumulate time via update(dt) and calculate score correctly', () => {
         // Simulate 10 seconds passing
-        scoring.update(5);
-        scoring.update(5);
+        const dt = 0.1;
+        for (let i = 0; i < 100; i++) {
+            scoring.update(dt);
+        }
 
-        // Score: 1000 - timeTaken * 8
-        // 1000 - 10 * 8 = 920
+        // Base points: 1000. Time penalty: 8 per second.
+        // 10 seconds * 8 = 80 penalty.
+        // Expected score: 1000 - 80 = 920.
         const points = scoring.addObjectiveBonus();
 
         expect(points).toBe(920);
@@ -27,16 +31,23 @@ describe('ScoringManager', () => {
         expect(scoring.buoysCollected).toBe(1);
     });
 
-    it('should reset accumulated time after scoring a buoy', () => {
-        // Buoy 1: 10 seconds
-        scoring.update(10);
+    it('should reset time accumulation after collecting a buoy', () => {
+        // First buoy: 10 seconds
+        for (let i = 0; i < 100; i++) {
+            scoring.update(0.1);
+        }
+
         scoring.addObjectiveBonus();
 
-        // Buoy 2: 5 seconds
-        scoring.update(5);
+        // Second buoy: 5 seconds
+        for (let i = 0; i < 50; i++) {
+            scoring.update(0.1);
+        }
+
+        // 5 seconds * 8 = 40 penalty.
+        // Expected score: 1000 - 40 = 960.
         const points = scoring.addObjectiveBonus();
 
-        // 1000 - 5 * 8 = 960
         expect(points).toBe(960);
         expect(scoring.totalScore).toBe(920 + 960);
         expect(scoring.buoysCollected).toBe(2);
@@ -44,29 +55,32 @@ describe('ScoringManager', () => {
 
     it('should enforce minimum score of 10 points', () => {
         // Simulate very long time (e.g. 200 seconds)
-        // 1000 - 200 * 8 = -600 -> min 10
-        scoring.update(200);
+        // 200 * 8 = 1600 penalty. 1000 - 1600 < 10.
+        // Should cap at 10.
+
+        for (let i = 0; i < 2000; i++) {
+            scoring.update(0.1);
+        }
+
         const points = scoring.addObjectiveBonus();
 
         expect(points).toBe(10);
         expect(scoring.totalScore).toBe(10);
     });
 
-    it('should stop scoring after MAX_BUOYS', () => {
-        // Collect MAX_BUOYS (5)
+    it('should detect game over condition', () => {
+        // Max buoys is 5
         for (let i = 0; i < 5; i++) {
-            scoring.update(1);
+            expect(scoring.isGameOver()).toBe(false);
             scoring.addObjectiveBonus();
         }
 
         expect(scoring.buoysCollected).toBe(5);
         expect(scoring.isGameOver()).toBe(true);
 
-        // Try to collect 6th
-        scoring.update(1);
-        const points = scoring.addObjectiveBonus();
-
-        expect(points).toBe(0);
-        expect(scoring.buoysCollected).toBe(5);
+        // Adding more should return 0 points
+        const extraPoints = scoring.addObjectiveBonus();
+        expect(extraPoints).toBe(0);
+        expect(scoring.buoysCollected).toBe(5); // Should not increment
     });
 });
