@@ -19,7 +19,7 @@ This document provides an overview of the project's source code structure and ex
 
 | Export Name | Type | Description |
 | :--- | :--- | :--- |
-| `getPendingReviews` | Function | - |
+| `getPendingReviews` | Function | - | 
 | `submitReview` | Function | - |
 
 ## Directory: `src/app`
