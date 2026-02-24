@@ -104,7 +104,7 @@ export async function GET(request: NextRequest) {
         );
 
         // 2. Fetch History from DB or Fallback to mock
-        let history = undefined;
+        let history: { time: string; wind: number; gust: number; direction: number; temp: number; tide: number; }[] | undefined = undefined;
         if (includeHistory) {
             try {
                 const { data: dbHistory, error: historyError } = await supabase

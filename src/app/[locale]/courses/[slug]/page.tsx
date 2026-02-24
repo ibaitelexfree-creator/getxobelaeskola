@@ -263,13 +263,13 @@ export default async function CourseDetailPage({
     const currentLocale = locale as 'es' | 'eu' | 'en' | 'fr';
 
     const name = (currentLocale === 'eu' && displayCourse.nombre_eu) ? displayCourse.nombre_eu :
-        (currentLocale === 'en' && displayCourse.nombre_en) ? displayCourse.nombre_en :
-            (currentLocale === 'fr' && displayCourse.nombre_fr) ? displayCourse.nombre_fr :
-                displayCourse.nombre_es || displayCourse.nombre_en || displayCourse.nombre_eu || 'Course';
+        (currentLocale === 'en' && displayCourse.nombre_es) ? displayCourse.nombre_es :
+            (currentLocale === 'fr' && displayCourse.nombre_es) ? displayCourse.nombre_es :
+                displayCourse.nombre_es || displayCourse.nombre_es || displayCourse.nombre_eu || 'Course';
 
     const description = (currentLocale === 'eu' && displayCourse.descripcion_eu) ? displayCourse.descripcion_eu :
-        (currentLocale === 'en' && displayCourse.descripcion_en) ? displayCourse.descripcion_en :
-            (currentLocale === 'fr' && displayCourse.descripcion_fr) ? displayCourse.descripcion_fr :
+        (currentLocale === 'en' && displayCourse.descripcion_es) ? displayCourse.descripcion_es :
+            (currentLocale === 'fr' && displayCourse.descripcion_es) ? displayCourse.descripcion_es :
                 displayCourse.descripcion_es || 'Course description...';
 
     const jsonLd = {
