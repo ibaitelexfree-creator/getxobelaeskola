@@ -71,15 +71,9 @@ export default function TaskLauncher() {
     const currentMode = modeConfig[mode];
 
     const julesConfig = {
-<<<<<<< HEAD
         '1': { label: 'Jules 1', role: 'Analytics', icon: <Eye size={14} />, color: 'text-status-blue', desc: 'Tinybird MCP (Read Only). Detecta anomalías y testea entornos Preview de Render.' },
         '2': { label: 'Jules 2', role: 'Data Eng', icon: <Database size={14} />, color: 'text-status-green', desc: 'Neon MCP. Opera en branches, no edita código. Reportes SQL.' },
         '3': { label: 'Jules 3', role: 'Dev ORQ', icon: <Terminal size={14} />, color: 'text-status-amber', desc: 'Context7 + Render MCP. Modifica código, genera branches, previews y aprueba merges.' },
-=======
-        '1': { label: 'Jules 1', role: 'Analytics', icon: <Shield size={14} />, color: 'text-status-blue', desc: 'Tinybird MCP (Read Only). Detecta anomalías y testea entornos Preview de Render.' },
-        '2': { label: 'Jules 2', role: 'Data Eng', icon: <Shield size={14} />, color: 'text-status-green', desc: 'Neon MCP. Opera en branches, no edita código. Reportes SQL.' },
-        '3': { label: 'Jules 3', role: 'Dev ORQ', icon: <Shield size={14} />, color: 'text-status-amber', desc: 'Context7 + Render MCP. Modifica código, genera branches, previews y aprueba merges.' },
->>>>>>> e3a7995 (pre-rebase-2)
     };
 
     return (
