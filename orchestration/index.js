@@ -3,6 +3,7 @@ import axios from 'axios';
 import dotenv from 'dotenv';
 import https from 'https';
 import dns from 'dns';
+import { GoogleAuth } from 'google-auth-library';
 
 // Fix connection hangs to Telegram/Browserless by prioritizing IPv4
 if (dns.setDefaultResultOrder) {
@@ -11,7 +12,11 @@ if (dns.setDefaultResultOrder) {
 import fs, { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs';
 import path, { join } from 'path';
 import os from 'os';
+import { fileURLToPath } from 'url';
 import admin from 'firebase-admin';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 import { getIssue, getIssuesByLabel, formatIssueForPrompt, listReleases, downloadAsset } from './lib/github.js';
 import { BatchProcessor } from './lib/batch.js';
 import { SessionMonitor } from './lib/monitor.js';
@@ -90,6 +95,21 @@ function getJulesApiKey() {
   const key = JULES_API_KEYS[_julesKeyIndex % JULES_API_KEYS.length];
   _julesKeyIndex++;
   return key;
+}
+
+// Google Auth for Jules API (Auto-manages tokens if service account provided)
+let julesAuth = null;
+try {
+  const saPath = path.join(__dirname, 'firebase-auth.json');
+  if (fs.existsSync(saPath)) {
+    julesAuth = new GoogleAuth({
+      keyFile: saPath,
+      scopes: ['https://www.googleapis.com/auth/cloud-platform']
+    });
+    console.log('[Jules] Google Auth initialized via firebase-auth.json');
+  }
+} catch (err) {
+  console.warn('[Jules] Google Auth init failed:', err.message);
 }
 // Backward compat: primary key
 const JULES_API_KEY = JULES_API_KEYS[0] || null;
@@ -1690,15 +1710,35 @@ function julesRequest(method, path, body = null) {
     return Promise.reject(new Error('Circuit breaker is open - Jules API temporarily unavailable'));
   }
 
-  return new Promise((resolve, reject) => {
+  return new Promise(async (resolve, reject) => {
+    let authHeader = {};
+    const apiKey = getJulesApiKey();
+
+    if (julesAuth) {
+      try {
+        const client = await julesAuth.getClient();
+        const token = await client.getAccessToken();
+        authHeader = { 'Authorization': `Bearer ${token.token}` };
+      } catch (err) {
+        console.warn('[Jules API] Auth fallback to API Key:', err.message);
+        authHeader = apiKey?.startsWith('AQ.') || apiKey?.startsWith('ya29.')
+          ? { 'Authorization': `Bearer ${apiKey}` }
+          : { 'X-Goog-Api-Key': apiKey };
+      }
+    } else {
+      authHeader = apiKey?.startsWith('AQ.') || apiKey?.startsWith('ya29.')
+        ? { 'Authorization': `Bearer ${apiKey}` }
+        : { 'X-Goog-Api-Key': apiKey };
+    }
+
     const options = {
       hostname: 'jules.googleapis.com',
       port: 443,
       path: '/v1alpha' + path,
       method: method,
-      agent: julesAgent, // Connection pooling for 25-30% latency reduction
+      agent: julesAgent,
       headers: {
-        'X-Goog-Api-Key': getJulesApiKey(), // Rotativo entre las 3 cuentas
+        ...authHeader,
         'Content-Type': 'application/json'
       }
     };
