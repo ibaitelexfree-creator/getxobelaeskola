@@ -8,20 +8,32 @@ export interface SemanticCacheConfig {
 }
 
 export class SemanticCache {
-  private openai: OpenAI;
+  private openai: OpenAI | null = null;
   private threshold: number;
   private model: string;
+  private apiKey?: string;
 
   constructor(config: SemanticCacheConfig = {}) {
-    this.openai = new OpenAI({
-      apiKey: config.apiKey || process.env.OPENAI_API_KEY,
-    });
+    this.apiKey = config.apiKey || process.env.OPENAI_API_KEY;
     this.threshold = config.threshold ?? 0.9;
     this.model = config.model ?? 'text-embedding-3-small';
   }
 
+  private getOpenAI(): OpenAI {
+    if (!this.openai) {
+      if (!this.apiKey) {
+        throw new Error('OpenAI API Key is missing. Please set OPENAI_API_KEY environment variable or pass it to the constructor.');
+      }
+      this.openai = new OpenAI({
+        apiKey: this.apiKey,
+      });
+    }
+    return this.openai!;
+  }
+
   private async generateEmbedding(text: string): Promise<number[]> {
-    const response = await this.openai.embeddings.create({
+    const openai = this.getOpenAI();
+    const response = await openai.embeddings.create({
       model: this.model,
       input: text,
       encoding_format: 'float',
@@ -56,6 +68,9 @@ export class SemanticCache {
       return null;
     } catch (error) {
       console.error('Semantic Cache find error:', error);
+      if (error instanceof Error && error.message.includes('OpenAI API Key is missing')) {
+          throw error;
+      }
       return null;
     }
   }
@@ -81,5 +96,3 @@ export class SemanticCache {
     }
   }
 }
-
-export const semanticCache = new SemanticCache();
