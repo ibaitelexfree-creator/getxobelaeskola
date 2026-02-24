@@ -2,6 +2,7 @@
 import { requireInstructor } from '@/lib/auth-guard';
 import { NextResponse } from 'next/server';
 import { createGoogleEvent, updateGoogleEvent } from '@/lib/google-calendar';
+import { validateSessionOverlap } from '@/lib/session-validation';
 
 export async function POST(request: Request) {
     try {
@@ -62,6 +63,34 @@ export async function POST(request: Request) {
         if (fecha_fin !== undefined) updateData.fecha_fin = fecha_fin;
         if (estado !== undefined) updateData.estado = estado;
         if (observaciones !== undefined) updateData.observaciones = observaciones;
+
+        // Validate overlapping sessions (unless cancelling)
+        const nextState = updateData.estado !== undefined ? updateData.estado : currentSession.estado;
+
+        if (nextState !== 'cancelada') {
+            const nextInstructorId = updateData.instructor_id !== undefined ? updateData.instructor_id : currentSession.instructor_id;
+            const nextStart = updateData.fecha_inicio !== undefined ? updateData.fecha_inicio : currentSession.fecha_inicio;
+            const nextEnd = updateData.fecha_fin !== undefined ? updateData.fecha_fin : currentSession.fecha_fin;
+
+            let nextBoatId;
+            if (updateData.embarcacion_id !== undefined) {
+                nextBoatId = updateData.embarcacion_id;
+            } else {
+                nextBoatId = currentSession.embarcacion_id;
+            }
+
+            const validation = await validateSessionOverlap(supabaseAdmin, {
+                instructor_id: nextInstructorId,
+                embarcacion_id: nextBoatId,
+                fecha_inicio: nextStart,
+                fecha_fin: nextEnd,
+                exclude_session_id: id
+            });
+
+            if (validation.error) {
+                return NextResponse.json({ error: validation.error }, { status: 409 });
+            }
+        }
 
         // Perform update
         const { data, error } = await supabaseAdmin
