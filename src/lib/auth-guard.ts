@@ -1,4 +1,3 @@
-
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { NextResponse } from 'next/server';
@@ -13,7 +12,7 @@ export async function checkAuth(): Promise<{
     error: any;
 }> {
     const supabase = createClient();
-    const { data: { user }, error: authError || { message: 'No autenticado' } } = await supabase.auth.getUser();
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
 
     if (authError || !user) {
         return { user: null, profile: null, supabaseAdmin: null, supabase, error: authError || { message: 'No autenticado' } };
