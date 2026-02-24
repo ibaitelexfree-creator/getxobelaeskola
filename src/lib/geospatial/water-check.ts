@@ -15,29 +15,44 @@ interface WaterPolygonItem {
 const tree = new RBush<WaterPolygonItem>();
 const featureCollection = waterGeometryData as any;
 
-// Populate the index once
-if (featureCollection.features) {
-    const items: WaterPolygonItem[] = featureCollection.features.map((feature: any) => {
-        const bbox = turf.bbox(feature);
-        return {
-            minX: bbox[0],
-            minY: bbox[1],
-            maxX: bbox[2],
-            maxY: bbox[3],
-            feature: feature
-        };
-    });
-    tree.load(items);
-} else {
-    // Fallback if it's a single feature
-    const bbox = turf.bbox(featureCollection);
-    tree.load([{
-        minX: bbox[0],
-        minY: bbox[1],
-        maxX: bbox[2],
-        maxY: bbox[3],
-        feature: featureCollection
-    }]);
+try {
+    // Populate the index once
+    if (featureCollection.features) {
+        const items: WaterPolygonItem[] = [];
+        featureCollection.features.forEach((feature: any) => {
+            try {
+                if (feature && feature.geometry) {
+                    const bbox = turf.bbox(feature);
+                    items.push({
+                        minX: bbox[0],
+                        minY: bbox[1],
+                        maxX: bbox[2],
+                        maxY: bbox[3],
+                        feature: feature
+                    });
+                }
+            } catch (err) {
+                console.warn('Skipping invalid feature for water check index:', err);
+            }
+        });
+        tree.load(items);
+    } else {
+        // Fallback if it's a single feature
+        try {
+            const bbox = turf.bbox(featureCollection);
+            tree.load([{
+                minX: bbox[0],
+                minY: bbox[1],
+                maxX: bbox[2],
+                maxY: bbox[3],
+                feature: featureCollection
+            }]);
+        } catch (err) {
+             console.warn('Skipping invalid single feature for water check index:', err);
+        }
+    }
+} catch (error) {
+    console.error('Failed to initialize water check index:', error);
 }
 
 // Simple check if a point (lat, lng) is within the water polygons
