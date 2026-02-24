@@ -1,5 +1,5 @@
 import { renderHook, act } from '@testing-library/react';
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { useFinancialReports, FinancialTransaction } from './useFinancialReports';
 
 // Mocks
@@ -43,11 +43,25 @@ describe('useFinancialReports', () => {
         }
     ];
 
+    beforeEach(() => {
+        // Mock system time to ensure consistent date filtering
+        // "now" will be 2023-06-01, so "year" filter covers 2023-01-01
+        vi.useFakeTimers();
+        vi.setSystemTime(new Date('2023-06-01T12:00:00Z'));
+    });
+
+    afterEach(() => {
+        vi.useRealTimers();
+    });
+
     it('initializes with data and calculates revenue', () => {
         const { result } = renderHook(() => useFinancialReports({ initialData: mockData, initialView: 'year' }));
 
+        // Wait for effects if any (though useFinancialReports uses sync state for initialData mostly)
+
         expect(result.current.transactions).toHaveLength(2);
-        // Ensure revenue is calculated correctly (mock parseAmount converts directly)
+        // "year" view from 2023-06-01 goes back 365 days -> includes Jan 2023.
+        expect(result.current.filteredData).toHaveLength(2);
         expect(result.current.totalRevenue).toBe(150);
     });
 
