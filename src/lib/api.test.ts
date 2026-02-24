@@ -1,137 +1,139 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { getApiBaseUrl, apiUrl } from './api';
 
-describe('getApiBaseUrl', () => {
-    const originalWindow = global.window;
-    const originalEnv = process.env;
+describe('src/lib/api.ts', () => {
+  beforeEach(() => {
+    vi.unstubAllGlobals();
+    vi.resetModules();
+    vi.stubEnv('NEXT_PUBLIC_APP_URL', undefined); // clear by default
+  });
 
-    beforeEach(() => {
-        vi.resetModules();
-        process.env = { ...originalEnv };
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    vi.unstubAllEnvs();
+  });
+
+  describe('getApiBaseUrl', () => {
+    it('should return empty string during SSR (window is undefined)', () => {
+      vi.stubGlobal('window', undefined);
+      expect(getApiBaseUrl()).toBe('');
     });
 
-    afterEach(() => {
-        vi.unstubAllGlobals();
-        process.env = originalEnv;
+    it('should return origin on localhost', () => {
+      vi.stubGlobal('window', {
+        location: {
+          hostname: 'localhost',
+          protocol: 'http:',
+          origin: 'http://localhost:3000'
+        }
+      });
+      expect(getApiBaseUrl()).toBe('http://localhost:3000');
     });
 
-    it('should return empty string when window is undefined (server-side)', () => {
-        vi.stubGlobal('window', undefined);
-        expect(getApiBaseUrl()).toBe('');
+    it('should return origin on 127.0.0.1', () => {
+      vi.stubGlobal('window', {
+        location: {
+          hostname: '127.0.0.1',
+          protocol: 'http:',
+          origin: 'http://127.0.0.1:3000'
+        }
+      });
+      expect(getApiBaseUrl()).toBe('http://127.0.0.1:3000');
     });
 
-    it('should return window.location.origin when on localhost browser', () => {
-        const mockLocation = {
-            hostname: 'localhost',
-            protocol: 'http:',
-            origin: 'http://localhost:3000',
-        };
-        vi.stubGlobal('window', { location: mockLocation });
-
-        expect(getApiBaseUrl()).toBe('http://localhost:3000');
+    it('should return NEXT_PUBLIC_APP_URL in Capacitor environment', () => {
+      vi.stubGlobal('window', {
+        location: {
+          hostname: 'localhost',
+          protocol: 'capacitor:',
+          origin: 'capacitor://localhost'
+        }
+      });
+      vi.stubEnv('NEXT_PUBLIC_APP_URL', 'https://capacitor-app.com');
+      expect(getApiBaseUrl()).toBe('https://capacitor-app.com');
     });
 
-    it('should return NEXT_PUBLIC_APP_URL when on Capacitor (localhost)', () => {
-        const mockLocation = {
-            hostname: 'localhost',
-            protocol: 'capacitor:',
-            origin: 'capacitor://localhost',
-        };
-        vi.stubGlobal('window', { location: mockLocation });
-        process.env.NEXT_PUBLIC_APP_URL = 'https://api.example.com';
-
-        expect(getApiBaseUrl()).toBe('https://api.example.com');
-    });
-
-    it('should return NEXT_PUBLIC_APP_URL when on Capacitor (file protocol)', () => {
-        const mockLocation = {
+    it('should return NEXT_PUBLIC_APP_URL in File environment', () => {
+        vi.stubGlobal('window', {
+          location: {
             hostname: 'localhost',
             protocol: 'file:',
-            origin: 'file://',
-        };
-        vi.stubGlobal('window', { location: mockLocation });
-        process.env.NEXT_PUBLIC_APP_URL = 'https://api.example.com';
+            origin: 'file://'
+          }
+        });
+        vi.stubEnv('NEXT_PUBLIC_APP_URL', 'https://file-app.com');
+        expect(getApiBaseUrl()).toBe('https://file-app.com');
+      });
 
-        expect(getApiBaseUrl()).toBe('https://api.example.com');
+    it('should return NEXT_PUBLIC_APP_URL in production browser if set', () => {
+      vi.stubGlobal('window', {
+        location: {
+          hostname: 'my-app.com',
+          protocol: 'https:',
+          origin: 'https://my-app.com'
+        }
+      });
+      vi.stubEnv('NEXT_PUBLIC_APP_URL', 'https://api.my-app.com');
+      expect(getApiBaseUrl()).toBe('https://api.my-app.com');
     });
 
-    it('should return NEXT_PUBLIC_APP_URL when explicitly set (production browser)', () => {
-        const mockLocation = {
-            hostname: 'example.com',
+    it('should fallback to default production URL if NEXT_PUBLIC_APP_URL is missing in production', () => {
+      vi.stubGlobal('window', {
+        location: {
+            hostname: 'my-app.com',
             protocol: 'https:',
-            origin: 'https://example.com',
-        };
-        vi.stubGlobal('window', { location: mockLocation });
-        process.env.NEXT_PUBLIC_APP_URL = 'https://api.custom.com';
-
-        expect(getApiBaseUrl()).toBe('https://api.custom.com');
+            origin: 'https://my-app.com'
+        }
+      });
+      // NEXT_PUBLIC_APP_URL is undefined by default in beforeEach
+      expect(getApiBaseUrl()).toBe('https://getxobelaeskola.cloud');
     });
 
-    it('should return fallback URL when on production browser and NEXT_PUBLIC_APP_URL is not set', () => {
-        const mockLocation = {
-            hostname: 'example.com',
-            protocol: 'https:',
-            origin: 'https://example.com',
-        };
-        vi.stubGlobal('window', { location: mockLocation });
-        delete process.env.NEXT_PUBLIC_APP_URL;
-
-        expect(getApiBaseUrl()).toBe('https://getxobelaeskola.cloud');
+    it('should strip trailing slash from NEXT_PUBLIC_APP_URL', () => {
+        vi.stubGlobal('window', {
+            location: {
+                hostname: 'my-app.com',
+                protocol: 'https:',
+                origin: 'https://my-app.com'
+            }
+        });
+        vi.stubEnv('NEXT_PUBLIC_APP_URL', 'https://api.my-app.com/');
+        expect(getApiBaseUrl()).toBe('https://api.my-app.com');
     });
+  });
 
-    it('should remove trailing slash from NEXT_PUBLIC_APP_URL', () => {
-        const mockLocation = {
-            hostname: 'example.com',
-            protocol: 'https:',
-            origin: 'https://example.com',
-        };
-        vi.stubGlobal('window', { location: mockLocation });
-        process.env.NEXT_PUBLIC_APP_URL = 'https://api.custom.com/';
-
-        expect(getApiBaseUrl()).toBe('https://api.custom.com');
-    });
-});
-
-describe('apiUrl', () => {
-    const originalWindow = global.window;
-    const originalEnv = process.env;
-
+  describe('apiUrl', () => {
     beforeEach(() => {
-        vi.resetModules();
-        process.env = { ...originalEnv };
-        // Set a default environment for apiUrl tests
-        const mockLocation = {
-            hostname: 'example.com',
-            protocol: 'https:',
-            origin: 'https://example.com',
-        };
-        vi.stubGlobal('window', { location: mockLocation });
-        process.env.NEXT_PUBLIC_APP_URL = 'https://api.test.com';
+        // Setup a predictable base URL for apiUrl tests
+        vi.stubGlobal('window', {
+            location: {
+                hostname: 'my-app.com',
+                protocol: 'https:',
+                origin: 'https://my-app.com'
+            }
+        });
+        vi.stubEnv('NEXT_PUBLIC_APP_URL', 'https://api.test.com');
     });
 
-    afterEach(() => {
-        vi.unstubAllGlobals();
-        process.env = originalEnv;
+    it('should append normal path to base url', () => {
+      expect(apiUrl('/users')).toBe('https://api.test.com/users');
     });
 
-    it('should append path to base URL', () => {
-        expect(apiUrl('/users')).toBe('https://api.test.com/users');
+    it('should handle path without leading slash', () => {
+      expect(apiUrl('users')).toBe('https://api.test.com/users');
     });
 
-    it('should add leading slash if missing', () => {
-        expect(apiUrl('users')).toBe('https://api.test.com/users');
+    it('should replace /api/academy/ with /api/', () => {
+      expect(apiUrl('/api/academy/users')).toBe('https://api.test.com/api/users');
     });
 
-    it('should correct /api/academy/ prefix to /api/', () => {
-        expect(apiUrl('/api/academy/users')).toBe('https://api.test.com/api/users');
+    it('should not modify paths that do not start with /api/academy/', () => {
+        expect(apiUrl('/api/other/users')).toBe('https://api.test.com/api/other/users');
     });
 
-    it('should handle complex paths correctly', () => {
-        expect(apiUrl('/api/academy/v1/resource/123')).toBe('https://api.test.com/api/v1/resource/123');
+    it('should return absolute URLs as-is', () => {
+       const absUrl = 'https://external.com/api/data';
+       expect(apiUrl(absUrl)).toBe(absUrl);
     });
-
-    it('should work correctly server-side (empty base)', () => {
-        vi.stubGlobal('window', undefined);
-        expect(apiUrl('/api/users')).toBe('/api/users');
-    });
+  });
 });
