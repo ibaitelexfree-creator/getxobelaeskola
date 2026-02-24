@@ -102,7 +102,7 @@ describe('isPointInWater', () => {
 
     it('returns false gracefully when geometry data is invalid', () => {
         // Case: features array exists but contains invalid objects
-        mockData.data.features = [{}];
+        mockData.data.features[0].geometry = null as any;
         expect(isPointInWater(5, 5)).toBe(false);
     });
 });

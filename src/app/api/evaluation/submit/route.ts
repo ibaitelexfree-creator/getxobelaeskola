@@ -143,7 +143,7 @@ export async function POST(request: Request) {
                     currentSrs.forEach((s: any) => srsMap.set(s.question_id, s));
                 }
 
-                const updates = [];
+                const updates: any[] = [];
                 for (const q of (allQuestions as any[])) {
                     const userAnswer = respuestasMerged[q.id];
                     // Si no respondió, consideramos incorrecto
