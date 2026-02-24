@@ -14,10 +14,10 @@ vi.stubGlobal('fetch', fetchMock);
 describe('fetchWeatherData', () => {
     beforeEach(() => {
         vi.resetAllMocks();
-        // Re-setup global fetch stub after reset (as reset might clear it if it was a spy)
-        // But since we used vi.stubGlobal, it stays.
-        // However, fetchMock is a vi.fn(), so resetAllMocks resets it to return undefined.
-        // We need to re-apply behavior if needed, but we do that in each test.
+    });
+
+    afterEach(() => {
+        vi.useRealTimers();
     });
 
     // Helper to generate Unisono HTML
@@ -117,7 +117,7 @@ describe('fetchWeatherData', () => {
             kmh: 18.0, // 5.0 * 3.6 = 18.0
             direction: 270,
             temp: 18,
-            timestamp: expect.any(String), // We can't predict exact time
+            timestamp: expect.any(String),
         });
     });
 
@@ -193,14 +193,57 @@ describe('fetchWeatherData', () => {
 
         // Mock Euskalmet C042 and B090 to fail
         (euskalmet.fetchEuskalmetStationData as Mock)
-            .mockResolvedValueOnce(null)
-            .mockResolvedValueOnce(null);
+            .mockImplementation(async () => null);
 
         await expect(fetchWeatherData()).rejects.toThrow('No weather data available from Unisono or Euskalmet');
     });
 
-    it('should handle fetch errors', async () => {
-        fetchMock.mockRejectedValueOnce(new Error('Network error'));
-        await expect(fetchWeatherData()).rejects.toThrow('Network error');
+    it('should handle malformed Unisono HTML gracefully', async () => {
+        // Unisono returns garbage
+        fetchMock.mockResolvedValueOnce({
+            ok: true,
+            text: async () => '<html><body><h1>Not a table</h1></body></html>',
+        });
+
+        // Mock Euskalmet C042 to return valid data (Priority 2)
+        const mockEuskalmetData = {
+            readings: [{ sensorId: 'wind_speed', value: 5.0 }]
+        };
+        (euskalmet.fetchEuskalmetStationData as Mock).mockResolvedValueOnce(mockEuskalmetData);
+
+        const result = await fetchWeatherData();
+        expect(result.station).toBe('Punta Galea (Euskalmet)');
+    });
+
+    it('should handle timeout correctly (abort and fallback)', async () => {
+        vi.useFakeTimers();
+        const abortSpy = vi.spyOn(AbortController.prototype, 'abort');
+
+        // Controlled promise to simulate network hang and then manual rejection
+        let rejectFetch: (reason?: any) => void = () => {};
+        const fetchPromise = new Promise<Response>((_, reject) => {
+            rejectFetch = reject;
+        });
+
+        fetchMock.mockReturnValue(fetchPromise);
+
+        // Mock Euskalmet fallback (will be called after fetch failure)
+         const mockEuskalmetData = {
+            readings: [{ sensorId: 'wind_speed', value: 6.0 }]
+        };
+        (euskalmet.fetchEuskalmetStationData as Mock).mockResolvedValueOnce(mockEuskalmetData);
+
+        const resultPromise = fetchWeatherData();
+
+        // Fast forward time to trigger timeout
+        vi.advanceTimersByTime(8100);
+
+        expect(abortSpy).toHaveBeenCalled();
+
+        // Manually reject the fetch to simulate the AbortError
+        rejectFetch(new DOMException('Aborted', 'AbortError'));
+
+        const result = await resultPromise;
+        expect(result.station).toBe('Punta Galea (Euskalmet)');
     });
 });
