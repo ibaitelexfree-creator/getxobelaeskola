@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { Network, ConnectionStatus, PluginListenerHandle } from '@capacitor/network';
+import { Network, ConnectionStatus } from '@capacitor/network';
 
 /**
  * Hook to monitor network status and detect WiFi transitions.

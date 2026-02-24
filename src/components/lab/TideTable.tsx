@@ -149,7 +149,7 @@ export default function TideTable({ date, onDateChange }: TideTableProps) {
                                         color: '#fff'
                                     }}
                                     itemStyle={{ color: '#60a5fa' }}
-                                    formatter={(value: any) => [`${value.toFixed(2)} m`, 'Altura']}
+                                    formatter={(value: number) => [`${value.toFixed(2)} m`, 'Altura']}
                                     labelStyle={{ color: '#94a3b8', marginBottom: '4px' }}
                                 />
                                 <Area
