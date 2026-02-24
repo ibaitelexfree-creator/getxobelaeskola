@@ -73,7 +73,7 @@ export async function GET(req: Request) {
         }
 
         // Enrich with relations count from embedded data
-        const enriched = (data || []).map((item: SearchResult) => {
+        const enriched = ((data as unknown as SearchResult[]) || []).map((item: SearchResult) => {
             const relations: { label: string; count: number; table: string }[] = [];
 
             for (const rel of rels) {
