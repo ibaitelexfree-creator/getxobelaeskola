@@ -1,0 +1,46 @@
+name: "⚡ Fast Lane: Consolidated Verification"
+
+on:
+    push:
+        branches: [main, master, "feature/**", "fix/**"]
+    pull_request:
+        branches: [main, master]
+
+# Debouncing: Cancels previous runs for the same branch/PR
+concurrency:
+    group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+    cancel-in-progress: true
+
+jobs:
+    fast-verify:
+        name: "🚀 Standard Check (<60s)"
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+
+            - name: "Setup Runtime"
+              uses: actions/setup-node@v4
+              with:
+                  node-version: 22
+                  cache: "npm"
+
+            - name: "⚡ Parallel Lint & Format"
+              run: |
+                  npm install -g oxlint@latest @biomejs/biome@latest --no-progress --loglevel=error
+                  (oxlint ./src --quiet && echo "✅ Oxlint Passed") &
+                  (biome check ./src --diagnostic-level=error && echo "✅ Biome Passed") &
+                  wait
+
+            - name: "📦 Install Deps (Cached)"
+              run: npm ci --legacy-peer-deps --prefer-offline --no-audit --no-fund --loglevel=error
+
+            - name: "🧪 Type Check (Root)"
+              env:
+                  NODE_OPTIONS: "--max_old_space_size=4096"
+              run: npx tsc --noEmit && echo "✅ Root TypeScript Passed"
+
+            - name: "🧪 Type Check (Mission Control)"
+              run: |
+                  cd mission-control
+                  npm ci --legacy-peer-deps --prefer-offline --no-audit --no-fund --loglevel=error
+                  npx tsc --noEmit && echo "✅ Mission Control TypeScript Passed"

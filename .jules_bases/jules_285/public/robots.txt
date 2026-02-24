@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /_next/
+Disallow: /admin/
+Disallow: /staff/
+Disallow: /student/dashboard/
+
+Sitemap: https://getxobelaeskola.com/sitemap.xml

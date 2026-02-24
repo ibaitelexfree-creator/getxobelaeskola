@@ -12,7 +12,7 @@ if (-not $currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Adm
 # Script de Mantenimiento y Arranque Agentico (Vuela)
 # Limpia el sistema y arranca el Orquestador + Visual Bridge
 
-$ProjectRoot = "c:\Users\User\Desktop\Saili8ng School Test"
+$ProjectRoot = Split-Path -Parent $PSScriptRoot
 $MaxSizeBytes = 1MB
 
 try {

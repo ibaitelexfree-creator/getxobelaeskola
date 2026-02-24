@@ -1,0 +1,602 @@
+[
+  {
+    "id": 1,
+    "question": "¿Qué se entiende por 'buque que no puede maniobrar' según el RIPA?",
+    "options": [
+      "Un buque que por la naturaleza de su trabajo tiene capacidad restringida para maniobrar.",
+      "Un buque que por cualquier circunstancia excepcional es incapaz de maniobrar según exige el Reglamento.",
+      "Un buque dedicado a la pesca que no puede apartarse del rumbo de otro buque.",
+      "Un buque varado."
+    ],
+    "correctAnswer": "Un buque que por cualquier circunstancia excepcional es incapaz de maniobrar según exige el Reglamento.",
+    "explanation": "Regla 3 (f): La expresión 'buque sin gobierno' (que no puede maniobrar) significa todo buque que por cualquier circunstancia excepcional es incapaz de maniobrar en la forma exigida por este Reglamento."
+  },
+  {
+    "id": 2,
+    "question": "En un canal angosto, ¿por dónde debe navegar un buque de propulsión mecánica?",
+    "options": [
+      "Por el centro del canal para evitar bajos fondos.",
+      "Lo más cerca posible del límite exterior del canal que quede por su costado de babor.",
+      "Lo más cerca posible del límite exterior del canal que quede por su costado de estribor.",
+      "Por donde la corriente sea más favorable."
+    ],
+    "correctAnswer": "Lo más cerca posible del límite exterior del canal que quede por su costado de estribor.",
+    "explanation": "Regla 9 (a): Los buques que naveguen a lo largo de un paso o canal angosto se mantendrán lo más cerca posible del límite exterior del paso o canal que quede por su costado de estribor."
+  },
+  {
+    "id": 3,
+    "question": "¿Cuál es la señal acústica de maniobra para indicar 'caigo a estribor'?",
+    "options": [
+      "Dos pitadas cortas.",
+      "Una pitada corta.",
+      "Tres pitadas cortas.",
+      "Una pitada larga."
+    ],
+    "correctAnswer": "Una pitada corta.",
+    "explanation": "Regla 34 (a): Una pitada corta significa 'caigo a estribor'. Dos cortas 'caigo a babor'. Tres cortas 'estoy dando atrás'."
+  },
+  {
+    "id": 4,
+    "question": "Si dos buques de propulsión mecánica se encuentran de vuelta encontrada con riesgo de abordaje, ¿cómo deben maniobrar?",
+    "options": [
+      "Ambos deben caer a babor.",
+      "El que vea al otro por su costado de estribor debe ceder el paso.",
+      "Ambos deben caer a estribor para pasar babor con babor.",
+      "El buque más rápido debe maniobrar."
+    ],
+    "correctAnswer": "Ambos deben caer a estribor para pasar babor con babor.",
+    "explanation": "Regla 14 (a): Cuando dos buques de propulsión mecánica naveguen de vuelta encontrada a rumbos opuestos o casi opuestos, con riesgo de abordaje, cada uno de ellos caerá a estribor."
+  },
+  {
+    "id": 5,
+    "question": "¿Qué luces debe exhibir un buque de propulsión mecánica en navegación de eslora igual o superior a 50 metros?",
+    "options": [
+      "Luz de tope a proa, luces de costado y luz de alcance.",
+      "Luz de tope a proa, segunda luz de tope a popa más alta que la de proa, luces de costado y luz de alcance.",
+      "Luces de costado y luz de alcance solamente.",
+      "Luz blanca todo horizonte y luces de costado."
+    ],
+    "correctAnswer": "Luz de tope a proa, segunda luz de tope a popa más alta que la de proa, luces de costado y luz de alcance.",
+    "explanation": "Regla 23 (a): Los buques de propulsión mecánica de más de 50 metros deben llevar una segunda luz de tope a popa y más alta que la de proa."
+  },
+  {
+    "id": 6,
+    "question": "¿Cuándo se considera que existe riesgo de abordaje?",
+    "options": [
+      "Cuando la demora de un buque que se aproxima varía notablemente.",
+      "Cuando la distancia al otro buque es menor a 1 milla.",
+      "Cuando la marcación de un buque que se aproxima no varía de forma apreciable.",
+      "Solo cuando ambos buques navegan a más de 10 nudos."
+    ],
+    "correctAnswer": "Cuando la marcación de un buque que se aproxima no varía de forma apreciable.",
+    "explanation": "Regla 7 (d)(i): Se considerará que existe riesgo si la demora (marcación) de un buque que se aproxima no varía de forma apreciable."
+  },
+  {
+    "id": 7,
+    "question": "¿Qué buque tiene preferencia: un buque de vela o un buque dedicado a la pesca?",
+    "options": [
+      "El buque de vela.",
+      "El buque dedicado a la pesca.",
+      "El que venga por estribor.",
+      "El que tenga mayor velocidad."
+    ],
+    "correctAnswer": "El buque dedicado a la pesca.",
+    "explanation": "Regla 18: Un buque de vela se mantendrá apartado del derrotero de un buque dedicado a la pesca."
+  },
+  {
+    "id": 8,
+    "question": "Un buque exhibe tres luces rojas en línea vertical. ¿Qué indica?",
+    "options": [
+      "Buque restringido por su calado.",
+      "Buque varado.",
+      "Buque sin gobierno (no puede maniobrar).",
+      "Buque dedicado a operaciones submarinas."
+    ],
+    "correctAnswer": "Buque restringido por su calado.",
+    "explanation": "Regla 28: Un buque restringido por su calado exhibirá, además de las luces de navegación, tres luces rojas todo horizonte en línea vertical."
+  },
+  {
+    "id": 9,
+    "question": "¿Qué significa una luz amarilla situada encima de la luz de alcance?",
+    "options": [
+      "Buque fondeado.",
+      "Buque remolcando.",
+      "Submarino en superficie.",
+      "Buque práctico."
+    ],
+    "correctAnswer": "Buque remolcando.",
+    "explanation": "Regla 24: La luz de remolque es una luz amarilla de las mismas características que la de alcance, colocada en línea vertical encima de esta."
+  },
+  {
+    "id": 10,
+    "question": "¿Cómo debe actuar un buque que alcanza a otro?",
+    "options": [
+      "Tiene preferencia si es de vela.",
+      "Debe mantenerse apartado de la derrota del buque alcanzado.",
+      "Debe pitar para que el otro se aparte.",
+      "Solo debe maniobrar si hay riesgo inminente."
+    ],
+    "correctAnswer": "Debe mantenerse apartado de la derrota del buque alcanzado.",
+    "explanation": "Regla 13 (a): Todo buque que alcance a otro se mantendrá apartado de la derrota del buque alcanzado."
+  },
+  {
+    "id": 11,
+    "question": "En condiciones de visibilidad reducida, ¿qué señal emite un buque de propulsión mecánica con arrancada?",
+    "options": [
+      "Dos pitadas largas cada 2 minutos.",
+      "Una pitada larga cada 2 minutos.",
+      "Una pitada corta cada minuto.",
+      "Tres pitadas consecutivas."
+    ],
+    "correctAnswer": "Una pitada larga cada 2 minutos.",
+    "explanation": "Regla 35 (a): Un buque de propulsión mecánica con arrancada emitirá una pitada larga a intervalos que no excedan de 2 minutos."
+  },
+  {
+    "id": 12,
+    "question": "¿Qué es la 'velocidad de seguridad'?",
+    "options": [
+      "Navegar a menos de 5 nudos.",
+      "La velocidad que permite detener el buque en la mitad de la distancia de visibilidad.",
+      "La velocidad que permite ejecutar la maniobra adecuada y detener el buque a una distancia apropiada.",
+      "La velocidad máxima del motor menos un 20%."
+    ],
+    "correctAnswer": "La velocidad que permite ejecutar la maniobra adecuada y detener el buque a una distancia apropiada.",
+    "explanation": "Regla 6: Todo buque navegará en todo momento a una velocidad de seguridad tal que le permita ejecutar la maniobra adecuada y eficaz para evitar el abordaje."
+  },
+  {
+    "id": 13,
+    "question": "¿Qué arco de visibilidad tiene una luz de tope?",
+    "options": [
+      "112,5 grados.",
+      "135 grados.",
+      "225 grados.",
+      "360 grados."
+    ],
+    "correctAnswer": "225 grados.",
+    "explanation": "Regla 21 (a): La 'luz de tope' es una luz blanca colocada sobre el eje longitudinal, visible en un arco de 225 grados hacia proa."
+  },
+  {
+    "id": 14,
+    "question": "Si ves una luz verde y una luz blanca por encima de ella, ¿qué tipo de buque es?",
+    "options": [
+      "Un pesquero de arrastre.",
+      "Un buque de practicaje.",
+      "Un velero.",
+      "Un buque restringido por su capacidad de maniobra."
+    ],
+    "correctAnswer": "Un pesquero de arrastre.",
+    "explanation": "Regla 26 (b): Los pesqueros de arrastre exhiben una luz verde sobre una blanca todo horizonte."
+  },
+  {
+    "id": 15,
+    "question": "¿Qué indica una marca cónica con el vértice hacia abajo?",
+    "options": [
+      "Buque fondeado.",
+      "Buque a vela navegando a motor.",
+      "Buque de pesca con aparejo extendido más de 150m.",
+      "Buque restringido por su calado."
+    ],
+    "correctAnswer": "Buque a vela navegando a motor.",
+    "explanation": "Regla 25 (e): Un buque que navegue a vela y además a propulsión mecánica exhibirá a proa una marca cónica con el vértice hacia abajo."
+  },
+  {
+    "id": 16,
+    "question": "En una situación de cruce, si ves a otro buque de propulsión mecánica por tu costado de estribor, ¿quién debe maniobrar?",
+    "options": [
+      "Yo debo maniobrar y ceder el paso.",
+      "El otro buque debe maniobrar.",
+      "Ambos debemos caer a estribor.",
+      "El que vaya más rápido."
+    ],
+    "correctAnswer": "Yo debo maniobrar y ceder el paso.",
+    "explanation": "Regla 15: Cuando dos buques se crucen con riesgo de abordaje, el que tenga al otro por su costado de estribor se mantendrá apartado de la derrota de este otro."
+  },
+  {
+    "id": 17,
+    "question": "¿Qué luces exhibe un buque sin gobierno?",
+    "options": [
+      "Dos luces rojas todo horizonte en línea vertical.",
+      "Tres luces rojas todo horizonte.",
+      "Roja, blanca y roja en línea vertical.",
+      "Dos luces blancas en línea vertical."
+    ],
+    "correctAnswer": "Dos luces rojas todo horizonte en línea vertical.",
+    "explanation": "Regla 27 (a): Un buque sin gobierno exhibirá dos luces rojas todo horizonte en línea vertical."
+  },
+  {
+    "id": 18,
+    "question": "¿Cuál es la jerarquía de prioridades entre buques (de mayor a menor)?",
+    "options": [
+      "Sin gobierno -> Restringido maniobra -> Pesca -> Vela -> Mecánica.",
+      "Mecánica -> Vela -> Pesca -> Restringido maniobra.",
+      "Vela -> Pesca -> Mecánica -> Sin gobierno.",
+      "Pesca -> Sin gobierno -> Vela -> Mecánica."
+    ],
+    "correctAnswer": "Sin gobierno -> Restringido maniobra -> Pesca -> Vela -> Mecánica.",
+    "explanation": "Regla 18: Establece las responsabilidades. Un mecánico cede a todos. Un vela cede a pesca, RAM y sin gobierno, etc."
+  },
+  {
+    "id": 19,
+    "question": "Si oyes 5 pitadas cortas y rápidas, ¿qué significa?",
+    "options": [
+      "Estoy dando atrás.",
+      "Intención de adelantar por estribor.",
+      "Señal de duda o peligro de colisión.",
+      "Buque fondeado en niebla."
+    ],
+    "correctAnswer": "Señal de duda o peligro de colisión.",
+    "explanation": "Regla 34 (d): Cuando un buque abrigue dudas sobre si el otro está efectuando la maniobra adecuada, emitirá por lo menos 5 pitadas cortas y rápidas."
+  },
+  {
+    "id": 20,
+    "question": "¿Qué luces debe llevar un velero de menos de 20 metros?",
+    "options": [
+      "Luces de costado y alcance, o una tricolor en el tope del palo.",
+      "Solo luz blanca todo horizonte.",
+      "Luz de tope y luces de costado.",
+      "Luces roja y verde todo horizonte."
+    ],
+    "correctAnswer": "Luces de costado y alcance, o una tricolor en el tope del palo.",
+    "explanation": "Regla 25: Los buques de vela en navegación exhibirán luces de costado y alcance. Si es menor de 20m, pueden combinarse en una tricolor en el tope."
+  },
+  {
+    "id": 21,
+    "question": "¿Qué significa 'navegación a la vista de uno y otro'?",
+    "options": [
+      "Cuando se detectan por radar.",
+      "Cuando uno puede ser observado visualmente desde el otro.",
+      "Cuando están a menos de 5 millas.",
+      "Cuando es de día."
+    ],
+    "correctAnswer": "Cuando uno puede ser observado visualmente desde el otro.",
+    "explanation": "Regla 3 (k): Se considerará que los buques están a la vista uno del otro solamente cuando uno pueda ser observado visualmente desde el otro."
+  },
+  {
+    "id": 22,
+    "question": "En un dispositivo de separación de tráfico, ¿se puede pescar?",
+    "options": [
+      "No, está prohibido.",
+      "Sí, pero sin estorbar el paso de los buques que siguen la vía de circulación.",
+      "Sí, en cualquier circunstancia.",
+      "Solo en la zona de separación."
+    ],
+    "correctAnswer": "Sí, pero sin estorbar el paso de los buques que siguen la vía de circulación.",
+    "explanation": "Regla 10 (i): Un buque dedicado a la pesca no estorbará el tránsito de cualquier buque que siga una vía de circulación."
+  },
+  {
+    "id": 23,
+    "question": "¿Qué luces exhibe un buque fondeado de más de 50 metros?",
+    "options": [
+      "Una luz blanca todo horizonte a proa y otra a popa más baja.",
+      "Una luz blanca todo horizonte en el palo mayor.",
+      "Dos luces rojas en línea vertical.",
+      "Luces de costado y alcance."
+    ],
+    "correctAnswer": "Una luz blanca todo horizonte a proa y otra a popa más baja.",
+    "explanation": "Regla 30 (a)(b): Buques fondeados exhibirán en la parte de proa una luz blanca todo horizonte y en la popa otra luz blanca más baja que la de proa."
+  },
+  {
+    "id": 24,
+    "question": "¿Qué señal diurna lleva un buque restringido por su capacidad de maniobra?",
+    "options": [
+      "Una esfera negra.",
+      "Dos esferas negras.",
+      "Esfera, bicono (marca bicónica), esfera en línea vertical.",
+      "Un cilindro negro."
+    ],
+    "correctAnswer": "Esfera, bicono (marca bicónica), esfera en línea vertical.",
+    "explanation": "Regla 27 (b): Tres marcas en línea vertical: la más alta y baja esferas, y la central bicónica (rombo). Todo negro."
+  },
+  {
+    "id": 25,
+    "question": "¿Qué luz es visible en un arco de 135 grados hacia popa?",
+    "options": [
+      "Luz de tope.",
+      "Luz de costado.",
+      "Luz de alcance.",
+      "Luz de remolque (si es amarilla)."
+    ],
+    "correctAnswer": "Luz de alcance.",
+    "explanation": "Regla 21 (c): La luz de alcance es una luz blanca situada lo más cerca posible de la popa, visible 135 grados."
+  },
+  {
+    "id": 26,
+    "question": "¿Qué color tienen las luces de costado?",
+    "options": [
+      "Verde a babor y roja a estribor.",
+      "Verde a estribor y roja a babor.",
+      "Ambas blancas.",
+      "Ambas amarillas."
+    ],
+    "correctAnswer": "Verde a estribor y roja a babor.",
+    "explanation": "Regla 21 (b): Luces de costado: luz verde en el costado de estribor y luz roja en el costado de babor."
+  },
+  {
+    "id": 27,
+    "question": "Si dos veleros navegan recibiendo el viento por bandas contrarias, ¿quién cede el paso?",
+    "options": [
+      "El que recibe el viento por babor.",
+      "El que recibe el viento por estribor.",
+      "El que está a barlovento.",
+      "El más rápido."
+    ],
+    "correctAnswer": "El que recibe el viento por babor.",
+    "explanation": "Regla 12 (a)(i): Si reciben el viento por bandas contrarias, el que lo reciba por babor se mantendrá apartado de la derrota del otro."
+  },
+  {
+    "id": 28,
+    "question": "¿Qué señal acústica en niebla emite un buque fondeado menor de 100 metros?",
+    "options": [
+      "Un repique de campana de 5 segundos cada minuto.",
+      "Una pitada larga y dos cortas.",
+      "Dos pitadas largas.",
+      "Un gong y una campana."
+    ],
+    "correctAnswer": "Un repique de campana de 5 segundos cada minuto.",
+    "explanation": "Regla 35 (g): Un buque fondeado tocará la campana rápidamente durante unos 5 segundos a intervalos no mayores de 1 minuto."
+  },
+  {
+    "id": 29,
+    "question": "¿Qué indica una bandera 'Alfa' en el Código Internacional?",
+    "options": [
+      "Tengo buzo sumergido, manténgase alejado.",
+      "Estoy cargando mercancías peligrosas.",
+      "Necesito auxilio.",
+      "Pare su máquina inmediatamente."
+    ],
+    "correctAnswer": "Tengo buzo sumergido, manténgase alejado.",
+    "explanation": "Aunque es Código Internacional, el RIPA Regla 27 (e) menciona que una reproducción rígida de la bandera 'A' indica operaciones de buceo."
+  },
+  {
+    "id": 30,
+    "question": "Un buque exhibe Roja sobre Blanca todo horizonte. ¿Qué es?",
+    "options": [
+      "Pesquero de arrastre.",
+      "Pesquero de no arrastre (cerco, palangre...).",
+      "Buque práctico.",
+      "Buque varado."
+    ],
+    "correctAnswer": "Pesquero de no arrastre (cerco, palangre...).",
+    "explanation": "Regla 26 (c): Un buque dedicado a la pesca, que no sea de arrastre, exhibirá roja sobre blanca."
+  },
+  {
+    "id": 31,
+    "question": "¿Qué luces lleva un buque de práctico en servicio?",
+    "options": [
+      "Blanca sobre Roja.",
+      "Roja sobre Blanca.",
+      "Verde sobre Blanca.",
+      "Roja sobre Roja."
+    ],
+    "correctAnswer": "Blanca sobre Roja.",
+    "explanation": "Regla 29: Un buque en servicio de practicaje exhibirá en la parte superior del palo una luz blanca sobre una roja."
+  },
+  {
+    "id": 32,
+    "question": "¿Cuándo se considera que un buque 'alcanza' a otro?",
+    "options": [
+      "Cuando se aproxima viniendo desde una marcación mayor de 22,5 grados a popa del través.",
+      "Cuando viene por la proa.",
+      "Cuando navega a mayor velocidad en paralelo.",
+      "Cuando está a menos de 500 metros."
+    ],
+    "correctAnswer": "Cuando se aproxima viniendo desde una marcación mayor de 22,5 grados a popa del través.",
+    "explanation": "Regla 13 (b): Se considerará que un buque alcanza a otro cuando venga de una dirección de más de 22,5 grados a popa del través."
+  },
+  {
+    "id": 33,
+    "question": "Si ves tres luces en línea vertical: Blanca - Roja - Blanca. ¿Qué indica?",
+    "options": [
+      "Buque restringido por su calado.",
+      "Buque con buzos.",
+      "Buque dedicado a operaciones de practicaje.",
+      "Señal incorrecta, no existe."
+    ],
+    "correctAnswer": "Señal incorrecta, no existe.",
+    "explanation": "No existe tal combinación en el RIPA. Roja-Blanca-Roja es RAM. Blanca-Roja es práctico. Roja-Blanca es pesca."
+  },
+  {
+    "id": 34,
+    "question": "¿Qué es la 'luz de remolque'?",
+    "options": [
+      "Una luz amarilla colocada encima de la luz de alcance.",
+      "Una luz azul giratoria.",
+      "Una luz roja en el tope.",
+      "Una luz blanca intermitente."
+    ],
+    "correctAnswer": "Una luz amarilla colocada encima de la luz de alcance.",
+    "explanation": "Regla 21 (d): La luz de remolque es una luz amarilla."
+  },
+  {
+    "id": 35,
+    "question": "¿Qué señal acústica indica 'tengo intención de adelantarle por su banda de babor'?",
+    "options": [
+      "Dos largas y dos cortas.",
+      "Dos largas y una corta.",
+      "Una larga y una corta.",
+      "Cinco cortas."
+    ],
+    "correctAnswer": "Dos largas y dos cortas.",
+    "explanation": "Regla 34 (c): En un canal angosto: Dos largas seguidas de dos cortas significan 'pretendo alcanzarle por su banda de babor'."
+  },
+  {
+    "id": 36,
+    "question": "¿Qué luces exhibe un aerodeslizador en modo sin desplazamiento?",
+    "options": [
+      "Una luz amarilla de centelleos todo horizonte.",
+      "Una luz roja giratoria.",
+      "Tres verdes.",
+      "Luces normales de navegación solamente."
+    ],
+    "correctAnswer": "Una luz amarilla de centelleos todo horizonte.",
+    "explanation": "Regla 23 (b): Los aerodeslizadores, cuando operen sin desplazamiento, exhibirán una luz amarilla de centelleos todo horizonte."
+  },
+  {
+    "id": 37,
+    "question": "En niebla, oyes una pitada larga seguida de dos cortas. ¿Qué buque puede ser?",
+    "options": [
+      "Un buque de propulsión mecánica con arrancada.",
+      "Un buque sin gobierno, velero, pesquero o remolcador.",
+      "Un buque fondeado.",
+      "Un buque varado."
+    ],
+    "correctAnswer": "Un buque sin gobierno, velero, pesquero o remolcador.",
+    "explanation": "Regla 35 (c): Buques 'especiales' (sin gobierno, RAM, pesca, vela, remolcando) emiten una larga y dos cortas."
+  },
+  {
+    "id": 38,
+    "question": "¿Qué debe hacer un buque que entra en un dispositivo de separación de tráfico?",
+    "options": [
+      "Hacerlo con el menor ángulo posible respecto a la dirección del tráfico.",
+      "Entrar perpendicularmente.",
+      "Entrar a máxima velocidad.",
+      "No puede entrar, está prohibido."
+    ],
+    "correctAnswer": "Hacerlo con el menor ángulo posible respecto a la dirección del tráfico.",
+    "explanation": "Regla 10 (b)(iii): Al entrar o salir de una vía de circulación, hacerlo con el menor ángulo posible en relación a la dirección general de la corriente del tráfico."
+  },
+  {
+    "id": 39,
+    "question": "Si dos veleros reciben el viento por la misma banda, ¿quién cede el paso?",
+    "options": [
+      "El que esté a barlovento.",
+      "El que esté a sotavento.",
+      "El más rápido.",
+      "El que tenga el viento por babor."
+    ],
+    "correctAnswer": "El que esté a barlovento.",
+    "explanation": "Regla 12 (a)(ii): Cuando ambos reciban el viento por la misma banda, el buque que esté a barlovento se mantendrá apartado de la derrota del que esté a sotavento."
+  },
+  {
+    "id": 40,
+    "question": "¿Qué es un buque 'restringido por su calado'?",
+    "options": [
+      "Un buque que por su calado y la profundidad disponible tiene muy restringida su capacidad de apartarse.",
+      "Un buque mayor de 100 metros.",
+      "Un buque que toca fondo.",
+      "Un buque con avería en el timón."
+    ],
+    "correctAnswer": "Un buque que por su calado y la profundidad disponible tiene muy restringida su capacidad de apartarse.",
+    "explanation": "Regla 3 (h): Significa un buque de propulsión mecánica que, por razón de su calado... tiene muy restringida su capacidad de apartarse de la derrota."
+  },
+  {
+    "id": 41,
+    "question": "¿Qué alcance mínimo debe tener la luz de tope en buques de eslora entre 12 y 50 metros?",
+    "options": [
+      "5 millas.",
+      "3 millas.",
+      "2 millas.",
+      "1 milla."
+    ],
+    "correctAnswer": "5 millas.",
+    "explanation": "Regla 22 (b): En buques de 12 a 50m, la luz de tope debe verse a 5 millas."
+  },
+  {
+    "id": 42,
+    "question": "¿Qué marca debe exhibir un buque varado?",
+    "options": [
+      "Tres esferas negras en línea vertical.",
+      "Dos esferas negras en línea vertical.",
+      "Una esfera negra.",
+      "Un cilindro negro."
+    ],
+    "correctAnswer": "Tres esferas negras en línea vertical.",
+    "explanation": "Regla 30 (d): Un buque varado exhibirá tres esferas negras en línea vertical."
+  },
+  {
+    "id": 43,
+    "question": "¿Qué luces adicionales puede llevar un velero en el tope del palo (opcionales)?",
+    "options": [
+      "Roja sobre Verde todo horizonte.",
+      "Verde sobre Roja todo horizonte.",
+      "Blanca sobre Roja.",
+      "Dos rojas."
+    ],
+    "correctAnswer": "Roja sobre Verde todo horizonte.",
+    "explanation": "Regla 25 (c): Un buque de vela puede exhibir en el tope del palo dos luces todo horizonte en línea vertical, roja la superior y verde la inferior."
+  },
+  {
+    "id": 44,
+    "question": "En un cruce, el buque que 'sigue a rumbo' (tiene preferencia) debe:",
+    "options": [
+      "Mantener su rumbo y velocidad.",
+      "Aumentar velocidad.",
+      "Caer a babor.",
+      "Parar máquinas."
+    ],
+    "correctAnswer": "Mantener su rumbo y velocidad.",
+    "explanation": "Regla 17 (a): Cuando uno de los buques deba mantenerse apartado, el otro mantendrá su rumbo y velocidad."
+  },
+  {
+    "id": 45,
+    "question": "¿Qué indica una marca consistente en un cilindro negro?",
+    "options": [
+      "Buque restringido por su calado.",
+      "Buque fondeado.",
+      "Buque remolcando.",
+      "Buque de pesca."
+    ],
+    "correctAnswer": "Buque restringido por su calado.",
+    "explanation": "Regla 28: Un buque restringido por su calado podrá exhibir... un cilindro."
+  },
+  {
+    "id": 46,
+    "question": "¿Qué significa 'visibilidad reducida'?",
+    "options": [
+      "Cualquier condición en que la visibilidad está disminuida por niebla, bruma, nieve, lluvia, etc.",
+      "Solo cuando hay niebla densa.",
+      "Solo de noche.",
+      "Cuando no se ve a más de 100 metros."
+    ],
+    "correctAnswer": "Cualquier condición en que la visibilidad está disminuida por niebla, bruma, nieve, lluvia, etc.",
+    "explanation": "Regla 3 (l): Toda condición en que la visibilidad está disminuida por niebla, bruma, nieve, fuertes aguaceros, tormentas de arena, etc."
+  },
+  {
+    "id": 47,
+    "question": "¿Cómo se deben cruzar las vías de circulación en un esquema de separación?",
+    "options": [
+      "Lo más perpendicularmente posible a la dirección general de la corriente del tráfico.",
+      "En diagonal para ir más rápido.",
+      "No se pueden cruzar.",
+      "Aprovechando los huecos entre barcos."
+    ],
+    "correctAnswer": "Lo más perpendicularmente posible a la dirección general de la corriente del tráfico.",
+    "explanation": "Regla 10 (c): Si están obligados a cruzar, lo harán lo más perpendicularmente posible."
+  },
+  {
+    "id": 48,
+    "question": "¿Qué luces exhibe un dragaminas en operaciones?",
+    "options": [
+      "Tres luces verdes en cruz (una en tope, dos en vergas).",
+      "Tres luces rojas en línea vertical.",
+      "Luces de pesca.",
+      "Luz amarilla de centelleos."
+    ],
+    "correctAnswer": "Tres luces verdes en cruz (una en tope, dos en vergas).",
+    "explanation": "Regla 27 (f): Buque dedicado a operaciones de limpieza de minas exhibirá tres luces verdes... una en el tope y una en cada extremo de la verga de proa."
+  },
+  {
+    "id": 49,
+    "question": "¿Qué significa una luz blanca que centellea a intervalos regulares de frecuencia 120 o más pulsaciones por minuto?",
+    "options": [
+      "Luz de tope.",
+      "Luz de remolque.",
+      "Luz de alcance.",
+      "Luz de un aerodeslizador."
+    ],
+    "correctAnswer": "Luz de un aerodeslizador.",
+    "explanation": "Regla 23 (b): Aerodeslizador sin desplazamiento: luz amarilla de centelleos. (La pregunta debería especificar amarilla, pero si dice centelleos rápidos suele referirse a naves especiales. Pero el RIPA define 'Luz de centelleos' como 120 o más. La amarilla de aerodeslizador es la más común en tests)."
+  },
+  {
+    "id": 50,
+    "question": "¿Qué responsabilidad tiene un buque en navegación de mantenerse apartado de un buque restringido por su calado?",
+    "options": [
+      "Todo buque que no sea RAM o Sin Gobierno debe evitar estorbar su tránsito.",
+      "Solo los veleros deben apartarse.",
+      "Nadie tiene obligación especial, rige la regla de estribor.",
+      "El buque restringido debe ceder el paso."
+    ],
+    "correctAnswer": "Todo buque que no sea RAM o Sin Gobierno debe evitar estorbar su tránsito.",
+    "explanation": "Regla 18 (d): Todo buque que no sea un buque sin gobierno o un buque con capacidad de maniobra restringida evitará, si las circunstancias lo permiten, estorbar el tránsito seguro de un buque restringido por su calado."
+  }
+]

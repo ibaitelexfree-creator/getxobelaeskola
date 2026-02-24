@@ -9,7 +9,7 @@ if (-not $currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Adm
     exit
 }
 
-$ProjectRoot = "c:\Users\User\Desktop\Saili8ng School Test"
+$ProjectRoot = Split-Path -Parent $PSScriptRoot
 $MissionDir = "$ProjectRoot\mission-control"
 
 Write-Host "[MISSION] Iniciando Mission Control Dashboard (Admin)..." -ForegroundColor Cyan

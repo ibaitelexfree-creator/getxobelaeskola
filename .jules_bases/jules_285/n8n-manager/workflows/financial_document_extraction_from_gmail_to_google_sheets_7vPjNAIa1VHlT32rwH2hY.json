@@ -1,0 +1,1367 @@
+{
+  "updatedAt": "2026-02-06T07:29:39.753Z",
+  "createdAt": "2026-02-04T06:06:28.093Z",
+  "id": "7vPjNAIa1VHlT32rwH2hY",
+  "name": "Financial document extraction from Gmail to Google Sheets",
+  "description": null,
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyHour"
+            }
+          ]
+        },
+        "filters": {
+          "labelIds": [
+            "INBOX"
+          ]
+        }
+      },
+      "id": "dabf59bf-864c-47e2-8289-69fba6c42bd0",
+      "name": "Look for Invoices",
+      "type": "n8n-nodes-base.gmailTrigger",
+      "position": [
+        944,
+        432
+      ],
+      "typeVersion": 1.2,
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "bhzFTGrtIiijcYTu",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "limit": 1,
+        "simple": false,
+        "filters": {},
+        "options": {
+          "downloadAttachments": true
+        }
+      },
+      "id": "bf4111ad-870d-4a37-82ac-343828f3c7b9",
+      "name": "Get Email Content",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        1168,
+        432
+      ],
+      "webhookId": "ff36c712-7602-4705-8c29-250930ae93a7",
+      "typeVersion": 2.1,
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "bhzFTGrtIiijcYTu",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "text": "={{ $('Get Email Content').item.json.text }}",
+        "guardrails": {
+          "topicalAlignment": {
+            "value": {
+              "threshold": 0.8,
+              "prompt": "=Eres una IA **controladora** financiera.\n\nALCANCE:\n- El texto DEBE contener evidencia de una transacción financiera, factura, recibo o cuenta.\n- ESTÁ DENTRO DEL ALCANCE (Pass Branch) si menciona pagos, importes adeudados, renovaciones de suscripciones con precios o facturas adjuntas.\n- ESTÁ FUERA DEL ALCANCE (Fail Branch) si es un boletín informativo, un correo de marketing sin una transacción específica o una conversación personal."
+            }
+          }
+        }
+      },
+      "id": "b5bcf67f-528a-493a-947a-c3070ebf8b66",
+      "name": "Guardrail: Is Finance?",
+      "type": "@n8n/n8n-nodes-langchain.guardrails",
+      "position": [
+        1296,
+        32
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "gSheetID",
+              "value": "1ElweuW6hkOTParQCh-lwOyHH5AVOg-iU97_2mDxS3dQ"
+            },
+            {
+              "name": "adminEmailForErrors",
+              "value": "ibaitnt@gmail.com"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "4f653917-7633-4e1b-b3ad-726ae5824cd9",
+      "name": "Configuration: User Settings",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1744,
+        528
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "check-aligned",
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.checks.triggered }}",
+              "rightValue": ""
+            }
+          ]
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "id": "fdf114cb-d6f1-421d-8a54-bbbdd6a9154b",
+      "name": "IF (Guardrail Passed)",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1968,
+        528
+      ],
+      "typeVersion": 2.2
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "or",
+          "conditions": [
+            {
+              "id": "filter-invoice",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              },
+              "leftValue": "={{ $('Get Email Content').item.json.subject }}",
+              "rightValue": "Invoice"
+            },
+            {
+              "id": "filter-receipt",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              },
+              "leftValue": "={{ $('Get Email Content').item.json.subject }}",
+              "rightValue": "Receipt"
+            },
+            {
+              "id": "filter-bill",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              },
+              "leftValue": "={{ $('Get Email Content').item.json.subject }}",
+              "rightValue": "Bill"
+            },
+            {
+              "id": "filter-payment",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              },
+              "leftValue": "={{ $('Get Email Content').item.json.subject }}",
+              "rightValue": "Payment Confirmation"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "75c2ee44-d59d-4029-804e-14b8a365dfb2",
+      "name": "Filter Finance Keywords",
+      "type": "n8n-nodes-base.filter",
+      "position": [
+        2224,
+        528
+      ],
+      "typeVersion": 2.2
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "check-attachment",
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              },
+              "leftValue": "={{ Object.keys($binary || {}).length }}",
+              "rightValue": 0
+            }
+          ]
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "id": "92f7d2c2-9adb-4eb0-8aa0-66e1e4cfb36a",
+      "name": "Check for Attachment",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1136,
+        1104
+      ],
+      "typeVersion": 2.2
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "binaryPropertyName": "={{ Object.keys($json.binary || {})[0] || 'attachment_0' }}",
+        "options": {}
+      },
+      "id": "6a74d0c3-ba12-4c9a-9db2-fa2b52f12e96",
+      "name": "Extract PDF Data",
+      "type": "n8n-nodes-base.extractFromFile",
+      "position": [
+        1472,
+        880
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.text }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=You are a Financial OCR Expert. Extract invoice data from the PDF text.\n\nCRITICAL INSTRUCTIONS:\n1. Return ONLY a JSON object.\n2. Normalize dates to YYYY-MM-DD.\n3. Clean currency symbols from amounts (return numbers).\n\nREQUIRED JSON STRUCTURE:\n{\n  \"vendor_name\": \"string\",\n  \"invoice_date\": \"YYYY-MM-DD\",\n  \"invoice_id\": \"string\",\n  \"total_amount\": number,\n  \"tax_amount\": number,\n  \"currency\": \"USD/EUR/GBP\",\n  \"items_summary\": \"string (brief description)\",\n  \"vendor_tax_id\": \"string or null\"\n}"
+        }
+      },
+      "id": "a09fb13e-14e1-4a55-b4af-1aba901ae6bf",
+      "name": "AI Agent (PDF OCR)",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        1680,
+        864
+      ],
+      "typeVersion": 1.9,
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('Get Email Content').item.json.text }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=You are a Financial OCR Expert. Extract receipt data from the email body text.\n\nCRITICAL INSTRUCTIONS:\n1. Return ONLY a JSON object.\n2. Normalize dates to YYYY-MM-DD.\n3. Clean currency symbols from amounts (return numbers).\n\nREQUIRED JSON STRUCTURE:\n{\n  \"vendor_name\": \"string\",\n  \"invoice_date\": \"YYYY-MM-DD\",\n  \"invoice_id\": \"string (or 'EMAIL-RECEIPT' if missing)\",\n  \"total_amount\": number,\n  \"tax_amount\": number,\n  \"currency\": \"USD/EUR/GBP\",\n  \"items_summary\": \"string (brief description)\",\n  \"vendor_tax_id\": \"string or null\"\n}"
+        }
+      },
+      "id": "2a0195e7-aa9d-460f-8a91-9752b80a3005",
+      "name": "AI Agent (Email OCR)",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        1680,
+        1152
+      ],
+      "typeVersion": 1.9,
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Check if AI extraction succeeded\nif ($json.error) {\n\treturn {\n\t\tjson: {\n\t\t\terror_occurred: true,\n\t\t\terror_type: \"AI_EXTRACTION_FAILED\",\n\t\t\terror_message: $json.error.message || \"AI extraction failed\",\n\t\t\ttimestamp: new Date().toISOString()\n\t\t}\n\t};\n}\n\nlet data;\ntry {\n\tdata = typeof $json.output === 'string' ? JSON.parse($json.output) : $json.output;\n} catch (e) {\n\treturn {\n\t\tjson: {\n\t\t\terror_occurred: true,\n\t\t\terror_type: \"JSON_PARSE_ERROR\",\n\t\t\terror_message: e.message,\n\t\t\ttimestamp: new Date().toISOString()\n\t\t}\n\t};\n}\n\n// Validation Logic\nconst required = ['vendor_name', 'total_amount', 'invoice_date'];\nconst missing = required.filter(field => !data[field]);\n\nif (missing.length > 0) {\n\treturn {\n\t\tjson: {\n\t\t\terror_occurred: true,\n\t\t\terror_type: \"MISSING_FIELDS\",\n\t\t\terror_message: `Missing: ${missing.join(', ')}`,\n\t\t\textracted_data: data,\n\t\t\ttimestamp: new Date().toISOString()\n\t\t}\n\t};\n}\n\n// Amount Validation\nif (isNaN(parseFloat(data.total_amount))) {\n\treturn {\n\t\tjson: {\n\t\t\terror_occurred: true,\n\t\t\terror_type: \"INVALID_AMOUNT\",\n\t\t\terror_message: \"Total Amount is not a number\",\n\t\t\textracted_data: data,\n\t\t\ttimestamp: new Date().toISOString()\n\t\t}\n\t};\n}\n\nreturn {\n\tjson: {\n\t\terror_occurred: false,\n\t\tvalidated_data: data\n\t}\n};"
+      },
+      "id": "59761143-4f1a-42a4-b3e7-acad993d9858",
+      "name": "Validate Extraction",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2240,
+        1056
+      ],
+      "typeVersion": 2
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "check-error",
+              "operator": {
+                "type": "boolean",
+                "operation": "false"
+              },
+              "leftValue": "={{ $json.error_occurred }}",
+              "rightValue": ""
+            }
+          ]
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "id": "c298c89e-3bf2-496c-a5eb-1cf0c5c4265a",
+      "name": "Check for Errors",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        2512,
+        1056
+      ],
+      "typeVersion": 2.2
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const data = $json.validated_data;\n\n// Business Logic for GL Coding\nlet glCategory = \"Uncategorized\";\n// Convert vendor to lowercase for easier matching\nconst vendor = (data.vendor_name || \"\").toLowerCase();\n\n// FIX 1: Added \"amazon\" to the check so it catches \"Amazon Web Services\"\nif (vendor.includes(\"aws\") || vendor.includes(\"amazon\") || vendor.includes(\"google cloud\") || vendor.includes(\"digitalocean\")) {\n\tglCategory = \"6000 - Software & Hosting\";\n} else if (vendor.includes(\"uber\") || vendor.includes(\"lyft\") || vendor.includes(\"airline\") || vendor.includes(\"flight\")) {\n\tglCategory = \"5000 - Travel & Meals\";\n} else if (vendor.includes(\"wework\") || vendor.includes(\"office\")) {\n\tglCategory = \"4000 - Rent & Utilities\";\n}\n\n// Approval Thresholds\nlet approvalStatus = \"Auto-Approved\";\n// Ensure amount is a number\nconst amount = parseFloat(data.total_amount);\n\n// FIX 2: Check the HIGHEST value first.\n// If we checked > 1000 first, 5200 would trigger that and stop.\nif (amount > 5000) {\n\tapprovalStatus = \"VP Approval Needed\";\n} else if (amount > 1000) {\n\tapprovalStatus = \"Manager Approval Needed\";\n}\n\nreturn {\n\tjson: {\n\t\t...data,\n\t\tgl_category: glCategory,\n\t\tapproval_status: approvalStatus,\n\t\tcase_id: `INV-${Date.now()}`,\n\t\tprocessed_at: new Date().toISOString()\n\t}\n};"
+      },
+      "id": "befb7153-1a70-4265-8472-0fa9acca2620",
+      "name": "Apply Finance Rules",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2752,
+        736
+      ],
+      "typeVersion": 2
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "mode": "expression",
+          "value": "={{ $('Configuration: User Settings').item.json.gSheetID }}"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": 1260157166,
+          "cachedResultUrl": "",
+          "cachedResultName": "Invoices"
+        },
+        "columns": {
+          "value": {},
+          "schema": [
+            {
+              "id": "invoice_id",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "invoice_id",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "vendor_name",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "vendor_name",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "invoice_date",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "invoice_date",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "total_amount",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "total_amount",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "currency",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "currency",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "tax_amount",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "tax_amount",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "gl_category",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "gl_category",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "approval_status",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "approval_status",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "timestamp",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "timestamp",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "case_id",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "case_id",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "items_summary",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "items_summary",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "vendor_tax_id",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "vendor_tax_id",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "processed_at",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "processed_at",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "autoMapInputData",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "9ad1658b-9257-45a7-b049-ef6bfdcc38d7",
+      "name": "Log to Invoices Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        3088,
+        736
+      ],
+      "retryOnFail": true,
+      "typeVersion": 4.5,
+      "waitBetweenTries": 2000,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "5NG4wsqVSIpvAJSA",
+          "name": "Google Sheets account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Configuration: User Settings').item.json.adminEmailForErrors }}",
+        "subject": "=💰 Invoice Processed: {{ $json.vendor_name }} - {{ $json.approval_status }}",
+        "message": "=<html>\n<body>\n<h3>Invoice Processed Successfully</h3>\n<p><strong>Vendor:</strong> {{ $json.vendor_name }}</p>\n<p><strong>Amount:</strong> {{ $json.currency }} {{ $json.total_amount }}</p>\n<p><strong>GL Category:</strong> {{ $json.gl_category }}</p>\n<p><strong>Status:</strong> {{ $json.approval_status }}</p>\n<br>\n<p>Check the Google Sheet for details.</p>\n</body>\n</html>",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "id": "9d54059e-7fc6-4954-bbc5-7f6b492a8f67",
+      "name": "Send Confirmation Email",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        3344,
+        736
+      ],
+      "webhookId": "92060c17-8a4f-4afc-8b1c-5989ff778e0b",
+      "typeVersion": 2.1,
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "bhzFTGrtIiijcYTu",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "mode": "expression",
+          "value": "={{ $('Configuration: User Settings').item.json.gSheetID }}"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "Error Logs",
+          "cachedResultName": "Error Logs"
+        },
+        "columns": {
+          "value": {
+            "timestamp": "={{ $json.timestamp }}",
+            "error_type": "={{ $json.error_type }}",
+            "error_message": "={{ $json.error_message }}",
+            "original_subject": "={{ $('Look for Invoices').item.json.subject }}",
+            "workflow_execution_id": "={{ $workflow.id }}"
+          },
+          "schema": [
+            {
+              "id": "timestamp",
+              "type": "string",
+              "displayName": "timestamp"
+            },
+            {
+              "id": "error_type",
+              "type": "string",
+              "displayName": "error_type"
+            },
+            {
+              "id": "error_message",
+              "type": "string",
+              "displayName": "error_message"
+            },
+            {
+              "id": "original_subject",
+              "type": "string",
+              "displayName": "original_subject"
+            },
+            {
+              "id": "workflow_execution_id",
+              "type": "string",
+              "displayName": "workflow_execution_id"
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "78f48238-71b3-49e9-a492-b23f6600dcdd",
+      "name": "Log Error to Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        2800,
+        1312
+      ],
+      "retryOnFail": true,
+      "typeVersion": 4.5,
+      "waitBetweenTries": 2000,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "5NG4wsqVSIpvAJSA",
+          "name": "Google Sheets account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Configuration: User Settings').item.json.adminEmailForErrors }}",
+        "subject": "=⚠️ Finance Workflow Error: {{ $json.error_type }}",
+        "message": "=<html>\n<body>\n<h3>Workflow Failed</h3>\n<p><strong>Error:</strong> {{ $json.error_message }}</p>\n<p><strong>Original Email:</strong> {{ $json.original_subject }}</p>\n</body>\n</html>",
+        "options": {}
+      },
+      "id": "bde3beda-0e4f-4d62-ba00-ab44f9d92aff",
+      "name": "Send Error Notification",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        3136,
+        1312
+      ],
+      "webhookId": "9024f16d-2d54-442a-b961-cbeb25c84c22",
+      "typeVersion": 2.1,
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "bhzFTGrtIiijcYTu",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## 1. Finance Guardrails\nUses Gemini/LangChain to detect if the email is actually a financial document.",
+        "height": 288,
+        "width": 288,
+        "color": 4
+      },
+      "id": "7d9dd7c1-9d9a-450f-bca3-ae146cfc44f0",
+      "name": "Sticky Note Guardrail",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1344,
+        304
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "## 2. Dual Extraction Path\nIf Attachment -> **PDF OCR Agent**\nIf No Attachment -> **Email Body Agent**\n\nBoth normalize data into the same JSON structure.",
+        "height": 608,
+        "width": 480,
+        "color": 5
+      },
+      "id": "339c869a-f63b-438f-9d56-fcc79b62cf6d",
+      "name": "Sticky Note Extraction",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1440,
+        720
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "## 3. Business Logic\n- **GL Coding**: Auto-categorizes vendors (Uber -> Travel).\n- **Thresholds**: Flags high amounts (> $1000) for approval.",
+        "height": 320,
+        "width": 352,
+        "color": 7
+      },
+      "id": "b9ac3d47-1b42-4679-a4d8-d4566cdba90a",
+      "name": "Sticky Note Logic",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2624,
+        608
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {
+          "responseFormat": "json_object",
+          "temperature": 0.2
+        }
+      },
+      "id": "c4c483cb-489d-44dd-955b-2b9f852b40d3",
+      "name": "gpt 4o mini",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        1680,
+        1024
+      ],
+      "notesInFlow": false,
+      "typeVersion": 1.2,
+      "credentials": {
+        "openAiApi": {
+          "id": "hJ48bwYLNQIwKR5P",
+          "name": "OpenAi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "mode": "expression",
+          "value": "={{ $('Configuration: User Settings').item.json.gSheetID }}"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": 2011163382,
+          "cachedResultUrl": "",
+          "cachedResultName": "Success Metrics"
+        },
+        "columns": {
+          "value": {
+            "amount": "={{ $('Apply Finance Rules').item.json.total_amount }}",
+            "vendor": "={{ $('Apply Finance Rules').item.json.vendor_name }}",
+            "case_id": "={{ $('Apply Finance Rules').item.json.case_id }}",
+            "timestamp": "={{ $today }}",
+            "email_sent": "Yes",
+            "gl_category": "={{ $('Apply Finance Rules').item.json.gl_category }}",
+            "approval_status": "={{ $('Apply Finance Rules').item.json.approval_status }}",
+            "processing_time_seconds": "={{ Math.round(($execution.startedAt ? (Date.now() - new Date($execution.startedAt).getTime()) / 1000 : 0)) }}"
+          },
+          "schema": [
+            {
+              "id": "timestamp",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "timestamp",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "case_id",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "case_id",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "processing_time_seconds",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "processing_time_seconds",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "vendor",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "vendor",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "amount",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "amount",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "gl_category",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "gl_category",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "approval_status",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "approval_status",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "email_sent",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "email_sent",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "69b67a16-43f8-402f-a764-3b222e2e083f",
+      "name": "Log Success Metrics",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        3616,
+        736
+      ],
+      "retryOnFail": true,
+      "typeVersion": 4.5,
+      "waitBetweenTries": 2000,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "5NG4wsqVSIpvAJSA",
+          "name": "Google Sheets account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Overview\n### **[Gtaras](https://n8n.io/creators/tarasidis/)**  \n\nManual financial reconciliation is tedious and prone to error. This workflow functions as an AI Financial Controller, automatically monitoring your inbox for invoices, receipts, and bills, extracting the data using OCR, and syncing it to Google Sheets for approval.\n\nUnlike simple scrapers, this workflow uses a \"Guardrail\" AI agent to filter out non-financial emails (like newsletters) before they are processed, ensuring only actual transactions are recorded.\n\n## Who is it for?\n* **Finance Teams:** To automate the collection of vendor invoices.\n* **Freelancers:** To track expenses and receipts for tax season.\n* **Operations Managers:** To monitor budget spend and categorize costs automatically.\n\n## How it works\n1.  **Ingest:** The workflow watches a specific Gmail label (e.g., \"INBOX\") for new emails.\n2.  **Guardrail:** A Gemini-powered AI agent analyzes the email text to determine if it is a valid financial transaction. If not, the workflow stops.\n3.  **Extraction (OCR):**\n    * **If an attachment exists:** An AI Agent (GPT-4o) extracts data from the PDF.\n    * **If no attachment:** An AI Agent extracts data directly from the email body.\n4.  **Validation:** Code nodes check for missing fields or invalid amounts.\n5.  **Business Logic:** The system automatically assigns General Ledger (GL) categories (e.g., \"Uber\" -> \"Travel\") and sets approval statuses based on amount thresholds.\n6.  **Sync:** Validated data is logged to Google Sheets, and a confirmation email is sent. Errors are logged to a separate error sheet.\n\n## How to set up\n1.  **Google Sheets:** Copy [this Google Sheet template](https://docs.google.com/spreadsheets/d/1IaovDHswLKbcQdEyfw-2JSYHOVX1pLNcTIYlJQzxYGU/copy) to your drive. It contains the necessary tabs (Invoices, Error Logs, Success Metrics).\n2.  **Configure Workflow:**\n    * Open the node named **\"Configuration: User Settings\"**.\n    * Paste your Google Sheet ID (found in the URL of your new sheet).\n    * Enter the Admin Email address where you want to receive error notifications.\n3.  **Credentials:**\n    * Connect your **Gmail** account.\n    * Connect your **Google Sheets** account.\n    * Connect your **OpenAI** (for OCR) and **Google Gemini/PaLM** (for Guardrails) accounts.\n\n## Requirements\n* n8n version 1.0 or higher.\n* Gmail account.\n* OpenAI API Key.\n* Google Gemini (PaLM) API Key.",
+        "height": 1216,
+        "width": 512
+      },
+      "id": "cc699a3b-f602-4f56-ad0a-60d2cc66f96d",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        368,
+        240
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "## ⚠️ Error Handling Flow\n### Any failures are logged and admins are notified",
+        "height": 304,
+        "width": 640,
+        "color": 2
+      },
+      "id": "199af4d5-b569-4220-9748-be6ebd1d9afd",
+      "name": "Sticky Note21",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2736,
+        1216
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "## 📊 Success Metrics Logger",
+        "height": 248,
+        "width": 352,
+        "color": 6
+      },
+      "id": "c2cf3003-6430-4970-812e-b96ba5d98f10",
+      "name": "Sticky Note17",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3504,
+        672
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "dataType": "string",
+        "value1": "={{($json.category || '').toString().trim().toUpperCase()}}",
+        "rules": {
+          "rules": [
+            {
+              "value2": "INVOICE",
+              "outputKey": "INVOICE"
+            },
+            {
+              "value2": "CLIENT",
+              "outputKey": "CLIENT"
+            },
+            {
+              "value2": "SUPPLIER",
+              "outputKey": "SUPPLIER"
+            },
+            {
+              "value2": "SUPPORT",
+              "outputKey": "SUPPORT"
+            },
+            {
+              "value2": "LEGAL",
+              "outputKey": "LEGAL"
+            },
+            {
+              "value2": "INTERNAL",
+              "outputKey": "INTERNAL"
+            },
+            {
+              "value2": "NEWSLETTER",
+              "outputKey": "NEWSLETTER"
+            },
+            {
+              "value2": "SPAM",
+              "outputKey": "SPAM"
+            },
+            {
+              "value2": "UNKNOWN",
+              "outputKey": "UNKNOWN"
+            }
+          ]
+        }
+      },
+      "id": "a8caf409-4f67-4b3a-8ef3-298265e9fbc7",
+      "name": "ROUTER – Email Category",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 2,
+      "position": [
+        2288,
+        80
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "chat",
+        "model": "gpt-4o-mini",
+        "prompt": {
+          "messages": [
+            {
+              "role": "system",
+              "content": "You are an AI that classifies emails for automated business workflows.\nYou MUST respond with ONLY valid JSON. No text before or after. No explanations.\n\nCATEGORIES:\nCLIENT, SUPPLIER, INVOICE, LEGAL, SUPPORT, INTERNAL, NEWSLETTER, SPAM, UNKNOWN\n\nDEPARTMENTS:\nfinance, sales, operations, legal, support, admin, marketing, none\n\nINTENTS:\nincoming_invoice, payment_confirmation, quote_request, quote_received, client_registration, client_question, support_request, supplier_coordination, legal_document, internal_discussion, newsletter, spam, unknown\n\nPRIORITY:\nhigh, medium, low\n\nGMAIL LABELS:\nAI/CLIENTE, AI/FACTURA, AI/LEGAL, AI/SOPORTE, AI/INTERNO, AI/PROVEEDOR, AI/NEWSLETTER, AI/SPAM, AI/NO_RELEVANTE\n\nRESPONSE FORMAT STRICTLY:\n{\n  \"category\": \"\",\n  \"department\": \"\",\n  \"intent\": \"\",\n  \"priority\": \"\",\n  \"gmail_label\": \"\"\n}"
+            },
+            {
+              "content": "Subject: {{$json.subject}}\nFrom: {{$json.from}}\nBody:\n{{$json.text || $json.body || ''}}"
+            }
+          ]
+        },
+        "options": {
+          "temperature": 0
+        },
+        "requestOptions": {}
+      },
+      "id": "7e269ad1-a39a-42f6-8e9f-c07e2fa67f0e",
+      "name": "AI/INVOICES – Email Classifier1",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [
+        2592,
+        -64
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "hJ48bwYLNQIwKR5P",
+          "name": "OpenAi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "465751b4-3b8c-4a9c-b393-41ff173d79c0",
+      "name": "Gemini 2.5 flash",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "position": [
+        1376,
+        592
+      ],
+      "typeVersion": 1,
+      "credentials": {
+        "googlePalmApi": {
+          "id": "ypVR4pHV4RYMESzw",
+          "name": "Google Gemini(PaLM) Api account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "text": "={{ $json.subject + \"\\n\" + $json.body }}",
+        "guardrails": {
+          "topicalAlignment": {
+            "value": {
+              "threshold": 0.65,
+              "prompt": "=Eres una IA que actúa como ROUTER DE CORREOS para una escuela de vela.\n\nTu tarea NO es extraer datos, sino decidir si el email es relevante para la operación del negocio y clasificarlo en una categoría general.\n\nCATEGORÍAS POSIBLES:\nCLIENT → mensajes de alumnos, padres o interesados (inscripciones, preguntas, horarios, cursos)\nSUPPLIER → proveedores, material, mantenimiento, logística\nINVOICE → facturas, pagos, recibos, cobros, transferencias\nLEGAL → contratos, permisos, seguros, temas legales\nSUPPORT → problemas técnicos, acceso a plataformas, incidencias de servicio\nINTERNAL → comunicación interna del equipo\nNEWSLETTER → boletines, promociones, publicidad sin acción directa\nSPAM → correos irrelevantes, sospechosos o basura\nUNKNOWN → no se puede determinar claramente\n\nREGLAS IMPORTANTES:\n- Si es publicidad genérica o mailing masivo sin relación directa con la escuela → NEWSLETTER\n- Si es claramente basura, phishing o sin sentido → SPAM\n- Si no es claramente basura pero tampoco parece de negocio → UNKNOWN\n- TODO lo relacionado con alumnos, padres, cursos o reservas es CLIENT\n- Todo lo que mencione pagos, importes o facturas es INVOICE\n\nDevuelve SOLO un JSON con este formato exacto:\n{\n  \"relevant\": true o false,\n  \"category\": \"UNA_DE_LAS_CATEGORIAS\"\n}\n\nUn email es relevante=true si pertenece a CLIENT, SUPPLIER, INVOICE, LEGAL, SUPPORT o INTERNAL.\nEs relevante=false si es NEWSLETTER, SPAM o UNKNOWN."
+            }
+          },
+          "custom": {
+            "guardrail": [
+              {
+                "threshold": 0
+              }
+            ]
+          }
+        }
+      },
+      "id": "4acafcf9-5b93-4099-8f26-73530c8dd6e1",
+      "name": "AI Guardrail – Email Router",
+      "type": "@n8n/n8n-nodes-langchain.guardrails",
+      "typeVersion": 1,
+      "position": [
+        1344,
+        448
+      ]
+    }
+  ],
+  "connections": {
+    "gpt 4o mini": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent (PDF OCR)",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "AI Agent (Email OCR)",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check for Errors": {
+      "main": [
+        [
+          {
+            "node": "Apply Finance Rules",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Log Error to Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract PDF Data": {
+      "main": [
+        [
+          {
+            "node": "AI Agent (PDF OCR)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Email Content": {
+      "main": [
+        [
+          {
+            "node": "AI Guardrail – Email Router",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Look for Invoices": {
+      "main": [
+        [
+          {
+            "node": "Get Email Content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent (PDF OCR)": {
+      "main": [
+        [
+          {
+            "node": "Validate Extraction",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Error to Sheet": {
+      "main": [
+        [
+          {
+            "node": "Send Error Notification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Apply Finance Rules": {
+      "main": [
+        [
+          {
+            "node": "Log to Invoices Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Extraction": {
+      "main": [
+        [
+          {
+            "node": "Check for Errors",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent (Email OCR)": {
+      "main": [
+        [
+          {
+            "node": "Validate Extraction",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check for Attachment": {
+      "main": [
+        [
+          {
+            "node": "Extract PDF Data",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI Agent (Email OCR)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF (Guardrail Passed)": {
+      "main": [
+        [
+          {
+            "node": "Filter Finance Keywords",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log to Invoices Sheet": {
+      "main": [
+        [
+          {
+            "node": "Send Confirmation Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Guardrail: Is Finance?": {
+      "main": [
+        [],
+        []
+      ]
+    },
+    "Filter Finance Keywords": {
+      "main": [
+        [
+          {
+            "node": "Check for Attachment",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Confirmation Email": {
+      "main": [
+        [
+          {
+            "node": "Log Success Metrics",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Configuration: User Settings": {
+      "main": [
+        [
+          {
+            "node": "IF (Guardrail Passed)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ROUTER – Email Category": {
+      "main": [
+        [
+          {
+            "node": "AI/INVOICES – Email Classifier1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini 2.5 flash": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Guardrail – Email Router",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Guardrail – Email Router": {
+      "main": [
+        [],
+        [
+          {
+            "node": "ROUTER – Email Category",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "staticData": null,
+  "meta": {
+    "templateId": "11290",
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {
+    "Look for Invoices": [
+      {
+        "json": {
+          "id": "19c2749bd26f34a0",
+          "threadId": "19c14249a7230cea",
+          "snippet": "Aupa Urko, te paso la Factura que te comente, un saludo y hasta pronto. ---------- Forwarded message --------- De: Urko Santillán Soriano &lt;urko@getxobelaeskola.com&gt; Date: sáb, 31 ene 2026 a las",
+          "payload": {
+            "mimeType": "multipart/mixed"
+          },
+          "sizeEstimate": 131768,
+          "historyId": "7524",
+          "internalDate": "1770185669000",
+          "labels": [
+            {
+              "id": "SENT",
+              "name": "SENT"
+            },
+            {
+              "id": "INBOX",
+              "name": "INBOX"
+            },
+            {
+              "id": "IMPORTANT",
+              "name": "IMPORTANT"
+            },
+            {
+              "id": "UNREAD",
+              "name": "UNREAD"
+            }
+          ],
+          "Subject": "Fwd: Facturas",
+          "From": "\"Urko Santillán Soriano\" <urko@getxobelaeskola.com>",
+          "To": "\"Urko Santillán Soriano\" <urko@getxobelaeskola.com>"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  },
+  "versionId": "3abd9c97-9137-4de6-8605-a64e4b7edf19",
+  "activeVersionId": null,
+  "versionCounter": 128,
+  "triggerCount": 0,
+  "shared": [
+    {
+      "updatedAt": "2026-02-12T17:28:45.520Z",
+      "createdAt": "2026-02-12T17:28:45.520Z",
+      "role": "workflow:owner",
+      "workflowId": "7vPjNAIa1VHlT32rwH2hY",
+      "projectId": "3Aa1TdMrn6HM1XQF",
+      "project": {
+        "updatedAt": "2026-02-12T16:07:27.309Z",
+        "createdAt": "2026-02-12T15:59:26.248Z",
+        "id": "3Aa1TdMrn6HM1XQF",
+        "name": "Urko Santillan <getxobelaeskola@gmail.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "creatorId": "ebf74c25-213c-46b9-a63b-e349de02195f",
+        "projectRelations": [
+          {
+            "updatedAt": "2026-02-12T15:59:26.248Z",
+            "createdAt": "2026-02-12T15:59:26.248Z",
+            "userId": "ebf74c25-213c-46b9-a63b-e349de02195f",
+            "projectId": "3Aa1TdMrn6HM1XQF",
+            "user": {
+              "updatedAt": "2026-02-13T11:35:46.641Z",
+              "createdAt": "2026-02-12T15:59:25.537Z",
+              "id": "ebf74c25-213c-46b9-a63b-e349de02195f",
+              "email": "getxobelaeskola@gmail.com",
+              "firstName": "Urko",
+              "lastName": "Santillan",
+              "personalizationAnswers": {
+                "version": "v4",
+                "personalization_survey_submitted_at": "2026-02-12T16:07:48.567Z",
+                "personalization_survey_n8n_version": "2.7.4",
+                "companySize": "<20",
+                "companyType": "education",
+                "role": "customer-support",
+                "reportedSource": "google"
+              },
+              "settings": {
+                "userActivated": false,
+                "easyAIWorkflowOnboarded": true
+              },
+              "disabled": false,
+              "mfaEnabled": false,
+              "lastActiveAt": "2026-02-13",
+              "isPending": false
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "tags": [],
+  "activeVersion": null
+}

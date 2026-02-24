@@ -1,7 +1,6 @@
 import * as turf from '@turf/turf';
 import RBush from 'rbush';
-import fs from 'fs';
-import path from 'path';
+import waterGeometryData from '@/data/geospatial/water-geometry.json';
 
 // Define types for our spatial index
 interface GeoJSONFeature {
@@ -34,24 +33,13 @@ function initializeSpatialIndex() {
     if (spatialIndex) return;
 
     try {
-        const filePath = path.join(process.cwd(), 'src/data/water_polygons.json');
-
-        // Check if file exists
-        if (!fs.existsSync(filePath)) {
-            console.warn('Water polygons file not found at:', filePath);
-            // Initialize empty index to avoid crashing
-            spatialIndex = new RBush();
-            return;
-        }
-
-        const fileContent = fs.readFileSync(filePath, 'utf-8');
-        const geojson = JSON.parse(fileContent);
+        const geojson = waterGeometryData as any;
 
         spatialIndex = new RBush();
         const items: SpatialItem[] = [];
 
         if (geojson.type === 'FeatureCollection' && Array.isArray(geojson.features)) {
-            geojson.features.forEach((feature: GeoJSONFeature) => {
+            geojson.features.forEach((feature: any) => {
                 if (!feature.geometry) return;
 
                 try {
@@ -61,7 +49,7 @@ function initializeSpatialIndex() {
                         minY: bbox[1],
                         maxX: bbox[2],
                         maxY: bbox[3],
-                        feature: feature
+                        feature: feature as GeoJSONFeature
                     });
                 } catch (e) {
                     console.warn('Failed to process feature for spatial index', e);

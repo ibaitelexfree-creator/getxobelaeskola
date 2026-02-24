@@ -1,0 +1,59 @@
+name: Self-Healing CI
+
+on:
+  push:
+    branches: ["main", "feature/**", "fix/**"]
+  pull_request:
+    branches: ["main"]
+  workflow_dispatch:
+
+jobs:
+  test-and-heal:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install Dependencies
+        run: npm install --legacy-peer-deps
+
+      - name: Run Tests
+        id: tests
+        shell: bash
+        run: |
+          set -o pipefail
+          npm test 2>&1 | tee test_output.txt
+
+      - name: Trigger Self-Healing
+        if: failure()
+        env:
+          ORCHESTRATOR_URL: ${{ secrets.ORCHESTRATOR_URL }}
+        run: |
+          echo "Tests failed. Initiating self-healing sequence..."
+
+          # Read the output file
+          OUTPUT=$(cat test_output.txt)
+
+          # Construct JSON payload safely using jq
+          jq -n \
+            --arg output "$OUTPUT" \
+            --arg repo "${{ github.repository }}" \
+            --arg ref "${{ github.ref }}" \
+            '{raw_output: $output, repository: $repo, branch: $ref, action: "request_patch"}' > payload.json
+
+          if [ -z "$ORCHESTRATOR_URL" ]; then
+            echo "Error: ORCHESTRATOR_URL secret is not set. Cannot request patch."
+            exit 1
+          fi
+
+          echo "Sending failure report to Orchestrator at $ORCHESTRATOR_URL..."
+
+          # Send POST request
+          curl -X POST \
+            -H "Content-Type: application/json" \
+            -d @payload.json \
+            "$ORCHESTRATOR_URL"
