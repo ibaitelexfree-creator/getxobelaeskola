@@ -15,6 +15,7 @@
 | T-005 | Jules | Integrate Leaflet Map in Academy Geospatial | 2026-02-20 | completado |
 | T-006 | Antigravity | NotebookLM Report Automation (Orchestrator + n8n + Evolution) | 2026-02-23 | completado |
 | T-007 | Antigravity | Notion Premium Dashboard Refactor & Update | 2026-02-23 | completado |
+| T-008 | Jules | Optimize Dashboard Stats API | 2026-02-23 | completado |
 
 ## Bloqueos / Conflictos
 Ninguno actualmente.
