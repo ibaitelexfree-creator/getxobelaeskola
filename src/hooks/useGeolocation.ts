@@ -53,7 +53,7 @@ export function useGeolocation() {
                         };
                         setCurrentPosition(newPoint);
                         setPoints(prev => {
-                            // Only add if significantly different or every 10 seconds to avoid too many points
+                            // Only add if significantly different or every 5 seconds to avoid too many points
                             const lastPoint = prev[prev.length - 1];
                             if (!lastPoint || (newPoint.timestamp - lastPoint.timestamp) > 5000) {
                                 return [...prev, newPoint];
