@@ -124,7 +124,7 @@ export async function POST(request: Request) {
         try {
             // Obtener preguntas y respuestas correctas para calcular SRS
             // Usamos supabaseAdmin para ver respuestas correctas
-            const { data: allQuestions } = await supabaseAdmin as any
+            const { data: allQuestions } = await supabaseAdmin
                 .from('preguntas')
                 .select('id, respuesta_correcta')
                 .in('id', intento.preguntas_json);
@@ -153,8 +153,7 @@ export async function POST(request: Request) {
 
                     const next = calculateNextReview(current.interval, current.ease_factor, isCorrect);
 
-                    updates.push({
-                        // @ts-ignore
+                    updates.push({ // @ts-ignore
 
                         user_id: user.id,
                         question_id: q.id,
