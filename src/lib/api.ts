@@ -5,8 +5,8 @@ export const getApiBaseUrl = () => {
         const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
         const isCapacitor = window.location.protocol === 'capacitor:' || window.location.protocol === 'file:';
 
-        // If we are on development browser, use the current origin
-        if (isLocalhost && !isCapacitor && process.env.NODE_ENV === 'development') {
+        // If we are on localhost in a browser, use the current origin
+        if (isLocalhost && !isCapacitor) {
             return window.location.origin;
         }
 
@@ -24,6 +24,10 @@ export const getApiBaseUrl = () => {
 };
 
 export const apiUrl = (path: string) => {
+    if (path.startsWith('http://') || path.startsWith('https://')) {
+        return path;
+    }
+
     const base = getApiBaseUrl();
     const cleanPath = path.startsWith('/') ? path : `/${path}`;
 

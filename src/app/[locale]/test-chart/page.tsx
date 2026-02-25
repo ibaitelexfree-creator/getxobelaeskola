@@ -4,7 +4,11 @@ import React, { useState, useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 const generateData = () => {
+<<<<<<< HEAD
     const data: { timestamp: number; value: number }[] = [];
+=======
+    const data: any[] = [];
+>>>>>>> origin/test/api-coverage-fix-6077253486263685807
     const now = Date.now();
     for (let i = 0; i < 24; i++) {
         data.push({

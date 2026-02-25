@@ -147,6 +147,28 @@ export default async function CourseDetailPage({
         is_calendar_event?: boolean;
     }
 
+<<<<<<< HEAD
+=======
+    interface CourseFallback {
+        nombre_en?: string;
+        nombre_fr?: string;
+        descripcion_en?: string;
+        descripcion_fr?: string;
+        id: string;
+        nombre_es: string;
+        nombre_eu: string;
+        descripcion_es: string;
+        descripcion_eu: string;
+        precio: number;
+        duracion_h: number;
+        nivel: string;
+        imagen_url: string;
+        detalles?: {
+            es: string[];
+            eu: string[];
+        };
+    }
+>>>>>>> origin/test/api-coverage-fix-6077253486263685807
     const supabase = createClient();
 
     // 1. Fetch main course data

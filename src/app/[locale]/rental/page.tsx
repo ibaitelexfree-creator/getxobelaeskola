@@ -53,7 +53,30 @@ export function generateStaticParams() {
 export default async function RentalPage({ params: { locale } }: { params: { locale: string } }) {
     const t = await getTranslations({ locale, namespace: 'rental_page' });
     const supabase = createClient();
+<<<<<<< HEAD
     let services: any[] = [];
+=======
+
+    interface RentalService {
+        id: string;
+        slug: string;
+        nombre: string;
+        nombre_es: string;
+        nombre_en?: string;
+        nombre_eu?: string;
+        descripcion: string;
+        descripcion_en?: string;
+        descripcion_eu?: string;
+        precio_base: number;
+        precio_hora: number;
+        imagen_url: string;
+        activo: boolean;
+        categoria?: string;
+        opciones?: { label: string; extra: number }[];
+    }
+
+    let services: RentalService[] = [];
+>>>>>>> origin/test/api-coverage-fix-6077253486263685807
     const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://getxobelaeskola.cloud';
 
     try {
@@ -79,7 +102,11 @@ export default async function RentalPage({ params: { locale } }: { params: { loc
                 'alquiler-raquero'
             ];
 
+<<<<<<< HEAD
             services = (data || []).sort((a: any, b: any) => {
+=======
+            services = (data as unknown as RentalService[] || []).sort((a, b) => {
+>>>>>>> origin/test/api-coverage-fix-6077253486263685807
                 const indexA = priorityOrder.indexOf(a.slug);
                 const indexB = priorityOrder.indexOf(b.slug);
 
@@ -101,11 +128,16 @@ export default async function RentalPage({ params: { locale } }: { params: { loc
         'name': `${t('title_prefix')} ${t('title_highlight')}`,
         'description': t('description'),
         'numberOfItems': services.length,
+<<<<<<< HEAD
         'itemListElement': services.map((service: any, index: number) => ({
+=======
+        'itemListElement': services.map((service, index) => ({
+>>>>>>> origin/test/api-coverage-fix-6077253486263685807
             '@type': 'ListItem',
             'position': index + 1,
             'item': {
                 '@type': 'Product',
+<<<<<<< HEAD
                 'name': locale === 'eu' ? (service.nombre_eu || service.nombre_es || service.nombre) :
                         locale === 'en' ? (service.nombre_en || service.nombre_es || service.nombre) :
                         locale === 'fr' ? (service.nombre_fr || service.nombre_es || service.nombre) :
@@ -118,6 +150,14 @@ export default async function RentalPage({ params: { locale } }: { params: { loc
                 'offers': {
                     '@type': 'Offer',
                     'price': service.precio_base || service.precio_hora || 0,
+=======
+                'name': locale === 'eu' ? (service.nombre_eu || service.nombre) : locale === 'en' ? (service.nombre_en || service.nombre) : service.nombre,
+                'description': locale === 'eu' ? (service.descripcion_eu || service.descripcion) : locale === 'en' ? (service.descripcion_en || service.descripcion) : service.descripcion,
+                'image': `${siteUrl}${service.imagen_url || '/images/home-hero-sailing-action.webp'}`,
+                'offers': {
+                    '@type': 'Offer',
+                    'price': service.precio_base || service.precio_hora,
+>>>>>>> origin/test/api-coverage-fix-6077253486263685807
                     'priceCurrency': 'EUR',
                     'availability': 'https://schema.org/InStock',
                     'url': `${siteUrl}/${locale}/rental`
@@ -158,7 +198,11 @@ export default async function RentalPage({ params: { locale } }: { params: { loc
             {/* Main Interactive Fleet Section */}
             <section className="pb-48 relative">
                 <div className="container mx-auto px-6 relative z-10">
+<<<<<<< HEAD
                     <RentalClient services={services || []} locale={locale} />
+=======
+                    <RentalClient services={services} locale={locale} />
+>>>>>>> origin/test/api-coverage-fix-6077253486263685807
                 </div>
 
                 {/* Bottom Note / Disclosure */}

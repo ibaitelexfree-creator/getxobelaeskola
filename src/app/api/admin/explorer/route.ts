@@ -1,3 +1,4 @@
+
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 
@@ -48,14 +49,21 @@ export async function GET(req: Request) {
     let results: SearchResult[] = [];
 
     const searchTable = async (tableName: string) => {
-        const start = performance.now();
         const cols = SEARCHABLE_COLS[tableName] || ['id'];
+        // Construct OR filter: col1.ilike.%q%,col2.ilike.%q%
         const orFilter = cols.map(c => `${c}.ilike.%${query}%`).join(',');
 
-        // 1. Base Query
-        const { data: baseData, error } = await supabase
+        const rels = RELATIONS[tableName] || [];
+        // Construct select with resource embedding for counts to avoid N+1 queries
+        // Format: *, related_table!fk_col(count)
+        const selectCols = [
+            '*',
+            ...rels.map(rel => `${rel.table}!${rel.fk}(count)`)
+        ].join(',');
+
+        const { data, error } = await supabase
             .from(tableName)
-            .select('*')
+            .select(selectCols)
             .or(orFilter)
             .limit(5);
 
@@ -64,68 +72,20 @@ export async function GET(req: Request) {
             return [];
         }
 
-        const items = baseData as SearchResult[];
-        if (items.length === 0) return [];
-
-        // 2. Collect Keys
-        const ids = items.map(i => i.id);
-        const emails = items.map(i => i.email).filter(Boolean) as string[];
-
-        const rels = RELATIONS[tableName] || [];
-
-        // 3. Batch Query per Relation
-        // We will store counts in a map: Map<relationIndex, Map<keyValue, count>>
-        const relationCounts = new Map<number, Map<string, number>>();
-
-        for (let i = 0; i < rels.length; i++) {
-            const rel = rels[i];
-            const isEmail = rel.fk === 'email';
-            const keysToCheck = isEmail ? emails : ids;
-
-            if (keysToCheck.length === 0) continue;
-
-            try {
-                // Execute ONE query per relation for all items
-                // Using select(fk) allows us to fetch all matching rows and group in memory
-                const { data: relData, error: relError } = await supabase
-                    .from(rel.table)
-                    .select(rel.fk, { count: 'exact', head: false })
-                    .in(rel.fk, keysToCheck);
-
-                if (relError) {
-                    console.error(`Relation batch error ${rel.table}:`, relError);
-                    continue;
-                }
-
-                // Aggregate in memory
-                const counts = new Map<string, number>();
-                (relData || []).forEach((row: any) => {
-                    const key = row[rel.fk];
-                    if (key) {
-                        counts.set(key, (counts.get(key) || 0) + 1);
-                    }
-                });
-                relationCounts.set(i, counts);
-
-            } catch (err) {
-                console.error(`Batch process error ${rel.table}`, err);
-            }
-        }
-
-        // 4. Enrich Items
-        const enriched = items.map(item => {
+        // Enrich with relations count from embedded data
+        const enriched = ((data as unknown as SearchResult[]) || []).map((item: SearchResult) => {
             const relations: { label: string; count: number; table: string }[] = [];
 
-            rels.forEach((rel, idx) => {
-                const countMap = relationCounts.get(idx);
-                if (countMap) {
-                    const key = (rel.fk === 'email' ? item.email : item.id) as string;
-                    const count = countMap.get(key) || 0;
-                    if (count > 0) {
-                        relations.push({ label: rel.label, count, table: rel.table });
-                    }
+            for (const rel of rels) {
+                // Embedded counts return as an array with a single object: [{ count: N }]
+                // This is much more efficient than performing a separate query for each item
+                const embedded = item[rel.table] as { count: number }[] | undefined;
+                const count = (embedded && Array.isArray(embedded)) ? (embedded[0]?.count || 0) : 0;
+
+                if (count > 0) {
+                    relations.push({ label: rel.label, count, table: rel.table });
                 }
-            });
+            }
 
             return {
                 ...item,
@@ -134,10 +94,6 @@ export async function GET(req: Request) {
                 _relations: relations
             };
         });
-
-        const end = performance.now();
-        // Log performance metrics
-        console.log(`[Explorer] ${tableName} search: ${(end - start).toFixed(2)}ms | Queries: 1 + ${rels.length} relations`);
 
         return enriched;
     };

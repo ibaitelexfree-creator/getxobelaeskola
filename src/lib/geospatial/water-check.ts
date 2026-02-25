@@ -17,41 +17,40 @@ const featureCollection = waterGeometryData as any;
 
 // Populate the index once
 if (featureCollection.features) {
-    const items: WaterPolygonItem[] = [];
-    featureCollection.features.forEach((feature: any) => {
-        try {
-            const bbox = turf.bbox(feature);
-            // Ensure bbox is valid numbers
-            if (bbox.every(n => typeof n === 'number' && !isNaN(n) && isFinite(n))) {
-                items.push({
+    const items: WaterPolygonItem[] = featureCollection.features
+        .map((feature: any) => {
+            try {
+                const bbox = turf.bbox(feature);
+                return {
                     minX: bbox[0],
                     minY: bbox[1],
                     maxX: bbox[2],
                     maxY: bbox[3],
                     feature: feature
-                });
+                };
+            } catch (e) {
+                // Skip invalid features
+                return null;
             }
-        } catch (e) {
-            // Ignore invalid features during initialization
-            // console.warn('Skipping invalid feature in water geometry', e);
-        }
-    });
-    tree.load(items);
+        })
+        .filter((item: any) => item !== null) as WaterPolygonItem[];
+
+    if (items.length > 0) {
+        tree.load(items);
+    }
 } else {
     // Fallback if it's a single feature
     try {
         const bbox = turf.bbox(featureCollection);
-        if (bbox.every(n => typeof n === 'number' && !isNaN(n) && isFinite(n))) {
-            tree.load([{
-                minX: bbox[0],
-                minY: bbox[1],
-                maxX: bbox[2],
-                maxY: bbox[3],
-                feature: featureCollection
-            }]);
-        }
+        tree.load([{
+            minX: bbox[0],
+            minY: bbox[1],
+            maxX: bbox[2],
+            maxY: bbox[3],
+            feature: featureCollection
+        }]);
     } catch (e) {
-        // Ignore
+        // Ignore invalid single feature
     }
 }
 
