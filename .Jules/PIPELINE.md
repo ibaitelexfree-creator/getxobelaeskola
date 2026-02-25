@@ -1,65 +1,46 @@
-# ⚓ PIPELINE — Orden de Ejecución del Jules Swarm
+# ⚓ PIPELINE — Swarm de 3 Unidades (Optimizado)
 
-> **Lee esto PRIMERO en cada sesión.** Define el orden serial de trabajo.
+> **Orden de ejecución basado en hardware y herramientas (MCPs).**
 
 ---
 
-## Orden de Ejecución
+## Flujo de Trabajo
 
-```
-1. 🏛️ ARQUITECTO  →  2. 🗄️ DBA  →  3. 🎨 FRONTEND  →  4. 🧪 QA  →  5. 🔧 FIXER
-```
-
-## Reglas del Pipeline
-
-### Regla 1: Orden Secuencial Estricto
-- El DBA **NO empieza** hasta que el Arquitecto cree su PR.
-- El Frontend **NO empieza** hasta que el DBA cree su PR.
-- El QA **NO empieza** hasta que Frontend cree su PR.
-- El Fixer **SOLO actúa** cuando el CI falla.
-
-### Regla 2: Comunicación via Archivos
-Cada agente, al terminar, escribe en `.jules/memory/{rol}/YYYY-MM-DD.md`:
-```markdown
-## Tarea completada: {nombre}
-- **PR:** #{número}
-- **Archivos tocados:** lista
-- **Próximo agente:** {rol}
-- **Notas para el siguiente:** texto libre
+```mermaid
+graph TD
+    A["🧠 Jules 3: LEAD (Plan + Arquitectura)"] --> B["🗄️ Jules 1: DATA (DB + API)"]
+    B --> C["🎨 Jules 2: UI (React + Analytics)"]
+    C --> D["🧠 Jules 3: QA & FIX (Tests + Deploy)"]
 ```
 
-### Regla 3: Identidad Inmutable
-- Cada agente LEE su archivo en `.jules/roles/{ROL}.md` al inicio.
-- **NUNCA modifica** ese archivo.
-- Si un agente necesita recordar algo, escribe en `.jules/memory/{rol}/`.
+## Unidades Jules
 
-### Regla 4: Domain Isolation
-| Agente | Solo toca |
-| :--- | :--- |
-| Arquitecto | Tipos, interfaces, routing |
-| DBA | SQL, migraciones, RLS |
-| Frontend | Componentes, páginas, estilos |
-| QA | Tests (`.test.ts`, `.test.tsx`) |
-| Fixer | Archivos con errores de CI |
+### 1. 🧠 LEAD ORCHESTRATOR (Jules 3)
+- **Responsable:** Planificación inicial, coordinación de cambios estructurales y control de calidad final.
+- **Poderes:** Context7 + RAG (n8n/Qdrant) + Render MCP.
+- **Cuándo actúa:** Al principio del ticket y al final del pipeline.
 
-### Regla 5: Resolución de Conflictos
-Si dos agentes necesitan el mismo archivo:
-1. El que tiene **prioridad de pipeline** (número más bajo) gana.
-2. El otro espera o trabaja en una rama diferente.
-3. Si es urgente: el humano decide.
+### 2. 🗄️ DATA MASTER (Jules 1)
+- **Responsable:** Creación de tablas, RLS, funciones SQL y lógica de negocio en el servidor.
+- **Poderes:** Supabase MCP + NeonMCP.
+- **Cuándo actúa:** Después de que el Lead defina el contrato de arquitectura.
 
-## Límites Operativos
+### 3. 🎨 UI & ANALYTICS ENGINE (Jules 2)
+- **Responsable:** Implementación de la vista, diseño visual y analíticas en tiempo real.
+- **Poderes:** Tinybird MCP.
+- **Cuándo actúa:** Después de que el Data Master tenga los endpoints y schemas listos.
 
-| Recurso | Límite por cuenta |
-| :--- | :--- |
-| Tareas diarias | 100 |
-| Tareas simultáneas | 15 |
-| Cuentas disponibles | 3 (se rotan para roles 4 y 5) |
+---
 
-## Asignación de Cuentas
+## ¿Cómo manejar errores de CI? (Loop Autocurativo)
 
-| Cuenta | Rol Primario | Rol Secundario |
-| :--- | :--- | :--- |
-| Cuenta 1 | 🏛️ Arquitecto | 🧪 QA (cuando Arquitecto está libre) |
-| Cuenta 2 | 🗄️ DBA | 🔧 Fixer (cuando DBA está libre) |
-| Cuenta 3 | 🎨 Frontend | 🧪 QA (apoyo cuando hay muchos tests) |
+1. El CI falla.
+2. El **Jules 3 (LEAD)** se activa automáticamente.
+3. Lee los logs.
+4. Usa **Context7** para ver por qué falló el import o el tipo.
+5. Aplica el fix y pushea.
+
+## Ventajas de este planteamiento de 3 Agentes:
+1. **Alineación 1:1:** Cada cuenta tiene las herramientas que necesita para su rol. No hay confusión de identidad.
+2. **Contexto Superior:** Al delegar la arquitectura al Jules con acceso al RAG, el diseño siempre será coherente con el resto del repo.
+3. **Eficiencia de Coste:** Aprovechas al máximo los 100 usos diarios de cada una de las 3 cuentas sin desperdiciar tokens en "roles redundantes".

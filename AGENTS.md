@@ -27,23 +27,21 @@ Don't ask permission. Just do it.
 - **After finishing work:** Update `GLOBAL_STATE.md` with your changes
 - **If you need a file outside your domain:** Write it in `DECISIONS_LOG.md` and notify via Telegram
 
-### 🚀 Jules Swarm Pipeline (5-Agent Serial)
+### 🚀 Jules Swarm Pipeline (3-Agent Optimized)
 
-**If you are a Jules agent, you MUST read your role file FIRST:**
+**Asignación de roles por cuenta y herramientas (MCP):**
 
-| Agent | Identity File | Domain |
-| :--- | :--- | :--- |
-| 🏛️ Arquitecto | `.jules/roles/ARCHITECT.md` | Types, interfaces, routing |
-| 🗄️ DBA | `.jules/roles/DBA.md` | SQL, migrations, RLS |
-| 🎨 Frontend | `.jules/roles/FRONTEND.md` | Components, pages, styles |
-| 🧪 QA | `.jules/roles/QA.md` | Tests only |
-| 🔧 Fixer | `.jules/roles/FIXER.md` | CI error fixes only |
+| Agente | Jules Físico | Identidad | Herramientas Clave |
+| :--- | :--- | :--- | :--- |
+| **🧠 LEAD** | `ibaitelexfree@gmail.com` | `.jules/roles/LEAD_ORCHESTRATOR.md` | Context7, Render, RAG n8n |
+| **🗄️ DATA** | `getxobelaeskola@gmail.com` | `.jules/roles/DATA_MASTER.md` | Supabase, Neon |
+| **🎨 UI** | `ibaitnt@gmail.com` | `.jules/roles/UI_ENGINE.md` | Tinybird |
 
-**Execution order:** Architect → DBA → Frontend → QA → Fixer (if CI fails)
+**Orden de ejecución:** 1. LEAD (Diseño) → 2. DATA (Back) → 3. UI (Front) → 4. LEAD (QA/Fix)
 
-**Pipeline rules:** See `.jules/PIPELINE.md` for full orchestration details.
+**Pipeline detallado:** Consulta `.jules/PIPELINE.md`.
 
-> ⛔ **CRITICAL:** Role files in `.jules/roles/` are IMMUTABLE. NEVER modify them.
+> ⛔ **CRITICAL:** Los archivos en `.jules/roles/` son INMUTABLES. NUNCA los modifiques para no romper la especialización.
 
 
 ## Memory
