@@ -27,9 +27,16 @@ const GITHUB_WEBHOOK_SECRET = process.env.GITHUB_WEBHOOK_SECRET;
 const DATABASE_URL = process.env.DATABASE_URL;
 const PORT = process.env.PORT || 3002;
 
+// Simple in-memory rate limiter for reports
+let lastReportTime = 0;
+const REPORT_COOLDOWN = 60000; // 60 seconds
+
 // Request ID middleware and Metrics
 app.use((req, res, next) => {
-  req.requestId = req.headers['x-request-id'] || `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  // Sanitize Request ID to prevent log injection
+  const rawRequestId = req.headers['x-request-id'] || `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  req.requestId = rawRequestId.toString().replace(/[^a-zA-Z0-9_-]/g, '');
+
   res.setHeader('X-Request-ID', req.requestId);
 
   const start = Date.now();
@@ -75,7 +82,7 @@ app.get('/api/v1/chaos/:type', async (req, res) => {
   const { type } = req.params;
   const { code, ms, mb } = req.query;
 
-  console.log(`[Chaos] Executing experiment: ${type}`);
+  console.log('[Chaos] Executing experiment: %s', type);
 
   if (type === 'latency') {
     const delay = parseInt(ms) || 2000;
@@ -111,7 +118,7 @@ app.post('/api/v1/incidents/webhook', async (req, res) => {
   const requestId = req.requestId;
   const { status, commonLabels, commonAnnotations, externalURL } = req.body;
 
-  console.log(`[${requestId}] Incident Webhook: status=${status}, alert=${commonLabels?.alertname}`);
+  console.log('[%s] Incident Webhook: status=%s, alert=%s', requestId, status, commonLabels?.alertname);
 
   try {
     let message = '';
@@ -126,9 +133,9 @@ app.post('/api/v1/incidents/webhook', async (req, res) => {
       if (commonLabels?.dashboard_uid) {
         try {
           snapshotUrl = await createDashboardSnapshot(commonLabels.dashboard_uid);
-          console.log(`[${requestId}] Generated Snapshot: ${snapshotUrl}`);
+          console.log('[%s] Generated Snapshot: %s', requestId, snapshotUrl);
         } catch (e) {
-          console.error(`[${requestId}] Snapshot generation failed:`, e.message);
+          console.error('[%s] Snapshot generation failed: %s', requestId, e.message);
         }
       }
 
@@ -146,11 +153,11 @@ app.post('/api/v1/incidents/webhook', async (req, res) => {
     }
 
     const telResult = await sendTelegramMessage(message, { parseMode: 'Markdown' });
-    console.log(`[${requestId}] Telegram notification sent:`, telResult.success);
+    console.log('[%s] Telegram notification sent: %s', requestId, telResult.success);
 
     res.status(200).json({ success: true, snapshot: !!message.includes('Snapshot') });
   } catch (error) {
-    console.error(`[${requestId}] Webhook Handler Critical Error:`, error.message);
+    console.error('[%s] Webhook Handler Critical Error: %s', requestId, error.message);
     res.status(500).json({ success: false, error: error.message });
   }
 });
@@ -214,7 +221,7 @@ app.post('/api/v1/sessions', async (req, res) => {
     });
   }
 
-  console.log(`[${requestId}] [SWARM] Creating Jules session | Account: ${accountEmail} | Repo: ${repository}`);
+  console.log('[%s] [SWARM] Creating Jules session | Account: %s | Repo: %s', requestId, accountEmail, repository);
 
   try {
     // Proxy to real Jules API (v1alpha) using FallbackChain
@@ -239,7 +246,7 @@ app.post('/api/v1/sessions', async (req, res) => {
     const wait = pollParam ? pollParam.value === true || pollParam.value === 'true' : false;
     const timeout = 600000; // 10 minutes max wait
 
-    console.log(`[${requestId}] [SWARM] Success: ${response.data.name}${wait ? ' (Waiting for completion...)' : ''}`);
+    console.log('[%s] [SWARM] Success: %s%s', requestId, response.data.name, wait ? ' (Waiting for completion...)' : '');
 
     if (wait) {
       if (metrics.julesPoolGauge) {
@@ -268,7 +275,7 @@ app.post('/api/v1/sessions', async (req, res) => {
             break;
           }
         } catch (pollError) {
-          console.warn(`[${requestId}] [SWARM] Polling error for ${sessionId}:`, pollError.message);
+          console.warn('[%s] [SWARM] Polling error for %s: %s', requestId, sessionId, pollError.message);
         }
 
         // Wait 10 seconds before next poll
@@ -276,7 +283,7 @@ app.post('/api/v1/sessions', async (req, res) => {
       }
 
       const duration = Math.round((Date.now() - startTime) / 1000);
-      console.log(`[${requestId}] [SWARM] Session ${sessionId} finished with state ${sessionState} after ${duration}s`);
+      console.log('[%s] [SWARM] Session %s finished with state %s after %ds', requestId, sessionId, sessionState, duration);
 
       if (metrics.julesPoolGauge) {
         metrics.julesPoolGauge.dec({ account: accountEmail, role: accountEmail.split('@')[0] });
@@ -306,7 +313,7 @@ app.post('/api/v1/sessions', async (req, res) => {
 
   } catch (error) {
     const errorData = error.response?.data || { error: error.message };
-    console.error(`[${requestId}] [SWARM] Jules API Error:`, JSON.stringify(errorData));
+    console.error('[%s] [SWARM] Jules API Error: %s', requestId, JSON.stringify(errorData));
 
     if (metrics.julesTaskCounter) {
       metrics.julesTaskCounter.inc({ status: 'error', account: accountEmail });
@@ -327,7 +334,20 @@ app.post('/api/v1/sessions', async (req, res) => {
 // ─── NotebookLM Report Automation ───
 app.post('/api/v1/notebooklm/report', async (req, res) => {
   const requestId = req.requestId;
-  console.log(`[${requestId}] Triggering NotebookLM Report Generation...`);
+
+  // Rate Limiting
+  const now = Date.now();
+  if (now - lastReportTime < REPORT_COOLDOWN) {
+      const waitTime = Math.ceil((REPORT_COOLDOWN - (now - lastReportTime)) / 1000);
+      console.warn('[%s] Report generation rate limited. Wait %ds', requestId, waitTime);
+      return res.status(429).json({
+          success: false,
+          error: `Rate limit exceeded. Please wait ${waitTime} seconds.`
+      });
+  }
+  lastReportTime = now;
+
+  console.log('[%s] Triggering NotebookLM Report Generation...', requestId);
 
   try {
     const { exec } = await import('child_process');
@@ -336,23 +356,25 @@ app.post('/api/v1/notebooklm/report', async (req, res) => {
     const path = await import('path');
 
     // 1. Generar la fuente (notebooklm_source.txt)
-    console.log(`[${requestId}] Step 1: Generating source text...`);
+    console.log('[%s] Step 1: Generating source text...', requestId);
+    // Security: cwd is hardcoded to process.cwd(), script names are hardcoded.
     await execPromise('node scripts/generate_ai_report_source.js', { cwd: process.cwd() });
 
     // 2. Ejecutar la automatización de NotebookLM
     // NOTA: Esto requiere que Chrome esté disponible y logueado en la máquina host.
-    console.log(`[${requestId}] Step 2: Running Puppeteer automation...`);
+    console.log('[%s] Step 2: Running Puppeteer automation...', requestId);
     const { stdout, stderr } = await execPromise('node scripts/notebooklm_automation.js', { cwd: process.cwd() });
 
-    if (stderr) console.warn(`[${requestId}] Puppeteer Warning:`, stderr);
-    console.log(`[${requestId}] Puppeteer Output:`, stdout);
+    if (stderr) console.warn('[%s] Puppeteer Warning: %s', requestId, stderr);
+    console.log('[%s] Puppeteer Output: %s', requestId, stdout);
 
     // 3. Enviar a n8n
-    console.log(`[${requestId}] Step 3: Sending artifacts to n8n...`);
+    console.log('[%s] Step 3: Sending artifacts to n8n...', requestId);
     const n8nWebhookUrl = 'https://n8n.srv1368175.hstgr.cloud/webhook/trigger-report';
 
     // Rutas esperadas (ajustar según descargas reales de Chrome)
     const fs = await import('fs');
+    // Security: Using path.join with safe process.cwd() base
     const podcastPath = path.join(process.cwd(), 'scripts', 'podcast_espanol.mp3');
     const introPath = path.join(process.cwd(), 'scripts', 'infografia_proyecto.png');
 
@@ -373,7 +395,7 @@ app.post('/api/v1/notebooklm/report', async (req, res) => {
     });
 
     const n8nData = await n8nRes.text();
-    console.log(`[${requestId}] n8n Response:`, n8nData);
+    console.log('[%s] n8n Response: %s', requestId, n8nData);
 
     res.json({
       success: true,
@@ -382,7 +404,7 @@ app.post('/api/v1/notebooklm/report', async (req, res) => {
     });
 
   } catch (error) {
-    console.error(`[${requestId}] NotebookLM Error:`, error);
+    console.error('[%s] NotebookLM Error: %s', requestId, error);
     res.status(500).json({ success: false, error: error.message });
   }
 });

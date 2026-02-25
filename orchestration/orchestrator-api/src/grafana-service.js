@@ -29,10 +29,16 @@ if (GRAFANA_API_KEY) {
  */
 export async function createDashboardSnapshot(dashboardUid) {
     try {
-        console.log(`[Grafana] Creating snapshot for dashboard: ${dashboardUid}`);
+        // Sanitize dashboardUid to prevent traversal or injection
+        if (!/^[a-zA-Z0-9_-]+$/.test(dashboardUid)) {
+             throw new Error('Invalid dashboard UID');
+        }
+
+        const safeUid = encodeURIComponent(dashboardUid);
+        console.log(`[Grafana] Creating snapshot for dashboard: ${safeUid}`);
 
         // 1. Fetch dashboard JSON definition
-        const dbResp = await grafanaClient.get(`/api/dashboards/uid/${dashboardUid}`);
+        const dbResp = await grafanaClient.get(`/api/dashboards/uid/${safeUid}`);
         const dashboard = dbResp.data.dashboard;
 
         // Remove `id` to avoid conflict as recommended by Grafana API
@@ -61,6 +67,7 @@ export async function createDashboardSnapshot(dashboardUid) {
         console.error('[Grafana Snapshot Error]:', error.response?.data?.message || error.message);
         // Fallback to the dashboard URL rather than crashing the notification
         console.warn('[Grafana] Falling back to default dashboard link');
-        return `http://localhost:3001/d/${dashboardUid}`;
+        const safeUidFallback = dashboardUid ? encodeURIComponent(dashboardUid) : 'unknown';
+        return `http://localhost:3001/d/${safeUidFallback}`;
     }
 }
