@@ -1,4 +1,3 @@
-
 import { requireInstructor } from '@/lib/auth-guard';
 import { NextResponse } from 'next/server';
 import { createGoogleEvent, updateGoogleEvent } from '@/lib/google-calendar';
@@ -92,6 +91,7 @@ export async function POST(request: Request) {
             }
         }
 
+<<<<<<< HEAD
         // Perform update
         const { data, error } = await supabaseAdmin
             .from('sesiones')
@@ -168,3 +168,81 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: err.message }, { status: 500 });
     }
 }
+=======
+        // Perform update
+        const { data, error } = await supabaseAdmin
+            .from('sesiones')
+            .update(updateData)
+            .eq('id', id)
+            .select()
+            .single();
+
+        if (error) throw error;
+
+        // --- HISTORY LOGGING ---
+        // Compare values and log changes
+        const historyEntries: any[] = [];
+        for (const [key, newValue] of Object.entries(updateData)) {
+            const oldValue = currentSession[key];
+            // Simple comparison, might need refinement for dates/objects
+            if (String(newValue) !== String(oldValue)) {
+                // If value changed, log it
+                historyEntries.push({
+                    session_id: id,
+                    staff_id: user.id, // Log who made the change
+                    field_name: key,
+                    old_value: String(oldValue || ''), // Handle nulls
+                    new_value: String(newValue || '')
+                });
+            }
+        }
+
+        if (historyEntries.length > 0) {
+            const { error: historyError } = await supabaseAdmin
+                .from('session_edits')
+                .insert(historyEntries);
+
+            if (historyError) {
+                console.error('Error logging session history:', historyError);
+                // Don't fail the request, just log error
+            }
+        }
+
+        // --- GOOGLE CALENDAR SYNC ---
+        try {
+            // Re-fetch with joins to get names
+            const { data: sessionData, error: sessionError } = await supabaseAdmin
+                .from('sesiones')
+                .select(`
+                    *,
+                    curso:cursos(nombre_es),
+                    instructor:profiles!sesiones_instructor_id_fkey(nombre, apellidos)
+                `)
+                .eq('id', id)
+                .single();
+
+            if (!sessionError && sessionData) {
+                const courseName = sessionData.curso?.nombre_es || 'Clase';
+                const instructorName = `${sessionData.instructor?.nombre || ''} ${sessionData.instructor?.apellidos || ''}`;
+
+                if (sessionData.google_event_id) {
+                    await updateGoogleEvent(sessionData.google_event_id, sessionData, courseName, instructorName);
+                } else {
+                    // Create if not exists (in case it wasn't synced before)
+                    const eventId = await createGoogleEvent(sessionData, courseName, instructorName);
+                    if (eventId) {
+                        await supabaseAdmin.from('sesiones').update({ google_event_id: eventId }).eq('id', id);
+                    }
+                }
+            }
+        } catch (calError) {
+            console.error('Calendar Sync Error:', calError);
+        }
+
+        return NextResponse.json({ success: true, session: data });
+    } catch (error: unknown) {
+        const err = error as Error;
+        return NextResponse.json({ error: err.message }, { status: 500 });
+    }
+}
+>>>>>>> origin/fix/ci-self-healing-failures-8932104743005997815

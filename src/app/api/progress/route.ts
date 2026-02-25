@@ -1,77 +1,65 @@
-import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
-import { requireAuth } from '@/lib/auth-guard';
-import { getUserEnrollments } from '@/lib/academy/enrollment';
-import { withCors, corsHeaders } from '@/lib/api-headers';
+import { createClient } from '@/lib/supabase/server';
+import { withCors } from '@/lib/api-middleware';
 
-export const dynamic = 'force-dynamic';
-
-export async function OPTIONS(request: Request) {
-    return new NextResponse(null, {
-        status: 204,
-        headers: corsHeaders(request)
-    });
+interface Recommendation {
+    id: string;
+    type: string;
+    title: string;
+    message: string;
+    analysis: string;
+    actionLabel: string;
+    actionHref: string;
+    stats: {
+        consistency: number;
+        variety: number;
+        experience: number;
+        specialization: number;
+    };
+    priority: string;
 }
 
 export async function GET(request: Request) {
+    const supabase = createClient();
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+
+    if (authError || !user) {
+        return withCors(NextResponse.json({ error: 'Unauthorized' }, { status: 401 }), request);
+    }
+
     try {
         const { searchParams } = new URL(request.url);
         const locale = searchParams.get('locale') || 'es';
 
-        // 1. AUTHENTICATION
-        const { user, profile, error } = await requireAuth();
-        if (error || !user) {
-            return withCors(NextResponse.json(
-                { error: 'Unauthorized' },
-                { status: 401 }
-            ), request);
-        }
+        // 1. Fetch Profile
+        const { data: profile } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', user.id)
+            .single();
 
-        const is_staff = profile?.rol === 'admin' || profile?.rol === 'instructor';
+        // 2. Fetch Progress (Legacy + New)
+        // This includes levels, courses completed, etc.
+        const { data: progress } = await supabase
+            .from('progreso_global')
+            .select('*')
+            .eq('alumno_id', user.id);
 
-        // 2. AUTHORIZATION
-        const enrolledCourseIds = await getUserEnrollments(user.id);
+        const filteredProgress = progress || [];
 
-        // 3. FETCH PROGRESS & METADATA
-        const supabase = createClient();
+        // 3. Fetch Active Enrollments
+        const { data: inscriptions } = await supabase
+            .from('inscripciones')
+            .select('curso_id')
+            .eq('perfil_id', user.id)
+            .in('estado_pago', ['pagado', 'confirmado']); // Adjust status as needed
 
-        const [
-            resProgress,
-            resCourses,
-            resLevels
-        ] = await Promise.all([
-            supabase.from('progreso_alumno').select('*').eq('alumno_id', user.id),
-            supabase.from('cursos').select('id, slug, nombre_es, nombre_eu'),
-            supabase.from('niveles_formacion').select('id, slug, nombre_es, nombre_eu')
-        ]);
+        const enrolledCourseIds = inscriptions?.map((i: any) => i.curso_id) || [];
 
-        if (resProgress.error) {
-            console.error('Progress Error:', resProgress.error);
-            return withCors(NextResponse.json({ error: 'Error loading progress' }, { status: 500 }), request);
-        }
-
-        const rawProgress = resProgress.data;
-        const allCourses = resCourses.data;
-        const allLevels = resLevels.data;
-
-        // Create lookup maps
-        const courseMap = (allCourses || []).reduce((acc: any, c: any) => ({ ...acc, [c.id]: c }), {});
-        const levelMap = (allLevels || []).reduce((acc: any, n: any) => ({ ...acc, [n.id]: n }), {});
-
-        const filteredProgress = (rawProgress || []).map((p: any) => {
-            if (p.tipo_entidad === 'curso' && courseMap[p.entidad_id]) {
-                return { ...p, slug: courseMap[p.entidad_id].slug, nombre: locale === 'eu' ? courseMap[p.entidad_id].nombre_eu : courseMap[p.entidad_id].nombre_es };
-            }
-            if (p.tipo_entidad === 'nivel' && levelMap[p.entidad_id]) {
-                return { ...p, slug: levelMap[p.entidad_id].slug, nombre: locale === 'eu' ? levelMap[p.entidad_id].nombre_eu : levelMap[p.entidad_id].nombre_es };
-            }
-            return p;
-        });
-
-        // 4. FETCH ADDITIONAL DATA FOR DASHBOARD
+        // 4. Fetch Details (Skills, Hours, Certs)
         const { data: skills } = await supabase
             .from('habilidades_alumno')
-            .select('fecha_obtencion, habilidad:habilidad_id(*)')
+            .select('fecha_obtencion, habilidad:habilidad_id(slug, nombre_es, categoria)')
             .eq('alumno_id', user.id);
 
         const { data: logros } = await supabase
@@ -158,7 +146,7 @@ export async function GET(request: Request) {
         });
 
         // 6. ADVANCED CAREER ADVISOR ENGINE (V2)
-        const recommendations: any[] = [];
+        const recommendations: Recommendation[] = [];
         const userHabilidades = (skills || []).map((s: any) =>
             Array.isArray(s.habilidad) ? s.habilidad[0]?.slug : s.habilidad?.slug
         );
@@ -188,7 +176,7 @@ export async function GET(request: Request) {
         };
 
         // Decision Tree for "Smart Next Step"
-        // LOCALIZED LINKS: //...
+        // LOCALIZED LINKS: /${locale}/...
         if (nivelesCompletados === 0 && totalSessions === 0) {
             recommendations.push({
                 id: 'path-initiation',

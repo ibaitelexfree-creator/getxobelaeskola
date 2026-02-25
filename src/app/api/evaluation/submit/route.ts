@@ -143,7 +143,7 @@ export async function POST(request: Request) {
                     currentSrs.forEach((s: any) => srsMap.set(s.question_id, s));
                 }
 
-                const updates: any[] = [];
+                const updates: { user_id: string; question_id: any; interval: number; ease_factor: number; next_review: string; last_answered: string; }[] = [];
                 for (const q of (allQuestions as any[])) {
                     const userAnswer = respuestasMerged[q.id];
                     // Si no respondió, consideramos incorrecto
@@ -154,7 +154,6 @@ export async function POST(request: Request) {
                     const next = calculateNextReview(current.interval, current.ease_factor, isCorrect);
 
                     updates.push({
-
                         user_id: user.id,
                         question_id: q.id,
                         interval: next.interval,
@@ -165,7 +164,7 @@ export async function POST(request: Request) {
                 }
 
                 if (updates.length > 0) {
-                    await supabase.from('srs_user_questions').upsert(updates as any);
+                    await supabase.from('srs_user_questions').upsert(updates);
                 }
             }
         } catch (e) {
@@ -174,7 +173,7 @@ export async function POST(request: Request) {
         // --- SRS UPDATE LOGIC END ---
 
         // Obtener las respuestas correctas si está configurado para el cliente
-        let respuestasCorrectas: any = null;
+        let respuestasCorrectas: any[] | null = null;
         if (intento.evaluacion.mostrar_respuestas) {
             // Ya las tenemos en allQuestions si hicimos SRS, pero necesitamos explanations y el formato correcto
             const { data: preguntas } = await supabaseAdmin
@@ -182,7 +181,7 @@ export async function POST(request: Request) {
                 .select('id, respuesta_correcta, explicacion_es, explicacion_eu')
                 .in('id', intento.preguntas_json);
 
-            respuestasCorrectas = preguntas as any;
+            respuestasCorrectas = preguntas;
         }
 
         return NextResponse.json({

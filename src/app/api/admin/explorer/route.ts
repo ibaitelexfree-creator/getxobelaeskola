@@ -1,4 +1,3 @@
-
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 
@@ -73,7 +72,12 @@ export async function GET(req: Request) {
         }
 
         // Enrich with relations count from embedded data
+<<<<<<< HEAD
         const enriched = ((data as unknown as SearchResult[]) || []).map((item: SearchResult) => {
+=======
+        const enriched = (data || []).map((item: any) => {
+            const searchItem = item as SearchResult;
+>>>>>>> origin/fix/ci-self-healing-failures-8932104743005997815
             const relations: { label: string; count: number; table: string }[] = [];
 
             for (const rel of rels) {
@@ -88,9 +92,9 @@ export async function GET(req: Request) {
             }
 
             return {
-                ...item,
+                ...searchItem,
                 _table: tableName,
-                _title: item.nombre || item.title || item.name || item.asunto || item.id, // Best effort title
+                _title: searchItem.nombre || searchItem.title || searchItem.name || searchItem.asunto || searchItem.id, // Best effort title
                 _relations: relations
             };
         });
@@ -102,11 +106,12 @@ export async function GET(req: Request) {
         // Search key tables
         const tablesToSearch = ['profiles', 'cursos', 'embarcaciones', 'reservas_alquiler'];
         for (const t of tablesToSearch) {
-            const res = await searchTable(t) as SearchResult[];
+            const res = await searchTable(t);
             results = [...results, ...res];
         }
     } else {
-        results = await searchTable(table) as SearchResult[];
+        const res = await searchTable(table);
+        results = [...res];
     }
 
     return NextResponse.json({ results });

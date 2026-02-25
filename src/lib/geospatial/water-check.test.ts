@@ -32,7 +32,6 @@ vi.mock('../../data/geospatial/water-geometry.json', () => ({
 describe('isPointInWater', () => {
     beforeEach(() => {
         vi.resetModules();
-
         // Reset to default FeatureCollection state
         mockData.data.type = 'FeatureCollection';
         mockData.data.features = [
@@ -75,8 +74,8 @@ describe('isPointInWater', () => {
     });
 
     it('returns true for a point on the edge', async () => {
-         const { isPointInWater } = await import('./water-check');
-         expect(isPointInWater(5, 0)).toBe(true);
+        const { isPointInWater } = await import('./water-check');
+        expect(isPointInWater(5, 0)).toBe(true);
     });
 
     it('handles single Feature fallback', async () => {
@@ -100,7 +99,6 @@ describe('isPointInWater', () => {
         };
 
         const { isPointInWater } = await import('./water-check');
-
         // Inside
         expect(isPointInWater(5, 5)).toBe(true);
         // Outside
@@ -112,7 +110,6 @@ describe('isPointInWater', () => {
         mockData.data.features = [{}];
 
         const { isPointInWater } = await import('./water-check');
-
         expect(isPointInWater(5, 5)).toBe(false);
     });
 });

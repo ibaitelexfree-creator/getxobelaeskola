@@ -17,38 +17,36 @@ const featureCollection = waterGeometryData as any;
 
 // Populate the index once
 if (featureCollection.features) {
-    const items: WaterPolygonItem[] = [];
-    featureCollection.features.forEach((feature: any) => {
-        if (!feature || !feature.geometry) return;
-        try {
-            const bbox = turf.bbox(feature);
-            items.push({
-                minX: bbox[0],
-                minY: bbox[1],
-                maxX: bbox[2],
-                maxY: bbox[3],
-                feature: feature
-            });
-        } catch (e) {
-            // Skip invalid features
-        }
-    });
+    const items: WaterPolygonItem[] = featureCollection.features
+        .map((feature: any) => {
+            try {
+                const bbox = turf.bbox(feature);
+                return {
+                    minX: bbox[0],
+                    minY: bbox[1],
+                    maxX: bbox[2],
+                    maxY: bbox[3],
+                    feature: feature
+                };
+            } catch (e) {
+                return null;
+            }
+        })
+        .filter((item: any): item is WaterPolygonItem => item !== null);
     tree.load(items);
 } else {
-    // Fallback if it's a single feature
-    if (featureCollection && featureCollection.geometry) {
-        try {
-            const bbox = turf.bbox(featureCollection);
-            tree.load([{
-                minX: bbox[0],
-                minY: bbox[1],
-                maxX: bbox[2],
-                maxY: bbox[3],
-                feature: featureCollection
-            }]);
-        } catch (e) {
-            // Skip invalid feature
-        }
+    try {
+        // Fallback if it's a single feature
+        const bbox = turf.bbox(featureCollection);
+        tree.load([{
+            minX: bbox[0],
+            minY: bbox[1],
+            maxX: bbox[2],
+            maxY: bbox[3],
+            feature: featureCollection
+        }]);
+    } catch (e) {
+        // Ignore invalid single feature
     }
 }
 
@@ -67,7 +65,6 @@ export function isPointInWater(lat: number, lng: number): boolean {
 
     // Only iterate through candidates that might contain the point
     return candidates.some((item) => {
-        if (!item.feature || !item.feature.geometry) return false;
         try {
             return turf.booleanPointInPolygon(point, item.feature);
         } catch (e) {

@@ -69,7 +69,7 @@ export async function POST(req: NextRequest) {
                 context_type,
                 context_id,
                 content: content || null,
-                audio_url,
+                audio_url: audio_url,
                 is_read: false
             })
             .select()

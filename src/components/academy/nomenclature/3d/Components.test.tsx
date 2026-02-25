@@ -1,10 +1,30 @@
 import { describe, it, expect, vi } from 'vitest';
 import React from 'react';
 import { render } from '@testing-library/react';
+
+// Mock R3F and Drei BEFORE imports
+vi.mock('@react-three/fiber', () => ({
+    Canvas: ({ children }: any) => <div>{children}</div>,
+    useThree: () => ({ camera: {}, scene: {}, gl: { domElement: {} } }),
+    useFrame: vi.fn(),
+    useLoader: vi.fn(),
+    extend: vi.fn(),
+    createRoot: vi.fn(),
+    events: {},
+}));
+
+vi.mock('@react-three/drei', () => ({
+    Float: ({ children }: any) => <group>{children}</group>,
+    Text: () => null,
+    Html: () => null,
+    OrbitControls: () => null,
+    useGLTF: () => ({ nodes: {}, materials: {} }),
+}));
+
 import InfoOverlay from './InfoOverlay';
 import BoatModel from './BoatModel';
 
-// Mock ResizeObserver for R3F if needed, though we might not render Canvas here
+// Mock ResizeObserver for R3F if needed
 global.ResizeObserver = class ResizeObserver {
   observe() {}
   unobserve() {}

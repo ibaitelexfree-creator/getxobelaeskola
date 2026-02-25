@@ -97,6 +97,8 @@ describe('POST /api/logbook/upload-track', () => {
 
         expect(data.success).toBe(true);
         expect(data.stats.distance_nm).toBeGreaterThan(0);
+        // duration_h is not returned in stats object
+        // expect(data.stats.duration_h).toBeCloseTo(0.03, 2);
 
         expect(mockUpload).toHaveBeenCalled();
         expect(mockInsert).toHaveBeenCalled();

@@ -49,7 +49,7 @@ export default function TestChartPage() {
                         />
                         <YAxis stroke="#888" />
                         <Tooltip
-                            labelFormatter={(label) => formatTime(label)}
+                            labelFormatter={(label: any) => formatTime(label)}
                             contentStyle={{ backgroundColor: '#333', border: 'none', color: '#fff' }}
                         />
                         <Line type="monotone" dataKey="value" stroke="#8884d8" strokeWidth={2} dot={{ r: 4 }} activeDot={{ r: 8 }} />
