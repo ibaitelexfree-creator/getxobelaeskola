@@ -2,130 +2,168 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { getUserEnrollments } from './enrollment';
 import { createAdminClient } from '@/lib/supabase/admin';
 
-// Mock the Supabase Admin Client
+vi.mock('server-only', () => ({}));
+
+// Mock the admin client
 vi.mock('@/lib/supabase/admin', () => ({
-    createAdminClient: vi.fn(),
+    createAdminClient: vi.fn()
 }));
 
 describe('getUserEnrollments', () => {
     let mockSupabase: any;
-    let mockProfilesChain: any;
-    let mockCursosChain: any;
-    let mockInscripcionesChain: any;
+    let consoleSpy: any;
 
     beforeEach(() => {
         vi.clearAllMocks();
+        consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
-        // Helper to create a chainable mock that is also awaitable
-        const createChain = () => {
-            const chain: any = {};
-            chain.select = vi.fn().mockReturnValue(chain);
-            chain.eq = vi.fn().mockReturnValue(chain);
-            chain.single = vi.fn();
-            chain.then = vi.fn(); // Make it awaitable
-            return chain;
-        };
-
-        mockProfilesChain = createChain();
-        mockCursosChain = createChain();
-        mockInscripcionesChain = createChain();
-
+        // Default mock implementation for the chain
         mockSupabase = {
-            from: vi.fn((table: string) => {
-                if (table === 'profiles') return mockProfilesChain;
-                if (table === 'cursos') return mockCursosChain;
-                if (table === 'inscripciones') return mockInscripcionesChain;
-                return createChain();
-            }),
+            from: vi.fn().mockReturnThis(),
+            select: vi.fn().mockReturnThis(),
+            eq: vi.fn().mockReturnThis(),
+            single: vi.fn().mockResolvedValue({ data: null, error: null })
         };
+        (mockSupabase as any).then = undefined; // Avoid promise-like behavior if not needed
 
         (createAdminClient as any).mockReturnValue(mockSupabase);
     });
 
-    it('returns empty array if userId is missing', async () => {
+    it('1️⃣ should return empty array when userId is empty', async () => {
         const result = await getUserEnrollments('');
         expect(result).toEqual([]);
         expect(createAdminClient).not.toHaveBeenCalled();
     });
 
-    it('returns all courses for admin user', async () => {
-        const userId = 'admin-user-id';
-        const mockCourses = [{ id: 'course-1' }, { id: 'course-2' }];
+    it('2️⃣ should return all active courses for admin role', async () => {
+        const userId = 'admin-uuid';
 
-        // Mock Profile Response
-        mockProfilesChain.single.mockResolvedValue({ data: { rol: 'admin' }, error: null });
+        // Mock profile fetch
+        mockSupabase.single.mockResolvedValueOnce({
+            data: { rol: 'admin' },
+            error: null
+        });
 
-        // Mock Courses Response
-        // Since the code awaits the chain directly: await supabase...eq('activo', true)
-        mockCursosChain.then.mockImplementation((resolve: any) => resolve({ data: mockCourses, error: null }));
+        // Mock courses fetch
+        // Note: the code for admin/instructor doesn't use .single() for courses
+        // It uses .eq('activo', true) which returns the chain itself which is awaited
+        mockSupabase.eq.mockImplementation((column: string, value: any) => {
+            if (column === 'activo' && value === true) {
+                return Promise.resolve({ data: [{ id: 'course-1' }, { id: 'course-2' }], error: null });
+            }
+            return mockSupabase;
+        });
 
         const result = await getUserEnrollments(userId);
-
-        expect(mockSupabase.from).toHaveBeenCalledWith('profiles');
-        expect(mockProfilesChain.eq).toHaveBeenCalledWith('id', userId);
-
-        expect(mockSupabase.from).toHaveBeenCalledWith('cursos');
-        expect(mockCursosChain.eq).toHaveBeenCalledWith('activo', true);
 
         expect(result).toEqual(['course-1', 'course-2']);
+        expect(mockSupabase.from).toHaveBeenCalledWith('profiles');
+        expect(mockSupabase.from).toHaveBeenCalledWith('cursos');
+        expect(mockSupabase.eq).toHaveBeenCalledWith('activo', true);
     });
 
-    it('returns all courses for instructor user', async () => {
-        const userId = 'instructor-user-id';
-        const mockCourses = [{ id: 'course-A' }];
+    it('3️⃣ should return all active courses for instructor role', async () => {
+        const userId = 'instructor-uuid';
 
-        mockProfilesChain.single.mockResolvedValue({ data: { rol: 'instructor' }, error: null });
-        mockCursosChain.then.mockImplementation((resolve: any) => resolve({ data: mockCourses, error: null }));
+        mockSupabase.single.mockResolvedValueOnce({
+            data: { rol: 'instructor' },
+            error: null
+        });
 
-        const result = await getUserEnrollments(userId);
-        expect(result).toEqual(['course-A']);
-    });
-
-    it('returns only paid enrollments for regular user', async () => {
-        const userId = 'regular-user-id';
-        const mockEnrollments = [
-            { curso_id: 'course-101' },
-            { curso_id: 'course-102' }
-        ];
-
-        mockProfilesChain.single.mockResolvedValue({ data: { rol: 'user' }, error: null });
-
-        // Mock Inscripciones Response
-        mockInscripcionesChain.then.mockImplementation((resolve: any) => resolve({ data: mockEnrollments, error: null }));
+        mockSupabase.eq.mockImplementation((column: string, value: any) => {
+            if (column === 'activo' && value === true) {
+                return Promise.resolve({ data: [{ id: 'course-a' }], error: null });
+            }
+            return mockSupabase;
+        });
 
         const result = await getUserEnrollments(userId);
 
+        expect(result).toEqual(['course-a']);
+        expect(mockSupabase.from).toHaveBeenCalledWith('profiles');
+        expect(mockSupabase.from).toHaveBeenCalledWith('cursos');
+    });
+
+    it('4️⃣ should return paid enrollments for regular user', async () => {
+        const userId = 'user-uuid';
+
+        // Profile fetch (not admin)
+        mockSupabase.single.mockResolvedValueOnce({
+            data: { rol: 'user' },
+            error: null
+        });
+
+        // Enrollment fetch
+        // The chain ends with .eq('estado_pago', 'pagado') which is then awaited
+        mockSupabase.eq.mockImplementation(function(this: any, column: string, value: any) {
+            if (column === 'estado_pago' && value === 'pagado') {
+                return Promise.resolve({ data: [{ curso_id: 'c1' }, { curso_id: 'c2' }], error: null });
+            }
+            return this;
+        });
+
+        const result = await getUserEnrollments(userId);
+
+        expect(result).toEqual(['c1', 'c2']);
+        expect(mockSupabase.from).toHaveBeenCalledWith('profiles');
         expect(mockSupabase.from).toHaveBeenCalledWith('inscripciones');
-        expect(mockInscripcionesChain.eq).toHaveBeenCalledWith('perfil_id', userId);
-        expect(mockInscripcionesChain.eq).toHaveBeenCalledWith('estado_pago', 'pagado');
-
-        expect(result).toEqual(['course-101', 'course-102']);
+        expect(mockSupabase.eq).toHaveBeenCalledWith('perfil_id', userId);
+        expect(mockSupabase.eq).toHaveBeenCalledWith('estado_pago', 'pagado');
     });
 
-    it('returns empty array for regular user with no enrollments', async () => {
-        const userId = 'new-user-id';
+    it('5️⃣ should return empty array for user without enrollments', async () => {
+        const userId = 'user-no-enroll-uuid';
 
-        mockProfilesChain.single.mockResolvedValue({ data: { rol: 'user' }, error: null });
-        mockInscripcionesChain.then.mockImplementation((resolve: any) => resolve({ data: [], error: null }));
+        mockSupabase.single.mockResolvedValueOnce({ data: { rol: 'user' }, error: null });
 
-        const result = await getUserEnrollments(userId);
-        expect(result).toEqual([]);
-    });
-
-    it('handles database error gracefully for regular user', async () => {
-        const userId = 'error-user-id';
-
-        // Mock console.error to keep test output clean
-        const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-
-        mockProfilesChain.single.mockResolvedValue({ data: { rol: 'user' }, error: null });
-        mockInscripcionesChain.then.mockImplementation((resolve: any) => resolve({ data: null, error: { message: 'DB Error' } }));
+        mockSupabase.eq.mockImplementation(function(this: any, column: string, value: any) {
+            if (column === 'estado_pago' && value === 'pagado') {
+                return Promise.resolve({ data: [], error: null });
+            }
+            return this;
+        });
 
         const result = await getUserEnrollments(userId);
 
         expect(result).toEqual([]);
-        expect(consoleSpy).toHaveBeenCalledWith('Error fetching enrollments:', { message: 'DB Error' });
+    });
 
-        consoleSpy.mockRestore();
+    it('6️⃣ should return empty array and log error when profile fetch fails', async () => {
+        const userId = 'error-uuid';
+        const error = { message: 'DB Error' };
+
+        mockSupabase.single.mockResolvedValueOnce({ data: null, error });
+
+        // For regular user flow if it continues (though it shouldn't if it's admin check but let's see)
+        // Actually, if profile is null, it continues to regular user flow
+        mockSupabase.eq.mockImplementation(function(this: any, column: string, value: any) {
+             if (column === 'estado_pago' && value === 'pagado') {
+                return Promise.resolve({ data: null, error: { message: 'Secondary Error' } });
+            }
+            return this;
+        });
+
+        const result = await getUserEnrollments(userId);
+
+        expect(result).toEqual([]);
+        expect(consoleSpy).toHaveBeenCalled();
+    });
+
+    it('7️⃣ should return empty array and log error when enrollment fetch fails', async () => {
+        const userId = 'user-uuid';
+
+        mockSupabase.single.mockResolvedValueOnce({ data: { rol: 'user' }, error: null });
+
+        mockSupabase.eq.mockImplementation(function(this: any, column: string, value: any) {
+            if (column === 'estado_pago' && value === 'pagado') {
+                return Promise.resolve({ data: null, error: { message: 'Fetch Error' } });
+            }
+            return this;
+        });
+
+        const result = await getUserEnrollments(userId);
+
+        expect(result).toEqual([]);
+        expect(consoleSpy).toHaveBeenCalledWith('Error fetching enrollments:', { message: 'Fetch Error' });
     });
 });
