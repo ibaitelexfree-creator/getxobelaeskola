@@ -1,0 +1,19 @@
+name: Validate Branch Naming
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+
+jobs:
+  validate-branch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check branch name
+        run: |
+          BRANCH_NAME="${{ github.head_ref }}"
+          # Regex modified to allow jules/* pattern OR branch-* pattern (for simple merges)
+          if [[ ! "$BRANCH_NAME" =~ ^jules/(arch|fix|data|ui)- && ! "$BRANCH_NAME" =~ ^branch- ]]; then
+            echo "❌ Error: The branch '$BRANCH_NAME' does not follow the convention jules/(arch|fix|data|ui)-* or branch-*"
+            exit 1
+          fi
+          echo "✅ Valid branch name: $BRANCH_NAME"

@@ -1,0 +1,29 @@
+name: Audit Trail
+
+on:
+  pull_request:
+    types: [closed]
+
+jobs:
+  audit:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send audit log
+        env:
+          ORCHESTRATOR_URL: ${{ secrets.ORCHESTRATOR_URL }}
+        run: |
+          if [ -n "$ORCHESTRATOR_URL" ]; then
+            curl -X POST "$ORCHESTRATOR_URL/webhook/github-pr-audit" \
+              -H "Content-Type: application/json" \
+              -d '{
+                "number": "${{ github.event.pull_request.number }}",
+                "title": "${{ github.event.pull_request.title }}",
+                "description": "${{ github.event.pull_request.body }}",
+                "repository": "${{ github.repository }}",
+                "sender": "${{ github.event.sender.login }}",
+                "branch": "${{ github.head_ref }}"
+              }'
+          else
+            echo "⚠️ ORCHESTRATOR_URL not set. Skipping audit log."
+          fi

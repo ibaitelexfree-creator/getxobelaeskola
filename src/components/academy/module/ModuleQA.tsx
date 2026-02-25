@@ -338,7 +338,7 @@ export default function ModuleQA({ moduleId, locale }: ModuleQAProps) {
 
             // Let's redo the logic to calculate `newVoteType` first.
             let newVoteType = voteType;
-            let targetQ = questions.find(q => q.id === (questionId || itemId));
+            const targetQ = questions.find(q => q.id === (questionId || itemId));
             if (itemType === 'question' && targetQ) {
                 if (targetQ.user_vote === voteType) newVoteType = 0;
             } else if (itemType === 'answer' && targetQ) {
