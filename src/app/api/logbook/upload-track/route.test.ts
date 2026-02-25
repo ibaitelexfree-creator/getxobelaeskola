@@ -1,3 +1,4 @@
+
 import { POST } from './route';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
@@ -96,9 +97,9 @@ describe('POST /api/logbook/upload-track', () => {
         const data = await res.json();
 
         expect(data.success).toBe(true);
+        // Corrected property name from total_distance_nm to distance_nm based on route implementation
         expect(data.stats.distance_nm).toBeGreaterThan(0);
-        // duration_h is not returned in stats object
-        // expect(data.stats.duration_h).toBeCloseTo(0.03, 2);
+        expect(data.stats.duration_h).toBeCloseTo(0.03, 2); // 2 minutes = 0.033 hours, rounded to 0.03
 
         expect(mockUpload).toHaveBeenCalled();
         expect(mockInsert).toHaveBeenCalled();

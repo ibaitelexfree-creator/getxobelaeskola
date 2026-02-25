@@ -3,12 +3,22 @@
 import React, { useState, useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
+<<<<<<< HEAD
 const generateData = () => {
 <<<<<<< HEAD
     const data: { timestamp: number; value: number }[] = [];
 =======
     const data: any[] = [];
 >>>>>>> origin/test/api-coverage-fix-6077253486263685807
+=======
+interface ChartDataPoint {
+    timestamp: number;
+    value: number;
+}
+
+const generateData = (): ChartDataPoint[] => {
+    const data: ChartDataPoint[] = [];
+>>>>>>> origin/fix/orchestration-self-healing-scope-1674567216437366258
     const now = Date.now();
     for (let i = 0; i < 24; i++) {
         data.push({
@@ -21,8 +31,11 @@ const generateData = () => {
 
 const data = generateData();
 
-const formatTime = (timestamp: number) => {
-    return new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+const formatTime = (timestamp: number | string) => {
+    // Recharts can pass string or number
+    const time = typeof timestamp === 'number' ? timestamp : Number(timestamp);
+    if (isNaN(time)) return '';
+    return new Date(time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 };
 
 export default function TestChartPage() {

@@ -1,4 +1,7 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/fix/orchestration-self-healing-scope-1674567216437366258
 import React from 'react';
 import { createClient } from '@/lib/supabase/server';
 import RentalClient from '@/components/rental/RentalClient';
@@ -51,6 +54,7 @@ export function generateStaticParams() {
     return ['es', 'eu', 'en', 'fr'].map(locale => ({ locale }));
 }
 
+<<<<<<< HEAD
 export default async function RentalPage({ params: { locale } }: { params: { locale: string } }) {
     const t = await getTranslations({ locale, namespace: 'rental_page' });
     const supabase = createClient();
@@ -78,6 +82,27 @@ export default async function RentalPage({ params: { locale } }: { params: { loc
 
     let services: RentalService[] = [];
 >>>>>>> origin/test/api-coverage-fix-6077253486263685807
+=======
+interface RentalService {
+    id: string;
+    slug: string;
+    nombre: string;
+    nombre_eu?: string;
+    nombre_en?: string;
+    descripcion: string;
+    descripcion_eu?: string;
+    descripcion_en?: string;
+    imagen_url?: string;
+    precio_base?: number;
+    precio_hora?: number;
+    activo: boolean;
+}
+
+export default async function RentalPage({ params: { locale } }: { params: { locale: string } }) {
+    const t = await getTranslations({ locale, namespace: 'rental_page' });
+    const supabase = createClient();
+    let services: RentalService[] = [];
+>>>>>>> origin/fix/orchestration-self-healing-scope-1674567216437366258
     const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://getxobelaeskola.cloud';
 
     try {
@@ -104,10 +129,17 @@ export default async function RentalPage({ params: { locale } }: { params: { loc
             ];
 
 <<<<<<< HEAD
+<<<<<<< HEAD
             services = (data || []).sort((a: any, b: any) => {
 =======
             services = (data as unknown as RentalService[] || []).sort((a, b) => {
 >>>>>>> origin/test/api-coverage-fix-6077253486263685807
+=======
+            // Explicitly cast data to RentalService[] to avoid 'never' inference if empty
+            const rawData = (data || []) as unknown as RentalService[];
+
+            services = rawData.sort((a, b) => {
+>>>>>>> origin/fix/orchestration-self-healing-scope-1674567216437366258
                 const indexA = priorityOrder.indexOf(a.slug);
                 const indexB = priorityOrder.indexOf(b.slug);
 
@@ -130,14 +162,19 @@ export default async function RentalPage({ params: { locale } }: { params: { loc
         'description': t('description'),
         'numberOfItems': services.length,
 <<<<<<< HEAD
+<<<<<<< HEAD
         'itemListElement': services.map((service: any, index: number) => ({
 =======
         'itemListElement': services.map((service, index) => ({
 >>>>>>> origin/test/api-coverage-fix-6077253486263685807
+=======
+        'itemListElement': services.map((service, index) => ({
+>>>>>>> origin/fix/orchestration-self-healing-scope-1674567216437366258
             '@type': 'ListItem',
             'position': index + 1,
             'item': {
                 '@type': 'Product',
+<<<<<<< HEAD
 <<<<<<< HEAD
                 'name': locale === 'eu' ? (service.nombre_eu || service.nombre_es || service.nombre) :
                         locale === 'en' ? (service.nombre_en || service.nombre_es || service.nombre) :
@@ -152,13 +189,18 @@ export default async function RentalPage({ params: { locale } }: { params: { loc
                     '@type': 'Offer',
                     'price': service.precio_base || service.precio_hora || 0,
 =======
+=======
+>>>>>>> origin/fix/orchestration-self-healing-scope-1674567216437366258
                 'name': locale === 'eu' ? (service.nombre_eu || service.nombre) : locale === 'en' ? (service.nombre_en || service.nombre) : service.nombre,
                 'description': locale === 'eu' ? (service.descripcion_eu || service.descripcion) : locale === 'en' ? (service.descripcion_en || service.descripcion) : service.descripcion,
                 'image': `${siteUrl}${service.imagen_url || '/images/home-hero-sailing-action.webp'}`,
                 'offers': {
                     '@type': 'Offer',
                     'price': service.precio_base || service.precio_hora,
+<<<<<<< HEAD
 >>>>>>> origin/test/api-coverage-fix-6077253486263685807
+=======
+>>>>>>> origin/fix/orchestration-self-healing-scope-1674567216437366258
                     'priceCurrency': 'EUR',
                     'availability': 'https://schema.org/InStock',
                     'url': `${siteUrl}/${locale}/rental`
@@ -200,10 +242,14 @@ export default async function RentalPage({ params: { locale } }: { params: { loc
             <section className="pb-48 relative">
                 <div className="container mx-auto px-6 relative z-10">
 <<<<<<< HEAD
+<<<<<<< HEAD
                     <RentalClient services={services || []} locale={locale} />
 =======
                     <RentalClient services={services} locale={locale} />
 >>>>>>> origin/test/api-coverage-fix-6077253486263685807
+=======
+                    <RentalClient services={services} locale={locale} />
+>>>>>>> origin/fix/orchestration-self-healing-scope-1674567216437366258
                 </div>
 
                 {/* Bottom Note / Disclosure */}
@@ -222,6 +268,7 @@ export default async function RentalPage({ params: { locale } }: { params: { loc
         </main>
     );
 }
+<<<<<<< HEAD
 =======
 import React from 'react';
 import { createClient } from '@/lib/supabase/server';
@@ -398,3 +445,5 @@ export default async function RentalPage({ params: { locale } }: { params: { loc
 }
 
 >>>>>>> origin/fix/ci-self-healing-failures-8932104743005997815
+=======
+>>>>>>> origin/fix/orchestration-self-healing-scope-1674567216437366258

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+
+>>>>>>> origin/fix/orchestration-self-healing-scope-1674567216437366258
 import { requireInstructor } from '@/lib/auth-guard';
 import { NextResponse } from 'next/server';
 import { createGoogleEvent, updateGoogleEvent } from '@/lib/google-calendar';
@@ -5,8 +9,20 @@ import { validateSessionOverlap } from '@/lib/session-validation';
 
 export async function POST(request: Request) {
     try {
+<<<<<<< HEAD
         const { user, profile, supabaseAdmin, error: authError } = await requireInstructor();
         if (authError) return authError;
+=======
+        const authResult = await requireInstructor();
+
+        // Type guard to check if authResult is an error response
+        if ('error' in authResult && authResult.error instanceof NextResponse) {
+            return authResult.error;
+        }
+
+        // If not error, it's the success object
+        const { user, profile, supabaseAdmin } = authResult as { user: any; profile: any; supabaseAdmin: any };
+>>>>>>> origin/fix/orchestration-self-healing-scope-1674567216437366258
 
         const body = await request.json();
         const {
@@ -28,16 +44,30 @@ export async function POST(request: Request) {
         const isInstructor = profile?.rol === 'instructor';
 
         // Fetch current session for permissions and history comparison
+<<<<<<< HEAD
         const { data: currentSession, error: fetchError } = await supabaseAdmin
+=======
+        const { data: currentSessionData, error: fetchError } = await supabaseAdmin
+>>>>>>> origin/fix/orchestration-self-healing-scope-1674567216437366258
             .from('sesiones')
             .select('*')
             .eq('id', id)
             .single();
 
+<<<<<<< HEAD
         if (fetchError || !currentSession) {
             return NextResponse.json({ error: 'Sesión no encontrada' }, { status: 404 });
         }
 
+=======
+        if (fetchError || !currentSessionData) {
+            return NextResponse.json({ error: 'Sesión no encontrada' }, { status: 404 });
+        }
+
+        // Cast to Record for dynamic access
+        const currentSession = currentSessionData as Record<string, any>;
+
+>>>>>>> origin/fix/orchestration-self-healing-scope-1674567216437366258
         // Instructors can only update their own sessions (to change status/obs)
         if (isInstructor && !isAdmin && currentSession.instructor_id !== user.id) {
             return NextResponse.json({ error: 'No puedes modificar sesiones que no tienes asignadas' }, { status: 403 });
@@ -91,6 +121,7 @@ export async function POST(request: Request) {
             }
         }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
         // Perform update
         const { data, error } = await supabaseAdmin
@@ -169,6 +200,8 @@ export async function POST(request: Request) {
     }
 }
 =======
+=======
+>>>>>>> origin/fix/orchestration-self-healing-scope-1674567216437366258
         // Perform update
         const { data, error } = await supabaseAdmin
             .from('sesiones')
@@ -181,7 +214,11 @@ export async function POST(request: Request) {
 
         // --- HISTORY LOGGING ---
         // Compare values and log changes
+<<<<<<< HEAD
         const historyEntries: any[] = [];
+=======
+        const historyEntries = [];
+>>>>>>> origin/fix/orchestration-self-healing-scope-1674567216437366258
         for (const [key, newValue] of Object.entries(updateData)) {
             const oldValue = currentSession[key];
             // Simple comparison, might need refinement for dates/objects
@@ -211,7 +248,11 @@ export async function POST(request: Request) {
         // --- GOOGLE CALENDAR SYNC ---
         try {
             // Re-fetch with joins to get names
+<<<<<<< HEAD
             const { data: sessionData, error: sessionError } = await supabaseAdmin
+=======
+            const { data: sessionDataRaw, error: sessionError } = await supabaseAdmin
+>>>>>>> origin/fix/orchestration-self-healing-scope-1674567216437366258
                 .from('sesiones')
                 .select(`
                     *,
@@ -221,6 +262,12 @@ export async function POST(request: Request) {
                 .eq('id', id)
                 .single();
 
+<<<<<<< HEAD
+=======
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const sessionData = sessionDataRaw as any;
+
+>>>>>>> origin/fix/orchestration-self-healing-scope-1674567216437366258
             if (!sessionError && sessionData) {
                 const courseName = sessionData.curso?.nombre_es || 'Clase';
                 const instructorName = `${sessionData.instructor?.nombre || ''} ${sessionData.instructor?.apellidos || ''}`;
@@ -245,4 +292,7 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: err.message }, { status: 500 });
     }
 }
+<<<<<<< HEAD
 >>>>>>> origin/fix/ci-self-healing-failures-8932104743005997815
+=======
+>>>>>>> origin/fix/orchestration-self-healing-scope-1674567216437366258

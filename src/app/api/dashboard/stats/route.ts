@@ -3,6 +3,35 @@ import { NextResponse } from 'next/server';
 import { esquemaCursos } from '@/lib/academy/course-schema';
 import { calculateAcademyProgress } from '@/lib/academy/progress-calculator';
 
+// Define explicit interfaces for query results to satisfy TypeScript
+interface Profile {
+    nombre: string;
+    apellidos: string;
+    avatar_url: string;
+}
+
+interface ProgressItem {
+    id: string;
+    alumno_id: string;
+    tipo_entidad: 'curso' | 'modulo' | 'unidad';
+    entidad_id: string;
+    estado: 'completado' | 'en_progreso' | 'disponible' | 'bloqueado';
+    puntos_obtenidos: number;
+    // ... potentially other fields
+}
+
+interface Achievement {
+    logros: {
+        nombre_es: string;
+        icono: string;
+        puntos: number;
+    } | null;
+}
+
+interface NavigationHour {
+    duracion_h: number | string | null;
+}
+
 export async function GET() {
     try {
         const supabase = await createClient();
@@ -13,11 +42,13 @@ export async function GET() {
         }
 
         // 1. Perfil y Rango
-        const { data: profile } = await supabase
+        const { data: profileData } = await supabase
             .from('profiles')
             .select('nombre, apellidos, avatar_url')
             .eq('id', user.id)
             .single();
+
+        const profile = profileData as unknown as Profile | null;
 
         const { data: skills } = await supabase
             .from('habilidades_alumno')
@@ -34,32 +65,36 @@ export async function GET() {
         else if (skillCount >= 1) { rango = 'Marinero'; color = 'text-green-400'; }
 
         // 2. Progreso Académico
-        const { data: progress } = await supabase
+        const { data: progressData } = await supabase
             .from('progreso_alumno')
             .select('*')
             .eq('alumno_id', user.id);
 
-        const coursesEnrolled = progress?.filter(p => p.tipo_entidad === 'curso').length || 0;
-        const coursesCompleted = progress?.filter(p => p.tipo_entidad === 'curso' && p.estado === 'completado').length || 0;
-        const unitsCompleted = progress?.filter(p => p.tipo_entidad === 'unidad' && p.estado === 'completado').length || 0;
+        const progress = (progressData || []) as unknown as ProgressItem[];
+
+        const coursesEnrolled = progress.filter(p => p.tipo_entidad === 'curso').length;
+        const coursesCompleted = progress.filter(p => p.tipo_entidad === 'curso' && p.estado === 'completado').length;
+        const unitsCompleted = progress.filter(p => p.tipo_entidad === 'unidad' && p.estado === 'completado').length;
 
         // Calcular Progreso de Academia (Refactor con esquema estático)
         const completedModuleIds = new Set(
-            progress?.filter(p => p.tipo_entidad === 'modulo' && p.estado === 'completado')
-                .map(p => p.entidad_id) || []
+            progress.filter(p => p.tipo_entidad === 'modulo' && p.estado === 'completado')
+                .map(p => p.entidad_id)
         );
 
         const academyProgress = calculateAcademyProgress(completedModuleIds, esquemaCursos.modules);
 
         // 3. Logros Recientes
-        const { data: recentAchievements } = await supabase
+        const { data: recentAchievementsData } = await supabase
             .from('logros_alumno')
             .select('logros(nombre_es, icono, puntos)')
             .eq('alumno_id', user.id)
             .order('fecha_obtenido', { ascending: false })
             .limit(3);
 
-        const totalPoints = progress?.reduce((acc, p) => acc + (p.puntos_obtenidos || 0), 0) || 0;
+        const recentAchievements = (recentAchievementsData || []) as unknown as Achievement[];
+
+        const totalPoints = progress.reduce((acc, p) => acc + (p.puntos_obtenidos || 0), 0);
 
         // 4. Horas de Navegación
         const { data: hoursData } = await supabase
@@ -67,13 +102,20 @@ export async function GET() {
             .select('duracion_h')
             .eq('alumno_id', user.id);
 
-        const totalHours = hoursData?.reduce((acc, curr) => acc + Number(curr.duracion_h), 0) || 0;
+        const hours = (hoursData || []) as unknown as NavigationHour[];
+
+        const totalHours = hours.reduce((acc, curr) => acc + Number(curr.duracion_h || 0), 0);
 
         // 5. Siguiente Unidad (Quick Resume)
         // Buscamos la primera unidad que esté 'en_progreso' o 'disponible' en un curso activo
         // Para simplificar buscamos el curso con mayor progreso incompleto
+<<<<<<< HEAD
         const activeCourse = progress?.find(p => p.tipo_entidad === 'curso' && p.estado === 'en_progreso');
         let nextUnit: any = null;
+=======
+        const activeCourse = progress.find(p => p.tipo_entidad === 'curso' && p.estado === 'en_progreso');
+        let nextUnit = null;
+>>>>>>> origin/fix/orchestration-self-healing-scope-1674567216437366258
 
         if (activeCourse) {
             // Buscar unidades de este curso que no estén completadas
@@ -87,7 +129,8 @@ export async function GET() {
                 .limit(1);
 
             if (availableUnits && availableUnits.length > 0) {
-                nextUnit = availableUnits[0];
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                nextUnit = availableUnits[0] as any;
             }
         }
 
@@ -110,7 +153,7 @@ export async function GET() {
             },
             activity: {
                 nextUnit,
-                recentAchievements: recentAchievements?.map(a => a.logros) || []
+                recentAchievements: recentAchievements.map(a => a.logros).filter(Boolean) || []
             }
         });
 

@@ -73,11 +73,15 @@ export async function GET(req: Request) {
 
         // Enrich with relations count from embedded data
 <<<<<<< HEAD
+<<<<<<< HEAD
         const enriched = ((data as unknown as SearchResult[]) || []).map((item: SearchResult) => {
 =======
         const enriched = (data || []).map((item: any) => {
             const searchItem = item as SearchResult;
 >>>>>>> origin/fix/ci-self-healing-failures-8932104743005997815
+=======
+        const enriched = (data || []).map((item: any) => {
+>>>>>>> origin/fix/orchestration-self-healing-scope-1674567216437366258
             const relations: { label: string; count: number; table: string }[] = [];
 
             for (const rel of rels) {
@@ -92,11 +96,18 @@ export async function GET(req: Request) {
             }
 
             return {
+<<<<<<< HEAD
                 ...searchItem,
                 _table: tableName,
                 _title: searchItem.nombre || searchItem.title || searchItem.name || searchItem.asunto || searchItem.id, // Best effort title
+=======
+                ...item,
+                id: item.id || 'unknown', // Ensure ID is present
+                _table: tableName,
+                _title: item.nombre || item.title || item.name || item.asunto || item.id || 'Untitled', // Best effort title
+>>>>>>> origin/fix/orchestration-self-healing-scope-1674567216437366258
                 _relations: relations
-            };
+            } as SearchResult;
         });
 
         return enriched;
@@ -110,8 +121,12 @@ export async function GET(req: Request) {
             results = [...results, ...res];
         }
     } else {
+<<<<<<< HEAD
         const res = await searchTable(table);
         results = [...res];
+=======
+        results = await searchTable(table);
+>>>>>>> origin/fix/orchestration-self-healing-scope-1674567216437366258
     }
 
     return NextResponse.json({ results });

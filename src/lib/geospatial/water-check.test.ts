@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { isPointInWater, _reloadWaterData_TEST_ONLY } from './water-check';
 
-// Hoist the mock data container so we can modify it
+// Hoist the mock data container
 const mockData = vi.hoisted(() => ({
     data: {
         type: 'FeatureCollection',
@@ -31,7 +32,6 @@ vi.mock('../../data/geospatial/water-geometry.json', () => ({
 
 describe('isPointInWater', () => {
     beforeEach(() => {
-        vi.resetModules();
         // Reset to default FeatureCollection state
         mockData.data.type = 'FeatureCollection';
         mockData.data.features = [
@@ -52,38 +52,32 @@ describe('isPointInWater', () => {
                 }
             }
         ];
-        // Ensure geometry property is removed if it was added
-        if (mockData.data.geometry) {
-             delete mockData.data.geometry;
+        if (mockData.data.geometry) delete mockData.data.geometry;
+
+        // Reload the R-tree with the reset mock data
+        if (_reloadWaterData_TEST_ONLY) {
+            _reloadWaterData_TEST_ONLY();
         }
     });
 
-    it('returns true for a point clearly inside the water polygon (FeatureCollection)', async () => {
-        const { isPointInWater } = await import('./water-check');
+    it('returns true for a point clearly inside the water polygon (FeatureCollection)', () => {
         expect(isPointInWater(5, 5)).toBe(true);
     });
 
-    it('returns false for a point clearly outside the water polygon (FeatureCollection)', async () => {
-        const { isPointInWater } = await import('./water-check');
+    it('returns false for a point clearly outside the water polygon (FeatureCollection)', () => {
         expect(isPointInWater(15, 15)).toBe(false);
     });
 
-    it('returns false for negative coordinates outside the polygon', async () => {
-        const { isPointInWater } = await import('./water-check');
+    it('returns false for negative coordinates outside the polygon', () => {
         expect(isPointInWater(-5, -5)).toBe(false);
     });
 
-    it('returns true for a point on the edge', async () => {
-        const { isPointInWater } = await import('./water-check');
-        expect(isPointInWater(5, 0)).toBe(true);
+    it('returns true for a point on the edge', () => {
+         expect(isPointInWater(5, 0)).toBe(true);
     });
 
-    it('handles single Feature fallback', async () => {
-        // Modify mock data to look like a single Feature
-        // Remove 'features' array
+    it('handles single Feature fallback', () => {
         delete mockData.data.features;
-
-        // Add geometry directly
         mockData.data.type = 'Feature';
         mockData.data.geometry = {
             type: 'Polygon',
@@ -98,18 +92,19 @@ describe('isPointInWater', () => {
             ]
         };
 
-        const { isPointInWater } = await import('./water-check');
-        // Inside
+        // Reload with single feature data
+        if (_reloadWaterData_TEST_ONLY) _reloadWaterData_TEST_ONLY();
+
         expect(isPointInWater(5, 5)).toBe(true);
-        // Outside
         expect(isPointInWater(15, 15)).toBe(false);
     });
 
-    it('returns false gracefully when geometry data is invalid', async () => {
-        // Case: features array exists but contains invalid objects
+    it('returns false gracefully when geometry data is invalid', () => {
         mockData.data.features = [{}];
 
-        const { isPointInWater } = await import('./water-check');
+        // Reload with invalid data
+        if (_reloadWaterData_TEST_ONLY) _reloadWaterData_TEST_ONLY();
+
         expect(isPointInWater(5, 5)).toBe(false);
     });
 });
