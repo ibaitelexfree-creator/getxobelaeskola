@@ -58,13 +58,15 @@ Haz commit y push de los cambios combinados a la rama '$branchName'.
     Write-Host "🤖 Asignando PR #$prNumber a $agentRole ($agentAccount) -> Rama: $branchName" -ForegroundColor Cyan
     
     $body = @{
-        prompt         = $taskPrompt
-        title          = "Merge PR #$prNumber into $branchName"
-        source         = "sources/github/ibaitelexfree-creator/getxobelaeskola"
-        account        = $agentAccount
-        branch         = $branchName
-        automationMode = "AUTO_CREATE_PR"
-    } | ConvertTo-Json
+        parameters = @(
+            @{ name = "task"; value = $taskPrompt },
+            @{ name = "title"; value = "Merge PR #$prNumber into $branchName" },
+            @{ name = "repository"; value = "ibaitelexfree-creator/getxobelaeskola" },
+            @{ name = "account"; value = $agentAccount },
+            @{ name = "branch"; value = $branchName },
+            @{ name = "automationMode"; value = "AUTO_CREATE_PR" }
+        )
+    } | ConvertTo-Json -Depth 5
 
     try {
         Invoke-RestMethod -Method Post -Uri $orchestratorUrl -ContentType "application/json" -Body $body
