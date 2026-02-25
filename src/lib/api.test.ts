@@ -2,17 +2,13 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { getApiBaseUrl, apiUrl } from './api';
 
 describe('getApiBaseUrl', () => {
-    const originalWindow = global.window;
-    const originalEnv = process.env;
-
     beforeEach(() => {
         vi.resetModules();
-        process.env = { ...originalEnv };
     });
 
     afterEach(() => {
         vi.unstubAllGlobals();
-        process.env = originalEnv;
+        vi.unstubAllEnvs();
     });
 
     it('should return empty string when window is undefined (server-side)', () => {
@@ -97,12 +93,8 @@ describe('getApiBaseUrl', () => {
 });
 
 describe('apiUrl', () => {
-    const originalWindow = global.window;
-    const originalEnv = process.env;
-
     beforeEach(() => {
         vi.resetModules();
-        process.env = { ...originalEnv };
         // Set a default environment for apiUrl tests
         const mockLocation = {
             hostname: 'example.com',
@@ -110,12 +102,12 @@ describe('apiUrl', () => {
             origin: 'https://example.com',
         };
         vi.stubGlobal('window', { location: mockLocation });
-        process.env.NEXT_PUBLIC_APP_URL = 'https://api.test.com';
+        vi.stubEnv('NEXT_PUBLIC_APP_URL', 'https://api.test.com');
     });
 
     afterEach(() => {
         vi.unstubAllGlobals();
-        process.env = originalEnv;
+        vi.unstubAllEnvs();
     });
 
     it('should append path to base URL', () => {

@@ -18,7 +18,8 @@ jobs:
             exit 0
           fi
 
-          curl -X POST "$ORCHESTRATOR_URL/webhook/github-pr-audit" \
+          echo "Sending audit log to $ORCHESTRATOR_URL..."
+          curl -X POST "${ORCHESTRATOR_URL}/webhook/github-pr-audit" \
             -H "Content-Type: application/json" \
             -d '{
               "number": "${{ github.event.pull_request.number }}",
@@ -27,4 +28,4 @@ jobs:
               "repository": "${{ github.repository }}",
               "sender": "${{ github.event.sender.login }}",
               "branch": "${{ github.head_ref }}"
-            }'
+            }' || echo "❌ Failed to send audit log, but not failing build."
