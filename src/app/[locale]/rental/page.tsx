@@ -127,7 +127,7 @@ export default async function RentalPage({ params: { locale } }: { params: { loc
             'position': index + 1,
             'item': {
                 '@type': 'Product',
-                'name': locale === 'eu' ? (service.nombre_eu || service.nombre) : locale === 'en' ? (service.nombre_en || service.nombre) : service.nombre,
+                'name': locale === 'eu' ? (service.nombre_eu || service.nombre) : locale === 'en' ? ((service as any).nombre_en || service.nombre) : service.nombre,
                 'description': locale === 'eu' ? (service.descripcion_eu || service.descripcion) : locale === 'en' ? (service.descripcion_en || service.descripcion) : service.descripcion,
                 'image': `${siteUrl}${service.imagen_url || '/images/home-hero-sailing-action.webp'}`,
                 'offers': {
