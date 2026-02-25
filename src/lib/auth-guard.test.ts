@@ -141,7 +141,7 @@ describe('Auth Guard', () => {
 
             const result = await requireAdmin();
 
-            expect(result.error).toBeUndefined();
+            expect(result.error).toBeNull();
             expect(result.user).toEqual(user);
             expect(result.profile).toEqual(profile);
         });
@@ -180,7 +180,7 @@ describe('Auth Guard', () => {
 
             const result = await requireInstructor();
 
-            expect(result.error).toBeUndefined();
+            expect(result.error).toBeNull();
             expect(result.user).toEqual(user);
         });
 
@@ -192,7 +192,7 @@ describe('Auth Guard', () => {
 
             const result = await requireInstructor();
 
-            expect(result.error).toBeUndefined();
+            expect(result.error).toBeNull();
             expect(result.user).toEqual(user);
         });
     });

@@ -63,6 +63,8 @@ interface RentalService {
     precio_base?: number;
     precio_hora?: number;
     activo: boolean;
+    categoria: string;
+    opciones: { label: string; extra: number }[];
 }
 
 export default async function RentalPage({ params: { locale } }: { params: { locale: string } }) {

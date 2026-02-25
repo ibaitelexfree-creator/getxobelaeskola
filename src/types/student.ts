@@ -54,7 +54,7 @@ export interface Inscripcion {
 
 export interface RentalService {
   id: string;
-  nombre_es: string;
+  nombre_es?: string;
   nombre_eu?: string;
   nombre_en?: string;
   nombre_fr?: string;
@@ -70,7 +70,7 @@ export interface RentalService {
   slug?: string;
   activo?: boolean;
   categoria?: string;
-  opciones?: { extra: number; [key: string]: any }[];
+  opciones?: { label?: string; extra: number;[key: string]: any }[];
 }
 
 export interface Rental {
