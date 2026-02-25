@@ -2,7 +2,7 @@ name: "⚡ Fast Lane: Parallel Verification"
 
 on:
     push:
-        branches: [main, "feature/**", "fix/**"]
+        branches: [main, "feature/**", "fix/**", "branch-*"]
     pull_request:
         branches: [main]
 

@@ -50,6 +50,7 @@ export function generateStaticParams() {
     return ['es', 'eu', 'en', 'fr'].map(locale => ({ locale }));
 }
 
+// Ensure this matches or extends RentalService from types/student.ts roughly
 interface Service {
     id: string;
     slug: string;
@@ -65,6 +66,9 @@ interface Service {
     precio_base: number;
     precio_hora?: number;
     activo: boolean;
+    // Added to satisfy RentalService compatibility if needed
+    categoria?: string;
+    opciones?: any[];
 }
 
 export default async function RentalPage({ params: { locale } }: { params: { locale: string } }) {
