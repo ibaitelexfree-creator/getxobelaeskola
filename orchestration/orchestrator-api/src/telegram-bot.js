@@ -96,7 +96,7 @@ export function getAllPendingProposals() {
 
 // ─── Command Router ───
 
-async function handleMessage(msg, { onSwarm, onApprove, onCancel, onStatus }) {
+async function handleMessage(msg, { onSwarm, onApprove, onCancel, onStatus, onCicd }) {
     const chatId = msg.chat.id;
     const text = (msg.text || '').trim();
     const authorizedChatId = process.env.TELEGRAM_CHAT_ID;
@@ -136,6 +136,20 @@ async function handleMessage(msg, { onSwarm, onApprove, onCancel, onStatus }) {
             if (match) return match[1];
         }
         return null;
+    }
+
+    if (text.startsWith('/cicd ') || text.startsWith('/ci ')) {
+        const prompt = text.replace(/^\/(cicd|ci)\s+/, '');
+        await sendMessage(chatId, '⚙️ *Iniciando proceso CI/CD (Auto-Repair/Merge) para la tarea...*');
+
+        if (onCicd) {
+            try {
+                await onCicd(chatId, prompt);
+            } catch (e) {
+                await sendMessage(chatId, `❌ Error en CI/CD: ${e.message}`);
+            }
+        }
+        return;
     }
 
     if (text.startsWith('/approve') || text.startsWith('/a') || text.toLowerCase() === 'aprueba' || text === '❤️' || text === '👍') {
@@ -190,6 +204,7 @@ async function handleMessage(msg, { onSwarm, onApprove, onCancel, onStatus }) {
             '`/approve <id>` — Aprobar propuesta',
             '`/cancel <id>` — Cancelar propuesta',
             '`/status` — Ver propuestas pendientes',
+            '`/cicd <tarea>` — Iniciar proceso CI/CD libre',
             '`/help` — Este mensaje',
             '',
             '_Ejemplo:_ `/swarm Implementar pagos Stripe, 12 jules`'

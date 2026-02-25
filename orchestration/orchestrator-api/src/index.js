@@ -526,6 +526,40 @@ server.listen(PORT, '0.0.0.0', () => {
         const lines = active.map(s => `• \`${s.id}\`: ${s.status} (${s.runningFor})`);
         await sendMessage(cid, `📊 *Swarms Activos:*\n${lines.join('\n')}`);
       }
+    },
+    onCicd: async (cid, taskPrompt) => {
+      try {
+        const accountEmail = 'getxobelaeskola@gmail.com'; // LEAD ORCHESTRATOR
+        const apiKey = ACCOUNTS_MAP[accountEmail] || process.env.JULES_API_KEY;
+
+        await sendMessage(cid, `✅ *Tarea CI/CD creada.*\n_Prompt:_ ${taskPrompt}\n_Agente:_ LEAD ORCHESTRATOR`);
+
+        // Llamar a Jules de forma asíncrona
+        axios.post('https://jules.googleapis.com/v1alpha/sessions', {
+          prompt: `CI/CD MANUAL TRIGGER: ${taskPrompt}\n\nMISSION: Use LEAD_ORCHESTRATOR identity. Fix issues or implement features as requested, then process it as an Auto-Healing/Auto-Merge task.`,
+          sourceContext: {
+            source: 'sources/github/ibaitelexfree-creator/getxobelaeskola',
+            githubRepoContext: {
+              startingBranch: 'main'
+            }
+          },
+          automationMode: 'AUTO_CREATE_PR'
+        }, {
+          headers: {
+            'Authorization': apiKey?.startsWith('AQ.') ? `Bearer ${apiKey}` : undefined,
+            'X-Goog-Api-Key': apiKey && !apiKey.startsWith('AQ.') ? apiKey : undefined,
+            'Content-Type': 'application/json'
+          }
+        }).then(response => {
+          sendMessage(cid, `🚀 Sesión de Jules iniciada para CI/CD: \`${response.data.name}\``).catch(() => { });
+        }).catch(err => {
+          const errMsg = err.response?.data?.error?.message || err.message;
+          sendMessage(cid, `❌ Falló la creación de la sesión Jules: ${errMsg}`).catch(() => { });
+        });
+
+      } catch (e) {
+        await sendMessage(cid, `❌ Error en CI/CD: ${e.message}`);
+      }
     }
   }).catch(e => console.error('[TelegramBot] Fatal:', e.message));
 
