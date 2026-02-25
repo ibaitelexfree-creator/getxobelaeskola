@@ -27,6 +27,7 @@ describe('getApiBaseUrl', () => {
             origin: 'http://localhost:3000',
         };
         vi.stubGlobal('window', { location: mockLocation });
+        process.env.NODE_ENV = 'development';
 
         expect(getApiBaseUrl()).toBe('http://localhost:3000');
     });
