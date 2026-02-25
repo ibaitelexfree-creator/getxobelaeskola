@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 import { Network, ConnectionStatus } from '@capacitor/network';
+import { PluginListenerHandle } from '@capacitor/core';
 
 /**
  * Hook to monitor network status and detect WiFi transitions.
@@ -10,7 +11,7 @@ export function useNetworkMonitor(onWifiDisconnect: () => void) {
     const lastNetworkStatus = useRef<ConnectionStatus | null>(null);
 
     useEffect(() => {
-        let listenerHandle: any = null;
+        let listenerHandle: PluginListenerHandle | null = null;
 
         const setupNetworkListener = async () => {
             try {

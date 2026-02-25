@@ -1,3 +1,4 @@
+import { RentalService } from '@/types/student';
 import { createClient } from '@/lib/supabase/server';
 import MobileRentalList from '@/components/student/MobileRentalList';
 
@@ -11,7 +12,11 @@ export default async function MobileRentalPage({
     params: { locale: string }
 }) {
     const supabase = createClient();
+<<<<<<< HEAD
     let services: any[] = [];
+=======
+    let services: RentalService[] = [];
+>>>>>>> origin/fix-admin-explorer-n-plus-1-9941118492063485217
 
     try {
         const { data, error } = await supabase

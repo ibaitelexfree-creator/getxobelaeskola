@@ -252,7 +252,7 @@ export default function FinancialReportsClient({ initialData, initialView, total
             }
         }
 
-        if (!effectiveStart || !effectiveEnd) return [];
+        if (!effectiveStart || !effectiveEnd) return [] as { label: string, amount: number, sortKey: string, dateObj: Date }[];
 
         const agg: Record<string, { label: string, amount: number, sortKey: string, dateObj: Date }> = {};
 
@@ -260,7 +260,7 @@ export default function FinancialReportsClient({ initialData, initialView, total
         const [ey, em, ed] = effectiveEnd.split('-').map(Number);
 
         // Sanity check
-        if (!sy || !ey) return [];
+        if (!sy || !ey) return [] as { label: string, amount: number, sortKey: string, dateObj: Date }[];
 
         const start = new Date(sy, sm - 1, sd);
         const end = new Date(ey, em - 1, ed);

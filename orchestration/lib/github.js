@@ -10,13 +10,13 @@ const GITHUB_API = 'api.github.com';
 /**
  * Make authenticated GitHub API request
  */
-function githubRequest(path, token = null, isBinary = false) {
+function githubRequest(path, token = null, isBinary = false, method = 'GET', body = null) {
   return new Promise((resolve, reject) => {
     const options = {
       hostname: GITHUB_API,
       port: 443,
       path: path,
-      method: 'GET',
+      method: method,
       headers: {
         'User-Agent': 'Jules-MCP-Server/1.5.0',
         'Accept': isBinary ? 'application/octet-stream' : 'application/vnd.github.v3+json'
@@ -25,6 +25,10 @@ function githubRequest(path, token = null, isBinary = false) {
 
     if (token) {
       options.headers['Authorization'] = `token ${token}`;
+    }
+
+    if (body) {
+      options.headers['Content-Type'] = 'application/json';
     }
 
     const req = https.request(options, (response) => {
@@ -38,7 +42,7 @@ function githubRequest(path, token = null, isBinary = false) {
       response.on('end', () => {
         if (response.statusCode >= 200 && response.statusCode < 300) {
           try {
-            resolve(JSON.parse(data));
+            resolve(data ? JSON.parse(data) : { success: true });
           } catch {
             resolve(data);
           }
@@ -49,8 +53,42 @@ function githubRequest(path, token = null, isBinary = false) {
     });
 
     req.on('error', reject);
+    if (body) {
+      req.write(JSON.stringify(body));
+    }
     req.end();
   });
+}
+
+/**
+ * Trigger a GitHub workflow via workflow_dispatch
+ */
+export async function triggerWorkflowDispatch(owner, repo, workflowId, ref, inputs = {}, token = null) {
+  return await githubRequest(`/repos/${owner}/${repo}/actions/workflows/${workflowId}/dispatches`, token, false, 'POST', {
+    ref,
+    inputs
+  });
+}
+
+/**
+ * List workflow runs for a specific workflow
+ */
+export async function listWorkflowRuns(owner, repo, workflowId, token = null) {
+  return await githubRequest(`/repos/${owner}/${repo}/actions/workflows/${workflowId}/runs?per_page=10`, token);
+}
+
+/**
+ * Get details of a specific workflow run
+ */
+export async function getWorkflowRun(owner, repo, runId, token = null) {
+  return await githubRequest(`/repos/${owner}/${repo}/actions/runs/${runId}`, token);
+}
+
+/**
+ * Get jobs for a workflow run to see errors
+ */
+export async function listWorkflowJobs(owner, repo, runId, token = null) {
+  return await githubRequest(`/repos/${owner}/${repo}/actions/runs/${runId}/jobs`, token);
 }
 
 /**
@@ -174,5 +212,9 @@ export default {
   getRepoInfo,
   listReleases,
   getAsset,
-  downloadAsset
+  downloadAsset,
+  triggerWorkflowDispatch,
+  listWorkflowRuns,
+  getWorkflowRun,
+  listWorkflowJobs
 };

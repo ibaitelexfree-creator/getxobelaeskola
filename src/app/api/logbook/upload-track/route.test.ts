@@ -1,31 +1,31 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+
 import { POST } from './route';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-// Use vi.hoisted to define mock variables first
-const { mockUpload, mockInsert, mockUpdate } = vi.hoisted(() => {
-    const mockUpload = vi.fn().mockResolvedValue({ data: { path: 'uploaded/path.gpx' }, error: null });
-    const mockInsert = vi.fn().mockReturnValue({
-        select: vi.fn().mockReturnValue({
-            single: vi.fn().mockResolvedValue({ data: { id: 'new-session-id' }, error: null })
-        })
-    });
-    const mockUpdate = vi.fn().mockReturnValue({
-        select: vi.fn().mockReturnValue({
-            single: vi.fn().mockResolvedValue({ data: { id: 'updated-session-id' }, error: null })
-        })
-    });
-    return { mockUpload, mockInsert, mockUpdate };
-});
-
-// Mock Auth
+// Mock dependencies
 vi.mock('@/lib/auth-guard', () => ({
     requireAuth: vi.fn().mockResolvedValue({
-        user: { id: 'user-123' },
+        user: { id: 'test-user-id' },
         error: null
     })
 }));
 
-// Mock Supabase
+const { mockUpload, mockInsert, mockUpdate } = vi.hoisted(() => {
+    return {
+        mockUpload: vi.fn().mockResolvedValue({ data: { path: 'path/to/file' }, error: null }),
+        mockInsert: vi.fn().mockReturnValue({
+            select: vi.fn().mockReturnValue({
+                single: vi.fn().mockResolvedValue({ data: { id: 'new-session-id' }, error: null })
+            })
+        }),
+        mockUpdate: vi.fn().mockReturnValue({
+            select: vi.fn().mockReturnValue({
+                single: vi.fn().mockResolvedValue({ data: { id: 'updated-session-id' }, error: null })
+            })
+        })
+    };
+});
+
 vi.mock('@/lib/supabase/server', () => ({
     createClient: vi.fn().mockReturnValue({
         storage: {
@@ -97,7 +97,8 @@ describe('POST /api/logbook/upload-track', () => {
         const data = await res.json();
 
         expect(data.success).toBe(true);
-        expect(data.stats.total_distance_nm).toBeGreaterThan(0);
+        expect(data.stats.distance_nm).toBeGreaterThan(0);
+        expect(data.stats.duration_h).toBeCloseTo(0.03, 2); // 2 minutes = 0.033 hours, rounded to 0.03
 
         expect(mockUpload).toHaveBeenCalled();
         expect(mockInsert).toHaveBeenCalled();

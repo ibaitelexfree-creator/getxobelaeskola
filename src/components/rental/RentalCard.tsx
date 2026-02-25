@@ -1,3 +1,4 @@
+import { RentalService } from '@/types/student';
 'use client';
 
 import Link from 'next/link';
@@ -6,16 +7,7 @@ import { useTranslations } from 'next-intl';
 import { Anchor, Users, Clock, ArrowRight } from 'lucide-react';
 
 interface RentalCardProps {
-    service: {
-        id: string;
-        nombre_es: string;
-        nombre_eu: string;
-        categoria: string;
-        slug: string;
-        precio_base: number;
-        opciones: { label: string; extra: number }[];
-        imagen_url: string;
-    };
+    service: RentalService;
     locale: string;
     onBook: (serviceId: string, optionIndex?: number) => void;
 }
@@ -34,8 +26,8 @@ export default function RentalCard({ service, locale, onBook }: RentalCardProps)
         else if (n.includes('optimist') || n.includes('laser')) src = '/images/courses/CursodeVelaLigera.webp';
 
         if (!src || src.includes('placeholder') || src.includes('rental-category')) {
-            if (service.categoria === 'windsurf') src = '/images/courses/PerfeccionamientoVela.webp';
-            else if (service.categoria === 'paddlesurf' || service.categoria === 'kayak' || service.categoria === 'piragua') src = '/images/home-hero-sailing-action.webp';
+            if ( (service.categoria || '') === 'windsurf') src = '/images/courses/PerfeccionamientoVela.webp';
+            else if ( (service.categoria || '') === 'paddlesurf' || service.categoria === 'kayak' || service.categoria === 'piragua') src = '/images/home-hero-sailing-action.webp';
             else src = '/images/J80.webp';
         }
         return src;
@@ -43,7 +35,7 @@ export default function RentalCard({ service, locale, onBook }: RentalCardProps)
 
     // Determine capacity based on service type
     const getCapacity = () => {
-        const s = service.slug.toLowerCase();
+        const s = (service.slug || '').toLowerCase();
         if (s.includes('j80')) return '6';
         if (s.includes('raquero')) return '8';
         if (s.includes('kayak-2') || s.includes('piragua-2')) return '2';
@@ -55,14 +47,14 @@ export default function RentalCard({ service, locale, onBook }: RentalCardProps)
         <div className="group relative glass-card overflow-hidden h-full flex flex-col">
             {/* Design Decor - Nautical Numbers */}
             <div className="absolute top-4 right-6 text-[120px] font-black text-white/[0.03] select-none pointer-events-none group-hover:text-accent/[0.05] transition-colors duration-1000 leading-none">
-                {service.categoria.substring(0, 2).toUpperCase()}
+                {(service.categoria || 'unknown').substring(0, 2).toUpperCase()}
             </div>
 
             {/* Image Header with Clip Path */}
             <div className="relative h-[300px] w-full overflow-hidden">
                 <NauticalImage
                     src={getImgSrc()}
-                    category={service.categoria as any}
+                    category={(service.categoria || 'other') as any}
                     alt={name}
                     fill
                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
@@ -74,7 +66,7 @@ export default function RentalCard({ service, locale, onBook }: RentalCardProps)
                 <div className="absolute bottom-6 left-8 z-20 flex items-center gap-2">
                     <div className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
                     <span className="text-[9px] uppercase tracking-[0.4em] font-black text-white/50 group-hover:text-white transition-colors">
-                        {service.categoria}
+                        {service.categoria || 'unknown'}
                     </span>
                 </div>
             </div>

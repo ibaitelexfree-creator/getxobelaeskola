@@ -93,12 +93,70 @@ app.get('/api/v1/chaos/:type', async (req, res) => {
   res.status(400).json({ error: 'Unknown chaos type' });
 });
 
+// --- Swarm Negotiation & Dispatch Logic ---
+// This endpoint proposes which agents are needed based on a user request
+app.post('/api/v1/swarm/negotiate', async (req, res) => {
+  const { prompt, complexity = 'medium' } = req.body;
+  if (!prompt) return res.status(400).json({ error: 'Prompt is required' });
+
+  // Intelligent Proposal Logic based on keywords
+  const domains = {
+    architect: /design|architecture|schema|contract|openapi|roles|plan|structure/i.test(prompt),
+    data: /api|database|supabase|server|backend|logic|query|tables|data|sync/i.test(prompt),
+    ui: /frontend|components|react|visual|ui|ux|styles|css|layout|screen|dashboard/i.test(prompt)
+  };
+
+  const proposal = {
+    architect: domains.architect ? 1 : 0,
+    data: domains.data ? (complexity === 'high' ? 2 : 1) : 0,
+    ui: domains.ui ? (complexity === 'high' ? 3 : 2) : 1 // Always at least 1 UI unless explicitly excluded
+  };
+
+  // Ensure at least an Architect if it's a "New" feature
+  if (/build|create|implement|new/i.test(prompt) && proposal.architect === 0) {
+    proposal.architect = 1;
+  }
+
+  const agents = [];
+  if (proposal.architect > 0) agents.push({ role: 'Lead Architect', count: proposal.architect, account: 'getxobelaeskola@gmail.com' });
+  if (proposal.data > 0) agents.push({ role: 'Data Master', count: proposal.data, account: 'ibaitnt@gmail.com' });
+  if (proposal.ui > 0) agents.push({ role: 'UI Engine', count: proposal.ui, account: 'ibaitelexfree@gmail.com' });
+
+  // Optional: Trigger n8n immediately if requested
+  const n8nWebhook = process.env.N8N_SWARM_DISPATCHER_URL;
+  let n8nTriggered = false;
+
+  if (n8nWebhook && req.body.dispatch === true) {
+    try {
+      await axios.post(n8nWebhook, {
+        original_prompt: prompt,
+        proposal: agents,
+        metadata: {
+          timestamp: new Date().toISOString(),
+          source: 'Control Panel'
+        }
+      });
+      n8nTriggered = true;
+    } catch (e) {
+      console.error('[Negotiate] n8n Bridge Failed:', e.message);
+    }
+  }
+
+  res.json({
+    success: true,
+    message: "Proposed Swarm Team",
+    proposal: agents,
+    total_agents: proposal.architect + proposal.data + proposal.ui,
+    n8n_triggered: n8nTriggered
+  });
+});
+
 // Swarm Pool Status
 app.get('/api/v1/swarm/status', async (req, res) => {
   const status = Object.keys(ACCOUNTS_MAP).map(email => ({
     email,
     role: email === 'getxobelaeskola@gmail.com' ? 'Architect' : email === 'ibaitnt@gmail.com' ? 'Data Master' : 'UI Engine',
-    active_sessions: 0 // Simplificado: en una versión pro, aquí consultaríamos el pool real
+    active_sessions: 0
   }));
 
   res.json({ success: true, pool: status });

@@ -44,18 +44,16 @@ export async function GET(req: Request) {
 
     if (!query) return NextResponse.json({ results: [] });
 
-    // Ensure we await the client creation as per project convention
-    const supabase = await createClient();
+    const supabase = createClient();
     let results: SearchResult[] = [];
 
     const searchTable = async (tableName: string) => {
+        const start = performance.now();
         const cols = SEARCHABLE_COLS[tableName] || ['id'];
-        // Construct OR filter: col1.ilike.%q%,col2.ilike.%q%
         const orFilter = cols.map(c => `${c}.ilike.%${query}%`).join(',');
 
-        const rels = RELATIONS[tableName] || [];
-
-        const { data, error } = await supabase
+        // 1. Base Query
+        const { data: baseData, error } = await supabase
             .from(tableName)
             .select('*')
             .or(orFilter)
@@ -66,94 +64,93 @@ export async function GET(req: Request) {
             return [];
         }
 
-        if (!data || data.length === 0) return [];
+        const items = baseData as SearchResult[];
+        if (items.length === 0) return [];
 
-        const rows = data as Record<string, unknown>[];
-        const relationCountsByRow = new Map<string, { label: string; count: number; table: string }[]>();
+        // 2. Collect Keys
+        const ids = items.map(i => i.id);
+        const emails = items.map(i => i.email).filter(Boolean) as string[];
 
-        // Initialize empty relations for all rows
-        rows.forEach(row => relationCountsByRow.set(String(row.id), []));
+        const rels = RELATIONS[tableName] || [];
 
-        // Start performance timer
-        const start = performance.now();
+        // 3. Batch Query per Relation
+        // We will store counts in a map: Map<relationIndex, Map<keyValue, count>>
+        const relationCounts = new Map<number, Map<string, number>>();
 
-        // 2. Process each relation independently (Batching Option B)
-        for (const rel of rels) {
+        for (let i = 0; i < rels.length; i++) {
+            const rel = rels[i];
+            const isEmail = rel.fk === 'email';
+            const keysToCheck = isEmail ? emails : ids;
+
+            if (keysToCheck.length === 0) continue;
+
             try {
-                // Determine the key on the main row based on convention
-                // If fk is 'email', we join on email. Otherwise we join on id.
-                const mainKey = rel.fk === 'email' ? 'email' : 'id';
-
-                // Collect values from valid rows
-                const values = rows
-                    .map(r => r[mainKey])
-                    .filter(v => v !== null && v !== undefined && v !== '');
-
-                if (values.length === 0) continue;
-
-                // Execute single query for this relation using IN (...)
-                // We select only the FK column to count in memory
-                const { data: relatedData, error: relError } = await supabase
+                // Execute ONE query per relation for all items
+                // Using select(fk) allows us to fetch all matching rows and group in memory
+                const { data: relData, error: relError } = await supabase
                     .from(rel.table)
-                    .select(rel.fk)
-                    .in(rel.fk, values);
+                    .select(rel.fk, { count: 'exact', head: false })
+                    .in(rel.fk, keysToCheck);
 
                 if (relError) {
-                    console.error(`Error fetching relation ${rel.table} for ${tableName}:`, relError);
-                    continue; // Skip this relation on error
+                    console.error(`Relation batch error ${rel.table}:`, relError);
+                    continue;
                 }
 
-                // Aggregate counts in memory
+                // Aggregate in memory
                 const counts = new Map<string, number>();
-                (relatedData as unknown as Record<string, unknown>[] || []).forEach((relatedItem) => {
-                    const key = relatedItem[rel.fk];
+                (relData || []).forEach((row: any) => {
+                    const key = row[rel.fk];
                     if (key) {
-                        const keyStr = String(key);
-                        counts.set(keyStr, (counts.get(keyStr) || 0) + 1);
+                        counts.set(key, (counts.get(key) || 0) + 1);
                     }
                 });
-
-                // Attach counts to rows
-                rows.forEach(row => {
-                    const rowVal = row[mainKey];
-                    if (rowVal) {
-                        const count = counts.get(String(rowVal)) || 0;
-                        if (count > 0) {
-                            const current = relationCountsByRow.get(String(row.id)) || [];
-                            current.push({ label: rel.label, count, table: rel.table });
-                            relationCountsByRow.set(String(row.id), current);
-                        }
-                    }
-                });
+                relationCounts.set(i, counts);
 
             } catch (err) {
-                console.error(`Exception processing relation ${rel.table}:`, err);
-                // Maintain behavior: skip if relation fails
+                console.error(`Batch process error ${rel.table}`, err);
             }
         }
 
-        const end = performance.now();
-        // Log performance metric
-        console.log(`[Explorer] Relation batching for ${tableName} (${rows.length} rows) took ${(end - start).toFixed(2)}ms`);
+        // 4. Enrich Items
+        const enriched = items.map(item => {
+            const relations: { label: string; count: number; table: string }[] = [];
 
-        // 3. Construct enriched result preserving original shape
-        return rows.map(item => ({
-            ...item,
-            id: String(item.id), // Ensure ID is present for SearchResult
-            _table: tableName,
-            _title: (item.nombre as string) || (item.title as string) || (item.name as string) || (item.asunto as string) || String(item.id), // Best effort title
-            _relations: relationCountsByRow.get(String(item.id)) || []
-        }));
+            rels.forEach((rel, idx) => {
+                const countMap = relationCounts.get(idx);
+                if (countMap) {
+                    const key = (rel.fk === 'email' ? item.email : item.id) as string;
+                    const count = countMap.get(key) || 0;
+                    if (count > 0) {
+                        relations.push({ label: rel.label, count, table: rel.table });
+                    }
+                }
+            });
+
+            return {
+                ...item,
+                _table: tableName,
+                _title: item.nombre || item.title || item.name || item.asunto || item.id, // Best effort title
+                _relations: relations
+            };
+        });
+
+        const end = performance.now();
+        // Log performance metrics
+        console.log(`[Explorer] ${tableName} search: ${(end - start).toFixed(2)}ms | Queries: 1 + ${rels.length} relations`);
+
+        return enriched;
     };
 
     if (table === 'all') {
         // Search key tables
-        const tablesToSearch = Object.keys(SEARCHABLE_COLS);
-        const searchPromises = tablesToSearch.map(t => searchTable(t));
-        const searchResults = await Promise.all(searchPromises);
-        results = searchResults.flat() as unknown[] as SearchResult[];
+        const tablesToSearch = ['profiles', 'cursos', 'embarcaciones', 'reservas_alquiler'];
+        for (const t of tablesToSearch) {
+            const res = await searchTable(t) as SearchResult[];
+            results = [...results, ...res];
+        }
     } else {
-        results = await searchTable(table) as unknown[] as SearchResult[];
+        results = await searchTable(table) as SearchResult[];
     }
 
     return NextResponse.json({ results });

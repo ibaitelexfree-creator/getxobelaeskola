@@ -805,6 +805,106 @@ app.get('/api/resources/logs/:service', async (req, res) => {
   }
 });
 
+// ============ BUILD MANAGEMENT ============
+
+const WORKFLOW_MAP = {
+  'gb-web': 'ci.yml',
+  'gb-apk': 'android-build.yml',
+  'mc-web': 'fast-lane.yml',
+  'mc-apk': 'mission-control-build.yml'
+};
+
+const GITHUB_OWNER = 'ibaitelexfree-creator';
+const GITHUB_REPO = 'getxobelaeskola';
+
+// Trigger a specific build
+app.post('/api/builds/trigger/:type', async (req, res) => {
+  const { type } = req.params;
+  const workflowId = WORKFLOW_MAP[type];
+
+  if (!workflowId) {
+    return res.status(400).json({ error: 'Tipo de build inválido. Opciones: gb-web, gb-apk, mc-web, mc-apk' });
+  }
+
+  if (!GITHUB_TOKEN) {
+    return res.status(503).json({ error: 'GitHub Token no configurado en el orquestador' });
+  }
+
+  try {
+    const ref = req.body.ref || 'main';
+    const inputs = req.body.inputs || {};
+
+    await triggerWorkflowDispatch(GITHUB_OWNER, GITHUB_REPO, workflowId, ref, inputs, GITHUB_TOKEN);
+
+    // Get the run list to find the one we just started (it might take a second to appear)
+    setTimeout(async () => {
+      try {
+        const runs = await listWorkflowRuns(GITHUB_OWNER, GITHUB_REPO, workflowId, GITHUB_TOKEN);
+        const latestRun = runs.workflow_runs[0];
+        structuredLog('info', 'Build trigger successful', { type, workflow: workflowId, runId: latestRun?.id });
+      } catch (e) { }
+    }, 2000);
+
+    res.json({ success: true, message: `Build ${type} solicitado correctamente.` });
+  } catch (error) {
+    structuredLog('error', 'Failed to trigger build', { type, error: error.message });
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get recent runs for a build type
+app.get('/api/builds/runs/:type', async (req, res) => {
+  const { type } = req.params;
+  const workflowId = WORKFLOW_MAP[type];
+
+  if (!workflowId) {
+    return res.status(400).json({ error: 'Tipo de build inválido' });
+  }
+
+  try {
+    const runs = await listWorkflowRuns(GITHUB_OWNER, GITHUB_REPO, workflowId, GITHUB_TOKEN);
+    res.json(runs.workflow_runs || []);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get status and jobs for a specific run (to see errors)
+app.get('/api/builds/runs/:runId/details', async (req, res) => {
+  const { runId } = req.params;
+  try {
+    const [run, jobs] = await Promise.all([
+      getWorkflowRun(GITHUB_OWNER, GITHUB_REPO, runId, GITHUB_TOKEN),
+      listWorkflowJobs(GITHUB_OWNER, GITHUB_REPO, runId, GITHUB_TOKEN)
+    ]);
+
+    res.json({
+      ...run,
+      jobs: jobs.jobs || []
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Helper for status summary
+app.get('/api/builds/status-summary', async (req, res) => {
+  try {
+    const results = {};
+    await Promise.all(Object.keys(WORKFLOW_MAP).map(async (key) => {
+      try {
+        const runs = await listWorkflowRuns(GITHUB_OWNER, GITHUB_REPO, WORKFLOW_MAP[key], GITHUB_TOKEN);
+        results[key] = runs.workflow_runs[0] || null;
+      } catch (e) {
+        results[key] = null;
+      }
+    }));
+    res.json(results);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Get live preview configuration (VPN / Tunnel)
 app.get('/api/config/live-preview', async (req, res) => {
   try {

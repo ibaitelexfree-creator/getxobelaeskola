@@ -105,10 +105,9 @@ export async function POST(req: Request) {
 
         const supabase = createClient();
         const stats = {
-            total_distance_nm: parseFloat(totalDistanceNm.toFixed(2)),
+            distance_nm: parseFloat(totalDistanceNm.toFixed(2)),
             avg_speed_kn: durationH > 0 ? parseFloat((totalDistanceNm / durationH).toFixed(2)) : 0,
-            max_speed_kn: parseFloat(maxSpeedKn.toFixed(2)),
-            duration_h: durationH > 0 ? parseFloat(durationH.toFixed(2)) : 0
+            max_speed_kn: parseFloat(maxSpeedKn.toFixed(2)), duration_h: parseFloat(durationH.toFixed(2))
         };
 
         // 1. Upload original GPX to Storage
@@ -116,7 +115,7 @@ export async function POST(req: Request) {
         const finalSessionId = sessionId || `imported_${Date.now()}`;
         const filePath = `tracks/${user.id}/${finalSessionId}.gpx`;
 
-        const { error: uploadError } = await supabase.storage
+        const { data: uploadData, error: uploadError } = await supabase.storage
             .from('academy-assets')
             .upload(filePath, file);
 
@@ -169,20 +168,6 @@ export async function POST(req: Request) {
 
             if (insertError) throw insertError;
             resultData = data;
-        }
-
-        // 3. Save to Exploration System
-        try {
-            const { ExplorationService } = await import('@/lib/geospatial/exploration-service');
-            const explorationPoints = coords.map(c => ({
-                lat: c.lat,
-                lng: c.lng,
-                timestamp: c.time ? new Date(c.time).getTime() : Date.now(),
-                speed: 0 // Speed is not directly used for exploration rendering yet
-            }));
-            await ExplorationService.saveExplorationSegment(user.id, explorationPoints);
-        } catch (e) {
-            console.error('Exploration sync error from GPX:', e);
         }
 
         return NextResponse.json({
