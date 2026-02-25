@@ -8,6 +8,7 @@ describe('getApiBaseUrl', () => {
     beforeEach(() => {
         vi.resetModules();
         process.env = { ...originalEnv };
+        process.env.NODE_ENV = 'test'; // Default to test, change to 'development' for localhost test
     });
 
     afterEach(() => {
@@ -27,6 +28,9 @@ describe('getApiBaseUrl', () => {
             origin: 'http://localhost:3000',
         };
         vi.stubGlobal('window', { location: mockLocation });
+        // Set NODE_ENV to development to trigger the localhost logic
+        process.env.NODE_ENV = 'development';
+        delete process.env.NEXT_PUBLIC_APP_URL;
 
         expect(getApiBaseUrl()).toBe('http://localhost:3000');
     });
