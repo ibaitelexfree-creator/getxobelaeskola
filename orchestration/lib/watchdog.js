@@ -303,23 +303,44 @@ export class AgentWatchdog extends EventEmitter {
 
     async _isProcessRunning() {
         const names = this.config.processNames;
-        const checks = names.map(name =>
-            `(Get-Process -Name "${name}" -ErrorAction SilentlyContinue) -ne $null`
-        );
-        const psCommand = checks.join(' -or ');
+        const isWindows = process.platform === 'win32';
 
-        try {
-            const { stdout } = await execAsync(
-                `powershell -NoProfile -Command "if (${psCommand}) { 'ALIVE' } else { 'DEAD' }"`,
-                { timeout: 10000 }
+        if (isWindows) {
+            const checks = names.map(name =>
+                `(Get-Process -Name "${name}" -ErrorAction SilentlyContinue) -ne $null`
             );
-            return stdout.trim() === 'ALIVE';
-        } catch {
-            return false;
+            const psCommand = checks.join(' -or ');
+
+            try {
+                const { stdout } = await execAsync(
+                    `powershell -NoProfile -Command "if (${psCommand}) { 'ALIVE' } else { 'DEAD' }"`,
+                    { timeout: 10000 }
+                );
+                return stdout.trim() === 'ALIVE';
+            } catch {
+                return false;
+            }
+        } else {
+            // Linux/Node.js environment check
+            // On production Linux VPS, usually GUI processes are not expected.
+            if (process.env.NODE_ENV === 'production') return true;
+
+            try {
+                const pattern = names.join('|');
+                const { stdout } = await execAsync(`ps aux | grep -Ei "${pattern}" | grep -v grep`, { timeout: 5000 });
+                return stdout.trim().length > 0;
+            } catch {
+                return false;
+            }
         }
     }
 
     async _restartProcess() {
+        if (process.platform !== 'win32') {
+            this._log('info', 'Restart skipped on Linux (handled by Docker)');
+            return true;
+        }
+
         this._setState(STATE.RECOVERING);
         this._log('info', 'Attempting to restart Antigravity...');
         this.emit('recovering');
@@ -365,6 +386,11 @@ export class AgentWatchdog extends EventEmitter {
     // ─── Auto-Continue ──────────────────────────────────────────
 
     async _autoContinue() {
+        if (process.platform !== 'win32') {
+            this._log('info', 'Auto-continue skipped on Linux');
+            return;
+        }
+
         if (this.retryCount >= this.config.maxAutoRetries) {
             this._log('warn', `Max auto-retries (${this.config.maxAutoRetries}) reached. Killing agent.`);
             this._killAndRestart({ reason: 'max_retries_exceeded' });

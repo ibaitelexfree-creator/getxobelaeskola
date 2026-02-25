@@ -41,6 +41,7 @@ export async function sendTelegramMessage(text, options = {}) {
             res.on('data', chunk => responseBody += chunk);
             res.on('end', () => {
                 if (res.statusCode >= 200 && res.statusCode < 300) {
+                    console.log('[Telegram] Message sent successfully');
                     resolve({ success: true, result: JSON.parse(responseBody) });
                 } else {
                     console.error('[Telegram] API Error:', res.statusCode, responseBody);

@@ -1,6 +1,6 @@
 # ⚓ GETXO BELA ESKOLA - EXTENSIVE MASTER DOCUMENT (SSOT) v2.2
 > **Autonomous Single Source of Truth** for humans and AI agents.
-> *Last Sync: 2026-02-25T05:36:51.639Z*
+> *Last Sync: 2026-02-25T17:15:00.000Z*
 
 ---
 

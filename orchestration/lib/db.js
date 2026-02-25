@@ -4,7 +4,7 @@ import { fileURLToPath } from 'url';
 import fs from 'fs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const DB_PATH = resolve(__dirname, '../mission-control.db');
+const DB_PATH = process.env.ORCHESTRATOR_DB_PATH || resolve(__dirname, '../mission-control.db');
 
 // Ensure database directory exists
 if (!fs.existsSync(dirname(DB_PATH))) {

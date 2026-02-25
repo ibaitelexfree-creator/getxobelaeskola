@@ -9,16 +9,10 @@ import { apiUrl } from '@/lib/api';
 
 
 
-interface Edition {
-    id: string;
-    fecha_inicio: string;
-    fecha_fin: string;
-    plazas_totales: number;
-    plazas_ocupadas: number;
-}
+import { CourseEdition } from '@/types/student';
 
 interface BookingSelectorProps {
-    editions: Edition[];
+    editions: CourseEdition[];
     coursePrice: number;
     courseId: string;
     activityType?: ActivityType;
@@ -168,7 +162,7 @@ export default function BookingSelector({ editions, coursePrice, courseId, activ
                         {editions && editions.length > 0 ? (
                             <div className="grid gap-3">
                                 {editions.map((edition) => {
-                                    const seatsLeft = edition.plazas_totales - edition.plazas_ocupadas;
+                                    const seatsLeft = (edition.plazas_totales || 0) - (edition.plazas_ocupadas || 0);
                                     const isSelected = selectedEdition === edition.id;
                                     const isFull = seatsLeft <= 0;
 
@@ -177,7 +171,7 @@ export default function BookingSelector({ editions, coursePrice, courseId, activ
                                             key={edition.id}
                                             disabled={isFull}
                                             onClick={() => setSelectedEdition(edition.id)}
-                                            aria-label={`${t('select_date')} ${formatDate(edition.fecha_inicio)} ${t('to_date')} ${formatDate(edition.fecha_fin)}. ${isFull ? t('full') : `${seatsLeft} ${t('seats')}`}`}
+                                            aria-label={`${t('select_date')} ${formatDate(edition.fecha_inicio)} ${t('to_date')} ${formatDate(edition.fecha_fin || '')}. ${isFull ? t('full') : `${seatsLeft} ${t('seats')}`}`}
                                             aria-pressed={isSelected}
                                             aria-disabled={isFull}
                                             className={`w-full p-4 border text-left transition-all duration-300 flex justify-between items-center focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-nautical-black ${isSelected
@@ -190,7 +184,7 @@ export default function BookingSelector({ editions, coursePrice, courseId, activ
                                                     {t('from_date')} {formatDate(edition.fecha_inicio)}
                                                 </p>
                                                 <p className="text-2xs uppercase tracking-widest text-foreground/40 mt-1">
-                                                    {t('to_date')} {formatDate(edition.fecha_fin)}
+                                                    {t('to_date')} {formatDate(edition.fecha_fin || '')}
                                                 </p>
                                             </div>
                                             <div className="text-right">

@@ -148,7 +148,7 @@ export default function MobileRentalList({
                             {service.imagen_url ? (
                                 <Image
                                     src={service.imagen_url}
-                                    alt={getServiceName(service)}
+                                    alt={getServiceName(service) || ''}
                                     fill
                                     sizes="(max-width: 768px) 100vw, 50vw"
                                     priority={idx < 2}
@@ -217,7 +217,7 @@ export default function MobileRentalList({
                                 </div>
                             </div>
 
-                            { (selectedService.opciones?.length || 0) > 0 && (
+                            {(selectedService.opciones?.length || 0) > 0 && (
                                 <div className="space-y-2">
                                     <label className="text-xs uppercase tracking-widest text-accent font-bold block">{t('booking.extra_option')}</label>
                                     <div className="grid gap-2">

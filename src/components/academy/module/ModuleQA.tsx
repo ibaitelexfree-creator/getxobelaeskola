@@ -571,19 +571,19 @@ export default function ModuleQA({ moduleId, locale }: ModuleQAProps) {
                                                     {/* Answer Actions */}
                                                     <div className="flex items-center justify-between mt-4 pt-3 border-t border-white/5">
                                                         <div className="flex items-center gap-1 text-white/40 text-xs">
-                                                             <button
-                                                                 onClick={() => handleVote(answer.id, 'answer', 1, question.id)}
-                                                                 className={`p-1.5 rounded hover:bg-white/5 hover:text-accent transition-colors ${answer.user_vote === 1 ? 'text-accent bg-accent/10' : ''}`}
-                                                                 title="Útil"
-                                                             >
+                                                            <button
+                                                                onClick={() => handleVote(answer.id, 'answer', 1, question.id)}
+                                                                className={`p-1.5 rounded hover:bg-white/5 hover:text-accent transition-colors ${answer.user_vote === 1 ? 'text-accent bg-accent/10' : ''}`}
+                                                                title="Útil"
+                                                            >
                                                                 <ThumbsUp className="w-3.5 h-3.5" />
                                                             </button>
                                                             <span className="font-mono font-bold mx-1">{(answer.upvotes || 0) - (answer.downvotes || 0)}</span>
                                                             <button
-                                                                 onClick={() => handleVote(answer.id, 'answer', -1, question.id)}
-                                                                 className={`p-1.5 rounded hover:bg-white/5 hover:text-red-400 transition-colors ${answer.user_vote === -1 ? 'text-red-400 bg-red-400/10' : ''}`}
-                                                                 title="No útil"
-                                                             >
+                                                                onClick={() => handleVote(answer.id, 'answer', -1, question.id)}
+                                                                className={`p-1.5 rounded hover:bg-white/5 hover:text-red-400 transition-colors ${answer.user_vote === -1 ? 'text-red-400 bg-red-400/10' : ''}`}
+                                                                title="No útil"
+                                                            >
                                                                 <ThumbsDown className="w-3.5 h-3.5" />
                                                             </button>
                                                         </div>
@@ -592,11 +592,10 @@ export default function ModuleQA({ moduleId, locale }: ModuleQAProps) {
                                                         {(currentUser?.rol === 'instructor' || currentUser?.rol === 'admin') && (
                                                             <button
                                                                 onClick={() => handleMarkCorrect(answer.id, question.id)}
-                                                                className={`flex items-center gap-1 text-[9px] font-black uppercase tracking-widest transition-colors py-1.5 px-3 rounded ${
-                                                                    answer.is_accepted
-                                                                    ? 'text-accent bg-accent/10 hover:bg-accent/20'
-                                                                    : 'text-white/30 hover:text-white hover:bg-white/5'
-                                                                }`}
+                                                                className={`flex items-center gap-1 text-[9px] font-black uppercase tracking-widest transition-colors py-1.5 px-3 rounded ${answer.is_accepted
+                                                                        ? 'text-accent bg-accent/10 hover:bg-accent/20'
+                                                                        : 'text-white/30 hover:text-white hover:bg-white/5'
+                                                                    }`}
                                                             >
                                                                 <Award className="w-3 h-3" />
                                                                 {answer.is_accepted ? 'Solución' : 'Marcar Solución'}

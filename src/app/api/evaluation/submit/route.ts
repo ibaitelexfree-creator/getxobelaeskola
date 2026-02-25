@@ -244,12 +244,12 @@ export async function POST(request: Request) {
         // --- SRS UPDATE LOGIC END ---
 
         // Obtener las respuestas correctas si está configurado para el cliente
-        let respuestasCorrectas = null;
+        let respuestasCorrectas: any[] | null = null;
         if (intento.evaluacion.mostrar_respuestas) {
             const { data: preguntas } = await supabaseAdmin
                 .from('preguntas')
                 .select('id, respuesta_correcta, explicacion_es, explicacion_eu')
-                .in('id', intento.preguntas_json);
+                .in('id', intento.preguntas_json as any[]);
 
             respuestasCorrectas = preguntas;
         }

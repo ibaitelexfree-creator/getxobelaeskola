@@ -7,7 +7,7 @@ $url = "http://localhost:3002/api/v1/swarm/negotiate"
 $body1 = @{
     prompt     = "Crear un nuevo módulo de seguimiento de rutas con base de datos Supabase y una interfaz visual en React con mapas interactivos."
     complexity = "high"
-    dispatch   = $false # Solo propuesta
+    dispatch   = $true # Trigger n8n dispatcher!
 } | ConvertTo-Json
 
 Write-Host "--- Propuesta para Nueva Funcionalidad Completa ---" -ForegroundColor Cyan

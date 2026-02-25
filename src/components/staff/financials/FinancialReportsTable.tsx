@@ -219,16 +219,14 @@ export default function FinancialReportsTable({
                                     </td>
                                     <td className="py-6">
                                         <div className="flex items-center gap-2 group/cell">
-                                            <span className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-2xs uppercase tracking-widest font-black ${
-                                                item.estado_pago === 'pagado' ? 'bg-green-500/10 text-green-400 border border-green-500/20' :
-                                                item.estado_pago === 'pendiente' ? 'bg-orange-500/10 text-orange-400 border border-orange-500/20' :
-                                                'bg-red-500/10 text-red-400 border border-red-500/20'
-                                            }`}>
-                                                <span className={`w-1.5 h-1.5 rounded-full ${
-                                                    item.estado_pago === 'pagado' ? 'bg-green-500 animate-pulse' :
-                                                    item.estado_pago === 'pendiente' ? 'bg-orange-500' :
-                                                    'bg-red-500'
-                                                }`}></span>
+                                            <span className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-2xs uppercase tracking-widest font-black ${item.estado_pago === 'pagado' ? 'bg-green-500/10 text-green-400 border border-green-500/20' :
+                                                    item.estado_pago === 'pendiente' ? 'bg-orange-500/10 text-orange-400 border border-orange-500/20' :
+                                                        'bg-red-500/10 text-red-400 border border-red-500/20'
+                                                }`}>
+                                                <span className={`w-1.5 h-1.5 rounded-full ${item.estado_pago === 'pagado' ? 'bg-green-500 animate-pulse' :
+                                                        item.estado_pago === 'pendiente' ? 'bg-orange-500' :
+                                                            'bg-red-500'
+                                                    }`}></span>
                                                 {item.estado_pago}
                                             </span>
 
@@ -283,7 +281,7 @@ export default function FinancialReportsTable({
                                                     </div>
                                                 </div>
                                             )}
-                                            <span className={item.monto_total > 500 ? 'text-accent font-bold' : ''}>
+                                            <span className={parseAmount(item.monto_total) > 500 ? 'text-accent font-bold' : ''}>
                                                 {parseAmount(item.monto_total)}€
                                             </span>
                                             <button

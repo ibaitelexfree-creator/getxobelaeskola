@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import express from 'express';
 import pg from 'pg';
 import axios from 'axios';
@@ -9,6 +10,10 @@ import cors from 'cors';
 import * as metrics from './metrics.js';
 import { sendTelegramMessage } from './telegram.js';
 import { createDashboardSnapshot } from './grafana-service.js';
+import { analyzeTask } from './groq-analyzer.js';
+import { startPolling, sendMessage, formatProposal, storeProposal } from './telegram-bot.js';
+import * as taskQueue from './task-queue.js';
+import { executeSwarm, isSimulationMode, getActiveSwarms } from './swarm-executor.js';
 
 // Fix connection hangs by prioritizing IPv4
 if (dns.setDefaultResultOrder) {
@@ -51,6 +56,8 @@ let db = null;
 if (DATABASE_URL) {
   db = new pg.Pool({ connectionString: DATABASE_URL });
   console.log('[Init] Database pool created');
+  // Initialize task queue schema
+  taskQueue.initializeSchema(db).catch(e => console.warn('[Init] TaskQueue schema warning:', e.message));
 }
 
 // Routes
@@ -95,63 +102,108 @@ app.get('/api/v1/chaos/:type', async (req, res) => {
 
 // --- Swarm Negotiation & Dispatch Logic ---
 // This endpoint proposes which agents are needed based on a user request
+// NOW POWERED BY GEMINI AI (was regex-based)
 app.post('/api/v1/swarm/negotiate', async (req, res) => {
-  const { prompt, complexity = 'medium' } = req.body;
+  const { prompt, complexity = 'medium', max_jules = 9, dispatch = false } = req.body;
   if (!prompt) return res.status(400).json({ error: 'Prompt is required' });
 
-  // Intelligent Proposal Logic based on keywords
-  const domains = {
-    architect: /design|architecture|schema|contract|openapi|roles|plan|structure|crear|nuevo|build|create|implement/i.test(prompt),
-    data: /api|database|supabase|server|backend|logic|query|tables|data|sync|sql/i.test(prompt),
-    ui: /frontend|components|react|visual|ui|ux|styles|css|layout|screen|dashboard|interf/i.test(prompt)
-  };
+  try {
+    // Use Gemini AI for intelligent task decomposition
+    const analysis = await analyzeTask(prompt, max_jules);
 
-  const proposal = {
-    architect: domains.architect ? 1 : 0,
-    data: domains.data ? (complexity === 'high' ? 2 : 1) : 0,
-    ui: domains.ui ? (complexity === 'high' ? 3 : 2) : 1
-  };
+    // Store as a proposal
+    const proposalId = await taskQueue.createProposal(db, {
+      chatId: req.body.telegram_chat_id || process.env.TELEGRAM_CHAT_ID,
+      prompt,
+      maxJules: max_jules,
+      analysis
+    });
 
-  const agents = [];
-  if (proposal.architect > 0) agents.push({ role: 'Lead Architect', count: proposal.architect, account: 'getxobelaeskola@gmail.com' });
-  if (proposal.data > 0) agents.push({ role: 'Data Master', count: proposal.data, account: 'ibaitnt@gmail.com' });
-  if (proposal.ui > 0) agents.push({ role: 'UI Engine', count: proposal.ui, account: 'ibaitelexfree@gmail.com' });
+    // Store in bot memory too
+    storeProposal(proposalId, { originalPrompt: prompt, analysis });
 
-  const teamMsg = agents.map(a => `- ${a.role}: ${a.count} agente(s)`).join('\n');
+    // Telegram Notification
+    const formattedMsg = formatProposal(proposalId, analysis);
+    sendTelegramMessage(formattedMsg).catch(e => console.error('[Negotiate] Telegram failed:', e.message));
 
-  // Telegram Notification
-  if (typeof sendTelegramMessage === 'function') {
-    sendTelegramMessage(`🤝 **Propuesta de Swarm**\n\n*Tarea:* ${prompt}\n*Complejidad:* ${complexity}\n\n*Equipo Propuesto:*\n${teamMsg}\n\n${req.body.dispatch ? '🚀 *Dispatching to n8n...*' : '⏳ *Esperando aprobación...*'}`)
-      .catch(e => console.error('[Negotiate] Telegram failed:', e.message));
-  }
-
-  // Optional: Trigger n8n immediately if requested
-  const n8nWebhook = process.env.N8N_SWARM_DISPATCHER_URL || 'https://n8n.scarmonit.com/webhook/swarm-dispatcher';
-  let n8nTriggered = false;
-
-  if (n8nWebhook && req.body.dispatch === true) {
-    try {
-      await axios.post(n8nWebhook, {
-        original_prompt: prompt,
-        proposal: agents,
-        metadata: {
-          timestamp: new Date().toISOString(),
-          source: 'Control Panel'
-        }
-      });
-      n8nTriggered = true;
-    } catch (e) {
-      console.error('[Negotiate] n8n Bridge Failed:', e.message);
+    // Auto-dispatch if requested
+    let executed = false;
+    if (dispatch) {
+      const approved = await taskQueue.approveProposal(db, proposalId);
+      if (approved) {
+        const chatId = process.env.TELEGRAM_CHAT_ID;
+        executeSwarm(db, proposalId, chatId, {
+          simulationMode: isSimulationMode()
+        }).catch(e => console.error('[Swarm] Execution error:', e.message));
+        executed = true;
+      }
     }
-  }
 
-  res.json({
-    success: true,
-    message: "Proposed Swarm Team",
-    proposal: agents,
-    total_agents: proposal.architect + proposal.data + proposal.ui,
-    n8n_triggered: n8nTriggered
-  });
+    res.json({
+      success: true,
+      message: 'AI-Powered Swarm Proposal',
+      proposal_id: proposalId,
+      analysis,
+      ai_powered: true,
+      auto_dispatched: executed
+    });
+  } catch (e) {
+    console.error('[Negotiate] AI Analysis Error:', e.message);
+    res.status(500).json({ success: false, error: e.message });
+  }
+});
+
+// ─── Swarm Approval & Execution ───
+app.post('/api/v1/swarm/approve/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = await taskQueue.approveProposal(db, id);
+    if (!result) return res.status(404).json({ error: 'Proposal not found or not pending' });
+
+    const chatId = process.env.TELEGRAM_CHAT_ID;
+    sendMessage(chatId, `🚀 *Swarm \`#${id}\` aprobado!* Iniciando ejecución...`).catch(() => { });
+
+    // Start execution in background
+    executeSwarm(db, id, chatId, { simulationMode: isSimulationMode() })
+      .catch(e => console.error('[Swarm] Execution error:', e.message));
+
+    res.json({ success: true, message: `Swarm ${id} approved and executing`, task_count: result.taskCount });
+  } catch (e) {
+    console.error('[Swarm Approve] Error:', e);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+app.post('/api/v1/swarm/cancel/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = await taskQueue.cancelProposal(db, id);
+    if (!result) return res.status(404).json({ error: 'Proposal not found or not pending' });
+    res.json({ success: true, message: `Swarm ${id} cancelled` });
+  } catch (e) {
+    console.error('[Swarm Cancel] Error:', e);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+app.get('/api/v1/swarm/progress/:id', async (req, res) => {
+  try {
+    const progress = await taskQueue.getSwarmProgress(db, req.params.id);
+    const tasks = await taskQueue.getSwarmTasks(db, req.params.id);
+    res.json({ success: true, progress, tasks });
+  } catch (e) {
+    console.error('[Swarm Progress] Error:', e);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+app.get('/api/v1/swarm/active', async (req, res) => {
+  try {
+    res.json({ success: true, active: getActiveSwarms() });
+  } catch (e) {
+    console.error('[Swarm Active] Error:', e);
+    res.status(500).json({ error: e.message });
+  }
 });
 
 // Swarm Pool Status
@@ -439,7 +491,43 @@ const server = createServer(app);
 const wss = new WebSocketServer({ server });
 
 server.listen(PORT, '0.0.0.0', () => {
-  console.log(`Jules Orchestrator API v1.6.1 listening on 0.0.0.0:${PORT}`);
+  console.log(`Jules Orchestrator API v2.0.0 listening on 0.0.0.0:${PORT}`);
+
+  // Start Telegram Bot polling
+  const chatId = process.env.TELEGRAM_CHAT_ID;
+  startPolling({
+    onSwarm: async (cid, prompt, maxJules) => {
+      try {
+        const analysis = await analyzeTask(prompt, maxJules);
+        const proposalId = await taskQueue.createProposal(db, { chatId: cid, prompt, maxJules, analysis });
+        storeProposal(proposalId, { originalPrompt: prompt, analysis });
+        await sendMessage(cid, formatProposal(proposalId, analysis));
+      } catch (e) {
+        await sendMessage(cid, `❌ Error de Gemini: ${e.message}`);
+      }
+    },
+    onApprove: async (cid, id) => {
+      const result = await taskQueue.approveProposal(db, id);
+      if (!result) { await sendMessage(cid, `❌ Propuesta \`${id}\` no encontrada.`); return; }
+      await sendMessage(cid, `🚀 *Swarm \`#${id}\` aprobado!* ${result.taskCount} tareas en cola.`);
+      executeSwarm(db, id, cid, { simulationMode: isSimulationMode() })
+        .catch(e => sendMessage(cid, `❌ Error de ejecución: ${e.message}`));
+    },
+    onCancel: async (cid, id) => {
+      const result = await taskQueue.cancelProposal(db, id);
+      if (!result) { await sendMessage(cid, `❌ Propuesta \`${id}\` no encontrada.`); return; }
+      await sendMessage(cid, `🗑️ Propuesta \`#${id}\` cancelada.`);
+    },
+    onStatus: async (cid) => {
+      const active = getActiveSwarms();
+      if (active.length === 0) {
+        await sendMessage(cid, '📭 No hay swarms activos.');
+      } else {
+        const lines = active.map(s => `• \`${s.id}\`: ${s.status} (${s.runningFor})`);
+        await sendMessage(cid, `📊 *Swarms Activos:*\n${lines.join('\n')}`);
+      }
+    }
+  }).catch(e => console.error('[TelegramBot] Fatal:', e.message));
 
   // MISSION CONTROL TRAFFIC SIMULATOR
   setInterval(() => {

@@ -18,6 +18,7 @@ services:
       - QDRANT_URL=http://qdrant:6333
       - REDIS_URL=redis://orchestrator-redis:6379
       - DATABASE_URL=postgresql://user:password@orchestrator-db:5432/jules
+      - ORCHESTRATOR_DB_PATH=/usr/src/app/data/mission-control.db
     depends_on:
       - orchestrator-db
       - orchestrator-redis
@@ -26,11 +27,11 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.orchestrator.rule=Host(`control.getxobelaeskola.cloud`)"
       - "traefik.http.routers.orchestrator.entrypoints=websecure"
-      - "traefik.http.routers.orchestrator.tls.certresolver=mytlschallenge"
+      - "traefik.http.routers.orchestrator.tls.certresolver=letsencrypt"
       - "traefik.http.services.orchestrator.loadbalancer.server.port=3323"
       - "traefik.docker.network=n8n_default"
     volumes:
-      - "./orchestration/mission-control.db:/usr/src/app/mission-control.db"
+      - "./data/orchestrator:/usr/src/app/data"
     restart: unless-stopped
     networks:
       - n8n_default
@@ -58,7 +59,7 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.jules-api.rule=Host(`jules-api.getxobelaeskola.cloud`)"
       - "traefik.http.routers.jules-api.entrypoints=websecure"
-      - "traefik.http.routers.jules-api.tls.certresolver=mytlschallenge"
+      - "traefik.http.routers.jules-api.tls.certresolver=letsencrypt"
       - "traefik.http.services.jules-api.loadbalancer.server.port=3002"
       - "traefik.docker.network=n8n_default"
     restart: unless-stopped
@@ -76,7 +77,7 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.qdrant.rule=Host(`rag.getxobelaeskola.cloud`)"
       - "traefik.http.routers.qdrant.entrypoints=websecure"
-      - "traefik.http.routers.qdrant.tls.certresolver=mytlschallenge"
+      - "traefik.http.routers.qdrant.tls.certresolver=letsencrypt"
       - "traefik.docker.network=n8n_default"
     restart: unless-stopped
     networks:
@@ -123,7 +124,7 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.grafana.rule=Host(`stats.getxobelaeskola.cloud`)"
       - "traefik.http.routers.grafana.entrypoints=websecure"
-      - "traefik.http.routers.grafana.tls.certresolver=mytlschallenge"
+      - "traefik.http.routers.grafana.tls.certresolver=letsencrypt"
       - "traefik.docker.network=n8n_default"
     restart: unless-stopped
     networks:

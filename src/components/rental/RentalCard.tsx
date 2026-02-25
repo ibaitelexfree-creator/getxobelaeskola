@@ -1,11 +1,9 @@
-import { RentalService } from '@/types/student';
 'use client';
-
+import { RentalService } from '@/types/student';
 import Link from 'next/link';
 import NauticalImage from '@/components/ui/NauticalImage';
 import { useTranslations } from 'next-intl';
 import { Anchor, Users, Clock, ArrowRight } from 'lucide-react';
-
 interface RentalCardProps {
     service: RentalService;
     locale: string;
@@ -18,7 +16,7 @@ export default function RentalCard({ service, locale, onBook }: RentalCardProps)
 
     // Determine image source with fallbacks
     const getImgSrc = () => {
-        const n = service.nombre_es.toLowerCase();
+        const n = (service.nombre_es || service.nombre || '').toLowerCase();
         let src = service.imagen_url;
 
         if (n.includes('j80')) src = '/images/J80.webp';
@@ -26,8 +24,8 @@ export default function RentalCard({ service, locale, onBook }: RentalCardProps)
         else if (n.includes('optimist') || n.includes('laser')) src = '/images/courses/CursodeVelaLigera.webp';
 
         if (!src || src.includes('placeholder') || src.includes('rental-category')) {
-            if ( (service.categoria || '') === 'windsurf') src = '/images/courses/PerfeccionamientoVela.webp';
-            else if ( (service.categoria || '') === 'paddlesurf' || service.categoria === 'kayak' || service.categoria === 'piragua') src = '/images/home-hero-sailing-action.webp';
+            if ((service.categoria || '') === 'windsurf') src = '/images/courses/PerfeccionamientoVela.webp';
+            else if ((service.categoria || '') === 'paddlesurf' || service.categoria === 'kayak' || service.categoria === 'piragua') src = '/images/home-hero-sailing-action.webp';
             else src = '/images/J80.webp';
         }
         return src;
@@ -55,7 +53,7 @@ export default function RentalCard({ service, locale, onBook }: RentalCardProps)
                 <NauticalImage
                     src={getImgSrc()}
                     category={(service.categoria || 'other') as any}
-                    alt={name}
+                    alt={name || ''}
                     fill
                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                     className="object-cover transition-transform duration-[2s] ease-out group-hover:scale-105 contrast-[1.1]"

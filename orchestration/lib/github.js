@@ -204,6 +204,33 @@ export async function downloadAsset(owner, repo, assetId, token = null) {
   return await githubRequest(`/repos/${owner}/${repo}/releases/assets/${assetId}`, token, true);
 }
 
+/**
+ * Downloading logs for a specific job
+ */
+export async function getWorkflowJobLogs(owner, repo, jobId, token = null) {
+  try {
+    const headers = {
+      'Accept': 'application/vnd.github.v3+json',
+      'User-Agent': 'Antigravity-Node-Client'
+    };
+    if (token) headers['Authorization'] = `token ${token}`;
+
+    const url = `https://api.github.com/repos/${owner}/${repo}/actions/jobs/${jobId}/logs`;
+    // We must handle the redirect properly or just fetch returning text
+    const response = await fetch(url, { headers, redirect: 'follow' });
+
+    if (!response.ok) {
+      console.warn(`[github] Warning: Failed to fetch logs for job ${jobId}. Status: ${response.status}`);
+      return "Logs not available or expired.";
+    }
+
+    return await response.text();
+  } catch (error) {
+    console.error(`[github] Error fetching logs for job ${jobId}:`, error.message);
+    return `Error fetching logs: ${error.message}`;
+  }
+}
+
 export default {
   getIssue,
   getIssuesByLabel,
@@ -216,5 +243,6 @@ export default {
   triggerWorkflowDispatch,
   listWorkflowRuns,
   getWorkflowRun,
-  listWorkflowJobs
+  listWorkflowJobs,
+  getWorkflowJobLogs
 };

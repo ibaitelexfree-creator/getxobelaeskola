@@ -198,7 +198,7 @@ export function useFinancialReports({ initialData, initialView }: UseFinancialRe
 
         const isHourly = diffDays < 1;
         const isMonthly = diffDays > 45;
-        let monthStep = 1;
+        const monthStep = 1;
 
         if (isHourly) {
             for (let h = 0; h < 24; h++) {
@@ -256,7 +256,7 @@ export function useFinancialReports({ initialData, initialView }: UseFinancialRe
                     // Ensure we don't crash and assign to first bucket
                     const firstBucket = aggValues[0];
                     if (firstBucket) {
-                         firstBucket.amount += parseAmount(item.monto_total);
+                        firstBucket.amount += parseAmount(item.monto_total);
                     }
                 }
             } else {

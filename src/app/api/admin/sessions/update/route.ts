@@ -114,14 +114,14 @@ export async function POST(request: Request) {
 
         // --- HISTORY LOGGING ---
         // Compare values and log changes
-        const historyEntries = [];
+        const historyEntries: any[] = [];
         for (const [key, newValue] of Object.entries(updateData)) {
             const oldValue = currentSession[key];
             // Simple comparison, might need refinement for dates/objects
             if (String(newValue) !== String(oldValue)) {
                 // If value changed, log it
                 historyEntries.push({
-                    session_id: id,
+                    session_id: id as any,
                     staff_id: user.id, // Log who made the change
                     field_name: key,
                     old_value: String(oldValue || ''), // Handle nulls

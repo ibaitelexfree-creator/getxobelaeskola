@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import { withCors } from '@/lib/api-middleware';
+import { withCors } from '@/lib/api-headers';
 
 interface Recommendation {
     id: string;

@@ -92,4 +92,4 @@ The project environment is designed for absolute portability.
 - **Portability Rule:** Hardcoded absolute paths are strictly forbidden to ensure the project remains functional across different development environments without manual reconfiguration.
 
 ---
-*Last Updated: February 2024*
+*Last Updated: February 2026*

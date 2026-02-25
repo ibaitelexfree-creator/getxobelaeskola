@@ -8,6 +8,7 @@ import { listGoogleEvents } from '@/lib/google-calendar';
 
 const BookingSelector = dynamic(() => import('@/components/booking/BookingSelector'), { ssr: false });
 import JsonLd from '@/components/shared/JsonLd';
+import { Course, CourseEdition } from '@/types/student';
 
 import { Metadata } from 'next';
 
@@ -17,7 +18,7 @@ export async function generateMetadata({
     params: { locale: string; slug: string }
 }): Promise<Metadata> {
     const supabase = createClient();
-    let course: any = null;
+    let course: Course | null = null;
     try {
         const { data } = await supabase
             .from('cursos')
@@ -121,38 +122,11 @@ export default async function CourseDetailPage({
 }: {
     params: { locale: string; slug: string }
 }) {
-    interface Edition {
-        id: string;
-        fecha_inicio: string;
-        fecha_fin: string;
-        plazas_totales: number;
-        plazas_ocupadas: number;
-        is_calendar_event?: boolean;
-    }
-
-    interface CourseFallback {
-        id: string;
-        nombre_es: string;
-        nombre_eu: string;
-        nombre_en?: string;
-        nombre_fr?: string;
-        descripcion_es: string;
-        descripcion_eu: string;
-        descripcion_en?: string;
-        descripcion_fr?: string;
-        precio: number;
-        duracion_h: number;
-        nivel: string;
-        imagen_url: string;
-        detalles?: {
-            es: string[];
-            eu: string[];
-        };
-    }
+    type UIEdition = CourseEdition & { is_calendar_event?: boolean };
     const supabase = createClient();
 
     // 1. Fetch main course data
-    let course: any = null;
+    let course: Course | null = null;
     try {
         const { data } = await supabase
             .from('cursos')
@@ -165,7 +139,7 @@ export default async function CourseDetailPage({
     }
 
     // 2. Fetch real sessions/editions (if table works)
-    let dbEditions: Edition[] = [];
+    let dbEditions: UIEdition[] = [];
     try {
         const { data: editionsData } = await supabase
             .from('ediciones_curso')
@@ -173,13 +147,13 @@ export default async function CourseDetailPage({
             .eq('curso_id', course?.id)
             .gte('fecha_inicio', new Date().toISOString())
             .order('fecha_inicio', { ascending: true });
-        dbEditions = (editionsData as unknown as Edition[]) || [];
+        dbEditions = (editionsData as unknown as UIEdition[]) || [];
     } catch (e) {
         console.error('Fetch editions failed', e);
     }
 
     // 3. Fetch from Google Calendar
-    let calendarEditions: Edition[] = [];
+    let calendarEditions: UIEdition[] = [];
     try {
         const events = await listGoogleEvents();
         // Match events that contain "J80" or course name keywords
@@ -215,7 +189,7 @@ export default async function CourseDetailPage({
     );
 
     // 3. Fallback Registry (Always active to ensure UI works)
-    const fallbacks: Record<string, CourseFallback> = {
+    const fallbacks: Record<string, Course> = {
         'campus-verano-getxo': {
             id: 'bc39dfeb-cd99-4bae-a5ae-e363d5a77d61',
             nombre_es: 'Campus Verano (Empadronados)',
@@ -363,7 +337,7 @@ export default async function CourseDetailPage({
                                 <h3 className="font-display text-4xl mb-6 text-sea-foam">Reserva tu plaza</h3>
                                 <BookingSelector
                                     editions={displayEditions}
-                                    coursePrice={displayCourse.precio}
+                                    coursePrice={displayCourse.precio || 0}
                                     courseId={displayCourse.id}
                                     activityType={slug.includes('campus') || slug.includes('udalekus') ? 'udalekus' : (slug.includes('vela-ligera') ? 'training' : 'course')}
                                 />
@@ -396,7 +370,7 @@ export default async function CourseDetailPage({
                                 <div className="space-y-4 pt-12">
                                     <h4 className="text-xs uppercase tracking-widest font-bold text-accent">Lo que aprenderás</h4>
                                     <ul className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        {(locale === 'es' ? displayCourse.detalles.es : displayCourse.detalles.eu).map((detail: string, i: number) => (
+                                        {((locale === 'es' ? displayCourse.detalles.es : displayCourse.detalles.eu) || []).map((detail: string, i: number) => (
                                             <li key={i} className="flex items-center gap-3 text-sm font-light text-foreground/70">
                                                 <div className="w-1 h-1 bg-accent/40 rounded-full" />
                                                 {detail}

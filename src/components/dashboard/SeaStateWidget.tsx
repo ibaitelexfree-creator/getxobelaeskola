@@ -18,30 +18,7 @@ interface SeaStateData {
 
 export default function SeaStateWidget() {
     // Try to use translations, fallback to null if context missing (though it should be there)
-    let t: any;
-    try {
-        t = useTranslations('sea_state_widget');
-    } catch (e) {
-        // Fallback for development if keys missing or context unavailable
-        t = (key: string) => {
-            const defaults: Record<string, string> = {
-                title: 'Estado del Mar',
-                subtitle: 'Boya Bilbao-Vizcaya (Getxo)',
-                wave_height: 'Altura Ola',
-                period: 'Período',
-                water_temp: 'Temp. Agua',
-                wind_speed: 'Viento',
-                simulated: 'Simulado',
-                simulated_desc: 'Datos estimados por modelo',
-                real_time: 'Tiempo Real',
-                meters: 'm',
-                seconds: 's',
-                celsius: '°C',
-                knots: 'kn'
-            };
-            return defaults[key] || key;
-        };
-    }
+    const t = useTranslations('sea_state_widget');
 
     const [data, setData] = useState<SeaStateData | null>(null);
     const [loading, setLoading] = useState(true);
@@ -157,7 +134,7 @@ export default function SeaStateWidget() {
                         <span className="text-4xl font-display text-white italic tracking-tighter">{data.period}</span>
                         <span className="text-xs text-white/40 font-bold">{t('seconds')}</span>
                     </div>
-                     <div className="h-1 w-full bg-white/5 rounded-full overflow-hidden">
+                    <div className="h-1 w-full bg-white/5 rounded-full overflow-hidden">
                         <motion.div
                             initial={{ width: 0 }}
                             animate={{ width: `${Math.min(100, (data.period / 15) * 100)}%` }}
@@ -187,8 +164,8 @@ export default function SeaStateWidget() {
                     </div>
                 </div>
 
-                 {/* Wind (Context) */}
-                 <div className="space-y-2">
+                {/* Wind (Context) */}
+                <div className="space-y-2">
                     <div className="flex items-center gap-2 text-white/40 mb-1">
                         <Wind size={14} />
                         <span className="text-[9px] uppercase tracking-widest font-bold">{t('wind_speed')}</span>
@@ -198,10 +175,10 @@ export default function SeaStateWidget() {
                         <span className="text-xs text-white/40 font-bold">{t('knots')}</span>
                     </div>
                     <div className="flex items-center gap-2 mt-2">
-                         <div className="w-6 h-6 rounded-full bg-white/5 flex items-center justify-center border border-white/10">
+                        <div className="w-6 h-6 rounded-full bg-white/5 flex items-center justify-center border border-white/10">
                             <Navigation size={12} className="text-white/60" style={{ transform: `rotate(${data.windDirection}deg)` }} />
-                         </div>
-                         <span className="text-[10px] text-white/40 font-mono">{data.windDirection}°</span>
+                        </div>
+                        <span className="text-[10px] text-white/40 font-mono">{data.windDirection}°</span>
                     </div>
                 </div>
             </div>

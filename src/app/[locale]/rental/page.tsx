@@ -50,22 +50,7 @@ export function generateStaticParams() {
     return ['es', 'eu', 'en', 'fr'].map(locale => ({ locale }));
 }
 
-interface RentalService {
-    id: string;
-    slug: string;
-    nombre: string;
-    nombre_eu?: string;
-    nombre_en?: string;
-    descripcion: string;
-    descripcion_eu?: string;
-    descripcion_en?: string;
-    imagen_url?: string;
-    precio_base?: number;
-    precio_hora?: number;
-    activo: boolean;
-    categoria: string;
-    opciones: { label: string; extra: number }[];
-}
+import { RentalService } from '@/types/student';
 
 export default async function RentalPage({ params: { locale } }: { params: { locale: string } }) {
     const t = await getTranslations({ locale, namespace: 'rental_page' });
@@ -100,8 +85,8 @@ export default async function RentalPage({ params: { locale } }: { params: { loc
             const rawData = (data || []) as unknown as RentalService[];
 
             services = rawData.sort((a, b) => {
-                const indexA = priorityOrder.indexOf(a.slug);
-                const indexB = priorityOrder.indexOf(b.slug);
+                const indexA = priorityOrder.indexOf(a.slug || '');
+                const indexB = priorityOrder.indexOf(b.slug || '');
 
                 // If slug not in list, put at the end
                 const posA = indexA === -1 ? 999 : indexA;

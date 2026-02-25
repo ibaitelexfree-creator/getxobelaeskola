@@ -18,13 +18,15 @@ services:
     image: ${DOCKER_IMAGE:-getxo-web:latest}
     container_name: getxo-web
     restart: always
+    environment:
+      - PORT=3000
     expose:
       - "3000"
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.getxo.rule=Host(`getxobelaeskola.cloud`) || Host(`www.getxobelaeskola.cloud`)"
       - "traefik.http.routers.getxo.entrypoints=websecure"
-      - "traefik.http.routers.getxo.tls.certresolver=mytlschallenge"
+      - "traefik.http.routers.getxo.tls.certresolver=letsencrypt"
       - "traefik.http.services.getxo.loadbalancer.server.port=3000"
     env_file:
       - .env

@@ -26,7 +26,7 @@
 
 ```bash
 # Conectarse a Supabase y ejecutar:
-cd "c:\Users\User\Desktop\Saili8ng School Test"
+cd "c:\Users\User\Desktop\getxobelaeskola"
 node scripts/apply_migration.js 006_motor_habilidades.sql
 ```
 
