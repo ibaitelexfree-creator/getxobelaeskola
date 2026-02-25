@@ -21,7 +21,7 @@ describe('getApiBaseUrl', () => {
     });
 
     it('should return window.location.origin when on localhost browser', () => {
-        process.env.NODE_ENV = 'development';
+        Object.defineProperty(process.env, 'NODE_ENV', { value: 'development', writable: true });
         const mockLocation = {
             hostname: 'localhost',
             protocol: 'http:',
