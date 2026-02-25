@@ -14,7 +14,7 @@ const CoursesTab = dynamic(() => import('./CoursesTab'), { ssr: false });
 const BoatsTab = dynamic(() => import('./BoatsTab'), { ssr: false });
 const SessionsTab = dynamic(() => import('./SessionsTab'), { ssr: false });
 const AcademyStaffTab = dynamic(() => import('./AcademyStaffTab'), { ssr: false });
-const FinancialReportsClient = dynamic(() => import('./FinancialReportsClient'), { ssr: false });
+const FinancialReportsClient = dynamic(() => import('./financial-reports/FinancialReportsClient'), { ssr: false });
 const BITab = dynamic(() => import('./BITab'), { ssr: false });
 const DriveExplorerTab = dynamic(() => import('./DriveExplorerTab'), { ssr: false });
 const DataExplorerTab = dynamic(() => import('./DataExplorerTab'), { ssr: false });
