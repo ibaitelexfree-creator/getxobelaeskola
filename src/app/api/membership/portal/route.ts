@@ -9,7 +9,9 @@ export async function POST(request: Request) {
     try {
         const { locale } = await request.json();
         const { user, supabase, error: authError } = await requireAuth();
-        if (authError) return authError;
+        if (authError || !user) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        }
 
         const origin = request.headers.get('origin') || process.env.NEXT_PUBLIC_APP_URL || 'https://getxobelaeskola.cloud';
 

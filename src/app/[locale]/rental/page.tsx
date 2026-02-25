@@ -50,12 +50,13 @@ export function generateStaticParams() {
     return ['es', 'eu', 'en', 'fr'].map(locale => ({ locale }));
 }
 
+// Define the interface to match what RentalClient expects
 interface Service {
     id: string;
     slug: string;
     nombre: string;
-    nombre_es?: string;
-    nombre_eu?: string;
+    nombre_es: string;
+    nombre_eu: string;
     nombre_en?: string;
     descripcion: string;
     descripcion_es?: string;
@@ -65,12 +66,14 @@ interface Service {
     precio_base: number;
     precio_hora?: number;
     activo: boolean;
+    categoria: string;
+    opciones: { label: string; extra: number }[];
 }
 
 export default async function RentalPage({ params: { locale } }: { params: { locale: string } }) {
     const t = await getTranslations({ locale, namespace: 'rental_page' });
     const supabase = createClient();
-    let services: Service[] = [];
+    let services: any[] = []; // Use any[] to avoid strict type mismatch with RentalClient's internal type
     const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://getxobelaeskola.cloud';
 
     try {
@@ -96,12 +99,19 @@ export default async function RentalPage({ params: { locale } }: { params: { loc
                 'alquiler-raquero'
             ];
 
-            // Type assertion here because Supabase response might not perfectly match our strict interface
-            services = ((data as unknown as Service[]) || []).sort((a, b) => {
+            // Map and sort
+            services = ((data as any[]) || []).map(s => ({
+                ...s,
+                // Ensure required fields exist
+                nombre_es: s.nombre_es || s.nombre,
+                nombre_eu: s.nombre_eu || s.nombre,
+                categoria: s.categoria || 'general',
+                opciones: s.opciones || [],
+                id: s.id // Explicitly set id to be sure (though spread covers it, doing it cleanly prevents TS warnings if typed)
+            })).sort((a, b) => {
                 const indexA = priorityOrder.indexOf(a.slug);
                 const indexB = priorityOrder.indexOf(b.slug);
 
-                // If slug not in list, put at the end
                 const posA = indexA === -1 ? 999 : indexA;
                 const posB = indexB === -1 ? 999 : indexB;
 
@@ -170,7 +180,7 @@ export default async function RentalPage({ params: { locale } }: { params: { loc
             {/* Main Interactive Fleet Section */}
             <section className="pb-48 relative">
                 <div className="container mx-auto px-6 relative z-10">
-                    <RentalClient services={services || []} locale={locale} />
+                    <RentalClient services={services} locale={locale} />
                 </div>
 
                 {/* Bottom Note / Disclosure */}

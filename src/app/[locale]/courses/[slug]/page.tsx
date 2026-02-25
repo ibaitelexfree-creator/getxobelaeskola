@@ -108,17 +108,11 @@ export default async function CourseDetailPage({
     }
 
     interface CourseFallback {
-        nombre_en?: string;
-        nombre_fr?: string;
-        descripcion_en?: string;
-        descripcion_fr?: string;
         id: string;
         nombre_es: string;
         nombre_eu: string;
         nombre_en?: string;
         nombre_fr?: string;
-        descripcion_en?: string;
-        descripcion_fr?: string;
         descripcion_es: string;
         descripcion_eu: string;
         descripcion_en?: string;
@@ -211,7 +205,7 @@ export default async function CourseDetailPage({
             imagen_url: '/images/course-raquero-students.webp',
             detalles: {
                 es: ['Navegación en grupo', 'Seguridad en el mar', 'Juegos y actividades', '20 horas semanales'],
-                eu: ['Taldeko nabigazioa', 'Segurtasuna itsasoan', 'Jolasak eta jarduerak', 'Astean 20 ordu']
+                eu: ['Taldeko nabigazioa', 'Seguridad en el mar', 'Jolasak eta jarduerak', 'Astean 20 ordu']
             }
         },
         'iniciacion-adultos': {
