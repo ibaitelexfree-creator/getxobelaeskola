@@ -65,6 +65,8 @@ interface Service {
     precio_base: number;
     precio_hora?: number;
     activo: boolean;
+    categoria?: string;
+    opciones?: any[];
 }
 
 export default async function RentalPage({ params: { locale } }: { params: { locale: string } }) {

@@ -11,7 +11,9 @@ const grafanaClient = axios.create({
         'Content-Type': 'application/json'
     },
     // Useful for self-signed certs in dev (not strictly needed for HTTP but good to have)
-    httpsAgent: new https.Agent({ rejectUnauthorized: false })
+    httpsAgent: new https.Agent({
+        rejectUnauthorized: process.env.NODE_TLS_REJECT_UNAUTHORIZED !== '0'
+    })
 });
 
 if (GRAFANA_API_KEY) {

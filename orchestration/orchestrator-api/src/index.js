@@ -35,7 +35,8 @@ const REPORT_COOLDOWN = 60000; // 60 seconds
 app.use((req, res, next) => {
   // Sanitize Request ID to prevent log injection
   const rawRequestId = req.headers['x-request-id'] || `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-  req.requestId = rawRequestId.toString().replace(/[^a-zA-Z0-9_-]/g, '');
+  // Remove newlines and other control characters to prevent log injection
+  req.requestId = rawRequestId.toString().replace(/[\n\r]/g, '').replace(/[^a-zA-Z0-9_-]/g, '');
 
   res.setHeader('X-Request-ID', req.requestId);
 
@@ -85,7 +86,11 @@ app.get('/api/v1/chaos/:type', async (req, res) => {
   console.log('[Chaos] Executing experiment: %s', type);
 
   if (type === 'latency') {
-    const delay = parseInt(ms) || 2000;
+    let delay = parseInt(ms) || 2000;
+    // Cap delay to prevent DoS
+    if (delay > 10000) delay = 10000;
+    if (delay < 0) delay = 0;
+
     await new Promise(r => setTimeout(r, delay));
     return res.json({ success: true, delay });
   }

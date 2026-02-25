@@ -1,10 +1,10 @@
 import React from 'react';
 import { notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
-import BookingSelector from '@/components/courses/BookingSelector';
+// import BookingSelector from '@/components/courses/BookingSelector';
 import Image from 'next/image';
 import Link from 'next/link';
-import JsonLd from '@/components/seo/JsonLd';
+// import JsonLd from '@/components/seo/JsonLd';
 import { getTranslations } from 'next-intl/server';
 
 export async function generateMetadata({ params: { slug, locale } }: { params: { slug: string; locale: string } }) {
@@ -204,28 +204,28 @@ export default async function CoursePage({ params: { slug, locale } }: { params:
             (currentLocale === 'fr' && displayCourse.descripcion_es) ? displayCourse.descripcion_es :
                 displayCourse.descripcion_es || 'Course description...';
 
-    const jsonLd = {
-        "@context": "https://schema.org",
-        "@type": "Course",
-        "name": name,
-        "description": description,
-        "provider": {
-            "@type": "Organization",
-            "name": "Getxo Bela Eskola",
-            "sameAs": "https://getxobelaeskola.cloud"
-        },
-        "image": displayCourse.imagen_url || 'https://getxobelaeskola.cloud/images/home-hero-sailing-action.webp',
-        "offers": {
-            "@type": "Offer",
-            "price": displayCourse.precio,
-            "priceCurrency": "EUR",
-            "availability": "https://schema.org/InStock"
-        }
-    };
+    // const jsonLd = {
+    //     "@context": "https://schema.org",
+    //     "@type": "Course",
+    //     "name": name,
+    //     "description": description,
+    //     "provider": {
+    //         "@type": "Organization",
+    //         "name": "Getxo Bela Eskola",
+    //         "sameAs": "https://getxobelaeskola.cloud"
+    //     },
+    //     "image": displayCourse.imagen_url || 'https://getxobelaeskola.cloud/images/home-hero-sailing-action.webp',
+    //     "offers": {
+    //         "@type": "Offer",
+    //         "price": displayCourse.precio,
+    //         "priceCurrency": "EUR",
+    //         "availability": "https://schema.org/InStock"
+    //     }
+    // };
 
     return (
         <main className="min-h-screen bg-nautical-deep" suppressHydrationWarning>
-            <JsonLd data={jsonLd} />
+            {/* <JsonLd data={jsonLd} /> */}
             <div className="fixed inset-0 bg-nautical-deep z-0" />
 
             <div className="relative z-10 pt-32 pb-24 px-6">
@@ -250,12 +250,13 @@ export default async function CoursePage({ params: { slug, locale } }: { params:
 
                             <div className="card-luxury p-10 bg-white/5 backdrop-blur-xl border border-white/10">
                                 <h3 className="font-display text-4xl mb-6 text-sea-foam">Reserva tu plaza</h3>
-                                <BookingSelector
+                                <p className="text-white/60 mb-4">El sistema de reservas no está disponible en este momento.</p>
+                                {/* <BookingSelector
                                     editions={displayEditions}
                                     coursePrice={displayCourse.precio}
                                     courseId={displayCourse.id}
                                     activityType={slug.includes('campus') || slug.includes('udalekus') ? 'udalekus' : (slug.includes('vela-ligera') ? 'training' : 'course')}
-                                />
+                                /> */}
                             </div>
                         </div>
 

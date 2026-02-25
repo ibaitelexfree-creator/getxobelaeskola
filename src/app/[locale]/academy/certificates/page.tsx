@@ -1,8 +1,8 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
+import { useEffect, useState } from 'react';
 import CertificateCard from '@/components/academy/CertificateCard';
 import { apiUrl } from '@/lib/api';
 
