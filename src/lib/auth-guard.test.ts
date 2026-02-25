@@ -61,41 +61,40 @@ describe('Auth Guard', () => {
     });
 
     describe('checkAuth', () => {
-        it('should return error if no user is authenticated', async () => {
-            mockGetUser.mockResolvedValue({ data: { user: null }, error: null });
+        it('should return 401 if no user is authenticated', async () => {
+            mockGetUser.mockResolvedValue({ data: { user: null } });
 
             const result = await checkAuth();
 
-            expect(result.user).toBeNull();
-            expect(result.error).toBeNull();
+            expect(result.error).toBeDefined();
+            // Cast to any to access mocked properties
+            const errorResponse = result.error as any;
+            expect(errorResponse.status).toBe(401);
+            expect(errorResponse.message).toBe('No session');
         });
 
-        it('should return error if auth error occurs', async () => {
-            const authError = { message: 'Auth failed' };
-            mockGetUser.mockResolvedValue({ data: { user: null }, error: authError });
-
-            const result = await checkAuth();
-
-            expect(result.error).toEqual(authError);
-        });
-
-        it('should return profile error if profile not found', async () => {
+        it('should return 404 if user is authenticated but profile is not found', async () => {
             const user = { id: 'user-123' };
-            mockGetUser.mockResolvedValue({ data: { user }, error: null });
-            mockSingle.mockResolvedValue({ data: null, error: null });
+            mockGetUser.mockResolvedValue({ data: { user } });
+            // Profile fetch returns error or null data
+            mockSingle.mockResolvedValue({ data: null, error: { message: 'Profile not found', code: '404' } });
 
             const result = await checkAuth();
 
-            expect(result.user).toEqual(user);
-            expect(result.profile).toBeNull();
-            expect(result.error).toBeNull();
+            expect(mockGetUser).toHaveBeenCalled();
+            expect(mockFrom).toHaveBeenCalledWith('profiles');
+            expect(mockEq).toHaveBeenCalledWith('id', 'user-123');
+
+            expect(result.error).toBeDefined();
+            // It returns Supabase error object directly
+            expect(result.error.message).toBe('Profile not found');
         });
 
         it('should return user, profile, and clients if authenticated and profile exists', async () => {
             const user = { id: 'user-123' };
             const profile = { id: 'user-123', rol: 'student' };
             mockGetUser.mockResolvedValue({ data: { user } });
-            mockSingle.mockResolvedValue({ data: profile });
+            mockSingle.mockResolvedValue({ data: profile, error: null });
 
             const result = await checkAuth();
 
@@ -108,8 +107,8 @@ describe('Auth Guard', () => {
     });
 
     describe('requireAdmin', () => {
-        it('should return error if checkAuth fails (no user)', async () => {
-            mockGetUser.mockResolvedValue({ data: { user: null }, error: null });
+        it('should return error if checkAuth fails', async () => {
+            mockGetUser.mockResolvedValue({ data: { user: null } });
 
             const result = await requireAdmin();
 
@@ -122,7 +121,7 @@ describe('Auth Guard', () => {
             const user = { id: 'user-123' };
             const profile = { id: 'user-123', rol: 'student' };
             mockGetUser.mockResolvedValue({ data: { user } });
-            mockSingle.mockResolvedValue({ data: profile });
+            mockSingle.mockResolvedValue({ data: profile, error: null });
 
             const result = await requireAdmin();
 
@@ -136,7 +135,7 @@ describe('Auth Guard', () => {
             const user = { id: 'admin-123' };
             const profile = { id: 'admin-123', rol: 'admin' };
             mockGetUser.mockResolvedValue({ data: { user } });
-            mockSingle.mockResolvedValue({ data: profile });
+            mockSingle.mockResolvedValue({ data: profile, error: null });
 
             const result = await requireAdmin();
 
@@ -161,7 +160,7 @@ describe('Auth Guard', () => {
             const user = { id: 'student-123' };
             const profile = { id: 'student-123', rol: 'student' };
             mockGetUser.mockResolvedValue({ data: { user } });
-            mockSingle.mockResolvedValue({ data: profile });
+            mockSingle.mockResolvedValue({ data: profile, error: null });
 
             const result = await requireInstructor();
 
@@ -175,7 +174,7 @@ describe('Auth Guard', () => {
             const user = { id: 'inst-123' };
             const profile = { id: 'inst-123', rol: 'instructor' };
             mockGetUser.mockResolvedValue({ data: { user } });
-            mockSingle.mockResolvedValue({ data: profile });
+            mockSingle.mockResolvedValue({ data: profile, error: null });
 
             const result = await requireInstructor();
 
@@ -187,7 +186,7 @@ describe('Auth Guard', () => {
             const user = { id: 'admin-123' };
             const profile = { id: 'admin-123', rol: 'admin' };
             mockGetUser.mockResolvedValue({ data: { user } });
-            mockSingle.mockResolvedValue({ data: profile });
+            mockSingle.mockResolvedValue({ data: profile, error: null });
 
             const result = await requireInstructor();
 

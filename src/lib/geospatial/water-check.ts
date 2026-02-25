@@ -17,26 +17,22 @@ const featureCollection = waterGeometryData as any;
 
 // Populate the index once
 if (featureCollection.features) {
-    const items: WaterPolygonItem[] = featureCollection.features
-        .map((feature: any) => {
-            try {
-                const bbox = turf.bbox(feature);
-                return {
-                    minX: bbox[0],
-                    minY: bbox[1],
-                    maxX: bbox[2],
-                    maxY: bbox[3],
-                    feature: feature
-                };
-            } catch (e) {
-                return null;
-            }
-        })
-        .filter((item: any) => item !== null) as WaterPolygonItem[];
-
-    if (items.length > 0) {
-        tree.load(items);
-    }
+    const items: WaterPolygonItem[] = [];
+    featureCollection.features.forEach((feature: any) => {
+        try {
+            const bbox = turf.bbox(feature);
+            items.push({
+                minX: bbox[0],
+                minY: bbox[1],
+                maxX: bbox[2],
+                maxY: bbox[3],
+                feature: feature
+            });
+        } catch (e) {
+            // Silently skip invalid features to allow module loading
+        }
+    });
+    tree.load(items);
 } else {
     // Fallback if it's a single feature
     try {
@@ -49,7 +45,7 @@ if (featureCollection.features) {
             feature: featureCollection
         }]);
     } catch (e) {
-        // Ignore invalid single feature
+        // Silently skip invalid feature
     }
 }
 

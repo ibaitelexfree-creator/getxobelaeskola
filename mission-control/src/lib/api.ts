@@ -177,6 +177,18 @@ export const getSyncHistory = (days = 7) => request<any[]>('GET', `/api/analytic
 export const triggerBuild = (workflow_id = 'android-build.yml') =>
     request<{ success: boolean; message: string }>('POST', '/api/v1/github/trigger-build', { workflow_id });
 
+export const triggerBuildByType = (type: 'gb-web' | 'gb-apk' | 'mc-web' | 'mc-apk') =>
+    request<{ success: boolean; message: string }>('POST', `/api/builds/trigger/${type}`);
+
+export const getBuildRuns = (type: string) =>
+    request<any[]>('GET', `/api/builds/runs/${type}`);
+
+export const getBuildDetails = (runId: string) =>
+    request<any>('GET', `/api/builds/runs/${runId}/details`);
+
+export const getBuildStatusSummary = () =>
+    request<Record<string, any>>('GET', '/api/builds/status-summary');
+
 export const triggerNotebookLMReport = () =>
     request<{ success: boolean; message: string; details?: string }>('POST', '/api/v1/notebooklm/report');
 

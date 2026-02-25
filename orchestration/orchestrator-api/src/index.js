@@ -101,29 +101,32 @@ app.post('/api/v1/swarm/negotiate', async (req, res) => {
 
   // Intelligent Proposal Logic based on keywords
   const domains = {
-    architect: /design|architecture|schema|contract|openapi|roles|plan|structure/i.test(prompt),
-    data: /api|database|supabase|server|backend|logic|query|tables|data|sync/i.test(prompt),
-    ui: /frontend|components|react|visual|ui|ux|styles|css|layout|screen|dashboard/i.test(prompt)
+    architect: /design|architecture|schema|contract|openapi|roles|plan|structure|crear|nuevo|build|create|implement/i.test(prompt),
+    data: /api|database|supabase|server|backend|logic|query|tables|data|sync|sql/i.test(prompt),
+    ui: /frontend|components|react|visual|ui|ux|styles|css|layout|screen|dashboard|interf/i.test(prompt)
   };
 
   const proposal = {
     architect: domains.architect ? 1 : 0,
     data: domains.data ? (complexity === 'high' ? 2 : 1) : 0,
-    ui: domains.ui ? (complexity === 'high' ? 3 : 2) : 1 // Always at least 1 UI unless explicitly excluded
+    ui: domains.ui ? (complexity === 'high' ? 3 : 2) : 1
   };
-
-  // Ensure at least an Architect if it's a "New" feature
-  if (/build|create|implement|new/i.test(prompt) && proposal.architect === 0) {
-    proposal.architect = 1;
-  }
 
   const agents = [];
   if (proposal.architect > 0) agents.push({ role: 'Lead Architect', count: proposal.architect, account: 'getxobelaeskola@gmail.com' });
   if (proposal.data > 0) agents.push({ role: 'Data Master', count: proposal.data, account: 'ibaitnt@gmail.com' });
   if (proposal.ui > 0) agents.push({ role: 'UI Engine', count: proposal.ui, account: 'ibaitelexfree@gmail.com' });
 
+  const teamMsg = agents.map(a => `- ${a.role}: ${a.count} agente(s)`).join('\n');
+
+  // Telegram Notification
+  if (typeof sendTelegramMessage === 'function') {
+    sendTelegramMessage(`🤝 **Propuesta de Swarm**\n\n*Tarea:* ${prompt}\n*Complejidad:* ${complexity}\n\n*Equipo Propuesto:*\n${teamMsg}\n\n${req.body.dispatch ? '🚀 *Dispatching to n8n...*' : '⏳ *Esperando aprobación...*'}`)
+      .catch(e => console.error('[Negotiate] Telegram failed:', e.message));
+  }
+
   // Optional: Trigger n8n immediately if requested
-  const n8nWebhook = process.env.N8N_SWARM_DISPATCHER_URL;
+  const n8nWebhook = process.env.N8N_SWARM_DISPATCHER_URL || 'https://n8n.scarmonit.com/webhook/swarm-dispatcher';
   let n8nTriggered = false;
 
   if (n8nWebhook && req.body.dispatch === true) {

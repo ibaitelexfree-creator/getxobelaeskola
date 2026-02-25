@@ -19,27 +19,31 @@ export async function GET() {
             .eq('id', user.id)
             .single();
 
-        // 2. Fetch Inscriptions with relational joins to avoid in-memory merges
-        const { data: rawInscriptions, error: insError } = await supabase
+        // 2. Fetch Inscriptions with nested joins
+        const startInscriptions = performance.now();
+        const { data: inscriptionsData, error: inscriptionsError } = await supabase
             .from('inscripciones')
             .select(`
                 *,
-                cursos:curso_id (id, nombre_es, nombre_eu, slug),
-                ediciones_curso:edicion_id (
+                cursos:curso_id(id, nombre_es, nombre_eu, slug),
+                ediciones_curso:edicion_id(
                     id,
                     curso_id,
                     fecha_inicio,
                     fecha_fin,
-                    cursos:curso_id (id, nombre_es, nombre_eu, slug)
+                    cursos:curso_id(id, nombre_es, nombre_eu, slug)
                 )
             `)
             .eq('perfil_id', user.id);
 
-        if (insError) {
-            console.error('Error fetching inscriptions:', insError);
+        const endInscriptions = performance.now();
+        console.log(`[DashboardStats] Inscriptions fetch took: ${(endInscriptions - startInscriptions).toFixed(2)}ms`);
+
+        if (inscriptionsError) {
+            console.error('Error fetching inscriptions:', inscriptionsError);
         }
 
-        const enrichedInscriptions = rawInscriptions || [];
+        const enrichedInscriptions = inscriptionsData || [];
 
         // 3. Fetch Rentals
         const { data: rentals } = await supabase
@@ -148,21 +152,20 @@ export async function GET() {
             }
         });
 
-    } catch (error: unknown) {
-        const err = error as Record<string, unknown>;
+    } catch (error: any) {
         console.error('CRITICAL: Error fetching dashboard stats:', error);
 
         // Detailed error logging for debugging
-        if (err.code) console.error('Error Code:', err.code);
-        if (err.message) console.error('Error Message:', err.message);
-        if (err.details) console.error('Error Details:', err.details);
-        if (err.stack) console.error('Error Stack:', err.stack);
+        if (error.code) console.error('Error Code:', error.code);
+        if (error.message) console.error('Error Message:', error.message);
+        if (error.details) console.error('Error Details:', error.details);
+        if (error.stack) console.error('Error Stack:', error.stack);
 
         return NextResponse.json(
             {
                 error: 'Internal Server Error',
-                message: String(err.message || 'Unknown error'),
-                code: String(err.code || 'UNKNOWN')
+                message: error.message || 'Unknown error',
+                code: error.code || 'UNKNOWN'
             },
             { status: 500 }
         );

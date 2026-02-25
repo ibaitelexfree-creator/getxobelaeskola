@@ -17,6 +17,24 @@ global.ResizeObserver = class ResizeObserver {
   disconnect() {}
 };
 
+// Mock R3F and Drei to prevent import side-effect errors in JSDOM
+vi.mock('@react-three/fiber', () => ({
+  Canvas: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  useThree: () => ({ camera: { position: [0, 0, 0] }, gl: { domElement: document.createElement('canvas') }, events: {} }),
+  useFrame: () => {},
+  useLoader: () => ({}),
+  extend: () => {},
+}));
+
+vi.mock('@react-three/drei', () => ({
+  OrbitControls: () => null,
+  useGLTF: () => ({ nodes: {}, materials: {} }),
+  Environment: () => null,
+  Float: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  Html: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  Text: () => null,
+}));
+
 describe('Nomenclature 3D Components', () => {
   it('InfoOverlay renders without crashing', () => {
     const { container } = render(
@@ -41,7 +59,6 @@ describe('Nomenclature 3D Components', () => {
     expect(getByText('Pregunta de Repaso')).toBeDefined();
   });
 
-  // BoatModel requires Canvas context, so we just check it is a function
   it('BoatModel is a valid component', () => {
     expect(typeof BoatModel).toBe('function');
   });
