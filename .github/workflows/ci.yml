@@ -1,0 +1,59 @@
+name: ⚓ CI Pipeline
+
+on:
+    push:
+        branches: [main]
+    pull_request:
+        branches: [main]
+
+jobs:
+    quality-check:
+        name: 🛡️ Lints & Tests
+        runs-on: ubuntu-latest
+
+        steps:
+            - uses: actions/checkout@v4
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: 18
+                  cache: "npm"
+
+            - name: Install dependencies
+              run: npm ci
+
+            - name: 🔎 Lint
+              run: npm run lint
+
+            - name: 🏗️ Typecheck
+              run: npx tsc --noEmit
+
+            - name: 🧪 Unit Tests
+              run: npm run test
+
+    build:
+        name: 🧱 Build Verification
+        runs-on: ubuntu-latest
+        needs: quality-check
+
+        steps:
+            - uses: actions/checkout@v4
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: 18
+                  cache: "npm"
+
+            - name: Install dependencies
+              run: npm ci
+
+            - name: 🚀 Build Next.js
+              run: npm run build
+              env:
+                  NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+                  NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+                  # Mocking other envs if needed for build
+                  STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY || 'mock' }}
+                  SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY || 'mock' }}

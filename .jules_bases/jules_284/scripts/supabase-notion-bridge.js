@@ -3,7 +3,7 @@ const fs = require('fs');
 
 const SUPABASE_URL = process.env.SUPABASE_URL || 'https://xbledhifomblirxurtyv.supabase.co';
 const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
-const NOTION_TOKEN = process.env.NOTION_TOKEN || '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';
+const NOTION_TOKEN = process.env.NOTION_TOKEN || process.env.NOTION_TOKEN;
 
 const tableMap = JSON.parse(fs.readFileSync('scripts/table_to_notion_map.json', 'utf8'));
 const schema = JSON.parse(fs.readFileSync('supabase_schema.json', 'utf8'));

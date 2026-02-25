@@ -1,6 +1,6 @@
 import os
 
-file_path = r'c:\Users\User\Desktop\Saili8ng School Test\orchestration\index.js'
+file_path = r'c:\Users\User\Desktop\getxobelaeskola\orchestration\index.js'
 with open(file_path, 'r', encoding='utf-8') as f:
     content = f.read()
 

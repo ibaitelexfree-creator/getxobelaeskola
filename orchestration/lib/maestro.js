@@ -99,6 +99,9 @@ export class Maestro {
         // Start thermal monitoring
         this.thermal.start();
 
+        // Start Vercel polling (1 hora)
+        this.vercel.startPolling();
+
         // Start watchdog
         this.watchdog.start();
         console.log('[Maestro] 🐕 Watchdog activo.');

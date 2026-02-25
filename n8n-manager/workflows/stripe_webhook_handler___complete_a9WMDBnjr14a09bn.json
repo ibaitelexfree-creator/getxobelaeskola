@@ -1,0 +1,2187 @@
+{
+  "updatedAt": "2026-02-18T08:41:37.488Z",
+  "createdAt": "2026-02-14T03:35:17.774Z",
+  "id": "a9WMDBnjr14a09bn",
+  "name": "Stripe Webhook Handler - Complete",
+  "description": null,
+  "active": true,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## 🔄 Suscripción Actualizada\n\nAquí deberías:\n- Actualizar plan si cambió\n- Manejar upgrades/downgrades",
+        "height": 586,
+        "width": 300,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1664,
+        -2192
+      ],
+      "id": "59652b71-8af7-44c7-b38a-8a6053342ed4",
+      "name": "TODO: Subscription Updated Logic"
+    },
+    {
+      "parameters": {
+        "content": "## ❌ Suscripción Cancelada\n\nAquí deberías:\n- Desactivar acceso premium\n- Enviar email de cancelación\n- Guardar feedback si existe",
+        "height": 378,
+        "width": 268,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1664,
+        -1552
+      ],
+      "id": "6ca419c8-a5dd-4b3c-8d67-b1c9703595a9",
+      "name": "TODO: Subscription Deleted Logic"
+    },
+    {
+      "parameters": {
+        "content": "## ✅ Pago Exitoso\n\nAquí deberías:\n- Confirmar pago único\n- Enviar recibo\n- Desbloquear contenido",
+        "height": 394,
+        "width": 300,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1664,
+        -1120
+      ],
+      "id": "e86606ff-1ea2-4f8b-9a3f-d001a8f9813d",
+      "name": "TODO: Payment Succeeded Logic"
+    },
+    {
+      "parameters": {
+        "content": "## 🚨 Pago Fallido\n\nAquí deberías:\n- Notificar al usuario\n- Intentar cobrar de nuevo\n- Dar período de gracia",
+        "height": 330,
+        "width": 300
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1664,
+        -688
+      ],
+      "id": "3b0f7efd-8654-4869-aa90-b31b1cc20c25",
+      "name": "TODO: Payment Failed Logic"
+    },
+    {
+      "parameters": {
+        "content": "## 🔧 INSTRUCCIONES DE USO\n\n### 1️⃣ Actualiza tus credenciales de Supabase\n- Nodo \"Check if Event Exists\"\n- Nodo \"Log Event to DB\"\n\n### 2️⃣ Verifica tu schema de Supabase\nEjecuta este SQL:\n\n```sql\nCREATE TABLE IF NOT EXISTS stripe_events_log (\n  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,\n  stripe_event_id text NOT NULL UNIQUE,\n  event_type text NOT NULL,\n  stripe_created_at bigint NOT NULL,\n  livemode boolean DEFAULT false,\n  customer_id text,\n  email text,\n  subscription_id text,\n  payment_intent_id text,\n  amount_total integer,\n  currency text,\n  payment_status text,\n  user_id text,\n  stripe_product_id text,\n  created_at timestamptz DEFAULT now()\n);\n\nCREATE INDEX IF NOT EXISTS idx_stripe_events_customer \nON stripe_events_log(customer_id);\n\nCREATE INDEX IF NOT EXISTS idx_stripe_events_type \nON stripe_events_log(event_type);\n```\n\n### 3️⃣ Configura el webhook en Stripe\n- URL: https://tu-n8n.com/webhook/stripe-success\n- Eventos a escuchar:\n  - checkout.session.completed\n  - customer.subscription.created\n  - customer.subscription.updated\n  - customer.subscription.deleted\n  - payment_intent.succeeded\n  - payment_intent.payment_failed\n\n### 4️⃣ Implementa la lógica de negocio\nReemplaza los sticky notes con nodos reales según tu necesidad.",
+        "height": 680,
+        "width": 450,
+        "color": 2
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -576,
+        -1712
+      ],
+      "id": "7c8c18c7-efab-4d08-843f-2b2d7b46936e",
+      "name": "📖 INSTRUCCIONES"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.event_type }}",
+                    "rightValue": "checkout.session.completed",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "2bd90505-1046-473d-9eba-a3f83d8df649"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "checkout_completed"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.event_type }}",
+                    "rightValue": "customer.subscription.created",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "96a3afb6-beae-442d-aeba-467221c588c7"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "subscription_created"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.event_type }}",
+                    "rightValue": "customer.subscription.updated",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "b77655ee-ff07-4626-adba-821467b597b8"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "subscription_updated"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.event_type }}",
+                    "rightValue": "customer.subscription.deleted",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "28818e6c-9ccf-4bad-923e-617a43bcd3ce"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "subscription_deleted"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.event_type }}",
+                    "rightValue": "payment_intent.succeeded",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "57543c2f-659f-4aa0-b529-bc0caaa5ef05"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "payment_succeeded"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.event_type }}",
+                    "rightValue": "payment_intent.payment_failed",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "a4fa7fac-b48b-4505-ae88-ac0552df8653"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "payment_failed"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [
+        1264,
+        -1760
+      ],
+      "id": "377bcc5f-df8f-478a-a980-39f273ae5964",
+      "name": "Event Router1"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "profiles",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{$json.user_id}}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "status_socio",
+              "fieldValue": "activo"
+            },
+            {
+              "fieldId": "stripe_customer_id",
+              "fieldValue": "={{$json.customer}}"
+            },
+            {
+              "fieldId": "stripe_subscription_id",
+              "fieldValue": "={{$json.subscription}}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1744,
+        -2400
+      ],
+      "id": "e5fca741-7d22-4019-9de4-d08256cf6adc",
+      "name": "Checkout - Update Profile",
+      "credentials": {
+        "supabaseApi": {
+          "id": "5Ys7crLDNah5xZ5e",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "profiles",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{$json.user_id}}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "status_socio",
+              "fieldValue": "activo"
+            },
+            {
+              "fieldId": "stripe_customer_id",
+              "fieldValue": "={{$json.customer}}"
+            },
+            {
+              "fieldId": "stripe_subscription_id",
+              "fieldValue": "={{$json.subscription}}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1744,
+        -1968
+      ],
+      "id": "da33f26a-ceb5-4555-9f43-c85082d73389",
+      "name": "Sub Created - Update Profile",
+      "credentials": {
+        "supabaseApi": {
+          "id": "5Ys7crLDNah5xZ5e",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "profiles",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "stripe_subscription_id",
+              "condition": "eq",
+              "keyValue": "={{$json.subscription}}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "subscription_status",
+              "fieldValue": "={{ $json.full_object.status }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1744,
+        -1776
+      ],
+      "id": "4b6645aa-8f68-4d69-99dd-cc14bc4a07b4",
+      "name": "Sub Updated - Update Status",
+      "credentials": {
+        "supabaseApi": {
+          "id": "5Ys7crLDNah5xZ5e",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "profiles",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "stripe_subscription_id",
+              "condition": "eq",
+              "keyValue": "={{$json.subscription}}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "status_socio",
+              "fieldValue": "inactivo"
+            },
+            {
+              "fieldId": "subscription_status",
+              "fieldValue": "canceled"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1744,
+        -1344
+      ],
+      "id": "4a1778c2-a425-4876-8688-e55be025338a",
+      "name": "Sub Deleted - Deactivate User",
+      "credentials": {
+        "supabaseApi": {
+          "id": "5Ys7crLDNah5xZ5e",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "profiles",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "stripe_customer_id",
+              "condition": "eq",
+              "keyValue": "={{$json.customer}}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "last_payment_date",
+              "fieldValue": "={{ new Date().toISOString() }}"
+            },
+            {
+              "fieldId": "payment_status",
+              "fieldValue": "paid"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1744,
+        -896
+      ],
+      "id": "9e408791-19b0-4857-a56f-de777a75d74c",
+      "name": "Payment Success - Update",
+      "credentials": {
+        "supabaseApi": {
+          "id": "5Ys7crLDNah5xZ5e",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "profiles",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "stripe_customer_id",
+              "condition": "eq",
+              "keyValue": "={{$json.customer}}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "payment_status",
+              "fieldValue": "failed"
+            },
+            {
+              "fieldId": "payment_failed_at",
+              "fieldValue": "={{ new Date().toISOString() }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1744,
+        -512
+      ],
+      "id": "2234fc6b-d863-47b1-ae67-e7db65b5db46",
+      "name": "Payment Failed - Update",
+      "credentials": {
+        "supabaseApi": {
+          "id": "5Ys7crLDNah5xZ5e",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "your-slack-channel-id",
+          "mode": "list",
+          "cachedResultName": "#alerts"
+        },
+        "text": "=🚨 *Pago Fallido*\n\n*Cliente:* {{$json.email}}\n*Monto:* {{$json.amount_total}} {{$json.currency}}\n*Customer ID:* {{$json.customer}}\n*Razón:* Revisar en Stripe",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.1,
+      "position": [
+        2032,
+        -512
+      ],
+      "id": "a12bddc7-1872-49ad-b60b-7c812dae8429",
+      "name": "Payment Failed - Slack Alert",
+      "webhookId": "33b2e406-fcdf-4f9b-a61d-903d19677d2c",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "content": "## ℹ️ Evento Duplicado\n\nStripe puede enviar el mismo evento múltiples veces.\nEste branch ignora duplicados de forma segura.",
+        "height": 440,
+        "width": 236,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        528,
+        -2080
+      ],
+      "id": "e4ad88d1-62dc-4c6a-8bf5-85b1363566a6",
+      "name": "Info: Duplicate Handler1"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "stripe-success",
+        "options": {}
+      },
+      "name": "Stripe Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        -80,
+        -1792
+      ],
+      "id": "e8bbda31-b728-4c09-8d7c-4740009c51e5",
+      "webhookId": "864b7d4a-fc89-4cc1-8ec6-78af335e97f0"
+    },
+    {
+      "parameters": {
+        "jsCode": "const event = $json.body || $json;\nconst obj = event.data?.object || {};\n\n// Helper para extraer email de múltiples lugares posibles \nfunction extractEmail(obj) {\n  return obj.customer_details?.email ||\n         obj.customer_email ||\n         obj.billing_details?.email ||\n         obj.receipt_email ||\n         null;\n}\n\n// Helper para extraer product_id según tipo de objeto\nfunction extractProductId(obj) {\n  // Para subscriptions\n  if (obj.items?.data?.[0]?.price?.product) {\n    return obj.items.data[0].price.product;\n  }\n  // Para checkout sessions\n  if (obj.line_items?.data?.[0]?.price?.product) {\n    return obj.line_items.data[0].price.product;\n  }\n  // Desde metadata\n  return obj.metadata?.stripe_product_id || null;\n}\n\n// Helper para extraer amount según tipo de objeto\nfunction extractAmount(obj) {\n  // Checkout session\n  if (obj.amount_total) return obj.amount_total;\n  // Payment intent\n  if (obj.amount_received) return obj.amount_received;\n  if (obj.amount) return obj.amount;\n  // Subscription\n  if (obj.items?.data?.[0]?.price?.unit_amount) {\n    return obj.items.data[0].price.unit_amount;\n  }\n  return null;\n}\n\n// Construcción del resultado normalizado\nconst result = {\n  stripe_event_id: event.id,\n  event_type: event.type,\n  created: event.created,\n  livemode: event.livemode,\n\n  // IDs principales\n  customer: obj.customer || null,\n  subscription: obj.id && obj.object === 'subscription' ? obj.id : (obj.subscription || null),\n  payment_intent: obj.payment_intent || (obj.id && obj.object === 'payment_intent' ? obj.id : null),\n  \n  // Datos del pago\n  email: extractEmail(obj),\n  amount_total: extractAmount(obj),\n  currency: obj.currency || null,\n  payment_status: obj.payment_status || obj.status || null,\n\n  // Metadata\n  user_id: obj.metadata?.user_id || null,\n  stripe_product_id: extractProductId(obj),\n  \n  // Objeto completo para referencia\n  full_object: obj\n};\n\nreturn [{ json: result }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        144,
+        -1792
+      ],
+      "id": "04d9fe62-769e-42ee-b9a2-3905d43f241c",
+      "name": "Parse Stripe Event"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Leer datos del nodo Parse Stripe Event2\nconst eventData = $('Parse Stripe Event').first().json;\n\n// Log para debug\nconsole.log('Event Data a insertar:', JSON.stringify(eventData, null, 2));\n\nreturn [{\n  json: eventData\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        816,
+        -1888
+      ],
+      "id": "81311be2-7b9c-49db-a6ef-44467e10e7bf",
+      "name": "Restore Event Data"
+    },
+    {
+      "parameters": {
+        "tableId": "stripe_events_log",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "stripe_event_id",
+              "fieldValue": "={{$json.stripe_event_id}}"
+            },
+            {
+              "fieldId": "event_type",
+              "fieldValue": "={{$json.event_type}}"
+            },
+            {
+              "fieldId": "stripe_created_at",
+              "fieldValue": "={{$json.created}}"
+            },
+            {
+              "fieldId": "livemode",
+              "fieldValue": "={{$json.livemode}}"
+            },
+            {
+              "fieldId": "customer_id",
+              "fieldValue": "={{$json.customer}}"
+            },
+            {
+              "fieldId": "email",
+              "fieldValue": "={{$json.email}}"
+            },
+            {
+              "fieldId": "subscription_id",
+              "fieldValue": "={{$json.subscription}}"
+            },
+            {
+              "fieldId": "payment_intent_id",
+              "fieldValue": "={{$json.payment_intent}}"
+            },
+            {
+              "fieldId": "amount_total",
+              "fieldValue": "={{$json.amount_total}}"
+            },
+            {
+              "fieldId": "currency",
+              "fieldValue": "={{$json.currency}}"
+            },
+            {
+              "fieldId": "payment_status",
+              "fieldValue": "={{$json.payment_status}}"
+            },
+            {
+              "fieldId": "user_id",
+              "fieldValue": "={{$json.user_id}}"
+            },
+            {
+              "fieldId": "stripe_product_id",
+              "fieldValue": "={{$json.stripe_product_id}}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1040,
+        -1888
+      ],
+      "id": "518828a0-c337-4ec9-8355-0e32b505f02f",
+      "name": "Log Event to stripe_events_log1",
+      "credentials": {
+        "supabaseApi": {
+          "id": "5Ys7crLDNah5xZ5e",
+          "name": "Supabase account"
+        }
+      },
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "duplicate-check",
+              "leftValue": "={{ Object.keys($json).length }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        592,
+        -1792
+      ],
+      "id": "ed60d4ad-79af-4923-9dfa-45bfc58c55aa",
+      "name": "Is New Event?3"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "stripe_events_log",
+        "limit": 1,
+        "matchType": "allFilters",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "stripe_event_id",
+              "condition": "eq",
+              "keyValue": "={{$json.stripe_event_id}}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        368,
+        -1792
+      ],
+      "id": "4ee4b425-5213-4c09-a79e-15fda0613c98",
+      "name": "Check if Event Exists",
+      "alwaysOutputData": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "5Ys7crLDNah5xZ5e",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Leer los datos originales del evento parseado\nconst eventData = $('Parse Stripe Event').first().json;\n\nreturn [{\n  json: {\n    timestamp: new Date().toISOString(),\n    stripe_event_id: eventData.stripe_event_id || null,\n    event_type: eventData.event_type || 'customer.subscription.created',\n    error_type: 'duplicate_event',\n    customer_id: eventData.customer || null,\n    email: eventData.email || 'N/A',\n    subscription_id: eventData.subscription || eventData.full_object?.id || 'N/A',\n    amount: eventData.amount_total || 'N/A',\n    currency: eventData.currency || 'N/A',\n    status: eventData.payment_status || 'N/A',\n    livemode: eventData.livemode !== undefined ? eventData.livemode : 'N/A',\n    created_at: eventData.created ? new Date(eventData.created * 1000).toISOString() : 'N/A',\n    notes: 'Evento duplicado - Stripe reenvió el webhook',\n    raw_data: JSON.stringify(eventData.full_object || {})\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        816,
+        -1696
+      ],
+      "id": "72d010d7-6eb1-4e21-920e-7607ba5267c8",
+      "name": "Code in JavaScript2"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1BDDNdgzmvdd4LB-oeF3eGgsepkObpXhAbtIfq-oYAqY"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultName": "Logs"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "timestamp": "={{ $json.timestamp }}",
+            "stripe_event_id": "={{ $json.stripe_event_id }}",
+            "event_type": "={{ $json.event_type }}",
+            "error_type": "={{ $json.error_type }}",
+            "customer_id": "={{ $json.customer_id }}",
+            "email": "={{ $json.email }}",
+            "subscription_id": "={{ $json.subscription_id }}",
+            "amount": "={{ $json.amount }}",
+            "currency": "={{ $json.currency }}",
+            "status": "={{ $json.status }}",
+            "livemode": "={{ $json.livemode }}",
+            "created_at": "={{ $json.created_at }}",
+            "notes": "={{ $json.notes }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "timestamp",
+              "displayName": "timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "stripe_event_id",
+              "displayName": "stripe_event_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "event_type",
+              "displayName": "event_type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "error_type",
+              "displayName": "error_type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "customer_id",
+              "displayName": "customer_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "subscription_id",
+              "displayName": "subscription_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "amount",
+              "displayName": "amount",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "currency",
+              "displayName": "currency",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "livemode",
+              "displayName": "livemode",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "created_at",
+              "displayName": "created_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "notes",
+              "displayName": "notes",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1040,
+        -1696
+      ],
+      "id": "ad7fb716-fb05-427d-b79b-093f34dfc757",
+      "name": "Log Error to Google Sheets2",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "c2kS05iqaH0aLQpX",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Payment Failed - Update": {
+      "main": [
+        [
+          {
+            "node": "Payment Failed - Slack Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Event Router1": {
+      "main": [
+        [
+          {
+            "node": "Checkout - Update Profile",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Sub Created - Update Profile",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Sub Updated - Update Status",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Sub Deleted - Deactivate User",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Payment Success - Update",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Payment Failed - Update",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Stripe Webhook": {
+      "main": [
+        [
+          {
+            "node": "Parse Stripe Event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Stripe Event": {
+      "main": [
+        [
+          {
+            "node": "Check if Event Exists",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Restore Event Data": {
+      "main": [
+        [
+          {
+            "node": "Log Event to stripe_events_log1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is New Event?3": {
+      "main": [
+        [
+          {
+            "node": "Restore Event Data",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Code in JavaScript2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check if Event Exists": {
+      "main": [
+        [
+          {
+            "node": "Is New Event?3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript2": {
+      "main": [
+        [
+          {
+            "node": "Log Error to Google Sheets2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Error to Google Sheets2": {
+      "main": [
+        [
+          {
+            "node": "Event Router1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {},
+  "versionId": "ebd8f596-3db1-49bf-ac71-3fa48c3362ad",
+  "activeVersionId": "36532042-aa10-4042-975d-e24e5e176a79",
+  "versionCounter": 408,
+  "triggerCount": 1,
+  "shared": [
+    {
+      "updatedAt": "2026-02-14T03:35:17.774Z",
+      "createdAt": "2026-02-14T03:35:17.774Z",
+      "role": "workflow:owner",
+      "workflowId": "a9WMDBnjr14a09bn",
+      "projectId": "3Aa1TdMrn6HM1XQF",
+      "project": {
+        "updatedAt": "2026-02-12T16:07:27.309Z",
+        "createdAt": "2026-02-12T15:59:26.248Z",
+        "id": "3Aa1TdMrn6HM1XQF",
+        "name": "Urko Santillan <getxobelaeskola@gmail.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "creatorId": "ebf74c25-213c-46b9-a63b-e349de02195f",
+        "projectRelations": [
+          {
+            "updatedAt": "2026-02-12T15:59:26.248Z",
+            "createdAt": "2026-02-12T15:59:26.248Z",
+            "userId": "ebf74c25-213c-46b9-a63b-e349de02195f",
+            "projectId": "3Aa1TdMrn6HM1XQF",
+            "user": {
+              "updatedAt": "2026-02-25T06:07:46.200Z",
+              "createdAt": "2026-02-12T15:59:25.537Z",
+              "id": "ebf74c25-213c-46b9-a63b-e349de02195f",
+              "email": "getxobelaeskola@gmail.com",
+              "firstName": "Urko",
+              "lastName": "Santillan",
+              "personalizationAnswers": {
+                "version": "v4",
+                "personalization_survey_submitted_at": "2026-02-12T16:07:48.567Z",
+                "personalization_survey_n8n_version": "2.7.4",
+                "companySize": "<20",
+                "companyType": "education",
+                "role": "customer-support",
+                "reportedSource": "google"
+              },
+              "settings": {
+                "userActivated": true,
+                "easyAIWorkflowOnboarded": true,
+                "firstSuccessfulWorkflowId": "eeqPCy1bi0DhhlxA",
+                "userActivatedAt": 1771980703393,
+                "npsSurvey": {
+                  "waitingForResponse": true,
+                  "ignoredCount": 1,
+                  "lastShownAt": 1771404097551
+                }
+              },
+              "disabled": false,
+              "mfaEnabled": false,
+              "lastActiveAt": "2026-02-24",
+              "isPending": false
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "tags": [],
+  "activeVersion": {
+    "updatedAt": "2026-02-17T12:45:13.017Z",
+    "createdAt": "2026-02-17T06:25:01.687Z",
+    "versionId": "36532042-aa10-4042-975d-e24e5e176a79",
+    "workflowId": "a9WMDBnjr14a09bn",
+    "nodes": [
+      {
+        "parameters": {
+          "content": "## 🔄 Suscripción Actualizada\n\nAquí deberías:\n- Actualizar plan si cambió\n- Manejar upgrades/downgrades",
+          "height": 586,
+          "width": 300,
+          "color": 6
+        },
+        "type": "n8n-nodes-base.stickyNote",
+        "typeVersion": 1,
+        "position": [
+          1664,
+          -2192
+        ],
+        "id": "59652b71-8af7-44c7-b38a-8a6053342ed4",
+        "name": "TODO: Subscription Updated Logic"
+      },
+      {
+        "parameters": {
+          "content": "## ❌ Suscripción Cancelada\n\nAquí deberías:\n- Desactivar acceso premium\n- Enviar email de cancelación\n- Guardar feedback si existe",
+          "height": 378,
+          "width": 268,
+          "color": 7
+        },
+        "type": "n8n-nodes-base.stickyNote",
+        "typeVersion": 1,
+        "position": [
+          1664,
+          -1552
+        ],
+        "id": "6ca419c8-a5dd-4b3c-8d67-b1c9703595a9",
+        "name": "TODO: Subscription Deleted Logic"
+      },
+      {
+        "parameters": {
+          "content": "## ✅ Pago Exitoso\n\nAquí deberías:\n- Confirmar pago único\n- Enviar recibo\n- Desbloquear contenido",
+          "height": 394,
+          "width": 300,
+          "color": 4
+        },
+        "type": "n8n-nodes-base.stickyNote",
+        "typeVersion": 1,
+        "position": [
+          1664,
+          -1120
+        ],
+        "id": "e86606ff-1ea2-4f8b-9a3f-d001a8f9813d",
+        "name": "TODO: Payment Succeeded Logic"
+      },
+      {
+        "parameters": {
+          "content": "## 🚨 Pago Fallido\n\nAquí deberías:\n- Notificar al usuario\n- Intentar cobrar de nuevo\n- Dar período de gracia",
+          "height": 330,
+          "width": 300
+        },
+        "type": "n8n-nodes-base.stickyNote",
+        "typeVersion": 1,
+        "position": [
+          1664,
+          -688
+        ],
+        "id": "3b0f7efd-8654-4869-aa90-b31b1cc20c25",
+        "name": "TODO: Payment Failed Logic"
+      },
+      {
+        "parameters": {
+          "content": "## 🔧 INSTRUCCIONES DE USO\n\n### 1️⃣ Actualiza tus credenciales de Supabase\n- Nodo \"Check if Event Exists\"\n- Nodo \"Log Event to DB\"\n\n### 2️⃣ Verifica tu schema de Supabase\nEjecuta este SQL:\n\n```sql\nCREATE TABLE IF NOT EXISTS stripe_events_log (\n  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,\n  stripe_event_id text NOT NULL UNIQUE,\n  event_type text NOT NULL,\n  stripe_created_at bigint NOT NULL,\n  livemode boolean DEFAULT false,\n  customer_id text,\n  email text,\n  subscription_id text,\n  payment_intent_id text,\n  amount_total integer,\n  currency text,\n  payment_status text,\n  user_id text,\n  stripe_product_id text,\n  created_at timestamptz DEFAULT now()\n);\n\nCREATE INDEX IF NOT EXISTS idx_stripe_events_customer \nON stripe_events_log(customer_id);\n\nCREATE INDEX IF NOT EXISTS idx_stripe_events_type \nON stripe_events_log(event_type);\n```\n\n### 3️⃣ Configura el webhook en Stripe\n- URL: https://tu-n8n.com/webhook/stripe-success\n- Eventos a escuchar:\n  - checkout.session.completed\n  - customer.subscription.created\n  - customer.subscription.updated\n  - customer.subscription.deleted\n  - payment_intent.succeeded\n  - payment_intent.payment_failed\n\n### 4️⃣ Implementa la lógica de negocio\nReemplaza los sticky notes con nodos reales según tu necesidad.",
+          "height": 680,
+          "width": 450,
+          "color": 2
+        },
+        "type": "n8n-nodes-base.stickyNote",
+        "typeVersion": 1,
+        "position": [
+          -576,
+          -1712
+        ],
+        "id": "7c8c18c7-efab-4d08-843f-2b2d7b46936e",
+        "name": "📖 INSTRUCCIONES"
+      },
+      {
+        "parameters": {
+          "rules": {
+            "values": [
+              {
+                "conditions": {
+                  "options": {
+                    "caseSensitive": true,
+                    "leftValue": "",
+                    "typeValidation": "strict",
+                    "version": 1
+                  },
+                  "conditions": [
+                    {
+                      "leftValue": "={{ $json.event_type }}",
+                      "rightValue": "checkout.session.completed",
+                      "operator": {
+                        "type": "string",
+                        "operation": "equals"
+                      },
+                      "id": "2bd90505-1046-473d-9eba-a3f83d8df649"
+                    }
+                  ],
+                  "combinator": "and"
+                },
+                "renameOutput": true,
+                "outputKey": "checkout_completed"
+              },
+              {
+                "conditions": {
+                  "options": {
+                    "caseSensitive": true,
+                    "leftValue": "",
+                    "typeValidation": "strict",
+                    "version": 1
+                  },
+                  "conditions": [
+                    {
+                      "leftValue": "={{ $json.event_type }}",
+                      "rightValue": "customer.subscription.created",
+                      "operator": {
+                        "type": "string",
+                        "operation": "equals"
+                      },
+                      "id": "96a3afb6-beae-442d-aeba-467221c588c7"
+                    }
+                  ],
+                  "combinator": "and"
+                },
+                "renameOutput": true,
+                "outputKey": "subscription_created"
+              },
+              {
+                "conditions": {
+                  "options": {
+                    "caseSensitive": true,
+                    "leftValue": "",
+                    "typeValidation": "strict",
+                    "version": 1
+                  },
+                  "conditions": [
+                    {
+                      "leftValue": "={{ $json.event_type }}",
+                      "rightValue": "customer.subscription.updated",
+                      "operator": {
+                        "type": "string",
+                        "operation": "equals"
+                      },
+                      "id": "b77655ee-ff07-4626-adba-821467b597b8"
+                    }
+                  ],
+                  "combinator": "and"
+                },
+                "renameOutput": true,
+                "outputKey": "subscription_updated"
+              },
+              {
+                "conditions": {
+                  "options": {
+                    "caseSensitive": true,
+                    "leftValue": "",
+                    "typeValidation": "strict",
+                    "version": 1
+                  },
+                  "conditions": [
+                    {
+                      "leftValue": "={{ $json.event_type }}",
+                      "rightValue": "customer.subscription.deleted",
+                      "operator": {
+                        "type": "string",
+                        "operation": "equals"
+                      },
+                      "id": "28818e6c-9ccf-4bad-923e-617a43bcd3ce"
+                    }
+                  ],
+                  "combinator": "and"
+                },
+                "renameOutput": true,
+                "outputKey": "subscription_deleted"
+              },
+              {
+                "conditions": {
+                  "options": {
+                    "caseSensitive": true,
+                    "leftValue": "",
+                    "typeValidation": "strict",
+                    "version": 1
+                  },
+                  "conditions": [
+                    {
+                      "leftValue": "={{ $json.event_type }}",
+                      "rightValue": "payment_intent.succeeded",
+                      "operator": {
+                        "type": "string",
+                        "operation": "equals"
+                      },
+                      "id": "57543c2f-659f-4aa0-b529-bc0caaa5ef05"
+                    }
+                  ],
+                  "combinator": "and"
+                },
+                "renameOutput": true,
+                "outputKey": "payment_succeeded"
+              },
+              {
+                "conditions": {
+                  "options": {
+                    "caseSensitive": true,
+                    "leftValue": "",
+                    "typeValidation": "strict",
+                    "version": 1
+                  },
+                  "conditions": [
+                    {
+                      "leftValue": "={{ $json.event_type }}",
+                      "rightValue": "payment_intent.payment_failed",
+                      "operator": {
+                        "type": "string",
+                        "operation": "equals"
+                      },
+                      "id": "a4fa7fac-b48b-4505-ae88-ac0552df8653"
+                    }
+                  ],
+                  "combinator": "and"
+                },
+                "renameOutput": true,
+                "outputKey": "payment_failed"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.switch",
+        "typeVersion": 3,
+        "position": [
+          1264,
+          -1760
+        ],
+        "id": "377bcc5f-df8f-478a-a980-39f273ae5964",
+        "name": "Event Router1"
+      },
+      {
+        "parameters": {
+          "operation": "update",
+          "tableId": "profiles",
+          "filters": {
+            "conditions": [
+              {
+                "keyName": "id",
+                "condition": "eq",
+                "keyValue": "={{$json.user_id}}"
+              }
+            ]
+          },
+          "fieldsUi": {
+            "fieldValues": [
+              {
+                "fieldId": "status_socio",
+                "fieldValue": "activo"
+              },
+              {
+                "fieldId": "stripe_customer_id",
+                "fieldValue": "={{$json.customer}}"
+              },
+              {
+                "fieldId": "stripe_subscription_id",
+                "fieldValue": "={{$json.subscription}}"
+              }
+            ]
+          }
+        },
+        "type": "n8n-nodes-base.supabase",
+        "typeVersion": 1,
+        "position": [
+          1744,
+          -2400
+        ],
+        "id": "e5fca741-7d22-4019-9de4-d08256cf6adc",
+        "name": "Checkout - Update Profile",
+        "credentials": {
+          "supabaseApi": {
+            "id": "5Ys7crLDNah5xZ5e",
+            "name": "Supabase account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "update",
+          "tableId": "profiles",
+          "filters": {
+            "conditions": [
+              {
+                "keyName": "id",
+                "condition": "eq",
+                "keyValue": "={{$json.user_id}}"
+              }
+            ]
+          },
+          "fieldsUi": {
+            "fieldValues": [
+              {
+                "fieldId": "status_socio",
+                "fieldValue": "activo"
+              },
+              {
+                "fieldId": "stripe_customer_id",
+                "fieldValue": "={{$json.customer}}"
+              },
+              {
+                "fieldId": "stripe_subscription_id",
+                "fieldValue": "={{$json.subscription}}"
+              }
+            ]
+          }
+        },
+        "type": "n8n-nodes-base.supabase",
+        "typeVersion": 1,
+        "position": [
+          1744,
+          -1968
+        ],
+        "id": "da33f26a-ceb5-4555-9f43-c85082d73389",
+        "name": "Sub Created - Update Profile",
+        "credentials": {
+          "supabaseApi": {
+            "id": "5Ys7crLDNah5xZ5e",
+            "name": "Supabase account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "update",
+          "tableId": "profiles",
+          "filters": {
+            "conditions": [
+              {
+                "keyName": "stripe_subscription_id",
+                "condition": "eq",
+                "keyValue": "={{$json.subscription}}"
+              }
+            ]
+          },
+          "fieldsUi": {
+            "fieldValues": [
+              {
+                "fieldId": "subscription_status",
+                "fieldValue": "={{ $json.full_object.status }}"
+              }
+            ]
+          }
+        },
+        "type": "n8n-nodes-base.supabase",
+        "typeVersion": 1,
+        "position": [
+          1744,
+          -1776
+        ],
+        "id": "4b6645aa-8f68-4d69-99dd-cc14bc4a07b4",
+        "name": "Sub Updated - Update Status",
+        "credentials": {
+          "supabaseApi": {
+            "id": "5Ys7crLDNah5xZ5e",
+            "name": "Supabase account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "update",
+          "tableId": "profiles",
+          "filters": {
+            "conditions": [
+              {
+                "keyName": "stripe_subscription_id",
+                "condition": "eq",
+                "keyValue": "={{$json.subscription}}"
+              }
+            ]
+          },
+          "fieldsUi": {
+            "fieldValues": [
+              {
+                "fieldId": "status_socio",
+                "fieldValue": "inactivo"
+              },
+              {
+                "fieldId": "subscription_status",
+                "fieldValue": "canceled"
+              }
+            ]
+          }
+        },
+        "type": "n8n-nodes-base.supabase",
+        "typeVersion": 1,
+        "position": [
+          1744,
+          -1344
+        ],
+        "id": "4a1778c2-a425-4876-8688-e55be025338a",
+        "name": "Sub Deleted - Deactivate User",
+        "credentials": {
+          "supabaseApi": {
+            "id": "5Ys7crLDNah5xZ5e",
+            "name": "Supabase account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "update",
+          "tableId": "profiles",
+          "filters": {
+            "conditions": [
+              {
+                "keyName": "stripe_customer_id",
+                "condition": "eq",
+                "keyValue": "={{$json.customer}}"
+              }
+            ]
+          },
+          "fieldsUi": {
+            "fieldValues": [
+              {
+                "fieldId": "last_payment_date",
+                "fieldValue": "={{ new Date().toISOString() }}"
+              },
+              {
+                "fieldId": "payment_status",
+                "fieldValue": "paid"
+              }
+            ]
+          }
+        },
+        "type": "n8n-nodes-base.supabase",
+        "typeVersion": 1,
+        "position": [
+          1744,
+          -896
+        ],
+        "id": "9e408791-19b0-4857-a56f-de777a75d74c",
+        "name": "Payment Success - Update",
+        "credentials": {
+          "supabaseApi": {
+            "id": "5Ys7crLDNah5xZ5e",
+            "name": "Supabase account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "update",
+          "tableId": "profiles",
+          "filters": {
+            "conditions": [
+              {
+                "keyName": "stripe_customer_id",
+                "condition": "eq",
+                "keyValue": "={{$json.customer}}"
+              }
+            ]
+          },
+          "fieldsUi": {
+            "fieldValues": [
+              {
+                "fieldId": "payment_status",
+                "fieldValue": "failed"
+              },
+              {
+                "fieldId": "payment_failed_at",
+                "fieldValue": "={{ new Date().toISOString() }}"
+              }
+            ]
+          }
+        },
+        "type": "n8n-nodes-base.supabase",
+        "typeVersion": 1,
+        "position": [
+          1744,
+          -512
+        ],
+        "id": "2234fc6b-d863-47b1-ae67-e7db65b5db46",
+        "name": "Payment Failed - Update",
+        "credentials": {
+          "supabaseApi": {
+            "id": "5Ys7crLDNah5xZ5e",
+            "name": "Supabase account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "authentication": "oAuth2",
+          "select": "channel",
+          "channelId": {
+            "__rl": true,
+            "value": "your-slack-channel-id",
+            "mode": "list",
+            "cachedResultName": "#alerts"
+          },
+          "text": "=🚨 *Pago Fallido*\n\n*Cliente:* {{$json.email}}\n*Monto:* {{$json.amount_total}} {{$json.currency}}\n*Customer ID:* {{$json.customer}}\n*Razón:* Revisar en Stripe",
+          "otherOptions": {}
+        },
+        "type": "n8n-nodes-base.slack",
+        "typeVersion": 2.1,
+        "position": [
+          2032,
+          -512
+        ],
+        "id": "a12bddc7-1872-49ad-b60b-7c812dae8429",
+        "name": "Payment Failed - Slack Alert",
+        "webhookId": "33b2e406-fcdf-4f9b-a61d-903d19677d2c",
+        "disabled": true
+      },
+      {
+        "parameters": {
+          "content": "## ℹ️ Evento Duplicado\n\nStripe puede enviar el mismo evento múltiples veces.\nEste branch ignora duplicados de forma segura.",
+          "height": 440,
+          "width": 236,
+          "color": 3
+        },
+        "type": "n8n-nodes-base.stickyNote",
+        "typeVersion": 1,
+        "position": [
+          522,
+          -2072
+        ],
+        "id": "e4ad88d1-62dc-4c6a-8bf5-85b1363566a6",
+        "name": "Info: Duplicate Handler1"
+      },
+      {
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "stripe-success",
+          "options": {}
+        },
+        "name": "Stripe Webhook",
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 1,
+        "position": [
+          -80,
+          -1792
+        ],
+        "id": "e8bbda31-b728-4c09-8d7c-4740009c51e5",
+        "webhookId": "864b7d4a-fc89-4cc1-8ec6-78af335e97f0"
+      },
+      {
+        "parameters": {
+          "jsCode": "const event = $json.body || $json;\nconst obj = event.data?.object || {};\n\n// Helper para extraer email de múltiples lugares posibles \nfunction extractEmail(obj) {\n  return obj.customer_details?.email ||\n         obj.customer_email ||\n         obj.billing_details?.email ||\n         obj.receipt_email ||\n         null;\n}\n\n// Helper para extraer product_id según tipo de objeto\nfunction extractProductId(obj) {\n  // Para subscriptions\n  if (obj.items?.data?.[0]?.price?.product) {\n    return obj.items.data[0].price.product;\n  }\n  // Para checkout sessions\n  if (obj.line_items?.data?.[0]?.price?.product) {\n    return obj.line_items.data[0].price.product;\n  }\n  // Desde metadata\n  return obj.metadata?.stripe_product_id || null;\n}\n\n// Helper para extraer amount según tipo de objeto\nfunction extractAmount(obj) {\n  // Checkout session\n  if (obj.amount_total) return obj.amount_total;\n  // Payment intent\n  if (obj.amount_received) return obj.amount_received;\n  if (obj.amount) return obj.amount;\n  // Subscription\n  if (obj.items?.data?.[0]?.price?.unit_amount) {\n    return obj.items.data[0].price.unit_amount;\n  }\n  return null;\n}\n\n// Construcción del resultado normalizado\nconst result = {\n  stripe_event_id: event.id,\n  event_type: event.type,\n  created: event.created,\n  livemode: event.livemode,\n\n  // IDs principales\n  customer: obj.customer || null,\n  subscription: obj.id && obj.object === 'subscription' ? obj.id : (obj.subscription || null),\n  payment_intent: obj.payment_intent || (obj.id && obj.object === 'payment_intent' ? obj.id : null),\n  \n  // Datos del pago\n  email: extractEmail(obj),\n  amount_total: extractAmount(obj),\n  currency: obj.currency || null,\n  payment_status: obj.payment_status || obj.status || null,\n\n  // Metadata\n  user_id: obj.metadata?.user_id || null,\n  stripe_product_id: extractProductId(obj),\n  \n  // Objeto completo para referencia\n  full_object: obj\n};\n\nreturn [{ json: result }];"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          144,
+          -1792
+        ],
+        "id": "04d9fe62-769e-42ee-b9a2-3905d43f241c",
+        "name": "Parse Stripe Event"
+      },
+      {
+        "parameters": {
+          "jsCode": "// Leer datos del nodo Parse Stripe Event2\nconst eventData = $('Parse Stripe Event').first().json;\n\n// Log para debug\nconsole.log('Event Data a insertar:', JSON.stringify(eventData, null, 2));\n\nreturn [{\n  json: eventData\n}];"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          816,
+          -1888
+        ],
+        "id": "81311be2-7b9c-49db-a6ef-44467e10e7bf",
+        "name": "Restore Event Data"
+      },
+      {
+        "parameters": {
+          "tableId": "stripe_events_log",
+          "fieldsUi": {
+            "fieldValues": [
+              {
+                "fieldId": "stripe_event_id",
+                "fieldValue": "={{$json.stripe_event_id}}"
+              },
+              {
+                "fieldId": "event_type",
+                "fieldValue": "={{$json.event_type}}"
+              },
+              {
+                "fieldId": "stripe_created_at",
+                "fieldValue": "={{$json.created}}"
+              },
+              {
+                "fieldId": "livemode",
+                "fieldValue": "={{$json.livemode}}"
+              },
+              {
+                "fieldId": "customer_id",
+                "fieldValue": "={{$json.customer}}"
+              },
+              {
+                "fieldId": "email",
+                "fieldValue": "={{$json.email}}"
+              },
+              {
+                "fieldId": "subscription_id",
+                "fieldValue": "={{$json.subscription}}"
+              },
+              {
+                "fieldId": "payment_intent_id",
+                "fieldValue": "={{$json.payment_intent}}"
+              },
+              {
+                "fieldId": "amount_total",
+                "fieldValue": "={{$json.amount_total}}"
+              },
+              {
+                "fieldId": "currency",
+                "fieldValue": "={{$json.currency}}"
+              },
+              {
+                "fieldId": "payment_status",
+                "fieldValue": "={{$json.payment_status}}"
+              },
+              {
+                "fieldId": "user_id",
+                "fieldValue": "={{$json.user_id}}"
+              },
+              {
+                "fieldId": "stripe_product_id",
+                "fieldValue": "={{$json.stripe_product_id}}"
+              }
+            ]
+          }
+        },
+        "type": "n8n-nodes-base.supabase",
+        "typeVersion": 1,
+        "position": [
+          1040,
+          -1888
+        ],
+        "id": "518828a0-c337-4ec9-8355-0e32b505f02f",
+        "name": "Log Event to stripe_events_log1",
+        "credentials": {
+          "supabaseApi": {
+            "id": "5Ys7crLDNah5xZ5e",
+            "name": "Supabase account"
+          }
+        },
+        "continueOnFail": true
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 1
+            },
+            "conditions": [
+              {
+                "id": "duplicate-check",
+                "leftValue": "={{ Object.keys($json).length }}",
+                "rightValue": 0,
+                "operator": {
+                  "type": "number",
+                  "operation": "equals"
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2,
+        "position": [
+          592,
+          -1792
+        ],
+        "id": "ed60d4ad-79af-4923-9dfa-45bfc58c55aa",
+        "name": "Is New Event?3"
+      },
+      {
+        "parameters": {
+          "operation": "getAll",
+          "tableId": "stripe_events_log",
+          "limit": 1,
+          "matchType": "allFilters",
+          "filters": {
+            "conditions": [
+              {
+                "keyName": "stripe_event_id",
+                "condition": "eq",
+                "keyValue": "={{$json.stripe_event_id}}"
+              }
+            ]
+          }
+        },
+        "type": "n8n-nodes-base.supabase",
+        "typeVersion": 1,
+        "position": [
+          368,
+          -1792
+        ],
+        "id": "4ee4b425-5213-4c09-a79e-15fda0613c98",
+        "name": "Check if Event Exists",
+        "alwaysOutputData": true,
+        "credentials": {
+          "supabaseApi": {
+            "id": "5Ys7crLDNah5xZ5e",
+            "name": "Supabase account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "jsCode": "// Leer los datos originales del evento parseado\nconst eventData = $('Parse Stripe Event').first().json;\n\nreturn [{\n  json: {\n    timestamp: new Date().toISOString(),\n    stripe_event_id: eventData.stripe_event_id || null,\n    event_type: eventData.event_type || 'customer.subscription.created',\n    error_type: 'duplicate_event',\n    customer_id: eventData.customer || null,\n    email: eventData.email || 'N/A',\n    subscription_id: eventData.subscription || eventData.full_object?.id || 'N/A',\n    amount: eventData.amount_total || 'N/A',\n    currency: eventData.currency || 'N/A',\n    status: eventData.payment_status || 'N/A',\n    livemode: eventData.livemode !== undefined ? eventData.livemode : 'N/A',\n    created_at: eventData.created ? new Date(eventData.created * 1000).toISOString() : 'N/A',\n    notes: 'Evento duplicado - Stripe reenvió el webhook',\n    raw_data: JSON.stringify(eventData.full_object || {})\n  }\n}];"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          816,
+          -1696
+        ],
+        "id": "72d010d7-6eb1-4e21-920e-7607ba5267c8",
+        "name": "Code in JavaScript2"
+      },
+      {
+        "parameters": {
+          "operation": "append",
+          "documentId": {
+            "__rl": true,
+            "mode": "list",
+            "value": "1BDDNdgzmvdd4LB-oeF3eGgsepkObpXhAbtIfq-oYAqY"
+          },
+          "sheetName": {
+            "__rl": true,
+            "mode": "list",
+            "value": "gid=0",
+            "cachedResultName": "Logs"
+          },
+          "columns": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "timestamp": "={{ $json.timestamp }}",
+              "stripe_event_id": "={{ $json.stripe_event_id }}",
+              "event_type": "={{ $json.event_type }}",
+              "error_type": "={{ $json.error_type }}",
+              "customer_id": "={{ $json.customer_id }}",
+              "email": "={{ $json.email }}",
+              "subscription_id": "={{ $json.subscription_id }}",
+              "amount": "={{ $json.amount }}",
+              "currency": "={{ $json.currency }}",
+              "status": "={{ $json.status }}",
+              "livemode": "={{ $json.livemode }}",
+              "created_at": "={{ $json.created_at }}",
+              "notes": "={{ $json.notes }}"
+            },
+            "matchingColumns": [],
+            "schema": [
+              {
+                "id": "timestamp",
+                "displayName": "timestamp",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "stripe_event_id",
+                "displayName": "stripe_event_id",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "event_type",
+                "displayName": "event_type",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "error_type",
+                "displayName": "error_type",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "customer_id",
+                "displayName": "customer_id",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "email",
+                "displayName": "email",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "subscription_id",
+                "displayName": "subscription_id",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "amount",
+                "displayName": "amount",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "currency",
+                "displayName": "currency",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "status",
+                "displayName": "status",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "livemode",
+                "displayName": "livemode",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "created_at",
+                "displayName": "created_at",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "notes",
+                "displayName": "notes",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              }
+            ],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.googleSheets",
+        "typeVersion": 4.7,
+        "position": [
+          1040,
+          -1696
+        ],
+        "id": "ad7fb716-fb05-427d-b79b-093f34dfc757",
+        "name": "Log Error to Google Sheets2",
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "c2kS05iqaH0aLQpX",
+            "name": "Google Sheets account"
+          }
+        }
+      }
+    ],
+    "connections": {
+      "Payment Failed - Update": {
+        "main": [
+          [
+            {
+              "node": "Payment Failed - Slack Alert",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Event Router1": {
+        "main": [
+          [
+            {
+              "node": "Checkout - Update Profile",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Sub Created - Update Profile",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Sub Updated - Update Status",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Sub Deleted - Deactivate User",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Payment Success - Update",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Payment Failed - Update",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Stripe Webhook": {
+        "main": [
+          [
+            {
+              "node": "Parse Stripe Event",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Parse Stripe Event": {
+        "main": [
+          [
+            {
+              "node": "Check if Event Exists",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Restore Event Data": {
+        "main": [
+          [
+            {
+              "node": "Log Event to stripe_events_log1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Is New Event?3": {
+        "main": [
+          [
+            {
+              "node": "Restore Event Data",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Code in JavaScript2",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Check if Event Exists": {
+        "main": [
+          [
+            {
+              "node": "Is New Event?3",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Code in JavaScript2": {
+        "main": [
+          [
+            {
+              "node": "Log Error to Google Sheets2",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Log Error to Google Sheets2": {
+        "main": [
+          [
+            {
+              "node": "Event Router1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "authors": "Urko Santillan",
+    "name": "Version 36532042",
+    "description": "",
+    "autosaved": true,
+    "workflowPublishHistory": [
+      {
+        "createdAt": "2026-02-17T12:45:13.008Z",
+        "id": 26,
+        "workflowId": "a9WMDBnjr14a09bn",
+        "versionId": "36532042-aa10-4042-975d-e24e5e176a79",
+        "event": "activated",
+        "userId": "ebf74c25-213c-46b9-a63b-e349de02195f"
+      }
+    ]
+  }
+}

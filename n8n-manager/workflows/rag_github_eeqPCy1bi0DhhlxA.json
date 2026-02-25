@@ -1,0 +1,2433 @@
+{
+  "updatedAt": "2026-02-25T05:03:52.862Z",
+  "createdAt": "2026-02-24T19:46:03.788Z",
+  "id": "eeqPCy1bi0DhhlxA",
+  "name": "RAG GITHUB",
+  "description": null,
+  "active": true,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "url": "https://api.github.com/repos/ibaitelexfree-creator/getxobelaeskola/git/trees/main?recursive=1",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer {{ $env.GITHUB_TOKEN }}"
+            },
+            {
+              "name": "Accept",
+              "value": "application/vnd.github.v3+json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "693d94e7-4002-47b1-be4a-382414dddeeb",
+      "name": "GitHub: Obtener árbol de archivos1",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        496,
+        976
+      ],
+      "typeVersion": 4.2,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "462UMSGfpHCY0Ndb",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const tree = $input.first().json.tree || [];\n\nconst allowed = ['.ts', '.tsx', '.js', '.jsx', '.md', '.json', '.css', '.html', '.yml', '.yaml'];\nconst excluded = ['node_modules', '.git', 'dist', 'build', '.next', 'coverage'];\n\nconst files = tree.filter(f => {\n  if (f.type !== 'blob') return false;\n  if (excluded.some(ex => f.path.includes(ex))) return false;\n  return allowed.some(ext => f.path.endsWith(ext));\n});\n\nreturn files.map(f => ({ json: { path: f.path, sha: f.sha, url: f.url } }));"
+      },
+      "id": "bf73fdc3-e203-4d05-a3d0-079703bb4bd9",
+      "name": "GitHub: Filtrar archivos relevantes1",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        720,
+        976
+      ],
+      "typeVersion": 2
+    },
+    {
+      "parameters": {
+        "batchSize": 10,
+        "options": {}
+      },
+      "id": "6aad82a3-9356-4581-88cd-3d94c1ae77a1",
+      "name": "GitHub: Lotes de ",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        944,
+        976
+      ],
+      "typeVersion": 3
+    },
+    {
+      "parameters": {
+        "url": "=https://api.github.com/repos/ibaitelexfree-creator/getxobelaeskola/contents/{{ $json.path }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer {{ $env.GITHUB_TOKEN }}"
+            },
+            {
+              "name": "Accept",
+              "value": "application/vnd.github.v3+json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "1cdfb629-66b9-452e-8289-60f5295d020f",
+      "name": "GitHub: Descargar contenido archivo1",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1168,
+        976
+      ],
+      "typeVersion": 4.2,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "462UMSGfpHCY0Ndb",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\nconst output = [];\n\nfor (const item of items) {\n  const file = item.json;\n  if (!file.content) continue;\n\n  let content = '';\n  try {\n    content = Buffer.from(file.content, 'base64').toString('utf-8');\n  } catch(e) {\n    continue;\n  }\n\n  const chunkSize = 1500;\n  const overlap = 200;\n  const chunks = [];\n\n  for (let i = 0; i < content.length; i += chunkSize - overlap) {\n    chunks.push(content.slice(i, i + chunkSize));\n    if (i + chunkSize >= content.length) break;\n  }\n\n  chunks.forEach((chunk, idx) => {\n    output.push({\n      json: {\n        content: chunk,\n        filepath: file.path,\n        filename: file.path.split('/').pop(),\n        chunk_index: idx,\n        total_chunks: chunks.length,\n        source: 'github',\n        repo: 'ibaitelexfree-creator/getxobelaeskola',\n        indexed_at: new Date().toISOString()\n      }\n    });\n  });\n}\n\nreturn output;"
+      },
+      "id": "862dc1cd-bec4-4890-89ab-10cb8c6a85ad",
+      "name": "GitHub: Trocear en chunks1",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1392,
+        976
+      ],
+      "typeVersion": 2
+    },
+    {
+      "parameters": {
+        "jsCode": "const tables = [\n  'actividades','audit_logs','bonos_usuario','categorias','certificados',\n  'cursos','desafios_diarios','ediciones_curso','embarcaciones','evaluaciones',\n  'experiencias','financial_edits','habilidades','habilidades_alumno','horas_navegacion',\n  'inscripciones','instructores','intentos_desafios','intentos_evaluacion','legal_consents',\n  'logros','logros_alumno','mantenimiento_logs','marketing_campaigns','marketing_history',\n  'modulos','movimientos_bono','newsletter_subscriptions','newsletters','niveles_formacion',\n  'preguntas','profiles','progreso_alumno','reservas_alquiler','servicios_alquiler',\n  'sesion_asistentes','sesiones','stripe_events_log','tipos_bono','unidades_didacticas','weather_logs'\n];\n\nreturn tables.map(t => ({ json: { table_name: t } }));"
+      },
+      "id": "284e7bd7-480e-4e5e-aac6-c7496ba6474f",
+      "name": "Supabase: Lista de tablas1",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        720,
+        1168
+      ],
+      "typeVersion": 2
+    },
+    {
+      "parameters": {
+        "url": "=https://xbledhifomblirxurtyv.supabase.co/rest/v1/{{ $json.table_name }}?select=*&limit=1000",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "{{ $env.SUPABASE_SERVICE_ROLE_KEY }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer {{ $env.SUPABASE_SERVICE_ROLE_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "07723ceb-ecdc-42a7-ab88-904ffea93664",
+      "name": "Supabase: Leer tabla1",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1168,
+        1168
+      ],
+      "typeVersion": 4.2
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\nconst output = [];\nconst tableName = $('Supabase: Una tabla a la vez1').first().json.table_name;\n\nfor (const item of items) {\n  const rows = Array.isArray(item.json) ? item.json : [item.json];\n\n  rows.forEach((row, idx) => {\n    const content = JSON.stringify(row, null, 2);\n    output.push({\n      json: {\n        content: content,\n        filepath: `supabase/${tableName}`,\n        filename: `${tableName}_row_${idx}`,\n        table: tableName,\n        row_index: idx,\n        source: 'supabase',\n        indexed_at: new Date().toISOString()\n      }\n    });\n  });\n}\n\nreturn output;"
+      },
+      "id": "aa6e0a79-c584-4c94-9a14-40697b525316",
+      "name": "Supabase: Formatear filas1",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1392,
+        1168
+      ],
+      "typeVersion": 2
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = $input.first().json;\n\nreturn [{\n  json: {\n    text: item.content,\n    metadata: {\n      filepath: item.filepath || '',\n      filename: item.filename || '',\n      source: item.source || 'unknown',\n      table: item.table || '',\n      chunk_index: item.chunk_index || 0,\n      indexed_at: item.indexed_at || new Date().toISOString()\n    }\n  }\n}];"
+      },
+      "id": "e60dd67a-2aa8-498f-a7af-dffa26d02cab",
+      "name": "Unificar formato para Qdrant1",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1616,
+        1072
+      ],
+      "typeVersion": 2
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "qdrantCollection": {
+          "__rl": true,
+          "value": "getxobelaeskola_code",
+          "mode": "list"
+        },
+        "options": {}
+      },
+      "id": "1dc0ae3d-700c-4c29-992e-5a098558732f",
+      "name": "Qdrant Vector Store1",
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreQdrant",
+      "position": [
+        1920,
+        1056
+      ],
+      "typeVersion": 1,
+      "credentials": {
+        "qdrantApi": {
+          "id": "BKI5Kx2tihKTWCsJ",
+          "name": "QdrantApi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "text-embedding-3-large",
+        "options": {}
+      },
+      "id": "74e0514d-2297-4493-87d5-dd086b47ed67",
+      "name": "OpenAI Embeddings1",
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "position": [
+        1888,
+        1296
+      ],
+      "typeVersion": 1.1,
+      "credentials": {
+        "openAiApi": {
+          "id": "hJ48bwYLNQIwKR5P",
+          "name": "OpenAi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonMode": "expressionData",
+        "jsonData": "=={{ $input.first().json.text }}",
+        "options": {
+          "metadata": {
+            "metadataValues": [
+              {
+                "name": "filepath",
+                "value": "={{ $json.metadata.filepath }}"
+              },
+              {
+                "name": "filename",
+                "value": "={{ $json.metadata.filename }}"
+              },
+              {
+                "name": "source",
+                "value": "={{ $json.metadata.source }}"
+              },
+              {
+                "name": "table",
+                "value": "={{ $json.metadata.table }}"
+              },
+              {
+                "name": "indexed_at",
+                "value": "={{ $json.metadata.indexed_at }}"
+              }
+            ]
+          }
+        }
+      },
+      "id": "35366dfc-2874-4947-9e0c-b19e8daaafeb",
+      "name": "Document Loader1",
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "position": [
+        2016,
+        1296
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "owner": {
+          "__rl": true,
+          "value": "ibaitelexfree-creator",
+          "mode": "list",
+          "cachedResultName": "ibaitelexfree-creator",
+          "cachedResultUrl": "https://github.com/ibaitelexfree-creator"
+        },
+        "repository": {
+          "__rl": true,
+          "value": "getxobelaeskola",
+          "mode": "list",
+          "cachedResultName": "getxobelaeskola",
+          "cachedResultUrl": "https://github.com/ibaitelexfree-creator/getxobelaeskola"
+        },
+        "events": [
+          "push",
+          "pull_request"
+        ],
+        "options": {}
+      },
+      "type": "n8n-nodes-base.githubTrigger",
+      "typeVersion": 1,
+      "position": [
+        224,
+        1088
+      ],
+      "id": "1a5f8327-8c42-4d1c-809d-eab825ae9c67",
+      "name": "Github Trigger1",
+      "webhookId": "24d04de6-a1ae-4886-9a34-a357e6f8ea53",
+      "credentials": {
+        "githubOAuth2Api": {
+          "id": "FEiTD4R694PFBsk6",
+          "name": "GitHub account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "8b288a01-4750-4f76-90cf-23e626448c03",
+      "name": "Supabase: Una tabla a la vez",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        944,
+        1360
+      ],
+      "typeVersion": 3
+    },
+    {
+      "parameters": {
+        "chunkSize": 1500,
+        "chunkOverlap": 200,
+        "options": {}
+      },
+      "id": "1bd4932e-0139-46d0-a1d1-06c96e037b36",
+      "name": "Text Splitter",
+      "type": "@n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter",
+      "position": [
+        2096,
+        1504
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolDescription": "emails_vector_search",
+        "pineconeIndex": {
+          "__rl": true,
+          "value": "emailshistory",
+          "mode": "list",
+          "cachedResultName": "emailshistory"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+      "typeVersion": 1.3,
+      "position": [
+        736,
+        304
+      ],
+      "id": "6a307bd5-2566-427a-8e7a-db7177e909d0",
+      "name": "Pinecone Vector Store1",
+      "credentials": {
+        "pineconeApi": {
+          "id": "zkLu855wTsM48Krf",
+          "name": "PineconeApi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "b44c37b7-85a3-46be-b64e-23fc1bb31e78",
+      "name": "Embeddings OpenAI",
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "position": [
+        656,
+        624
+      ],
+      "typeVersion": 1.1,
+      "credentials": {
+        "openAiApi": {
+          "id": "hJ48bwYLNQIwKR5P",
+          "name": "OpenAi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "separator": "Email details:"
+      },
+      "id": "a79652c3-a048-4ee2-ba91-3e42dcc5a81a",
+      "name": "Split emails1",
+      "type": "@n8n/n8n-nodes-langchain.textSplitterCharacterTextSplitter",
+      "position": [
+        2064,
+        608
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "jsonMode": "expressionData",
+        "jsonData": "=Email details:\nDate: {{ $json.headers.date }}\n\nFrom Email: {{ $json.from.value[0].address }}\nFrom Name:  {{ $json.from.value[0].name }}\n\nTo Email: {{ $json.to.value[0].address }}\n\nEmail Subject:\n{{ $json.subject }}\n\nEmail body:\n{{ $json.text }}",
+        "options": {
+          "metadata": {
+            "metadataValues": [
+              {
+                "name": "=data_source",
+                "value": "=gmail"
+              },
+              {
+                "name": "=created_at",
+                "value": "={{ $json.date }}"
+              }
+            ]
+          }
+        }
+      },
+      "id": "6dc86dbc-cd84-4590-b943-8642d85919f6",
+      "name": "Set proper metadata1",
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "position": [
+        1984,
+        432
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "messageId": "={{ $json.id }}",
+        "simple": false,
+        "options": {}
+      },
+      "id": "c51e4797-fb58-4284-9415-5587d88cb475",
+      "name": "Get new Email Body",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        1568,
+        224
+      ],
+      "webhookId": "3ffed29f-141a-41bc-bded-e2614b7cf6d7",
+      "typeVersion": 2.1,
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "sdQRBVeYDTIwhWzZ",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "filters": {}
+      },
+      "id": "5a0f9646-841e-41b1-b3cb-321cca85f708",
+      "name": "New Email",
+      "type": "n8n-nodes-base.gmailTrigger",
+      "position": [
+        1344,
+        224
+      ],
+      "typeVersion": 1.2,
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "sdQRBVeYDTIwhWzZ",
+          "name": "Gmail account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "qdrantCollection": {
+          "__rl": true,
+          "mode": "list",
+          "value": "emails_history",
+          "cachedResultName": "emails_history"
+        },
+        "options": {}
+      },
+      "id": "e7d4888f-d000-4a98-8bdb-0370879a9ddf",
+      "name": "Store Emails in Vector DB",
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreQdrant",
+      "position": [
+        1840,
+        224
+      ],
+      "typeVersion": 1.1,
+      "credentials": {
+        "qdrantApi": {
+          "id": "BKI5Kx2tihKTWCsJ",
+          "name": "QdrantApi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "id": "d7204bdc-0e37-4010-a8f5-185d8745887b",
+      "name": "Simple Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "position": [
+        576,
+        352
+      ],
+      "typeVersion": 1.3
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "dee6e95d-75df-4af4-989a-92cc45865e71",
+      "name": "When chat message received",
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "position": [
+        192,
+        128
+      ],
+      "webhookId": "b7170e9c-42c2-45af-86ae-b0b6ef688a33",
+      "typeVersion": 1.1,
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "content": "# Get All Emails -> Store embedding in vector db\n#### Code in JavaScript doe nohing, alo we hae o run it maually in th node GetEmailsList email replacing: \nSearch Filters / UID / 1:99",
+        "height": 772,
+        "width": 2380
+      },
+      "id": "cf51ffc5-8d84-4bc6-87de-8f6c1210c693",
+      "name": "Sticky Note11",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -32,
+        864
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "# Watch Trigger (Email) - New Email\n## Get new Email -> Extract the text -> Add to Vector Store",
+        "height": 788,
+        "width": 1168,
+        "color": 4
+      },
+      "id": "b6827741-9f7c-4669-b81d-7ec0cce496f6",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1216,
+        0
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "4be681ef-d953-4334-8751-47795485ccf1",
+      "name": "Embeddings OpenAI5",
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "position": [
+        1728,
+        464
+      ],
+      "typeVersion": 1.1,
+      "credentials": {
+        "openAiApi": {
+          "id": "hJ48bwYLNQIwKR5P",
+          "name": "OpenAi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "=You are a helpful assistant that will get data from RAG and send a good response to user.\n\nToday date is this if user ask for dated or latest data: {{ $now }}\n\nSo add date when send query to vector database because I am already setting the date field in embedding."
+        }
+      },
+      "id": "31819eb5-1264-44e4-a2c1-1e4746e00bba",
+      "name": "RAG Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        496,
+        128
+      ],
+      "typeVersion": 1.7
+    },
+    {
+      "parameters": {
+        "content": "# RAG AI Agent\n",
+        "height": 796,
+        "width": 1162
+      },
+      "id": "833316b8-b145-4026-b007-83e81d6f3c10",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        0
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "be6c57e2-b660-4497-be85-7dcab48a6c04",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        400,
+        352
+      ],
+      "typeVersion": 1,
+      "credentials": {
+        "openAiApi": {
+          "id": "hJ48bwYLNQIwKR5P",
+          "name": "OpenAi account 2"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "GitHub: Obtener árbol de archivos1": {
+      "main": [
+        [
+          {
+            "node": "GitHub: Filtrar archivos relevantes1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GitHub: Filtrar archivos relevantes1": {
+      "main": [
+        [
+          {
+            "node": "GitHub: Lotes de ",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GitHub: Lotes de ": {
+      "main": [
+        [],
+        [
+          {
+            "node": "GitHub: Descargar contenido archivo1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GitHub: Descargar contenido archivo1": {
+      "main": [
+        [
+          {
+            "node": "GitHub: Trocear en chunks1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GitHub: Trocear en chunks1": {
+      "main": [
+        [
+          {
+            "node": "Unificar formato para Qdrant1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase: Lista de tablas1": {
+      "main": [
+        [
+          {
+            "node": "Supabase: Una tabla a la vez",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase: Leer tabla1": {
+      "main": [
+        [
+          {
+            "node": "Supabase: Formatear filas1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase: Formatear filas1": {
+      "main": [
+        [
+          {
+            "node": "Unificar formato para Qdrant1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Unificar formato para Qdrant1": {
+      "main": [
+        [
+          {
+            "node": "Qdrant Vector Store1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Embeddings1": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Qdrant Vector Store1",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Document Loader1": {
+      "ai_document": [
+        [
+          {
+            "node": "Qdrant Vector Store1",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Github Trigger1": {
+      "main": [
+        [
+          {
+            "node": "GitHub: Obtener árbol de archivos1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Supabase: Lista de tablas1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase: Una tabla a la vez": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Supabase: Leer tabla1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Text Splitter": {
+      "ai_textSplitter": [
+        [
+          {
+            "node": "Document Loader1",
+            "type": "ai_textSplitter",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Pinecone Vector Store1",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split emails1": {
+      "ai_textSplitter": [
+        [
+          {
+            "node": "Set proper metadata1",
+            "type": "ai_textSplitter",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "New Email": {
+      "main": [
+        [
+          {
+            "node": "Get new Email Body",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set proper metadata1": {
+      "ai_document": [
+        [
+          {
+            "node": "Store Emails in Vector DB",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get new Email Body": {
+      "main": [
+        [
+          {
+            "node": "Store Emails in Vector DB",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI5": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Store Emails in Vector DB",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pinecone Vector Store1": {
+      "ai_tool": [
+        [
+          {
+            "node": "RAG Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "RAG Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "RAG Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "RAG Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "staticData": {
+    "node:Github Trigger1": {
+      "webhookId": 597840408,
+      "webhookEvents": [
+        "pull_request",
+        "push"
+      ],
+      "webhookSecret": "3ce2f91af6a15efe9b5a49ce490330f0012771c44af7a4390491b59a533afc34"
+    }
+  },
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {
+    "Github Trigger1": [
+      {
+        "json": {
+          "body": {
+            "ref": "refs/heads/test-n8n-webhook-trigger",
+            "before": "bd60b94729c8137ace16a6906afb77ef1422801e",
+            "after": "153e01fe3647f335394204cddac6a9b1606175d9",
+            "repository": {
+              "id": 1157132533,
+              "node_id": "R_kgDORPhw9Q",
+              "name": "getxobelaeskola",
+              "full_name": "ibaitelexfree-creator/getxobelaeskola",
+              "private": true,
+              "owner": {
+                "name": "ibaitelexfree-creator",
+                "email": "getxobelaeskola@gmail.com",
+                "login": "ibaitelexfree-creator",
+                "id": 247534094,
+                "node_id": "U_kgDODsESDg",
+                "avatar_url": "https://avatars.githubusercontent.com/u/247534094?v=4",
+                "gravatar_id": "",
+                "url": "https://api.github.com/users/ibaitelexfree-creator",
+                "html_url": "https://github.com/ibaitelexfree-creator",
+                "followers_url": "https://api.github.com/users/ibaitelexfree-creator/followers",
+                "following_url": "https://api.github.com/users/ibaitelexfree-creator/following{/other_user}",
+                "gists_url": "https://api.github.com/users/ibaitelexfree-creator/gists{/gist_id}",
+                "starred_url": "https://api.github.com/users/ibaitelexfree-creator/starred{/owner}{/repo}",
+                "subscriptions_url": "https://api.github.com/users/ibaitelexfree-creator/subscriptions",
+                "organizations_url": "https://api.github.com/users/ibaitelexfree-creator/orgs",
+                "repos_url": "https://api.github.com/users/ibaitelexfree-creator/repos",
+                "events_url": "https://api.github.com/users/ibaitelexfree-creator/events{/privacy}",
+                "received_events_url": "https://api.github.com/users/ibaitelexfree-creator/received_events",
+                "type": "User",
+                "user_view_type": "public",
+                "site_admin": false
+              },
+              "html_url": "https://github.com/ibaitelexfree-creator/getxobelaeskola",
+              "description": "Escuela de Bela de Getxo",
+              "fork": false,
+              "url": "https://api.github.com/repos/ibaitelexfree-creator/getxobelaeskola",
+              "forks_url": "https://api.github.com/repos/ibaitelexfree-creator/getxobelaeskola/forks",
+              "keys_url": "https://api.github.com/repos/ibaitelexfree-creator/getxobelaeskola/keys{/key_id}",
+              "collaborators_url": "https://api.github.com/repos/ibaitelexfree-creator/getxobelaeskola/collaborators{/collaborator}",
+              "teams_url": "https://api.github.com/repos/ibaitelexfree-creator/getxobelaeskola/teams",
+              "hooks_url": "https://api.github.com/repos/ibaitelexfree-creator/getxobelaeskola/hooks",
+              "issue_events_url": "https://api.github.com/repos/ibaitelexfree-creator/getxobelaeskola/issues/events{/number}",
+              "events_url": "https://api.github.com/repos/ibaitelexfree-creator/getxobelaeskola/events",
+              "assignees_url": "https://api.github.com/repos/ibaitelexfree-creator/getxobelaeskola/assignees{/user}",
+              "branches_url": "https://api.github.com/repos/ibaitelexfree-creator/getxobelaeskola/branches{/branch}",
+              "tags_url": "https://api.github.com/repos/ibaitelexfree-creator/getxobelaeskola/tags",
+              "blobs_url": "https://api.github.com/repos/ibaitelexfree-creator/getxobelaeskola/git/blobs{/sha}",
+              "git_tags_url": "https://api.github.com/repos/ibaitelexfree-creator/getxobelaeskola/git/tags{/sha}",
+              "git_refs_url": "https://api.github.com/repos/ibaitelexfree-creator/getxobelaeskola/git/refs{/sha}",
+              "trees_url": "https://api.github.com/repos/ibaitelexfree-creator/getxobelaeskola/git/trees{/sha}",
+              "statuses_url": "https://api.github.com/repos/ibaitelexfree-creator/getxobelaeskola/statuses/{sha}",
+              "languages_url": "https://api.github.com/repos/ibaitelexfree-creator/getxobelaeskola/languages",
+              "stargazers_url": "https://api.github.com/repos/ibaitelexfree-creator/getxobelaeskola/stargazers",
+              "contributors_url": "https://api.github.com/repos/ibaitelexfree-creator/getxobelaeskola/contributors",
+              "subscribers_url": "https://api.github.com/repos/ibaitelexfree-creator/getxobelaeskola/subscribers",
+              "subscription_url": "https://api.github.com/repos/ibaitelexfree-creator/getxobelaeskola/subscription",
+              "commits_url": "https://api.github.com/repos/ibaitelexfree-creator/getxobelaeskola/commits{/sha}",
+              "git_commits_url": "https://api.github.com/repos/ibaitelexfree-creator/getxobelaeskola/git/commits{/sha}",
+              "comments_url": "https://api.github.com/repos/ibaitelexfree-creator/getxobelaeskola/comments{/number}",
+              "issue_comment_url": "https://api.github.com/repos/ibaitelexfree-creator/getxobelaeskola/issues/comments{/number}",
+              "contents_url": "https://api.github.com/repos/ibaitelexfree-creator/getxobelaeskola/contents/{+path}",
+              "compare_url": "https://api.github.com/repos/ibaitelexfree-creator/getxobelaeskola/compare/{base}...{head}",
+              "merges_url": "https://api.github.com/repos/ibaitelexfree-creator/getxobelaeskola/merges",
+              "archive_url": "https://api.github.com/repos/ibaitelexfree-creator/getxobelaeskola/{archive_format}{/ref}",
+              "downloads_url": "https://api.github.com/repos/ibaitelexfree-creator/getxobelaeskola/downloads",
+              "issues_url": "https://api.github.com/repos/ibaitelexfree-creator/getxobelaeskola/issues{/number}",
+              "pulls_url": "https://api.github.com/repos/ibaitelexfree-creator/getxobelaeskola/pulls{/number}",
+              "milestones_url": "https://api.github.com/repos/ibaitelexfree-creator/getxobelaeskola/milestones{/number}",
+              "notifications_url": "https://api.github.com/repos/ibaitelexfree-creator/getxobelaeskola/notifications{?since,all,participating}",
+              "labels_url": "https://api.github.com/repos/ibaitelexfree-creator/getxobelaeskola/labels{/name}",
+              "releases_url": "https://api.github.com/repos/ibaitelexfree-creator/getxobelaeskola/releases{/id}",
+              "deployments_url": "https://api.github.com/repos/ibaitelexfree-creator/getxobelaeskola/deployments",
+              "created_at": 1770988859,
+              "updated_at": "2026-02-24T23:33:26Z",
+              "pushed_at": 1771995389,
+              "git_url": "git://github.com/ibaitelexfree-creator/getxobelaeskola.git",
+              "ssh_url": "git@github.com:ibaitelexfree-creator/getxobelaeskola.git",
+              "clone_url": "https://github.com/ibaitelexfree-creator/getxobelaeskola.git",
+              "svn_url": "https://github.com/ibaitelexfree-creator/getxobelaeskola",
+              "homepage": "https://getxobelaeskola.vercel.app",
+              "size": 131841,
+              "stargazers_count": 0,
+              "watchers_count": 0,
+              "language": "TypeScript",
+              "has_issues": true,
+              "has_projects": true,
+              "has_downloads": true,
+              "has_wiki": false,
+              "has_pages": false,
+              "has_discussions": false,
+              "forks_count": 0,
+              "mirror_url": null,
+              "archived": false,
+              "disabled": false,
+              "open_issues_count": 205,
+              "license": null,
+              "allow_forking": true,
+              "is_template": false,
+              "web_commit_signoff_required": false,
+              "has_pull_requests": true,
+              "pull_request_creation_policy": "all",
+              "topics": [],
+              "visibility": "private",
+              "forks": 0,
+              "open_issues": 205,
+              "watchers": 0,
+              "default_branch": "main",
+              "stargazers": 0,
+              "master_branch": "main"
+            },
+            "pusher": {
+              "name": "ibaitelexfree-creator",
+              "email": "getxobelaeskola@gmail.com"
+            },
+            "forced": false,
+            "sender": {
+              "login": "ibaitelexfree-creator",
+              "id": 247534094,
+              "node_id": "U_kgDODsESDg",
+              "avatar_url": "https://avatars.githubusercontent.com/u/247534094?v=4",
+              "gravatar_id": "",
+              "url": "https://api.github.com/users/ibaitelexfree-creator",
+              "html_url": "https://github.com/ibaitelexfree-creator",
+              "followers_url": "https://api.github.com/users/ibaitelexfree-creator/followers",
+              "following_url": "https://api.github.com/users/ibaitelexfree-creator/following{/other_user}",
+              "gists_url": "https://api.github.com/users/ibaitelexfree-creator/gists{/gist_id}",
+              "starred_url": "https://api.github.com/users/ibaitelexfree-creator/starred{/owner}{/repo}",
+              "subscriptions_url": "https://api.github.com/users/ibaitelexfree-creator/subscriptions",
+              "organizations_url": "https://api.github.com/users/ibaitelexfree-creator/orgs",
+              "repos_url": "https://api.github.com/users/ibaitelexfree-creator/repos",
+              "events_url": "https://api.github.com/users/ibaitelexfree-creator/events{/privacy}",
+              "received_events_url": "https://api.github.com/users/ibaitelexfree-creator/received_events",
+              "type": "User",
+              "user_view_type": "public",
+              "site_admin": false
+            },
+            "created": false,
+            "deleted": false,
+            "base_ref": null,
+            "compare": "https://github.com/ibaitelexfree-creator/getxobelaeskola/compare/bd60b94729c8...153e01fe3647",
+            "commits": [
+              {
+                "id": "153e01fe3647f335394204cddac6a9b1606175d9",
+                "tree_id": "25abd1d88fcedccac92d97d7ca802ca58ae6a0ea",
+                "distinct": true,
+                "message": "test",
+                "timestamp": "2026-02-25T11:56:21+07:00",
+                "url": "https://github.com/ibaitelexfree-creator/getxobelaeskola/commit/153e01fe3647f335394204cddac6a9b1606175d9",
+                "author": {
+                  "name": "ibaitelexfree-creator",
+                  "email": "getxobelaeskola@gmail.com",
+                  "date": "2026-02-25T11:56:21+07:00",
+                  "username": "ibaitelexfree-creator"
+                },
+                "committer": {
+                  "name": "ibaitelexfree-creator",
+                  "email": "getxobelaeskola@gmail.com",
+                  "date": "2026-02-25T11:56:21+07:00",
+                  "username": "ibaitelexfree-creator"
+                },
+                "added": [],
+                "removed": [],
+                "modified": [
+                  "ARCHITECTURE.md",
+                  "test-vercel.js"
+                ]
+              }
+            ],
+            "head_commit": {
+              "id": "153e01fe3647f335394204cddac6a9b1606175d9",
+              "tree_id": "25abd1d88fcedccac92d97d7ca802ca58ae6a0ea",
+              "distinct": true,
+              "message": "test",
+              "timestamp": "2026-02-25T11:56:21+07:00",
+              "url": "https://github.com/ibaitelexfree-creator/getxobelaeskola/commit/153e01fe3647f335394204cddac6a9b1606175d9",
+              "author": {
+                "name": "ibaitelexfree-creator",
+                "email": "getxobelaeskola@gmail.com",
+                "date": "2026-02-25T11:56:21+07:00",
+                "username": "ibaitelexfree-creator"
+              },
+              "committer": {
+                "name": "ibaitelexfree-creator",
+                "email": "getxobelaeskola@gmail.com",
+                "date": "2026-02-25T11:56:21+07:00",
+                "username": "ibaitelexfree-creator"
+              },
+              "added": [],
+              "removed": [],
+              "modified": [
+                "ARCHITECTURE.md",
+                "test-vercel.js"
+              ]
+            }
+          },
+          "headers": {
+            "host": "n8n.srv1368175.hstgr.cloud",
+            "user-agent": "GitHub-Hookshot/1981a48",
+            "content-length": "8918",
+            "accept": "*/*",
+            "content-type": "application/json",
+            "x-forwarded-for": "140.82.115.124",
+            "x-forwarded-host": "n8n.srv1368175.hstgr.cloud",
+            "x-forwarded-port": "443",
+            "x-forwarded-proto": "https",
+            "x-forwarded-server": "a66d504453a4",
+            "x-github-delivery": "592bb4d4-1206-11f1-8045-1d84a01a0b14",
+            "x-github-event": "push",
+            "x-github-hook-id": "597865336",
+            "x-github-hook-installation-target-id": "1157132533",
+            "x-github-hook-installation-target-type": "repository",
+            "x-hub-signature": "sha1=b0199725a84ed3373a990eed8c86e02cd02c77f6",
+            "x-hub-signature-256": "sha256=d6f2c4a37a98f38422867b1c3682768ee36cf3ef71fccbe8018992352f868687",
+            "x-real-ip": "140.82.115.124",
+            "accept-encoding": "gzip"
+          },
+          "query": {}
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  },
+  "versionId": "3e0f6cb4-1e5d-45e2-9fe3-1725fee79962",
+  "activeVersionId": "4a6a19fa-4019-44a9-8dd1-12d413bcb6b8",
+  "versionCounter": 152,
+  "triggerCount": 1,
+  "shared": [
+    {
+      "updatedAt": "2026-02-24T19:46:03.788Z",
+      "createdAt": "2026-02-24T19:46:03.788Z",
+      "role": "workflow:owner",
+      "workflowId": "eeqPCy1bi0DhhlxA",
+      "projectId": "3Aa1TdMrn6HM1XQF",
+      "project": {
+        "updatedAt": "2026-02-12T16:07:27.309Z",
+        "createdAt": "2026-02-12T15:59:26.248Z",
+        "id": "3Aa1TdMrn6HM1XQF",
+        "name": "Urko Santillan <getxobelaeskola@gmail.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "creatorId": "ebf74c25-213c-46b9-a63b-e349de02195f",
+        "projectRelations": [
+          {
+            "updatedAt": "2026-02-12T15:59:26.248Z",
+            "createdAt": "2026-02-12T15:59:26.248Z",
+            "userId": "ebf74c25-213c-46b9-a63b-e349de02195f",
+            "projectId": "3Aa1TdMrn6HM1XQF",
+            "user": {
+              "updatedAt": "2026-02-25T06:07:46.200Z",
+              "createdAt": "2026-02-12T15:59:25.537Z",
+              "id": "ebf74c25-213c-46b9-a63b-e349de02195f",
+              "email": "getxobelaeskola@gmail.com",
+              "firstName": "Urko",
+              "lastName": "Santillan",
+              "personalizationAnswers": {
+                "version": "v4",
+                "personalization_survey_submitted_at": "2026-02-12T16:07:48.567Z",
+                "personalization_survey_n8n_version": "2.7.4",
+                "companySize": "<20",
+                "companyType": "education",
+                "role": "customer-support",
+                "reportedSource": "google"
+              },
+              "settings": {
+                "userActivated": true,
+                "easyAIWorkflowOnboarded": true,
+                "firstSuccessfulWorkflowId": "eeqPCy1bi0DhhlxA",
+                "userActivatedAt": 1771980703393,
+                "npsSurvey": {
+                  "waitingForResponse": true,
+                  "ignoredCount": 1,
+                  "lastShownAt": 1771404097551
+                }
+              },
+              "disabled": false,
+              "mfaEnabled": false,
+              "lastActiveAt": "2026-02-24",
+              "isPending": false
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "tags": [],
+  "activeVersion": {
+    "updatedAt": "2026-02-25T00:51:21.820Z",
+    "createdAt": "2026-02-25T00:49:10.441Z",
+    "versionId": "4a6a19fa-4019-44a9-8dd1-12d413bcb6b8",
+    "workflowId": "eeqPCy1bi0DhhlxA",
+    "nodes": [
+      {
+        "parameters": {
+          "options": {}
+        },
+        "id": "be6c57e2-b660-4497-be85-7dcab48a6c04",
+        "name": "OpenAI Chat Model",
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+        "position": [
+          400,
+          352
+        ],
+        "typeVersion": 1,
+        "credentials": {
+          "openAiApi": {
+            "id": "hJ48bwYLNQIwKR5P",
+            "name": "OpenAi account 2"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "content": "# RAG AI Agent\n",
+          "height": 796,
+          "width": 1162
+        },
+        "id": "833316b8-b145-4026-b007-83e81d6f3c10",
+        "name": "Sticky Note",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          0,
+          0
+        ],
+        "typeVersion": 1
+      },
+      {
+        "parameters": {
+          "options": {
+            "systemMessage": "=You are a helpful assistant that will get data from RAG and send a good response to user.\n\nToday date is this if user ask for dated or latest data: {{ $now }}\n\nSo add date when send query to vector database because I am already setting the date field in embedding."
+          }
+        },
+        "id": "31819eb5-1264-44e4-a2c1-1e4746e00bba",
+        "name": "RAG Agent",
+        "type": "@n8n/n8n-nodes-langchain.agent",
+        "position": [
+          496,
+          128
+        ],
+        "typeVersion": 1.7
+      },
+      {
+        "parameters": {
+          "options": {}
+        },
+        "id": "4be681ef-d953-4334-8751-47795485ccf1",
+        "name": "Embeddings OpenAI5",
+        "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+        "position": [
+          1760,
+          464
+        ],
+        "typeVersion": 1.1,
+        "credentials": {
+          "openAiApi": {
+            "id": "hJ48bwYLNQIwKR5P",
+            "name": "OpenAi account 2"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "content": "# Watch Trigger (Email) - New Email\n## Get new Email -> Extract the text -> Add to Vector Store",
+          "height": 788,
+          "width": 1200,
+          "color": 4
+        },
+        "id": "b6827741-9f7c-4669-b81d-7ec0cce496f6",
+        "name": "Sticky Note4",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          1328,
+          48
+        ],
+        "typeVersion": 1
+      },
+      {
+        "parameters": {
+          "content": "# Get All Emails -> Store embedding in vector db\n#### Code in JavaScript doe nohing, alo we hae o run it maually in th node GetEmailsList email replacing: \nSearch Filters / UID / 1:99",
+          "height": 740,
+          "width": 1596
+        },
+        "id": "cf51ffc5-8d84-4bc6-87de-8f6c1210c693",
+        "name": "Sticky Note11",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          1312,
+          880
+        ],
+        "typeVersion": 1
+      },
+      {
+        "parameters": {
+          "options": {}
+        },
+        "id": "dee6e95d-75df-4af4-989a-92cc45865e71",
+        "name": "When chat message received",
+        "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+        "position": [
+          192,
+          128
+        ],
+        "webhookId": "b7170e9c-42c2-45af-86ae-b0b6ef688a33",
+        "typeVersion": 1.1,
+        "disabled": true
+      },
+      {
+        "parameters": {},
+        "id": "d7204bdc-0e37-4010-a8f5-185d8745887b",
+        "name": "Simple Memory",
+        "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+        "position": [
+          576,
+          352
+        ],
+        "typeVersion": 1.3
+      },
+      {
+        "parameters": {
+          "mode": "insert",
+          "qdrantCollection": {
+            "__rl": true,
+            "mode": "list",
+            "value": "emails_history",
+            "cachedResultName": "emails_history"
+          },
+          "options": {}
+        },
+        "id": "e7d4888f-d000-4a98-8bdb-0370879a9ddf",
+        "name": "Store Emails in Vector DB",
+        "type": "@n8n/n8n-nodes-langchain.vectorStoreQdrant",
+        "position": [
+          1872,
+          224
+        ],
+        "typeVersion": 1.1,
+        "credentials": {
+          "qdrantApi": {
+            "id": "BKI5Kx2tihKTWCsJ",
+            "name": "QdrantApi account 2"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "pollTimes": {
+            "item": [
+              {
+                "mode": "everyMinute"
+              }
+            ]
+          },
+          "filters": {}
+        },
+        "id": "5a0f9646-841e-41b1-b3cb-321cca85f708",
+        "name": "New Email",
+        "type": "n8n-nodes-base.gmailTrigger",
+        "position": [
+          1376,
+          224
+        ],
+        "typeVersion": 1.2,
+        "credentials": {
+          "gmailOAuth2": {
+            "id": "sdQRBVeYDTIwhWzZ",
+            "name": "Gmail account"
+          }
+        },
+        "disabled": true
+      },
+      {
+        "parameters": {
+          "operation": "get",
+          "messageId": "={{ $json.id }}",
+          "simple": false,
+          "options": {}
+        },
+        "id": "c51e4797-fb58-4284-9415-5587d88cb475",
+        "name": "Get new Email Body",
+        "type": "n8n-nodes-base.gmail",
+        "position": [
+          1600,
+          224
+        ],
+        "webhookId": "3ffed29f-141a-41bc-bded-e2614b7cf6d7",
+        "typeVersion": 2.1,
+        "credentials": {
+          "gmailOAuth2": {
+            "id": "sdQRBVeYDTIwhWzZ",
+            "name": "Gmail account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "jsonMode": "expressionData",
+          "jsonData": "=Email details:\nDate: {{ $json.headers.date }}\n\nFrom Email: {{ $json.from.value[0].address }}\nFrom Name:  {{ $json.from.value[0].name }}\n\nTo Email: {{ $json.to.value[0].address }}\n\nEmail Subject:\n{{ $json.subject }}\n\nEmail body:\n{{ $json.text }}",
+          "options": {
+            "metadata": {
+              "metadataValues": [
+                {
+                  "name": "=data_source",
+                  "value": "=gmail"
+                },
+                {
+                  "name": "=created_at",
+                  "value": "={{ $json.date }}"
+                }
+              ]
+            }
+          }
+        },
+        "id": "6dc86dbc-cd84-4590-b943-8642d85919f6",
+        "name": "Set proper metadata1",
+        "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+        "position": [
+          2016,
+          432
+        ],
+        "typeVersion": 1
+      },
+      {
+        "parameters": {
+          "separator": "Email details:"
+        },
+        "id": "a79652c3-a048-4ee2-ba91-3e42dcc5a81a",
+        "name": "Split emails1",
+        "type": "@n8n/n8n-nodes-langchain.textSplitterCharacterTextSplitter",
+        "position": [
+          2096,
+          608
+        ],
+        "typeVersion": 1
+      },
+      {
+        "parameters": {
+          "options": {}
+        },
+        "id": "b44c37b7-85a3-46be-b64e-23fc1bb31e78",
+        "name": "Embeddings OpenAI",
+        "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+        "position": [
+          656,
+          624
+        ],
+        "typeVersion": 1.1,
+        "credentials": {
+          "openAiApi": {
+            "id": "hJ48bwYLNQIwKR5P",
+            "name": "OpenAi account 2"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "mode": "retrieve-as-tool",
+          "toolDescription": "emails_vector_search",
+          "pineconeIndex": {
+            "__rl": true,
+            "value": "emailshistory",
+            "mode": "list",
+            "cachedResultName": "emailshistory"
+          },
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+        "typeVersion": 1.3,
+        "position": [
+          736,
+          304
+        ],
+        "id": "6a307bd5-2566-427a-8e7a-db7177e909d0",
+        "name": "Pinecone Vector Store1",
+        "credentials": {
+          "pineconeApi": {
+            "id": "zkLu855wTsM48Krf",
+            "name": "PineconeApi account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "jsonMode": "expressionData",
+          "jsonData": "=Email details:\nDate: {{ $json.date }}\n\nFrom Email: {{ $json.from }}\nFrom Name:  {{ $json.fromName }}\n\nTo Email: {{ $json.to }}\n\nEmail Subject:\n{{ $json.subject }}\n\nEmail body:\n{{ $json.body }}",
+          "options": {
+            "metadata": {
+              "metadataValues": [
+                {
+                  "name": "created_at",
+                  "value": "={{ $json.date }}"
+                },
+                {
+                  "name": "data_source",
+                  "value": "gmail"
+                }
+              ]
+            }
+          }
+        },
+        "id": "7d94413b-e4b2-4632-b468-d1d81f2c66b9",
+        "name": "Set proper metadata",
+        "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+        "position": [
+          2496,
+          1280
+        ],
+        "typeVersion": 1
+      },
+      {
+        "parameters": {
+          "separator": "Email details:"
+        },
+        "id": "e511be45-5dea-48ef-a428-727dbef1cdab",
+        "name": "Split emails",
+        "type": "@n8n/n8n-nodes-langchain.textSplitterCharacterTextSplitter",
+        "position": [
+          2496,
+          1440
+        ],
+        "typeVersion": 1
+      },
+      {
+        "parameters": {
+          "mode": "insert",
+          "pineconeIndex": {
+            "__rl": true,
+            "value": "emailshistory",
+            "mode": "list",
+            "cachedResultName": "emailshistory"
+          },
+          "embeddingBatchSize": 20,
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+        "typeVersion": 1.3,
+        "position": [
+          2528,
+          1072
+        ],
+        "id": "ef303817-eaea-4c67-9336-f1e2132f8434",
+        "name": "Pinecone Vector Store",
+        "credentials": {
+          "pineconeApi": {
+            "id": "zkLu855wTsM48Krf",
+            "name": "PineconeApi account"
+          }
+        }
+      },
+      {
+        "parameters": {},
+        "id": "aeefcdd8-726b-45f9-8b9d-3b6870b6175a",
+        "name": "Embeddings Google Gemini (retrieval)",
+        "type": "@n8n/n8n-nodes-langchain.embeddingsGoogleGemini",
+        "position": [
+          2144,
+          1440
+        ],
+        "typeVersion": 1,
+        "credentials": {
+          "googlePalmApi": {
+            "id": "J56dollopBoBBhMU",
+            "name": "Google Gemini(PaLM) Api account 2"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "jsCode": "const emails = $input.all().map(item => item.json);\n\nconst extractedData = emails.map(mail => {\n  const cleanBody = mail.textContent\n    ?.replace(/(\\r\\n|\\n|\\r)/gm, ' ')\n    ?.replace(/\\s+/g, ' ')\n    ?.trim()\n    ?.slice(0, 4000);\n\n  return {\n    to: mail.envelope?.to?.[0]?.address || '',\n    from: mail.envelope?.from?.[0]?.address || '',\n    fromName: mail.envelope?.from?.[0]?.name || '',\n    date: mail.envelope?.date || '',\n    subject: mail.envelope?.subject || '',\n    body: cleanBody || '',\n    emailId: mail.uid || ''\n  };\n});\n\nreturn extractedData;"
+        },
+        "id": "e26b0bd3-3a3e-4bac-a0b8-b0e87bdde084",
+        "name": "Refactor Email Body data1",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          1856,
+          1056
+        ]
+      },
+      {
+        "parameters": {
+          "options": {}
+        },
+        "id": "6f998fdf-97c4-4085-8873-0029004e0f79",
+        "name": "Embeddings OpenAI11",
+        "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+        "position": [
+          2320,
+          1440
+        ],
+        "typeVersion": 1.1,
+        "credentials": {
+          "openAiApi": {
+            "id": "hJ48bwYLNQIwKR5P",
+            "name": "OpenAi account 2"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "jsCode": "const data = $getWorkflowStaticData('global');\n\nif (!data.processedEmails) {\n  data.processedEmails = {};\n}\n\nlet skipped = 0;\nlet processed = 0;\nconst output = [];\n\nfor (const item of items) {\n  const uid = item.json.emailId;\n  const messageId = item.json.messageId || item.json.subject + item.json.date;\n\n  const uniqueKey = uid || messageId;\n\n  if (!uniqueKey) continue;\n\n  if (data.processedEmails[uniqueKey]) {\n    skipped++;\n  } else {\n    data.processedEmails[uniqueKey] = true;\n    processed++;\n    output.push(item);\n  }\n}\n\ndata.lastRunStats = {\n  processed,\n  skipped,\n  totalSeen: processed + skipped,\n  timestamp: new Date().toISOString()\n};\n\nconst uids = items\n  .map(i => Number(i.json.emailId))\n  .filter(n => !isNaN(n));\n\nif (uids.length) {\n  const maxUidThisRun = Math.max(...uids);\n  data.lastUID = Math.max(maxUidThisRun, data.lastUID || 0);\n}\n\nreturn output;\n"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          2048,
+          1056
+        ],
+        "id": "2f224e4e-512e-44c1-b6a1-38d69c7fa82d",
+        "name": "Code in JavaScript"
+      },
+      {
+        "parameters": {
+          "batchSize": 20,
+          "options": {}
+        },
+        "type": "n8n-nodes-base.splitInBatches",
+        "typeVersion": 3,
+        "position": [
+          2288,
+          1056
+        ],
+        "id": "baee4c5b-bc45-4a05-9e20-0ac815cdb7a2",
+        "name": "Loop over all emails"
+      },
+      {
+        "parameters": {
+          "owner": "ibaitelexfree-creator",
+          "repository": "getxobelaeskola",
+          "events": [
+            "push",
+            "pull_request"
+          ],
+          "options": {}
+        },
+        "id": "7173c07d-fb49-46f3-9bab-66eb467514cf",
+        "name": "GitHub Trigger1",
+        "type": "n8n-nodes-base.githubTrigger",
+        "position": [
+          1472,
+          1056
+        ],
+        "typeVersion": 1,
+        "webhookId": "github-trigger-rag-001",
+        "credentials": {
+          "githubApi": {
+            "id": "Ikqe2uVTFsN0eq05",
+            "name": "GitHub account"
+          }
+        },
+        "disabled": true
+      },
+      {
+        "parameters": {
+          "chunkSize": 1500,
+          "chunkOverlap": 200,
+          "options": {}
+        },
+        "id": "1bd4932e-0139-46d0-a1d1-06c96e037b36",
+        "name": "Text Splitter",
+        "type": "@n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter",
+        "position": [
+          3168,
+          -80
+        ],
+        "typeVersion": 1
+      },
+      {
+        "parameters": {
+          "url": "https://api.github.com/repos/ibaitelexfree-creator/getxobelaeskola/git/trees/main?recursive=1",
+          "authentication": "genericCredentialType",
+          "genericAuthType": "httpHeaderAuth",
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "Authorization",
+                "value": "Bearer {{ $env.GITHUB_TOKEN }}"
+              },
+              {
+                "name": "Accept",
+                "value": "application/vnd.github.v3+json"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "id": "693d94e7-4002-47b1-be4a-382414dddeeb",
+        "name": "GitHub: Obtener árbol de archivos1",
+        "type": "n8n-nodes-base.httpRequest",
+        "position": [
+          1568,
+          -608
+        ],
+        "typeVersion": 4.2,
+        "credentials": {
+          "httpHeaderAuth": {
+            "id": "462UMSGfpHCY0Ndb",
+            "name": "Header Auth account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "jsCode": "const tree = $input.first().json.tree || [];\n\nconst allowed = ['.ts', '.tsx', '.js', '.jsx', '.md', '.json', '.css', '.html', '.yml', '.yaml'];\nconst excluded = ['node_modules', '.git', 'dist', 'build', '.next', 'coverage'];\n\nconst files = tree.filter(f => {\n  if (f.type !== 'blob') return false;\n  if (excluded.some(ex => f.path.includes(ex))) return false;\n  return allowed.some(ext => f.path.endsWith(ext));\n});\n\nreturn files.map(f => ({ json: { path: f.path, sha: f.sha, url: f.url } }));"
+        },
+        "id": "bf73fdc3-e203-4d05-a3d0-079703bb4bd9",
+        "name": "GitHub: Filtrar archivos relevantes1",
+        "type": "n8n-nodes-base.code",
+        "position": [
+          1792,
+          -608
+        ],
+        "typeVersion": 2
+      },
+      {
+        "parameters": {
+          "batchSize": 10,
+          "options": {}
+        },
+        "id": "6aad82a3-9356-4581-88cd-3d94c1ae77a1",
+        "name": "GitHub: Lotes de ",
+        "type": "n8n-nodes-base.splitInBatches",
+        "position": [
+          2016,
+          -608
+        ],
+        "typeVersion": 3
+      },
+      {
+        "parameters": {
+          "url": "=https://api.github.com/repos/ibaitelexfree-creator/getxobelaeskola/contents/{{ $json.path }}",
+          "authentication": "genericCredentialType",
+          "genericAuthType": "httpHeaderAuth",
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "Authorization",
+                "value": "Bearer {{ $env.GITHUB_TOKEN }}"
+              },
+              {
+                "name": "Accept",
+                "value": "application/vnd.github.v3+json"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "id": "1cdfb629-66b9-452e-8289-60f5295d020f",
+        "name": "GitHub: Descargar contenido archivo1",
+        "type": "n8n-nodes-base.httpRequest",
+        "position": [
+          2240,
+          -608
+        ],
+        "typeVersion": 4.2,
+        "credentials": {
+          "httpHeaderAuth": {
+            "id": "462UMSGfpHCY0Ndb",
+            "name": "Header Auth account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "jsCode": "const items = $input.all();\nconst output = [];\n\nfor (const item of items) {\n  const file = item.json;\n  if (!file.content) continue;\n\n  let content = '';\n  try {\n    content = Buffer.from(file.content, 'base64').toString('utf-8');\n  } catch(e) {\n    continue;\n  }\n\n  const chunkSize = 1500;\n  const overlap = 200;\n  const chunks = [];\n\n  for (let i = 0; i < content.length; i += chunkSize - overlap) {\n    chunks.push(content.slice(i, i + chunkSize));\n    if (i + chunkSize >= content.length) break;\n  }\n\n  chunks.forEach((chunk, idx) => {\n    output.push({\n      json: {\n        content: chunk,\n        filepath: file.path,\n        filename: file.path.split('/').pop(),\n        chunk_index: idx,\n        total_chunks: chunks.length,\n        source: 'github',\n        repo: 'ibaitelexfree-creator/getxobelaeskola',\n        indexed_at: new Date().toISOString()\n      }\n    });\n  });\n}\n\nreturn output;"
+        },
+        "id": "862dc1cd-bec4-4890-89ab-10cb8c6a85ad",
+        "name": "GitHub: Trocear en chunks1",
+        "type": "n8n-nodes-base.code",
+        "position": [
+          2464,
+          -608
+        ],
+        "typeVersion": 2
+      },
+      {
+        "parameters": {
+          "jsCode": "const tables = [\n  'actividades','audit_logs','bonos_usuario','categorias','certificados',\n  'cursos','desafios_diarios','ediciones_curso','embarcaciones','evaluaciones',\n  'experiencias','financial_edits','habilidades','habilidades_alumno','horas_navegacion',\n  'inscripciones','instructores','intentos_desafios','intentos_evaluacion','legal_consents',\n  'logros','logros_alumno','mantenimiento_logs','marketing_campaigns','marketing_history',\n  'modulos','movimientos_bono','newsletter_subscriptions','newsletters','niveles_formacion',\n  'preguntas','profiles','progreso_alumno','reservas_alquiler','servicios_alquiler',\n  'sesion_asistentes','sesiones','stripe_events_log','tipos_bono','unidades_didacticas','weather_logs'\n];\n\nreturn tables.map(t => ({ json: { table_name: t } }));"
+        },
+        "id": "284e7bd7-480e-4e5e-aac6-c7496ba6474f",
+        "name": "Supabase: Lista de tablas1",
+        "type": "n8n-nodes-base.code",
+        "position": [
+          1792,
+          -416
+        ],
+        "typeVersion": 2
+      },
+      {
+        "parameters": {
+          "options": {}
+        },
+        "id": "eac39981-f795-4de1-a4d0-9fa50daa8320",
+        "name": "Supabase: Una tabla a la vez1",
+        "type": "n8n-nodes-base.splitInBatches",
+        "position": [
+          2016,
+          -416
+        ],
+        "typeVersion": 3
+      },
+      {
+        "parameters": {
+          "url": "=https://xbledhifomblirxurtyv.supabase.co/rest/v1/{{ $json.table_name }}?select=*&limit=1000",
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "apikey",
+                "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhibGVkaGlmb21ibGlyeHVydHl2Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MDYyMjE5NywiZXhwIjoyMDg2MTk4MTk3fQ.tynAhTsdBLSv_FI4CbGhWfHLjmfmsl8SJaeiTRDsd_A"
+              },
+              {
+                "name": "Authorization",
+                "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhibGVkaGlmb21ibGlyeHVydHl2Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MDYyMjE5NywiZXhwIjoyMDg2MTk4MTk3fQ.tynAhTsdBLSv_FI4CbGhWfHLjmfmsl8SJaeiTRDsd_A"
+              },
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "id": "07723ceb-ecdc-42a7-ab88-904ffea93664",
+        "name": "Supabase: Leer tabla1",
+        "type": "n8n-nodes-base.httpRequest",
+        "position": [
+          2240,
+          -416
+        ],
+        "typeVersion": 4.2
+      },
+      {
+        "parameters": {
+          "jsCode": "const items = $input.all();\nconst output = [];\nconst tableName = $('Supabase: Una tabla a la vez1').first().json.table_name;\n\nfor (const item of items) {\n  const rows = Array.isArray(item.json) ? item.json : [item.json];\n\n  rows.forEach((row, idx) => {\n    const content = JSON.stringify(row, null, 2);\n    output.push({\n      json: {\n        content: content,\n        filepath: `supabase/${tableName}`,\n        filename: `${tableName}_row_${idx}`,\n        table: tableName,\n        row_index: idx,\n        source: 'supabase',\n        indexed_at: new Date().toISOString()\n      }\n    });\n  });\n}\n\nreturn output;"
+        },
+        "id": "aa6e0a79-c584-4c94-9a14-40697b525316",
+        "name": "Supabase: Formatear filas1",
+        "type": "n8n-nodes-base.code",
+        "position": [
+          2464,
+          -416
+        ],
+        "typeVersion": 2
+      },
+      {
+        "parameters": {
+          "jsCode": "const item = $input.first().json;\n\nreturn [{\n  json: {\n    text: item.content,\n    metadata: {\n      filepath: item.filepath || '',\n      filename: item.filename || '',\n      source: item.source || 'unknown',\n      table: item.table || '',\n      chunk_index: item.chunk_index || 0,\n      indexed_at: item.indexed_at || new Date().toISOString()\n    }\n  }\n}];"
+        },
+        "id": "e60dd67a-2aa8-498f-a7af-dffa26d02cab",
+        "name": "Unificar formato para Qdrant1",
+        "type": "n8n-nodes-base.code",
+        "position": [
+          2688,
+          -512
+        ],
+        "typeVersion": 2
+      },
+      {
+        "parameters": {
+          "mode": "insert",
+          "qdrantCollection": {
+            "__rl": true,
+            "value": "getxobelaeskola_code",
+            "mode": "list"
+          },
+          "options": {}
+        },
+        "id": "1dc0ae3d-700c-4c29-992e-5a098558732f",
+        "name": "Qdrant Vector Store1",
+        "type": "@n8n/n8n-nodes-langchain.vectorStoreQdrant",
+        "position": [
+          2992,
+          -512
+        ],
+        "typeVersion": 1,
+        "credentials": {
+          "qdrantApi": {
+            "id": "BKI5Kx2tihKTWCsJ",
+            "name": "QdrantApi account 2"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "model": "text-embedding-3-large",
+          "options": {}
+        },
+        "id": "74e0514d-2297-4493-87d5-dd086b47ed67",
+        "name": "OpenAI Embeddings1",
+        "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+        "position": [
+          2960,
+          -288
+        ],
+        "typeVersion": 1.1,
+        "credentials": {
+          "openAiApi": {
+            "id": "hJ48bwYLNQIwKR5P",
+            "name": "OpenAi account 2"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "jsonMode": "expressionData",
+          "jsonData": "={{ $json.text }}",
+          "options": {
+            "metadata": {
+              "metadataValues": [
+                {
+                  "name": "filepath",
+                  "value": "={{ $json.metadata.filepath }}"
+                },
+                {
+                  "name": "filename",
+                  "value": "={{ $json.metadata.filename }}"
+                },
+                {
+                  "name": "source",
+                  "value": "={{ $json.metadata.source }}"
+                },
+                {
+                  "name": "table",
+                  "value": "={{ $json.metadata.table }}"
+                },
+                {
+                  "name": "indexed_at",
+                  "value": "={{ $json.metadata.indexed_at }}"
+                }
+              ]
+            }
+          }
+        },
+        "id": "35366dfc-2874-4947-9e0c-b19e8daaafeb",
+        "name": "Document Loader1",
+        "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+        "position": [
+          3088,
+          -288
+        ],
+        "typeVersion": 1
+      },
+      {
+        "parameters": {
+          "authentication": "oAuth2",
+          "owner": {
+            "__rl": true,
+            "value": "ibaitelexfree-creator",
+            "mode": "list",
+            "cachedResultName": "ibaitelexfree-creator",
+            "cachedResultUrl": "https://github.com/ibaitelexfree-creator"
+          },
+          "repository": {
+            "__rl": true,
+            "value": "getxobelaeskola",
+            "mode": "list",
+            "cachedResultName": "getxobelaeskola",
+            "cachedResultUrl": "https://github.com/ibaitelexfree-creator/getxobelaeskola"
+          },
+          "events": [
+            "push",
+            "pull_request"
+          ],
+          "options": {}
+        },
+        "type": "n8n-nodes-base.githubTrigger",
+        "typeVersion": 1,
+        "position": [
+          1296,
+          -496
+        ],
+        "id": "1a5f8327-8c42-4d1c-809d-eab825ae9c67",
+        "name": "Github Trigger1",
+        "webhookId": "24d04de6-a1ae-4886-9a34-a357e6f8ea53",
+        "credentials": {
+          "githubOAuth2Api": {
+            "id": "FEiTD4R694PFBsk6",
+            "name": "GitHub account 2"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "resource": "email",
+          "mailboxes": "={{ [\"INBOX\"] }}",
+          "emailDateRange": {
+            "since": ""
+          },
+          "emailFlags": {},
+          "customLabels": {},
+          "emailSearchFilters": {
+            "uid": "4800:4899"
+          },
+          "includeParts": [
+            "textContent"
+          ],
+          "limit": 100
+        },
+        "type": "n8n-nodes-imap-enhanced.imapEnhanced",
+        "typeVersion": 1,
+        "position": [
+          1680,
+          1056
+        ],
+        "id": "36e86188-45dd-4dd8-b508-48da49faa014",
+        "name": "GetEmailsList email1",
+        "credentials": {
+          "imapApi": {
+            "id": "5cs5ZqAuKTKucvlO",
+            "name": "IMAP Credentials account"
+          }
+        }
+      }
+    ],
+    "connections": {
+      "New Email": {
+        "main": [
+          [
+            {
+              "node": "Get new Email Body",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Simple Memory": {
+        "ai_memory": [
+          [
+            {
+              "node": "RAG Agent",
+              "type": "ai_memory",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Split emails1": {
+        "ai_textSplitter": [
+          [
+            {
+              "node": "Set proper metadata1",
+              "type": "ai_textSplitter",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Embeddings OpenAI": {
+        "ai_embedding": [
+          [
+            {
+              "node": "Pinecone Vector Store1",
+              "type": "ai_embedding",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenAI Chat Model": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "RAG Agent",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Embeddings OpenAI5": {
+        "ai_embedding": [
+          [
+            {
+              "node": "Store Emails in Vector DB",
+              "type": "ai_embedding",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Get new Email Body": {
+        "main": [
+          [
+            {
+              "node": "Store Emails in Vector DB",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Set proper metadata1": {
+        "ai_document": [
+          [
+            {
+              "node": "Store Emails in Vector DB",
+              "type": "ai_document",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "When chat message received": {
+        "main": [
+          [
+            {
+              "node": "RAG Agent",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Pinecone Vector Store1": {
+        "ai_tool": [
+          [
+            {
+              "node": "RAG Agent",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Set proper metadata": {
+        "ai_document": [
+          [
+            {
+              "node": "Pinecone Vector Store",
+              "type": "ai_document",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Split emails": {
+        "ai_textSplitter": [
+          [
+            {
+              "node": "Set proper metadata",
+              "type": "ai_textSplitter",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Pinecone Vector Store": {
+        "main": [
+          [
+            {
+              "node": "Loop over all emails",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Refactor Email Body data1": {
+        "main": [
+          [
+            {
+              "node": "Code in JavaScript",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Embeddings OpenAI11": {
+        "ai_embedding": [
+          [
+            {
+              "node": "Pinecone Vector Store",
+              "type": "ai_embedding",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Code in JavaScript": {
+        "main": [
+          [
+            {
+              "node": "Loop over all emails",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Loop over all emails": {
+        "main": [
+          [],
+          [
+            {
+              "node": "Pinecone Vector Store",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "GitHub Trigger1": {
+        "main": [
+          [
+            {
+              "node": "GetEmailsList email1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Text Splitter": {
+        "ai_textSplitter": [
+          [
+            {
+              "node": "Document Loader1",
+              "type": "ai_textSplitter",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "GitHub: Obtener árbol de archivos1": {
+        "main": [
+          [
+            {
+              "node": "GitHub: Filtrar archivos relevantes1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "GitHub: Filtrar archivos relevantes1": {
+        "main": [
+          [
+            {
+              "node": "GitHub: Lotes de ",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "GitHub: Lotes de ": {
+        "main": [
+          [],
+          [
+            {
+              "node": "GitHub: Descargar contenido archivo1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "GitHub: Descargar contenido archivo1": {
+        "main": [
+          [
+            {
+              "node": "GitHub: Trocear en chunks1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "GitHub: Trocear en chunks1": {
+        "main": [
+          [
+            {
+              "node": "Unificar formato para Qdrant1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Supabase: Lista de tablas1": {
+        "main": [
+          [
+            {
+              "node": "Supabase: Una tabla a la vez1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Supabase: Una tabla a la vez1": {
+        "main": [
+          [],
+          [
+            {
+              "node": "Supabase: Leer tabla1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Supabase: Leer tabla1": {
+        "main": [
+          [
+            {
+              "node": "Supabase: Formatear filas1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Supabase: Formatear filas1": {
+        "main": [
+          [
+            {
+              "node": "Unificar formato para Qdrant1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Unificar formato para Qdrant1": {
+        "main": [
+          [
+            {
+              "node": "Qdrant Vector Store1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenAI Embeddings1": {
+        "ai_embedding": [
+          [
+            {
+              "node": "Qdrant Vector Store1",
+              "type": "ai_embedding",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Document Loader1": {
+        "ai_document": [
+          [
+            {
+              "node": "Qdrant Vector Store1",
+              "type": "ai_document",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Github Trigger1": {
+        "main": [
+          [
+            {
+              "node": "GitHub: Obtener árbol de archivos1",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Supabase: Lista de tablas1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "GetEmailsList email1": {
+        "main": [
+          [
+            {
+              "node": "Refactor Email Body data1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "authors": "Urko Santillan",
+    "name": "Version 4a6a19fa",
+    "description": "",
+    "autosaved": true,
+    "workflowPublishHistory": [
+      {
+        "createdAt": "2026-02-25T00:51:21.818Z",
+        "id": 40,
+        "workflowId": "eeqPCy1bi0DhhlxA",
+        "versionId": "4a6a19fa-4019-44a9-8dd1-12d413bcb6b8",
+        "event": "activated",
+        "userId": "ebf74c25-213c-46b9-a63b-e349de02195f"
+      }
+    ]
+  }
+}

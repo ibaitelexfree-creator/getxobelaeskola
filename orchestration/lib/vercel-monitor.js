@@ -11,6 +11,10 @@ const QUOTAS_FILE = path.join(__dirname, '../../data/vercel-quotas.json');
 export class VercelMonitor {
     constructor() {
         this.data = this._loadData();
+        this.token = process.env.VERCEL_ACCESS_TOKEN;
+        this.projectId = process.env.VERCEL_PROJECT_ID || 'prj_CVHwakp0yA70gav5t1xcXC0GGwYz';
+        this.teamId = process.env.VERCEL_TEAM_ID || 'team_qsH6nFq6HfVQmrfB3tj03jLU';
+        this.pollInterval = null;
     }
 
     _loadData() {
@@ -70,6 +74,71 @@ export class VercelMonitor {
             return true;
         }
         return false;
+    }
+
+    /**
+     * Attempts to fetch usage data from Vercel API.
+     * Note: Vercel does not expose a public REST API for all granular usage metrics yet.
+     * This method tests the connection and prepares for their upcoming endpoints/billing SDK.
+     */
+    async syncFromApi() {
+        if (!this.token) {
+            console.warn('[VercelMonitor] No VERCEL_ACCESS_TOKEN found. Using manual file quota.');
+            return false;
+        }
+
+        try {
+            // Placeholder: The actual granular limits endpoint is not fully documented.
+            // When Vercel releases the public billing SDK query, we will map it here.
+            // Example future call: fetch(`https://api.vercel.com/v8/projects/${this.projectId}/usage?teamId=${this.teamId}`)
+            const url = `https://api.vercel.com/v9/projects/${this.projectId}?teamId=${this.teamId}`;
+
+            const res = await fetch(url, {
+                headers: {
+                    'Authorization': `Bearer ${this.token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (!res.ok) {
+                console.error(`[VercelMonitor] API Error: ${res.status}`);
+                return false;
+            }
+
+            const data = await res.json();
+
+            // Just outputting to prove connection works:
+            // console.log(`[VercelMonitor] Synced project: ${data.name} (Live: ${data.live})`);
+
+            // When usage data is available in the object we map it like this:
+            /*
+            if (data.usage) {
+                this.updateUsage('edge_requests', data.usage.edge_requests);
+                this.updateUsage('function_invocations', data.usage.function_invocations);
+            }
+            */
+
+            return true;
+        } catch (error) {
+            console.error('[VercelMonitor] Sync Exception:', error.message);
+            return false;
+        }
+    }
+
+    /**
+     * Start automatic polling to the Vercel API
+     */
+    startPolling(intervalMs = 3600000) { // Default: 1 hora
+        if (this.pollInterval) clearInterval(this.pollInterval);
+
+        // Initial sync
+        this.syncFromApi();
+
+        this.pollInterval = setInterval(() => {
+            this.syncFromApi();
+        }, intervalMs);
+
+        console.log(`[VercelMonitor] Polling started (${intervalMs}ms)`);
     }
 
     _save() {

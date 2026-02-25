@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-02-12T16:17:40.705Z",
+  "updatedAt": "2026-02-23T12:32:45.031Z",
   "createdAt": "2026-02-02T10:38:54.119Z",
   "id": "fo5YcBW1yw1abXmjbYWnm",
   "name": "Invoice Processing Drive + Financial Report",
@@ -37,7 +37,7 @@
       "name": "Google Drive Trigger",
       "credentials": {
         "googleDriveOAuth2Api": {
-          "id": "rkAvBhrG2aTKhyaO",
+          "id": "XSpJhn6iXEXi75WV",
           "name": "Google Drive account"
         }
       }
@@ -62,8 +62,8 @@
       "name": "Google Drive",
       "credentials": {
         "googleDriveOAuth2Api": {
-          "id": "rkAvBhrG2aTKhyaO",
-          "name": "Google Drive account"
+          "id": "2gaIPeitppocMDEZ",
+          "name": "Google Drive getxobelaeskola@gmail.com"
         }
       }
     },
@@ -218,8 +218,8 @@
       "name": "Google Sheets",
       "credentials": {
         "googleSheetsOAuth2Api": {
-          "id": "teD9HPVe2g2Ob0VX",
-          "name": "Google Sheets account"
+          "id": "5NG4wsqVSIpvAJSA",
+          "name": "Google Sheets account 2"
         }
       }
     },
@@ -250,8 +250,8 @@
       "name": "Google Drive1",
       "credentials": {
         "googleDriveOAuth2Api": {
-          "id": "rkAvBhrG2aTKhyaO",
-          "name": "Google Drive account"
+          "id": "2gaIPeitppocMDEZ",
+          "name": "Google Drive getxobelaeskola@gmail.com"
         }
       }
     },
@@ -275,8 +275,8 @@
       "name": "Google Drive2",
       "credentials": {
         "googleDriveOAuth2Api": {
-          "id": "rkAvBhrG2aTKhyaO",
-          "name": "Google Drive account"
+          "id": "2gaIPeitppocMDEZ",
+          "name": "Google Drive getxobelaeskola@gmail.com"
         }
       }
     },
@@ -300,8 +300,8 @@
       "name": "Google Drive3",
       "credentials": {
         "googleDriveOAuth2Api": {
-          "id": "rkAvBhrG2aTKhyaO",
-          "name": "Google Drive account"
+          "id": "2gaIPeitppocMDEZ",
+          "name": "Google Drive getxobelaeskola@gmail.com"
         }
       }
     },
@@ -364,8 +364,8 @@
       "name": "Google Sheets1",
       "credentials": {
         "googleSheetsOAuth2Api": {
-          "id": "teD9HPVe2g2Ob0VX",
-          "name": "Google Sheets account"
+          "id": "8Lg9UKDJqJkCocXn",
+          "name": "Google Sheets  getxobelaeskola@gmail.com"
         }
       }
     },
@@ -544,7 +544,7 @@
             },
             {
               "name": "Authorization",
-              "value": "=Bearer llx-PQRz9SVFDWt2z2HAGo7wpYS4sTRQIXGXVz4CNcP8djybUnEt"
+              "value": "=Bearer llx-OTsqI0NdN6mbDS8NbsjuGE4Y4i5ZIJNdJyqquapQvmjzh12p"
             }
           ]
         },
@@ -758,8 +758,8 @@
       "name": "Generate",
       "credentials": {
         "googleDocsOAuth2Api": {
-          "id": "WmIr3aKK4oG026X1",
-          "name": "Google Docs account"
+          "id": "467RgOfNrXYR7tRq",
+          "name": "Google Docs  getxobelaeskola@gmail.com"
         }
       }
     },
@@ -786,8 +786,8 @@
       "name": "Update",
       "credentials": {
         "googleDocsOAuth2Api": {
-          "id": "WmIr3aKK4oG026X1",
-          "name": "Google Docs account"
+          "id": "467RgOfNrXYR7tRq",
+          "name": "Google Docs  getxobelaeskola@gmail.com"
         }
       }
     },
@@ -1347,9 +1347,9 @@
     "templateCredsSetupCompleted": true
   },
   "pinData": {},
-  "versionId": "d703a0ab-58ff-4880-b1a9-516c80247e4a",
+  "versionId": "8add3c28-1e01-41f1-bfbb-656d4aeba207",
   "activeVersionId": null,
-  "versionCounter": 98,
+  "versionCounter": 118,
   "triggerCount": 1,
   "shared": [
     {
@@ -1374,7 +1374,7 @@
             "userId": "ebf74c25-213c-46b9-a63b-e349de02195f",
             "projectId": "3Aa1TdMrn6HM1XQF",
             "user": {
-              "updatedAt": "2026-02-13T11:35:46.641Z",
+              "updatedAt": "2026-02-25T06:07:46.200Z",
               "createdAt": "2026-02-12T15:59:25.537Z",
               "id": "ebf74c25-213c-46b9-a63b-e349de02195f",
               "email": "getxobelaeskola@gmail.com",
@@ -1390,12 +1390,19 @@
                 "reportedSource": "google"
               },
               "settings": {
-                "userActivated": false,
-                "easyAIWorkflowOnboarded": true
+                "userActivated": true,
+                "easyAIWorkflowOnboarded": true,
+                "firstSuccessfulWorkflowId": "eeqPCy1bi0DhhlxA",
+                "userActivatedAt": 1771980703393,
+                "npsSurvey": {
+                  "waitingForResponse": true,
+                  "ignoredCount": 1,
+                  "lastShownAt": 1771404097551
+                }
               },
               "disabled": false,
               "mfaEnabled": false,
-              "lastActiveAt": "2026-02-13",
+              "lastActiveAt": "2026-02-24",
               "isPending": false
             }
           }

@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-02-03T14:28:48.608Z",
+  "updatedAt": "2026-02-24T19:05:30.785Z",
   "createdAt": "2026-02-03T03:15:10.856Z",
   "id": "_2rJXZEX2Yl6axOi668n-",
   "name": "Email History RAG",
@@ -97,8 +97,8 @@
       "name": "Sticky Note4",
       "type": "n8n-nodes-base.stickyNote",
       "position": [
-        1312,
-        0
+        1328,
+        48
       ],
       "typeVersion": 1
     },
@@ -721,9 +721,9 @@
   "staticData": null,
   "meta": null,
   "pinData": {},
-  "versionId": "6059d7a8-8b54-4f82-9d37-663db4af7846",
+  "versionId": "c36b02c0-98de-45c4-b5f3-c4a8fddcdd19",
   "activeVersionId": null,
-  "versionCounter": 360,
+  "versionCounter": 361,
   "triggerCount": 0,
   "shared": [
     {
@@ -748,7 +748,7 @@
             "userId": "ebf74c25-213c-46b9-a63b-e349de02195f",
             "projectId": "3Aa1TdMrn6HM1XQF",
             "user": {
-              "updatedAt": "2026-02-13T11:35:46.641Z",
+              "updatedAt": "2026-02-25T06:07:46.200Z",
               "createdAt": "2026-02-12T15:59:25.537Z",
               "id": "ebf74c25-213c-46b9-a63b-e349de02195f",
               "email": "getxobelaeskola@gmail.com",
@@ -764,12 +764,19 @@
                 "reportedSource": "google"
               },
               "settings": {
-                "userActivated": false,
-                "easyAIWorkflowOnboarded": true
+                "userActivated": true,
+                "easyAIWorkflowOnboarded": true,
+                "firstSuccessfulWorkflowId": "eeqPCy1bi0DhhlxA",
+                "userActivatedAt": 1771980703393,
+                "npsSurvey": {
+                  "waitingForResponse": true,
+                  "ignoredCount": 1,
+                  "lastShownAt": 1771404097551
+                }
               },
               "disabled": false,
               "mfaEnabled": false,
-              "lastActiveAt": "2026-02-13",
+              "lastActiveAt": "2026-02-24",
               "isPending": false
             }
           }

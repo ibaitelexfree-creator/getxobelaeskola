@@ -1,0 +1,20 @@
+# Caddyfile - SSL automático con Let's Encrypt
+# Cambia n8n.tudominio.com por tu dominio real
+
+n8n.tudominio.com {
+    reverse_proxy n8n:5678
+    
+    # Headers de seguridad
+    header {
+        Strict-Transport-Security "max-age=31536000; includeSubDomains"
+        X-Content-Type-Options "nosniff"
+        X-Frame-Options "SAMEORIGIN"
+        -Server
+    }
+    
+    # Logs
+    log {
+        output file /var/log/caddy/n8n.log
+        format json
+    }
+}

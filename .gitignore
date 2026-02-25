@@ -41,6 +41,10 @@ next-env.d.ts
 .env
 .env.*
 !.env.example
+google-services.json
+GoogleService-Info.plist
+*.keystore
+*.jks
 
 # debug & logs
 *.log
@@ -89,3 +93,8 @@ full_test_results.txt
 test_results.txt
 current_test_results.txt
 diff.txt
+
+# infra
+infra/backups/
+infra/.env
+infra/fly/fly.toml

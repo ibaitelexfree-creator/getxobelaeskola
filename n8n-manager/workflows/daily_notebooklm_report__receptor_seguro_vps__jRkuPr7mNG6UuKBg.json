@@ -1,0 +1,328 @@
+{
+  "updatedAt": "2026-02-23T15:14:13.928Z",
+  "createdAt": "2026-02-23T14:15:25.110Z",
+  "id": "jRkuPr7mNG6UuKBg",
+  "name": "Daily NotebookLM Report (Receptor Seguro VPS)",
+  "description": null,
+  "active": true,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "trigger-report",
+        "options": {}
+      },
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        1200,
+        576
+      ],
+      "id": "e1e00e15-e199-4d51-bd6e-bcf9be181796",
+      "webhookId": "367398ad-429a-4fd4-8608-67fd29e2623e"
+    },
+    {
+      "parameters": {
+        "sendTo": "ibaitnt@gmail.com",
+        "subject": "🚀 Reporte Diario de IA - NotebookLM",
+        "message": "🤖 Aquí tienes el progreso de tu proyecto.  🔗 Si quieres explorarlo en NotebookLM: https://notebooklm.google.com/ Archivos adjuntos:",
+        "options": {
+          "attachmentsUi": {
+            "attachmentsBinary": [
+              {
+                "property": "file1"
+              }
+            ]
+          }
+        }
+      },
+      "name": "Enviar Email",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1488,
+        464
+      ],
+      "id": "831d294f-2755-47db-a40d-88d9a7944e13",
+      "webhookId": "c58e3629-d173-4c96-baf6-e8c05a86eb44",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "sdQRBVeYDTIwhWzZ",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.facebook.com/v19.0/{PHONE_NUMBER_ID}/messages",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "phone",
+              "value": "+447541364266"
+            },
+            {
+              "name": "message",
+              "value": "🤖 ¡Tu reporte diario NotebookLM ha sido generado! Revisa tu email para escuchar el podcast o ver la infografía."
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Notificar WhatsApp",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        1488,
+        720
+      ],
+      "id": "ee1f9bd8-d06c-4bd5-a80f-715fe5db8f45"
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Enviar Email",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Notificar WhatsApp",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {
+    "Webhook": [
+      {
+        "json": {
+          "headers": {
+            "host": "n8n.srv1368175.hstgr.cloud",
+            "user-agent": "node",
+            "content-length": "196",
+            "accept": "*/*",
+            "accept-encoding": "br, gzip, deflate",
+            "accept-language": "*",
+            "content-type": "multipart/form-data; boundary=----formdata-undici-034036678166",
+            "sec-fetch-mode": "cors",
+            "x-forwarded-for": "49.229.230.109",
+            "x-forwarded-host": "n8n.srv1368175.hstgr.cloud",
+            "x-forwarded-port": "443",
+            "x-forwarded-proto": "https",
+            "x-forwarded-server": "a66d504453a4",
+            "x-real-ip": "49.229.230.109"
+          },
+          "params": {},
+          "query": {},
+          "body": {},
+          "webhookUrl": "https://n8n.srv1368175.hstgr.cloud/webhook-test/trigger-report",
+          "executionMode": "test"
+        },
+        "binary": {
+          "file1": {
+            "mimeType": "text/plain",
+            "fileType": "text",
+            "fileExtension": "txt",
+            "data": "database",
+            "fileName": "test.txt",
+            "id": "database:34d5ba58-0169-450c-88ec-edb6df091d0d",
+            "fileSize": "25 B",
+            "bytes": 25
+          }
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  },
+  "versionId": "c275033d-8c73-48b9-9582-9f8b9d8cec98",
+  "activeVersionId": "0af743d4-0792-4154-8f12-4644c1103ea6",
+  "versionCounter": 37,
+  "triggerCount": 1,
+  "shared": [
+    {
+      "updatedAt": "2026-02-23T14:15:25.110Z",
+      "createdAt": "2026-02-23T14:15:25.110Z",
+      "role": "workflow:owner",
+      "workflowId": "jRkuPr7mNG6UuKBg",
+      "projectId": "3Aa1TdMrn6HM1XQF",
+      "project": {
+        "updatedAt": "2026-02-12T16:07:27.309Z",
+        "createdAt": "2026-02-12T15:59:26.248Z",
+        "id": "3Aa1TdMrn6HM1XQF",
+        "name": "Urko Santillan <getxobelaeskola@gmail.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "creatorId": "ebf74c25-213c-46b9-a63b-e349de02195f",
+        "projectRelations": [
+          {
+            "updatedAt": "2026-02-12T15:59:26.248Z",
+            "createdAt": "2026-02-12T15:59:26.248Z",
+            "userId": "ebf74c25-213c-46b9-a63b-e349de02195f",
+            "projectId": "3Aa1TdMrn6HM1XQF",
+            "user": {
+              "updatedAt": "2026-02-25T06:07:46.200Z",
+              "createdAt": "2026-02-12T15:59:25.537Z",
+              "id": "ebf74c25-213c-46b9-a63b-e349de02195f",
+              "email": "getxobelaeskola@gmail.com",
+              "firstName": "Urko",
+              "lastName": "Santillan",
+              "personalizationAnswers": {
+                "version": "v4",
+                "personalization_survey_submitted_at": "2026-02-12T16:07:48.567Z",
+                "personalization_survey_n8n_version": "2.7.4",
+                "companySize": "<20",
+                "companyType": "education",
+                "role": "customer-support",
+                "reportedSource": "google"
+              },
+              "settings": {
+                "userActivated": true,
+                "easyAIWorkflowOnboarded": true,
+                "firstSuccessfulWorkflowId": "eeqPCy1bi0DhhlxA",
+                "userActivatedAt": 1771980703393,
+                "npsSurvey": {
+                  "waitingForResponse": true,
+                  "ignoredCount": 1,
+                  "lastShownAt": 1771404097551
+                }
+              },
+              "disabled": false,
+              "mfaEnabled": false,
+              "lastActiveAt": "2026-02-24",
+              "isPending": false
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "tags": [],
+  "activeVersion": {
+    "updatedAt": "2026-02-23T14:39:33.449Z",
+    "createdAt": "2026-02-23T14:39:28.728Z",
+    "versionId": "0af743d4-0792-4154-8f12-4644c1103ea6",
+    "workflowId": "jRkuPr7mNG6UuKBg",
+    "nodes": [
+      {
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "trigger-report",
+          "options": {}
+        },
+        "name": "Webhook",
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 1,
+        "position": [
+          1200,
+          576
+        ],
+        "id": "e1e00e15-e199-4d51-bd6e-bcf9be181796",
+        "webhookId": "367398ad-429a-4fd4-8608-67fd29e2623e"
+      },
+      {
+        "parameters": {
+          "sendTo": "ibaitnt@gmail.com",
+          "subject": "🚀 Reporte Diario de IA - NotebookLM",
+          "message": "Adjunto encontrarás el Podcast en Español y la Infografía del progreso de tu proyecto recopilado por los agentes (Logs y Git).",
+          "options": {}
+        },
+        "name": "Enviar Email",
+        "type": "n8n-nodes-base.gmail",
+        "typeVersion": 2.1,
+        "position": [
+          1488,
+          464
+        ],
+        "id": "831d294f-2755-47db-a40d-88d9a7944e13",
+        "webhookId": "c58e3629-d173-4c96-baf6-e8c05a86eb44",
+        "credentials": {
+          "gmailOAuth2": {
+            "id": "bhzFTGrtIiijcYTu",
+            "name": "Gmail account 2"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "https://api.whatsapp-provider.com/v1/messages",
+          "sendBody": true,
+          "bodyParameters": {
+            "parameters": [
+              {
+                "name": "phone",
+                "value": "+447541364266"
+              },
+              {
+                "name": "message",
+                "value": "🤖 ¡Tu reporte diario NotebookLM ha sido generado! Revisa tu email para escuchar el podcast o ver la infografía."
+              }
+            ]
+          },
+          "options": {}
+        },
+        "name": "Notificar WhatsApp",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.1,
+        "position": [
+          1488,
+          720
+        ],
+        "id": "ee1f9bd8-d06c-4bd5-a80f-715fe5db8f45"
+      }
+    ],
+    "connections": {
+      "Webhook": {
+        "main": [
+          [
+            {
+              "node": "Enviar Email",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Notificar WhatsApp",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "authors": "Urko Santillan",
+    "name": "Version 0af743d4",
+    "description": "",
+    "autosaved": true,
+    "workflowPublishHistory": [
+      {
+        "createdAt": "2026-02-23T14:39:33.447Z",
+        "id": 32,
+        "workflowId": "jRkuPr7mNG6UuKBg",
+        "versionId": "0af743d4-0792-4154-8f12-4644c1103ea6",
+        "event": "activated",
+        "userId": "ebf74c25-213c-46b9-a63b-e349de02195f"
+      }
+    ]
+  }
+}

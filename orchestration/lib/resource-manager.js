@@ -4,6 +4,7 @@ import http from 'http';
 import { VisualRelay } from './visual-relay.js';
 import { VercelMonitor } from './vercel-monitor.js';
 import { logs } from './db.js';
+import { ragStatus } from './rag.js';
 import path from 'path';
 
 const execAsync = promisify(exec);
@@ -20,11 +21,12 @@ const SERVICES = {
         displayName: 'ClawdeBot (Docker)',
         description: 'AI Coding Assistant & Task Executor'
     },
-    CHROMA: {
+    QDRANT: {
         type: 'docker',
-        containerName: 'chromadb',
-        displayName: 'ChromaDB',
-        description: 'Vector Database for Semantic Memory'
+        containerName: 'qdrant',
+        displayName: 'Qdrant Vector DB',
+        description: 'Vector Database for RAG & Semantic Memory',
+        apiCheck: 'http://localhost:6333/v1/collections'
     },
     OLLAMA: {
         type: 'process',
@@ -164,6 +166,17 @@ export async function getResourceStatus() {
     } catch (error) {
         status.BROWSERLESS = { running: false, error: error.message };
     }
+
+    // Check RAG / Qdrant Status
+    try {
+        const rStatus = await ragStatus();
+        status.QDRANT = {
+            ...status.QDRANT,
+            collection: rStatus.collection,
+            points: rStatus.points_count,
+            memory_status: rStatus.status
+        };
+    } catch (e) { }
 
     // Check Vercel Quotas
     try {
@@ -464,9 +477,7 @@ export function startInactivityMonitor() {
 
             if (status.services.CLAWDEBOT?.running) await stopService('CLAWDEBOT');
             if (status.services.OLLAMA?.running) await stopService('OLLAMA');
-            // Chroma might be needed for more things, but user said "todo aquello que no sea necesario"
-            // If chromadb is only for RAG, it can go down too.
-            if (status.services.CHROMA?.running) await stopService('CHROMA');
+            if (status.services.QDRANT?.running) await stopService('QDRANT');
         }
     }, 60000); // Check every minute
 }

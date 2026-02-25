@@ -1,7 +1,7 @@
 
 const fs = require('fs');
 
-const NOTION_TOKEN = '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';
+const NOTION_TOKEN = process.env.NOTION_TOKEN;
 const PARENT_PAGE_ID = '30c31210-b1a1-8167-a0e1-d1bca669ae72';
 
 const schema = JSON.parse(fs.readFileSync('supabase_schema.json', 'utf8'));

@@ -1,0 +1,65 @@
+name: 🔒 Backup Automático Diario
+
+on:
+  schedule:
+    # Cada día a las 2:00 AM UTC (3:00 AM España)
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+    inputs:
+      backup_type:
+        description: 'Tipo de backup'
+        required: true
+        default: 'full'
+        type: choice
+        options:
+          - full
+          - postgres-only
+          - n8n-only
+
+jobs:
+  backup:
+    name: Backup Completo
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+
+      - name: 🔐 Configurar credenciales S3
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.BACKUP_S3_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.BACKUP_S3_SECRET_KEY }}
+          aws-region: eu-central-1
+
+      - name: 💾 Backup PostgreSQL via SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          script: |
+            cd /opt/infra
+            bash scripts/backup.sh
+
+      - name: 📊 Verificar backup en S3
+        run: |
+          TIMESTAMP=$(date +%Y%m%d)
+          aws s3 ls s3://${{ secrets.BACKUP_S3_BUCKET }}/backups/ \
+            --endpoint-url ${{ secrets.BACKUP_S3_ENDPOINT }} \
+            | grep "$TIMESTAMP" \
+            | tail -5
+
+      - name: 🔔 Notificar éxito
+        if: success()
+        run: |
+          curl -s -X POST "${{ secrets.SLACK_WEBHOOK }}" \
+            -H 'Content-type: application/json' \
+            --data '{"text":"✅ Backup automático completado - '"$(date '+%d/%m/%Y %H:%M')"'"}'
+
+      - name: 🚨 Notificar fallo
+        if: failure()
+        run: |
+          curl -s -X POST "${{ secrets.SLACK_WEBHOOK }}" \
+            -H 'Content-type: application/json' \
+            --data '{"text":"❌ FALLO en backup automático - '"$(date '+%d/%m/%Y %H:%M')"' - Revisar logs urgente!"}'
