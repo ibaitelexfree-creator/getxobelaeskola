@@ -2,15 +2,24 @@
 
 import React from 'react';
 
+interface SubmissionContent {
+    text?: string;
+    respuesta?: string;
+    fileUrl?: string;
+    archivo_url?: string;
+    [key: string]: unknown;
+}
+
 interface SubmissionViewerProps {
-    content: any;
+    content: string | SubmissionContent | unknown;
     activityTitle: string;
 }
 
 export default function SubmissionViewer({ content, activityTitle }: SubmissionViewerProps) {
     // Determine content type
-    const textContent = typeof content === 'string' ? content : content?.text || content?.respuesta || JSON.stringify(content, null, 2);
-    const fileUrl = content?.fileUrl || content?.archivo_url;
+    const contentObj = (typeof content === 'object' && content !== null) ? (content as SubmissionContent) : null;
+    const textContent = typeof content === 'string' ? content : contentObj?.text || contentObj?.respuesta || JSON.stringify(content, null, 2);
+    const fileUrl = contentObj?.fileUrl || contentObj?.archivo_url;
 
     return (
         <div className="bg-white/5 border border-white/10 rounded-lg p-6 mb-6">

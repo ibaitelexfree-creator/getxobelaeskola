@@ -96,7 +96,7 @@ export default function RealtimeNotifications() {
                         table: 'notifications',
                         filter: `user_id=eq.${user.id}`
                     },
-                    (payload: { new: any }) => {
+                    (payload: { new: { type?: string; title: string; message: string; data?: unknown } }) => {
                         const notif = payload.new;
                         addNotification({
                             type: notif.type || 'info',

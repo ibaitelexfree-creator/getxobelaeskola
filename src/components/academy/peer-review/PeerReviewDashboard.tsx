@@ -13,10 +13,10 @@ interface PeerReviewDashboardProps {
 interface ReviewTask {
     id: string;
     submittedAt: string;
-    content: any;
+    content: unknown;
     activityTitleEs: string;
     activityTitleEu: string;
-    rubric: any;
+    rubric: RubricCriterion[] | { criterios: RubricCriterion[] };
 }
 
 const UI_TEXT = {
@@ -99,7 +99,7 @@ const UI_TEXT = {
 };
 
 export default function PeerReviewDashboard({ moduleId, locale }: PeerReviewDashboardProps) {
-    const t = (UI_TEXT as any)[locale] || UI_TEXT.es;
+    const t = UI_TEXT[locale as keyof typeof UI_TEXT] || UI_TEXT.es;
 
     const [tasks, setTasks] = useState<ReviewTask[]>([]);
     const [loading, setLoading] = useState(true);
@@ -110,19 +110,18 @@ export default function PeerReviewDashboard({ moduleId, locale }: PeerReviewDash
     const [totalScore, setTotalScore] = useState(0);
 
     useEffect(() => {
+        async function loadTasks() {
+            setLoading(true);
+            const res = await getPendingReviews(moduleId);
+            if (res.reviews) {
+                setTasks(res.reviews);
+            } else {
+                console.error(res.error);
+            }
+            setLoading(false);
+        }
         loadTasks();
     }, [moduleId]);
-
-    async function loadTasks() {
-        setLoading(true);
-        const res = await getPendingReviews(moduleId);
-        if (res.reviews) {
-            setTasks(res.reviews);
-        } else {
-            console.error(res.error);
-        }
-        setLoading(false);
-    }
 
     const handleSubmit = async () => {
         if (!selectedTask) return;
@@ -165,11 +164,22 @@ export default function PeerReviewDashboard({ moduleId, locale }: PeerReviewDash
         const rawRubric = selectedTask.rubric;
         const criteriaList = Array.isArray(rawRubric) ? rawRubric : (rawRubric?.criterios || []);
 
-        const rubricData: RubricCriterion[] = criteriaList.length > 0 ? criteriaList.map((r: any) => ({
-            id: r.id || r.label,
-            label: locale === 'eu' ? (r.label_eu || r.label) : (r.label_es || r.label),
+        interface RawRubricItem {
+            id?: string;
+            label?: string;
+            label_eu?: string;
+            label_es?: string;
+            maxPoints?: number;
+            max_puntos?: number;
+            description_eu?: string;
+            description_es?: string;
+        }
+
+        const rubricData: RubricCriterion[] = criteriaList.length > 0 ? criteriaList.map((r: RawRubricItem) => ({
+            id: r.id || r.label || 'unknown',
+            label: locale === 'eu' ? (r.label_eu || r.label || '') : (r.label_es || r.label || ''),
             maxPoints: r.maxPoints || r.max_puntos || 10,
-            description: locale === 'eu' ? r.description_eu : r.description_es
+            description: locale === 'eu' ? r.description_eu || '' : r.description_es || ''
         })) : [
             { id: 'general', label: t.defaultRubricLabel, maxPoints: 100, description: t.defaultRubricDesc }
         ];
