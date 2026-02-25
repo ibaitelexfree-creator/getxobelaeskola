@@ -9,6 +9,8 @@ import cors from 'cors';
 import * as metrics from './metrics.js';
 import { sendTelegramMessage } from './telegram.js';
 import { createDashboardSnapshot } from './grafana-service.js';
+import { FallbackChain } from './lib/fallback-chain.js';
+import { secondaryClient } from './lib/secondary-client.js';
 
 // Fix connection hangs by prioritizing IPv4
 if (dns.setDefaultResultOrder) {
@@ -164,6 +166,18 @@ const ACCOUNTS_MAP = {
   'ibaitelexfree@gmail.com': process.env.JULES_API_KEY_3,      // Jules 3 - UI Engine
 };
 
+// Jules API client (Simple Auth for Stability)
+const julesClient = axios.create({
+  baseURL: 'https://jules.googleapis.com/v1alpha',
+  timeout: 30000, // 30 second timeout to prevent hung requests
+  headers: {
+    'Content-Type': 'application/json'
+  }
+});
+
+// Initialize Fallback Chain (Jules -> Secondary)
+const fallbackClient = new FallbackChain(julesClient, secondaryClient);
+
 /**
  * Jules Session Creation Endpoint
  * Handles requests from n8n Swarm nodes.
@@ -203,8 +217,8 @@ app.post('/api/v1/sessions', async (req, res) => {
   console.log(`[${requestId}] [SWARM] Creating Jules session | Account: ${accountEmail} | Repo: ${repository}`);
 
   try {
-    // Proxy to real Jules API (v1alpha)
-    const response = await axios.post('https://jules.googleapis.com/v1alpha/sessions', {
+    // Proxy to real Jules API (v1alpha) using FallbackChain
+    const response = await fallbackClient.post('/sessions', {
       prompt: task,
       sourceContext: {
         source: repository.startsWith('sources/') ? repository : `sources/github/${repository}`,
@@ -240,7 +254,7 @@ app.post('/api/v1/sessions', async (req, res) => {
       while (Date.now() - startTime < timeout) {
         // Poll Jules API for status
         try {
-          const statusRes = await axios.get(`https://jules.googleapis.com/v1alpha/${sessionId}`, {
+          const statusRes = await fallbackClient.get(`/${sessionId}`, {
             headers: {
               'Authorization': apiKey.startsWith('AQ.') ? `Bearer ${apiKey}` : undefined,
               'X-Goog-Api-Key': !apiKey.startsWith('AQ.') ? apiKey : undefined,
