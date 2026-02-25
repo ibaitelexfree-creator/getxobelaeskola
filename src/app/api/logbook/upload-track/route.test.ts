@@ -46,6 +46,8 @@ vi.mock('@/lib/supabase/server', () => ({
 describe('POST /api/logbook/upload-track', () => {
     beforeEach(() => {
         vi.clearAllMocks();
+        vi.stubEnv('NEXT_PUBLIC_SUPABASE_URL', 'http://localhost');
+        vi.stubEnv('SUPABASE_SERVICE_ROLE_KEY', 'dummy-key');
     });
 
     it('should process a valid GPX file and create a new session', async () => {

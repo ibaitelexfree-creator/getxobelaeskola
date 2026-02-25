@@ -54,8 +54,8 @@ interface Service {
     id: string;
     slug: string;
     nombre: string;
-    nombre_es?: string;
-    nombre_eu?: string;
+    nombre_es: string;
+    nombre_eu: string;
     nombre_en?: string;
     descripcion: string;
     descripcion_es?: string;
@@ -65,6 +65,8 @@ interface Service {
     precio_base: number;
     precio_hora?: number;
     activo: boolean;
+    categoria: string;
+    opciones: { label: string; extra: number }[];
 }
 
 export default async function RentalPage({ params: { locale } }: { params: { locale: string } }) {
