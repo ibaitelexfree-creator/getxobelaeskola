@@ -11,9 +11,31 @@ jobs:
       - name: Check branch name
         run: |
           BRANCH_NAME="${{ github.head_ref }}"
-          # Regex to allow jules/*, fix/*, and branch-* patterns
-          if [[ ! "$BRANCH_NAME" =~ ^jules/(arch|fix|data|ui)- && ! "$BRANCH_NAME" =~ ^branch- && ! "$BRANCH_NAME" =~ ^fix/ ]]; then
-            echo "❌ Error: The branch '$BRANCH_NAME' does not follow the convention jules/(arch|fix|data|ui)-*, fix/*, or branch-*"
-            exit 1
+          echo "Checking branch: $BRANCH_NAME"
+
+          # Allow:
+          # 1. jules/arch-*, jules/fix-*, jules/data-*, jules/ui-*
+          # 2. branch-* (legacy/simple)
+          # 3. fix/* (generic fixes)
+
+          if [[ "$BRANCH_NAME" =~ ^jules/(arch|fix|data|ui)- ]]; then
+            echo "✅ Valid Jules branch name"
+            exit 0
           fi
-          echo "✅ Valid branch name: $BRANCH_NAME"
+
+          if [[ "$BRANCH_NAME" =~ ^branch- ]]; then
+            echo "✅ Valid simple branch name"
+            exit 0
+          fi
+
+          if [[ "$BRANCH_NAME" =~ ^fix/ ]]; then
+            echo "✅ Valid fix branch name"
+            exit 0
+          fi
+
+          echo "❌ Error: The branch '$BRANCH_NAME' does not follow conventions."
+          echo "Allowed patterns:"
+          echo "  - jules/arch-*, jules/fix-*, jules/data-*, jules/ui-*"
+          echo "  - branch-*"
+          echo "  - fix/*"
+          exit 1

@@ -1,5 +1,3 @@
-import { Award } from 'lucide-react';
-
 interface PublicBadgesGridProps {
     badges: any[];
 }
