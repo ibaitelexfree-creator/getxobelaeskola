@@ -65,12 +65,25 @@ interface Service {
     precio_base: number;
     precio_hora?: number;
     activo: boolean;
+    categoria: string;
+    opciones?: { label: string; extra: number }[];
+}
+
+interface RentalService {
+    id: string;
+    nombre_es: string;
+    nombre_eu: string;
+    categoria: string;
+    slug: string;
+    precio_base: number;
+    opciones: { label: string; extra: number }[];
+    imagen_url: string;
 }
 
 export default async function RentalPage({ params: { locale } }: { params: { locale: string } }) {
     const t = await getTranslations({ locale, namespace: 'rental_page' });
     const supabase = createClient();
-    let services: Service[] = [];
+    let services: RentalService[] = [];
     const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://getxobelaeskola.cloud';
 
     try {
@@ -96,17 +109,29 @@ export default async function RentalPage({ params: { locale } }: { params: { loc
                 'alquiler-raquero'
             ];
 
-            // Type assertion here because Supabase response might not perfectly match our strict interface
-            services = ((data as unknown as Service[]) || []).sort((a, b) => {
-                const indexA = priorityOrder.indexOf(a.slug);
-                const indexB = priorityOrder.indexOf(b.slug);
+            const rawServices = (data as unknown as Service[]) || [];
 
-                // If slug not in list, put at the end
-                const posA = indexA === -1 ? 999 : indexA;
-                const posB = indexB === -1 ? 999 : indexB;
+            services = rawServices
+                .map(s => ({
+                    id: s.id,
+                    nombre_es: s.nombre_es || s.nombre,
+                    nombre_eu: s.nombre_eu || s.nombre,
+                    categoria: s.categoria || 'general',
+                    slug: s.slug,
+                    precio_base: s.precio_base,
+                    opciones: s.opciones || [],
+                    imagen_url: s.imagen_url
+                }))
+                .sort((a, b) => {
+                    const indexA = priorityOrder.indexOf(a.slug);
+                    const indexB = priorityOrder.indexOf(b.slug);
 
-                return posA - posB;
-            });
+                    // If slug not in list, put at the end
+                    const posA = indexA === -1 ? 999 : indexA;
+                    const posB = indexB === -1 ? 999 : indexB;
+
+                    return posA - posB;
+                });
         }
     } catch (err) {
         console.error('Network error fetching services:', err);
@@ -124,12 +149,12 @@ export default async function RentalPage({ params: { locale } }: { params: { loc
             'position': index + 1,
             'item': {
                 '@type': 'Product',
-                'name': locale === 'eu' ? (service.nombre_eu || service.nombre) : locale === 'en' ? (service.nombre_en || service.nombre) : service.nombre,
-                'description': locale === 'eu' ? (service.descripcion_eu || service.descripcion) : locale === 'en' ? (service.descripcion_en || service.descripcion) : service.descripcion,
+                'name': locale === 'eu' ? service.nombre_eu : service.nombre_es,
+                'description': 'Rental Service', // Simplified for now as we lost full description map
                 'image': `${siteUrl}${service.imagen_url || '/images/home-hero-sailing-action.webp'}`,
                 'offers': {
                     '@type': 'Offer',
-                    'price': service.precio_base || service.precio_hora,
+                    'price': service.precio_base,
                     'priceCurrency': 'EUR',
                     'availability': 'https://schema.org/InStock',
                     'url': `${siteUrl}/${locale}/rental`
@@ -170,7 +195,7 @@ export default async function RentalPage({ params: { locale } }: { params: { loc
             {/* Main Interactive Fleet Section */}
             <section className="pb-48 relative">
                 <div className="container mx-auto px-6 relative z-10">
-                    <RentalClient services={services || []} locale={locale} />
+                    <RentalClient services={services} locale={locale} />
                 </div>
 
                 {/* Bottom Note / Disclosure */}

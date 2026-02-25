@@ -2,7 +2,14 @@
 
 import { useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
-import { useNotificationStore } from '@/lib/store/useNotificationStore';
+import { useNotificationStore, NotificationType } from '@/lib/store/useNotificationStore';
+
+interface NotificationPayload {
+    type: string;
+    title: string;
+    message: string;
+    data?: any;
+}
 
 export default function RealtimeNotifications() {
     const { addNotification } = useNotificationStore();
@@ -96,10 +103,10 @@ export default function RealtimeNotifications() {
                         table: 'notifications',
                         filter: `user_id=eq.${user.id}`
                     },
-                    (payload: { new: { type: string; title: string; message: string; data?: any } }) => {
+                    (payload: { new: NotificationPayload }) => {
                         const notif = payload.new;
                         addNotification({
-                            type: notif.type || 'info',
+                            type: (notif.type as NotificationType) || 'info',
                             title: notif.title,
                             message: notif.message,
                             icon: notif.type === 'feedback_logbook' ? '📝' : (notif.type === 'feedback_evaluation' ? '✅' : 'ℹ️'),

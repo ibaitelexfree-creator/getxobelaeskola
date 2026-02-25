@@ -2,8 +2,8 @@ import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
-import BookingSelector from '@/components/courses/BookingSelector';
-import JsonLd from '@/components/seo/JsonLd';
+import BookingSelector from '@/components/booking/BookingSelector';
+import JsonLd from '@/components/shared/JsonLd';
 import { createClient } from '@/lib/supabase/server';
 import { cookies } from 'next/headers';
 
@@ -32,7 +32,7 @@ export async function generateMetadata({ params: { locale, slug } }: { params: {
 export const revalidate = 3600;
 
 export default async function CoursePage({ params: { locale, slug } }: { params: { locale: string; slug: string } }) {
-    const supabase = createClient(cookies());
+    const supabase = createClient();
 
     // 1. Fetch course details and available editions
     // Using a more robust query to get active editions
