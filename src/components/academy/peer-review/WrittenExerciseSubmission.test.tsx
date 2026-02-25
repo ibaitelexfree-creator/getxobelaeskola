@@ -1,5 +1,5 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, type Mock } from 'vitest';
 import WrittenExerciseSubmission from './WrittenExerciseSubmission';
 import { submitExerciseAttempt } from '@/actions/peer-review';
 
@@ -31,7 +31,7 @@ describe('WrittenExerciseSubmission', () => {
     });
 
     it('submits the form', async () => {
-        (submitExerciseAttempt as any).mockResolvedValue({ success: true });
+        (submitExerciseAttempt as Mock).mockResolvedValue({ success: true });
 
         render(
             <WrittenExerciseSubmission
