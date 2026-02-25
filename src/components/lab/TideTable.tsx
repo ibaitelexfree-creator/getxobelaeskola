@@ -35,6 +35,11 @@ export default function TideTable({ date, onDateChange }: TideTableProps) {
         return data;
     }, [date]);
 
+    const tooltipFormatter = (value: number | undefined, name: string | undefined) => {
+        if (value === undefined) return ['N/A', name];
+        return [`${value.toFixed(2)} m`, 'Altura'];
+    };
+
     return (
         <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden backdrop-blur-sm">
             <div className="p-6 border-b border-white/10 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -149,7 +154,7 @@ export default function TideTable({ date, onDateChange }: TideTableProps) {
                                         color: '#fff'
                                     }}
                                     itemStyle={{ color: '#60a5fa' }}
-                                    formatter={(value: number) => [`${value.toFixed(2)} m`, 'Altura']}
+                                    formatter={tooltipFormatter as any}
                                     labelStyle={{ color: '#94a3b8', marginBottom: '4px' }}
                                 />
                                 <Area

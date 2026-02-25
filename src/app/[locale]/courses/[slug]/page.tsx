@@ -1,124 +1,51 @@
-import { createClient } from '@/lib/supabase/server';
-import Image from 'next/image';
-import { getTranslations } from 'next-intl/server';
+import React from 'react';
 import { notFound } from 'next/navigation';
+import { createClient } from '@/lib/supabase/server';
+import BookingSelector from '@/components/courses/BookingSelector';
+import Image from 'next/image';
 import Link from 'next/link';
-import dynamic from 'next/dynamic';
-import { listGoogleEvents } from '@/lib/google-calendar';
+import JsonLd from '@/components/seo/JsonLd';
+import { getTranslations } from 'next-intl/server';
 
-const BookingSelector = dynamic(() => import('@/components/booking/BookingSelector'), { ssr: false });
-import JsonLd from '@/components/shared/JsonLd';
-
-import { Metadata } from 'next';
-
-export async function generateMetadata({
-    params: { locale, slug }
-}: {
-    params: { locale: string; slug: string }
-}): Promise<Metadata> {
-    const supabase = createClient();
-    let course: any = null;
-    try {
-        const { data } = await supabase
-            .from('cursos')
-            .select('*')
-            .eq('slug', slug)
-            .single();
-        course = data;
-    } catch (e) {
-        console.error('Metadata fetch failed:', e);
-    }
-
-    // Re-use fallback logic for metadata
-    const fallbacks: Record<string, any> = {
-        'iniciacion-j80': {
-            nombre_es: 'Iniciación J80',
-            nombre_eu: 'J80 Hastapena',
-            descripcion_es: 'Iníciate en el mundo de la navegación a vela en veleros J80. Aprende maniobras básicas en Getxo.',
-            descripcion_eu: 'Hasi nabigazio munduan J80 belaontzietan. Ikasi oinarrizko maniobrak Getxon.'
-        },
-        'perfeccionamiento-vela': {
-            nombre_es: 'Perfeccionamiento Vela',
-            nombre_eu: 'Bela Hobetzea',
-            descripcion_es: 'Mejora tu técnica, táctica y seguridad a bordo. Navegación competitiva y autónoma.',
-            descripcion_eu: 'Hobetu zure teknika, taktika eta segurtasuna ontzian. Nabigazio lehiakorra.'
-        },
-        'licencia-navegacion': {
-            nombre_es: 'Licencia de Navegación',
-            nombre_eu: 'Nabigazio Lizentzia',
-            descripcion_es: 'Obtén tu titulación oficial en un solo día, sin examen. Válida para barcos de hasta 6m.',
-            descripcion_eu: 'Lortu zure titulu ofiziala egun bakar batean, azterketarik gabe. 6 metrorainoko ontziak.'
-        },
-        'vela-ligera': {
-            nombre_es: 'Curso de Vela Ligera',
-            nombre_eu: 'Bela Arina Ikastaroa',
-            descripcion_es: 'Entrenamientos en Optimist, Laser y 420. Ideal para formación continua escolar.',
-            descripcion_eu: 'Optimist, Laser eta 420 ontzietan entrenamenduak. Eskola urtean zehar.'
-        }
-    };
-
-    const displayCourse = (course || fallbacks[slug]) as any;
-    if (!displayCourse) return { title: 'Curso no encontrado' };
-
-    const name = locale === 'es' ? displayCourse.nombre_es : displayCourse.nombre_eu;
-    const description = locale === 'es' ? displayCourse.descripcion_es : displayCourse.descripcion_eu;
-
+export async function generateMetadata({ params: { slug, locale } }: { params: { slug: string; locale: string } }) {
     return {
-        title: name,
-        description: description,
-        openGraph: {
-            title: name,
-            description: description,
-            images: [displayCourse.imagen_url || '/images/home-hero-sailing-action.webp']
-        },
-        twitter: {
-            card: 'summary_large_image',
-            title: name,
-            description: description,
-        }
+        title: `Curso ${slug} | Getxo Bela Eskola`,
+        description: 'Aprende a navegar en nuestra escuela de vela en el Puerto Deportivo de Getxo.',
     };
 }
 
-export async function generateStaticParams() {
-    const slugs = [
-        'campus-verano-getxo',
-        'campus-verano-external',
-        'iniciacion-adultos',
-        'tecnificacion-adultos',
-        'konpondu',
-        'windsurf-iniciacion',
-        'windsurf-campus'
-    ];
-    const locales = ['es', 'eu', 'en', 'fr'];
-    return locales.flatMap(locale => slugs.map(slug => ({ locale, slug })));
-}
+export default async function CoursePage({ params: { slug, locale } }: { params: { slug: string; locale: string } }) {
+    const supabase = createClient();
 
-export default async function CourseDetailPage({
-    params: { locale, slug }
-}: {
-    params: { locale: string; slug: string }
-}) {
-    interface Edition {
-        id: string;
-        fecha_inicio: string;
-        fecha_fin: string;
-        plazas_totales: number;
-        plazas_ocupadas: number;
-        is_calendar_event?: boolean;
+    // 1. Fetch Course Data (Server Side)
+    // We try to find by slug first
+    let { data: course } = await supabase
+        .from('cursos')
+        .select('*')
+        .eq('slug', slug)
+        .single();
+
+    // 2. Fetch Active Editions for this course
+    let allRealEditions: any[] = [];
+
+    if (course) {
+        const { data: editions } = await supabase
+            .from('ediciones_curso')
+            .select('*')
+            .eq('curso_id', course.id)
+            .gte('fecha_inicio', new Date().toISOString())
+            .order('fecha_inicio', { ascending: true });
+
+        allRealEditions = editions || [];
     }
 
+    // Fallback data for specific critical courses if DB is empty or missing
     interface CourseFallback {
-        nombre_en?: string;
-        nombre_fr?: string;
-        descripcion_en?: string;
-        descripcion_fr?: string;
         id: string;
         nombre_es: string;
         nombre_eu: string;
         nombre_en?: string;
         nombre_fr?: string;
-        descripcion_en?: string;
-        descripcion_fr?: string;
         descripcion_es: string;
         descripcion_eu: string;
         descripcion_en?: string;
@@ -127,83 +54,78 @@ export default async function CourseDetailPage({
         duracion_h: number;
         nivel: string;
         imagen_url: string;
-        detalles?: {
+        detalles: {
             es: string[];
             eu: string[];
         };
     }
-    const supabase = createClient();
 
-    // 1. Fetch main course data
-    let course: any = null;
-    try {
-        const { data } = await supabase
-            .from('cursos')
-            .select('*')
-            .eq('slug', slug)
-            .single();
-        course = data;
-    } catch (e) {
-        console.error('Course fetch failed:', e);
-    }
-
-    // 2. Fetch real sessions/editions (if table works)
-    let dbEditions: Edition[] = [];
-    try {
-        const { data: editionsData } = await supabase
-            .from('ediciones_curso')
-            .select('*')
-            .eq('curso_id', course?.id)
-            .gte('fecha_inicio', new Date().toISOString())
-            .order('fecha_inicio', { ascending: true });
-        dbEditions = (editionsData as unknown as Edition[]) || [];
-    } catch (e) {
-        console.error('Fetch editions failed', e);
-    }
-
-    // 3. Fetch from Google Calendar
-    let calendarEditions: Edition[] = [];
-    try {
-        const events = await listGoogleEvents();
-        // Match events that contain "J80" or course name keywords
-        const searchTerms = [
-            'J80',
-            slug.split('-').join(' '),
-            course?.nombre_es,
-            course?.nombre_eu
-        ].filter(Boolean).map(s => s!.toUpperCase());
-
-        calendarEditions = events
-            .filter((event: any) => {
-                const summary = (event.summary || '').toUpperCase();
-                const description = (event.description || '').toUpperCase();
-                return searchTerms.some(term => summary.includes(term) || description.includes(term));
-            })
-            .map((event: any) => ({
-                id: `ext_${event.id}`,
-                fecha_inicio: event.start?.dateTime || event.start?.date,
-                fecha_fin: event.end?.dateTime || event.end?.date,
-                plazas_totales: 4, // Default according to user request
-                plazas_ocupadas: 0,
-                is_calendar_event: true,
-                google_event_id: event.id
-            }));
-    } catch (e) {
-        console.error('Fetch calendar events failed', e);
-    }
-
-    // 4. Merge and deduplicate (roughly by date)
-    const allRealEditions = [...dbEditions, ...calendarEditions].sort(
-        (a, b) => new Date(a.fecha_inicio).getTime() - new Date(b.fecha_inicio).getTime()
-    );
-
-    // 3. Fallback Registry (Always active to ensure UI works)
     const fallbacks: Record<string, CourseFallback> = {
-        'campus-verano-getxo': {
-            id: 'bc39dfeb-cd99-4bae-a5ae-e363d5a77d61',
-            nombre_es: 'Campus Verano (Empadronados)',
-            nombre_eu: 'Udako Campusa (Erroldatuak)',
-            descripcion_es: 'Campus de verano para niños y jóvenes de 5 a 21 años empadronados en Getxo.',
+        'bautismo-vela': {
+            id: '550e8400-e29b-41d4-a716-446655440000',
+            nombre_es: 'Bautismo de Vela',
+            nombre_eu: 'Bela Bataioa',
+            descripcion_es: 'Tu primera experiencia en el mar. Aprende las sensaciones básicas de navegar a vela en una sesión de 2 horas.',
+            descripcion_eu: 'Zure lehen esperientzia itsasoan. Ikasi bela nabigazioaren oinarrizko sentsazioak 2 orduko saio batean.',
+            precio: 35,
+            duracion_h: 2,
+            nivel: 'iniciacion',
+            imagen_url: '/images/courses/BautismodeVela.webp',
+            detalles: {
+                es: ['Salida de 2 horas', 'Sin experiencia previa', 'Monitor titulado', 'Material incluido'],
+                eu: ['2 orduko irteera', 'Esperientziarik gabe', 'Monitore tituluduna', 'Materiala barne']
+            }
+        },
+        'iniciacion-crucero': {
+            id: '550e8400-e29b-41d4-a716-446655440001',
+            nombre_es: 'Iniciación Crucero',
+            nombre_eu: 'Gurutzeontzi Hasiera',
+            descripcion_es: 'Curso completo para aprender a gobernar un velero de crucero. Maniobras, seguridad y navegación básica.',
+            descripcion_eu: 'Belaontzi bat gobernatzen ikasteko ikastaro osoa. Maniobrak, segurtasuna eta oinarrizko nabigazioa.',
+            precio: 250,
+            duracion_h: 16,
+            nivel: 'iniciacion',
+            imagen_url: '/images/courses/IniciacionCrucero.webp',
+            detalles: {
+                es: ['16 horas prácticas', 'Gobierno del barco', 'Trimado de velas', 'Navegación costera'],
+                eu: ['16 ordu praktikoak', 'Ontziaren gobernua', 'Bela trimatua', 'Itsasertzeko nabigazioa']
+            }
+        },
+        'perfeccionamiento-vela': {
+            id: '550e8400-e29b-41d4-a716-446655440002',
+            nombre_es: 'Perfeccionamiento Vela',
+            nombre_eu: 'Bela Hobekuntza',
+            descripcion_es: 'Mejora tu técnica, trimado fino y maniobras avanzadas. Para navegantes que ya tienen base.',
+            descripcion_eu: 'Hobetu zure teknika, trimatu fina eta maniobra aurreratuak. Oinarria duten nabigatzaileentzat.',
+            precio: 290,
+            duracion_h: 16,
+            nivel: 'perfeccionamiento',
+            imagen_url: '/images/courses/PerfeccionamientoVela.webp',
+            detalles: {
+                es: ['Técnica avanzada', 'Spinnaker / Gennaker', 'Reglaje de velas', 'Navegación con mal tiempo'],
+                eu: ['Teknika aurreratua', 'Spinnaker / Gennaker', 'Bela erreglajea', 'Eguraldi txarrarekin nabigazioa']
+            }
+        },
+        'patron-de-yate': {
+            id: '550e8400-e29b-41d4-a716-446655440003',
+            nombre_es: 'Patrón de Yate',
+            nombre_eu: 'Yate Patroia',
+            descripcion_es: 'Prácticas oficiales para la obtención del título de Patrón de Yate. Navegación nocturna y travesía.',
+            descripcion_eu: 'Yate Patroi titulua lortzeko praktika ofizialak. Gaueko nabigazioa eta zeharkaldia.',
+            precio: 450,
+            duracion_h: 48,
+            nivel: 'titulacion',
+            imagen_url: '/images/courses/PatronYate.webp',
+            detalles: {
+                es: ['48 horas en travesía', 'Navegación nocturna', 'Guardias', 'Planificación de derrota'],
+                eu: ['48 ordu zeharkaldian', 'Gaueko nabigazioa', 'Guardiak', 'Derrota planifikazioa']
+            }
+        },
+        'campus-verano': {
+            id: '9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d',
+            nombre_es: 'Campus de Verano (Udalekus)',
+            nombre_eu: 'Udako Kanpusa (Udalekuak)',
+            descripcion_es: 'Campamento de verano para niños y jóvenes de 5 a 21 años empadronados en Getxo.',
             descripcion_eu: '5 eta 21 urte bitarteko haur eta gazteentzako udako campusa, Getxon erroldatuta daudenentzat.',
             precio: 130,
             duracion_h: 20,
