@@ -29,7 +29,7 @@ This document provides an overview of the project's source code structure and ex
 | Export Name | Type | Description |
 | :--- | :--- | :--- |
 | `cormorantGaramond` | Variable | - |
-| `outfit` | Variable | - |
+| `outfit` | Variable | - | 
 | `jetbrainsMono` | Variable | - |
 
 ### layout.tsx
