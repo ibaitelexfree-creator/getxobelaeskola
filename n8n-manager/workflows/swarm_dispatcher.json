@@ -1,0 +1,215 @@
+{
+    "name": "🚢 Jules Swarm Dispatcher: Arch -> Data -> UI",
+    "nodes": [
+        {
+            "parameters": {
+                "httpMethod": "POST",
+                "path": "swarm-dispatch",
+                "options": {}
+            },
+            "name": "Incoming Task",
+            "type": "n8n-nodes-base.webhook",
+            "typeVersion": 1,
+            "position": [
+                100,
+                300
+            ],
+            "id": "node-webhook-1"
+        },
+        {
+            "parameters": {
+                "mode": "retrieve",
+                "qdrantCollection": {
+                    "__rl": true,
+                    "value": "getxobelaeskola_code",
+                    "mode": "list"
+                },
+                "options": {}
+            },
+            "name": "RAG Context",
+            "type": "@n8n/n8n-nodes-langchain.vectorStoreQdrant",
+            "typeVersion": 1,
+            "position": [
+                300,
+                300
+            ],
+            "id": "node-rag-1",
+            "credentials": {
+                "qdrantApi": {
+                    "id": "BKI5Kx2tihKTWCsJ",
+                    "name": "QdrantApi account 2"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "method": "POST",
+                "url": "http://jules-orchestrator:3002/api/v1/sessions",
+                "sendBody": true,
+                "bodyParameters": {
+                    "parameters": [
+                        {
+                            "name": "task",
+                            "value": "={{ $node[\"Incoming Task\"].json[\"body\"][\"task\"] }} + \"\\n\\nROLE: LEAD ARCHITECT. Define contracts in /contracts and plan the implementation structure.\""
+                        },
+                        {
+                            "name": "account",
+                            "value": "getxobelaeskola@gmail.com"
+                        },
+                        {
+                            "name": "wait",
+                            "value": "true"
+                        }
+                    ]
+                }
+            },
+            "name": "Step 1: Architect",
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.1,
+            "position": [
+                500,
+                300
+            ],
+            "id": "node-arch-1"
+        },
+        {
+            "parameters": {
+                "method": "POST",
+                "url": "http://jules-orchestrator:3002/api/v1/sessions",
+                "sendBody": true,
+                "bodyParameters": {
+                    "parameters": [
+                        {
+                            "name": "task",
+                            "value": "={{ $node[\"Incoming Task\"].json[\"body\"][\"task\"] }} + \"\\n\\nROLE: DATA MASTER. Implement DB schemas, migrations and API routes based on /contracts.\""
+                        },
+                        {
+                            "name": "account",
+                            "value": "ibaitnt@gmail.com"
+                        },
+                        {
+                            "name": "wait",
+                            "value": "true"
+                        }
+                    ]
+                }
+            },
+            "name": "Step 2: Data Master",
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.1,
+            "position": [
+                700,
+                300
+            ],
+            "id": "node-data-1"
+        },
+        {
+            "parameters": {
+                "method": "POST",
+                "url": "http://jules-orchestrator:3002/api/v1/sessions",
+                "sendBody": true,
+                "bodyParameters": {
+                    "parameters": [
+                        {
+                            "name": "task",
+                            "value": "={{ $node[\"Incoming Task\"].json[\"body\"][\"task\"] }} + \"\\n\\nROLE: UI ENGINE. Implement frontend components and pages using the API provided by Data Master.\""
+                        },
+                        {
+                            "name": "account",
+                            "value": "ibaitelexfree@gmail.com"
+                        },
+                        {
+                            "name": "wait",
+                            "value": "true"
+                        }
+                    ]
+                }
+            },
+            "name": "Step 3: UI Engine",
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.1,
+            "position": [
+                900,
+                300
+            ],
+            "id": "node-ui-1"
+        },
+        {
+            "parameters": {
+                "model": "text-embedding-3-large",
+                "options": {}
+            },
+            "name": "Embeddings",
+            "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+            "typeVersion": 1.1,
+            "position": [
+                300,
+                450
+            ],
+            "id": "node-emb-1",
+            "credentials": {
+                "openAiApi": {
+                    "id": "hJ48bwYLNQIwKR5P",
+                    "name": "OpenAi account 2"
+                }
+            }
+        }
+    ],
+    "connections": {
+        "Incoming Task": {
+            "main": [
+                [
+                    {
+                        "node": "RAG Context",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "RAG Context": {
+            "main": [
+                [
+                    {
+                        "node": "Step 1: Architect",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Step 1: Architect": {
+            "main": [
+                [
+                    {
+                        "node": "Step 2: Data Master",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Step 2: Data Master": {
+            "main": [
+                [
+                    {
+                        "node": "Step 3: UI Engine",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Embeddings": {
+            "ai_embedding": [
+                [
+                    {
+                        "node": "RAG Context",
+                        "type": "ai_embedding",
+                        "index": 0
+                    }
+                ]
+            ]
+        }
+    }
+}

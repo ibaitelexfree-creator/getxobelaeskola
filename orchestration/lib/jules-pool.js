@@ -25,36 +25,48 @@ const DAILY_LIMIT = 100;
 const DEFAULT_MAX_CONCURRENT = 15;
 
 const ACCOUNTS = {
-    A: { id: 'A', name: 'Jules A', domain: 'backend', priority: 1 },
-    B: { id: 'B', name: 'Jules B', domain: 'ui', priority: 2 },
-    C: { id: 'C', name: 'Jules C', domain: 'qa', priority: 3 }
+    A: { id: 'A', name: 'Jules 1 (Architect)', email: 'getxobelaeskola@gmail.com', domain: 'architect', priority: 1 },
+    B: { id: 'B', name: 'Jules 2 (Data)', email: 'ibaitnt@gmail.com', domain: 'data', priority: 2 },
+    C: { id: 'C', name: 'Jules 3 (UI)', email: 'ibaitelexfree@gmail.com', domain: 'ui', priority: 3 }
 };
 
 const DOMAIN_MAP = {
-    backend: 'A',
-    api: 'A',
-    supabase: 'A',
-    database: 'A',
-    migration: 'A',
-    config: 'A',
+    // Jules 1 (Architect) — architecture, contracts, QA, fixes
+    architect: 'A',
+    architecture: 'A',
+    contract: 'A',
     types: 'A',
-    ui: 'B',
-    component: 'B',
-    page: 'B',
-    design: 'B',
-    i18n: 'B',
-    translation: 'B',
-    style: 'B',
-    css: 'B',
-    animation: 'B',
-    qa: 'C',
-    test: 'C',
-    e2e: 'C',
-    lint: 'C',
-    audit: 'C',
-    docs: 'C',
-    documentation: 'C',
-    security: 'C'
+    config: 'A',
+    qa: 'A',
+    test: 'A',
+    e2e: 'A',
+    lint: 'A',
+    audit: 'A',
+    fix: 'A',
+    security: 'A',
+    docs: 'A',
+    documentation: 'A',
+    // Jules 2 (Data Master) — backend, DB, API
+    backend: 'B',
+    api: 'B',
+    supabase: 'B',
+    database: 'B',
+    migration: 'B',
+    query: 'B',
+    rls: 'B',
+    sql: 'B',
+    // Jules 3 (UI Engine) — frontend, components, deploy
+    ui: 'C',
+    component: 'C',
+    page: 'C',
+    design: 'C',
+    i18n: 'C',
+    translation: 'C',
+    style: 'C',
+    css: 'C',
+    animation: 'C',
+    deploy: 'C',
+    render: 'C'
 };
 
 export class JulesPool extends EventEmitter {

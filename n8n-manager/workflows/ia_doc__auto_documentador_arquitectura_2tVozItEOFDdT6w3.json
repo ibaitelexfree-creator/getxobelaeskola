@@ -34,6 +34,10 @@
             {
               "name": "repository",
               "value": "ibaitelexfree-creator/getxobelaeskola"
+            },
+            {
+              "name": "account",
+              "value": "getxobelaeskola@gmail.com"
             }
           ]
         }

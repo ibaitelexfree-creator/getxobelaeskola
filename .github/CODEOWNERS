@@ -1,36 +1,33 @@
 # ===================================================
-# CODEOWNERS - Getxo Bela Eskola
-# Cada línea define quién DEBE aprobar cambios en esa área.
-# Docs: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+# CODEOWNERS - AI Software Factory (Swarm 3 Jules)
+# Define el ownership estricto por dominios.
 # ===================================================
 
-# 🔒 Fallback global: si nadie más matchea, el owner principal revisa
+# 🏛️ Lead Architect (Jules 1: getxobelaeskola@gmail.com)
+/contracts/                         @ibaitelexfree-creator
+/.jules/                            @ibaitelexfree-creator
+/.github/workflows/                 @ibaitelexfree-creator
+/docs/ARCHITECTURE.md               @ibaitelexfree-creator
+/package.json                       @ibaitelexfree-creator
+/tsconfig.json                      @ibaitelexfree-creator
+/next.config.mjs                    @ibaitelexfree-creator
+
+# 🗄️ Data Master (Jules 2: ibaitnt@gmail.com)
+/supabase/                          @ibaitelexfree-creator
+/src/lib/supabase/                  @ibaitelexfree-creator
+/src/app/api/                       @ibaitelexfree-creator
+/src/types/db.ts                    @ibaitelexfree-creator
+/monitoring/                        @ibaitelexfree-creator
+
+# 🎨 UI Engine (Jules 3: ibaitelexfree@gmail.com)
+/src/components/                    @ibaitelexfree-creator
+/src/app/                           @ibaitelexfree-creator
+/public/                            @ibaitelexfree-creator
+/src/styles/                        @ibaitelexfree-creator
+/messages/                          @ibaitelexfree-creator
+
+# 🔒 Fallback global
 *                                   @ibaitelexfree-creator
 
-# ⚓ Frontend (UI/UX, componentes, páginas, i18n)
-/src/app/                           @ibaitelexfree-creator
-/src/components/                    @ibaitelexfree-creator
-/messages/                          @ibaitelexfree-creator
-/public/                            @ibaitelexfree-creator
-tailwind.config.js                  @ibaitelexfree-creator
-
-# 🗄️ Backend / API / Database
-/src/app/api/                       @ibaitelexfree-creator
-/src/lib/supabase/                  @ibaitelexfree-creator
-/supabase/                          @ibaitelexfree-creator
-/orchestration/                     @ibaitelexfree-creator
-
-# 🏗️ Infraestructura / DevOps / CI
-/.github/                           @ibaitelexfree-creator
-/docker-compose*.yml                @ibaitelexfree-creator
-/Dockerfile*                        @ibaitelexfree-creator
-/infra/                             @ibaitelexfree-creator
-/scripts/                           @ibaitelexfree-creator
-
-# 🔐 Seguridad — SIEMPRE requiere al owner
-/.env.example                       @ibaitelexfree-creator
-/docs/SECURITY_CHECKLIST.md         @ibaitelexfree-creator
-
-# 🤖 Jules Swarm — Identidad inmutable
-/.jules/                            @ibaitelexfree-creator
-/AGENTS.md                          @ibaitelexfree-creator
+# ⚠️ Excepciones de Auto-Fix
+# Jules 1 (Lead) puede tocar CUALQUIER carpeta SOLO en modo reintento de CI.

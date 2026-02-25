@@ -1,0 +1,76 @@
+name: 🛡️ Jules Branch & Domain Guard
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+
+jobs:
+  validate-branch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Branch Naming Convention
+        run: |
+          BRANCH_NAME="${{ github.head_ref }}"
+          if [[ ! "$BRANCH_NAME" =~ ^jules/(arch|fix|data|ui)- ]]; then
+            echo "❌ Error: La rama '$BRANCH_NAME' no sigue la convención jules/(arch|fix|data|ui)-*"
+            exit 1
+          fi
+          echo "✅ Nombre de rama válido: $BRANCH_NAME"
+
+  validate-domain:
+    runs-on: ubuntu-latest
+    needs: validate-branch
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Verify Folder Domain Ownership
+        run: |
+          BRANCH_NAME="${{ github.head_ref }}"
+          CHANGED_FILES=$(git diff --name-only origin/main...HEAD)
+
+          if [[ "$BRANCH_NAME" =~ ^jules/data- ]]; then
+            for file in $CHANGED_FILES; do
+              if [[ "$file" =~ ^(src/components/|public/|messages/|contracts/) ]]; then
+                echo "❌ Error: Data Master no puede tocar archivos de UI o Contratos: $file"
+                exit 1
+              fi
+            done
+          fi
+
+          if [[ "$BRANCH_NAME" =~ ^jules/ui- ]]; then
+            for file in $CHANGED_FILES; do
+              if [[ "$file" =~ ^(supabase/|src/app/api/|contracts/) ]]; then
+                echo "❌ Error: UI Engine no puede tocar archivos de Data/Contratos: $file"
+                exit 1
+              fi
+            done
+          fi
+
+          echo "✅ Validación de dominio completada con éxito."
+
+      - name: Auto-Label PR
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const branch = context.payload.pull_request.head.ref;
+            let label = '';
+            if (branch.startsWith('jules/arch-')) label = 'architect';
+            if (branch.startsWith('jules/data-')) label = 'data';
+            if (branch.startsWith('jules/ui-')) label = 'ui';
+            if (branch.startsWith('jules/fix-')) label = 'hotfix';
+
+            if (label) {
+              github.rest.issues.addLabels({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                labels: [label, 'jules-swarm']
+              });
+            }

@@ -25,7 +25,7 @@ export const workflowDuration = new client.Histogram({
 export const julesTaskCounter = new client.Counter({
   name: 'jules_tasks_total',
   help: 'Total Jules tasks created',
-  labelNames: ['status'],
+  labelNames: ['status', 'account'],
   registers: [register]
 });
 
@@ -46,6 +46,13 @@ export const webhookCounter = new client.Counter({
 export const activeWorkflows = new client.Gauge({
   name: 'workflow_active',
   help: 'Number of currently active workflows',
+  registers: [register]
+});
+
+export const julesPoolGauge = new client.Gauge({
+  name: 'jules_pool_usage',
+  help: 'Number of active Jules sessions per account',
+  labelNames: ['account', 'role'],
   registers: [register]
 });
 

@@ -36,7 +36,10 @@ backup_postgres() {
     
     POSTGRES_BACKUP="$BACKUP_DIR/postgres/${BACKUP_NAME}_postgres.sql.gz"
     
-    docker exec ${PROJECT_NAME:-saas}_postgres \
+    # Intentar usar la variable POSTGRES_CONTAINER, sino caer en el valor por defecto
+    CONTAINER_NAME="${POSTGRES_CONTAINER:-${PROJECT_NAME:-saas}_postgres}"
+    
+    docker exec "$CONTAINER_NAME" \
         pg_dump -U "$DB_USER" "$DB_NAME" \
         | gzip > "$POSTGRES_BACKUP"
     
@@ -53,9 +56,12 @@ backup_n8n_data() {
     
     N8N_BACKUP="$BACKUP_DIR/n8n/${BACKUP_NAME}_n8n_data.tar.gz"
     
+    # Intentar usar la variable N8N_VOLUME, sino caer en el valor por defecto
+    VOLUME_NAME="${N8N_VOLUME:-${PROJECT_NAME:-saas}_n8n_data}"
+    
     # Backup del volumen Docker de n8n
     docker run --rm \
-        -v ${PROJECT_NAME:-saas}_n8n_data:/data \
+        -v "$VOLUME_NAME":/data \
         -v "$BACKUP_DIR/n8n":/backup \
         alpine tar czf "/backup/$(basename $N8N_BACKUP)" -C /data .
     

@@ -93,6 +93,17 @@ app.get('/api/v1/chaos/:type', async (req, res) => {
   res.status(400).json({ error: 'Unknown chaos type' });
 });
 
+// Swarm Pool Status
+app.get('/api/v1/swarm/status', async (req, res) => {
+  const status = Object.keys(ACCOUNTS_MAP).map(email => ({
+    email,
+    role: email === 'getxobelaeskola@gmail.com' ? 'Architect' : email === 'ibaitnt@gmail.com' ? 'Data Master' : 'UI Engine',
+    active_sessions: 0 // Simplificado: en una versión pro, aquí consultaríamos el pool real
+  }));
+
+  res.json({ success: true, pool: status });
+});
+
 // Incident Webhook Handler
 app.post('/api/v1/incidents/webhook', async (req, res) => {
   const requestId = req.requestId;
@@ -139,6 +150,163 @@ app.post('/api/v1/incidents/webhook', async (req, res) => {
   } catch (error) {
     console.error(`[${requestId}] Webhook Handler Critical Error:`, error.message);
     res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// ─── Jules Session Management (Swarm Orchestration) ───
+// Identity Map: Real person → Jules API Key
+// Jules 1 (Architect/QA): getxobelaeskola@gmail.com → JULES_API_KEY   (MCP: Supabase + Neon)
+// Jules 2 (Data Master):  ibaitnt@gmail.com         → JULES_API_KEY_2 (MCP: Tinybird)
+// Jules 3 (UI Engine):    ibaitelexfree@gmail.com    → JULES_API_KEY_3 (MCP: Context7 + Render)
+const ACCOUNTS_MAP = {
+  'getxobelaeskola@gmail.com': process.env.JULES_API_KEY,      // Jules 1 - Architect
+  'ibaitnt@gmail.com': process.env.JULES_API_KEY_2,            // Jules 2 - Data Master
+  'ibaitelexfree@gmail.com': process.env.JULES_API_KEY_3,      // Jules 3 - UI Engine
+};
+
+/**
+ * Jules Session Creation Endpoint
+ * Handles requests from n8n Swarm nodes.
+ * Maps parameters -> Jules API schema.
+ */
+app.post('/api/v1/sessions', async (req, res) => {
+  const requestId = req.requestId;
+  const { parameters } = req.body;
+
+  if (!parameters || !Array.isArray(parameters)) {
+    return res.status(400).json({ success: false, error: 'Missing or invalid parameters array' });
+  }
+
+  // Extract values from parameters array (n8n style)
+  const taskParam = parameters.find(p => p.name === 'task');
+  const repoParam = parameters.find(p => p.name === 'repository');
+  const accountParam = parameters.find(p => p.name === 'account');
+
+  const task = taskParam ? taskParam.value : null;
+  const repository = repoParam ? repoParam.value : 'ibaitelexfree-creator/getxobelaeskola';
+  const accountEmail = accountParam ? accountParam.value : 'ibaitelexfree@gmail.com';
+
+  if (!task) {
+    return res.status(400).json({ success: false, error: 'Task description is required' });
+  }
+
+  // Identity selection based on swarm role
+  const apiKey = ACCOUNTS_MAP[accountEmail] || process.env.JULES_API_KEY;
+
+  if (!apiKey) {
+    return res.status(500).json({
+      success: false,
+      error: `No API key configured for account: ${accountEmail}. Check environment variables.`
+    });
+  }
+
+  console.log(`[${requestId}] [SWARM] Creating Jules session | Account: ${accountEmail} | Repo: ${repository}`);
+
+  try {
+    // Proxy to real Jules API (v1alpha)
+    const response = await axios.post('https://jules.googleapis.com/v1alpha/sessions', {
+      prompt: task,
+      sourceContext: {
+        source: repository.startsWith('sources/') ? repository : `sources/github/${repository}`,
+        githubRepoContext: {
+          startingBranch: 'main'
+        }
+      },
+      automationMode: 'AUTO_CREATE_PR' // Always enable PR creation for swarm agents
+    }, {
+      headers: {
+        'Authorization': apiKey.startsWith('AQ.') ? `Bearer ${apiKey}` : undefined,
+        'X-Goog-Api-Key': !apiKey.startsWith('AQ.') ? apiKey : undefined,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    const pollParam = parameters.find(p => p.name === 'wait');
+    const wait = pollParam ? pollParam.value === true || pollParam.value === 'true' : false;
+    const timeout = 600000; // 10 minutes max wait
+
+    console.log(`[${requestId}] [SWARM] Success: ${response.data.name}${wait ? ' (Waiting for completion...)' : ''}`);
+
+    if (wait) {
+      if (metrics.julesPoolGauge) {
+        metrics.julesPoolGauge.inc({ account: accountEmail, role: accountEmail.split('@')[0] });
+      }
+
+      const sessionId = response.data.name;
+      const startTime = Date.now();
+      let sessionState = 'STATE_UNSPECIFIED';
+      let finalSession = null;
+
+      while (Date.now() - startTime < timeout) {
+        // Poll Jules API for status
+        try {
+          const statusRes = await axios.get(`https://jules.googleapis.com/v1alpha/${sessionId}`, {
+            headers: {
+              'Authorization': apiKey.startsWith('AQ.') ? `Bearer ${apiKey}` : undefined,
+              'X-Goog-Api-Key': !apiKey.startsWith('AQ.') ? apiKey : undefined,
+            }
+          });
+
+          finalSession = statusRes.data;
+          sessionState = finalSession.state;
+
+          if (['COMPLETED', 'FAILED', 'CANCELLED'].includes(sessionState)) {
+            break;
+          }
+        } catch (pollError) {
+          console.warn(`[${requestId}] [SWARM] Polling error for ${sessionId}:`, pollError.message);
+        }
+
+        // Wait 10 seconds before next poll
+        await new Promise(r => setTimeout(r, 10000));
+      }
+
+      const duration = Math.round((Date.now() - startTime) / 1000);
+      console.log(`[${requestId}] [SWARM] Session ${sessionId} finished with state ${sessionState} after ${duration}s`);
+
+      if (metrics.julesPoolGauge) {
+        metrics.julesPoolGauge.dec({ account: accountEmail, role: accountEmail.split('@')[0] });
+      }
+
+      return res.json({
+        success: sessionState === 'COMPLETED',
+        sessionId: sessionId,
+        status: sessionState,
+        result: finalSession?.result || "NO_RESULT",
+        full_session: finalSession,
+        identity: accountEmail
+      });
+    }
+
+    // Incrementar métricas (non-blocking case)
+    if (metrics.julesTaskCounter) {
+      metrics.julesTaskCounter.inc({ status: 'success', account: accountEmail });
+    }
+
+    res.json({
+      success: true,
+      sessionId: response.data.name,
+      result: "SESSION_CREATED",
+      identity: accountEmail
+    });
+
+  } catch (error) {
+    const errorData = error.response?.data || { error: error.message };
+    console.error(`[${requestId}] [SWARM] Jules API Error:`, JSON.stringify(errorData));
+
+    if (metrics.julesTaskCounter) {
+      metrics.julesTaskCounter.inc({ status: 'error', account: accountEmail });
+    }
+
+    if (wait && metrics.julesPoolGauge) {
+      metrics.julesPoolGauge.dec({ account: accountEmail, role: accountEmail.split('@')[0] });
+    }
+
+    res.status(error.response?.status || 500).json({
+      success: false,
+      ...errorData,
+      source: "JulesOrchestratorAPI"
+    });
   }
 });
 

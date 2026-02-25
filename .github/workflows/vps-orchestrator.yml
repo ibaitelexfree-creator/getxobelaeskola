@@ -1,0 +1,31 @@
+name: 🤖 Deploy Orchestrator VPS
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "orchestration/**"
+      - "docker-compose.vps.yml"
+
+jobs:
+  deploy-orchestrator:
+    name: Deploy → Hostinger Orchestrator
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+
+      - name: 🚀 Deploy via SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.VPS_IP }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            cd /opt/getxo-sailing
+            git pull origin main
+            docker compose -f docker-compose.vps.yml pull
+            docker compose -f docker-compose.vps.yml up -d --build
+            docker compose -f docker-compose.vps.yml ps
+            echo "✅ Orchestrator actualizado en Hostinger"

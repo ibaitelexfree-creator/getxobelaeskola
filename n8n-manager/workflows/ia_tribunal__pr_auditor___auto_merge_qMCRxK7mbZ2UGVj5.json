@@ -1,9 +1,9 @@
 {
-  "updatedAt": "2026-02-23T00:13:50.501Z",
+  "updatedAt": "2026-02-25T20:20:00.000Z",
   "createdAt": "2026-02-22T23:59:10.443Z",
   "id": "qMCRxK7mbZ2UGVj5",
   "name": "IA Tribunal: PR Auditor & Auto-Merge",
-  "description": null,
+  "description": "RAG-Enhanced Code Audit Swarm",
   "active": true,
   "isArchived": false,
   "nodes": [
@@ -31,11 +31,15 @@
           "parameters": [
             {
               "name": "task",
-              "value": "=\"Audit Pull Request #\" + $node[\"GitHub PR Webhook\"].json[\"body\"][\"number\"] + \" in \" + $node[\"GitHub PR Webhook\"].json[\"body\"][\"repository\"][\"full_name\"] + \". PR Details: \" + $node[\"GitHub PR Webhook\"].json[\"body\"][\"pull_request\"][\"title\"] + \". Inspect code changes and provide a pass/fail verdict. Response format: VERDICT: PASS or VERDICT: FAIL followed by reasoning.\""
+              "value": "=\"Audit Pull Request #\" + $node[\"GitHub PR Webhook\"].json[\"body\"][\"number\"] + \" in \" + $node[\"GitHub PR Webhook\"].json[\"body\"][\"repository\"][\"full_name\"] + \".\\n\\nPR DETAILS: \" + $node[\"GitHub PR Webhook\"].json[\"body\"][\"pull_request\"][\"title\"] + \"\\n\\nRAG CODEBASE CONTEXT:\\n\" + $json.map(r => r.text).join('\\n---\\n') + \"\\n\\nMISSION: Inspect code changes and provide a pass/fail verdict using LEAD_ORCHESTRATOR persona. Response format: VERDICT: PASS or VERDICT: FAIL followed by reasoning.\""
             },
             {
               "name": "repository",
               "value": "={{ $node[\"GitHub PR Webhook\"].json[\"body\"][\"repository\"][\"full_name\"] }}"
+            },
+            {
+              "name": "account",
+              "value": "getxobelaeskola@gmail.com"
             }
           ]
         }
@@ -44,7 +48,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.1,
       "position": [
-        350,
+        800,
         300
       ],
       "id": "http-audit-1"
@@ -65,7 +69,7 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 1,
       "position": [
-        550,
+        1000,
         300
       ],
       "id": "if-audit-1"
@@ -93,14 +97,70 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.1,
       "position": [
-        750,
+        1200,
         200
       ],
       "id": "http-merge-1"
+    },
+    {
+      "parameters": {
+        "mode": "retrieve",
+        "qdrantCollection": {
+          "__rl": true,
+          "value": "getxobelaeskola_code",
+          "mode": "list"
+        },
+        "options": {}
+      },
+      "id": "qdrant-retrieval",
+      "name": "Qdrant RAG",
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreQdrant",
+      "typeVersion": 1,
+      "position": [
+        350,
+        300
+      ],
+      "credentials": {
+        "qdrantApi": {
+          "id": "BKI5Kx2tihKTWCsJ",
+          "name": "QdrantApi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "text-embedding-3-large",
+        "options": {}
+      },
+      "id": "embeddings-node",
+      "name": "OpenAI Embeddings",
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.1,
+      "position": [
+        350,
+        500
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "hJ48bwYLNQIwKR5P",
+          "name": "OpenAi account 2"
+        }
+      }
     }
   ],
   "connections": {
     "GitHub PR Webhook": {
+      "main": [
+        [
+          {
+            "node": "Qdrant RAG",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Qdrant RAG": {
       "main": [
         [
           {
@@ -132,213 +192,20 @@
           }
         ]
       ]
+    },
+    "OpenAI Embeddings": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Qdrant RAG",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
-  "settings": null,
-  "staticData": null,
-  "meta": null,
-  "pinData": null,
-  "versionId": "c4b7248b-f95a-4b5b-b43e-477ab90d08a9",
-  "activeVersionId": "c4b7248b-f95a-4b5b-b43e-477ab90d08a9",
-  "versionCounter": 5,
-  "triggerCount": 1,
-  "shared": [
-    {
-      "updatedAt": "2026-02-22T23:59:10.443Z",
-      "createdAt": "2026-02-22T23:59:10.443Z",
-      "role": "workflow:owner",
-      "workflowId": "qMCRxK7mbZ2UGVj5",
-      "projectId": "3Aa1TdMrn6HM1XQF",
-      "project": {
-        "updatedAt": "2026-02-12T16:07:27.309Z",
-        "createdAt": "2026-02-12T15:59:26.248Z",
-        "id": "3Aa1TdMrn6HM1XQF",
-        "name": "Urko Santillan <getxobelaeskola@gmail.com>",
-        "type": "personal",
-        "icon": null,
-        "description": null,
-        "creatorId": "ebf74c25-213c-46b9-a63b-e349de02195f",
-        "projectRelations": [
-          {
-            "updatedAt": "2026-02-12T15:59:26.248Z",
-            "createdAt": "2026-02-12T15:59:26.248Z",
-            "userId": "ebf74c25-213c-46b9-a63b-e349de02195f",
-            "projectId": "3Aa1TdMrn6HM1XQF",
-            "user": {
-              "updatedAt": "2026-02-25T06:07:46.200Z",
-              "createdAt": "2026-02-12T15:59:25.537Z",
-              "id": "ebf74c25-213c-46b9-a63b-e349de02195f",
-              "email": "getxobelaeskola@gmail.com",
-              "firstName": "Urko",
-              "lastName": "Santillan",
-              "personalizationAnswers": {
-                "version": "v4",
-                "personalization_survey_submitted_at": "2026-02-12T16:07:48.567Z",
-                "personalization_survey_n8n_version": "2.7.4",
-                "companySize": "<20",
-                "companyType": "education",
-                "role": "customer-support",
-                "reportedSource": "google"
-              },
-              "settings": {
-                "userActivated": true,
-                "easyAIWorkflowOnboarded": true,
-                "firstSuccessfulWorkflowId": "eeqPCy1bi0DhhlxA",
-                "userActivatedAt": 1771980703393,
-                "npsSurvey": {
-                  "waitingForResponse": true,
-                  "ignoredCount": 1,
-                  "lastShownAt": 1771404097551
-                }
-              },
-              "disabled": false,
-              "mfaEnabled": false,
-              "lastActiveAt": "2026-02-24",
-              "isPending": false
-            }
-          }
-        ]
-      }
-    }
-  ],
-  "tags": [],
-  "activeVersion": {
-    "updatedAt": "2026-02-22T23:59:10.443Z",
-    "createdAt": "2026-02-22T23:59:10.443Z",
-    "versionId": "c4b7248b-f95a-4b5b-b43e-477ab90d08a9",
-    "workflowId": "qMCRxK7mbZ2UGVj5",
-    "nodes": [
-      {
-        "parameters": {
-          "httpMethod": "POST",
-          "path": "github-pr-audit",
-          "options": {}
-        },
-        "name": "GitHub PR Webhook",
-        "type": "n8n-nodes-base.webhook",
-        "typeVersion": 1,
-        "position": [
-          100,
-          300
-        ],
-        "id": "webhook-pr-1"
-      },
-      {
-        "parameters": {
-          "method": "POST",
-          "url": "http://jules-orchestrator:3002/api/v1/sessions",
-          "sendBody": true,
-          "bodyParameters": {
-            "parameters": [
-              {
-                "name": "task",
-                "value": "=\"Audit Pull Request #\" + $node[\"GitHub PR Webhook\"].json[\"body\"][\"number\"] + \" in \" + $node[\"GitHub PR Webhook\"].json[\"body\"][\"repository\"][\"full_name\"] + \". PR Details: \" + $node[\"GitHub PR Webhook\"].json[\"body\"][\"pull_request\"][\"title\"] + \". Inspect code changes and provide a pass/fail verdict. Response format: VERDICT: PASS or VERDICT: FAIL followed by reasoning.\""
-              },
-              {
-                "name": "repository",
-                "value": "={{ $node[\"GitHub PR Webhook\"].json[\"body\"][\"repository\"][\"full_name\"] }}"
-              }
-            ]
-          }
-        },
-        "name": "Trigger Auditor Jules",
-        "type": "n8n-nodes-base.httpRequest",
-        "typeVersion": 4.1,
-        "position": [
-          350,
-          300
-        ],
-        "id": "http-audit-1"
-      },
-      {
-        "parameters": {
-          "conditions": {
-            "string": [
-              {
-                "value1": "={{ $json.result }}",
-                "operation": "contains",
-                "value2": "VERDICT: PASS"
-              }
-            ]
-          }
-        },
-        "name": "Is Pass?",
-        "type": "n8n-nodes-base.if",
-        "typeVersion": 1,
-        "position": [
-          550,
-          300
-        ],
-        "id": "if-audit-1"
-      },
-      {
-        "parameters": {
-          "method": "PUT",
-          "url": "=\"https://api.github.com/repos/\" + $node[\"GitHub PR Webhook\"].json[\"body\"][\"repository\"][\"full_name\"] + \"/pulls/\" + $node[\"GitHub PR Webhook\"].json[\"body\"][\"number\"] + \"/merge\"",
-          "authentication": "genericCredentialType",
-          "genericAuthType": "httpHeaderAuth",
-          "headerParameters": {
-            "parameters": [
-              {
-                "name": "Authorization",
-                "value": "=\"token \" + $env.GITHUB_TOKEN"
-              },
-              {
-                "name": "Accept",
-                "value": "application/vnd.github.v3+json"
-              }
-            ]
-          }
-        },
-        "name": "Auto-Merge GitHub",
-        "type": "n8n-nodes-base.httpRequest",
-        "typeVersion": 4.1,
-        "position": [
-          750,
-          200
-        ],
-        "id": "http-merge-1"
-      }
-    ],
-    "connections": {
-      "GitHub PR Webhook": {
-        "main": [
-          [
-            {
-              "node": "Trigger Auditor Jules",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      },
-      "Trigger Auditor Jules": {
-        "main": [
-          [
-            {
-              "node": "Is Pass?",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      },
-      "Is Pass?": {
-        "main": [
-          [
-            {
-              "node": "Auto-Merge GitHub",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      }
-    },
-    "authors": "import",
-    "name": null,
-    "description": null,
-    "autosaved": false,
-    "workflowPublishHistory": []
+  "settings": {
+    "executionOrder": "v1"
   }
 }

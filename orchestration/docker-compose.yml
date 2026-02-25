@@ -12,6 +12,8 @@ services:
       - DATABASE_URL=postgresql://user:password@postgres:5432/jules
       - REDIS_URL=redis://redis:6379
       - JULES_API_KEY=${JULES_API_KEY:-mock_key}
+      - JULES_API_KEY_2=${JULES_API_KEY_2:-mock_key_2}
+      - JULES_API_KEY_3=${JULES_API_KEY_3:-mock_key_3}
       - GITHUB_TOKEN=${GITHUB_TOKEN:-mock_token}
       - NODE_ENV=development
       - PORT=3002

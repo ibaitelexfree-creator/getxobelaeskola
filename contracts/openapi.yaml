@@ -1,0 +1,74 @@
+openapi: 3.0.0
+info:
+  title: Getxo Bela Eskola API
+  description: API central para la gestión de la escuela de vela, academia y logbook.
+  version: 1.0.0
+
+servers:
+  - url: /api
+    description: Servidor local / Vercel
+
+paths:
+  /auth/logout:
+    post:
+      summary: Cerrar sesión
+      tags: [Auth]
+      responses:
+        "200":
+          description: Logout exitoso
+
+  /courses:
+    get:
+      summary: Listar cursos disponibles
+      tags: [Academy]
+      responses:
+        "200":
+          description: Lista de cursos
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Course"
+
+  /logbook/diary:
+    get:
+      summary: Obtener diario de navegación
+      tags: [Logbook]
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Entradas del diario
+    post:
+      summary: Crear nueva entrada en el diario
+      tags: [Logbook]
+      responses:
+        "201":
+          description: Entrada creada
+
+  /dashboard/stats:
+    get:
+      summary: Estadísticas para el dashboard del alumno
+      tags: [Student]
+      responses:
+        "200":
+          description: Objeto de estadísticas
+
+components:
+  schemas:
+    Course:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        slug: { type: string }
+        titulo_es: { type: string }
+        titulo_eu: { type: string }
+        precio: { type: number }
+        estado: { type: string, enum: [publicado, borrador, archivado] }
+
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
