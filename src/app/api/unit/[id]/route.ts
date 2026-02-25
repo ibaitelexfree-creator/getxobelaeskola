@@ -1,4 +1,3 @@
-
 import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
 import { requireAuth } from '@/lib/auth-guard';
@@ -6,7 +5,7 @@ import { verifyUnitAccess } from '@/lib/academy/enrollment';
 // Import Rate Limiter
 import { rateLimit } from '@/lib/security/rate-limit';
 import { withCors, corsHeaders } from '@/lib/api-headers';
-import { sanitizeHTML } from '@/lib/security/html-sanitizer';
+import DOMPurify from 'isomorphic-dompurify';
 
 export const dynamic = 'force-dynamic';
 
@@ -87,6 +86,25 @@ export async function GET(
             ), request);
         }
 
+        // --- SANITIZATION (Security Decision) ---
+        // Allowed HTML: p, br, strong, em, ul, ol, li, h1-h4
+        // Strip scripts, event handlers, iframes, style attributes, javascript: URLs
+        const sanitize = (content: string) => {
+             if (!content) return '';
+             return DOMPurify.sanitize(content, {
+                 ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'ul', 'ol', 'li', 'h1', 'h2', 'h3', 'h4'],
+                 ALLOWED_ATTR: [] // Strip all attributes to ensure safety
+             });
+        };
+
+        if (unidad) {
+            unidad.contenido_teorico_es = sanitize(unidad.contenido_teorico_es);
+            unidad.contenido_teorico_eu = sanitize(unidad.contenido_teorico_eu);
+            unidad.contenido_practico_es = sanitize(unidad.contenido_practico_es);
+            unidad.contenido_practico_eu = sanitize(unidad.contenido_practico_eu);
+        }
+        // ----------------------------------------
+
         // Fetch activities (Specifically written exercises for peer review)
         const { data: actividades } = await supabase
             .from('actividades')
@@ -118,13 +136,6 @@ export async function GET(
         const unidadSiguiente = currentIndex >= 0 && currentIndex < (unidadesHermanas?.length ?? 0) - 1
             ? unidadesHermanas?.[currentIndex + 1]
             : null;
-
-        // --- SECURITY: SANITIZE CONTENT (PR #314, #233, #232) ---
-        if (unidad.contenido_teorico_es) unidad.contenido_teorico_es = sanitizeHTML(unidad.contenido_teorico_es);
-        if (unidad.contenido_teorico_eu) unidad.contenido_teorico_eu = sanitizeHTML(unidad.contenido_teorico_eu);
-        if (unidad.contenido_practico_es) unidad.contenido_practico_es = sanitizeHTML(unidad.contenido_practico_es);
-        if (unidad.contenido_practico_eu) unidad.contenido_practico_eu = sanitizeHTML(unidad.contenido_practico_eu);
-        // -------------------------------------------------------
 
         return withCors(NextResponse.json({
             unidad,

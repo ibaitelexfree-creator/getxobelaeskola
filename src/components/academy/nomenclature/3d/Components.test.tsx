@@ -1,18 +1,28 @@
-import { vi, describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import React from 'react';
 import { render } from '@testing-library/react';
 import InfoOverlay from './InfoOverlay';
 import BoatModel from './BoatModel';
 
-// Mock BoatModel to avoid R3F issues
-vi.mock('./BoatModel', () => ({ default: () => null }));
-
-// Mock ResizeObserver
+// Mock ResizeObserver for R3F if needed, though we might not render Canvas here
 global.ResizeObserver = class ResizeObserver {
   observe() {}
   unobserve() {}
   disconnect() {}
 };
+
+// Mock React Three Fiber and Drei
+vi.mock('@react-three/fiber', () => ({
+  Canvas: ({ children }: any) => <div>{children}</div>,
+  useFrame: () => {},
+  useThree: () => ({ camera: {}, gl: {} }),
+  extend: () => {},
+}));
+
+vi.mock('@react-three/drei', () => ({
+  Float: ({ children }: any) => <group>{children}</group>,
+  Html: ({ children }: any) => <div>{children}</div>,
+}));
 
 describe('Nomenclature 3D Components', () => {
   it('InfoOverlay renders without crashing', () => {
@@ -34,16 +44,12 @@ describe('Nomenclature 3D Components', () => {
         onClose={() => {}}
       />
     );
-    // Note: 'Proa' might need to be in the mock data or handled by component.
-    // Assuming InfoOverlay has internal data or safe fallback.
-    // If it relies on external data, we might need to mock that too.
-    // For now, let's assume it works or just check container.
-    // The previous test checked for 'Proa' and 'Pregunta de Repaso'.
-    // If 'proa' is not a valid key in the component's data, it might fail.
-    // Let's stick to the original test structure but be careful.
+    expect(getByText('Proa')).toBeDefined();
+    expect(getByText('Pregunta de Repaso')).toBeDefined();
   });
 
+  // BoatModel requires Canvas context, so we just check it is a function
   it('BoatModel is a valid component', () => {
-    expect(typeof BoatModel).toBe('function'); // It's a mocked function now
+    expect(typeof BoatModel).toBe('function');
   });
 });
