@@ -51,6 +51,8 @@ export function generateStaticParams() {
 }
 
 interface Service {
+    categoria?: string;
+    opciones?: any;
     id: string;
     slug: string;
     nombre: string;
