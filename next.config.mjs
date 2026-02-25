@@ -185,7 +185,7 @@ const nextConfig = {
     },
     compress: true,
     poweredByHeader: false,
-    output: isCapacitor ? 'export' : 'standalone',
+    output: isCapacitor ? 'export' : (process.env.BUILD_STANDALONE === 'true' ? 'standalone' : undefined),
     staticPageGenerationTimeout: 300, // Increase timeout to 5 minutes
 
 

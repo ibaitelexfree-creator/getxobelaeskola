@@ -38,6 +38,7 @@ ENV NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=${NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY}
 ENV NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL}
 
 # Cache Next.js build cache
+ENV BUILD_STANDALONE=true
 RUN --mount=type=cache,target=/app/.next/cache \
     npm run build
 

@@ -7,9 +7,21 @@ on:
 jobs:
     audit:
         runs-on: ubuntu-latest
+    env:
+      N8N_WEBHOOK_URL: ${{ secrets.N8N_WEBHOOK_URL }}
         if: github.event.pull_request.draft == false
         steps:
+            - name: Check for N8N Webhook URL
+              id: check_secret
+              run: |
+                if [ -z "$N8N_WEBHOOK_URL" ]; then
+                  echo "N8N_WEBHOOK_URL is not set. Skipping audit."
+                  echo "skip=true" >> $GITHUB_OUTPUT
+                else
+                  echo "skip=false" >> $GITHUB_OUTPUT
+                fi
             - name: "🚀 Trigger IA Tribunal via n8n"
+              if: steps.check_secret.outputs.skip == "false"
               run: |
                   curl -X POST "${{ secrets.N8N_WEBHOOK_URL }}/webhook/github-pr-audit" \
                     -H "Content-Type: application/json" \

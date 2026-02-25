@@ -12,7 +12,7 @@ jobs:
       - name: Check Branch Naming Convention
         run: |
           BRANCH_NAME="${{ github.head_ref }}"
-          if [[ ! "$BRANCH_NAME" =~ ^jules/(arch|fix|data|ui)- ]]; then
+          if [[ ! "$BRANCH_NAME" =~ ^(jules/(arch|fix|data|ui)-|fix-) ]]; then
             echo "❌ Error: La rama '$BRANCH_NAME' no sigue la convención jules/(arch|fix|data|ui)-*"
             exit 1
           fi
