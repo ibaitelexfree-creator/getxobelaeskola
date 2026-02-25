@@ -1,28 +1,6 @@
 version: '3.8'
 
 services:
-  traefik:
-    image: traefik:v2.10
-    container_name: traefik
-    command:
-      - "--api.insecure=false"
-      - "--providers.docker=true"
-      - "--providers.docker.exposedbydefault=false"
-      - "--entrypoints.web.address=:80"
-      - "--entrypoints.websecure.address=:443"
-      - "--certificatesresolvers.mytlschallenge.acme.tlschallenge=true"
-      - "--certificatesresolvers.mytlschallenge.acme.email=info@getxobelaeskola.cloud"
-      - "--certificatesresolvers.mytlschallenge.acme.storage=/letsencrypt/acme.json"
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - "/var/run/docker.sock:/var/run/docker.sock:ro"
-      - "./letsencrypt:/letsencrypt"
-    restart: always
-    networks:
-      - orchestrator-network
-
   # Core Orchestrator Service
   orchestrator:
     build:
@@ -50,11 +28,12 @@ services:
       - "traefik.http.routers.orchestrator.entrypoints=websecure"
       - "traefik.http.routers.orchestrator.tls.certresolver=mytlschallenge"
       - "traefik.http.services.orchestrator.loadbalancer.server.port=3323"
+      - "traefik.docker.network=n8n_default"
     volumes:
       - "./orchestration/mission-control.db:/usr/src/app/mission-control.db"
     restart: unless-stopped
     networks:
-      - orchestrator-network
+      - n8n_default
 
   jules-api:
     build:
@@ -81,9 +60,10 @@ services:
       - "traefik.http.routers.jules-api.entrypoints=websecure"
       - "traefik.http.routers.jules-api.tls.certresolver=mytlschallenge"
       - "traefik.http.services.jules-api.loadbalancer.server.port=3002"
+      - "traefik.docker.network=n8n_default"
     restart: unless-stopped
     networks:
-      - orchestrator-network
+      - n8n_default
 
   qdrant:
     image: qdrant/qdrant:latest
@@ -97,9 +77,10 @@ services:
       - "traefik.http.routers.qdrant.rule=Host(`rag.getxobelaeskola.cloud`)"
       - "traefik.http.routers.qdrant.entrypoints=websecure"
       - "traefik.http.routers.qdrant.tls.certresolver=mytlschallenge"
+      - "traefik.docker.network=n8n_default"
     restart: unless-stopped
     networks:
-      - orchestrator-network
+      - n8n_default
 
   postgres:
     image: postgres:15-alpine
@@ -112,7 +93,7 @@ services:
       - "./data/postgres:/var/lib/postgresql/data"
     restart: unless-stopped
     networks:
-      - orchestrator-network
+      - n8n_default
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U user -d jules"]
       interval: 10s
@@ -126,7 +107,7 @@ services:
       - "./data/redis:/data"
     restart: unless-stopped
     networks:
-      - orchestrator-network
+      - n8n_default
     command: redis-server --appendonly yes
 
   grafana:
@@ -143,10 +124,11 @@ services:
       - "traefik.http.routers.grafana.rule=Host(`stats.getxobelaeskola.cloud`)"
       - "traefik.http.routers.grafana.entrypoints=websecure"
       - "traefik.http.routers.grafana.tls.certresolver=mytlschallenge"
+      - "traefik.docker.network=n8n_default"
     restart: unless-stopped
     networks:
-      - orchestrator-network
+      - n8n_default
 
 networks:
-  orchestrator-network:
-    driver: bridge
+  n8n_default:
+    external: true
