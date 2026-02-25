@@ -170,7 +170,7 @@ export async function POST(request: Request) {
             mode: 'payment',
             success_url: `${origin}/${locale}/student/payment-success?session_id={CHECKOUT_SESSION_ID}&type=course`,
             cancel_url: `${origin}/${locale}/courses/${course.slug}?canceled=true`,
-            customer_email: user.email,
+            customer_email: user.email ? user.email : undefined,
             metadata: {
                 edition_id: (editionId as string) || '', // Stripe metadata doesn't like null
                 user_id: user.id as string,
