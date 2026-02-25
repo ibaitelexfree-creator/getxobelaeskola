@@ -22,6 +22,7 @@ Don't ask permission. Just do it.
 ### 🤖 Multi-Agent Coordination Rules
 - **Your domain:** `/src/components`, `/messages`, `/public` ONLY
 - **Your branch prefix:** `feature/clawd-*`
+- **Documentation Sync:** After every significant milestone, integration, or structural change, you MUST run `node scripts/update_master_doc.js` and commit the updated `GETXO_MASTER_DOC.md`. This ensures our SSOT is always current for humans and other agents.
 - **Before starting work:** Check `GLOBAL_STATE.md` for conflicts
 - **After finishing work:** Update `GLOBAL_STATE.md` with your changes
 - **If you need a file outside your domain:** Write it in `DECISIONS_LOG.md` and notify via Telegram
