@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Rocket, Loader2, CheckCircle2, AlertCircle, ExternalLink, RefreshCw, Smartphone, Globe } from 'lucide-react';
-import { triggerBuildByType, getBuildStatusSummary } from '@/lib/api';
+import { Rocket, Loader2, CheckCircle2, AlertCircle, ExternalLink, RefreshCw, Smartphone, Globe, Terminal, ShieldCheck, ChevronDown, ChevronUp } from 'lucide-react';
+import { triggerBuildByType, getBuildStatusSummary, getBuildDetails, getJobLogs, analyzeBuildFailure } from '@/lib/api';
 
 const BUILD_CONFIGS = [
     { id: 'gb-web', name: 'Getxo Web', description: 'Production Web Deployment', icon: Globe },
@@ -16,6 +16,11 @@ export default function BuildTrigger() {
     const [loadingMap, setLoadingMap] = useState<Record<string, boolean>>({});
     const [statusSummary, setStatusSummary] = useState<Record<string, any>>({});
     const [refreshing, setRefreshing] = useState(false);
+    const [selectedRunId, setSelectedRunId] = useState<string | null>(null);
+    const [runDetails, setRunDetails] = useState<any>(null);
+    const [logContent, setLogContent] = useState<string | null>(null);
+    const [loadingLogs, setLoadingLogs] = useState(false);
+    const [analyzingId, setAnalyzingId] = useState<string | null>(null);
 
     const fetchStatus = async () => {
         setRefreshing(true);
@@ -47,6 +52,51 @@ export default function BuildTrigger() {
             console.error(`Trigger failed for ${type}`, e);
         } finally {
             setLoadingMap(prev => ({ ...prev, [type]: false }));
+        }
+    };
+
+    const handleViewDetails = async (runId: string) => {
+        if (selectedRunId === runId) {
+            setSelectedRunId(null);
+            setRunDetails(null);
+            return;
+        }
+
+        setSelectedRunId(runId);
+        setLoadingLogs(true);
+        try {
+            const details = await getBuildDetails(runId);
+            setRunDetails(details);
+        } catch (e) {
+            console.error('Failed to fetch run details', e);
+        } finally {
+            setLoadingLogs(false);
+        }
+    };
+
+    const handleViewLogs = async (jobId: string) => {
+        setLoadingLogs(true);
+        try {
+            const { logs } = await getJobLogs(jobId);
+            setLogContent(logs);
+        } catch (e) {
+            setLogContent('Error loading logs.');
+        } finally {
+            setLoadingLogs(false);
+        }
+    };
+
+    const handleAutoHeal = async (runId: string) => {
+        setAnalyzingId(runId);
+        try {
+            const result = await analyzeBuildFailure(runId);
+            if (result.success) {
+                alert(result.message);
+            }
+        } catch (e: any) {
+            alert('Error starting analysis: ' + (e.message || 'Error desconocido'));
+        } finally {
+            setAnalyzingId(null);
         }
     };
 
@@ -139,17 +189,103 @@ export default function BuildTrigger() {
                             </div>
 
                             <AnimatePresence>
-                                {run && run.conclusion === 'failure' && (
+                                {run && (run.conclusion === 'failure' || selectedRunId === run.id.toString()) && (
                                     <motion.div
                                         initial={{ height: 0, opacity: 0 }}
                                         animate={{ height: 'auto', opacity: 1 }}
                                         exit={{ height: 0, opacity: 0 }}
-                                        className="mt-3 pt-3 border-t border-status-red/20 overflow-hidden"
+                                        className="mt-3 pt-3 border-t border-white/5 overflow-hidden"
                                     >
-                                        <p className="text-[10px] text-status-red flex items-center gap-1">
-                                            <AlertCircle size={10} />
-                                            Build failed. Check actions for logs.
-                                        </p>
+                                        <div className="flex items-center justify-between mb-2">
+                                            <span className="text-[10px] font-mono text-white/40 uppercase tracking-tighter">Build Jobs</span>
+                                            <button
+                                                onClick={() => handleViewDetails(run.id.toString())}
+                                                className="text-[10px] text-buoy-orange hover:underline flex items-center gap-1"
+                                            >
+                                                {selectedRunId === run.id.toString() ? <ChevronUp size={10} /> : <ChevronDown size={10} />}
+                                                {selectedRunId === run.id.toString() ? 'Hide Details' : 'Show Details'}
+                                            </button>
+                                        </div>
+
+                                        {selectedRunId === run.id.toString() && runDetails ? (
+                                            <div className="space-y-2 max-h-48 overflow-y-auto pr-1 custom-scrollbar">
+                                                {runDetails.jobs.map((job: any) => (
+                                                    <div key={job.id} className="p-2 rounded bg-black/40 border border-white/5 flex items-center justify-between">
+                                                        <div className="flex items-center gap-2">
+                                                            {getStatusIcon(job.status, job.conclusion)}
+                                                            <span className="text-[10px] font-medium text-white/80">{job.name}</span>
+                                                        </div>
+                                                        <div className="flex items-center gap-2">
+                                                            <button
+                                                                onClick={() => handleViewLogs(job.id.toString())}
+                                                                className="p-1 hover:bg-white/10 rounded text-white/40 hover:text-white transition-colors"
+                                                                title="View Logs"
+                                                            >
+                                                                <Terminal size={12} />
+                                                            </button>
+                                                            {job.conclusion === 'failure' && (
+                                                                <button
+                                                                    onClick={() => handleAutoHeal(run.id.toString())}
+                                                                    disabled={analyzingId === run.id.toString()}
+                                                                    className="p-1 hover:bg-buoy-orange/20 rounded text-buoy-orange transition-colors"
+                                                                    title="Auto-Heal with Jules"
+                                                                >
+                                                                    {analyzingId === run.id.toString() ? <Loader2 size={12} className="animate-spin" /> : <ShieldCheck size={12} />}
+                                                                </button>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        ) : run.conclusion === 'failure' && (
+                                            <p className="text-[10px] text-status-red flex items-center gap-1">
+                                                <AlertCircle size={10} />
+                                                Build failed. Click show details for logs.
+                                            </p>
+                                        )}
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
+
+                            {/* Logs Overlay */}
+                            <AnimatePresence>
+                                {logContent && (
+                                    <motion.div
+                                        initial={{ opacity: 0 }}
+                                        animate={{ opacity: 1 }}
+                                        exit={{ opacity: 0 }}
+                                        className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+                                    >
+                                        <motion.div
+                                            initial={{ scale: 0.9 }}
+                                            animate={{ scale: 1 }}
+                                            exit={{ scale: 0.9 }}
+                                            className="w-full max-w-4xl max-h-[80vh] bg-[#0c0c0c] border border-white/10 rounded-2xl flex flex-col shadow-2xl"
+                                        >
+                                            <div className="p-4 border-b border-white/10 flex items-center justify-between">
+                                                <div className="flex items-center gap-2">
+                                                    <Terminal size={16} className="text-buoy-orange" />
+                                                    <h3 className="text-sm font-medium text-white">Execution Logs</h3>
+                                                </div>
+                                                <button
+                                                    onClick={() => setLogContent(null)}
+                                                    className="p-1.5 hover:bg-white/5 rounded-lg text-white/40 hover:text-white"
+                                                >
+                                                    <ExternalLink size={14} className="rotate-45" />
+                                                </button>
+                                            </div>
+                                            <div className="flex-1 overflow-auto p-4 font-mono text-[11px] leading-relaxed text-white/70 bg-black/30">
+                                                <pre className="whitespace-pre-wrap">{logContent}</pre>
+                                            </div>
+                                            <div className="p-4 border-t border-white/10 flex justify-end">
+                                                <button
+                                                    onClick={() => setLogContent(null)}
+                                                    className="px-4 py-2 bg-white/5 hover:bg-white/10 text-xs font-medium rounded-lg border border-white/10 transition-all"
+                                                >
+                                                    Close Logs
+                                                </button>
+                                            </div>
+                                        </motion.div>
                                     </motion.div>
                                 )}
                             </AnimatePresence>

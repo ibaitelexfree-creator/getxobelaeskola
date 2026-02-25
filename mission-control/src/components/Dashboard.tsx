@@ -7,7 +7,7 @@ import TacticalRadar from '@/components/TacticalRadar';
 import ResourceManager from '@/components/ResourceManager';
 import HardwareStats from './HardwareStats';
 import SyncHistoryGraph from './SyncHistoryGraph';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import ConnectionDiagnostics from '@/components/ConnectionDiagnostics';
@@ -75,6 +75,11 @@ export default function Dashboard() {
     const { t } = useTranslation();
     const [alertService, setAlertService] = useState<ServiceItem | null>(null);
     const [isGeneratingReport, setIsGeneratingReport] = useState(false);
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
 
     const generateReport = async () => {
         setIsGeneratingReport(true);
@@ -97,6 +102,8 @@ export default function Dashboard() {
 
 
     const watchdogS = services.watchdog.state || 'UNKNOWN';
+
+    if (!mounted) return null;
 
     if (!connected) {
         return <ConnectionDiagnostics />;

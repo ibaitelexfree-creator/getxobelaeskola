@@ -189,6 +189,18 @@ export const getBuildDetails = (runId: string) =>
 export const getBuildStatusSummary = () =>
     request<Record<string, any>>('GET', '/api/builds/status-summary');
 
+export const getJobLogs = (jobId: string) =>
+    request<{ logs: string }>('GET', `/api/builds/jobs/${jobId}/logs`);
+
+export const analyzeBuildFailure = (runId: string) =>
+    request<{ success: boolean; message: string; sessionId?: string }>('POST', `/api/builds/analyze/${runId}`);
+
+export const runPerformanceAudit = (url?: string) =>
+    request<any>('POST', '/api/performance/audit', { url });
+
+export const getBundleSizes = () =>
+    request<any[]>('GET', '/api/performance/bundle-sizes');
+
 export const triggerNotebookLMReport = () =>
     request<{ success: boolean; message: string; details?: string }>('POST', '/api/v1/notebooklm/report');
 

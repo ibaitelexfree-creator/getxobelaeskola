@@ -109,13 +109,8 @@ export async function GET() {
         // 5. Siguiente Unidad (Quick Resume)
         // Buscamos la primera unidad que esté 'en_progreso' o 'disponible' en un curso activo
         // Para simplificar buscamos el curso con mayor progreso incompleto
-<<<<<<< HEAD
-        const activeCourse = progress?.find(p => p.tipo_entidad === 'curso' && p.estado === 'en_progreso');
-        let nextUnit: any = null;
-=======
         const activeCourse = progress.find(p => p.tipo_entidad === 'curso' && p.estado === 'en_progreso');
         let nextUnit = null;
->>>>>>> origin/fix/orchestration-self-healing-scope-1674567216437366258
 
         if (activeCourse) {
             // Buscar unidades de este curso que no estén completadas

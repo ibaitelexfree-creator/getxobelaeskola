@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 
 import BuildTrigger from './BuildTrigger';
+import PerformanceAuditor from './PerformanceAuditor';
 import EnvironmentSelector from './EnvironmentSelector';
 
 function ToggleSwitch({
@@ -211,6 +212,9 @@ export default function ControlPanel() {
 
             {/* GitHub Build Control */}
             <BuildTrigger />
+
+            {/* Performance Audit */}
+            <PerformanceAuditor />
         </div>
     );
 }

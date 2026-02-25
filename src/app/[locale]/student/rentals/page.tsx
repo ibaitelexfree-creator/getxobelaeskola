@@ -1,40 +1,3 @@
-<<<<<<< HEAD
-import { createClient } from '@/lib/supabase/server';
-import MobileRentalList from '@/components/student/MobileRentalList';
-
-export function generateStaticParams() {
-    return ['es', 'eu', 'en', 'fr'].map(locale => ({ locale }));
-}
-
-export default async function MobileRentalPage({
-    params: { locale }
-}: {
-    params: { locale: string }
-}) {
-    const supabase = createClient();
-    let services: any[] = [];
-
-    try {
-        const { data, error } = await supabase
-            .from('servicios_alquiler')
-            .select('*')
-            .eq('activo', true)
-            .order('precio_base', { ascending: true });
-
-        if (!error && data) {
-            services = data;
-        }
-    } catch (err) {
-        console.error('Error loading rentals:', err);
-    }
-
-    return (
-        <main className="min-h-screen bg-nautical-black">
-            <MobileRentalList services={services} locale={locale} />
-        </main>
-    );
-}
-=======
 import { createClient } from '@/lib/supabase/server';
 import MobileRentalList from '@/components/student/MobileRentalList';
 
@@ -89,4 +52,3 @@ export default async function MobileRentalPage({
         </main>
     );
 }
->>>>>>> origin/fix/orchestration-self-healing-scope-1674567216437366258
