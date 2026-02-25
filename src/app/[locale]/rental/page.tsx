@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server';
 import RentalClient from '@/components/rental/RentalClient';
 import { getTranslations } from 'next-intl/server';
 import { Metadata } from 'next';
+import { RentalService } from '@/types/student';
 
 export async function generateMetadata({ params: { locale } }: { params: { locale: string } }): Promise<Metadata> {
     const t = await getTranslations({ locale, namespace: 'rental_page' });
@@ -50,12 +51,12 @@ export function generateStaticParams() {
     return ['es', 'eu', 'en', 'fr'].map(locale => ({ locale }));
 }
 
-interface Service {
-    id: string;
+// Extend RentalService to include everything we need
+interface Service extends Omit<RentalService, 'nombre_es' | 'nombre_eu' | 'categoria' | 'opciones'> {
     slug: string;
     nombre: string;
-    nombre_es?: string;
-    nombre_eu?: string;
+    nombre_es: string; // Override to be string (required)
+    nombre_eu: string; // Override to be string (required)
     nombre_en?: string;
     descripcion: string;
     descripcion_es?: string;
@@ -65,6 +66,9 @@ interface Service {
     precio_base: number;
     precio_hora?: number;
     activo: boolean;
+    // Missing fields in RentalService
+    categoria: string; // Override to be string
+    opciones: { label: string; extra: number }[]; // Override to match RentalService.opciones
 }
 
 export default async function RentalPage({ params: { locale } }: { params: { locale: string } }) {
@@ -96,8 +100,18 @@ export default async function RentalPage({ params: { locale } }: { params: { loc
                 'alquiler-raquero'
             ];
 
-            // Type assertion here because Supabase response might not perfectly match our strict interface
-            services = ((data as unknown as Service[]) || []).sort((a, b) => {
+            const rawServices = (data as unknown as any[]) || [];
+
+            services = rawServices.map((s) => ({
+                ...s,
+                nombre_es: s.nombre_es || s.nombre || '',
+                nombre_eu: s.nombre_eu || s.nombre || '',
+                categoria: s.categoria || '',
+                // Map optional string[] options to object array format if needed, or default to empty
+                opciones: Array.isArray(s.opciones) && typeof s.opciones[0] === 'string'
+                    ? s.opciones.map((opt: string) => ({ label: opt, extra: 0 }))
+                    : (s.opciones || []),
+            })).sort((a, b) => {
                 const indexA = priorityOrder.indexOf(a.slug);
                 const indexB = priorityOrder.indexOf(b.slug);
 

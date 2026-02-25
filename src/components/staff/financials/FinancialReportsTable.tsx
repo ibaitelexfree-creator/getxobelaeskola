@@ -283,7 +283,7 @@ export default function FinancialReportsTable({
                                                     </div>
                                                 </div>
                                             )}
-                                            <span className={item.monto_total > 500 ? 'text-accent font-bold' : ''}>
+                                            <span className={Number(item.monto_total) > 500 ? 'text-accent font-bold' : ''}>
                                                 {parseAmount(item.monto_total)}€
                                             </span>
                                             <button

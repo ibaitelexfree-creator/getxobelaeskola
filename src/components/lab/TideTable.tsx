@@ -138,7 +138,7 @@ export default function TideTable({ date, onDateChange }: TideTableProps) {
                                     tickLine={false}
                                     axisLine={false}
                                     domain={['auto', 'auto']}
-                                    tickFormatter={(val) => `${val.toFixed(1)}m`}
+                                    tickFormatter={(val: any) => typeof val === 'number' ? `${val.toFixed(1)}m` : `${val}m`}
                                 />
                                 <Tooltip
                                     contentStyle={{
@@ -149,7 +149,7 @@ export default function TideTable({ date, onDateChange }: TideTableProps) {
                                         color: '#fff'
                                     }}
                                     itemStyle={{ color: '#60a5fa' }}
-                                    formatter={(value: number) => [`${value.toFixed(2)} m`, 'Altura']}
+                                    formatter={(value: any) => typeof value === 'number' ? [`${value.toFixed(2)} m`, 'Altura'] : [`${value} m`, 'Altura']}
                                     labelStyle={{ color: '#94a3b8', marginBottom: '4px' }}
                                 />
                                 <Area

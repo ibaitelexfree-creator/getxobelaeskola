@@ -9,7 +9,7 @@ export async function POST(request: Request) {
     try {
         const { locale } = await request.json();
         const { user, supabase, error: authError } = await requireAuth();
-        if (authError) return authError;
+        if (authError || !user) return authError || NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
         const origin = request.headers.get('origin') || process.env.NEXT_PUBLIC_APP_URL || 'https://getxobelaeskola.cloud';
 
@@ -40,7 +40,7 @@ export async function POST(request: Request) {
             payment_method_types: ['card'],
             allow_promotion_codes: true,
             customer: profile?.stripe_customer_id || undefined,
-            customer_email: profile?.stripe_customer_id ? undefined : user.email,
+            customer_email: profile?.stripe_customer_id ? undefined : (user.email || undefined),
             line_items: [
                 {
                     price_data: {

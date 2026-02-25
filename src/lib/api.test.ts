@@ -27,6 +27,11 @@ describe('getApiBaseUrl', () => {
             origin: 'http://localhost:3000',
         };
         vi.stubGlobal('window', { location: mockLocation });
+        // Use Object.defineProperty to bypass read-only restriction in test environment if needed,
+        // or just rely on the fact that standard process.env assignment works in Node/Vitest usually.
+        // If it's read-only, we might need a different approach or just assume it's development in test runner.
+        // But let's try defining it properly.
+        Object.defineProperty(process.env, 'NODE_ENV', { value: 'development', writable: true });
 
         expect(getApiBaseUrl()).toBe('http://localhost:3000');
     });
