@@ -11,7 +11,7 @@ jobs:
         name: "🚀 Parallel Scan (<30s)"
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v4
+            - uses: actions/checkout@v6
 
             - name: "Setup Runtime"
               uses: actions/setup-node@v4
@@ -41,7 +41,7 @@ jobs:
         if: github.ref == 'refs/heads/main'
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v4
+            - uses: actions/checkout@v6
             - name: "Full Build & Test"
               run: |
                   echo "🛠️ Starting heavy compute tasks..."

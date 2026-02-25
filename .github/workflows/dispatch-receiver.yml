@@ -27,7 +27,7 @@ jobs:
           echo "Time: ${{ github.event.client_payload.timestamp }}"
 
       - name: "📥 Checkout code"
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           ref: ${{ github.event.client_payload.branch || 'main' }}
 
@@ -70,7 +70,7 @@ jobs:
           echo "Commit: ${{ github.event.client_payload.commit }}"
 
       - name: "📥 Checkout code"
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           ref: ${{ github.event.client_payload.branch || 'main' }}
 

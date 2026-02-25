@@ -30,7 +30,7 @@ jobs:
     
     steps:
       - name: 📥 Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: 🚀 Deploy via SSH
         uses: appleboy/ssh-action@v1
@@ -72,7 +72,7 @@ jobs:
     
     steps:
       - name: 📥 Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: ✈️ Setup Fly.io
         uses: superfly/flyctl-actions/setup-flyctl@master
