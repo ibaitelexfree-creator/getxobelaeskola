@@ -1,4 +1,3 @@
-
 export interface SeaStateData {
     waveHeight: number; // in meters
     period: number; // in seconds
@@ -46,37 +45,6 @@ function getSimulatedSeaState(): SeaStateData {
 }
 
 export async function fetchSeaState(): Promise<SeaStateData> {
-    // Currently relying on simulation as the official API requires authentication/tokens
-    // that are not available in the context.
-    // We return simulated data immediately to avoid performance penalties (latency)
-    // on the dashboard weather endpoint.
-
-    /*
-    try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 2000);
-
-        const response = await fetch(`https://bancodatos.puertos.es/TablaAccesoSimplificado/util/get_data.php?station=${BUOY_ID}&name=${BUOY_NAME}`, {
-            signal: controller.signal,
-            headers: {
-                'User-Agent': 'Mozilla/5.0 (compatible; GetxoBelaEskola/1.0)',
-                'Accept': 'application/json'
-            },
-            next: { revalidate: 1800 }
-        });
-
-        clearTimeout(timeoutId);
-
-        if (response.ok) {
-            const data = await response.json();
-            // TODO: Parse real data when endpoint is confirmed working
-            // return mapApiData(data);
-        }
-    } catch (error) {
-        console.warn('Sea state API unreachable');
-    }
-    */
-
     return getSimulatedSeaState();
 }
 

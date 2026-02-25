@@ -1,7 +1,11 @@
 name: "🚀 Bitbucket Dispatch Receiver"
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 # Triggered by Bitbucket pipeline via repository_dispatch
 on:
+  workflow_dispatch: {}
   repository_dispatch:
     types: [bitbucket-signal]
 

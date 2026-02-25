@@ -27,7 +27,7 @@ export async function GET(request: Request) {
             ), request);
         }
 
-
+        const is_staff = profile?.rol === 'admin' || profile?.rol === 'instructor';
 
         // 2. AUTHORIZATION
         const enrolledCourseIds = await getUserEnrollments(user.id);
@@ -188,7 +188,7 @@ export async function GET(request: Request) {
         };
 
         // Decision Tree for "Smart Next Step"
-        // LOCALIZED LINKS: /${locale}/...
+        // LOCALIZED LINKS: //...
         if (nivelesCompletados === 0 && totalSessions === 0) {
             recommendations.push({
                 id: 'path-initiation',
@@ -289,4 +289,3 @@ export async function GET(request: Request) {
         ), request);
     }
 }
-

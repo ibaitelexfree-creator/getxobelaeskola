@@ -1,6 +1,10 @@
 name: "⚖️ IA Tribunal PR Audit"
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 on:
+  workflow_dispatch: {}
     pull_request:
         types: [opened, synchronize, reopened]
 

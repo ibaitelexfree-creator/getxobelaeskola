@@ -1,4 +1,7 @@
 name: 🔒 Backup Automático Diario
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 on:
   schedule:

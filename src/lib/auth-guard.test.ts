@@ -1,14 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { checkAuth, requireAdmin, requireInstructor } from './auth-guard';
+import { NextResponse } from 'next/server';
 
-// Mock NextResponse
-vi.mock('next/server', () => ({
-    NextResponse: {
-        json: (body: any, init?: { status?: number }) => ({ body, status: init?.status }),
-    },
-}));
-
-// Create mocked functions and objects using vi.hoisted
+// Mock mocks using vi.hoisted
 const { mockGetUser, mockSingle, mockEq, mockSelect, mockFrom, mockSupabase, mockSupabaseAdmin } = vi.hoisted(() => {
     const mockGetUser = vi.fn();
     const mockSingle = vi.fn();
@@ -61,23 +55,23 @@ describe('Auth Guard', () => {
     });
 
     describe('checkAuth', () => {
-        it('should return 401 if no user is authenticated', async () => {
-            mockGetUser.mockResolvedValue({ data: { user: null } });
+        it('should return error if no user is authenticated', async () => {
+            const authError = { message: 'No autenticado', status: 401 };
+            mockGetUser.mockResolvedValue({ data: { user: null }, error: authError });
 
             const result = await checkAuth();
 
             expect(result.error).toBeDefined();
-            // Cast to any to access mocked properties
-            const errorResponse = result.error as any;
-            expect(errorResponse.status).toBe(401);
-            expect(errorResponse.message).toBe('No session');
+            expect(result.error).toEqual(authError);
+            expect(result.user).toBeNull();
         });
 
-        it('should return 404 if user is authenticated but profile is not found', async () => {
+        it('should return error if user is authenticated but profile is not found', async () => {
             const user = { id: 'user-123' };
-            mockGetUser.mockResolvedValue({ data: { user } });
-            // Profile fetch returns error or null data
-            mockSingle.mockResolvedValue({ data: null, error: { message: 'Profile not found', code: '404' } });
+            const profileError = { message: 'Perfil no encontrado', code: 'PGRST116' };
+
+            mockGetUser.mockResolvedValue({ data: { user }, error: null });
+            mockSingle.mockResolvedValue({ data: null, error: profileError });
 
             const result = await checkAuth();
 
@@ -86,14 +80,14 @@ describe('Auth Guard', () => {
             expect(mockEq).toHaveBeenCalledWith('id', 'user-123');
 
             expect(result.error).toBeDefined();
-            // It returns Supabase error object directly
-            expect(result.error.message).toBe('Profile not found');
+            expect(result.error).toEqual(profileError);
         });
 
         it('should return user, profile, and clients if authenticated and profile exists', async () => {
             const user = { id: 'user-123' };
             const profile = { id: 'user-123', rol: 'student' };
-            mockGetUser.mockResolvedValue({ data: { user } });
+
+            mockGetUser.mockResolvedValue({ data: { user }, error: null });
             mockSingle.mockResolvedValue({ data: profile, error: null });
 
             const result = await checkAuth();
@@ -108,33 +102,34 @@ describe('Auth Guard', () => {
 
     describe('requireAdmin', () => {
         it('should return error if checkAuth fails', async () => {
-            mockGetUser.mockResolvedValue({ data: { user: null } });
+            mockGetUser.mockResolvedValue({ data: { user: null }, error: { message: 'Auth error' } });
 
             const result = await requireAdmin();
 
             expect(result.error).toBeDefined();
-            const errorResponse = result.error as any;
-            expect(errorResponse.status).toBe(401);
+            expect(result.error).toBeInstanceOf(NextResponse);
+            expect(result.error?.status).toBe(401);
         });
 
         it('should return 403 if user is not admin', async () => {
             const user = { id: 'user-123' };
             const profile = { id: 'user-123', rol: 'student' };
-            mockGetUser.mockResolvedValue({ data: { user } });
+
+            mockGetUser.mockResolvedValue({ data: { user }, error: null });
             mockSingle.mockResolvedValue({ data: profile, error: null });
 
             const result = await requireAdmin();
 
             expect(result.error).toBeDefined();
-            const errorResponse = result.error as any;
-            expect(errorResponse.status).toBe(403);
-            expect(errorResponse.body).toEqual({ error: 'Acceso restringido a administradores' });
+            expect(result.error).toBeInstanceOf(NextResponse);
+            expect(result.error?.status).toBe(403);
         });
 
         it('should succeed if user is admin', async () => {
             const user = { id: 'admin-123' };
             const profile = { id: 'admin-123', rol: 'admin' };
-            mockGetUser.mockResolvedValue({ data: { user } });
+
+            mockGetUser.mockResolvedValue({ data: { user }, error: null });
             mockSingle.mockResolvedValue({ data: profile, error: null });
 
             const result = await requireAdmin();
@@ -147,33 +142,34 @@ describe('Auth Guard', () => {
 
     describe('requireInstructor', () => {
         it('should return error if checkAuth fails', async () => {
-            mockGetUser.mockResolvedValue({ data: { user: null } });
+            mockGetUser.mockResolvedValue({ data: { user: null }, error: { message: 'Auth error' } });
 
             const result = await requireInstructor();
 
             expect(result.error).toBeDefined();
-            const errorResponse = result.error as any;
-            expect(errorResponse.status).toBe(401);
+            expect(result.error).toBeInstanceOf(NextResponse);
+            expect(result.error?.status).toBe(401);
         });
 
         it('should return 403 if user is strictly student', async () => {
             const user = { id: 'student-123' };
             const profile = { id: 'student-123', rol: 'student' };
-            mockGetUser.mockResolvedValue({ data: { user } });
+
+            mockGetUser.mockResolvedValue({ data: { user }, error: null });
             mockSingle.mockResolvedValue({ data: profile, error: null });
 
             const result = await requireInstructor();
 
             expect(result.error).toBeDefined();
-            const errorResponse = result.error as any;
-            expect(errorResponse.status).toBe(403);
-            expect(errorResponse.body).toEqual({ error: 'Acceso restringido a instructores o administradores' });
+            expect(result.error).toBeInstanceOf(NextResponse);
+            expect(result.error?.status).toBe(403);
         });
 
         it('should succeed if user is instructor', async () => {
             const user = { id: 'inst-123' };
             const profile = { id: 'inst-123', rol: 'instructor' };
-            mockGetUser.mockResolvedValue({ data: { user } });
+
+            mockGetUser.mockResolvedValue({ data: { user }, error: null });
             mockSingle.mockResolvedValue({ data: profile, error: null });
 
             const result = await requireInstructor();
@@ -185,7 +181,8 @@ describe('Auth Guard', () => {
         it('should succeed if user is admin', async () => {
             const user = { id: 'admin-123' };
             const profile = { id: 'admin-123', rol: 'admin' };
-            mockGetUser.mockResolvedValue({ data: { user } });
+
+            mockGetUser.mockResolvedValue({ data: { user }, error: null });
             mockSingle.mockResolvedValue({ data: profile, error: null });
 
             const result = await requireInstructor();

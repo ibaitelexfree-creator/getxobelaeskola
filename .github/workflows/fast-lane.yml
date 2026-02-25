@@ -1,6 +1,7 @@
 name: "⚡ Fast Lane: Consolidated Verification"
 
 on:
+  workflow_dispatch: {}
     push:
         branches: [main, master, "feature/**", "fix/**"]
     pull_request:

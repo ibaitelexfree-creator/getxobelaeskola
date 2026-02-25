@@ -1,6 +1,10 @@
 name: 🛡️ Jules Branch & Domain Guard
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 on:
+  workflow_dispatch: {}
   pull_request:
     branches: [main]
     types: [opened, synchronize, reopened]

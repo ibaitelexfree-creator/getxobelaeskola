@@ -21,15 +21,19 @@ if (featureCollection.features) {
     featureCollection.features.forEach((feature: any) => {
         try {
             const bbox = turf.bbox(feature);
-            items.push({
-                minX: bbox[0],
-                minY: bbox[1],
-                maxX: bbox[2],
-                maxY: bbox[3],
-                feature: feature
-            });
+            // Ensure bbox is valid numbers
+            if (bbox.every(n => typeof n === 'number' && !isNaN(n) && isFinite(n))) {
+                items.push({
+                    minX: bbox[0],
+                    minY: bbox[1],
+                    maxX: bbox[2],
+                    maxY: bbox[3],
+                    feature: feature
+                });
+            }
         } catch (e) {
-            // Silently skip invalid features to allow module loading
+            // Ignore invalid features during initialization
+            // console.warn('Skipping invalid feature in water geometry', e);
         }
     });
     tree.load(items);
@@ -37,15 +41,17 @@ if (featureCollection.features) {
     // Fallback if it's a single feature
     try {
         const bbox = turf.bbox(featureCollection);
-        tree.load([{
-            minX: bbox[0],
-            minY: bbox[1],
-            maxX: bbox[2],
-            maxY: bbox[3],
-            feature: featureCollection
-        }]);
+        if (bbox.every(n => typeof n === 'number' && !isNaN(n) && isFinite(n))) {
+            tree.load([{
+                minX: bbox[0],
+                minY: bbox[1],
+                maxX: bbox[2],
+                maxY: bbox[3],
+                feature: featureCollection
+            }]);
+        }
     } catch (e) {
-        // Silently skip invalid feature
+        // Ignore
     }
 }
 

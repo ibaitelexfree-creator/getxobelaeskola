@@ -1,4 +1,3 @@
-
 // Catálogo de mensajes motivacionales por contexto
 
 export const MOTIVATIONAL_MESSAGES = {
@@ -68,7 +67,8 @@ export function getStreakMessage(days: number): string | null {
     const streaks = [30, 14, 7, 5, 3];
     for (const milestone of streaks) {
         if (days === milestone) {
-            return MOTIVATIONAL_MESSAGES.streak[milestone];
+
+            return MOTIVATIONAL_MESSAGES.streak[milestone as keyof typeof MOTIVATIONAL_MESSAGES.streak];
         }
     }
     return null;
