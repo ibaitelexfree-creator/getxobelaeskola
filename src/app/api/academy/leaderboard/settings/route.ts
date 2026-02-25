@@ -3,7 +3,8 @@ import { NextResponse } from 'next/server';
 import { requireAuth } from '@/lib/auth-guard';
 import { withCors, corsHeaders } from '@/lib/api-headers';
 
-export const dynamic = 'force-dynamic';
+// Only force dynamic if NOT in static export mode (Capacitor)
+export const dynamic = process.env.IS_CAPACITOR === 'true' ? 'auto' : 'force-dynamic';
 
 export async function OPTIONS(request: Request) {
     const headers = corsHeaders(request);
