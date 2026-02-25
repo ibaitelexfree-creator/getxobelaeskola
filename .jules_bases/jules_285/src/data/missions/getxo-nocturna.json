@@ -1,0 +1,154 @@
+{
+  "id": "getxo_nocturna_01",
+  "title": "Entrada Nocturna: Puerto Deportivo de Getxo",
+  "description": "Navegación nocturna aproximándose desde el Abra exterior hasta el atraque en el puerto deportivo de Getxo. Pon a prueba tu identificación de balizas y toma de decisiones.",
+  "difficulty": "medio",
+  "estimated_time": "15 min",
+  "initial_state": "start",
+  "states": {
+    "start": {
+      "id": "start",
+      "title": "Aproximación al Abra",
+      "description": "Es una noche cerrada con buena visibilidad. Navegas a motor con rumbo 160° hacia la entrada del Abra de Bilbao. El viento es del NW fuerza 3 y la mar está rizada. A proa, ligeramente a babor, observas una luz blanca con grupos de 3 destellos cada 8 segundos.",
+      "image_url": "/images/missions/getxo/night_approach.jpg",
+      "choices": [
+        {
+          "text": "Consultar la carta náutica para identificar la luz.",
+          "next_state": "check_chart_galea"
+        },
+        {
+          "text": "Asumir que es el Faro de Machichaco y caer a estribor.",
+          "next_state": "fail_wrong_identification"
+        },
+        {
+          "text": "Ignorar la luz y mantener rumbo esperando ver las luces del puerto.",
+          "next_state": "risk_collision"
+        }
+      ]
+    },
+    "check_chart_galea": {
+      "id": "check_chart_galea",
+      "title": "Identificación de Baliza",
+      "description": "Consultas la carta. La característica GpD(3)B 8s corresponde al Faro de Punta Galea, que marca el límite este de la entrada al Abra. Estás en buena posición.",
+      "choices": [
+        {
+          "text": "Mantener rumbo dejando la luz de Punta Galea por babor.",
+          "next_state": "enter_abra_channel"
+        },
+        {
+          "text": "Caer a babor para acercarse a la luz.",
+          "next_state": "fail_grounding_galea"
+        }
+      ]
+    },
+    "enter_abra_channel": {
+      "id": "enter_abra_channel",
+      "title": "Entrada en el Abra",
+      "description": "Has dejado Punta Galea por el través de babor. Ahora tienes la entrada al Abra frente a ti. A estribor observas una luz verde de destellos (Dique de Zierbena/Punta Lucero) y más al fondo las luces de la ciudad y el puerto comercial. A babor, más cerca, ves una luz verde regular (Dique de Arriluze).",
+      "choices": [
+        {
+          "text": "Dirigirse hacia la luz verde de Arriluze (babor).",
+          "next_state": "approach_arriluze"
+        },
+        {
+          "text": "Dirigirse hacia la luz verde de Punta Lucero (estribor).",
+          "next_state": "fail_commercial_port"
+        }
+      ]
+    },
+    "approach_arriluze": {
+      "id": "approach_arriluze",
+      "title": "Aproximación a Arriluze",
+      "description": "Te aproximas al Dique de Arriluze. Ves la luz verde del morro del dique. Debes entrar al puerto deportivo que se encuentra justo detrás.",
+      "choices": [
+        {
+          "text": "Dejar la luz verde de Arriluze por estribor (pasar entre la luz y la costa).",
+          "next_state": "fail_grounding_arriluze"
+        },
+        {
+          "text": "Dejar la luz verde de Arriluze por babor (entrar en la dársena).",
+          "next_state": "enter_marina_mouth"
+        }
+      ]
+    },
+    "enter_marina_mouth": {
+      "id": "enter_marina_mouth",
+      "title": "Bocana del Puerto Deportivo",
+      "description": "Estás frente a la bocana del Puerto Deportivo de Getxo. Ves una luz roja a tu izquierda y una luz verde a tu derecha en las extremidades de los espigones de entrada.",
+      "choices": [
+        {
+          "text": "Entrar dejando la luz roja a babor y la verde a estribor.",
+          "next_state": "docking_procedure"
+        },
+        {
+          "text": "Entrar dejando la luz verde a babor y la roja a estribor.",
+          "next_state": "fail_collision_breakwater"
+        }
+      ]
+    },
+    "docking_procedure": {
+      "id": "docking_procedure",
+      "title": "Atraque",
+      "description": "Has entrado correctamente en la dársena. El agua está en calma. Tu atraque está en el pantalán K, al fondo a estribor.",
+      "choices": [
+        {
+          "text": "Preparar defensas y amarras por ambas bandas y proceder al atraque.",
+          "next_state": "success"
+        },
+        {
+          "text": "Entrar rápido al pantalán para compensar el viento.",
+          "next_state": "fail_docking_collision"
+        }
+      ]
+    },
+    "success": {
+      "id": "success",
+      "title": "Misión Completada",
+      "description": "¡Enhorabuena! Has atracado de forma segura en el Puerto Deportivo de Getxo. Has identificado correctamente las balizas y respetado el balizamiento IALA A.",
+      "type": "success",
+      "image_url": "/images/missions/getxo/docked_night.jpg"
+    },
+    "fail_wrong_identification": {
+      "id": "fail_wrong_identification",
+      "title": "Error de Identificación",
+      "description": "Al confundir Punta Galea con Machichaco (que está mucho más al este), has calculado mal tu posición y rumbo. Te encuentras peligrosamente cerca de los acantilados de La Galea.",
+      "type": "failure"
+    },
+    "risk_collision": {
+      "id": "risk_collision",
+      "title": "Riesgo de Colisión",
+      "description": "Al ignorar las referencias visuales, te has adentrado en la zona de tráfico de mercantes sin saber tu posición exacta. Un práctico te avisa por radio del peligro inminente.",
+      "type": "failure"
+    },
+    "fail_grounding_galea": {
+      "id": "fail_grounding_galea",
+      "title": "Embarrancada en La Galea",
+      "description": "Al intentar acercarte demasiado a la luz de Punta Galea, has tocado fondo en los bajos rocosos que rodean el cabo. La misión termina con el barco varado.",
+      "type": "failure"
+    },
+    "fail_commercial_port": {
+      "id": "fail_commercial_port",
+      "title": "Entrada en Puerto Comercial",
+      "description": "Te has dirigido hacia el Superpuerto (Puerto de Bilbao exterior). Las autoridades portuarias te interceptan por invadir una zona restringida a grandes buques y mercancías peligrosas.",
+      "type": "failure"
+    },
+    "fail_grounding_arriluze": {
+      "id": "fail_grounding_arriluze",
+      "title": "Embarrancada en Arriluze",
+      "description": "Has intentado pasar entre el faro verde del dique y la costa (Playa de Ereaga). No hay calado suficiente. Has embarrancado en la arena.",
+      "type": "failure"
+    },
+    "fail_collision_breakwater": {
+      "id": "fail_collision_breakwater",
+      "title": "Colisión en Bocana",
+      "description": "Has confundido el sentido del balizamiento (Sistema IALA A: Entrada - Rojo a Babor, Verde a Estribor). Al invertirlo, has chocado contra el espigón.",
+      "type": "failure"
+    },
+    "fail_docking_collision": {
+      "id": "fail_docking_collision",
+      "title": "Golpe en el Atraque",
+      "description": "Entraste con demasiada arrancada. Al dar atrás, la hélice no ha respondido a tiempo y has golpeado el pantalán, causando daños a la proa.",
+      "type": "failure"
+    }
+  }
+}
