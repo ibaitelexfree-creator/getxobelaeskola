@@ -10,14 +10,20 @@ jobs:
         if: github.event.pull_request.draft == false
         steps:
             - name: "🚀 Trigger IA Tribunal via n8n"
+              env:
+                WEBHOOK_URL: ${{ secrets.N8N_WEBHOOK_URL }}
               run: |
-                  curl -X POST "${{ secrets.N8N_WEBHOOK_URL }}/webhook/github-pr-audit" \
-                    -H "Content-Type: application/json" \
-                    -d '{
-                      "number": "${{ github.event.pull_request.number }}",
-                      "title": ${{ toJSON(github.event.pull_request.title) }},
-                      "description": ${{ toJSON(github.event.pull_request.body) }},
-                      "repository": "${{ github.repository }}",
-                      "sender": "${{ github.event.sender.login }}",
-                      "branch": "${{ github.event.pull_request.head.ref }}"
-                    }'
+                  if [ -n "$WEBHOOK_URL" ]; then
+                    curl -X POST "$WEBHOOK_URL/webhook/github-pr-audit" \
+                      -H "Content-Type: application/json" \
+                      -d '{
+                        "number": "${{ github.event.pull_request.number }}",
+                        "title": ${{ toJSON(github.event.pull_request.title) }},
+                        "description": ${{ toJSON(github.event.pull_request.body) }},
+                        "repository": "${{ github.repository }}",
+                        "sender": "${{ github.event.sender.login }}",
+                        "branch": "${{ github.event.pull_request.head.ref }}"
+                      }'
+                  else
+                    echo "⚠️ N8N_WEBHOOK_URL secret is not set. Skipping audit."
+                  fi
