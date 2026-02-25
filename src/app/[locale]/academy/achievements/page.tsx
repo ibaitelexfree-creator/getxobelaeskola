@@ -50,12 +50,14 @@ export default function AchievementsPage({ params }: { params: { locale: string 
                     <p className="text-xs text-white/40 mb-2 uppercase font-bold">Panel de Pruebas (Demo)</p>
                     <div className="flex gap-2 flex-wrap">
                         <button
+                            type="button"
                             onClick={() => unlockBadge('grumete_novato')}
                             className="px-3 py-1 bg-white/10 hover:bg-white/20 rounded text-xs"
                         >
                             Desbloquear &quot;Grumete Novato&quot;
                         </button>
                         <button
+                            type="button"
                             onClick={() => unlockBadge('navegante_nocturno')}
                             className="px-3 py-1 bg-white/10 hover:bg-white/20 rounded text-xs"
                         >
@@ -68,6 +70,7 @@ export default function AchievementsPage({ params }: { params: { locale: string 
                 <div className="flex flex-wrap gap-2 mb-12">
                     {categories.map(cat => (
                         <button
+                            type="button"
                             key={cat}
                             onClick={() => setFilter(cat)}
                             className={`px-4 py-2 rounded-full text-xs font-bold uppercase tracking-widest transition-all ${filter === cat
