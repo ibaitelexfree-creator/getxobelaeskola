@@ -7,7 +7,7 @@ describe('getApiBaseUrl', () => {
 
     beforeEach(() => {
         vi.resetModules();
-        process.env = { ...originalEnv };
+        process.env = { ...originalEnv, NODE_ENV: 'development' };
     });
 
     afterEach(() => {
@@ -98,7 +98,7 @@ describe('apiUrl', () => {
 
     beforeEach(() => {
         vi.resetModules();
-        process.env = { ...originalEnv };
+        process.env = { ...originalEnv, NODE_ENV: 'development' };
         // Set a default environment for apiUrl tests
         const mockLocation = {
             hostname: 'example.com',
