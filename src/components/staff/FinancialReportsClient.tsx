@@ -314,7 +314,7 @@ export default function FinancialReportsClient({ initialData, initialView, total
         // If range is huge (e.g. 6 years = 72 months), we aggregate
         const isMonthly = diffDays > 45;
 
-        let monthStep = 1;
+        const monthStep = 1;
         // User requested strict "one bar per month" for "Todos los datos"
 
         if (isHourly) {
