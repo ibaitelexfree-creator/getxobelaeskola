@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, Mock } from 'vitest';
 import { GET } from './route';
 import { createClient } from '@/lib/supabase/server';
 
@@ -8,6 +8,7 @@ vi.mock('@/lib/supabase/server', () => ({
 }));
 
 describe('Dashboard Stats API', () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let mockSupabase: any;
     const mockUser = { id: 'test-user-id', email: 'test@example.com' };
 
@@ -15,6 +16,7 @@ describe('Dashboard Stats API', () => {
         vi.clearAllMocks();
 
         const createChain = (table: string) => {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const chain: any = {
                 select: vi.fn().mockReturnThis(),
                 eq: vi.fn().mockReturnThis(),
@@ -22,7 +24,9 @@ describe('Dashboard Stats API', () => {
                 single: vi.fn().mockResolvedValue({ data: null, error: null }),
                 maybeSingle: vi.fn().mockResolvedValue({ data: null, error: null }),
                 // Handle the case where it's awaited directly (like .select().eq()...)
-                then: vi.fn().mockImplementation(function (onfulfilled) {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                then: vi.fn().mockImplementation(function (onfulfilled: (value: any) => any) {
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     let data: any = [];
                     if (table === 'profiles') data = { id: 'test-user-id', nombre: 'Test' };
                     if (table === 'inscripciones') data = [
@@ -57,7 +61,7 @@ describe('Dashboard Stats API', () => {
             from: vi.fn((table: string) => createChain(table)),
         };
 
-        (createClient as any).mockResolvedValue(mockSupabase);
+        (createClient as Mock).mockResolvedValue(mockSupabase);
     });
 
     it('returns the correct structure with optimized joins', async () => {

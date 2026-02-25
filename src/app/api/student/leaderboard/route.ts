@@ -3,6 +3,16 @@ import { NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';
 
+interface LeaderboardEntry {
+    id: string;
+    nombre: string | null;
+    apellidos: string | null;
+    avatar_url: string | null;
+    public_profile: boolean;
+    points: number;
+    // Add other properties returned by get_leaderboard if known
+}
+
 export async function GET() {
     try {
         const supabase = await createClient();
@@ -20,7 +30,7 @@ export async function GET() {
         }
 
         // Mask private profiles server-side
-        const maskedLeaderboard = (leaderboard || []).map((entry: any) => {
+        const maskedLeaderboard = ((leaderboard as unknown as LeaderboardEntry[]) || []).map((entry) => {
             if (entry.id === user.id) {
                 return entry;
             }
@@ -40,7 +50,7 @@ export async function GET() {
             currentUserId: user.id
         });
 
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error('CRITICAL: Error fetching leaderboard:', error);
         return NextResponse.json(
             { error: 'Internal Server Error' },
