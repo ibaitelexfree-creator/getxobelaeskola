@@ -1,0 +1,49 @@
+name: 📚 Documentation & Coverage
+
+on:
+    push:
+        branches: [main]
+    workflow_dispatch:
+
+permissions:
+    contents: write
+
+jobs:
+    deploy-docs:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: 18
+                  cache: "npm"
+
+            - name: Install dependencies
+              run: npm ci
+
+            - name: 🧪 Generate Test Coverage
+              run: npm run test:coverage || echo "No tests to run or coverage failed, skipping report"
+              env:
+                  NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+                  NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+
+            - name: 📁 Prepare Documentation Site
+              run: |
+                  mkdir -p docs_site
+                  # Copy coverage if exists
+                  if [ -d "coverage" ]; then cp -r coverage docs_site/coverage; fi
+                  # Copy master docs
+                  cp docs/*.md docs_site/ || true
+                  cp *.md docs_site/ || true
+
+            - name: 🚀 Deploy to GitHub Pages
+              uses: peaceiris/actions-gh-pages@v4
+              with:
+                  github_token: ${{ secrets.GITHUB_TOKEN }}
+                  publish_dir: ./docs_site
+                  publish_branch: gh-pages
+                  force_orphan: true

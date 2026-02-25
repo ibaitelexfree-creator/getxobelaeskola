@@ -16,11 +16,11 @@ services:
       - GITHUB_TOKEN=${GITHUB_TOKEN}
       - GEMINI_API_KEY=${GEMINI_API_KEY}
       - QDRANT_URL=http://qdrant:6333
-      - REDIS_URL=redis://redis:6379
-      - DATABASE_URL=postgresql://user:password@postgres:5432/jules
+      - REDIS_URL=redis://orchestrator-redis:6379
+      - DATABASE_URL=postgresql://user:password@orchestrator-db:5432/jules
     depends_on:
-      - postgres
-      - redis
+      - orchestrator-db
+      - orchestrator-redis
       - qdrant
     labels:
       - "traefik.enable=true"
@@ -43,16 +43,16 @@ services:
     expose:
       - "3002"
     environment:
-      - DATABASE_URL=postgresql://user:password@postgres:5432/jules
-      - REDIS_URL=redis://redis:6379
+      - DATABASE_URL=postgresql://user:password@orchestrator-db:5432/jules
+      - REDIS_URL=redis://orchestrator-redis:6379
       - JULES_API_KEY=${JULES_API_KEY}
       - GITHUB_TOKEN=${GITHUB_TOKEN}
       - NODE_ENV=production
       - PORT=3002
     depends_on:
-      postgres:
+      orchestrator-db:
         condition: service_healthy
-      redis:
+      orchestrator-redis:
         condition: service_started
     labels:
       - "traefik.enable=true"
@@ -82,7 +82,7 @@ services:
     networks:
       - n8n_default
 
-  postgres:
+  orchestrator-db:
     image: postgres:15-alpine
     container_name: orchestrator-db
     environment:
@@ -100,7 +100,7 @@ services:
       timeout: 5s
       retries: 5
 
-  redis:
+  orchestrator-redis:
     image: redis:7-alpine
     container_name: orchestrator-redis
     volumes:
