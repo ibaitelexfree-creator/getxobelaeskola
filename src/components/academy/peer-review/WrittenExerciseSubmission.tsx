@@ -3,9 +3,24 @@
 import React, { useState } from 'react';
 import { submitExerciseAttempt } from '@/actions/peer-review';
 
+interface Activity {
+    id: string;
+    titulo_es: string;
+    titulo_eu: string;
+    descripcion_es: string;
+    descripcion_eu: string;
+}
+
+interface Attempt {
+    datos_json?: {
+        text?: string;
+    };
+    estado_revision?: string;
+}
+
 interface WrittenExerciseSubmissionProps {
-    activity: any;
-    existingAttempt?: any;
+    activity: Activity;
+    existingAttempt?: Attempt;
     unitId: string;
     locale: string;
 }

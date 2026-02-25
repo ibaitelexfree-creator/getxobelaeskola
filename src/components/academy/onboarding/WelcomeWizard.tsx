@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslations } from 'next-intl';
-import { Check, ChevronRight, Anchor, Map, Award, Ship, Wind } from 'lucide-react';
+import { ChevronRight, Anchor, Map, Award, Ship, Wind } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { apiUrl } from '@/lib/api';
 

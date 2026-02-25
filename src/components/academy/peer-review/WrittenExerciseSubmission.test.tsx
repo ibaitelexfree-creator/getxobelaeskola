@@ -31,7 +31,7 @@ describe('WrittenExerciseSubmission', () => {
     });
 
     it('submits the form', async () => {
-        (submitExerciseAttempt as any).mockResolvedValue({ success: true });
+        vi.mocked(submitExerciseAttempt).mockResolvedValue({ success: true });
 
         render(
             <WrittenExerciseSubmission
