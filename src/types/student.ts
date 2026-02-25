@@ -28,8 +28,13 @@ export interface Inscripcion {
 
 export interface RentalService {
   id: string;
-  nombre_es: string;
+  nombre_es?: string;
   nombre_eu?: string;
+  categoria?: string;
+  slug?: string;
+  precio_base?: number;
+  opciones?: { label: string; extra: number }[];
+  imagen_url?: string;
 }
 
 export interface Rental {

@@ -4,7 +4,7 @@ export interface LogbookEntry {
   alumno_id: string;
   fecha: string; // TIMESTAMPTZ
   contenido: string; // Description/Observaciones fallback? Or main content?
-  estado_animo: 'confident' | 'challenging' | 'discovery';
+  estado_animo: "confident" | "challenging" | "discovery";
   tags: string[]; // Generic tags
 
   // New nautical fields
@@ -27,5 +27,5 @@ export interface LogbookFormData {
   viento_direccion: string;
   maniobras: string;
   observaciones: string;
-  estado_animo: 'confident' | 'challenging' | 'discovery';
+  estado_animo: "confident" | "challenging" | "discovery";
 }

@@ -1,106 +1,94 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import { useMultiplayerStore } from '@/lib/store/useMultiplayerStore';
 import { createClient } from '@/lib/supabase/client';
 
 export default function LobbyClient() {
-    const { code } = useParams();
+    const params = useParams();
     const router = useRouter();
-    const [loading, setLoading] = useState(true);
-
-    const lobby = useMultiplayerStore(state => state.lobby);
-    const participants = useMultiplayerStore(state => state.participants);
-    const joinLobby = useMultiplayerStore(state => state.joinLobby);
-    const startGame = useMultiplayerStore(state => state.startGame);
-    const isHost = useMultiplayerStore(state => state.isHost);
-    const playerId = useMultiplayerStore(state => state.playerId);
+    const { joinMatch, matchState, isConnecting } = useMultiplayerStore();
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        const init = async () => {
-            if (!code) return;
+        const join = async () => {
+            if (!params.code) return;
 
-            const supabase = createClient();
-            const { data: { user } } = await supabase.auth.getUser();
+            try {
+                const supabase = createClient();
+                const { data: { user } } = await supabase.auth.getUser();
 
-            if (!user) {
-                // Redirect to login or landing
-                router.push('/academy/competition');
-                return;
-            }
-
-            // If store doesn't have this lobby, join/fetch it
-            // We use 'waiting' status check to avoid re-joining if we are already in
-            if (!lobby || lobby.code !== code) {
-                const success = await joinLobby(code as string, user.id, user.email?.split('@')[0] || 'Skipper');
-                if (!success) {
-                    router.push('/academy/competition');
+                if (!user) {
+                    router.push(`/es/auth/login?returnTo=/academy/competition/lobby/${params.code}`);
+                    return;
                 }
+
+                // If already connected to this match, don't rejoin
+                if (matchState?.matchId === params.code) return;
+
+                await joinMatch(params.code as string, user.id, user.user_metadata.full_name || 'Anonymous');
+            } catch (err) {
+                setError(err instanceof Error ? err.message : 'Error joining lobby');
             }
-            setLoading(false);
         };
 
-        init();
-    }, [code, lobby, joinLobby, router]);
+        join();
+    }, [params.code, joinMatch, router, matchState?.matchId]);
 
-    // Watch for game start
-    useEffect(() => {
-        if (lobby?.status === 'racing') {
-            router.push(`/academy/competition/race/${code}`);
-        }
-    }, [lobby?.status, code, router]);
+    if (error) {
+        return (
+            <div className="min-h-screen bg-nautical-black flex items-center justify-center text-white">
+                <div className="text-center">
+                    <h1 className="text-2xl font-bold mb-4 text-red-500">Error</h1>
+                    <p>{error}</p>
+                    <button
+                        onClick={() => router.push('/academy/competition')}
+                        className="mt-4 px-6 py-2 bg-white/10 rounded hover:bg-white/20"
+                    >
+                        Back to Competition
+                    </button>
+                </div>
+            </div>
+        );
+    }
 
-    if (loading) return <div className="min-h-screen bg-black text-white flex items-center justify-center font-mono">CARGANDO...</div>;
-    if (!lobby) return <div className="min-h-screen bg-black text-white flex items-center justify-center font-mono">SALA NO ENCONTRADA</div>;
+    if (isConnecting || !matchState) {
+        return (
+            <div className="min-h-screen bg-nautical-black flex items-center justify-center text-white">
+                <div className="text-center">
+                    <div className="animate-spin w-8 h-8 border-2 border-accent border-t-transparent rounded-full mx-auto mb-4"/>
+                    <p>Joining lobby...</p>
+                </div>
+            </div>
+        );
+    }
 
     return (
-        <div className="min-h-screen bg-black text-white p-8 font-sans flex flex-col items-center justify-center">
-            <div className="w-full max-w-4xl">
-                <h1 className="text-6xl font-black italic tracking-tighter text-cyan-500 mb-2">LOBBY</h1>
-                <h2 className="text-2xl font-mono text-gray-400 mb-8 tracking-[0.5em]">{code}</h2>
+        <div className="min-h-screen bg-nautical-black text-white p-8">
+            <div className="max-w-4xl mx-auto">
+                <header className="mb-12">
+                    <h1 className="text-4xl font-display italic text-accent mb-2">Lobby</h1>
+                    <p className="text-white/60">Match Code: {params.code}</p>
+                </header>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div className="bg-gray-900/50 border border-gray-800 p-6 rounded-xl backdrop-blur-sm shadow-2xl">
-                        <h3 className="text-xl font-bold mb-4 border-b border-gray-700 pb-2 text-cyan-400 uppercase tracking-wider">Participantes ({participants.length}/6)</h3>
-                        <ul className="space-y-3">
-                            {participants.map((p) => (
-                                <li key={p.id} className="flex justify-between items-center bg-black/40 p-3 rounded border border-gray-800 hover:border-cyan-900 transition-colors group">
-                                    <span className="font-mono text-lg text-gray-300 group-hover:text-white transition-colors">{p.username}</span>
-                                    <div className="flex items-center">
-                                        {p.user_id === lobby.host_id && <span className="text-[10px] bg-yellow-600/20 text-yellow-500 border border-yellow-600/50 px-2 py-1 rounded font-bold uppercase tracking-wider mr-2">Host</span>}
-                                        {p.user_id === playerId && <span className="text-[10px] bg-cyan-900/20 text-cyan-400 border border-cyan-500/30 px-2 py-1 rounded font-bold uppercase tracking-wider">TÚ</span>}
-                                    </div>
+                    <div className="bg-white/5 border border-white/10 rounded-xl p-6">
+                        <h2 className="text-xl font-bold mb-4">Participants ({matchState.participants.length})</h2>
+                        <ul className="space-y-2">
+                            {matchState.participants.map((p: any) => (
+                                <li key={p.id} className="flex items-center gap-2 text-white/80">
+                                    <div className="w-2 h-2 rounded-full bg-green-500"/>
+                                    {p.username}
                                 </li>
                             ))}
                         </ul>
                     </div>
 
-                    <div className="bg-gray-900/50 border border-gray-800 p-6 rounded-xl backdrop-blur-sm flex flex-col justify-between shadow-2xl">
-                        <div>
-                            <h3 className="text-xl font-bold mb-4 border-b border-gray-700 pb-2 text-cyan-400 uppercase tracking-wider">Configuración</h3>
-                            <div className="grid grid-cols-2 gap-4 text-sm text-gray-400">
-                                <div className="uppercase tracking-wide text-xs font-bold text-gray-500">Viento</div>
-                                <div className="text-white font-mono text-right">{Math.round(lobby.settings.wind_speed || 12)} kts</div>
-                                <div className="uppercase tracking-wide text-xs font-bold text-gray-500">Dirección</div>
-                                <div className="text-white font-mono text-right">{Math.round(lobby.settings.wind_direction || 45)}°</div>
-                                <div className="uppercase tracking-wide text-xs font-bold text-gray-500">Vueltas</div>
-                                <div className="text-white font-mono text-right">{lobby.settings.laps || 1}</div>
-                            </div>
-                        </div>
-
-                        {isHost ? (
-                            <button
-                                onClick={() => startGame()}
-                                className="w-full bg-cyan-500 hover:bg-cyan-400 text-black font-black py-4 px-6 rounded-lg text-xl uppercase tracking-widest mt-8 transition-all hover:scale-[1.02] shadow-[0_0_20px_rgba(6,182,212,0.3)] active:scale-[0.98]"
-                            >
-                                INICIAR REGATA
-                            </button>
-                        ) : (
-                            <div className="mt-8 text-center animate-pulse text-cyan-400 font-mono tracking-widest uppercase text-sm">
-                                Esperando al anfitrión...
-                            </div>
-                        )}
+                    <div className="bg-white/5 border border-white/10 rounded-xl p-6 flex flex-col justify-center items-center text-center">
+                        <h2 className="text-xl font-bold mb-4">Waiting for Host</h2>
+                        <p className="text-white/60 mb-8">The race will start soon...</p>
+                        <div className="w-16 h-16 rounded-full border-4 border-white/10 border-t-accent animate-spin"/>
                     </div>
                 </div>
             </div>

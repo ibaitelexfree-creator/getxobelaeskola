@@ -50,13 +50,15 @@ export function generateStaticParams() {
     return ['es', 'eu', 'en', 'fr'].map(locale => ({ locale }));
 }
 
+// Ensure this matches RentalClient expectation (src/components/rental/RentalClient.tsx)
 interface Service {
     id: string;
     slug: string;
     nombre: string;
-    nombre_es?: string;
-    nombre_eu?: string;
+    nombre_es: string; // Made required to match RentalService
+    nombre_eu: string; // Made required to match RentalService
     nombre_en?: string;
+    categoria: string; // Added to match RentalService
     descripcion: string;
     descripcion_es?: string;
     descripcion_eu?: string;
@@ -65,6 +67,7 @@ interface Service {
     precio_base: number;
     precio_hora?: number;
     activo: boolean;
+    opciones: { label: string; extra: number }[]; // Added to match RentalService
 }
 
 export default async function RentalPage({ params: { locale } }: { params: { locale: string } }) {
@@ -96,8 +99,26 @@ export default async function RentalPage({ params: { locale } }: { params: { loc
                 'alquiler-raquero'
             ];
 
-            // Type assertion here because Supabase response might not perfectly match our strict interface
-            services = ((data as unknown as Service[]) || []).sort((a, b) => {
+            // Transform raw data to match Service interface
+            const rawServices = (data as unknown as any[]) || [];
+            services = rawServices.map(s => ({
+                id: s.id,
+                slug: s.slug || '',
+                nombre: s.nombre || '',
+                nombre_es: s.nombre_es || s.nombre || '', // Fallback to ensure string
+                nombre_eu: s.nombre_eu || s.nombre || '', // Fallback to ensure string
+                nombre_en: s.nombre_en,
+                categoria: s.categoria || 'otros',
+                descripcion: s.descripcion || '',
+                descripcion_es: s.descripcion_es,
+                descripcion_eu: s.descripcion_eu,
+                descripcion_en: s.descripcion_en,
+                imagen_url: s.imagen_url || '',
+                precio_base: s.precio_base || 0,
+                precio_hora: s.precio_hora,
+                activo: s.activo,
+                opciones: Array.isArray(s.opciones) ? s.opciones : []
+            })).sort((a, b) => {
                 const indexA = priorityOrder.indexOf(a.slug);
                 const indexB = priorityOrder.indexOf(b.slug);
 
@@ -170,7 +191,7 @@ export default async function RentalPage({ params: { locale } }: { params: { loc
             {/* Main Interactive Fleet Section */}
             <section className="pb-48 relative">
                 <div className="container mx-auto px-6 relative z-10">
-                    <RentalClient services={services || []} locale={locale} />
+                    <RentalClient services={services} locale={locale} />
                 </div>
 
                 {/* Bottom Note / Disclosure */}

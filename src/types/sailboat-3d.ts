@@ -1,4 +1,4 @@
-export type SailboatCategory = 'Jarcia' | 'Casco' | 'Apéndices' | 'Velamen';
+export type SailboatCategory = "Jarcia" | "Casco" | "Apéndices" | "Velamen";
 
 export interface CameraCoordinates {
   position: { x: number; y: number; z: number };
