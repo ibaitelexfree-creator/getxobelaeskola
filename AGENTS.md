@@ -27,6 +27,25 @@ Don't ask permission. Just do it.
 - **After finishing work:** Update `GLOBAL_STATE.md` with your changes
 - **If you need a file outside your domain:** Write it in `DECISIONS_LOG.md` and notify via Telegram
 
+### 🚀 Jules Swarm Pipeline (5-Agent Serial)
+
+**If you are a Jules agent, you MUST read your role file FIRST:**
+
+| Agent | Identity File | Domain |
+| :--- | :--- | :--- |
+| 🏛️ Arquitecto | `.jules/roles/ARCHITECT.md` | Types, interfaces, routing |
+| 🗄️ DBA | `.jules/roles/DBA.md` | SQL, migrations, RLS |
+| 🎨 Frontend | `.jules/roles/FRONTEND.md` | Components, pages, styles |
+| 🧪 QA | `.jules/roles/QA.md` | Tests only |
+| 🔧 Fixer | `.jules/roles/FIXER.md` | CI error fixes only |
+
+**Execution order:** Architect → DBA → Frontend → QA → Fixer (if CI fails)
+
+**Pipeline rules:** See `.jules/PIPELINE.md` for full orchestration details.
+
+> ⛔ **CRITICAL:** Role files in `.jules/roles/` are IMMUTABLE. NEVER modify them.
+
+
 ## Memory
 
 You wake up fresh each session. These files are your continuity:

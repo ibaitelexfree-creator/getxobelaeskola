@@ -1,0 +1,36 @@
+# ===================================================
+# CODEOWNERS - Getxo Bela Eskola
+# Cada línea define quién DEBE aprobar cambios en esa área.
+# Docs: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+# ===================================================
+
+# 🔒 Fallback global: si nadie más matchea, el owner principal revisa
+*                                   @ibaitelexfree-creator
+
+# ⚓ Frontend (UI/UX, componentes, páginas, i18n)
+/src/app/                           @ibaitelexfree-creator
+/src/components/                    @ibaitelexfree-creator
+/messages/                          @ibaitelexfree-creator
+/public/                            @ibaitelexfree-creator
+tailwind.config.js                  @ibaitelexfree-creator
+
+# 🗄️ Backend / API / Database
+/src/app/api/                       @ibaitelexfree-creator
+/src/lib/supabase/                  @ibaitelexfree-creator
+/supabase/                          @ibaitelexfree-creator
+/orchestration/                     @ibaitelexfree-creator
+
+# 🏗️ Infraestructura / DevOps / CI
+/.github/                           @ibaitelexfree-creator
+/docker-compose*.yml                @ibaitelexfree-creator
+/Dockerfile*                        @ibaitelexfree-creator
+/infra/                             @ibaitelexfree-creator
+/scripts/                           @ibaitelexfree-creator
+
+# 🔐 Seguridad — SIEMPRE requiere al owner
+/.env.example                       @ibaitelexfree-creator
+/docs/SECURITY_CHECKLIST.md         @ibaitelexfree-creator
+
+# 🤖 Jules Swarm — Identidad inmutable
+/.jules/                            @ibaitelexfree-creator
+/AGENTS.md                          @ibaitelexfree-creator
