@@ -23,7 +23,7 @@ This document provides an overview of the project's source code structure and ex
 | `submitReview` | Function | - |
 
 ## Directory: `src/app`
-   	 
+   	  
 ### fonts.ts
 
 | Export Name | Type | Description |
