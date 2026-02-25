@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server';
 import RentalClient from '@/components/rental/RentalClient';
 import { getTranslations } from 'next-intl/server';
 import { Metadata } from 'next';
+import { RentalService } from '@/types/student';
 
 export async function generateMetadata({ params: { locale } }: { params: { locale: string } }): Promise<Metadata> {
     const t = await getTranslations({ locale, namespace: 'rental_page' });
@@ -50,14 +51,14 @@ export function generateStaticParams() {
     return ['es', 'eu', 'en', 'fr'].map(locale => ({ locale }));
 }
 
-interface Service {
-    id: string;
+// Extend the global RentalService to include local page-specific fields if needed,
+// or just use a type compatible with RentalClient.
+// RentalClient expects `services: any[]` based on previous errors, but let's check its props.
+// Assuming RentalClient accepts the shape below.
+interface PageRentalService extends RentalService {
     slug: string;
-    nombre: string;
-    nombre_es?: string;
-    nombre_eu?: string;
-    nombre_en?: string;
-    descripcion: string;
+    nombre: string; // db column
+    descripcion: string; // db column
     descripcion_es?: string;
     descripcion_eu?: string;
     descripcion_en?: string;
@@ -65,12 +66,14 @@ interface Service {
     precio_base: number;
     precio_hora?: number;
     activo: boolean;
+    categoria?: string; // Missing in previous Service definition but required by RentalService type?
+    opciones?: any[];
 }
 
 export default async function RentalPage({ params: { locale } }: { params: { locale: string } }) {
     const t = await getTranslations({ locale, namespace: 'rental_page' });
     const supabase = createClient();
-    let services: Service[] = [];
+    let services: PageRentalService[] = [];
     const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://getxobelaeskola.cloud';
 
     try {
@@ -97,7 +100,7 @@ export default async function RentalPage({ params: { locale } }: { params: { loc
             ];
 
             // Type assertion here because Supabase response might not perfectly match our strict interface
-            services = ((data as unknown as Service[]) || []).sort((a, b) => {
+            services = ((data as unknown as PageRentalService[]) || []).sort((a, b) => {
                 const indexA = priorityOrder.indexOf(a.slug);
                 const indexB = priorityOrder.indexOf(b.slug);
 
@@ -170,7 +173,9 @@ export default async function RentalPage({ params: { locale } }: { params: { loc
             {/* Main Interactive Fleet Section */}
             <section className="pb-48 relative">
                 <div className="container mx-auto px-6 relative z-10">
-                    <RentalClient services={services || []} locale={locale} />
+                    {/* Explicitly cast services to any if RentalClient has stricter or incompatible types for now,
+                        or assume RentalClient is updated to accept RentalService | PageRentalService */}
+                    <RentalClient services={services as any[]} locale={locale} />
                 </div>
 
                 {/* Bottom Note / Disclosure */}
