@@ -7,13 +7,12 @@ describe('getApiBaseUrl', () => {
 
     beforeEach(() => {
         vi.resetModules();
-        process.env = { ...originalEnv };
-        process.env.NODE_ENV = 'test'; // Default to test, change to 'development' for localhost test
+        vi.stubEnv('NODE_ENV', 'test'); // Default to test
     });
 
     afterEach(() => {
         vi.unstubAllGlobals();
-        process.env = originalEnv;
+        vi.unstubAllEnvs();
     });
 
     it('should return empty string when window is undefined (server-side)', () => {
@@ -29,8 +28,8 @@ describe('getApiBaseUrl', () => {
         };
         vi.stubGlobal('window', { location: mockLocation });
         // Set NODE_ENV to development to trigger the localhost logic
-        process.env.NODE_ENV = 'development';
-        delete process.env.NEXT_PUBLIC_APP_URL;
+        vi.stubEnv('NODE_ENV', 'development');
+        vi.stubEnv('NEXT_PUBLIC_APP_URL', ''); // Ensure it's empty/undefined behavior simulation
 
         expect(getApiBaseUrl()).toBe('http://localhost:3000');
     });
@@ -42,7 +41,7 @@ describe('getApiBaseUrl', () => {
             origin: 'capacitor://localhost',
         };
         vi.stubGlobal('window', { location: mockLocation });
-        process.env.NEXT_PUBLIC_APP_URL = 'https://api.example.com';
+        vi.stubEnv('NEXT_PUBLIC_APP_URL', 'https://api.example.com');
 
         expect(getApiBaseUrl()).toBe('https://api.example.com');
     });
@@ -54,7 +53,7 @@ describe('getApiBaseUrl', () => {
             origin: 'file://',
         };
         vi.stubGlobal('window', { location: mockLocation });
-        process.env.NEXT_PUBLIC_APP_URL = 'https://api.example.com';
+        vi.stubEnv('NEXT_PUBLIC_APP_URL', 'https://api.example.com');
 
         expect(getApiBaseUrl()).toBe('https://api.example.com');
     });
@@ -66,7 +65,7 @@ describe('getApiBaseUrl', () => {
             origin: 'https://example.com',
         };
         vi.stubGlobal('window', { location: mockLocation });
-        process.env.NEXT_PUBLIC_APP_URL = 'https://api.custom.com';
+        vi.stubEnv('NEXT_PUBLIC_APP_URL', 'https://api.custom.com');
 
         expect(getApiBaseUrl()).toBe('https://api.custom.com');
     });
@@ -78,7 +77,7 @@ describe('getApiBaseUrl', () => {
             origin: 'https://example.com',
         };
         vi.stubGlobal('window', { location: mockLocation });
-        delete process.env.NEXT_PUBLIC_APP_URL;
+        vi.stubEnv('NEXT_PUBLIC_APP_URL', ''); // treat empty string as unset in logic or check logic behavior
 
         expect(getApiBaseUrl()).toBe('https://getxobelaeskola.cloud');
     });
@@ -90,19 +89,15 @@ describe('getApiBaseUrl', () => {
             origin: 'https://example.com',
         };
         vi.stubGlobal('window', { location: mockLocation });
-        process.env.NEXT_PUBLIC_APP_URL = 'https://api.custom.com/';
+        vi.stubEnv('NEXT_PUBLIC_APP_URL', 'https://api.custom.com/');
 
         expect(getApiBaseUrl()).toBe('https://api.custom.com');
     });
 });
 
 describe('apiUrl', () => {
-    const originalWindow = global.window;
-    const originalEnv = process.env;
-
     beforeEach(() => {
         vi.resetModules();
-        process.env = { ...originalEnv };
         // Set a default environment for apiUrl tests
         const mockLocation = {
             hostname: 'example.com',
@@ -110,12 +105,12 @@ describe('apiUrl', () => {
             origin: 'https://example.com',
         };
         vi.stubGlobal('window', { location: mockLocation });
-        process.env.NEXT_PUBLIC_APP_URL = 'https://api.test.com';
+        vi.stubEnv('NEXT_PUBLIC_APP_URL', 'https://api.test.com');
     });
 
     afterEach(() => {
         vi.unstubAllGlobals();
-        process.env = originalEnv;
+        vi.unstubAllEnvs();
     });
 
     it('should append path to base URL', () => {
