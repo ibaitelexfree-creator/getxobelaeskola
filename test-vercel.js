@@ -1,18 +1,26 @@
 const token = 'vcp_5RYMTFTtIVRKsN7lcUt7Om9oGgDgJeyA8kzFvS5U5mgplUpsKf348WlB';
-fetch('https://api.vercel.com/v9/projects', { headers: { Authorization: `Bearer ${token}` } })
-    .then(res => res.json())
-    .then(data => {
-        if (data.projects && data.projects.length > 0) {
-            console.log('Project ID:', data.projects[0].id);
-            console.log('Project Name:', data.projects[0].name);
-            console.log('Project Account/Team ID:', data.projects[0].accountId);
+const projectId = 'prj_CVHwakp0yA70gav5t1xcXC0GGwYz';
+const teamId = 'team_qsH6nFq6HfVQmrfB3tj03jLU';
 
-            fetch(`https://api.vercel.com/v5/projects/${data.projects[0].id}/usage?teamId=${data.projects[0].accountId}`, { headers: { Authorization: `Bearer ${token}` } })
-                .then(res => res.json())
-                .then(usage => console.log('Usage Data:', JSON.stringify(usage, null, 2)))
-                .catch(e => console.error('Usage Error:', e));
+async function testVercel() {
+    const fetchUsage = async (url) => {
+        try {
+            const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+            if (res.ok) {
+                console.log(`✅ Success for ${url}`);
+                console.log(JSON.stringify(await res.json(), null, 2).substring(0, 300));
+            } else {
+                console.log(`❌ Failed for ${url}: ${res.status}`);
+            }
+        } catch (e) { }
+    };
 
-        } else {
-            console.log('Data:', data);
-        }
-    }).catch(e => console.error(e));
+    await fetchUsage(`https://api.vercel.com/v1/usage?teamId=${teamId}`);
+    await fetchUsage(`https://api.vercel.com/v5/teams/${teamId}/usage`);
+    await fetchUsage(`https://api.vercel.com/v2/usage?teamId=${teamId}`);
+    await fetchUsage(`https://api.vercel.com/v8/projects/${projectId}/custom-environments`);
+    await fetchUsage(`https://api.vercel.com/v2/usage`);
+
+}
+
+testVercel();

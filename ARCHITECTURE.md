@@ -10,7 +10,7 @@ This document provides an overview of the project's source code structure and ex
 
 | Export Name | Type | Description |
 | :--- | :--- | :--- |
-| `middleware` | Function | - | 
+| `middleware` | Function | - |  
 | `config` | Variable | - |
 
 ## Directory: `src/actions`
