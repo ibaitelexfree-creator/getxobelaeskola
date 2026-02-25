@@ -14,7 +14,9 @@ export async function POST(request: Request) {
         }
 
         const { user, supabase, error: authError } = await requireAuth();
-        if (authError || !user) return authError || NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+        if (authError || !user) {
+            return NextResponse.json({ error: (authError as any)?.message || 'No autorizado' }, { status: 401 });
+        }
 
         const { data: profile } = await supabase.from('profiles').select('nombre, apellidos').eq('id', user.id).single();
 

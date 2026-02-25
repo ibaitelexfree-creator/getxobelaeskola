@@ -137,7 +137,7 @@ export default function RentalClient({
 
     const filteredServices = selectedCategory === 'all'
         ? services
-        : services.filter(s => s.categoria === selectedCategory);
+        : services.filter(s => (s as any).categoria === selectedCategory);
 
     const handlePickerChange = (val: string) => {
         if (!val) return;

@@ -65,6 +65,8 @@ interface Service {
     precio_base: number;
     precio_hora?: number;
     activo: boolean;
+    categoria?: string;
+    opciones?: any[];
 }
 
 export default async function RentalPage({ params: { locale } }: { params: { locale: string } }) {
@@ -170,7 +172,7 @@ export default async function RentalPage({ params: { locale } }: { params: { loc
             {/* Main Interactive Fleet Section */}
             <section className="pb-48 relative">
                 <div className="container mx-auto px-6 relative z-10">
-                    <RentalClient services={services || []} locale={locale} />
+                    <RentalClient services={services as any || []} locale={locale} />
                 </div>
 
                 {/* Bottom Note / Disclosure */}
