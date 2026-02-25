@@ -28,9 +28,9 @@ describe('getApiBaseUrl', () => {
         };
         vi.stubGlobal('window', { location: mockLocation });
         // Mock environment as development
-        process.env.NODE_ENV = 'development';
+        vi.stubEnv('NODE_ENV', 'development');
         // Ensure env doesn't override it for this test case if logic prefers window
-        delete process.env.NEXT_PUBLIC_APP_URL;
+        vi.stubEnv('NEXT_PUBLIC_APP_URL', '');
 
         expect(getApiBaseUrl()).toBe('http://localhost:3000');
     });

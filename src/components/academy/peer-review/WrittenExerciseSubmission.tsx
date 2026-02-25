@@ -3,8 +3,11 @@
 import React, { useState } from 'react';
 import { submitExerciseAttempt } from '@/actions/peer-review';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 interface WrittenExerciseSubmissionProps {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     activity: any;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     existingAttempt?: any;
     unitId: string;
     locale: string;
