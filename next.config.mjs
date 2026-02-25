@@ -183,6 +183,10 @@ const nextConfig = {
     typescript: {
         ignoreBuildErrors: true,
     },
+    experimental: {
+        workerThreads: false,
+        cpus: 2,
+    },
     compress: true,
     poweredByHeader: false,
     output: isCapacitor ? 'export' : undefined,
