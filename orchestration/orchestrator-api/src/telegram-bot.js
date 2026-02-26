@@ -349,6 +349,7 @@ export async function startPolling(handlers = {}) {
 
     while (pollingActive) {
         try {
+            console.log(`[TelegramBot] Polling... (offset: ${lastUpdateId + 1})`);
             const result = await telegramAPI('getUpdates', {
                 offset: lastUpdateId + 1,
                 timeout: 30, // Long poll: wait up to 30s

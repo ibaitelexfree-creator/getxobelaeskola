@@ -1723,12 +1723,12 @@ function julesRequest(method, path, body = null) {
         authHeader = { 'Authorization': `Bearer ${token.token}` };
       } catch (err) {
         console.warn('[Jules API] Auth fallback to API Key:', err.message);
-        authHeader = apiKey?.startsWith('AQ.') || apiKey?.startsWith('ya29.')
+        authHeader = apiKey?.startsWith('ya29.')
           ? { 'Authorization': `Bearer ${apiKey}` }
           : { 'X-Goog-Api-Key': apiKey };
       }
     } else {
-      authHeader = apiKey?.startsWith('AQ.') || apiKey?.startsWith('ya29.')
+      authHeader = apiKey?.startsWith('ya29.')
         ? { 'Authorization': `Bearer ${apiKey}` }
         : { 'X-Goog-Api-Key': apiKey };
     }
