@@ -181,7 +181,7 @@ export const generateLogbookPDF = async (data: LogbookData): Promise<void> => {
     });
 
     // Capture Y after table
-    // @ts-ignore
+    // @ts-expect-error: jspdf-autotable extends jsPDF instance but types might be missing
     currentY = doc.lastAutoTable.finalY + 20;
     addFooter(2);
 

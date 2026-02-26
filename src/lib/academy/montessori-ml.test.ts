@@ -82,7 +82,7 @@ describe('Montessori ML Engine', () => {
 
         it('should not recommend mastered topics', () => {
             const history = [{ topicId: 'easy', result: 'success', timestamp: Date.now() }];
-            // @ts-ignore
+            // @ts-expect-error: Mocking history with minimal fields
             const rec = getRecommendation(topics, history, 0.5);
             expect(rec?.id).not.toBe('easy');
         });
