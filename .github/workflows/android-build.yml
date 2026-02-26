@@ -3,6 +3,13 @@ name: Build & Distribute Android
 on:
   push:
     branches: [main]
+    paths:
+      - "src/**"
+      - "public/**"
+      - "android/**"
+      - "package.json"
+      - "capacitor.config.ts"
+      - ".github/workflows/android-build.yml"
   workflow_dispatch:
     inputs:
       reason:

@@ -3,6 +3,9 @@ name: Build Mission Control APK
 on:
   push:
     branches: [main]
+    paths:
+      - "mission-control/**"
+      - ".github/workflows/mission-control-build.yml"
   workflow_dispatch:
 
 concurrency:

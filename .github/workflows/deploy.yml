@@ -5,6 +5,15 @@ on:
     branches:
       - main
       - master
+    paths:
+      - "src/**"
+      - "public/**"
+      - "orchestration/**"
+      - "infra/**"
+      - "docker-compose.yml"
+      - "Dockerfile"
+      - "package.json"
+      - ".github/workflows/deploy.yml"
 
 concurrency:
   group: deploy-${{ github.ref }}

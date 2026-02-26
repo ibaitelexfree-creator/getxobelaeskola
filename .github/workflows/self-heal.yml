@@ -3,8 +3,16 @@ name: Self-Healing CI
 on:
   push:
     branches: ["main", "feature/**", "fix/**"]
+    paths:
+      - "src/**"
+      - "orchestration/**"
+      - ".github/workflows/self-heal.yml"
   pull_request:
     branches: ["main"]
+    paths:
+      - "src/**"
+      - "orchestration/**"
+      - ".github/workflows/self-heal.yml"
   workflow_dispatch:
 
 jobs:
