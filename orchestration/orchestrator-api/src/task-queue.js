@@ -98,24 +98,19 @@ export async function createProposal(db, { chatId, prompt, maxJules, analysis })
 }
 
 /**
- * Approve a proposal and enqueue its tasks
+ * Approve a proposal and enqueue its tasks (optionally filtered)
  */
-export async function approveProposal(db, proposalId) {
+export async function approveProposal(db, proposalId, taskFilter = null) {
     let proposal;
 
     if (db) {
-        const res = await db.query('UPDATE swarm_proposals SET status = $1, approved_at = NOW() WHERE id = $2 AND status = $3 RETURNING *',
-            ['approved', proposalId, 'pending']);
+        const res = await db.query('SELECT * FROM swarm_proposals WHERE id = $1', [proposalId]);
         proposal = res.rows[0];
     } else {
         proposal = memProposals.get(proposalId);
-        if (proposal && proposal.status === 'pending') {
-            proposal.status = 'approved';
-            proposal.approvedAt = new Date();
-        }
     }
 
-    if (!proposal) return null;
+    if (!proposal || proposal.status !== 'pending') return null;
 
     // Parse analysis
     const rawAnalysis = proposal.ai_analysis || proposal.analysis;
@@ -123,10 +118,53 @@ export async function approveProposal(db, proposalId) {
         ? JSON.parse(rawAnalysis)
         : rawAnalysis;
 
-    // Enqueue all tasks
-    await enqueueTasks(db, proposalId, analysis.phases);
+    // Determine tasks to include
+    let selectedTaskIds = null;
+    if (taskFilter && Array.isArray(taskFilter) && taskFilter.length > 0) {
+        selectedTaskIds = new Set();
+        const allFlatTasks = analysis.phases.flatMap(p => p.tasks);
 
-    return { proposal, taskCount: analysis.phases.reduce((sum, p) => sum + p.tasks.length, 0) };
+        for (const item of taskFilter) {
+            const idx = parseInt(item, 10);
+            if (!isNaN(idx) && idx > 0 && idx <= allFlatTasks.length) {
+                // If it's a number, treat as 1-based index
+                selectedTaskIds.add(allFlatTasks[idx - 1].id);
+            } else {
+                // Otherwise treat as full task ID (e.g., 'arch-1')
+                selectedTaskIds.add(item);
+            }
+        }
+    }
+
+    // Prepare filtered phases (if filtering)
+    const phasesToEnqueue = analysis.phases.map(p => {
+        const tasks = selectedTaskIds
+            ? p.tasks.filter(t => selectedTaskIds.has(t.id))
+            : p.tasks;
+        return { ...p, tasks };
+    }).filter(p => p.tasks.length > 0);
+
+    if (phasesToEnqueue.length === 0) {
+        throw new Error('No tasks matched the approval filter');
+    }
+
+    // Mark as approved in DB
+    if (db) {
+        await db.query('UPDATE swarm_proposals SET status = $1, approved_at = NOW() WHERE id = $2',
+            ['approved', proposalId]);
+    } else {
+        proposal.status = 'approved';
+        proposal.approvedAt = new Date();
+    }
+
+    // Enqueue tasks
+    await enqueueTasks(db, proposalId, phasesToEnqueue);
+
+    return {
+        proposal,
+        taskCount: phasesToEnqueue.reduce((sum, p) => sum + p.tasks.length, 0),
+        filtered: !!selectedTaskIds
+    };
 }
 
 /**
@@ -297,4 +335,44 @@ export async function getSwarmTasks(db, swarmId) {
     return [...memTasks.values()]
         .filter(t => t.swarmId === swarmId)
         .sort((a, b) => a.phaseOrder - b.phaseOrder);
+}
+
+/**
+ * Phase 5: Reset failed tasks back to pending for retry
+ * Returns the number of tasks reset
+ */
+export async function resetFailedTasks(db, swarmId) {
+    if (db) {
+        const res = await db.query(
+            `UPDATE swarm_tasks
+       SET status = 'pending', error_message = NULL, completed_at = NULL, started_at = NULL
+       WHERE swarm_id = $1 AND status = 'failed'
+       RETURNING task_id`,
+            [swarmId]
+        );
+        const count = res.rowCount;
+        if (count > 0) {
+            // Also reset the proposal status back to approved so executeSwarm can re-run
+            await db.query(
+                `UPDATE swarm_proposals SET status = 'approved', completed_at = NULL WHERE id = $1`,
+                [swarmId]
+            );
+        }
+        console.log(`[TaskQueue] Reset ${count} failed tasks for swarm ${swarmId}`);
+        return count;
+    }
+
+    // In-memory fallback
+    let count = 0;
+    for (const [, t] of memTasks) {
+        if (t.swarmId === swarmId && t.status === 'failed') {
+            t.status = 'pending';
+            t.errorMessage = null;
+            t.completedAt = null;
+            t.startedAt = null;
+            count++;
+        }
+    }
+    console.log(`[TaskQueue] Reset ${count} failed tasks for swarm ${swarmId} (in-memory)`);
+    return count;
 }

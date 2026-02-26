@@ -6,12 +6,12 @@ import { Send, Zap, Bot, Shuffle, ChevronDown, MessagesSquare, Shield, Palette, 
 import { useMissionStore } from '@/store/useMissionStore';
 import { sendTask, approve, reject, sendQuestion } from '@/lib/maestro-client';
 
-type ExecutionMode = 'cascade' | 'flash' | 'clawdbot';
+type ExecutionMode = 'cascade' | 'flash' | 'clawdebot';
 
 const modeConfig: Record<ExecutionMode, { icon: React.ReactNode; label: string; color: string; desc: string }> = {
-    cascade: { icon: <Shuffle size={16} />, label: 'Cascade', color: 'text-buoy-orange', desc: 'Jules → Flash → ClawdBot' },
+    cascade: { icon: <Shuffle size={16} />, label: 'Cascade', color: 'text-buoy-orange', desc: 'Jules → Flash → ClawdeBot' },
     flash: { icon: <Zap size={16} />, label: 'Flash Only', color: 'text-status-amber', desc: 'Gemini Flash direct' },
-    clawdbot: { icon: <Bot size={16} />, label: 'ClawdBot', color: 'text-status-blue', desc: 'Direct bypass' },
+    clawdebot: { icon: <Bot size={16} />, label: 'ClawdeBot', color: 'text-status-blue', desc: 'Direct bypass' },
 };
 
 export default function TaskLauncher() {
@@ -235,7 +235,7 @@ export default function TaskLauncher() {
                     <div className="flex items-center gap-2 mb-3">
                         <span className="status-dot status-dot-amber" />
                         <span className="text-xs font-mono uppercase tracking-widest text-status-amber">
-                            ClawdBot Approval
+                            ClawdeBot Approval
                         </span>
                     </div>
                     <p className="text-sm text-white/80 mb-2">{pendingApproval.task}</p>

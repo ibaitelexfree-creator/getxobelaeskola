@@ -13,7 +13,7 @@ interface RadarContact {
     label: string;
     health: 'online' | 'offline' | 'degraded' | 'unknown';
     icon: string;
-    group: 'clawdbot' | 'jules' | 'infra';
+    group: 'clawdebot' | 'jules' | 'infra';
     errorMsg?: string;
 }
 
@@ -91,51 +91,51 @@ export default function TacticalRadar() {
         // -> Usage 100% = Distance 20 (Center)
 
         const julesUsage = Math.min(1, services.jules.used / (services.jules.total || 1));
-        const clawdUsage = Math.min(1, services.clawdbot.delegations / 30);
+        const clawdUsage = Math.min(1, services.clawdebot.delegations / 30);
         const infraUsage = Math.min(1, (services.flash.tasksToday / 50 + (services.browserless?.used || 0) / (services.browserless?.total || 100)) / 2);
 
         const baseContacts: RadarContact[] = [
-            // ── GROUP: ClawdBot (top-left zone) ──
+            // ── GROUP: ClawdeBot (top-left zone) ──
             {
-                id: 'clawd-hq',
+                id: 'clawde-hq',
                 angle: 240,
                 distance: 90 - (clawdUsage * 60),
                 label: 'CLAWD',
-                health: services.clawdbot.health,
+                health: services.clawdebot.health,
                 icon: '🤖',
-                group: 'clawdbot',
-                errorMsg: services.clawdbot.health !== 'online'
-                    ? 'ClawdBot HQ no responde. Verifica que el proceso de ClawdBot esté activo.'
+                group: 'clawdebot',
+                errorMsg: services.clawdebot.health !== 'online'
+                    ? 'ClawdeBot HQ no responde. Verifica que el proceso de ClawdeBot esté activo.'
                     : undefined,
             },
             {
-                id: 'clawd-p1',
+                id: 'clawde-p1',
                 angle: 255,
                 distance: 85 - (clawdUsage * 40),
                 label: 'PULPO-1',
-                health: services.clawdbot.health,
+                health: services.clawdebot.health,
                 icon: '🐙',
-                group: 'clawdbot',
+                group: 'clawdebot',
                 errorMsg: 'Pulpo 1 (delegación) no responde.',
             },
             {
-                id: 'clawd-p2',
+                id: 'clawde-p2',
                 angle: 270,
                 distance: 75 - (clawdUsage * 50),
                 label: 'PULPO-2',
-                health: services.clawdbot.health,
+                health: services.clawdebot.health,
                 icon: '🐙',
-                group: 'clawdbot',
+                group: 'clawdebot',
                 errorMsg: 'Pulpo 2 (delegación) no responde.',
             },
             {
-                id: 'clawd-p3',
+                id: 'clawde-p3',
                 angle: 285,
                 distance: 80 - (clawdUsage * 45),
                 label: 'PULPO-3',
-                health: services.clawdbot.health,
+                health: services.clawdebot.health,
                 icon: '🐙',
-                group: 'clawdbot',
+                group: 'clawdebot',
                 errorMsg: 'Pulpo 3 (delegación) no responde.',
             },
 
@@ -266,7 +266,7 @@ export default function TacticalRadar() {
     };
 
     const groupColor = (g: string) => {
-        if (g === 'clawdbot') return 'rgba(0,209,255,0.15)';
+        if (g === 'clawdebot') return 'rgba(0,209,255,0.15)';
         if (g === 'jules') return 'rgba(0,255,148,0.1)';
         return 'rgba(255,184,0,0.1)';
     };
@@ -292,7 +292,7 @@ export default function TacticalRadar() {
 
                 {/* Group zone arcs (visual hint) */}
                 {[
-                    { group: 'clawdbot', startDeg: 225, endDeg: 305 },
+                    { group: 'clawdebot', startDeg: 225, endDeg: 305 },
                     { group: 'jules', startDeg: 20, endDeg: 120 },
                     { group: 'infra', startDeg: 130, endDeg: 215 },
                 ].map(({ group, startDeg, endDeg }) => (

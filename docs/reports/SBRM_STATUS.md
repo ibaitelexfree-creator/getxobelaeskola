@@ -13,7 +13,7 @@ Status: **Operational**
 `GitHub Fast Lane (Parallel Scan) -> GitHub Actions (Heavy Compute on Success)`
 ### Central Orchestration (Maestro v3):
 - Status: **Ready (Fast Lane 2026)**
-- Execution: `Jules -> Gemini Flash -> ClawdBot`
+- Execution: `Jules -> Gemini Flash -> ClawdeBot`
 - Visual Relay: **Enabled (Browserless -> Telegram)**
 - Watchdog: **Active**
 

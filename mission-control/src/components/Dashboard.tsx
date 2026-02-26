@@ -114,10 +114,10 @@ export default function Dashboard() {
                     id: 'clawd',
                     name: 'CLAWD-BOT',
                     icon: '🤖',
-                    health: services.clawdbot.health,
-                    metric: `${services.clawdbot.delegations}`,
+                    health: services.clawdebot.health,
+                    metric: `${services.clawdebot.delegations}`,
                     detail: t('dashboard.details.delegations'),
-                    errorMsg: 'ClawdBot no detectado. Revisa el orquestador.'
+                    errorMsg: 'ClawdeBot no detectado. Revisa el orquestador.'
                 },
                 {
                     id: 'jules',

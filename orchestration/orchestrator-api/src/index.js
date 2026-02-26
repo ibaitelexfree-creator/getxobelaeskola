@@ -1,4 +1,5 @@
 import 'dotenv/config';
+console.log('--- STARTING ORCHESTRATOR API v2.0.1 (DEBUG ENABLED) ---');
 import express from 'express';
 import pg from 'pg';
 import axios from 'axios';
@@ -13,7 +14,8 @@ import { createDashboardSnapshot } from './grafana-service.js';
 import { analyzeTask } from './groq-analyzer.js';
 import { startPolling, sendMessage, formatProposal, storeProposal } from './telegram-bot.js';
 import * as taskQueue from './task-queue.js';
-import { executeSwarm, isSimulationMode, getActiveSwarms } from './swarm-executor.js';
+import { executeSwarm, isSimulationMode, getActiveSwarms, getHealthReport, resumeActiveTasks } from './swarm-executor.js';
+import { ACCOUNTS_MAP, ACCOUNT_ROLES, buildAuthHeaders, validateAllKeys } from './account-health.js';
 
 // Fix connection hangs by prioritizing IPv4
 if (dns.setDefaultResultOrder) {
@@ -57,8 +59,13 @@ let db = null;
 if (DATABASE_URL) {
   db = new pg.Pool({ connectionString: DATABASE_URL });
   console.log('[Init] Database pool created');
-  // Initialize task queue schema
-  taskQueue.initializeSchema(db).catch(e => console.warn('[Init] TaskQueue schema warning:', e.message));
+
+  // Initialize task queue schema and then resume any active tasks
+  taskQueue.initializeSchema(db).then(() => {
+    console.log('[Init] TaskQueue schema initialized.');
+    // Resume any tasks that were running before shutdown/restart
+    resumeActiveTasks(db).catch(e => console.error('[Init] Resumption failure:', e.message));
+  }).catch(e => console.warn('[Init] TaskQueue schema warning:', e.message));
 }
 
 // Routes
@@ -207,15 +214,49 @@ app.get('/api/v1/swarm/active', async (req, res) => {
   }
 });
 
-// Swarm Pool Status
+// Swarm Pool Status (uses shared module)
 app.get('/api/v1/swarm/status', async (req, res) => {
   const status = Object.keys(ACCOUNTS_MAP).map(email => ({
     email,
-    role: email === 'getxobelaeskola@gmail.com' ? 'Architect' : email === 'ibaitnt@gmail.com' ? 'Data Master' : 'UI Engine',
+    role: ACCOUNT_ROLES[email] || 'Unknown',
     active_sessions: 0
   }));
-
   res.json({ success: true, pool: status });
+});
+
+// Phase 1: Account Health Check
+app.get('/api/v1/swarm/health', async (req, res) => {
+  try {
+    const validate = req.query.validate === 'true';
+    if (validate) {
+      const validationResults = await validateAllKeys();
+      res.json({ success: true, health: getHealthReport(), validation: validationResults });
+    } else {
+      res.json({ success: true, health: getHealthReport() });
+    }
+  } catch (e) {
+    console.error('[Swarm Health] Error:', e);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// Phase 5: Swarm Retry (re-run failed tasks only)
+app.post('/api/v1/swarm/retry/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const resetCount = await taskQueue.resetFailedTasks(db, id);
+    if (resetCount === 0) {
+      return res.status(404).json({ error: 'No failed tasks found for this swarm' });
+    }
+    const chatId = process.env.TELEGRAM_CHAT_ID;
+    sendMessage(chatId, `🔄 *Swarm \`#${id}\` retry!* ${resetCount} tareas fallidas reseteadas.`).catch(() => { });
+    executeSwarm(db, id, chatId, { simulationMode: isSimulationMode() })
+      .catch(e => sendMessage(chatId, `❌ Retry error: ${e.message}`));
+    res.json({ success: true, message: `Swarm ${id} retrying ${resetCount} failed tasks` });
+  } catch (e) {
+    console.error('[Swarm Retry] Error:', e);
+    res.status(500).json({ error: e.message });
+  }
 });
 
 // Incident Webhook Handler
@@ -268,15 +309,10 @@ app.post('/api/v1/incidents/webhook', async (req, res) => {
 });
 
 // ─── Jules Session Management (Swarm Orchestration) ───
-// Identity Map: Real person → Jules API Key
-// Jules 1 (Architect/QA): getxobelaeskola@gmail.com → JULES_API_KEY   (MCP: Supabase + Neon)
-// Jules 2 (Data Master):  ibaitnt@gmail.com         → JULES_API_KEY_2 (MCP: Tinybird)
-// Jules 3 (UI Engine):    ibaitelexfree@gmail.com    → JULES_API_KEY_3 (MCP: Context7 + Render)
-const ACCOUNTS_MAP = {
-  'getxobelaeskola@gmail.com': process.env.JULES_API_KEY,      // Jules 1 - Architect
-  'ibaitnt@gmail.com': process.env.JULES_API_KEY_2,            // Jules 2 - Data Master
-  'ibaitelexfree@gmail.com': process.env.JULES_API_KEY_3,      // Jules 3 - UI Engine
-};
+// ACCOUNTS_MAP is now imported from account-health.js (single source of truth)
+// Jules 1 (Architect/QA): getxobelaeskola@gmail.com → JULES_API_KEY
+// Jules 2 (Data Master):  ibaitnt@gmail.com         → JULES_API_KEY_2
+// Jules 3 (UI Engine):    ibaitelexfree@gmail.com    → JULES_API_KEY_3
 
 /**
  * Jules Session Creation Endpoint
@@ -328,11 +364,7 @@ app.post('/api/v1/sessions', async (req, res) => {
       },
       automationMode: 'AUTO_CREATE_PR' // Always enable PR creation for swarm agents
     }, {
-      headers: {
-        'Authorization': apiKey.startsWith('AQ.') ? `Bearer ${apiKey}` : undefined,
-        'X-Goog-Api-Key': !apiKey.startsWith('AQ.') ? apiKey : undefined,
-        'Content-Type': 'application/json'
-      }
+      headers: buildAuthHeaders(apiKey)
     });
 
     const pollParam = parameters.find(p => p.name === 'wait');
@@ -355,10 +387,7 @@ app.post('/api/v1/sessions', async (req, res) => {
         // Poll Jules API for status
         try {
           const statusRes = await axios.get(`https://jules.googleapis.com/v1alpha/${sessionId}`, {
-            headers: {
-              'Authorization': apiKey.startsWith('AQ.') ? `Bearer ${apiKey}` : undefined,
-              'X-Goog-Api-Key': !apiKey.startsWith('AQ.') ? apiKey : undefined,
-            }
+            headers: buildAuthHeaders(apiKey)
           });
 
           finalSession = statusRes.data;
@@ -509,10 +538,11 @@ server.listen(PORT, '0.0.0.0', () => {
         await sendMessage(cid, `❌ Error de Groq AI: ${e.message}`);
       }
     },
-    onApprove: async (cid, id) => {
-      const result = await taskQueue.approveProposal(db, id);
-      if (!result) { await sendMessage(cid, `❌ Propuesta \`${id}\` no encontrada.`); return; }
-      await sendMessage(cid, `🚀 *Swarm \`#${id}\` aprobado!* ${result.taskCount} tareas en cola.`);
+    onApprove: async (cid, id, filters) => {
+      const result = await taskQueue.approveProposal(db, id, filters);
+      if (!result) { await sendMessage(cid, `❌ Propuesta \`${id}\` no encontrada o ya procesada.`); return; }
+      const filterMsg = result.filtered ? ` (Vista filtrada: ${result.taskCount} tareas)` : ` (${result.taskCount} tareas)`;
+      await sendMessage(cid, `🚀 *Swarm \`#${id}\` aprobado!*${filterMsg} en cola.`);
       executeSwarm(db, id, cid, { simulationMode: isSimulationMode() })
         .catch(e => sendMessage(cid, `❌ Error de ejecución: ${e.message}`));
     },
@@ -530,14 +560,51 @@ server.listen(PORT, '0.0.0.0', () => {
         await sendMessage(cid, `📊 *Swarms Activos:*\n${lines.join('\n')}`);
       }
     },
+    onRetry: async (cid, id) => {
+      try {
+        const resetCount = await taskQueue.resetFailedTasks(db, id);
+        if (resetCount === 0) {
+          await sendMessage(cid, `❌ No hay tareas fallidas en swarm \`${id}\`.`);
+          return;
+        }
+        await sendMessage(cid, `🔄 *Swarm \`#${id}\` retry!* ${resetCount} tareas reseteadas. Re-ejecutando...`);
+        executeSwarm(db, id, cid, { simulationMode: isSimulationMode() })
+          .catch(e => sendMessage(cid, `❌ Retry error: ${e.message}`));
+      } catch (e) {
+        await sendMessage(cid, `❌ Error en retry: ${e.message}`);
+      }
+    },
+    onHealth: async (cid) => {
+      try {
+        const results = await validateAllKeys();
+        const lines = ['🔑 *Estado de Cuentas Jules:*', ''];
+        for (const [email, result] of Object.entries(results)) {
+          const role = ACCOUNT_ROLES[email] || 'Unknown';
+          const icon = result.valid ? '✅' : '❌';
+          lines.push(`${icon} *${role}*: \`${email}\``);
+          if (!result.valid) lines.push(`   └ ${result.reason}`);
+        }
+        await sendMessage(cid, lines.join('\n'));
+      } catch (e) {
+        await sendMessage(cid, `❌ Error checking health: ${e.message}`);
+      }
+    },
     onCicd: async (cid, taskPrompt) => {
+      console.log(`[onCicd] Triggered for CID ${cid} with prompt: "${taskPrompt}"`);
       try {
         const accountEmail = 'getxobelaeskola@gmail.com'; // LEAD ORCHESTRATOR
         const apiKey = ACCOUNTS_MAP[accountEmail] || process.env.JULES_API_KEY;
 
-        await sendMessage(cid, `✅ *Tarea CI/CD creada.*\n_Prompt:_ ${taskPrompt}\n_Agente:_ LEAD ORCHESTRATOR`);
+        console.log(`[onCicd] Using account: ${accountEmail}, Key prefix: ${apiKey?.substring(0, 5)}...`);
 
-        // Llamar a Jules de forma asíncrona
+        await sendMessage(cid, `✅ *Tarea CI/CD creada.*\n_Prompt:_ ${taskPrompt}\n_Agente:_ LEAD ORCHESTRATOR`);
+        console.log(`[onCicd] Confirmation message sent to Telegram`);
+
+        // Usar la función helper para construir headers correctos
+        const headers = buildAuthHeaders(apiKey);
+        console.log(`[onCicd] Headers built:`, JSON.stringify(headers).replace(apiKey, 'REDACTED'));
+
+        console.log(`[onCicd] Sending POST request to Jules API...`);
         axios.post('https://jules.googleapis.com/v1alpha/sessions', {
           prompt: `CI/CD MANUAL TRIGGER: ${taskPrompt}\n\nMISSION: Use LEAD_ORCHESTRATOR identity. Fix issues or implement features as requested, then process it as an Auto-Healing/Auto-Merge task.`,
           sourceContext: {
@@ -548,19 +615,18 @@ server.listen(PORT, '0.0.0.0', () => {
           },
           automationMode: 'AUTO_CREATE_PR'
         }, {
-          headers: {
-            'Authorization': apiKey?.startsWith('AQ.') ? `Bearer ${apiKey}` : undefined,
-            'X-Goog-Api-Key': apiKey && !apiKey.startsWith('AQ.') ? apiKey : undefined,
-            'Content-Type': 'application/json'
-          }
+          headers
         }).then(response => {
+          console.log(`[onCicd] Jules session created: ${response.data.name}`);
           sendMessage(cid, `🚀 Sesión de Jules iniciada para CI/CD: \`${response.data.name}\``).catch(() => { });
         }).catch(err => {
+          console.error(`[onCicd] Jules API Error:`, err.response?.data || err.message);
           const errMsg = err.response?.data?.error?.message || err.message;
           sendMessage(cid, `❌ Falló la creación de la sesión Jules: ${errMsg}`).catch(() => { });
         });
 
       } catch (e) {
+        console.error(`[onCicd] Catch Error:`, e.message);
         await sendMessage(cid, `❌ Error en CI/CD: ${e.message}`);
       }
     }

@@ -41,7 +41,7 @@ const SERVICES = {
         type: 'external',
         displayName: 'GetxoBelaEskola.cloud',
         url: 'https://getxobelaeskola.cloud',
-        description: 'Main Sailing School Website (Hostinger VPS)'
+        description: 'Main Getxo Bela Eskola Website (Hostinger VPS)'
     },
     N8N: {
         type: 'external',
@@ -65,7 +65,7 @@ const SERVICES = {
     MAIN_APP: {
         type: 'process',
         displayName: 'Main Application',
-        description: 'Sailing School Website (Next.js)',
+        description: 'Getxo Bela Eskola Website (Next.js)',
         command: 'npm run dev',
         cwd: '.',
         apiCheck: 'http://localhost:3000'

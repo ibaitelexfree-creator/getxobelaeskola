@@ -10,7 +10,7 @@
 ## Tareas en Curso
 | ID | Agente | Tarea | Inicio | Estado |
 |----|--------|-------|--------|--------|
-| T-003 | ClawdBot | Fix carousel navbar overlap | 2026-02-20 | en_curso |
+| T-003 | ClawdeBot | Fix carousel navbar overlap | 2026-02-20 | en_curso |
 | T-005 | Antigravity | Mission Control: Mobile Setup & Push | 2026-02-21 | completado |
 | T-004 | Jules | Move ScrollToTop button up | 2026-02-20 | completado |
 | T-005 | Jules | Integrate Leaflet Map in Academy Geospatial | 2026-02-20 | completado |

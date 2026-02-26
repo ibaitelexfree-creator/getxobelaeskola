@@ -32,13 +32,14 @@ Tienes 3 cuentas de Jules, cada una especializada en un dominio:
 PATRÓN DE RELAY (CRÍTICO):
 - Las tareas se ejecutan en FASES SECUENCIALES: Architect → Data Master → UI Engine
 - Cada fase posterior LEE el output (PRs, código) de la fase anterior
-- Dentro de cada fase, los Jules trabajan EN PARALELO
-- Esto minimiza errores porque cada especialista revisa el trabajo del anterior
+- Dentro de cada fase, los Jules TRABAJAN EN PARALELO por defecto.
+- NO añadas dependencias entre tareas de la MISMA fase a menos que sea técnicamente imposible avanzar.
+- Si hay varios Architects, asígnales partes independientes (ej: Arq1 define DB, Arq2 define OpenAPI) para que trabajen simultáneamente.
 
 REGLAS:
 1. Distribuye los Jules de forma inteligente según la complejidad real
 2. Cada tarea debe tener un prompt detallado y accionable para Jules
-3. Las dependencias (depends_on) SOLO pueden apuntar a tareas de fases ANTERIORES
+3. Las dependencias (depends_on) SOLO deben apuntar a tareas de fases ANTERIORES siempre que sea posible.
 4. Si el usuario pide N jules, distribúyelos de forma óptima (no obligatoriamente N exactos)
 5. El prompt de cada tarea debe incluir contexto suficiente para que Jules trabaje autónomamente
 6. Repositorio del proyecto: ibaitelexfree-creator/getxobelaeskola (Next.js + Supabase)
@@ -48,7 +49,12 @@ Responde SOLO con JSON válido de acuerdo a la estructura que el usuario pida.`;
 
 function buildUserPrompt(taskDescription, maxJules) {
     return `Analiza esta tarea y descomponla en subtareas para el swarm de Jules.
-Máximo ${maxJules} Jules disponibles. Distribúyelos según necesidad real.
+Máximo ${maxJules} Jules disponibles. Distribúyelos según la necesidad real.
+
+IMPORTANTE PARA EL PARALELISMO:
+- Si max_jules es > 3, intenta dividir el trabajo de cada rol en tares PARALELAS e independientes.
+- Ejemplo: En lugar de un solo Architect haciendo todo, crea 'arch-1' para Schemas y 'arch-2' para OpenAPI.
+- Evita cuellos de botella: si una subtarea no bloquea técnicamente a otra, deben ir en la misma fase sin depends_on entre ellas.
 
 TAREA: ${taskDescription}
 

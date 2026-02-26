@@ -11,7 +11,7 @@ const SailingSimulator = dynamic(
 );
 
 export const metadata = {
-    title: 'Sailing Simulator | Getxo Sailing School',
+    title: 'Sailing Simulator | Getxo Getxo Bela Eskola',
     description: '3D interactive sailing simulation experience.',
 };
 

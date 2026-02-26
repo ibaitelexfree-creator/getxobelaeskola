@@ -2,7 +2,7 @@ import React from 'react';
 import { RegattaGame } from '@/components/academy/regatta/RegattaGame';
 
 export const metadata = {
-    title: 'Regata Virtual | Getxo Sailing School',
+    title: 'Regata Virtual | Getxo Getxo Bela Eskola',
     description: 'Compite en tiempo real contra otros alumnos.',
 };
 

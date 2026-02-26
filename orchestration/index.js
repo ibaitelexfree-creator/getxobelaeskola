@@ -410,7 +410,7 @@ app.get(['/health', '/api/v1/health'], async (req, res) => {
       github: GITHUB_TOKEN ? 'configured' : 'not_configured',
       semanticMemory: process.env.SEMANTIC_MEMORY_URL ? 'configured' : 'not_configured',
       browserless: 'configured',
-      clawdbot: 'configured',
+      clawdebot: 'configured',
       orchestrator: 'online'
     },
     circuitBreaker: {
@@ -2397,9 +2397,10 @@ const server = app.listen(PORT, '0.0.0.0', () => {
   }
 
   // Initialize Telegram Inbound Polling
-  if (process.env.TELEGRAM_BOT_TOKEN && process.env.TELEGRAM_CHAT_ID) {
-    setupTelegramInbound(process.env.TELEGRAM_BOT_TOKEN, process.env.TELEGRAM_CHAT_ID);
-  }
+  // Disabled to avoid conflict with orchestrator-api/src/index.js bot
+  // if (process.env.TELEGRAM_BOT_TOKEN && process.env.TELEGRAM_CHAT_ID) {
+  //   setupTelegramInbound(process.env.TELEGRAM_BOT_TOKEN, process.env.TELEGRAM_CHAT_ID);
+  // }
 
   // ── AUTO-DISPATCH LOOP ──────────────────────────────────────────────
   // Reads pending tasks from SQLite and dispatches them to Jules automatically.
@@ -2414,6 +2415,47 @@ const server = app.listen(PORT, '0.0.0.0', () => {
       return;
     }
 
+    // Helper to dispatch a single task to Jules
+    const dispatchOne = async (task, idx) => {
+      // Check retry limit
+      const maxRetries = parseInt(process.env.JULES_MAX_RETRIES || '3');
+      if (task.retry_count >= maxRetries) {
+        console.warn(`[AutoDispatch] ⚠️ Task "${task.title}" exceeded retry limit (${maxRetries}). Marking as FAILED.`);
+        dbTasks.updateStatus(task.external_id, 'failed', `Exceeded JULES_MAX_RETRIES (${maxRetries})`);
+        sendTelegramMessage(`⚠️ *Tarea Cancelada*\n\nExceeded retries (${maxRetries}) for: ${task.title}`).catch(() => { });
+        return;
+      }
+
+      try {
+        const fullPrompt = task.title;
+        const shortTitle = fullPrompt.length > 195
+          ? fullPrompt.substring(0, 192) + '...'
+          : fullPrompt;
+
+        const session = await createJulesSession({
+          prompt: fullPrompt,
+          source: process.env.JULES_DEFAULT_SOURCE || 'sources/github/ibaitelexfree-creator/getxobelaeskola',
+          title: shortTitle,
+          automationMode: 'AUTO_CREATE_PR',
+          requirePlanApproval: false // Explicitly disable plan approval for auto-dispatch
+        });
+
+        const sessionId = session?.name?.split('/')?.pop() || session?.id || 'unknown';
+        dbTasks.updateStatus(task.external_id, 'running', `Jules session: ${sessionId}`, true); // incRetry=true
+
+        console.log(`[AutoDispatch] ✅ Task "${task.title}" → Jules session ${sessionId} (Retry: ${task.retry_count + 1})`);
+
+        sendTelegramMessage(
+          `🤖 *Auto-Dispatch*\n\n*Tarea:* ${task.title}\n*Jules ID:* \`${sessionId}\`\n*Intento:* ${task.retry_count + 1}/${maxRetries}`
+        ).catch(() => { });
+
+      } catch (err) {
+        // Revert to pending so next cycle can retry
+        dbTasks.updateStatus(task.external_id, 'pending');
+        console.error(`[AutoDispatch] ❌ Failed to dispatch "${task.title}":`, err.message);
+      }
+    };
+
     autoDispatchRunning = true;
     try {
       const pending = dbTasks.getPending().filter(t =>
@@ -2426,59 +2468,34 @@ const server = app.listen(PORT, '0.0.0.0', () => {
         return;
       }
 
-      console.log(`[AutoDispatch] Found ${pending.length} pending Jules task(s) — dispatching ALL in parallel...`);
+      console.log(`[AutoDispatch] Found ${pending.length} pending Jules task(s) — checking capacity...`);
 
-      // Mark all as running first (prevent double-dispatch on next tick)
-      for (const task of pending) {
+      // Check current active sessions to avoid exceeding limits (usually 10)
+      const currentActive = await sessionMonitor.getActiveSessions();
+      const MAX_TOTAL_CONCURRENT = 8;
+      const canLaunchCount = Math.max(0, MAX_TOTAL_CONCURRENT - currentActive.length);
+
+      if (canLaunchCount === 0) {
+        console.log(`[AutoDispatch] ✋ At capacity (${currentActive.length}/${MAX_TOTAL_CONCURRENT} sessions). Waiting for some to finish.`);
+        autoDispatchRunning = false;
+        return;
+      }
+
+      const toDispatch = pending.slice(0, canLaunchCount);
+      console.log(`[AutoDispatch] Dispatching ${toDispatch.length} task(s) (Capacity: ${canLaunchCount}/${MAX_TOTAL_CONCURRENT})...`);
+
+      // Mark selected as running
+      for (const task of toDispatch) {
         dbTasks.updateStatus(task.external_id, 'running');
       }
 
-      // Dispatch all in parallel with a small stagger (500ms) to avoid hitting rate limits
-      const dispatchOne = async (task, idx) => {
-        // Stagger: task 0=0ms, task 1=2s, task 2=4s... (2s between each to avoid API rate limits)
-        await new Promise(r => setTimeout(r, idx * 2000));
+      // Dispatch selected tasks sequentially with a 2s delay to be safe
+      for (let i = 0; i < toDispatch.length; i++) {
+        const task = toDispatch[i];
+        if (i > 0) await new Promise(r => setTimeout(r, 2000));
+        await dispatchOne(task, 0);
+      }
 
-        // Check retry limit
-        const maxRetries = parseInt(process.env.JULES_MAX_RETRIES || '3');
-        if (task.retry_count >= maxRetries) {
-          console.warn(`[AutoDispatch] ⚠️ Task "${task.title}" exceeded retry limit (${maxRetries}). Marking as FAILED.`);
-          dbTasks.updateStatus(task.external_id, 'failed', `Exceeded JULES_MAX_RETRIES (${maxRetries})`);
-          sendTelegramMessage(`⚠️ *Tarea Cancelada*\n\nExceded retries (${maxRetries}) for: ${task.title}`).catch(() => { });
-          return;
-        }
-
-        try {
-          const fullPrompt = task.title;
-          const shortTitle = fullPrompt.length > 195
-            ? fullPrompt.substring(0, 192) + '...'
-            : fullPrompt;
-
-          const session = await createJulesSession({
-            prompt: fullPrompt,
-            source: process.env.JULES_DEFAULT_SOURCE || 'sources/github/ibaitelexfree-creator/getxobelaeskola',
-            title: shortTitle,
-            automationMode: 'AUTO_CREATE_PR',
-            requirePlanApproval: false // Explicitly disable plan approval for auto-dispatch
-          });
-
-          const sessionId = session?.name?.split('/')?.pop() || session?.id || 'unknown';
-          dbTasks.updateStatus(task.external_id, 'running', `Jules session: ${sessionId}`, true); // incRetry=true
-
-          console.log(`[AutoDispatch] ✅ Task "${task.title}" → Jules session ${sessionId} (Retry: ${task.retry_count + 1})`);
-
-          sendTelegramMessage(
-            `🤖 *Auto-Dispatch*\n\n*Tarea:* ${task.title}\n*Jules ID:* \`${sessionId}\`\n*Intento:* ${task.retry_count + 1}/${maxRetries}`
-          ).catch(() => { });
-
-        } catch (err) {
-          // Revert to pending so next cycle can retry
-          dbTasks.updateStatus(task.external_id, 'pending');
-          console.error(`[AutoDispatch] ❌ Failed to dispatch "${task.title}":`, err.message);
-        }
-      };
-
-      // All tasks launch in parallel
-      await Promise.allSettled(pending.map((task, idx) => dispatchOne(task, idx)));
       await syncTasksToMarkdown();
     } finally {
       autoDispatchRunning = false;
@@ -2644,7 +2661,7 @@ const server = app.listen(PORT, '0.0.0.0', () => {
   setInterval(runNightlyCodeEvolution, 60 * 60 * 1000);
   console.log('[Chain 4] Nightly-Watch (Getxo 3 AM) & Self-Healing Registry ACTIVE');
 
-  // ── SAILING GHOST (QA Robot - 4 AM Getxo) ────────────────────────
+  // ── Bela Ghost (QA Robot - 4 AM Getxo) ────────────────────────
   async function runNightlyQARobot() {
     try {
       if (process.env.JULES_DISABLE_QA_ROBOT === 'true') return;
@@ -2654,10 +2671,10 @@ const server = app.listen(PORT, '0.0.0.0', () => {
 
       if (getxoHour !== 4) return; // Trigger 1 hour after Code Evolution
 
-      console.log('[QA Robot] ⛵ Desplegando Sailing Ghost (QA E2E)...');
+      console.log('[QA Robot] ⛵ Desplegando Bela Ghost (QA E2E)...');
 
       await createJulesSession({
-        prompt: `MISSION: SAILING GHOST QA AUDIT
+        prompt: `MISSION: Bela Ghost QA AUDIT
         1. Access the web app.
         2. Create a NEW test user account.
         3. Navigate to a course or membership page.
@@ -2668,11 +2685,11 @@ const server = app.listen(PORT, '0.0.0.0', () => {
         8. If any step FAILS, identify the reason and create a PR with the fix.
         9. Generate a nightly-qa-report branch with all media and a summary.md.`,
         source: process.env.JULES_DEFAULT_SOURCE || 'sources/github/ibaitelexfree-creator/getxobelaeskola',
-        title: '⛵ Sailing Ghost: Nightly QA Audit',
+        title: '⛵ Bela Ghost: Nightly QA Audit',
         automationMode: 'AUTO_CREATE_PR'
       });
 
-      sendTelegramMessage(`⛵ *Sailing Ghost: Zarpa la patrulla de QA (04:00 Getxo)*\nEl robot está recorriendo la web y verificando pagos Stripe...`);
+      sendTelegramMessage(`⛵ *Bela Ghost: Zarpa la patrulla de QA (04:00 Getxo)*\nEl robot está recorriendo la web y verificando pagos Stripe...`);
     } catch (err) {
       console.error('[QA Robot] Error:', err.message);
     }

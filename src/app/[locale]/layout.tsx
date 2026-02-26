@@ -82,10 +82,10 @@ export async function generateMetadata({ params: { locale } }: { params: { local
     title = 'Getxo Bela Eskola | Nabigazio Akademia Getxon';
     description = 'Ikasi nabigatzen Kantauri itsasoan. Bela ikastaroak, J80 ontziak, online akademia eta material alokairua Getxoko Portu Kiroleruan.';
   } else if (isEn) {
-    title = 'Getxo Sailing School | Sailing Lessons in Getxo';
+    title = 'Getxo Getxo Bela Eskola | Sailing Lessons in Getxo';
     description = 'Learn to sail in the Bay of Biscay. Pro sailing courses, J80 yacht training, online academy, and boat rentals in Getxo Marina.';
   } else if (isFr) {
-    title = 'Getxo Sailing School | École de Voile à Getxo';
+    title = 'Getxo Getxo Bela Eskola | École de Voile à Getxo';
     description = 'Apprenez la navigation en mer Cantabrique. Cours de voile, formation J80, académie en ligne et location de bateaux à Getxo.';
   }
 
@@ -95,13 +95,13 @@ export async function generateMetadata({ params: { locale } }: { params: { local
   return {
     title: {
       default: title,
-      template: `%s | Getxo Sailing School`
+      template: `%s | Getxo Getxo Bela Eskola`
     },
     description,
     keywords: ['vela getxo', 'escuela náutica', 'bela eskola', 'alquiler barcos getxo', 'cursos vela', 'licencia navegación', 'J80 getxo', 'pakea bela'],
-    authors: [{ name: 'Getxo Sailing School' }],
-    creator: 'Getxo Sailing School',
-    publisher: 'Getxo Sailing School',
+    authors: [{ name: 'Getxo Getxo Bela Eskola' }],
+    creator: 'Getxo Getxo Bela Eskola',
+    publisher: 'Getxo Getxo Bela Eskola',
     metadataBase: new URL(siteUrl),
     alternates: {
       canonical: `${siteUrl}/${locale}/`,
@@ -116,13 +116,13 @@ export async function generateMetadata({ params: { locale } }: { params: { local
       title,
       description,
       url: siteUrl,
-      siteName: 'Getxo Sailing School',
+      siteName: 'Getxo Getxo Bela Eskola',
       images: [
         {
           url: '/images/home-hero-sailing-action.webp',
           width: 1200,
           height: 630,
-          alt: 'Getxo Sailing School - Sailing Action'
+          alt: 'Getxo Getxo Bela Eskola - Sailing Action'
         },
       ],
       locale: ogLocale,

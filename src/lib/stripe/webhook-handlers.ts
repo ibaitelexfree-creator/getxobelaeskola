@@ -186,7 +186,7 @@ export class StripeHandlers {
             await resend.emails.send({
                 from: DEFAULT_FROM_EMAIL,
                 to: profile.email,
-                subject: `${subjects[locale] || subjects.es} - Getxo Sailing School`,
+                subject: `${subjects[locale] || subjects.es} - Getxo Getxo Bela Eskola`,
                 html: membershipTemplate(profile.nombre || 'Navegante', locale as any)
             });
 

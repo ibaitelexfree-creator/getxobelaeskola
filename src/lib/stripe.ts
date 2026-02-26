@@ -6,7 +6,7 @@ export const stripe = secretKey ? new Stripe(secretKey, {
     apiVersion: '2024-06-20' as any, // Latest stable for this major version
     typescript: true,
     appInfo: {
-        name: 'Getxo Sailing School',
+        name: 'Getxo Getxo Bela Eskola',
         version: '0.1.0',
     },
 }) : null;

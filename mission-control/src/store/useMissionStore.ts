@@ -14,7 +14,7 @@ interface MissionState {
     services: {
         jules: { health: ServiceHealth; used: number; total: number; active: number };
         flash: { health: ServiceHealth; tasksToday: number; tokensUsed: number };
-        clawdbot: { health: ServiceHealth; delegations: number };
+        clawdebot: { health: ServiceHealth; delegations: number };
         browserless: { health: ServiceHealth; used?: number; total?: number };
         thermal: { label: string; level: number };
         watchdog: { state: string; loops: number; stalls: number; crashes: number };
@@ -49,7 +49,7 @@ interface MissionState {
     history: Array<{
         id: string;
         title: string;
-        executor: 'jules' | 'flash' | 'clawdbot' | 'antigravity';
+        executor: 'jules' | 'flash' | 'clawdebot' | 'antigravity';
         status: 'completed' | 'failed' | 'queued' | 'running';
         latencyMs?: number;
         timestamp: number;
@@ -60,7 +60,7 @@ interface MissionState {
     activeThreads: Array<{
         id: string;
         label: string;
-        executor: 'jules' | 'flash' | 'clawdbot' | 'antigravity';
+        executor: 'jules' | 'flash' | 'clawdebot' | 'antigravity';
         layer: 1 | 2 | 3;
         progress: number;
         status: string;
@@ -141,7 +141,7 @@ export const useMissionStore = create<MissionState>((set, get) => ({
     services: {
         jules: { health: 'unknown', used: 0, total: 300, active: 0 },
         flash: { health: 'unknown', tasksToday: 0, tokensUsed: 0 },
-        clawdbot: { health: 'unknown', delegations: 0 },
+        clawdebot: { health: 'unknown', delegations: 0 },
         browserless: { health: 'unknown' },
         thermal: { label: 'Unknown', level: 0 },
         watchdog: { state: 'UNKNOWN', loops: 0, stalls: 0, crashes: 0 },

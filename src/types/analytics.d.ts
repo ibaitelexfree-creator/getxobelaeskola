@@ -1,5 +1,5 @@
 /**
- * Definiciones de tipos para el sistema de analíticas de Getxo Sailing School.
+ * Definiciones de tipos para el sistema de analíticas de Getxo Getxo Bela Eskola.
  * Anticipa la integración con proveedores como Google Analytics, Vercel Analytics o PostHog.
  */
 

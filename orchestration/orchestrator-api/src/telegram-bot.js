@@ -7,7 +7,7 @@ if (dns.setDefaultResultOrder) {
 
 // In-memory state for pending proposals
 const pendingProposals = new Map();
-let lastUpdateId = 0;
+let lastUpdateId = -1;
 let pollingActive = false;
 
 /**
@@ -138,12 +138,12 @@ export function getAllPendingProposals() {
 
 // ─── Command Router ───
 
-async function handleMessage(msg, { onSwarm, onApprove, onCancel, onStatus, onCicd }) {
+async function handleMessage(msg, { onSwarm, onApprove, onCancel, onStatus, onCicd, onRetry, onHealth }) {
     const chatId = msg.chat.id;
     const text = (msg.text || '').trim();
     const authorizedChatId = process.env.TELEGRAM_CHAT_ID;
 
-    // Security: only respond to authorized chat
+    console.log(`[TelegramBot] Incoming message from ${chatId}: "${text}" (Authorized: ${authorizedChatId})`);
     if (authorizedChatId && String(chatId) !== String(authorizedChatId)) {
         await sendMessage(chatId, '⛔ No autorizado.');
         return;
@@ -197,9 +197,16 @@ async function handleMessage(msg, { onSwarm, onApprove, onCancel, onStatus, onCi
     if (text.startsWith('/approve') || text.startsWith('/a') || text.toLowerCase() === 'aprueba' || text === '❤️' || text === '👍') {
         const id = extractProposalId(text);
         console.log(`[TelegramBot] CMD: ${text} | Extracted ID: ${id}`);
+
+        // If the command is "/approve id 1,2,3", the parts after 'id' are filters
+        const parts = text.split(/\s+/);
+        const filters = (parts.length > 2 && !['❤️❤️', '👍👍'].includes(parts[2]))
+            ? parts.slice(2).join(' ').split(/[\s,]+/).filter(Boolean)
+            : null;
+
         if (id && onApprove) {
             try {
-                await onApprove(chatId, id);
+                await onApprove(chatId, id, filters);
             } catch (e) {
                 await sendMessage(chatId, `❌ Error: ${e.message}`);
             }
@@ -238,18 +245,41 @@ async function handleMessage(msg, { onSwarm, onApprove, onCancel, onStatus, onCi
         return;
     }
 
+    if (text.startsWith('/retry') || text.startsWith('/r ')) {
+        const id = extractProposalId(text);
+        if (id && onRetry) {
+            try {
+                await onRetry(chatId, id);
+            } catch (e) {
+                await sendMessage(chatId, `❌ Retry error: ${e.message}`);
+            }
+        } else if (!id) {
+            await sendMessage(chatId, '⚠️ Uso: `/retry <swarm_id>`');
+        }
+        return;
+    }
+
+    if (text === '/health' || text === '/hc') {
+        if (onHealth) {
+            await onHealth(chatId);
+        }
+        return;
+    }
+
     if (text === '/help' || text === '/h') {
         await sendMessage(chatId, [
             '🤖 *Swarm Commander - Comandos*',
             '',
             '`/swarm <tarea> [N jules]` — Analizar tarea con Groq AI',
-            '`/approve <id>` — Aprobar propuesta',
+            '`/approve <id> [filtros]` — Aprobar propuesta (ej: `/approve x1y2 1,3`)',
             '`/cancel <id>` — Cancelar propuesta',
+            '`/retry <id>` — Reintentar tareas fallidas',
+            '`/health` — Ver estado de cuentas Jules',
             '`/status` — Ver propuestas pendientes',
             '`/cicd <tarea>` — Iniciar proceso CI/CD libre',
             '`/help` — Este mensaje',
             '',
-            '_Ejemplo:_ `/swarm Implementar pagos Stripe, 12 jules`'
+            '_Filtros:_ Puedes pasar los números de la lista (1, 2, 3) o IDs directos.'
         ].join('\n'));
         return;
     }
@@ -279,13 +309,15 @@ export function formatProposal(proposalId, analysis) {
     ];
 
     const icons = { 'Lead Architect': '🏗️', 'Data Master': '💾', 'UI Engine': '🎨' };
+    let taskIdx = 1;
 
     for (const phase of analysis.phases) {
         const icon = icons[phase.role] || '🔧';
         lines.push(`${icon} *Fase ${phase.order} - ${phase.role}* (${phase.jules_count} Jules):`);
         for (const task of phase.tasks) {
             const deps = task.depends_on?.length > 0 ? ` (← ${task.depends_on.join(', ')})` : '';
-            lines.push(`  • \`${task.id}\`: ${task.title}${deps}`);
+            lines.push(`  ${taskIdx}. \`${task.id}\`: ${task.title}${deps}`);
+            taskIdx++;
         }
         lines.push('');
     }
@@ -293,7 +325,9 @@ export function formatProposal(proposalId, analysis) {
     lines.push(`⏱️ Estimado: ~${analysis.estimated_time_minutes || '?'} min | Total: ${analysis.total_jules} Jules`);
     if (analysis.risk_notes) lines.push(`⚠️ _${analysis.risk_notes}_`);
     lines.push('━━━━━━━━━━━━━━━━━━━━━━━');
-    lines.push(`✅ \`/approve ${proposalId}\`  |  ❌ \`/cancel ${proposalId}\``);
+    lines.push(`✅ \`/approve ${proposalId}\` (todas)`);
+    lines.push(`🎯 \`/approve ${proposalId} 1,2,5\` (seleccionadas)`);
+    lines.push(`❌ \`/cancel ${proposalId}\``);
 
     return lines.join('\n');
 }

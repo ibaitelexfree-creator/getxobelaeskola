@@ -28,12 +28,12 @@ async function maestroGet<T>(path: string): Promise<T> {
 
 // ─── Execution Commands ───
 
-/** /task <desc> — Cascade: Jules → Flash → ClawdBot */
-export async function sendTask(description: string, mode: 'cascade' | 'flash' | 'clawdbot' = 'cascade') {
+/** /task <desc> — Cascade: Jules → Flash → ClawdeBot */
+export async function sendTask(description: string, mode: 'cascade' | 'flash' | 'clawdebot' = 'cascade') {
     const toolMap = {
         cascade: 'jules_create_session',
         flash: 'jules_create_session',
-        clawdbot: 'jules_create_session',
+        clawdebot: 'jules_create_session',
     };
     return maestroPost('/mcp/execute', {
         tool: toolMap[mode],
@@ -60,7 +60,7 @@ export async function sendQuestion(text: string, julesId: string) {
     });
 }
 
-/** /approve — Approve pending ClawdBot task */
+/** /approve — Approve pending ClawdeBot task */
 export async function approve() {
     return maestroPost('/watchdog/action', { action: 'feed', message: '/approve' });
 }
@@ -75,7 +75,7 @@ export async function reject() {
 export interface MaestroStatus {
     jules: { used: number; total: number; active: number };
     flash: { enabled: boolean; tasksToday: number; tokensUsed: number };
-    clawdbot: { healthy: boolean; delegations: number };
+    clawdebot: { healthy: boolean; delegations: number };
     visual: { enabled: boolean };
     thermal: { label: string; level: number };
     queue: number;
@@ -89,7 +89,7 @@ export async function getStatus(): Promise<MaestroStatus> {
     return {
         jules: { used: 0, total: 300, active: 0 },
         flash: { enabled: health.services?.geminiFlash !== 'error', tasksToday: 0, tokensUsed: 0 },
-        clawdbot: { healthy: health.services?.clawdbot !== 'error', delegations: 0 },
+        clawdebot: { healthy: health.services?.clawdebot !== 'error', delegations: 0 },
         visual: { enabled: health.services?.browserless !== 'error' },
         thermal: { label: 'Normal', level: 0 },
         queue: 0,

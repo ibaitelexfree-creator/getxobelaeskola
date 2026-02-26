@@ -43,19 +43,19 @@ Este plan detalla la transición a una infraestructura CI/CD de costo cero, opti
 - [x] **Informe de Ahorro**: Proyección anual confirmada de 0$ en infraestructura CI/CD.
 
 ## 🤖 Fase 8: Orquestación Autónoma — Maestro v3 ✅
-- [x] **Cascada de Ejecución**: Jules Pool → Gemini Flash → ClawdBot (con confirmación `/approve`).
+- [x] **Cascada de Ejecución**: Jules Pool → Gemini Flash → ClawdeBot (con confirmación `/approve`).
 - [x] **FlashExecutor**: Integración con Gemini Flash API para ejecución rápida (<1s) cuando Jules está saturado.
 - [x] **VisualRelay**: Screenshots y PDFs via Browserless enviados directamente a Telegram (`/screenshot`).
-- [x] **CreditMonitor**: Dashboard unificado de consumo para Jules + Flash + ClawdBot (`/usage`).
+- [x] **CreditMonitor**: Dashboard unificado de consumo para Jules + Flash + ClawdeBot (`/usage`).
 - [x] **Health Check**: Diagnóstico de todos los servicios via Telegram (`/doctor`).
 - [x] **Bypass directo**: Comando `/clawdebot` para enviar tareas fuera de la cascada.
-- [x] **Confirmación humana**: ClawdBot requiere `/approve` antes de ejecutar (seguridad).
+- [x] **Confirmación humana**: ClawdeBot requiere `/approve` antes de ejecutar (seguridad).
 
 ---
 ### 🏁 Resumen Final
 - **Arquitectura**: GitHub Fast Lane (Parallel Verification) + Maestro v3 (Cascada Autónoma).
 - **Herramientas**: Rust-Stack (Oxlint, Biome) + Nitro-Mobile (Standalone JARs).
-- **Orquestación**: Jules → Gemini Flash → ClawdBot (3 niveles con confirmación).
+- **Orquestación**: Jules → Gemini Flash → ClawdeBot (3 niveles con confirmación).
 - **Consumo**: 2.000 min/mes gratuitos CI/CD + Flash API + Browserless.
 - **Auto-Release**: Semantic Versioning automatizado.
 

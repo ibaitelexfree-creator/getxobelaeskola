@@ -66,19 +66,19 @@
         "modes": {
             "cascade": {
                 "label": "Cascada",
-                "desc": "Jules → Flash → ClawdBot"
+                "desc": "Jules → Flash → ClawdeBot"
             },
             "flash": {
                 "label": "Solo Flash",
                 "desc": "Gemini Flash directo"
             },
-            "clawdbot": {
-                "label": "ClawdBot",
+            "clawdebot": {
+                "label": "ClawdeBot",
                 "desc": "Bypass directo"
             }
         },
         "approval": {
-            "title": "Aprobación ClawdBot",
+            "title": "Aprobación ClawdeBot",
             "btn_approve": "Aprobar",
             "btn_reject": "Rechazar"
         }

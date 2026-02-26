@@ -5,36 +5,36 @@
  * - 3 Jules accounts (invisible rotation)
  * - Gemini Flash Fast (Level 2 executor)
  * - ThermalGuard (auto-throttle)
- * - ClawdBot (last resort, requires confirmation)
+ * - ClawdeBot (last resort, requires confirmation)
  * - Browserless (remote visualization)
  * 
  * Execution Hierarchy:
  *   1. Jules Pool (primary) — 15 concurrent × 3 = 45 max
  *   2. Gemini Flash (fast, low-cost) — when Jules saturated
- *   3. ClawdBot (last resort) — requires /approve via Telegram
+ *   3. ClawdeBot (last resort) — requires /approve via Telegram
  * 
  * Commands:
  *   /task <desc>       → Asigna al mejor ejecutor disponible (cascada)
- *   /clawdebot <desc>  → Sesión aislada directa al PC ClawdBot
+ *   /clawdebot <desc>  → Sesión aislada directa al PC ClawdeBot
  *   /status            → Estado general compacto
  *   /usage             → Dashboard de consumo unificado
  *   /doctor            → Health check de todos los servicios
  *   /screenshot <url>  → Captura remota via Browserless → Telegram
- *   /approve           → Aprobar tarea pendiente para ClawdBot
- *   /reject            → Rechazar tarea ClawdBot y reencolar
+ *   /approve           → Aprobar tarea pendiente para ClawdeBot
+ *   /reject            → Rechazar tarea ClawdeBot y reencolar
  *   /temp              → Temperaturas + throttle level
  *   /pool              → Uso diario del pool de Jules
  *   /pause             → Pausar todas las tareas
  *   /resume            → Reanudar
  *   /queue             → Cola de tareas pendientes
- *   /force-clawdbot    → Forzar próxima tarea a ClawdBot
+ *   /force-clawdebot    → Forzar próxima tarea a ClawdeBot
  *   /help              → Lista de comandos
  */
 
 import TelegramBot from 'node-telegram-bot-api';
 import { ThermalGuard } from './thermal-guard.js';
 import { JulesPool } from './jules-pool.js';
-import { ClawdBotBridge } from './clawdbot-bridge.js';
+import { ClawdeBotBridge } from './clawdebot-bridge.js';
 import { FlashExecutor } from './flash-executor.js';
 import { VisualRelay } from './visual-relay.js';
 import { CreditMonitor } from './credit-monitor.js';
@@ -57,17 +57,17 @@ export class Maestro {
         // Initialize subsystems
         this.thermal = new ThermalGuard(options.thermal || {});
         this.pool = new JulesPool(this.thermal, options.pool || {});
-        this.clawdbot = new ClawdBotBridge(options.clawdbot || {});
+        this.clawdebot = new ClawdeBotBridge(options.clawdebot || {});
         this.flash = new FlashExecutor(options.flash || {});
         this.visual = new VisualRelay(options.visual || {});
-        this.credits = new CreditMonitor(this.pool, this.flash, this.clawdbot, this.visual);
+        this.credits = new CreditMonitor(this.pool, this.flash, this.clawdebot, this.visual);
         this.watchdog = new AgentWatchdog(options.watchdog || {});
 
-        // Task queue for when pool is exhausted and ClawdBot not available
+        // Task queue for when pool is exhausted and ClawdeBot not available
         this.taskQueue = [];
-        this.forceClawdBot = false;
+        this.forceClawdeBot = false;
 
-        // Pending approval for ClawdBot delegation
+        // Pending approval for ClawdeBot delegation
         this.pendingApproval = null;
 
         // Daily stats
@@ -76,7 +76,7 @@ export class Maestro {
             tasksCompleted: 0,
             tasksFailed: 0,
             flashUsed: 0,
-            clawdbotUsed: 0,
+            clawdebotUsed: 0,
             alertsSent: 0
         };
 
@@ -101,9 +101,9 @@ export class Maestro {
         this.watchdog.start();
         console.log('[Maestro] 🐕 Watchdog activo.');
 
-        // Check ClawdBot availability (non-blocking)
-        this.clawdbot.isAvailable().then(ok => {
-            console.log(`[Maestro] ClawdBot: ${ok ? 'disponible' : 'no disponible'}`);
+        // Check ClawdeBot availability (non-blocking)
+        this.clawdebot.isAvailable().then(ok => {
+            console.log(`[Maestro] ClawdeBot: ${ok ? 'disponible' : 'no disponible'}`);
         });
 
         // Start Telegram bot
@@ -117,7 +117,7 @@ export class Maestro {
 
         // Send startup message
         const flashStatus = this.flash.hasCredits() ? '⚡ Flash listo' : '💤 Flash sin créditos';
-        this._send(`🤖 **Maestro v3 activo** (Fast Lane 2026)\n\n🎯 Cascada: Jules → Flash → ClawdBot\n${flashStatus}\nEscribe /help para ver comandos.`);
+        this._send(`🤖 **Maestro v3 activo** (Fast Lane 2026)\n\n🎯 Cascada: Jules → Flash → ClawdeBot\n${flashStatus}\nEscribe /help para ver comandos.`);
     }
 
     /**
@@ -180,8 +180,8 @@ export class Maestro {
                 await this._cmdResume();
             } else if (text === '/queue') {
                 await this._cmdQueue();
-            } else if (text === '/force-clawdbot') {
-                await this._cmdForceClawdBot();
+            } else if (text === '/force-clawdebot') {
+                await this._cmdForceClawdeBot();
             } else if (text === '/watchdog' || text === '/wd') {
                 await this._cmdWatchdog();
             } else if (text === '/watchdog pause' || text === '/wd pause') {
@@ -212,13 +212,13 @@ export class Maestro {
 
         const task = { title: description, description, createdAt: Date.now() };
 
-        // Check if forced to ClawdBot
-        if (this.forceClawdBot) {
-            this.forceClawdBot = false;
-            return this._delegateToClawdBot(task, 'Forzado por usuario');
+        // Check if forced to ClawdeBot
+        if (this.forceClawdeBot) {
+            this.forceClawdeBot = false;
+            return this._delegateToClawdeBot(task, 'Forzado por usuario');
         }
 
-        // ───── CASCADA: Jules → Flash → ClawdBot (con confirmación) ─────
+        // ───── CASCADA: Jules → Flash → ClawdeBot (con confirmación) ─────
 
         // Level 1: Try Jules Pool
         const slot = this.pool.acquire(task);
@@ -254,7 +254,7 @@ export class Maestro {
                 ].filter(Boolean).join('\n'));
                 return;
             }
-            // Flash failed, fall through to ClawdBot
+            // Flash failed, fall through to ClawdeBot
             await this._send(`⚠️ Flash falló: ${result.error}`);
         }
 
@@ -281,7 +281,7 @@ export class Maestro {
     async _cmdStatus() {
         const poolStatus = this.pool.getStatus();
         const flashStatus = this.flash.hasCredits() ? '🟢' : '🔴';
-        const clawdbot = this.clawdbot.healthy ? '🟢' : '🔴';
+        const clawdebot = this.clawdebot.healthy ? '🟢' : '🔴';
         const visualStatus = this.visual.enabled ? '🟢' : '🔴';
         const queueLen = this.taskQueue.length;
         const pending = this.pendingApproval ? '⚠️ 1 esperando /approve' : 'Ninguna';
@@ -292,7 +292,7 @@ export class Maestro {
             '',
             `📊 **Jules:** ${poolStatus.totalUsed}/300 hoy (${poolStatus.totalActive} activas)`,
             `⚡ **Flash:** ${flashStatus} ${this.stats.flashUsed} tareas hoy`,
-            `🤖 **ClawdBot:** ${clawdbot} ${this.stats.clawdbotUsed} delegaciones`,
+            `🤖 **ClawdeBot:** ${clawdebot} ${this.stats.clawdebotUsed} delegaciones`,
             `🌐 **Visual:** ${visualStatus}`,
             `🌡️ **Thermal:** ${this.thermal.getThrottleLevel().label}`,
             `📋 **Cola:** ${queueLen} | **Pendiente:** ${pending}`,
@@ -343,9 +343,9 @@ export class Maestro {
         ].filter(Boolean).join('\n'));
     }
 
-    async _cmdForceClawdBot() {
-        this.forceClawdBot = true;
-        await this._send('🤖 **Modo ClawdBot activado** para la próxima tarea.\nUsa `/task <descripción>` para enviarla directamente a ClawdBot.');
+    async _cmdForceClawdeBot() {
+        this.forceClawdeBot = true;
+        await this._send('🤖 **Modo ClawdeBot activado** para la próxima tarea.\nUsa `/task <descripción>` para enviarla directamente a ClawdeBot.');
     }
 
     async _cmdWatchdog() {
@@ -379,21 +379,21 @@ export class Maestro {
     async _cmdClawdebot(prompt) {
         if (!prompt) return this._send('❌ Usa: `/clawdebot <prompt>`');
 
-        await this._send('🤖 **Modo ClawdBot directo** — Bypass de la cascada...');
+        await this._send('🤖 **Modo ClawdeBot directo** — Bypass de la cascada...');
 
         const task = { title: prompt, description: prompt, createdAt: Date.now(), direct: true };
-        const available = await this.clawdbot.isAvailable();
+        const available = await this.clawdebot.isAvailable();
 
         if (!available) {
-            return this._send('❌ ClawdBot no está disponible. Inicia Docker primero.');
+            return this._send('❌ ClawdeBot no está disponible. Inicia Docker primero.');
         }
 
-        const result = await this.clawdbot.delegateTask(task);
+        const result = await this.clawdebot.delegateTask(task);
         if (result.success) {
-            this.stats.clawdbotUsed++;
-            await this._send(`✅ **ClawdBot completó:**\n${result.response?.substring(0, 500) || 'OK'}`);
+            this.stats.clawdebotUsed++;
+            await this._send(`✅ **ClawdeBot completó:**\n${result.response?.substring(0, 500) || 'OK'}`);
         } else {
-            await this._send(`❌ ClawdBot falló: ${result.error}`);
+            await this._send(`❌ ClawdeBot falló: ${result.error}`);
         }
     }
 
@@ -407,9 +407,9 @@ export class Maestro {
         const checks = [
             { name: 'Jules Pool', fn: () => ({ ok: this.pool.getStatus().totalActive >= 0 }) },
             { name: 'Flash API', fn: () => ({ ok: this.flash.enabled }) },
-            { name: 'ClawdBot', fn: async () => ({ ok: await this.clawdbot.isAvailable() }) },
+            { name: 'ClawdeBot', fn: async () => ({ ok: await this.clawdebot.isAvailable() }) },
             { name: 'Browserless', fn: () => ({ ok: this.visual.enabled }) },
-            { name: 'ThermalGuard', fn: () => ({ ok: !this.thermal.shouldDelegateToClawdBot() }) },
+            { name: 'ThermalGuard', fn: () => ({ ok: !this.thermal.shouldDelegateToClawdeBot() }) },
             { name: 'Watchdog', fn: () => ({ ok: this.watchdog.getStatus().state !== 'CRASHED' }) }
         ];
 
@@ -451,7 +451,7 @@ export class Maestro {
         const { task, reason } = this.pendingApproval;
         this.pendingApproval = null;
 
-        await this._delegateToClawdBot(task, `Aprobado por usuario. ${reason}`);
+        await this._delegateToClawdeBot(task, `Aprobado por usuario. ${reason}`);
     }
 
     async _cmdReject() {
@@ -471,9 +471,9 @@ export class Maestro {
             '🤖 **Maestro v3 — Comandos**',
             '',
             '**Ejecución:**',
-            '`/task <desc>` — Tarea (cascada: Jules→Flash→ClawdBot)',
-            '`/clawdebot <desc>` — Directo a ClawdBot (bypass)',
-            '`/approve` — Aprobar tarea pendiente de ClawdBot',
+            '`/task <desc>` — Tarea (cascada: Jules→Flash→ClawdeBot)',
+            '`/clawdebot <desc>` — Directo a ClawdeBot (bypass)',
+            '`/approve` — Aprobar tarea pendiente de ClawdeBot',
             '`/reject` — Rechazar y reencolar',
             '',
             '**Monitoring:**',
@@ -487,34 +487,34 @@ export class Maestro {
             '`/pool` — Uso del pool de Jules',
             '`/queue` — Cola de tareas pendientes',
             '`/pause` / `/resume` — Control de Jules',
-            '`/force-clawdbot` — Forzar próxima a ClawdBot',
+            '`/force-clawdebot` — Forzar próxima a ClawdeBot',
             '`/watchdog` — Estado del watchdog',
             '',
-            '_Cascada automática: Jules → Flash → ClawdBot (con confirmación)_'
+            '_Cascada automática: Jules → Flash → ClawdeBot (con confirmación)_'
         ].join('\n'));
     }
 
     // ───────────────────── INTERNAL METHODS ─────────────────────
 
-    async _delegateToClawdBot(task, reason) {
-        this.stats.clawdbotUsed++;
-        this.pool.recordClawdBotDelegation();
+    async _delegateToClawdeBot(task, reason) {
+        this.stats.clawdebotUsed++;
+        this.pool.recordClawdeBotDelegation();
 
         await this._send([
-            `🤖 **Delegando a ClawdBot** (último recurso)`,
+            `🤖 **Delegando a ClawdeBot** (último recurso)`,
             `📝 ${task.title}`,
             `Motivo: ${reason}`,
             `Procesando...`
         ].join('\n'));
 
-        const result = await this.clawdbot.delegateTask(task);
+        const result = await this.clawdebot.delegateTask(task);
 
         if (result.success) {
             this.stats.tasksCompleted++;
-            await this._send(`✅ ClawdBot completó: ${task.title}`);
+            await this._send(`✅ ClawdeBot completó: ${task.title}`);
         } else {
             this.stats.tasksFailed++;
-            await this._send(`❌ ClawdBot falló: ${result.error}\nTarea añadida a la cola.`);
+            await this._send(`❌ ClawdeBot falló: ${result.error}\nTarea añadida a la cola.`);
             this.taskQueue.push(task);
         }
     }
@@ -560,7 +560,7 @@ export class Maestro {
                 this.thermal.getStatusMessage(),
                 '',
                 `⏸️ Jules pausados automáticamente.`,
-                `🤖 Delegando tareas pendientes a ClawdBot.`
+                `🤖 Delegando tareas pendientes a ClawdeBot.`
             ].join('\n'));
         });
 
@@ -589,13 +589,13 @@ export class Maestro {
         });
 
         this.pool.on('dailyReset', async () => {
-            this.stats = { tasksAssigned: 0, tasksCompleted: 0, tasksFailed: 0, flashUsed: 0, clawdbotUsed: 0, alertsSent: 0 };
+            this.stats = { tasksAssigned: 0, tasksCompleted: 0, tasksFailed: 0, flashUsed: 0, clawdebotUsed: 0, alertsSent: 0 };
             await this._send('🌅 **Nuevo día.** Contadores reseteados. 300 tareas Jules + Flash disponibles.');
         });
 
         // FlashExecutor events
         this.flash.on('creditsExhausted', async (e) => {
-            await this._send(`⚠️ **Flash sin créditos:** ${e.error}\nTareas irán a ClawdBot (con confirmación).`);
+            await this._send(`⚠️ **Flash sin créditos:** ${e.error}\nTareas irán a ClawdeBot (con confirmación).`);
         });
 
         this.flash.on('creditsLow', async () => {

@@ -39,7 +39,7 @@ export default function ExperienceSection({
                         <div className="relative aspect-[4/5] overflow-hidden group">
                             <Image
                                 src="/images/course-detail-header-sailing.webp"
-                                alt="Sailing Experience"
+                                alt="Experiencia de Vela"
                                 fill
                                 sizes="(max-width: 1024px) 100vw, 50vw"
                                 className="object-cover grayscale-[0.2] group-hover:grayscale-0 transition-all duration-700"

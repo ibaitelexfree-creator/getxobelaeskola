@@ -21,7 +21,7 @@ export default async function PrivacyPage({ params: { locale } }: { params: { lo
             <div className="container mx-auto max-w-4xl">
                 <header className="mb-20">
                     <span className="text-accent uppercase tracking-[0.6em] text-sm font-bold mb-6 block">
-                        Getxo Sailing School
+                        Getxo Getxo Bela Eskola
                     </span>
                     <h1 className="text-4xl md:text-7xl font-display text-white mb-8 italic">
                         {t('privacy_title')}
@@ -33,7 +33,7 @@ export default async function PrivacyPage({ params: { locale } }: { params: { lo
                     <div className="space-y-12 text-foreground/80 font-light leading-loose">
                         <section className="bg-white/5 p-8 rounded-sm border border-white/10 mb-12">
                             <p className="text-foreground/60 leading-relaxed italic">
-                                En Getxo Sailing School nos tomamos muy en serio la privacidad de tus datos. Cumplimos estrictamente con el Reglamento General de Protección de Datos (RGPD).
+                                En Getxo Getxo Bela Eskola nos tomamos muy en serio la privacidad de tus datos. Cumplimos estrictamente con el Reglamento General de Protección de Datos (RGPD).
                             </p>
                         </section>
 
