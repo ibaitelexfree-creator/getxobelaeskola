@@ -62,13 +62,13 @@ jobs:
             STRIPE_WEBHOOK_SECRET=${{ secrets.STRIPE_WEBHOOK_SECRET }}
             RESEND_API_KEY=${{ secrets.RESEND_API_KEY }}
 
-      - name: Copy docker-compose.yml to VPS
+      - name: Copy docker-compose files to VPS
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.VPS_IP }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
-          source: "docker-compose.yml"
+          source: "docker-compose.yml,orchestration/docker-compose.yml,orchestration/orchestrator-api/.env.hostinger"
           target: "/opt/getxo-sailing"
           timeout: 60s
           command_timeout: 10m
@@ -80,11 +80,12 @@ jobs:
           GITHUB_REPOSITORY: ${{ github.repository }}
           GITHUB_ACTOR: ${{ github.actor }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
         with:
           host: ${{ secrets.VPS_IP }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
-          envs: GITHUB_REPOSITORY,GITHUB_ACTOR,GITHUB_TOKEN
+          envs: GITHUB_REPOSITORY,GITHUB_ACTOR,GITHUB_TOKEN,GROQ_API_KEY
           timeout: 60s
           command_timeout: 10m
           script: |
@@ -99,11 +100,21 @@ jobs:
             REPO_LOWER=$(echo "$GITHUB_REPOSITORY" | tr '[:upper:]' '[:lower:]')
             export DOCKER_IMAGE=ghcr.io/$REPO_LOWER:latest
 
-            echo "Pulling latest image: $DOCKER_IMAGE"
-            docker compose pull web
+            echo "Pulling latest images..."
+            docker compose -f docker-compose.yml pull web
+
+            # Note: We need to pull jules-api as well if it's built from this repo
+            # For now, let's just make sure orchestration is updated
 
             echo "Deploying update..."
-            docker compose up -d --remove-orphans --force-recreate web
+            docker compose -f docker-compose.yml up -d --remove-orphans --force-recreate web
+
+            # Update Orchestration
+            if [ -d "orchestration" ]; then
+                echo "Updating orchestration services..."
+                cd orchestration
+                docker compose up -d --build jules-api
+            fi
 
             # Cleanup old images to save space
             docker image prune -f

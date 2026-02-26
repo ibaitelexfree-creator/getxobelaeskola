@@ -25,6 +25,7 @@ app.use(cors());
 
 // Configuration
 const JULES_API_KEY = process.env.JULES_API_KEY;
+const GROQ_API_KEY = process.env.GROQ_API_KEY; // Added GROQ_API_KEY
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 const GITHUB_WEBHOOK_SECRET = process.env.GITHUB_WEBHOOK_SECRET;
 const DATABASE_URL = process.env.DATABASE_URL;
@@ -497,13 +498,15 @@ server.listen(PORT, '0.0.0.0', () => {
   const chatId = process.env.TELEGRAM_CHAT_ID;
   startPolling({
     onSwarm: async (cid, prompt, maxJules) => {
+      console.log(`[TelegramBot] Swarm requested by CID ${cid}: "${prompt.substring(0, 50)}..."`);
       try {
         const analysis = await analyzeTask(prompt, maxJules);
         const proposalId = await taskQueue.createProposal(db, { chatId: cid, prompt, maxJules, analysis });
         storeProposal(proposalId, { originalPrompt: prompt, analysis });
         await sendMessage(cid, formatProposal(proposalId, analysis));
       } catch (e) {
-        await sendMessage(cid, `❌ Error de Gemini: ${e.message}`);
+        console.error(`[TelegramBot] Swarm analysis failed for CID ${cid}:`, e.message);
+        await sendMessage(cid, `❌ Error de Groq AI: ${e.message}`);
       }
     },
     onApprove: async (cid, id) => {
