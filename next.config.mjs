@@ -187,14 +187,16 @@ const nextConfig = {
     poweredByHeader: false,
     output: isCapacitor ? 'export' : 'standalone',
     staticPageGenerationTimeout: 300, // Increase timeout to 5 minutes
-    serverExternalPackages: [
-        '@capacitor/core',
-        '@capacitor/android',
-        '@capacitor/ios',
-        '@capacitor/geolocation',
-        '@capacitor/network',
-        '@capacitor/push-notifications'
-    ],
+    experimental: {
+        serverExternalPackages: [
+            '@capacitor/core',
+            '@capacitor/android',
+            '@capacitor/ios',
+            '@capacitor/geolocation',
+            '@capacitor/network',
+            '@capacitor/push-notifications'
+        ],
+    },
 
     transpilePackages: [
         '@capacitor/core',

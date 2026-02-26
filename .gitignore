@@ -71,6 +71,6 @@ orchestration.tar.gz
 volumes.tar.gz
 deployment_bundle.tar.gz
 deploy.zip
-data/
-infra/
+/data/
+/infra/
 build_attempt_2.log
