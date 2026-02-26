@@ -84,7 +84,7 @@ export async function getResourceStatus() {
 
     // Check Docker containers
     try {
-        const { stdout } = await execAsync('docker ps --format "{{.Names}} ({{.Status}})"');
+        const { stdout } = await execAsync('docker ps --format "{{.Names}} ({{.Status}})"', { windowsHide: true });
         const runningContainers = stdout.split('\n').filter(Boolean);
 
         for (const [key, service] of Object.entries(SERVICES)) {
@@ -173,7 +173,7 @@ export async function getResourceStatus() {
 
     try {
         // Query GPU stats via nvidia-smi (removed hotspot as it causes errors on some drivers)
-        const { stdout: gpuData } = await execAsync('nvidia-smi --query-gpu=temperature.gpu,gpu_name --format=csv,noheader,nounits');
+        const { stdout: gpuData } = await execAsync('nvidia-smi --query-gpu=temperature.gpu,gpu_name --format=csv,noheader,nounits', { windowsHide: true });
         const [temp, name] = gpuData.split(',').map(s => s.trim());
         hardware.gpu.temp = parseInt(temp) || 0;
         hardware.gpu.name = name || 'NVIDIA GPU';
@@ -192,14 +192,14 @@ export async function getResourceStatus() {
 
         // If systeminformation failed to get temp (common on Windows without admin), fallback to wmic for load
         if (hardware.cpu.load === 0) {
-            const { stdout: cpuData } = await execAsync('wmic cpu get loadpercentage /value');
+            const { stdout: cpuData } = await execAsync('wmic cpu get loadpercentage /value', { windowsHide: true });
             const match = cpuData.match(/LoadPercentage=(\d+)/);
             hardware.cpu.load = match ? parseInt(match[1]) : 0;
         }
     } catch (e) {
         // Fallback to simpler methods if systeminformation is not working
         try {
-            const { stdout: cpuData } = await execAsync('wmic cpu get loadpercentage /value');
+            const { stdout: cpuData } = await execAsync('wmic cpu get loadpercentage /value', { windowsHide: true });
             const match = cpuData.match(/LoadPercentage=(\d+)/);
             hardware.cpu.load = match ? parseInt(match[1]) : 0;
         } catch (innerE) { }
@@ -238,11 +238,11 @@ export async function startService(serviceKey) {
     console.log(`Starting service: ${service.displayName}`);
 
     if (service.type === 'docker') {
-        await execAsync(`docker start ${service.containerName}`);
+        await execAsync(`docker start ${service.containerName}`, { windowsHide: true });
         logs.add(serviceKey, 'START', 'Docker container started');
     } else if (service.type === 'process') {
         if (serviceKey === 'OLLAMA') {
-            exec('ollama serve', (err) => {
+            exec('ollama serve', { windowsHide: true }, (err) => {
                 if (err) console.error('Ollama serve exited:', err.message);
             });
             for (let i = 0; i < 10; i++) {
@@ -265,6 +265,7 @@ export async function startService(serviceKey) {
                 cwd: serviceCwd,
                 shell: true,
                 detached: false, // We want to track it
+                windowsHide: true,
                 env: { ...process.env, PORT: service.apiCheck ? new URL(service.apiCheck).port : undefined }
             });
 
@@ -316,12 +317,12 @@ export async function stopService(serviceKey) {
     console.log(`Stopping service: ${service.displayName}`);
 
     if (service.type === 'docker') {
-        await execAsync(`docker stop ${service.containerName}`);
+        await execAsync(`docker stop ${service.containerName}`, { windowsHide: true });
         logs.add(serviceKey, 'STOP', 'Docker container stopped');
     } else if (service.type === 'process') {
         if (serviceKey === 'OLLAMA') {
             try {
-                await execAsync('taskkill /F /IM ollama.exe');
+                await execAsync('taskkill /F /IM ollama.exe', { windowsHide: true });
             } catch (e) { }
         } else if (runningProcesses.has(serviceKey)) {
             const child = runningProcesses.get(serviceKey);
@@ -329,7 +330,7 @@ export async function stopService(serviceKey) {
             try {
                 // Try taskkill for the PID and its children
                 if (child.pid) {
-                    await execAsync(`taskkill /F /T /PID ${child.pid}`);
+                    await execAsync(`taskkill /F /T /PID ${child.pid}`, { windowsHide: true });
                 } else {
                     child.kill();
                 }
@@ -357,10 +358,10 @@ export async function pauseService(serviceKey) {
     if (service.type === 'docker') {
         const status = await getResourceStatus();
         if (status.services[serviceKey]?.paused) {
-            await execAsync(`docker unpause ${service.containerName}`);
+            await execAsync(`docker unpause ${service.containerName}`, { windowsHide: true });
             logs.add(serviceKey, 'UNPAUSE', 'Docker container unpaused');
         } else {
-            await execAsync(`docker pause ${service.containerName}`);
+            await execAsync(`docker pause ${service.containerName}`, { windowsHide: true });
             logs.add(serviceKey, 'PAUSE', 'Docker container paused');
         }
         return true;
@@ -384,10 +385,12 @@ export async function resetService(serviceKey) {
         // Spawn detached process to restart
         spawn('powershell.exe', [
             '-ExecutionPolicy', 'Bypass',
+            '-WindowStyle', 'Minimized',
             '-Command', `Start-Sleep 2; cd "${projectRoot}"; npm start`
         ], {
             detached: true,
             stdio: 'ignore',
+            windowsHide: true,
             cwd: path.join(projectRoot, '..')
         }).unref();
         process.exit(0);

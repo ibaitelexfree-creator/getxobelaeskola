@@ -5,7 +5,7 @@ $currentPrincipal = New-Object Security.Principal.WindowsPrincipal([Security.Pri
 if (-not $currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
     Write-Host "Elevando privilegios a Administrador..." -ForegroundColor Yellow
     $arguments = "-ExecutionPolicy Bypass -File `"$PSCommandPath`""
-    Start-Process powershell.exe -ArgumentList $arguments -Verb RunAs
+    Start-Process powershell.exe -ArgumentList $arguments -Verb RunAs -WindowStyle Minimized
     exit
 }
 
@@ -33,7 +33,8 @@ $TunnelProcess = Start-Process cmd `
     -ArgumentList "/c npx -y cloudflared tunnel --url http://127.0.0.1:$Port" `
     -PassThru -NoNewWindow `
     -RedirectStandardOutput $TunnelLog `
-    -RedirectStandardError  $ErrorLog
+    -RedirectStandardError  $ErrorLog `
+    -WindowStyle Hidden
 
 # 2. Esperar a que la URL aparezca en los logs
 Write-Host "Generando URL segura (Password-less)..." -ForegroundColor Yellow

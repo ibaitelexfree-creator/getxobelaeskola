@@ -41,7 +41,7 @@ describe('Admin Explorer API Performance Optimization', () => {
                 return {
                     select: vi.fn().mockReturnThis(),
                     or: vi.fn().mockReturnThis(),
-                    limit: vi.fn().mockResolvedValue({ data: mockProfiles, error: null })
+                    limit: vi.fn().mockResolvedValue({ data: mockData, error: null })
                 };
             }
             if (table === 'reservas_alquiler') {
@@ -100,10 +100,10 @@ describe('Admin Explorer API Performance Optimization', () => {
         expect(json.results[0]._relations).toContainEqual({ label: 'Cursos Inscritos', count: 1, table: 'inscripciones' });
         expect(json.results[0]._relations).toContainEqual({ label: 'Suscripciones (por Email)', count: 5, table: 'newsletter_subscriptions' });
 
-        const rentalRel = rels.find((r: any) => r.table === 'reservas_alquiler');
+        const rentalRel = json.results[0]._relations.find((r: any) => r.table === 'reservas_alquiler');
         expect(rentalRel).toEqual({ label: 'Alquileres', count: 2, table: 'reservas_alquiler' });
 
-        const subRel = rels.find((r: any) => r.table === 'newsletter_subscriptions');
+        const subRel = json.results[0]._relations.find((r: any) => r.table === 'newsletter_subscriptions');
         expect(subRel).toEqual({ label: 'Suscripciones (por Email)', count: 5, table: 'newsletter_subscriptions' });
 
         // Verify total queries: 1 (main) + 4 (relations) = 5
@@ -148,7 +148,7 @@ describe('Admin Explorer API Performance Optimization', () => {
                 return {
                     select: vi.fn().mockReturnThis(),
                     or: vi.fn().mockReturnThis(),
-                    limit: vi.fn().mockResolvedValue({ data: mockProfiles, error: null })
+                    limit: vi.fn().mockResolvedValue({ data: [], error: null })
                 };
             }
             if (table === 'reservas_alquiler') {

@@ -28,7 +28,8 @@ export async function POST(req: Request) {
                 SUPABASE_URL: process.env.SUPABASE_URL || 'https://xbledhifomblirxurtyv.supabase.co',
                 SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY,
                 NOTION_TOKEN: process.env.NOTION_TOKEN
-            }
+            },
+            windowsHide: true
         }, (error, stdout, stderr) => {
             if (error) {
                 console.error(`Sync script error: ${error.message}`);

@@ -311,7 +311,7 @@ export class AgentWatchdog extends EventEmitter {
         try {
             const { stdout } = await execAsync(
                 `powershell -NoProfile -Command "if (${psCommand}) { 'ALIVE' } else { 'DEAD' }"`,
-                { timeout: 10000 }
+                { timeout: 10000, windowsHide: true }
             );
             return stdout.trim() === 'ALIVE';
         } catch {
@@ -327,14 +327,14 @@ export class AgentWatchdog extends EventEmitter {
         try {
             // Try to launch Antigravity via the most common methods
             const launchCommands = [
-                'Start-Process "Antigravity" -ErrorAction SilentlyContinue',
-                'Start-Process "cursor" -ErrorAction SilentlyContinue',
-                'Start-Process "code" -ErrorAction SilentlyContinue',
+                'Start-Process "Antigravity" -WindowStyle Minimized -ErrorAction SilentlyContinue',
+                'Start-Process "cursor" -WindowStyle Minimized -ErrorAction SilentlyContinue',
+                'Start-Process "code" -WindowStyle Minimized -ErrorAction SilentlyContinue',
             ];
 
             for (const cmd of launchCommands) {
                 try {
-                    await execAsync(`powershell -NoProfile -Command "${cmd}"`, { timeout: 15000 });
+                    await execAsync(`powershell -NoProfile -Command "${cmd}"`, { timeout: 15000, windowsHide: true });
                     // Wait a bit for the process to start
                     await new Promise(r => setTimeout(r, 5000));
                     const alive = await this._isProcessRunning();
@@ -394,7 +394,7 @@ export class AgentWatchdog extends EventEmitter {
                 `  Start-Sleep -Milliseconds 500; ` +
                 `  [System.Windows.Forms.SendKeys]::SendWait('{ENTER}'); ` +
                 `}"`,
-                { timeout: 10000 }
+                { timeout: 10000, windowsHide: true }
             );
 
             this.emit('autoContinueSent', { attempt: this.retryCount });
@@ -417,7 +417,7 @@ export class AgentWatchdog extends EventEmitter {
             for (const name of this.config.processNames) {
                 await execAsync(
                     `powershell -NoProfile -Command "Stop-Process -Name '${name}' -Force -ErrorAction SilentlyContinue"`,
-                    { timeout: 10000 }
+                    { timeout: 10000, windowsHide: true }
                 ).catch(() => { });
             }
 

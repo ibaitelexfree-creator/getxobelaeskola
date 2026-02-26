@@ -76,7 +76,7 @@ try {
 
     # Arrancar Orquestador
     Write-Host "[ORCH] Iniciando Orquestador..." -ForegroundColor Cyan
-    Start-Process powershell.exe -ArgumentList "-NoExit -Command `"cd '$ProjectRoot\orchestration'; npm start`"" -WindowStyle Normal
+    Start-Process powershell.exe -ArgumentList "-NoExit -Command `"cd '$ProjectRoot\orchestration'; npm start`"" -WindowStyle Minimized
 
     Write-Host "[OK] Vuela completado. El sistema esta en el aire." -ForegroundColor Green
 }

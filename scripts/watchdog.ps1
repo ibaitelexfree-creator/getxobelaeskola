@@ -101,9 +101,9 @@ function Start-AgentProcess {
     Write-WatchdogLog "ACTION" "Attempting to restart Antigravity..."
     
     $launchMethods = @(
-        @{ Name = "Antigravity"; Cmd = { Start-Process "Antigravity" -ErrorAction Stop } },
-        @{ Name = "Cursor"; Cmd = { Start-Process "cursor" -ErrorAction Stop } },
-        @{ Name = "Code"; Cmd = { Start-Process "code" -ErrorAction Stop } }
+        @{ Name = "Antigravity"; Cmd = { Start-Process "Antigravity" -WindowStyle Minimized -ErrorAction Stop } },
+        @{ Name = "Cursor"; Cmd = { Start-Process "cursor" -WindowStyle Minimized -ErrorAction Stop } },
+        @{ Name = "Code"; Cmd = { Start-Process "code" -WindowStyle Minimized -ErrorAction Stop } }
     )
     
     foreach ($method in $launchMethods) {

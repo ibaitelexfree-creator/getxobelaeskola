@@ -5,7 +5,7 @@ $currentPrincipal = New-Object Security.Principal.WindowsPrincipal([Security.Pri
 if (-not $currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
     Write-Host "Elevando privilegios a Administrador para Mission Control..." -ForegroundColor Yellow
     $arguments = "-ExecutionPolicy Bypass -File `"$PSCommandPath`""
-    Start-Process powershell.exe -ArgumentList $arguments -Verb RunAs
+    Start-Process powershell.exe -ArgumentList $arguments -Verb RunAs -WindowStyle Minimized
     exit
 }
 

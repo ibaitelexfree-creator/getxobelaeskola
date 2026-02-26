@@ -437,12 +437,12 @@ app.post('/api/v1/notebooklm/report', async (req, res) => {
 
     // 1. Generar la fuente (notebooklm_source.txt)
     console.log(`[${requestId}] Step 1: Generating source text...`);
-    await execPromise('node scripts/generate_ai_report_source.js', { cwd: process.cwd() });
+    await execPromise('node scripts/generate_ai_report_source.js', { cwd: process.cwd(), windowsHide: true });
 
     // 2. Ejecutar la automatización de NotebookLM
     // NOTA: Esto requiere que Chrome esté disponible y logueado en la máquina host.
     console.log(`[${requestId}] Step 2: Running Puppeteer automation...`);
-    const { stdout, stderr } = await execPromise('node scripts/notebooklm_automation.js', { cwd: process.cwd() });
+    const { stdout, stderr } = await execPromise('node scripts/notebooklm_automation.js', { cwd: process.cwd(), windowsHide: true });
 
     if (stderr) console.warn(`[${requestId}] Puppeteer Warning:`, stderr);
     console.log(`[${requestId}] Puppeteer Output:`, stdout);
