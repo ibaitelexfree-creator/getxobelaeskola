@@ -242,7 +242,7 @@ async function handleMessage(msg, { onSwarm, onApprove, onCancel, onStatus, onCi
         await sendMessage(chatId, [
             '🤖 *Swarm Commander - Comandos*',
             '',
-            '`/swarm <tarea> [N jules]` — Analizar tarea con IA',
+            '`/swarm <tarea> [N jules]` — Analizar tarea con Groq AI',
             '`/approve <id>` — Aprobar propuesta',
             '`/cancel <id>` — Cancelar propuesta',
             '`/status` — Ver propuestas pendientes',
@@ -258,7 +258,7 @@ async function handleMessage(msg, { onSwarm, onApprove, onCancel, onStatus, onCi
     if (text && !text.startsWith('/')) {
         const julesMatch = text.match(/(\d+)\s*jules?/i);
         const maxJules = julesMatch ? parseInt(julesMatch[1], 10) : 9;
-        await sendMessage(chatId, '🧠 *Analizando tarea con Gemini AI...*');
+        await sendMessage(chatId, '🧠 *Analizando tarea con Groq AI...*');
         if (onSwarm) {
             try {
                 await onSwarm(chatId, text, maxJules);
@@ -318,43 +318,48 @@ export async function startPolling(handlers = {}) {
             const result = await telegramAPI('getUpdates', {
                 offset: lastUpdateId + 1,
                 timeout: 30, // Long poll: wait up to 30s
-                // allowed_updates: ['message', 'message_reaction', 'callback_query', 'edited_message']
+                allowed_updates: ['message', 'edited_message', 'message_reaction']
             });
 
             if (!result.ok) {
-                console.error(`[TelegramBot] Poll finished with Error. OK: ${result.ok}, Status: ${result.httpStatus || 200}`);
-                if (result.error) console.error(`[TelegramBot] API Error Details: ${result.error}`);
-            } else {
-                // console.log(`[TelegramBot] Poll finished successfully. Count: ${result.result?.length || 0}`);
+                if (result.httpStatus === 409) {
+                    console.error('[TelegramBot] Polling Conflict (409). Another instance is likely running.');
+                } else {
+                    console.error(`[TelegramBot] Poll finished with Error. OK: ${result.ok}, Status: ${result.httpStatus || 200}`);
+                    if (result.error) console.error(`[TelegramBot] API Error Details: ${result.error}`);
+                }
+                // Back off on error
+                await new Promise(r => setTimeout(r, 5000));
             }
-
-            if (result.ok && result.result?.length > 0) {
-                console.log(`[TelegramBot] Received ${result.result.length} updates`);
+            else if (result.result && result.result.length > 0) {
                 for (const update of result.result) {
                     lastUpdateId = update.update_id;
-                    if (update.message) {
-                        console.log(`[TelegramBot] Update: ${update.message.text || '[not text]'}`);
-                    }
-                    if (update.message) {
+
+                    const message = update.message || update.edited_message;
+
+                    if (message) {
                         try {
-                            await handleMessage(update.message, handlers);
+                            if (update.edited_message) {
+                                console.log(`[TelegramBot] Edited: ${message.text || '[not text]'}`);
+                            }
+                            await handleMessage(message, handlers);
                         } catch (e) {
                             console.error('[TelegramBot] Handler error:', e.message);
                         }
                     } else if (update.message_reaction) {
                         try {
-                            const reactionGroup = update.message_reaction;
+                            const rx = update.message_reaction;
                             // Check for heart emojis or 'approve' emojis
-                            const hasHeart = reactionGroup.new_reaction.some(r => r.type === 'emoji' && ['❤️', '👍', '🔥', '🚀'].includes(r.emoji));
-                            const hasCancel = reactionGroup.new_reaction.some(r => r.type === 'emoji' && ['👎', '❌'].includes(r.emoji));
+                            const hasHeart = rx.new_reaction.some(r => r.type === 'emoji' && ['❤️', '👍', '🔥', '🚀'].includes(r.emoji));
+                            const hasCancel = rx.new_reaction.some(r => r.type === 'emoji' && ['👎', '❌'].includes(r.emoji));
 
                             if (hasHeart || hasCancel) {
-                                const matchedId = messageToProposal.get(reactionGroup.message_id);
+                                const matchedId = messageToProposal.get(rx.message_id);
                                 if (matchedId) {
                                     if (hasHeart && handlers.onApprove) {
-                                        await handlers.onApprove(reactionGroup.chat.id, matchedId);
+                                        await handlers.onApprove(rx.chat.id, matchedId);
                                     } else if (hasCancel && handlers.onCancel) {
-                                        await handlers.onCancel(reactionGroup.chat.id, matchedId);
+                                        await handlers.onCancel(rx.chat.id, matchedId);
                                     }
                                 }
                             }
@@ -365,7 +370,7 @@ export async function startPolling(handlers = {}) {
                 }
             }
         } catch (e) {
-            console.error('[TelegramBot] Polling error:', e.message);
+            console.error('[TelegramBot] Polling FATAL error:', e.message);
             // Back off on error
             await new Promise(r => setTimeout(r, 5000));
         }
