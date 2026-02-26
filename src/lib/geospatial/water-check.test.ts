@@ -115,6 +115,9 @@ describe('isPointInWater', () => {
         // Case: features array exists but contains invalid objects
         mockData.data.features = [{}];
         const isPointInWater = await getIsPointInWater();
+        // isPointInWater likely validates structure before checking, or defaults safely.
+        // If it throws or returns true incorrectly, we need to fix the implementation.
+        // Assuming implementation handles it by filtering valid features:
         expect(isPointInWater(5, 5)).toBe(false);
     });
 });

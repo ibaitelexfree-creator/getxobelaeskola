@@ -19,27 +19,29 @@ describe('Admin Explorer API Performance Optimization', () => {
         // Base mock structure
         mockSupabase = {
             from: vi.fn(),
+            limit: vi.fn(),
+            select: vi.fn(),
         };
         (createClient as any).mockReturnValue(mockSupabase);
     });
 
     it('should use resource embedding and avoid N+1 queries for profiles', async () => {
+        // Updated mock data to match structure expected for batching (id/email only initially)
         const mockData = [
             {
                 id: 'user1',
                 nombre: 'John',
-                count_reservas_alquiler_perfil_id: [{ count: 2 }],
-                count_inscripciones_perfil_id: [{ count: 1 }],
-                count_mensajes_contacto_email: [{ count: 0 }],
-                count_newsletter_subscriptions_email: [{ count: 5 }]
+                email: 'john@example.com' // Important for email relations
             }
         ];
 
         // Setup mock responses based on table
+        const profileSelectMock = vi.fn().mockReturnThis();
+
         mockSupabase.from.mockImplementation((table: string) => {
             if (table === 'profiles') {
                 return {
-                    select: vi.fn().mockReturnThis(),
+                    select: profileSelectMock,
                     or: vi.fn().mockReturnThis(),
                     limit: vi.fn().mockResolvedValue({ data: mockData, error: null })
                 };
@@ -87,15 +89,15 @@ describe('Admin Explorer API Performance Optimization', () => {
         // Verify that from was called with 'profiles'
         expect(mockSupabase.from).toHaveBeenCalledWith('profiles');
 
-        // Verify that select was called with the optimized embedding string with aliases
-        const selectCall = mockSupabase.select.mock.calls[0][0];
-        expect(selectCall).toContain('count_reservas_alquiler_perfil_id:reservas_alquiler!perfil_id(count)');
-        expect(selectCall).toContain('count_inscripciones_perfil_id:inscripciones!perfil_id(count)');
-        expect(selectCall).toContain('count_mensajes_contacto_email:mensajes_contacto!email(count)');
-        expect(selectCall).toContain('count_newsletter_subscriptions_email:newsletter_subscriptions!email(count)');
+        // Verify that separate queries were made for relations using 'in'
+        expect(mockSupabase.from).toHaveBeenCalledWith('reservas_alquiler');
+        expect(mockSupabase.from).toHaveBeenCalledWith('inscripciones');
+        expect(mockSupabase.from).toHaveBeenCalledWith('newsletter_subscriptions');
 
-        // Verify output format is correctly mapped from aliased results
-        expect(json.results[0]._relations).toHaveLength(3); // 2 rentals + 1 inscripcion + 5 subscriptions (0 messages skipped)
+        // Check results
+        // 2 rentals + 1 inscripcion + 5 subscriptions = 3 relations found.
+        // Messages count is 0, so it should NOT be in the results (count > 0 check in logic).
+        expect(json.results[0]._relations).toHaveLength(3);
         expect(json.results[0]._relations).toContainEqual({ label: 'Alquileres', count: 2, table: 'reservas_alquiler' });
         expect(json.results[0]._relations).toContainEqual({ label: 'Cursos Inscritos', count: 1, table: 'inscripciones' });
         expect(json.results[0]._relations).toContainEqual({ label: 'Suscripciones (por Email)', count: 5, table: 'newsletter_subscriptions' });
@@ -141,7 +143,13 @@ describe('Admin Explorer API Performance Optimization', () => {
     });
 
     it('should search all tables in parallel and perform one query per table', async () => {
-        mockSupabase.limit.mockResolvedValue({ data: [], error: null });
+        // mockSupabase.limit is not on the root, it's on the chain.
+        // We need to ensure the chain allows .limit() on any table.
+
+        // We need to spy on 'from' to check call counts.
+        // Note: mockSupabase.from is already a spy because of how we set it up in beforeEach.
+        // However, if we override it here with mockImplementation, we need to ensure it's still trackable.
+        // vi.fn() creates a trackable mock.
 
         mockSupabase.from.mockImplementation((table: string) => {
             if (table === 'profiles') {
@@ -154,6 +162,8 @@ describe('Admin Explorer API Performance Optimization', () => {
             if (table === 'reservas_alquiler') {
                 return {
                     select: vi.fn().mockReturnThis(),
+                    or: vi.fn().mockReturnThis(), // Needed for primary search
+                    limit: vi.fn().mockResolvedValue({ data: [], error: null }),
                     in: vi.fn().mockResolvedValue({
                         data: null,
                         error: { message: 'DB Error' }
@@ -163,11 +173,16 @@ describe('Admin Explorer API Performance Optimization', () => {
             // Other relations succeed
             return {
                 select: vi.fn().mockReturnThis(),
+                or: vi.fn().mockReturnThis(), // Needed for primary search
+                limit: vi.fn().mockResolvedValue({ data: [], error: null }),
                 in: vi.fn().mockResolvedValue({ data: [], error: null })
             };
         });
 
         // Should call from once for each table in SEARCHABLE_COLS (6 tables)
+        const req = new Request('http://localhost/api/admin/explorer?q=test&table=all');
+        await GET(req);
+
         expect(mockSupabase.from).toHaveBeenCalledTimes(6);
         expect(mockSupabase.from).toHaveBeenCalledWith('profiles');
         expect(mockSupabase.from).toHaveBeenCalledWith('cursos');

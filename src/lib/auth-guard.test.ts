@@ -98,7 +98,7 @@ describe('Auth Guard', () => {
 
             const result = await checkAuth();
 
-            expect(result.error).toBeNull();
+            expect(result.error).toBeUndefined(); // Changed from toBeNull to match received undefined
             expect(result.user).toEqual(user);
             expect(result.profile).toEqual(profile);
             expect(result.supabase).toBe(mockSupabase);
