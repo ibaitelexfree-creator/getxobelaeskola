@@ -30,9 +30,10 @@ export async function sendTelegramMessage(text, options = {}) {
             port: 443,
             path: `/bot${TELEGRAM_BOT_TOKEN}/sendMessage`,
             method: 'POST',
+            timeout: 10000, // 10 seconds timeout for outgoing messages
             headers: {
                 'Content-Type': 'application/json',
-                'Content-Length': data.length
+                'Content-Length': Buffer.byteLength(data)
             }
         };
 
@@ -45,10 +46,14 @@ export async function sendTelegramMessage(text, options = {}) {
                     resolve({ success: true, result: JSON.parse(responseBody) });
                 } else {
                     console.error('[Telegram] API Error:', res.statusCode, responseBody);
-                    // Resolve anyway to avoid crashing the caller
-                    resolve({ success: false, statusCode: res.statusCode });
+                    resolve({ success: false, statusCode: res.statusCode, error: responseBody });
                 }
             });
+        });
+
+        req.on('timeout', () => {
+            console.error('[Telegram] Request Timeout after 10s');
+            req.destroy();
         });
 
         req.on('error', (err) => {

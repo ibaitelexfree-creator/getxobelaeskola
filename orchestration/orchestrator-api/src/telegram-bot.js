@@ -28,22 +28,39 @@ function telegramAPI(method, body = {}) {
             port: 443,
             path: `/bot${token}/${method}`,
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(data) }
+            timeout: 35000, // 35 seconds total timeout (poll is 30s)
+            headers: {
+                'Content-Type': 'application/json',
+                'Content-Length': Buffer.byteLength(data)
+            }
         }, (res) => {
             let buf = '';
             res.on('data', c => buf += c);
             res.on('end', () => {
                 try {
                     const parsed = JSON.parse(buf);
-                    if (res.statusCode !== 200) parsed.httpStatus = res.statusCode;
+                    if (res.statusCode !== 200) {
+                        parsed.httpStatus = res.statusCode;
+                        console.error(`[TelegramBot] API ${method} failed with status ${res.statusCode}:`, buf);
+                    }
                     resolve(parsed);
                 }
                 catch {
+                    console.error(`[TelegramBot] API ${method} JSON parse failed:`, buf);
                     resolve({ ok: false, raw: buf, httpStatus: res.statusCode });
                 }
             });
         });
-        req.on('error', (e) => resolve({ ok: false, error: e.message }));
+
+        req.on('timeout', () => {
+            console.error(`[TelegramBot] API ${method} Request Timeout`);
+            req.destroy();
+        });
+
+        req.on('error', (e) => {
+            console.error(`[TelegramBot] API ${method} Request Error:`, e.message);
+            resolve({ ok: false, error: e.message });
+        });
         req.write(data);
         req.end();
     });
@@ -51,16 +68,35 @@ function telegramAPI(method, body = {}) {
 
 const messageToProposal = new Map();
 
+/**
+ * Escapes text for Telegram Markdown V1
+ */
+function escapeMarkdown(text) {
+    if (typeof text !== 'string') return text;
+    // Markdown V1 is very simple, we only need to be careful with mismatched special chars
+    // But honestly, it's safer to just double check for common pitfalls
+    return text; // For now keep as is, but added the placeholder for future fix
+}
+
 export async function sendMessage(chatId, text, options = {}) {
     const { parseMode = 'Markdown', replyMarkup } = options;
+
+    // Safety check: if text is empty or null
+    if (!text) return { ok: false, error: 'Empty text' };
+
     const body = {
         chat_id: chatId,
-        text,
+        text: text,
         parse_mode: parseMode,
         disable_web_page_preview: true
     };
     if (replyMarkup) body.reply_markup = replyMarkup;
+
     const res = await telegramAPI('sendMessage', body);
+
+    if (!res.ok) {
+        console.error(`[TelegramBot] SendMessage failed for ChatID ${chatId}. Text snippet: ${text.substring(0, 50)}... Error: ${res.description || 'Unknown'}`);
+    }
 
     // Keep track of messages that contain a proposal ID to handle reactions later
     if (res.ok && res.result && res.result.message_id && typeof text === 'string') {
@@ -282,13 +318,14 @@ export async function startPolling(handlers = {}) {
             const result = await telegramAPI('getUpdates', {
                 offset: lastUpdateId + 1,
                 timeout: 30, // Long poll: wait up to 30s
-                allowed_updates: ['message', 'message_reaction']
+                // allowed_updates: ['message', 'message_reaction', 'callback_query', 'edited_message']
             });
 
-            console.log(`[TelegramBot] Poll finished. OK: ${result.ok}, Status: ${result.httpStatus || 200}, Count: ${result.result?.length || 0}`);
             if (!result.ok) {
-                console.error(`[TelegramBot] API Error: ${result.error || 'Unknown Error'} (Status: ${result.httpStatus})`);
-                if (result.raw) console.error(`[TelegramBot] Raw Response: ${result.raw}`);
+                console.error(`[TelegramBot] Poll finished with Error. OK: ${result.ok}, Status: ${result.httpStatus || 200}`);
+                if (result.error) console.error(`[TelegramBot] API Error Details: ${result.error}`);
+            } else {
+                // console.log(`[TelegramBot] Poll finished successfully. Count: ${result.result?.length || 0}`);
             }
 
             if (result.ok && result.result?.length > 0) {
