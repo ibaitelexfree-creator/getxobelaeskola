@@ -14,7 +14,7 @@ type EmailLocale = 'es' | 'en' | 'eu' | 'fr';
 const translations = {
   es: {
     welcome_title: '¡Bienvenido a bordo, {name}! ⛵',
-    welcome_p1: 'Es un auténtico placer darte la bienvenida a nuestra tripulación. Has dado el primer paso oficial para convertirte en un experto navegante con la <strong>Getxo Sailing School</strong>.',
+    welcome_p1: 'Es un auténtico placer darte la bienvenida a nuestra tripulación. Has dado el primer paso oficial para convertirte en un experto navegante con la <strong>Getxo Getxo Bela Eskola</strong>.',
     welcome_p2: 'Tu cuenta ha sido creada con éxito. Ya puedes acceder a nuestra Academia Online para empezar a explorar los cursos, niveles y material teórico disponible.',
     welcome_button: 'IR A LA ACADEMIA',
     welcome_footer: '¿Tienes alguna duda inicial? Estamos aquí para ayudarte. Simplemente responde a este correo o visítanos en el puerto.',
@@ -45,7 +45,7 @@ const translations = {
     rental_note3: 'La actividad está sujeta a las condiciones meteorológicas por seguridad.',
     rental_button: 'VER MIS RESERVAS',
     rental_footer: '¡Disfruta de la navegación!',
-    membership_title: '¡Ya eres Socio de Getxo Sailing School! 🎖️',
+    membership_title: '¡Ya eres Socio de Getxo Getxo Bela Eskola! 🎖️',
     membership_p1: 'Hola {name},',
     membership_p2: 'Es un orgullo para nosotros que pases a formar parte de nuestra comunidad de socios. A partir de ahora tienes acceso a todos los privilegios exclusivos:',
     membership_item1: 'Descuentos exclusivos en alquileres de material.',
@@ -55,7 +55,7 @@ const translations = {
     membership_p3: 'Ya puedes ver tu estado de socio actualizado en tu perfil.',
     membership_button: 'IR A MI ÁREA SOCIO',
     membership_footer: '¡Gracias por confiar en nosotros para tu aventura náutica!',
-    footer_copy: '&copy; {year} <strong>Getxo Sailing School</strong>',
+    footer_copy: '&copy; {year} <strong>Getxo Getxo Bela Eskola</strong>',
     footer_address: 'Puerto Deportivo de Getxo, Bizkaia.',
     footer_unsubscribe: 'Estás recibiendo este correo porque has realizado una actividad con nosotros. Si no deseas recibir más correos, puedes gestionar tus preferencias en tu perfil.',
     contact_title: 'Nuevo Mensaje de Contacto ⚓',
@@ -64,11 +64,11 @@ const translations = {
     contact_phone: 'Teléfono:',
     contact_subject: 'Asunto:',
     contact_button: 'RESPONDER DIRECTAMENTE',
-    contact_footer: 'Este es un mensaje automático generado por el sistema de gestión de Getxo Sailing School.'
+    contact_footer: 'Este es un mensaje automático generado por el sistema de gestión de Getxo Getxo Bela Eskola.'
   },
   en: {
     welcome_title: 'Welcome aboard, {name}! ⛵',
-    welcome_p1: 'It is a real pleasure to welcome you to our crew. You have taken the first official step to becoming an expert sailor with <strong>Getxo Sailing School</strong>.',
+    welcome_p1: 'It is a real pleasure to welcome you to our crew. You have taken the first official step to becoming an expert sailor with <strong>Getxo Getxo Bela Eskola</strong>.',
     welcome_p2: 'Your account has been successfully created. You can now access our Online Academy to start exploring the courses, levels, and theoretical material available.',
     welcome_button: 'GO TO THE ACADEMY',
     welcome_footer: 'Do you have any initial questions? We are here to help. Simply reply to this email or visit us at the port.',
@@ -99,7 +99,7 @@ const translations = {
     rental_note3: 'The activity is subject to weather conditions for safety.',
     rental_button: 'VIEW MY BOOKINGS',
     rental_footer: 'Enjoy your sailing!',
-    membership_title: 'You are now a Member of Getxo Sailing School! 🎖️',
+    membership_title: 'You are now a Member of Getxo Getxo Bela Eskola! 🎖️',
     membership_p1: 'Hello {name},',
     membership_p2: 'We are proud to have you as part of our community of members. You now have access to all exclusive privileges:',
     membership_item1: 'Exclusive discounts on equipment rentals.',
@@ -109,7 +109,7 @@ const translations = {
     membership_p3: 'You can already see your updated member status in your profile.',
     membership_button: 'GO TO MY MEMBER AREA',
     membership_footer: 'Thank you for trusting us for your nautical adventure!',
-    footer_copy: '&copy; {year} <strong>Getxo Sailing School</strong>',
+    footer_copy: '&copy; {year} <strong>Getxo Getxo Bela Eskola</strong>',
     footer_address: 'Getxo Marina, Biscay.',
     footer_unsubscribe: 'You are receiving this email because you have performed an activity with us. If you do not wish to receive more emails, you can manage your preferences in your profile.',
     contact_title: 'New Contact Message ⚓',
@@ -118,11 +118,11 @@ const translations = {
     contact_phone: 'Phone:',
     contact_subject: 'Subject:',
     contact_button: 'REPLY DIRECTLY',
-    contact_footer: 'This is an automatic message generated by the Getxo Sailing School management system.'
+    contact_footer: 'This is an automatic message generated by the Getxo Getxo Bela Eskola management system.'
   },
   fr: {
     welcome_title: 'Bienvenue à bord, {name} ! ⛵',
-    welcome_p1: 'C\'est un réel plaisir de vous accueillir dans notre équipage. Vous avez fait le premier pas officiel pour devenir un marin expert avec la <strong>Getxo Sailing School</strong>.',
+    welcome_p1: 'C\'est un réel plaisir de vous accueillir dans notre équipage. Vous avez fait le premier pas officiel pour devenir un marin expert avec la <strong>Getxo Getxo Bela Eskola</strong>.',
     welcome_p2: 'Votre compte a été créé avec succès. Vous pouvez désormais accéder à notre Académie en ligne pour commencer à explorer les cours, les niveaux et le matériel théorique disponible.',
     welcome_button: 'ALLER À L\'ACADÉMIE',
     welcome_footer: 'Avez-vous des questions initiales ? Nous sommes là pour vous aider. Répondez simplement à cet e-mail ou rendez-nous visite au port.',
@@ -153,7 +153,7 @@ const translations = {
     rental_note3: 'L\'activité est soumise aux conditions météorologiques pour votre sécurité.',
     rental_button: 'VOIR MES RÉSERVATIONS',
     rental_footer: 'Bonne navigation !',
-    membership_title: 'Vous êtes maintenant membre de Getxo Sailing School ! 🎖️',
+    membership_title: 'Vous êtes maintenant membre de Getxo Getxo Bela Eskola ! 🎖️',
     membership_p1: 'Bonjour {name},',
     membership_p2: 'Nous sommes fiers de vous compter parmi notre communauté de membres. Vous avez désormais accès à tous les privilèges exclusifs :',
     membership_item1: 'Remises exclusives sur la location de matériel.',
@@ -163,7 +163,7 @@ const translations = {
     membership_p3: 'Vous pouvez déjà voir votre statut de membre mis à jour dans votre profil.',
     membership_button: 'ALLER À MON ESPACE MEMBRE',
     membership_footer: 'Merci de nous faire confiance pour votre aventure nautique !',
-    footer_copy: '&copy; {year} <strong>Getxo Sailing School</strong>',
+    footer_copy: '&copy; {year} <strong>Getxo Getxo Bela Eskola</strong>',
     footer_address: 'Port de plaisance de Getxo, Biscaye.',
     footer_unsubscribe: 'Vous recevez cet e-mail parce que vous avez effectué une activité avec nous. Si vous ne souhaitez plus recevoir d\'e-mails, vous pouvez gérer vos préférences dans votre profil.',
     contact_title: 'Nouveau message de contact ⚓',
@@ -172,7 +172,7 @@ const translations = {
     contact_phone: 'Téléphone :',
     contact_subject: 'Sujet :',
     contact_button: 'RÉPONDRE DIRECTEMENT',
-    contact_footer: 'Ceci est un message automatique généré par le système de gestion de Getxo Sailing School.'
+    contact_footer: 'Ceci est un message automatique généré par le système de gestion de Getxo Getxo Bela Eskola.'
   },
   eu: {
     welcome_title: 'Ongi etorri ontziratuta, {name}! ⛵',
@@ -260,7 +260,7 @@ const baseLayout = (content: string, locale: EmailLocale = 'es') => {
   <div class="wrapper">
     <div class="container">
       <div class="header">
-        <img src="${LOGO_URL}" alt="Getxo Sailing School">
+        <img src="${LOGO_URL}" alt="Getxo Getxo Bela Eskola">
       </div>
       <div class="content">
         ${content}
@@ -343,7 +343,7 @@ export const certificateTemplate = (courseName: string, name: string, certificat
   <div style="margin-top: 40px; text-align: center;">
     <p style="color: #64748b;">${t.certificate_p4}</p>
     <div style="margin-top: 20px;">
-        <img src="${LOGO_URL}" alt="Getxo Sailing School" style="width: 120px; opacity: 0.8;">
+        <img src="${LOGO_URL}" alt="Getxo Getxo Bela Eskola" style="width: 120px; opacity: 0.8;">
         <p style="font-size: 14px; color: #94a3b8; margin-top: 5px;">Academy Division</p>
     </div>
   </div>

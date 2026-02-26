@@ -173,7 +173,7 @@ async function sendAutomationEmail(email: string, name: string, campaign: any, d
             
             <div style="margin-top: 40px; border-top: 1px solid #eee; padding-top: 20px; text-align: center;">
                 <p style="font-size: 12px; color: #999; margin: 5px 0;">
-                    <strong>Getxo Sailing School</strong><br>
+                    <strong>Getxo Getxo Bela Eskola</strong><br>
                     Puerto Deportivo El Abra-Getxo, Local 2<br>
                     48992 Getxo, Bizkaia
                 </p>

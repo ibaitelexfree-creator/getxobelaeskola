@@ -168,9 +168,9 @@ export class ThermalGuard extends EventEmitter {
     }
 
     /**
-     * Whether the system should delegate to ClawdBot
+     * Whether the system should delegate to ClawdeBot
      */
-    shouldDelegateToClawdBot() {
+    shouldDelegateToClawdeBot() {
         return THROTTLE_LEVELS[this.lastLevel].delegate;
     }
 
@@ -191,7 +191,7 @@ export class ThermalGuard extends EventEmitter {
             `🔥 GPU Hotspot: ${t.gpuHotspot !== null ? t.gpuHotspot + '°C' : 'N/A'} ${this._getBar(t.gpuHotspot, THRESHOLDS.gpuHotspot)}`,
             '',
             `⚡ Max concurrentes/cuenta: ${level.maxPerAccount}`,
-            `🤖 ClawdBot delegación: ${level.delegate ? 'ACTIVO' : 'No necesario'}`
+            `🤖 ClawdeBot delegación: ${level.delegate ? 'ACTIVO' : 'No necesario'}`
         ];
 
         return lines.join('\n');
@@ -256,7 +256,7 @@ if (process.argv.includes('--test')) {
         console.log('[ThermalGuard] Temps:', temps);
         console.log('[ThermalGuard] Level:', guard.getThrottleLevel());
         console.log('[ThermalGuard] Max concurrent:', guard.getMaxConcurrent());
-        console.log('[ThermalGuard] Delegate to ClawdBot:', guard.shouldDelegateToClawdBot());
+        console.log('[ThermalGuard] Delegate to ClawdeBot:', guard.shouldDelegateToClawdeBot());
         console.log('[ThermalGuard] Status message:\n', guard.getStatusMessage());
     });
 }

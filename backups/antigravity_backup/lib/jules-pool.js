@@ -180,7 +180,7 @@ export class JulesPool extends EventEmitter {
             totalLimit,
             totalActive,
             maxConcurrentPerAccount: maxConcurrent,
-            clawdbotDelegated: this.state.clawdbotDelegated || 0,
+            clawdebotDelegated: this.state.clawdebotDelegated || 0,
             accounts: Object.entries(this.state.accounts).map(([id, a]) => ({
                 id,
                 domain: ACCOUNTS[id].domain,
@@ -211,7 +211,7 @@ export class JulesPool extends EventEmitter {
                 return `${icon} **${a.id}** (${a.domain}): ${a.dailyUsed}/${a.dailyLimit} | ${a.active} activas`;
             }),
             '',
-            `🤖 Delegadas a ClawdBot: ${s.clawdbotDelegated}`,
+            `🤖 Delegadas a ClawdeBot: ${s.clawdebotDelegated}`,
             `⚡ Max concurrentes/cuenta: ${s.maxConcurrentPerAccount}`
         ];
 
@@ -259,10 +259,10 @@ export class JulesPool extends EventEmitter {
     }
 
     /**
-     * Increment ClawdBot delegation counter
+     * Increment ClawdeBot delegation counter
      */
-    recordClawdBotDelegation() {
-        this.state.clawdbotDelegated = (this.state.clawdbotDelegated || 0) + 1;
+    recordClawdeBotDelegation() {
+        this.state.clawdebotDelegated = (this.state.clawdebotDelegated || 0) + 1;
         this._saveState();
     }
 
@@ -352,7 +352,7 @@ export class JulesPool extends EventEmitter {
                 B: { dailyUsed: 0, active: 0, paused: false, activeSessions: [] },
                 C: { dailyUsed: 0, active: 0, paused: false, activeSessions: [] }
             },
-            clawdbotDelegated: 0,
+            clawdebotDelegated: 0,
             lastThermalState: 'ideal'
         };
     }
@@ -397,7 +397,7 @@ export class JulesPool extends EventEmitter {
                 // Don't reset active — those sessions may still be running
             });
             this.state.date = today;
-            this.state.clawdbotDelegated = 0;
+            this.state.clawdebotDelegated = 0;
             this._saveState();
 
             this.emit('dailyReset', { date: today });

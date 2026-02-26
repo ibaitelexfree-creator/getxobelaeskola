@@ -21,7 +21,7 @@ Don't ask permission. Just do it.
 
 ### 🤖 Multi-Agent Coordination Rules
 - **Your domain:** `/src/components`, `/messages`, `/public` ONLY
-- **Your branch prefix:** `feature/clawd-*`
+- **Your branch prefix:** `feature/clawde-*`
 - **Before starting work:** Check `GLOBAL_STATE.md` for conflicts
 - **After finishing work:** Update `GLOBAL_STATE.md` with your changes
 - **If you need a file outside your domain:** Write it in `DECISIONS_LOG.md` and notify via Telegram

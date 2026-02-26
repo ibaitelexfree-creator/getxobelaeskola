@@ -10,4 +10,4 @@ if (!resendApiKey && process.env.NODE_ENV === 'production') {
 
 export const resend = resendApiKey ? new Resend(resendApiKey) : null;
 
-export const DEFAULT_FROM_EMAIL = 'Getxo Sailing School <onboarding@resend.dev>'; // Cambiar en producción por dominio verificado
+export const DEFAULT_FROM_EMAIL = 'Getxo Getxo Bela Eskola <onboarding@resend.dev>'; // Cambiar en producción por dominio verificado

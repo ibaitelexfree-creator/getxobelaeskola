@@ -29,7 +29,7 @@ export async function GET() {
 
         const { data: dbUnits } = await supabase.from('unidades_didacticas').select('id, titulo, modulo_id');
 
-        let nodes: MontessoriNode[] = MOCK_TOPICS;
+        const nodes: MontessoriNode[] = MOCK_TOPICS;
 
         const realCompletedCount = progressData?.filter(p => p.estado === 'completado').length || 0;
 

@@ -36,7 +36,7 @@ jobs:
                   echo "🏁 Starting parallel scans..."
 
                   (oxlint ./src --quiet && echo "✅ Oxlint Passed") &
-                  # (biome check ./src --diagnostic-level=error && echo "✅ Biome Passed") &
+                  (biome check ./src --diagnostic-level=error && echo "✅ Biome Passed") &
 
                   # Wait for all background jobs
                   wait

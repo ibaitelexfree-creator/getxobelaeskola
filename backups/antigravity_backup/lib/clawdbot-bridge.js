@@ -1,7 +1,7 @@
 /**
- * ClawdBot Bridge — Last Resort Delegation to OpenClaw Gateway
+ * ClawdeBot Bridge — Last Resort Delegation to OpenClaw Gateway
  * 
- * Communicates with ClawdBot (Claude via OpenClaw) when:
+ * Communicates with ClawdeBot (Claude via OpenClaw) when:
  * 1. All 3 Jules accounts hit 100/day limit (300 tasks exhausted)
  * 2. Temperature is in "stop" zone → Jules paused
  * 3. All Jules have 15 concurrent sessions (45 saturated)
@@ -19,9 +19,9 @@ const execAsync = promisify(exec);
 
 const GATEWAY_HOST = 'localhost';
 const GATEWAY_PORT = 18789;
-const GATEWAY_TOKEN = 'clawdbot-fixed';
+const GATEWAY_TOKEN = 'clawdebot-fixed';
 
-export class ClawdBotBridge extends EventEmitter {
+export class ClawdeBotBridge extends EventEmitter {
     constructor(options = {}) {
         super();
         this.host = options.host || GATEWAY_HOST;
@@ -34,7 +34,7 @@ export class ClawdBotBridge extends EventEmitter {
     }
 
     /**
-     * Check if ClawdBot gateway is running and reachable
+     * Check if ClawdeBot gateway is running and reachable
      */
     async isAvailable() {
         try {
@@ -58,7 +58,7 @@ export class ClawdBotBridge extends EventEmitter {
     }
 
     /**
-     * Delegate a task to ClawdBot
+     * Delegate a task to ClawdeBot
      * Translates Jules-style task to OpenClaw prompt format
      */
     async delegateTask(task) {
@@ -70,11 +70,11 @@ export class ClawdBotBridge extends EventEmitter {
                     const started = await this.ensureRunning();
                     if (!started) {
                         this.emit('unavailable', { task, reason: 'Gateway not reachable and Docker failed to start' });
-                        return { success: false, error: 'ClawdBot unavailable' };
+                        return { success: false, error: 'ClawdeBot unavailable' };
                     }
                 } else {
                     this.emit('unavailable', { task, reason: 'Gateway not reachable' });
-                    return { success: false, error: 'ClawdBot unavailable' };
+                    return { success: false, error: 'ClawdeBot unavailable' };
                 }
             }
         }
@@ -89,7 +89,7 @@ export class ClawdBotBridge extends EventEmitter {
             }, 120000); // 2 minute timeout for task execution
 
             const delegationRecord = {
-                id: `clawdbot-${Date.now()}`,
+                id: `clawdebot-${Date.now()}`,
                 task: task.title || task.description,
                 delegatedAt: Date.now(),
                 result: result.success ? 'completed' : 'failed',
@@ -107,7 +107,7 @@ export class ClawdBotBridge extends EventEmitter {
     }
 
     /**
-     * Get ClawdBot status for Telegram
+     * Get ClawdeBot status for Telegram
      */
     getStatus() {
         return {
@@ -127,7 +127,7 @@ export class ClawdBotBridge extends EventEmitter {
         const lastCheck = s.lastCheck ? new Date(s.lastCheck).toLocaleTimeString() : 'Nunca';
 
         return [
-            `${icon} **ClawdBot** (último recurso)`,
+            `${icon} **ClawdeBot** (último recurso)`,
             `Estado: ${s.healthy ? 'Operativo' : 'No disponible'}`,
             `Último check: ${lastCheck}`,
             `Tareas delegadas: ${s.delegatedTotal}`
@@ -142,7 +142,7 @@ export class ClawdBotBridge extends EventEmitter {
             'c:\\Users\\User\\Desktop\\Saili8ng School Test\\docker-compose.openclaw.yml';
 
         try {
-            console.log('[ClawdBot] Attempting to start Docker compose...');
+            console.log('[ClawdeBot] Attempting to start Docker compose...');
             await execAsync(
                 `docker compose -f "${composePath}" up -d`,
                 { timeout: 60000, windowsHide: true }
@@ -152,15 +152,15 @@ export class ClawdBotBridge extends EventEmitter {
             for (let i = 0; i < 10; i++) {
                 await new Promise(r => setTimeout(r, 3000));
                 if (await this.isAvailable()) {
-                    console.log('[ClawdBot] Gateway is ready');
+                    console.log('[ClawdeBot] Gateway is ready');
                     return true;
                 }
             }
 
-            console.warn('[ClawdBot] Gateway did not become ready in time');
+            console.warn('[ClawdeBot] Gateway did not become ready in time');
             return false;
         } catch (err) {
-            console.error('[ClawdBot] Failed to start Docker:', err.message);
+            console.error('[ClawdeBot] Failed to start Docker:', err.message);
             return false;
         }
     }
@@ -250,4 +250,4 @@ export class ClawdBotBridge extends EventEmitter {
     }
 }
 
-export default ClawdBotBridge;
+export default ClawdeBotBridge;

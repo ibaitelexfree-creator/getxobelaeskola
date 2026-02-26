@@ -35,7 +35,7 @@ services:
       - OPENCLAW_TELEGRAM_TOKEN=8375089119:AAFC4svZTAYtIRG13rwlgLOdpZjfVLMXt5U
       - OPENCLAW_WORKSPACE=/workspace
       - OPENCLAW_WORKSPACE=/workspace
-    command: [ "openclaw", "gateway", "run", "--bind", "lan", "--auth", "token", "--token", "clawdbot-fixed", "--allow-unconfigured", "--verbose" ]
+    command: [ "openclaw", "gateway", "run", "--bind", "lan", "--auth", "token", "--token", "clawdebot-fixed", "--allow-unconfigured", "--verbose" ]
     depends_on:
       - tailscale
 

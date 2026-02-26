@@ -1,45 +1,73 @@
 import axios from 'axios';
 import { getReadyTasks, updateTaskStatus, getSwarmProgress, getSwarmTasks } from './task-queue.js';
 import { sendMessage } from './telegram-bot.js';
+import {
+    ACCOUNTS_MAP, ACCOUNT_ROLES,
+    buildAuthHeaders, validateAllKeys,
+    recordSuccess, recordFailure, isHealthy,
+    findHealthyAlternate, getHealthReport
+} from './account-health.js';
 
 /**
- * Swarm Executor - Orchestrates Jules sessions with relay pattern
- * Executes tasks phase-by-phase: Architect → Data → UI
- * Within each phase, tasks run in parallel.
+ * Swarm Executor v2 — Hardened with:
+ *   ✅ Preflight key validation
+ *   ✅ Smart retry with account failover on 401
+ *   ✅ Per-account circuit breaker
+ *   ✅ Structured Telegram error reporting
  */
-
-const ACCOUNTS_MAP = {
-    'getxobelaeskola@gmail.com': process.env.JULES_API_KEY,
-    'ibaitnt@gmail.com': process.env.JULES_API_KEY_2,
-    'ibaitelexfree@gmail.com': process.env.JULES_API_KEY_3,
-};
 
 const JULES_API_URL = 'https://jules.googleapis.com/v1alpha/sessions';
 const DEFAULT_REPO = 'sources/github/ibaitelexfree-creator/getxobelaeskola';
 const MAX_RETRIES = 2;
-const POLL_INTERVAL = 15000; // 15 seconds
-const SESSION_TIMEOUT = 600000; // 10 minutes
+const POLL_INTERVAL = 15000;
+const SESSION_TIMEOUT = 1200000; // 20 minutes
 
-// Track active swarms
 const activeSwarms = new Map();
+
+/**
+ * Resume any tasks that were left in 'running' state (e.g., after crash/restart)
+ */
+export async function resumeActiveTasks(db, chatId = process.env.TELEGRAM_CHAT_ID) {
+    if (!db) return;
+
+    try {
+        const res = await db.query("SELECT * FROM swarm_tasks WHERE status = 'running'");
+        if (res.rows.length === 0) return;
+
+        console.log(`[Swarm] Resuming ${res.rows.length} stalled tasks...`);
+
+        for (const task of res.rows) {
+            const swarmId = task.swarm_id;
+            const taskId = task.task_id;
+
+            if (task.jules_session_id) {
+                console.log(`[Swarm] Resuming monitor for ${taskId} (Session: ${task.jules_session_id})`);
+                executeSingleTask(db, swarmId, task, '', chatId).catch(e => {
+                    console.error(`[Swarm] Failed to resume ${taskId} in swarm ${swarmId}:`, e.message);
+                });
+            } else {
+                await updateTaskStatus(db, swarmId, taskId, 'pending');
+            }
+        }
+    } catch (e) {
+        console.error('[Swarm] Error during task resumption:', e.message);
+    }
+}
 
 // ─── Jules Session Management ───
 
 async function createJulesSession(task, relayContext = '') {
-    const apiKey = ACCOUNTS_MAP[task.account_email || task.accountEmail];
-    if (!apiKey) throw new Error(`No API key for ${task.account_email || task.accountEmail}`);
+    const email = task.account_email || task.accountEmail;
+    const apiKey = ACCOUNTS_MAP[email];
+    if (!apiKey) throw new Error(`No API key for ${email}`);
 
     const fullPrompt = relayContext
         ? `${relayContext}\n\n---\n\nTAREA: ${task.prompt}`
         : task.prompt;
 
-    const headers = {};
-    if (apiKey.startsWith('AQ.')) {
-        headers['Authorization'] = `Bearer ${apiKey}`;
-    } else {
-        headers['X-Goog-Api-Key'] = apiKey;
-    }
-    headers['Content-Type'] = 'application/json';
+    const headers = buildAuthHeaders(apiKey);
+    console.log(`[Swarm] [createJulesSession] Sending POST to ${JULES_API_URL}`);
+    console.log(`[Swarm] [createJulesSession] Prompt length: ${fullPrompt.length}`);
 
     const response = await axios.post(JULES_API_URL, {
         prompt: fullPrompt,
@@ -48,19 +76,15 @@ async function createJulesSession(task, relayContext = '') {
             githubRepoContext: { startingBranch: 'main' }
         },
         automationMode: 'AUTO_CREATE_PR'
-    }, { headers });
+    }, { headers, timeout: 30000 });
 
+    console.log(`[Swarm] [createJulesSession] Response received: ${response.data.name}`);
+    recordSuccess(email);
     return response.data;
 }
 
 async function pollSession(sessionId, apiKey) {
-    const headers = {};
-    if (apiKey.startsWith('AQ.')) {
-        headers['Authorization'] = `Bearer ${apiKey}`;
-    } else {
-        headers['X-Goog-Api-Key'] = apiKey;
-    }
-
+    const headers = buildAuthHeaders(apiKey);
     const res = await axios.get(`https://jules.googleapis.com/v1alpha/${sessionId}`, { headers });
     return res.data;
 }
@@ -91,15 +115,35 @@ function buildRelayContext(completedTasks) {
     return lines.join('\n');
 }
 
+// ─── Structured Error Notification ───
+
+function buildErrorNotification(taskId, task, error, attempt, maxAttempts, failoverResult) {
+    const email = task.account_email || task.accountEmail;
+    const role = ACCOUNT_ROLES[email] || 'Unknown';
+    const statusCode = error.response?.status || 'Unknown';
+    const is401 = statusCode === 401;
+
+    const lines = [
+        `  ❌ \`${taskId}\`: Fallida → ${email}`,
+        `━━━━━━━━━━━━━`,
+        `🔑 Error: HTTP ${statusCode}${is401 ? ' (Key may be expired)' : ''}`,
+        `🎭 Rol: ${role}`,
+        `🔁 Intentos: ${attempt + 1}/${maxAttempts}`,
+    ];
+
+    if (is401 && failoverResult) {
+        lines.push(`🔀 Failover: ${failoverResult}`);
+    }
+
+    if (is401) {
+        lines.push(`💡 Acción: Regenera la API key en console.cloud.google.com`);
+    }
+
+    return lines.join('\n');
+}
+
 // ─── Core Executor ───
 
-/**
- * Execute a swarm: process all tasks respecting dependencies and relay pattern
- * @param {import('pg').Pool} db
- * @param {string} swarmId
- * @param {string} chatId - Telegram chat for progress updates
- * @param {object} options
- */
 export async function executeSwarm(db, swarmId, chatId, options = {}) {
     const { dryRun = false, simulationMode = false } = options;
 
@@ -107,11 +151,29 @@ export async function executeSwarm(db, swarmId, chatId, options = {}) {
         throw new Error(`Swarm ${swarmId} is already executing`);
     }
 
+    // Phase 1: Preflight key validation
+    console.log(`[Swarm] Preflight: validating API keys...`);
+    const keyStatus = await validateAllKeys();
+    const unhealthyAccounts = Object.entries(keyStatus)
+        .filter(([, v]) => !v.valid)
+        .map(([email, v]) => `${email}: ${v.reason}`);
+
+    if (unhealthyAccounts.length > 0) {
+        console.warn(`[Swarm] ⚠️ Unhealthy accounts: ${unhealthyAccounts.join(', ')}`);
+        if (chatId) {
+            await sendMessage(chatId, [
+                `⚠️ *Swarm \`#${swarmId}\` - Advertencia de claves:*`,
+                ...unhealthyAccounts.map(a => `  🔑 ${a}`),
+                `_Se intentará failover a cuentas sanas._`
+            ].join('\n'));
+        }
+    }
+
     activeSwarms.set(swarmId, { status: 'running', startedAt: new Date() });
 
     try {
         let iteration = 0;
-        const maxIterations = 50; // Safety limit
+        const maxIterations = 50;
 
         while (iteration < maxIterations) {
             iteration++;
@@ -119,22 +181,23 @@ export async function executeSwarm(db, swarmId, chatId, options = {}) {
             const readyTasks = await getReadyTasks(db, swarmId);
             const progress = await getSwarmProgress(db, swarmId);
 
-            // Check if we're done
             if (readyTasks.length === 0 && progress.running === 0) {
                 if (progress.pending === 0) {
-                    // All tasks completed or failed
                     if (chatId) {
                         const emoji = progress.failed === 0 ? '🎉' : '⚠️';
+                        const blockedInfo = progress.failed > 0
+                            ? `\n⚠️ ${progress.failed} fallidas. Usa /retry ${swarmId} para reintentar.`
+                            : '';
                         await sendMessage(chatId, [
                             `${emoji} *Swarm \`#${swarmId}\` finalizado!*`,
                             `✅ ${progress.completed}/${progress.total} completadas`,
                             progress.failed > 0 ? `❌ ${progress.failed} fallidas` : '',
-                            `⏱️ Tiempo: ${Math.round((Date.now() - activeSwarms.get(swarmId).startedAt) / 60000)} min`
+                            `⏱️ Tiempo: ${Math.round((Date.now() - activeSwarms.get(swarmId).startedAt) / 60000)} min`,
+                            blockedInfo
                         ].filter(Boolean).join('\n'));
                     }
                     break;
                 }
-                // Tasks pending but stuck (circular deps or all blocked by failures)
                 if (chatId) {
                     await sendMessage(chatId, `⚠️ *Swarm \`#${swarmId}\`*: ${progress.pending} tareas bloqueadas (dependencias sin completar).`);
                 }
@@ -142,7 +205,6 @@ export async function executeSwarm(db, swarmId, chatId, options = {}) {
             }
 
             if (readyTasks.length > 0) {
-                // Determine current phase for notification
                 const currentPhase = readyTasks[0].phase_order || readyTasks[0].phaseOrder;
                 const currentRole = readyTasks[0].role;
 
@@ -150,13 +212,11 @@ export async function executeSwarm(db, swarmId, chatId, options = {}) {
                     await sendMessage(chatId, `📊 *Fase ${currentPhase}/3 - ${currentRole}*\nEjecutando ${readyTasks.length} tarea(s)...`);
                 }
 
-                // Get completed tasks for relay context
                 const allTasks = await getSwarmTasks(db, swarmId);
                 const completedTasks = allTasks.filter(t => (t.status === 'completed') && (t.phase_order || t.phaseOrder) < currentPhase);
                 const relayContext = buildRelayContext(completedTasks);
 
                 if (dryRun || simulationMode) {
-                    // Simulate execution
                     for (const task of readyTasks) {
                         const tid = task.task_id || task.taskId;
                         console.log(`[Swarm] [DRY RUN] Would execute: ${tid} - ${task.title}`);
@@ -168,13 +228,11 @@ export async function executeSwarm(db, swarmId, chatId, options = {}) {
                         await sendMessage(chatId, `🧪 _Dry run: ${readyTasks.length} tareas simuladas._`);
                     }
                 } else {
-                    // Real execution: create Jules sessions in parallel
                     const sessionPromises = readyTasks.map(task => executeSingleTask(db, swarmId, task, relayContext, chatId));
                     await Promise.allSettled(sessionPromises);
                 }
             }
 
-            // Wait before checking for new ready tasks
             if (!dryRun) {
                 await new Promise(r => setTimeout(r, 3000));
             }
@@ -185,17 +243,28 @@ export async function executeSwarm(db, swarmId, chatId, options = {}) {
 }
 
 /**
- * Execute a single task: create Jules session, poll for completion, update status
+ * Execute a single task with smart retry and account failover
  */
 async function executeSingleTask(db, swarmId, task, relayContext, chatId) {
     const taskId = task.task_id || task.taskId;
-    const accountEmail = task.account_email || task.accountEmail;
+    let accountEmail = task.account_email || task.accountEmail;
+
+    // Pre-check: if assigned account is unhealthy, try failover before even starting
+    if (!isHealthy(accountEmail)) {
+        const alt = findHealthyAlternate(accountEmail);
+        if (alt) {
+            console.log(`[Swarm] Pre-failover for ${taskId}: ${accountEmail} → ${alt}`);
+            accountEmail = alt;
+            task.account_email = alt;
+            task.accountEmail = alt;
+        }
+    }
 
     await updateTaskStatus(db, swarmId, taskId, 'running');
 
     for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
         try {
-            console.log(`[Swarm] Creating session for ${taskId} (attempt ${attempt + 1})`);
+            console.log(`[Swarm] Creating session for ${taskId} (attempt ${attempt + 1}, account: ${accountEmail})`);
 
             const session = await createJulesSession(task, relayContext);
             const sessionId = session.name;
@@ -206,7 +275,6 @@ async function executeSingleTask(db, swarmId, task, relayContext, chatId) {
                 await sendMessage(chatId, `  🔧 \`${taskId}\`: ${task.title} → Sesión creada`);
             }
 
-            // Poll for completion
             const apiKey = ACCOUNTS_MAP[accountEmail];
             const startTime = Date.now();
             let state = 'STATE_UNSPECIFIED';
@@ -216,7 +284,6 @@ async function executeSingleTask(db, swarmId, task, relayContext, chatId) {
                 try {
                     finalSession = await pollSession(sessionId, apiKey);
                     state = finalSession.state;
-
                     if (['COMPLETED', 'FAILED', 'CANCELLED'].includes(state)) break;
                 } catch (pollErr) {
                     console.warn(`[Swarm] Poll error for ${taskId}:`, pollErr.message);
@@ -233,30 +300,66 @@ async function executeSingleTask(db, swarmId, task, relayContext, chatId) {
                     const prInfo = finalSession?.result?.pullRequestUrl ? ` | PR: ${finalSession.result.pullRequestUrl}` : '';
                     await sendMessage(chatId, `  ✅ \`${taskId}\`: Completada${prInfo}`);
                 }
-                return; // Success, exit retry loop
+                return;
             } else {
                 throw new Error(`Session ended with state: ${state}`);
             }
 
         } catch (err) {
-            console.error(`[Swarm] Task ${taskId} attempt ${attempt + 1} failed:`, err.message);
+            const statusCode = err.response?.status;
+            console.error(`[Swarm] Task ${taskId} attempt ${attempt + 1} failed (HTTP ${statusCode || 'N/A'}):`, err.message);
+
+            // Record failure for circuit breaker
+            if (statusCode) {
+                recordFailure(accountEmail, statusCode);
+            }
+
+            // Phase 2: Smart failover on 401
+            if (statusCode === 401 && attempt < MAX_RETRIES) {
+                const alt = findHealthyAlternate(accountEmail);
+                if (alt) {
+                    console.log(`[Swarm] 🔀 Failover for ${taskId}: ${accountEmail} → ${alt}`);
+                    accountEmail = alt;
+                    task.account_email = alt;
+                    task.accountEmail = alt;
+
+                    if (chatId) {
+                        await sendMessage(chatId, `  🔀 \`${taskId}\`: Failover → ${ACCOUNT_ROLES[alt]} (${alt})`);
+                    }
+                    await new Promise(r => setTimeout(r, 2000));
+                    continue;
+                }
+            }
 
             if (attempt >= MAX_RETRIES) {
+                // Phase 4: Structured error reporting
+                const failoverInfo = statusCode === 401
+                    ? (findHealthyAlternate(accountEmail) ? 'Available but exhausted retries' : 'No alternate accounts available (all unhealthy)')
+                    : null;
+
                 await updateTaskStatus(db, swarmId, taskId, 'failed', { errorMessage: err.message });
+
                 if (chatId) {
-                    await sendMessage(chatId, `  ❌ \`${taskId}\`: Fallida tras ${MAX_RETRIES + 1} intentos: ${err.message}`);
+                    const errorMsg = buildErrorNotification(taskId, task, err, attempt, MAX_RETRIES + 1, failoverInfo);
+                    await sendMessage(chatId, errorMsg);
+
+                    // Count blocked tasks
+                    const allTasks = await getSwarmTasks(db, swarmId);
+                    const blockedCount = allTasks.filter(t =>
+                        (t.depends_on || t.dependsOn || []).includes(taskId) &&
+                        (t.status === 'pending')
+                    ).length;
+                    if (blockedCount > 0) {
+                        await sendMessage(chatId, `  ⚠️ ${blockedCount} tarea(s) bloqueadas por dependencias de \`${taskId}\``);
+                    }
                 }
             } else {
-                // Wait before retry
                 await new Promise(r => setTimeout(r, 5000));
             }
         }
     }
 }
 
-/**
- * Get active swarm status
- */
 export function getActiveSwarms() {
     return [...activeSwarms.entries()].map(([id, info]) => ({
         id, ...info,
@@ -264,9 +367,8 @@ export function getActiveSwarms() {
     }));
 }
 
-/**
- * Check if simulation mode is enabled
- */
 export function isSimulationMode() {
     return process.env.JULES_SIMULATION_MODE === 'true';
 }
+
+export { getHealthReport };

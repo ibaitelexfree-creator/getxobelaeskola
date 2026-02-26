@@ -57,8 +57,8 @@ export function usePolling() {
                         tasksToday: 0,
                         tokensUsed: 0,
                     },
-                    clawdbot: {
-                        health: svc.clawdbot !== 'error' ? 'online' : 'offline',
+                    clawdebot: {
+                        health: svc.clawdebot !== 'error' ? 'online' : 'offline',
                         delegations: 0,
                     },
                     browserless: {

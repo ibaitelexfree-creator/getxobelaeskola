@@ -41,7 +41,7 @@ function RegisterPageContent({ locale }: { locale: string }) {
             <div className="hidden lg:block relative overflow-hidden bg-nautical-black order-1 lg:order-2">
                 <Image
                     src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=1200"
-                    alt="Sailing Experience"
+                    alt="Experiencia de Vela"
                     fill
                     sizes="50vw"
                     className="object-cover grayscale opacity-40 scale-110"

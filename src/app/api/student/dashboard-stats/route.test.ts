@@ -9,7 +9,7 @@ vi.mock('@/lib/supabase/server', () => ({
 
 describe('Dashboard Stats API', () => {
     let mockSupabase: any;
-    let mockUser = { id: 'test-user-id', email: 'test@example.com' };
+    const mockUser = { id: 'test-user-id', email: 'test@example.com' };
 
     beforeEach(() => {
         vi.clearAllMocks();

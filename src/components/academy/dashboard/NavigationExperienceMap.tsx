@@ -50,7 +50,7 @@ export default function NavigationExperienceMap({ sessions }: { sessions: any[] 
         try {
             const formData = new FormData();
             const gpxContent = `<?xml version="1.0" encoding="UTF-8"?>
-            <gpx version="1.1" creator="Getxo Sailing School">
+            <gpx version="1.1" creator="Getxo Getxo Bela Eskola">
                 <trk><trkseg>
                     ${livePoints.map(p => `<trkpt lat="${p.lat}" lon="${p.lng}"><time>${new Date(p.timestamp).toISOString()}</time></trkpt>`).join('')}
                 </trkseg></trk>

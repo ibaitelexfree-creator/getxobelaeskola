@@ -4,14 +4,14 @@
  * Aggregates consumption from all execution layers:
  *   - Jules Pool (tasks/day per account)
  *   - Flash Executor (tokens + credits)
- *   - ClawdBot (sessions + estimated cost)
+ *   - ClawdeBot (sessions + estimated cost)
  */
 
 export class CreditMonitor {
-    constructor(julesPool, flashExecutor, clawdbot, visualRelay) {
+    constructor(julesPool, flashExecutor, clawdebot, visualRelay) {
         this.pool = julesPool;
         this.flash = flashExecutor;
-        this.clawdbot = clawdbot;
+        this.clawdebot = clawdebot;
         this.visual = visualRelay;
     }
 
@@ -44,8 +44,8 @@ export class CreditMonitor {
         };
     }
 
-    clawdbotCost() {
-        const status = this.clawdbot.getStatus();
+    clawdebotCost() {
+        const status = this.clawdebot.getStatus();
         return {
             available: status.available,
             sessionsToday: status.sessionsToday || 0,
@@ -67,7 +67,7 @@ export class CreditMonitor {
     async getSummaryMessage() {
         const jules = this.julesUsage();
         const flash = this.flashCredits();
-        const claw = this.clawdbotCost();
+        const claw = this.clawdebotCost();
         const browse = await this.browserlessUsage();
 
         const julesLines = jules.accounts.map(a => {
@@ -87,10 +87,10 @@ export class CreditMonitor {
             ...julesLines,
             '',
             `**Flash** ${flashEmoji} — ${flash.tasksToday} tareas | ${flash.tokensUsed.toLocaleString()} tokens`,
-            `**ClawdBot** ${clawEmoji} — ${claw.sessionsToday} sesiones hoy`,
+            `**ClawdeBot** ${clawEmoji} — ${claw.sessionsToday} sesiones hoy`,
             `**Browserless** ${browse.enabled ? '🟢' : '🔴'} — ${browse.used}/${browse.limit} hoy`,
             '',
-            `🏗️ Prioridad: Jules → Flash → ClawdBot`
+            `🏗️ Prioridad: Jules → Flash → ClawdeBot`
         ].join('\n');
     }
 

@@ -23,7 +23,7 @@
     ├── app/
     │   ├── api/          ← Jules
     │   └── [locale]/     ← Compartido (cuidado)
-    ├── components/       ← ClawdBot
+    ├── components/       ← ClawdeBot
     ├── lib/              ← Jules
     ├── hooks/            ← Compartido (coordinar)
     └── types/            ← Compartido (coordinar)

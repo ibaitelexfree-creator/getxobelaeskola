@@ -391,7 +391,7 @@ app.get(['/health', '/api/v1/health'], async (req, res) => {
       github: GITHUB_TOKEN ? 'configured' : 'not_configured',
       semanticMemory: process.env.SEMANTIC_MEMORY_URL ? 'configured' : 'not_configured',
       browserless: 'configured',
-      clawdbot: 'configured',
+      clawdebot: 'configured',
       orchestrator: 'online'
     },
     circuitBreaker: {
@@ -3077,7 +3077,7 @@ app.get(['/health', '/api/v1/health'], async (req, res) => {
       github: GITHUB_TOKEN ? 'configured' : 'not_configured',
       semanticMemory: process.env.SEMANTIC_MEMORY_URL ? 'configured' : 'not_configured',
       browserless: 'configured',
-      clawdbot: 'configured',
+      clawdebot: 'configured',
       orchestrator: 'online'
     },
     circuitBreaker: {

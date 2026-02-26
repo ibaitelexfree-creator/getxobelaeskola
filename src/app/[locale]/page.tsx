@@ -24,11 +24,11 @@ export async function generateMetadata({ params: { locale } }: { params: { local
     title = 'Hasiera | Getxo Bela Eskola';
     description = 'Ongi etorri Getxo Bela Eskolara. Ikasi nabigatzen, alokatu materiala eta bizi itsas esperientzia ahaztezinak Getxon.';
   } else if (isEn) {
-    title = 'Home | Getxo Sailing School';
-    description = 'Welcome to Getxo Sailing School. Learn to sail, rent equipment and live unforgettable nautical experiences in Getxo Marina.';
+    title = 'Home | Getxo Getxo Bela Eskola';
+    description = 'Welcome to Getxo Getxo Bela Eskola. Learn to sail, rent equipment and live unforgettable nautical experiences in Getxo Marina.';
   } else if (isFr) {
-    title = 'Accueil | Getxo Sailing School';
-    description = 'Bienvenue à Getxo Sailing School. Apprenez la voile, louez du matériel et vivez des expériences nautiques inoubliables à Getxo.';
+    title = 'Accueil | Getxo Getxo Bela Eskola';
+    description = 'Bienvenue à Getxo Getxo Bela Eskola. Apprenez la voile, louez du matériel et vivez des expériences nautiques inoubliables à Getxo.';
   }
 
   return {
@@ -191,8 +191,8 @@ export default async function LandingPage({ params: { locale } }: { params: { lo
       {/* SEO Hidden H1 */}
       <h1 className="sr-only">
         {locale === 'eu' ? 'Getxo Bela Eskola | Bela Eskola Getxon' :
-          locale === 'en' ? 'Getxo Sailing School | Sailing Lessons in Getxo' :
-            locale === 'fr' ? 'Getxo Sailing School | École de Voile à Getxo' :
+          locale === 'en' ? 'Getxo Getxo Bela Eskola | Sailing Lessons in Getxo' :
+            locale === 'fr' ? 'Getxo Getxo Bela Eskola | École de Voile à Getxo' :
               'Getxo Bela Eskola | Escuela de Vela en Getxo'}
       </h1>
     </div>

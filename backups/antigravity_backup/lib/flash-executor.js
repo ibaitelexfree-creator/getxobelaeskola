@@ -4,7 +4,7 @@
  * Level 2 in the execution hierarchy:
  *   1. Jules Pool (primary)
  *   2. Gemini Flash (fast, low-cost) ← THIS
- *   3. ClawdBot (last resort, requires confirmation)
+ *   3. ClawdeBot (last resort, requires confirmation)
  * 
  * Uses Gemini Flash for sub-second task processing when Jules is saturated.
  * Monitors credit consumption and pauses automatically when low.

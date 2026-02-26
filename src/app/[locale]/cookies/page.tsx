@@ -21,7 +21,7 @@ export default async function CookiesPage({ params: { locale } }: { params: { lo
             <div className="container mx-auto max-w-4xl">
                 <header className="mb-20">
                     <span className="text-accent uppercase tracking-[0.6em] text-sm font-bold mb-6 block">
-                        Getxo Sailing School
+                        Getxo Getxo Bela Eskola
                     </span>
                     <h1 className="text-4xl md:text-7xl font-display text-white mb-8 italic">
                         {t('cookies_title')}
@@ -32,7 +32,7 @@ export default async function CookiesPage({ params: { locale } }: { params: { lo
                 <div className="prose prose-invert prose-brass max-w-none">
                     <section className="bg-white/5 p-8 rounded-sm border border-white/10 mb-12">
                         <p className="text-foreground/60 leading-relaxed italic">
-                            Esta página describe el uso de cookies en el sitio web de Getxo Sailing School. Al navegar por nuestra web, aceptas el uso de cookies para mejorar tu experiencia de usuario.
+                            Esta página describe el uso de cookies en el sitio web de Getxo Getxo Bela Eskola. Al navegar por nuestra web, aceptas el uso de cookies para mejorar tu experiencia de usuario.
                         </p>
                     </section>
 

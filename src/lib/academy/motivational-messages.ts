@@ -68,7 +68,7 @@ export function getStreakMessage(days: number): string | null {
     const streaks = [30, 14, 7, 5, 3];
     for (const milestone of streaks) {
         if (days === milestone) {
-            // @ts-ignore - milestone is a valid key for streak object
+            // @ts-ignore: milestone is a valid key for streak object
             return MOTIVATIONAL_MESSAGES.streak[milestone];
         }
     }

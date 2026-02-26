@@ -103,7 +103,7 @@ getxobelaeskola/
 │   ├── app/              # Next.js App Router (174 archivos)
 │   │   ├── api/          # ← DOMINIO: Jules / Agente 1
 │   │   └── [locale]/     # ← COMPARTIDO (coordinar)
-│   ├── components/       # ← DOMINIO: ClawdBot / Agente 2 (195 archivos)
+│   ├── components/       # ← DOMINIO: ClawdeBot / Agente 2 (195 archivos)
 │   ├── lib/              # ← DOMINIO: Jules / Agente 1 (44 archivos)
 │   ├── hooks/            # ← COMPARTIDO (pedir permiso)
 │   ├── types/            # ← COMPARTIDO (pedir permiso)
@@ -126,7 +126,7 @@ getxobelaeskola/
 | Agente | Dominio | Rama | Notas |
 |--------|---------|------|-------|
 | **Jules** | `/src/app/api`, `/src/lib`, `/supabase` | `feature/jules-*` | Backend, APIs, DB |
-| **ClawdBot** | `/src/components`, `/messages`, `/public` | `feature/clawd-*` | UI, traducciones |
+| **ClawdeBot** | `/src/components`, `/messages`, `/public` | `feature/clawde-*` | UI, traducciones |
 | **Antigravity** | Coordinación, PRs, docs, `/project_memory` | — | No genera código pesado |
 
 ---

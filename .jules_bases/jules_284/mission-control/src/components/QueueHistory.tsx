@@ -7,7 +7,7 @@ import { Clock, Zap, Bot, Cpu, CheckCircle2, XCircle, Loader2, Globe } from 'luc
 const executorIcon: Record<string, React.ReactNode> = {
     jules: <Cpu size={14} className="text-buoy-orange" />,
     flash: <Zap size={14} className="text-status-amber" />,
-    clawdbot: <Bot size={14} className="text-status-blue" />,
+    clawdebot: <Bot size={14} className="text-status-blue" />,
     antigravity: <Globe size={14} className="text-status-green" />,
 };
 

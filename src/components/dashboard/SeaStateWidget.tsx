@@ -17,31 +17,7 @@ interface SeaStateData {
 }
 
 export default function SeaStateWidget() {
-    // Try to use translations, fallback to null if context missing (though it should be there)
-    let t: any;
-    try {
-        t = useTranslations('sea_state_widget');
-    } catch (e) {
-        // Fallback for development if keys missing or context unavailable
-        t = (key: string) => {
-            const defaults: Record<string, string> = {
-                title: 'Estado del Mar',
-                subtitle: 'Boya Bilbao-Vizcaya (Getxo)',
-                wave_height: 'Altura Ola',
-                period: 'Período',
-                water_temp: 'Temp. Agua',
-                wind_speed: 'Viento',
-                simulated: 'Simulado',
-                simulated_desc: 'Datos estimados por modelo',
-                real_time: 'Tiempo Real',
-                meters: 'm',
-                seconds: 's',
-                celsius: '°C',
-                knots: 'kn'
-            };
-            return defaults[key] || key;
-        };
-    }
+    const t = useTranslations('sea_state_widget');
 
     const [data, setData] = useState<SeaStateData | null>(null);
     const [loading, setLoading] = useState(true);
