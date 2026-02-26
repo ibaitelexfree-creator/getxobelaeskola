@@ -112,8 +112,12 @@ describe('isPointInWater', () => {
     });
 
     it('returns false gracefully when geometry data is invalid', async () => {
+        // Explicitly clear geometry AND features to ensure clean state
+        delete mockData.data.geometry;
+        mockData.data.type = 'FeatureCollection';
         // Case: features array exists but contains invalid objects
         mockData.data.features = [{}];
+
         const isPointInWater = await getIsPointInWater();
         expect(isPointInWater(5, 5)).toBe(false);
     });
