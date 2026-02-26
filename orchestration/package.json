@@ -26,8 +26,11 @@
   "license": "MIT",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.27.1",
+    "@modelcontextprotocol/server-filesystem": "^2026.1.14",
     "@modelcontextprotocol/server-github": "^2025.4.8",
+    "@modelcontextprotocol/server-memory": "^2026.1.26",
     "@octokit/rest": "^22.0.1",
+    "@playwright/mcp": "^0.0.68",
     "@stripe/mcp": "^0.3.1",
     "@supabase/mcp-server-supabase": "^0.6.3",
     "axios": "^1.13.2",
