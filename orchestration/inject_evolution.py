@@ -21,7 +21,7 @@ replacement = """  console.log('[AutoDispatch] Loop scheduled — will check for
       lastEvolutionDay = now.getDate();
 
       console.log('[Code Evolution] 🌙 3 AM en Getxo. Iniciando turno de evolución autónoma...');
-      const { getSuggestedTasks, generateSuggestedTaskFixPrompt } = await import('./lib/dev-task-scanner.js');
+      const { getSuggestedTasks, generateFixPrompt } = await import('./lib/suggested-tasks.js');
       const parentDir = path.resolve(process.cwd(), '..');
       const result = getSuggestedTasks(parentDir, { limit: 50 });
       
@@ -29,7 +29,7 @@ replacement = """  console.log('[AutoDispatch] Loop scheduled — will check for
       if (codeTasks.length === 0) return;
       
       const task = codeTasks[0];
-      const prompt = generateSuggestedTaskFixPrompt(task, parentDir);
+      const prompt = generateFixPrompt(task, parentDir);
       
       await createJulesSession({
         prompt,
@@ -38,7 +38,7 @@ replacement = """  console.log('[AutoDispatch] Loop scheduled — will check for
         automationMode: 'AUTO_CREATE_PR'
       });
       
-      sendTelegramMessage(`🦇 *Autonomía Nocturna (Getxo 03:00)*\\nEjecutando mejora en: \\\`{task.location}\\\``);
+      sendTelegramMessage(`🦇 *Autonomía Nocturna (Getxo 03:00)*\\nEjecutando mejora en: \\`${task.location}\\``);
     } catch (err) {
       console.error('[Evolution] Error:', err.message);
     }
