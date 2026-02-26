@@ -8,6 +8,10 @@ export interface SeaStateData {
     isSimulated: boolean;
 }
 
+// Bilbao-Vizcaya Buoy (2630) - Deep Water
+const BUOY_ID = '2630';
+const BUOY_NAME = 'Bilbao-Vizcaya';
+
 // Fallback mock data generator based on season and typical Cantabrian sea conditions
 function getSimulatedSeaState(): SeaStateData {
     const now = new Date();

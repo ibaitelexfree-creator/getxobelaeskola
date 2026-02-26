@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { InteractionResult } from '@/components/academy/montessori/types';
+import { InteractionResult, MontessoriTopic } from '@/components/academy/montessori/types';
 import { getAllTopics } from '@/components/academy/montessori/data-adapter';
 import { updateAbility } from '@/lib/academy/montessori-ml';
 

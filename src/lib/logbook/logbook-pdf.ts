@@ -54,7 +54,7 @@ export const generateLogbookPDF = (entries: LogbookEntry[], studentName: string)
     let currentY = 75;
 
     // 2. Iterar Entradas
-    entries.forEach((entry, _index) => {
+    entries.forEach((entry, index) => {
         // Verificar espacio en página
         // Un bloque ocupa aprox 40-60mm dependiendo del contenido.
         // Si queda poco espacio, nueva página.
