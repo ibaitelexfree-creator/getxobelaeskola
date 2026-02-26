@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { processMarketingAutomations } from './automation-service';
 
 // Mock Dependencies
@@ -56,7 +56,7 @@ describe('processMarketingAutomations', () => {
         };
 
         // Handle await directly on builder (for list results)
-        builder.then = (resolve: any, reject: any) => {
+        builder.then = (resolve: any, _reject: any) => {
             if (config.error) {
                 resolve({ data: null, error: config.error });
             } else if (config.count !== undefined) {

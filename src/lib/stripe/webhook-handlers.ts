@@ -264,7 +264,7 @@ export class StripeHandlers {
         }
     }
 
-    private async processBonoPurchase(session: Stripe.Checkout.Session, userId: string, locale: string) {
+    private async processBonoPurchase(session: Stripe.Checkout.Session, userId: string, _locale: string) {
         const { bono_id, horas } = session.metadata || {};
         if (!bono_id) throw new Error('Missing bono_id in metadata');
 
