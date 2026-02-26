@@ -12,8 +12,8 @@ export function createAdminClient() {
     if (supabaseAdmin) return supabaseAdmin;
 
     supabaseAdmin = createClient<Database>(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.SUPABASE_SERVICE_ROLE_KEY!,
+        process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co',
+        process.env.SUPABASE_SERVICE_ROLE_KEY || 'placeholder',
         {
             auth: {
                 autoRefreshToken: false,
