@@ -107,7 +107,8 @@ export function isPointInWater(lat: number, lng: number): boolean {
         initializeSpatialIndex();
     }
 
-    if (!spatialIndex) return false; // Should not happen due to init logic
+    // Safety check: if index still null or empty
+    if (!spatialIndex || spatialIndex.all().length === 0) return false;
 
     const point = turf.point([lng, lat]);
 
@@ -126,7 +127,8 @@ export function isPointInWater(lat: number, lng: number): boolean {
     // Iterate through candidates that might contain the point
     return candidates.some((item) => {
         try {
-            if (!item.feature || !item.feature.geometry) return false; return turf.booleanPointInPolygon(point, item.feature);
+            if (!item.feature || !item.feature.geometry) return false;
+            return turf.booleanPointInPolygon(point, item.feature);
         } catch (e) {
             return false;
         }
