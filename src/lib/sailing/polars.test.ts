@@ -1,6 +1,6 @@
 
 import { describe, it, expect } from 'vitest';
-import { calculateJ80Speed, J80_POLAR_DATA } from './polars';
+import { calculateJ80Speed } from './polars';
 
 describe('calculateJ80Speed', () => {
   it('should return exact values for points in the data table', () => {

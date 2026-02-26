@@ -181,7 +181,7 @@ export const generateLogbookPDF = async (data: LogbookData): Promise<void> => {
     });
 
     // Capture Y after table
-    // @ts-ignore
+    // @ts-expect-error: jspdf-autotable extends jsPDF but types may be missing
     currentY = doc.lastAutoTable.finalY + 20;
     addFooter(2);
 
@@ -200,7 +200,7 @@ export const generateLogbookPDF = async (data: LogbookData): Promise<void> => {
 
         currentY = 45;
 
-        data.diaryEntries.forEach((entry, index) => {
+        data.diaryEntries.forEach((entry, _index) => {
             // Check if we need a new page
             if (currentY > height - 40) {
             addFooter(doc.getNumberOfPages());
