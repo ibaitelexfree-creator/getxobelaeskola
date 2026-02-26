@@ -4,12 +4,13 @@ on:
   push:
     branches: [main]
     paths:
-      - "mission-control/**"
-      - ".github/workflows/mission-control-build.yml"
+      - "mission-control/android/**"
+      - "mission-control/capacitor.config.ts"
+      - ".github/workflows/mission-control-apk.yml"
   workflow_dispatch:
 
 concurrency:
-  group: mission-control-build-${{ github.ref }}
+  group: mission-control-apk-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
