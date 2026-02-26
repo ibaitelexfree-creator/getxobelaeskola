@@ -590,44 +590,36 @@ server.listen(PORT, '0.0.0.0', () => {
       }
     },
     onCicd: async (cid, taskPrompt) => {
-      console.log(`[onCicd] Triggered for CID ${cid} with prompt: "${taskPrompt}"`);
+      console.log(`[onCicd] CI/CD Swarm Triggered for CID ${cid} with prompt: "${taskPrompt}"`);
       try {
-        const accountEmail = 'getxobelaeskola@gmail.com'; // LEAD ORCHESTRATOR
-        const apiKey = ACCOUNTS_MAP[accountEmail] || process.env.JULES_API_KEY;
+        await sendMessage(cid, `⚙️ *Iniciando Proceso CI/CD de Alto Nivel...*\nAnalizando arquitectura y flujo de relay (Architect → Data → UI)...`);
 
-        console.log(`[onCicd] Using account: ${accountEmail}, Key prefix: ${apiKey?.substring(0, 5)}...`);
+        // 1. Analizar con Groq para obtener el plan de múltiples agentes
+        const analysis = await analyzeTask(taskPrompt, 3); // Forzar 3 roles base
 
-        await sendMessage(cid, `✅ *Tarea CI/CD creada.*\n_Prompt:_ ${taskPrompt}\n_Agente:_ LEAD ORCHESTRATOR`);
-        console.log(`[onCicd] Confirmation message sent to Telegram`);
-
-        // Usar la función helper para construir headers correctos
-        const headers = buildAuthHeaders(apiKey);
-        console.log(`[onCicd] Headers built:`, JSON.stringify(headers).replace(apiKey, 'REDACTED'));
-
-        console.log(`[onCicd] Sending POST request to Jules API...`);
-        axios.post('https://jules.googleapis.com/v1alpha/sessions', {
-          prompt: `CI/CD MANUAL TRIGGER: ${taskPrompt}\n\nMISSION: Use LEAD_ORCHESTRATOR identity. Fix issues or implement features as requested, then process it as an Auto-Healing/Auto-Merge task.`,
-          sourceContext: {
-            source: 'sources/github/ibaitelexfree-creator/getxobelaeskola',
-            githubRepoContext: {
-              startingBranch: 'main'
-            }
-          },
-          automationMode: 'AUTO_CREATE_PR'
-        }, {
-          headers
-        }).then(response => {
-          console.log(`[onCicd] Jules session created: ${response.data.name}`);
-          sendMessage(cid, `🚀 Sesión de Jules iniciada para CI/CD: \`${response.data.name}\``).catch(() => { });
-        }).catch(err => {
-          console.error(`[onCicd] Jules API Error:`, err.response?.data || err.message);
-          const errMsg = err.response?.data?.error?.message || err.message;
-          sendMessage(cid, `❌ Falló la creación de la sesión Jules: ${errMsg}`).catch(() => { });
+        // 2. Crear propuesta persistente
+        const proposalId = await taskQueue.createProposal(db, {
+          chatId: cid,
+          prompt: taskPrompt,
+          maxJules: 3,
+          analysis
         });
 
+        // 3. Auto-aprobar y ejecutar el swarm
+        const result = await taskQueue.approveProposal(db, proposalId);
+        if (!result) throw new Error('Failed to approve proposal for CI/CD');
+
+        await sendMessage(cid, `🚀 *CI/CD Swarm \`#${proposalId}\` aprobado automáticamente.*
+Fases: Architect (Design) → Data (Backend) → UI (Frontend)
+${result.taskCount} tareas en cola.`);
+
+        // 4. Ejecutar el orquestador de swarm
+        executeSwarm(db, proposalId, cid, { simulationMode: isSimulationMode() })
+          .catch(e => sendMessage(cid, `❌ Error de ejecución en Swarm CI/CD: ${e.message}`));
+
       } catch (e) {
-        console.error(`[onCicd] Catch Error:`, e.message);
-        await sendMessage(cid, `❌ Error en CI/CD: ${e.message}`);
+        console.error(`[onCicd] Swarm Error:`, e.message);
+        await sendMessage(cid, `❌ Error al iniciar Swarm CI/CD: ${e.message}`);
       }
     }
   }).catch(e => console.error('[TelegramBot] Fatal:', e.message));
@@ -670,4 +662,16 @@ server.listen(PORT, '0.0.0.0', () => {
       }
     });
   }, 2000);
+});
+
+// Global Error Handlers for Telegram Alerts
+process.on('uncaughtException', async (err) => {
+  console.error('[Fatal] Uncaught Exception:', err);
+  await sendTelegramMessage(`💀 *CRASH: Uncaught Exception*\n\`\`\`\n${err.stack || err.message}\n\`\`\``);
+  process.exit(1);
+});
+
+process.on('unhandledRejection', async (reason, promise) => {
+  console.error('[Fatal] Unhandled Rejection at:', promise, 'reason:', reason);
+  await sendTelegramMessage(`⚠️ *ALERTA: Unhandled Rejection*\n${reason}`);
 });
