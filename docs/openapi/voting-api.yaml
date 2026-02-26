@@ -1,0 +1,137 @@
+openapi: 3.0.0
+info:
+  title: Voting API
+  description: API for managing votes on forum questions and answers.
+  version: 1.0.0
+servers:
+  - url: /api
+    description: Internal API
+paths:
+  /forum/questions/{id}/vote:
+    post:
+      summary: Vote on a question
+      description: Add, update, or remove a vote for a specific question.
+      operationId: voteOnQuestion
+      parameters:
+        - name: id
+          in: path
+          description: The ID of the question to vote on.
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        description: Vote type (up or down).
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VoteRequest'
+      responses:
+        '200':
+          description: Vote processed successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VoteResponse'
+        '400':
+          description: Invalid request (e.g., missing type, invalid type).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized (user not logged in).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - cookieAuth: []
+
+  /forum/answers/{id}/vote:
+    post:
+      summary: Vote on an answer
+      description: Add, update, or remove a vote for a specific answer.
+      operationId: voteOnAnswer
+      parameters:
+        - name: id
+          in: path
+          description: The ID of the answer to vote on.
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        description: Vote type (up or down).
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VoteRequest'
+      responses:
+        '200':
+          description: Vote processed successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VoteResponse'
+        '400':
+          description: Invalid request (e.g., missing type, invalid type).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized (user not logged in).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - cookieAuth: []
+
+components:
+  schemas:
+    VoteRequest:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [up, down]
+          description: The type of vote.
+      required:
+        - type
+
+    VoteResponse:
+      type: object
+      properties:
+        action:
+          type: string
+          enum: [created, updated, removed]
+          description: The action taken on the vote.
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message.
+
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: sb-access-token # Adjust based on actual cookie name if known, Supabase uses varies
