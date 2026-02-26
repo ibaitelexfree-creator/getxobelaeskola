@@ -153,7 +153,7 @@ export async function POST(request: Request) {
 
                     const next = calculateNextReview(current.interval, current.ease_factor, isCorrect);
 
-                    updates.push({ // @ts-ignore
+                    updates.push({
 
                         user_id: user.id,
                         question_id: q.id,

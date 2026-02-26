@@ -23,7 +23,11 @@ interface SpatialItem {
 // Global variable to hold the index in memory
 // We use a global variable so the index persists across API calls in a serverless environment (like Vercel)
 // as long as the container is warm.
-let spatialIndex: RBush<SpatialItem> | null = null;
+export let spatialIndex: RBush<SpatialItem> | null = null;
+
+export function resetSpatialIndex() {
+    spatialIndex = null;
+}
 
 /**
  * Loads the water polygon data from the GeoJSON file and builds the spatial index.
