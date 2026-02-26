@@ -10,12 +10,12 @@ export function createClient() {
     const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
     if (!supabaseUrl || !supabaseKey) {
-        throw new Error('Missing Supabase environment variables: NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_ANON_KEY');
+        console.warn('Supabase env vars missing! This may cause issues during SSG or client usage.');
     }
 
     supabaseBrowserClient = createBrowserClient<Database>(
-        supabaseUrl,
-        supabaseKey
+        supabaseUrl || '',
+        supabaseKey || ''
     );
 
     return supabaseBrowserClient;
