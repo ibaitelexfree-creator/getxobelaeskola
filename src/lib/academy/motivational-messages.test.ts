@@ -28,7 +28,6 @@ describe('getMotivationalMessage', () => {
     });
 
     it('returns empty string for streak context (not an array in getMotivationalMessage)', () => {
-        // @ts-expect-error - testing behavior with unexpected key that is not an array
         const message = getMotivationalMessage('streak');
         expect(message).toBe("");
     });

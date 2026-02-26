@@ -46,7 +46,6 @@ export class SemanticCache {
       const embedding = await this.generateEmbedding(query);
       const supabase = createAdminClient();
 
-      // @ts-expect-error - Supabase types might not have the table yet
       const { data, error } = await supabase.rpc('match_cached_response', {
         query_embedding: embedding,
         match_threshold: customThreshold ?? this.threshold,
@@ -81,7 +80,6 @@ export class SemanticCache {
       const embedding = await this.generateEmbedding(query);
       const supabase = createAdminClient();
 
-      // @ts-expect-error - Supabase types might not have the table yet
       const { error } = await supabase.from('semantic_cache').insert({
         query_text: query,
         query_embedding: embedding,
