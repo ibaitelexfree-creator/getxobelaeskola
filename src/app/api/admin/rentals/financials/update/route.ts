@@ -4,9 +4,14 @@ import { NextResponse } from 'next/server';
 
 export async function POST(request: Request) {
     try {
+<<<<<<< HEAD
         const auth = await requireAdmin();
         if (auth.error) return auth.error;
         const { supabaseAdmin, user } = auth;
+=======
+        const { supabaseAdmin, user, error: authError } = await requireAdmin();
+        if (authError) return authError;
+>>>>>>> pr-286
 
         const { id, field, newValue, oldValue } = await request.json();
 
@@ -27,7 +32,11 @@ export async function POST(request: Request) {
             .from('financial_edits')
             .insert({
                 reserva_id: id,
+<<<<<<< HEAD
                 staff_id: user.id,
+=======
+                staff_id: user?.id,
+>>>>>>> pr-286
                 field_name: field,
                 old_value: String(oldValue),
                 new_value: String(newValue)
@@ -39,9 +48,15 @@ export async function POST(request: Request) {
         }
 
         return NextResponse.json({ success: true });
+<<<<<<< HEAD
     } catch (error: unknown) {
         const err = error as Error;
         console.error('Update financial record error:', err);
         return NextResponse.json({ error: err.message }, { status: 500 });
+=======
+    } catch (error: any) {
+        console.error('Update financial record error:', error);
+        return NextResponse.json({ error: error.message }, { status: 500 });
+>>>>>>> pr-286
     }
 }

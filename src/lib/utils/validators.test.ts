@@ -20,6 +20,7 @@ describe('validateIdentityDocument', () => {
     it('detects missing value', () => {
         expect(validateIdentityDocument('').isValid).toBe(false);
     });
+<<<<<<< HEAD
 
     describe('auto-detection', () => {
         it('auto-detects DNI', () => {
@@ -60,6 +61,8 @@ describe('validateIdentityDocument', () => {
             expect(result.message).toBe('Documento no reconocido.');
         });
     });
+=======
+>>>>>>> pr-286
 });
 
 describe('validateEmail', () => {

@@ -1,15 +1,22 @@
 
 'use client';
 
+<<<<<<< HEAD
 import React, { useEffect, useRef } from 'react';
+=======
+import React, { useEffect } from 'react';
+>>>>>>> pr-286
 import { useMissionStore } from './store';
 import { MissionData } from './types';
 import { MissionHeader } from './MissionHeader';
 import { MissionCanvas } from './MissionCanvas'; // The Factory
 import { MissionFeedback } from './MissionFeedback';
 import MissionErrorBoundary from './MissionErrorBoundary';
+<<<<<<< HEAD
 import { createClient } from '@/lib/supabase/client';
 import { getMissionProgress, saveMissionProgress } from '@/lib/services/mission-progress';
+=======
+>>>>>>> pr-286
 
 interface InteractiveMissionProps {
     data: MissionData;
@@ -26,6 +33,7 @@ export const InteractiveMission: React.FC<InteractiveMissionProps> = ({
         reset,
         status,
         score,
+<<<<<<< HEAD
         currentStepId,
         history,
         restoreProgress,
@@ -35,11 +43,17 @@ export const InteractiveMission: React.FC<InteractiveMissionProps> = ({
     // Use a ref to track if we should save (avoid saving initial empty state)
     const isLoadedRef = useRef(false);
 
+=======
+        setFeedback
+    } = useMissionStore();
+
+>>>>>>> pr-286
     // Reset and Initialize on mount or data change
     useEffect(() => {
         reset();
         // Identify mission type and potential max score from data if needed
         startMission();
+<<<<<<< HEAD
         isLoadedRef.current = false;
 
         const loadProgress = async () => {
@@ -71,6 +85,11 @@ export const InteractiveMission: React.FC<InteractiveMissionProps> = ({
 
         return () => reset(); // Cleanup
     }, [data, reset, startMission, restoreProgress]);
+=======
+
+        return () => reset(); // Cleanup
+    }, [data, reset, startMission]);
+>>>>>>> pr-286
 
     // Handle Completion
     useEffect(() => {
@@ -79,6 +98,7 @@ export const InteractiveMission: React.FC<InteractiveMissionProps> = ({
         }
     }, [status, score, onComplete]);
 
+<<<<<<< HEAD
     // Auto-Save Effect
     useEffect(() => {
         if (!isLoadedRef.current || !data.id) return;
@@ -105,6 +125,8 @@ export const InteractiveMission: React.FC<InteractiveMissionProps> = ({
         return () => clearTimeout(timer);
     }, [score, status, currentStepId, history, data.id]);
 
+=======
+>>>>>>> pr-286
     if (!data || !data.tipo_contenido) {
         return <div className="p-4 text-red-500">Error: Invalid Mission Data</div>;
     }

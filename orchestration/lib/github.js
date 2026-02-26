@@ -10,7 +10,11 @@ const GITHUB_API = 'api.github.com';
 /**
  * Make authenticated GitHub API request
  */
+<<<<<<< HEAD
 function githubRequest(path, token = null, isBinary = false) {
+=======
+function githubRequest(path, token = null) {
+>>>>>>> pr-286
   return new Promise((resolve, reject) => {
     const options = {
       hostname: GITHUB_API,
@@ -19,7 +23,11 @@ function githubRequest(path, token = null, isBinary = false) {
       method: 'GET',
       headers: {
         'User-Agent': 'Jules-MCP-Server/1.5.0',
+<<<<<<< HEAD
         'Accept': isBinary ? 'application/octet-stream' : 'application/vnd.github.v3+json'
+=======
+        'Accept': 'application/vnd.github.v3+json'
+>>>>>>> pr-286
       }
     };
 
@@ -28,11 +36,14 @@ function githubRequest(path, token = null, isBinary = false) {
     }
 
     const req = https.request(options, (response) => {
+<<<<<<< HEAD
       if (isBinary) {
         resolve(response);
         return;
       }
 
+=======
+>>>>>>> pr-286
       let data = '';
       response.on('data', chunk => data += chunk);
       response.on('end', () => {
@@ -58,7 +69,11 @@ function githubRequest(path, token = null, isBinary = false) {
  */
 export async function getIssue(owner, repo, issueNumber, token = null) {
   const issue = await githubRequest(`/repos/${owner}/${repo}/issues/${issueNumber}`, token);
+<<<<<<< HEAD
 
+=======
+
+>>>>>>> pr-286
   // Get issue comments for additional context
   let comments = [];
   try {
@@ -109,7 +124,11 @@ export async function getIssuesByLabel(owner, repo, label, token = null) {
 export function formatIssueForPrompt(issue) {
   let prompt = `Fix GitHub Issue #${issue.number}: ${issue.title}\n\n`;
   prompt += `## Issue Description\n${issue.body}\n\n`;
+<<<<<<< HEAD
 
+=======
+
+>>>>>>> pr-286
   if (issue.labels?.length > 0) {
     prompt += `## Labels\n${issue.labels.join(', ')}\n\n`;
   }
@@ -131,6 +150,7 @@ export function formatIssueForPrompt(issue) {
 }
 
 /**
+<<<<<<< HEAD
  * Find a Pull Request by branch name
  */
 export async function getPrByBranch(owner, repo, branch, token = null) {
@@ -139,12 +159,15 @@ export async function getPrByBranch(owner, repo, branch, token = null) {
 }
 
 /**
+=======
+>>>>>>> pr-286
  * Get repository information
  */
 export async function getRepoInfo(owner, repo, token = null) {
   return await githubRequest(`/repos/${owner}/${repo}`, token);
 }
 
+<<<<<<< HEAD
 /**
  * List all releases for a repository
  */
@@ -175,4 +198,11 @@ export default {
   listReleases,
   getAsset,
   downloadAsset
+=======
+export default {
+  getIssue,
+  getIssuesByLabel,
+  formatIssueForPrompt,
+  getRepoInfo
+>>>>>>> pr-286
 };

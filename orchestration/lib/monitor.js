@@ -11,7 +11,10 @@ export class SessionMonitor {
         this.julesRequest = julesRequest;
         this.cachedSessions = null;
         this.lastFetch = null;
+<<<<<<< HEAD
         this.currentFetch = null;
+=======
+>>>>>>> pr-286
         this.cacheTimeout = 10000; // 10 seconds
     }
 
@@ -27,6 +30,7 @@ export class SessionMonitor {
             return this.cachedSessions;
         }
 
+<<<<<<< HEAD
         // Prevent cache stampede: if a fetch is already in progress, wait for it
         if (this.currentFetch) {
             return this.currentFetch;
@@ -47,6 +51,17 @@ export class SessionMonitor {
         })();
 
         return this.currentFetch;
+=======
+        try {
+            const result = await this.julesRequest('GET', '/sessions');
+            this.cachedSessions = result.sessions || [];
+            this.lastFetch = now;
+            return this.cachedSessions;
+        } catch (error) {
+            console.error('[Monitor] Failed to fetch sessions:', error.message);
+            return this.cachedSessions || [];
+        }
+>>>>>>> pr-286
     }
 
     /**

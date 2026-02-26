@@ -34,8 +34,15 @@ export class InputController {
         // A (Left) -> Decrement rudderAngle (so torque is positive)
 
         if (this.keys['KeyA'] || this.keys['ArrowLeft'] || this.keys['a'] || this.keys['A']) {
+<<<<<<< HEAD
             this.rudderAngle -= this.RUDDER_SPEED * dt;
         } else if (this.keys['KeyD'] || this.keys['ArrowRight'] || this.keys['d'] || this.keys['D']) {
+=======
+            // console.log("INPUT: Key A/Left Detected");
+            this.rudderAngle -= this.RUDDER_SPEED * dt;
+        } else if (this.keys['KeyD'] || this.keys['ArrowRight'] || this.keys['d'] || this.keys['D']) {
+            // console.log("INPUT: Key D/Right Detected");
+>>>>>>> pr-286
             this.rudderAngle += this.RUDDER_SPEED * dt;
         } else {
             // Self-center rudder

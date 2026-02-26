@@ -1,6 +1,9 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
+<<<<<<< HEAD
     darkMode: 'class',
+=======
+>>>>>>> pr-286
     content: [
         "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
         "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
@@ -21,6 +24,7 @@ module.exports = {
                     grey: '#F2F2F2',
                 },
                 nautical: {
+<<<<<<< HEAD
                     black: 'var(--nautical-black)',
                     deep: 'var(--nautical-deep)',
                     blue: 'var(--nautical-blue)',
@@ -39,6 +43,21 @@ module.exports = {
                 },
                 background: 'var(--background)',
                 foreground: 'var(--foreground)',
+=======
+                    black: '#000000',
+                    deep: '#010409',
+                    blue: '#154FA3',
+                },
+                'sea-foam': '#F2F2F2',
+                'buoy-orange': '#FF4D00',
+                'brass-gold': '#c5a059',
+                accent: {
+                    DEFAULT: '#FF4D00',
+                    foreground: '#F2F2F2',
+                },
+                background: '#000000',
+                foreground: '#F2F2F2',
+>>>>>>> pr-286
                 card: {
                     DEFAULT: 'rgba(255, 255, 255, 0.03)',
                     border: 'rgba(255, 255, 255, 0.1)',

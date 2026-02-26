@@ -3,9 +3,14 @@ import { NextResponse } from 'next/server';
 
 export async function POST(_request: Request) {
     try {
+<<<<<<< HEAD
         const auth = await requireInstructor();
         if (auth.error) return auth.error;
         const { profile, supabaseAdmin } = auth;
+=======
+        const { profile, supabaseAdmin, error: authError } = await requireInstructor();
+        if (authError) return authError;
+>>>>>>> pr-286
 
         const body = await _request.json();
         const {
@@ -24,7 +29,11 @@ export async function POST(_request: Request) {
             return NextResponse.json({ error: 'ID es obligatorio' }, { status: 400 });
         }
 
+<<<<<<< HEAD
         const isAdmin = profile?.rol === 'admin';
+=======
+        const isAdmin = profile.rol === 'admin';
+>>>>>>> pr-286
 
         const updateData: Record<string, unknown> = {};
 

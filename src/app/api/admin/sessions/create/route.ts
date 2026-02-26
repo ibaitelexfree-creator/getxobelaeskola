@@ -2,6 +2,7 @@
 import { requireInstructor } from '@/lib/auth-guard';
 import { NextResponse } from 'next/server';
 import { createGoogleEvent, updateGoogleEvent } from '@/lib/google-calendar';
+<<<<<<< HEAD
 import { validateSessionOverlap } from '@/lib/session-validation';
 
 export async function POST(request: Request) {
@@ -9,6 +10,13 @@ export async function POST(request: Request) {
         const auth = await requireInstructor();
         if (auth.error) return auth.error;
         const { supabaseAdmin } = auth;
+=======
+
+export async function POST(request: Request) {
+    try {
+        const { supabaseAdmin, error: authError } = await requireInstructor();
+        if (authError) return authError;
+>>>>>>> pr-286
 
         const body = await request.json();
         const {
@@ -30,6 +38,7 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: 'Formato de fecha inválido' }, { status: 400 });
         }
 
+<<<<<<< HEAD
         const validation = await validateSessionOverlap(supabaseAdmin, {
             instructor_id,
             embarcacion_id,
@@ -41,6 +50,8 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: validation.error }, { status: 409 });
         }
 
+=======
+>>>>>>> pr-286
         const isNoCourse = !curso_id || curso_id === '' || curso_id === 'null' || curso_id === '00000000-0000-0000-0000-000000000000';
 
         const { data, error } = await supabaseAdmin

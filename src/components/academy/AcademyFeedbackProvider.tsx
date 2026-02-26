@@ -3,7 +3,10 @@
 import React from 'react';
 import AchievementToast from '@/components/academy/notifications/AchievementToast';
 import SkillUnlockedModal from '@/components/academy/notifications/SkillUnlockedModal';
+<<<<<<< HEAD
 import BadgeUnlockedModal from '@/components/academy/gamification/BadgeUnlockedModal';
+=======
+>>>>>>> pr-286
 
 /**
  * AcademyFeedbackProvider - Wrapper component that includes all feedback UI
@@ -15,7 +18,10 @@ export default function AcademyFeedbackProvider({ children }: { children: React.
             {children}
             <AchievementToast />
             <SkillUnlockedModal />
+<<<<<<< HEAD
             <BadgeUnlockedModal />
+=======
+>>>>>>> pr-286
         </>
     );
 }

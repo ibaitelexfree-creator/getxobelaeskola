@@ -3,9 +3,14 @@ import { NextResponse } from 'next/server';
 
 export async function GET(request: Request) {
     try {
+<<<<<<< HEAD
         const auth = await requireInstructor();
         if (auth.error) return auth.error;
         const { supabaseAdmin } = auth;
+=======
+        const { supabaseAdmin, error: authError } = await requireInstructor();
+        if (authError) return authError;
+>>>>>>> pr-286
 
         const { searchParams } = new URL(request.url);
         const studentId = searchParams.get('studentId');
@@ -28,6 +33,7 @@ export async function GET(request: Request) {
             supabaseAdmin.from('cursos').select('*')
         ]);
 
+<<<<<<< HEAD
         interface Inscription {
             edicion_id: string;
             curso_id: string;
@@ -52,6 +58,13 @@ export async function GET(request: Request) {
             const ed = typedEditions.find((e) => e.id === ins.edicion_id);
             const courseDirect = typedCourses.find((c) => c.id === ins.curso_id);
             const courseViaEd = ed ? typedCourses.find((c) => c.id === ed.curso_id) : null;
+=======
+        // 3. Manually combine data
+        const enrichedInscriptions = (rawInscriptions || []).map(ins => {
+            const ed = (editions || []).find(e => e.id === ins.edicion_id);
+            const courseDirect = (allCourses || []).find(c => c.id === ins.curso_id);
+            const courseViaEd = ed ? (allCourses || []).find(c => c.id === ed.curso_id) : null;
+>>>>>>> pr-286
 
             return {
                 ...ins,

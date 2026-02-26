@@ -14,7 +14,11 @@ COPY package*.json ./
 
 # Install only production dependencies; use cache mount for npm cache
 RUN --mount=type=cache,target=/root/.npm \
+<<<<<<< HEAD
     npm install --omit=dev
+=======
+    npm ci --omit=dev
+>>>>>>> pr-286
 
 # Copy the rest of the app source
 COPY src ./src

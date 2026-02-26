@@ -1,12 +1,20 @@
 'use client';
 import { usePathname } from 'next/navigation';
 import { ReactNode, useEffect, useState } from 'react';
+<<<<<<< HEAD
+=======
+// Capacitor will be dynamically checked in the effect to avoid SSR issues
+// import { Capacitor } from '@capacitor/core';
+>>>>>>> pr-286
 
 import AcademyControls from '@/components/layout/AcademyControls';
 import MobileBottomNav from '@/components/layout/MobileBottomNav';
 import NotificationContainer from '@/components/academy/notifications/NotificationContainer';
 import RealtimeNotifications from '@/components/academy/notifications/RealtimeNotifications';
+<<<<<<< HEAD
 import SmartNotificationManager from '@/components/academy/notifications/SmartNotificationManager';
+=======
+>>>>>>> pr-286
 import SafetyMonitor from '@/components/academy/notifications/SafetyMonitor';
 import ActivityTracker from '@/components/academy/ActivityTracker';
 
@@ -14,6 +22,10 @@ interface ConditionalLayoutProps {
     children: ReactNode;
     navbar: ReactNode;
     footer: ReactNode;
+<<<<<<< HEAD
+=======
+    locale: string;
+>>>>>>> pr-286
 }
 
 export default function ConditionalLayout({ children, navbar, footer }: ConditionalLayoutProps) {
@@ -48,7 +60,10 @@ export default function ConditionalLayout({ children, navbar, footer }: Conditio
                 )}
                 <NotificationContainer />
                 <RealtimeNotifications />
+<<<<<<< HEAD
                 <SmartNotificationManager />
+=======
+>>>>>>> pr-286
                 <SafetyMonitor />
                 <ActivityTracker />
             </>
@@ -82,7 +97,10 @@ export default function ConditionalLayout({ children, navbar, footer }: Conditio
                 <>
                     <NotificationContainer />
                     <RealtimeNotifications />
+<<<<<<< HEAD
                     <SmartNotificationManager />
+=======
+>>>>>>> pr-286
                     <SafetyMonitor />
                     <ActivityTracker />
                 </>

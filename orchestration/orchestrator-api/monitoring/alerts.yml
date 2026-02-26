@@ -11,6 +11,7 @@ groups:
         annotations:
           summary: "High workflow failure rate"
           description: "More than 10% of workflows are failing (current: {{ $value }})"
+<<<<<<< HEAD
 
       - alert: HighErrorRate
         expr: rate(http_request_duration_seconds_count{status_code=~"5.."}[5m]) > 0.1
@@ -32,6 +33,9 @@ groups:
           summary: "High latency detected"
           description: "95th percentile of HTTP request duration is above 1 second ({{ $value }}s)"
 
+=======
+
+>>>>>>> pr-286
       - alert: WorkflowStuck
         expr: workflow_duration_seconds{status="running"} > 3600
         for: 10m
@@ -40,7 +44,11 @@ groups:
         annotations:
           summary: "Workflow stuck for over 1 hour"
           description: "Workflow {{ $labels.workflow_id }} has been running for {{ $value }}s"
+<<<<<<< HEAD
 
+=======
+
+>>>>>>> pr-286
       - alert: JulesAPIDown
         expr: up{job="jules-orchestrator"} == 0
         for: 2m
@@ -49,3 +57,24 @@ groups:
         annotations:
           summary: "Jules Orchestrator API is down"
           description: "The orchestrator API has been unreachable for 2 minutes"
+<<<<<<< HEAD
+=======
+
+      - alert: DatabaseConnectionPoolExhausted
+        expr: pg_stat_database_numbackends / pg_settings_max_connections > 0.8
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Database connection pool near capacity"
+          description: "PostgreSQL connections at {{ $value }}%"
+
+      - alert: RedisMemoryHigh
+        expr: redis_memory_used_bytes / redis_memory_max_bytes > 0.9
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Redis memory usage high"
+          description: "Redis memory at {{ $value }}%"
+>>>>>>> pr-286

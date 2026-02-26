@@ -39,6 +39,7 @@ services:
     depends_on:
       - tailscale
 
+<<<<<<< HEAD
   qdrant:
     image: qdrant/qdrant:latest
     container_name: openclaw-qdrant
@@ -51,6 +52,8 @@ services:
     networks:
       - openclaw-net
 
+=======
+>>>>>>> pr-286
 networks:
   openclaw-net:
     driver: bridge

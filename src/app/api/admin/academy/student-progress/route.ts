@@ -3,9 +3,14 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
     try {
+<<<<<<< HEAD
         const auth = await requireInstructor();
         if (auth.error) return auth.error;
         const { supabaseAdmin } = auth;
+=======
+        const { supabaseAdmin, error: authError } = await requireInstructor();
+        if (authError) return authError;
+>>>>>>> pr-286
 
         const { searchParams } = new URL(request.url);
         const studentId = searchParams.get('student_id');

@@ -1,5 +1,9 @@
 
+<<<<<<< HEAD
 
+=======
+import { createClient } from '@/lib/supabase/server';
+>>>>>>> pr-286
 import { createAdminClient } from '@/lib/supabase/admin';
 import { NextResponse } from 'next/server';
 import { requireAuth } from '@/lib/auth-guard';
@@ -58,7 +62,11 @@ export async function GET(
                 nombre_eu,
                 descripcion_es,
                 descripcion_eu,
+<<<<<<< HEAD
                 objetivos_json,
+=======
+                imagen_url,
+>>>>>>> pr-286
                 orden,
                 curso:curso_id (
                     id,
@@ -86,7 +94,11 @@ export async function GET(
 
         const { data: unidades, error: unidadesError } = await supabase
             .from('unidades_didacticas')
+<<<<<<< HEAD
             .select('id, nombre_es, nombre_eu, duracion_estimada_min, orden, slug, objetivos_es, objetivos_eu')
+=======
+            .select('id, nombre_es, nombre_eu, descripcion_es, descripcion_eu, duracion_estimada_min, orden, slug, objetivos_es, objetivos_eu')
+>>>>>>> pr-286
             .eq('modulo_id', params.id)
             .order('orden');
 
@@ -116,7 +128,11 @@ export async function GET(
                     .select('*')
                     .eq('alumno_id', user.id)
                     .eq('tipo_entidad', 'unidad')
+<<<<<<< HEAD
                     .in('entidad_id', unidades.map((u: any) => u.id));
+=======
+                    .in('entidad_id', unidades.map(u => u.id));
+>>>>>>> pr-286
                 progresoUnidades = progresoUni || [];
             }
         } catch { }

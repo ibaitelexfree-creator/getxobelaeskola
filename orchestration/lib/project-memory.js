@@ -7,7 +7,11 @@ const PROJECT_ROOT = resolve(__dirname, '../..');
 const MEMORY_DIR = join(PROJECT_ROOT, 'project_memory');
 
 function getFilePath(file) {
+<<<<<<< HEAD
     const allowed = ['GLOBAL_STATE.md', 'DECISIONS_LOG.md', 'TECHNICAL_CONTEXT.md', 'AGENT_TASKS.md', 'PREVIEW_URLS.md'];
+=======
+    const allowed = ['GLOBAL_STATE.md', 'DECISIONS_LOG.md', 'TECHNICAL_CONTEXT.md', 'AGENT_TASKS.md'];
+>>>>>>> pr-286
     if (!allowed.includes(file)) {
         throw new Error(`File "${file}" not allowed. Use: ${allowed.join(', ')}`);
     }
@@ -47,6 +51,7 @@ export function readAllContext() {
     }
     return { success: true, context };
 }
+<<<<<<< HEAD
 
 export function getParsedTasks() {
     const result = readProjectMemory('AGENT_TASKS.md');
@@ -125,3 +130,5 @@ export function getParsedTasks() {
 
     return { queue, history };
 }
+=======
+>>>>>>> pr-286

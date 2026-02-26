@@ -4,7 +4,11 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
+<<<<<<< HEAD
 import { UnlockStatusBadge, UnlockStatusResponse } from '@/components/academy/UnlockStatusBadge';
+=======
+import { UnlockStatusBadge, UnlockStatusResponse, LockedContentOverlay } from '@/components/academy/UnlockStatusBadge';
+>>>>>>> pr-286
 import { SimpleEvaluation } from '@/components/academy/evaluation';
 import { apiUrl } from '@/lib/api';
 
@@ -54,7 +58,11 @@ export default function CourseDetailMain({
 }: {
     params: { locale: string; slug: string }
 }) {
+<<<<<<< HEAD
 
+=======
+    const t = useTranslations('academy');
+>>>>>>> pr-286
     const [curso, setCurso] = useState<Curso | null>(null);
     const [modulos, setModulos] = useState<Modulo[]>([]);
     const [progreso, setProgreso] = useState<Progreso | null>(null);
@@ -116,14 +124,22 @@ export default function CourseDetailMain({
         );
     }
 
+<<<<<<< HEAD
 
+=======
+    const currentCourseStatus = unlockStatus?.cursos?.[curso.id] || 'bloqueado';
+>>>>>>> pr-286
     // isCourseLocked is handled below
 
 
     // We no longer block the entire course view if locked. 
     // This allows users to see the "Career Plan" (modules) before enrolling.
     // The modules themselves will still appear as locked.
+<<<<<<< HEAD
 
+=======
+    const isCourseLocked = false;
+>>>>>>> pr-286
 
 
     const totalUnidades = modulos.reduce((sum, m) => sum + m.num_unidades, 0);
@@ -215,7 +231,11 @@ export default function CourseDetailMain({
                     </header>
 
                     <div className="grid gap-6">
+<<<<<<< HEAD
                         {modulos.map((modulo) => {
+=======
+                        {modulos.map((modulo, idx) => {
+>>>>>>> pr-286
                             const status = unlockStatus?.modulos?.[modulo.id] || 'bloqueado';
                             const isLocked = status === 'locked' || status === 'bloqueado';
                             const ariaLabel = isLocked

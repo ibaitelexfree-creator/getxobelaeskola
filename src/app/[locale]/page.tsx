@@ -5,7 +5,10 @@ import JsonLd from '@/components/shared/JsonLd';
 
 import HeroCarousel from '@/components/home/HeroCarousel';
 import StatsSection from '@/components/home/StatsSection';
+<<<<<<< HEAD
 import { createAdminClient } from '@/lib/supabase/admin';
+=======
+>>>>>>> pr-286
 const NativeAppRedirect = dynamic(() => import('@/components/shared/NativeAppRedirect'), { ssr: false });
 const ExperienceSection = dynamic(() => import('@/components/home/ExperienceSection'));
 const FeaturesSection = dynamic(() => import('@/components/home/FeaturesSection'));
@@ -44,6 +47,7 @@ export default async function LandingPage({ params: { locale } }: { params: { lo
   const tProg = await getTranslations({ locale, namespace: 'home.programs' });
   const tFeat = await getTranslations({ locale, namespace: 'home.features' });
 
+<<<<<<< HEAD
   // Fetch boat count
   let flotaValue = '12';
   try {
@@ -56,6 +60,8 @@ export default async function LandingPage({ params: { locale } }: { params: { lo
     console.warn('Could not fetch boat count for landing page, using fallback:', e);
   }
 
+=======
+>>>>>>> pr-286
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "SportsActivityLocation",
@@ -165,7 +171,10 @@ export default async function LandingPage({ params: { locale } }: { params: { lo
         alumnosLabel={tStats('alumnos')}
         flotaLabel={tStats('flota')}
         clasesLabel={tStats('clases')}
+<<<<<<< HEAD
         flotaValue={flotaValue}
+=======
+>>>>>>> pr-286
       />
       <ExperienceSection
         locale={locale}

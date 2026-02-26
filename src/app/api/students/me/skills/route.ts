@@ -1,7 +1,11 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
 
+<<<<<<< HEAD
 export async function GET() {
+=======
+export async function GET(request: Request) {
+>>>>>>> pr-286
     try {
         const supabase = await createClient();
 

@@ -7,7 +7,11 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 # Cache npm dependencies
 RUN --mount=type=cache,target=/root/.npm \
+<<<<<<< HEAD
     npm install --legacy-peer-deps
+=======
+    npm ci --legacy-peer-deps
+>>>>>>> pr-286
 
 # -----------------------------
 # Stage 2: Builder

@@ -26,6 +26,7 @@ export default function CertificateCard({ certificate, studentName, locale }: Ce
                     ? (locale === 'eu' ? certificate.nivel?.nombre_eu : certificate.nivel?.nombre_es)
                     : 'Capitán de Vela';
 
+<<<<<<< HEAD
             // Map distinction to English types expected by the generator
             const distinctionVal = certificate.nivel_distincion || 'estandar';
             const distinctionMap: Record<string, 'standard' | 'merit' | 'excellence'> = {
@@ -37,13 +38,19 @@ export default function CertificateCard({ certificate, studentName, locale }: Ce
                 'excellence': 'excellence'
             };
 
+=======
+>>>>>>> pr-286
             await generateCertificatePDF({
                 studentName: studentName || 'Estudiante',
                 courseName: courseName || 'Curso de Vela',
                 issueDate: certificate.fecha_emision,
                 certificateId: certificate.numero_certificado,
                 verificationHash: certificate.verificacion_hash,
+<<<<<<< HEAD
                 distinction: distinctionMap[distinctionVal] || 'standard',
+=======
+                distinction: certificate.nivel_distincion || 'estandar',
+>>>>>>> pr-286
                 // hours could be passed if API returned it, skipping for now
             });
         } catch (err) {

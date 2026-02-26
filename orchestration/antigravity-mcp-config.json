@@ -101,11 +101,15 @@
       "workflows": {
         "autonomous": {
           "enabled": true,
+<<<<<<< HEAD
           "triggers": [
             "github-push",
             "api-request",
             "schedule"
           ],
+=======
+          "triggers": ["github-push", "api-request", "schedule"],
+>>>>>>> pr-286
           "approvalRequired": true
         },
         "ci-cd": {
@@ -155,6 +159,7 @@
           "description": "Session ID to query"
         }
       }
+<<<<<<< HEAD
     },
     "jules_delegate_trio": {
       "description": "Delegate a task to 3 specialized Jules domains (Analytics -> Data Engineering -> Dev/Orchestrator). Strict validation and order.",
@@ -173,3 +178,8 @@
     }
   }
 }
+=======
+    }
+  }
+}
+>>>>>>> pr-286

@@ -2,7 +2,11 @@
  * Plantillas de correo premium con diseño náutico.
  */
 
+<<<<<<< HEAD
 const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://getxobelaeskola.cloud';
+=======
+const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || (process.env.NODE_ENV === 'production' ? 'https://getxobelaeskola.cloud' : 'http://localhost:3000');
+>>>>>>> pr-286
 const LOGO_URL = `${BASE_URL}/images/LogoGetxoBelaEskola.png`;
 const BRAND_COLOR = '#38bdf8'; // Sky 400
 const SECONDARY_COLOR = '#0ea5e9'; // Sky 500

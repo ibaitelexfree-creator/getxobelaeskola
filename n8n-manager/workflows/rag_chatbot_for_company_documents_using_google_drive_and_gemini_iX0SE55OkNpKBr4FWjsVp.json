@@ -550,7 +550,11 @@
             "userId": "ebf74c25-213c-46b9-a63b-e349de02195f",
             "projectId": "3Aa1TdMrn6HM1XQF",
             "user": {
+<<<<<<< HEAD
               "updatedAt": "2026-02-25T06:07:46.200Z",
+=======
+              "updatedAt": "2026-02-13T11:35:46.641Z",
+>>>>>>> pr-286
               "createdAt": "2026-02-12T15:59:25.537Z",
               "id": "ebf74c25-213c-46b9-a63b-e349de02195f",
               "email": "getxobelaeskola@gmail.com",
@@ -566,6 +570,7 @@
                 "reportedSource": "google"
               },
               "settings": {
+<<<<<<< HEAD
                 "userActivated": true,
                 "easyAIWorkflowOnboarded": true,
                 "firstSuccessfulWorkflowId": "eeqPCy1bi0DhhlxA",
@@ -579,6 +584,14 @@
               "disabled": false,
               "mfaEnabled": false,
               "lastActiveAt": "2026-02-24",
+=======
+                "userActivated": false,
+                "easyAIWorkflowOnboarded": true
+              },
+              "disabled": false,
+              "mfaEnabled": false,
+              "lastActiveAt": "2026-02-13",
+>>>>>>> pr-286
               "isPending": false
             }
           }

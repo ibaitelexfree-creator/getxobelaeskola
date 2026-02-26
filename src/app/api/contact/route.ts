@@ -15,6 +15,7 @@ export async function POST(request: Request) {
 
         // 2. Save to Database
         const supabase = await createClient();
+<<<<<<< HEAD
 
         // Check for duplicates (Idempotency)
         const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
@@ -31,6 +32,8 @@ export async function POST(request: Request) {
             return NextResponse.json({ success: true, message: 'Mensaje recibido correctamente' });
         }
 
+=======
+>>>>>>> pr-286
         const { error: dbError } = await supabase
             .from('mensajes_contacto')
             .insert([{
@@ -59,7 +62,11 @@ export async function POST(request: Request) {
                     subject: `[Web Contact] ${asunto}`,
                     html: contactNotificationTemplate({ nombre, email, asunto, mensaje, telefono }),
                 });
+<<<<<<< HEAD
             } catch (emailError: unknown) {
+=======
+            } catch (emailError) {
+>>>>>>> pr-286
                 console.error('Email Error (Contact):', emailError);
             }
         } else {
@@ -72,7 +79,11 @@ export async function POST(request: Request) {
 
         return NextResponse.json({ success: true, message: 'Mensaje recibido correctamente' });
 
+<<<<<<< HEAD
     } catch (err: unknown) {
+=======
+    } catch (err: any) {
+>>>>>>> pr-286
         console.error('API Contact Error:', err);
         return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
     }

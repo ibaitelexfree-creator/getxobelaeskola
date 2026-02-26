@@ -15,7 +15,11 @@ export async function POST(req: NextRequest) {
         const forwarded = req.headers.get('x-forwarded-for');
         const ip = forwarded ? forwarded.split(',')[0] : req.ip || '127.0.0.1';
 
+<<<<<<< HEAD
         const supabase = createAdminClient() as any;
+=======
+        const supabase = createAdminClient();
+>>>>>>> pr-286
         const serverSupabase = createServerClient();
 
         // Obtener usuario si está autenticado

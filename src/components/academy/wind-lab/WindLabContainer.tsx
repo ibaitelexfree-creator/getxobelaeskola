@@ -175,7 +175,11 @@ export const WindLabContainer = () => {
                                 style={{
                                     width: '100px',
                                     height: '240px',
+<<<<<<< HEAD
                                     transform: `rotateZ(${simState.boatHeading}deg) rotateY(${simState.heelAngle}deg)`,
+=======
+                                    transform: `rotateZ(${simState.boatHeading}deg)`,
+>>>>>>> pr-286
                                     transformStyle: 'preserve-3d'
                                 }}
                             >

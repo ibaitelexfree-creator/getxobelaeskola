@@ -3,9 +3,14 @@ import { NextResponse } from 'next/server';
 
 export async function GET(request: Request) {
     try {
+<<<<<<< HEAD
         const auth = await requireInstructor();
         if (auth.error) return auth.error;
         const { supabaseAdmin } = auth;
+=======
+        const { supabaseAdmin, error: authError } = await requireInstructor();
+        if (authError) return authError;
+>>>>>>> pr-286
 
         const { searchParams } = new URL(request.url);
         const limit = parseInt(searchParams.get('limit') || '50');

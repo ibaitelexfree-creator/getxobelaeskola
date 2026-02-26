@@ -22,7 +22,11 @@ export async function processMarketingAutomations() {
 
     let totalSent = 0;
 
+<<<<<<< HEAD
     for (const campaign of (campaigns as any[])) {
+=======
+    for (const campaign of campaigns) {
+>>>>>>> pr-286
         console.log(`Processing campaign: ${campaign.nombre}`);
 
         const daysAgo = new Date();
@@ -46,7 +50,11 @@ export async function processMarketingAutomations() {
 
         console.log(`Found ${triggerInscriptions.length} possible candidates who took the trigger course.`);
 
+<<<<<<< HEAD
         for (const ins of (triggerInscriptions as any[])) {
+=======
+        for (const ins of triggerInscriptions) {
+>>>>>>> pr-286
             const profileId = ins.perfil_id;
 
             // 2. Check if already bought target course
@@ -106,7 +114,11 @@ export async function processMarketingAutomations() {
 
             if (emailSent) {
                 // 7. Log history
+<<<<<<< HEAD
                 await (supabase as any).from('marketing_history').insert({
+=======
+                await supabase.from('marketing_history').insert({
+>>>>>>> pr-286
                     campana_id: campaign.id,
                     perfil_id: profileId
                 });

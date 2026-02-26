@@ -38,9 +38,15 @@ interface SessionDetailModalProps {
     session: Session;
     onClose: () => void;
     onUpdate: (session: Session) => Promise<void>;
+<<<<<<< HEAD
     allInstructors?: { id: string; nombre: string; apellidos: string, rol?: string }[];
     allBoats?: { id: string; nombre: string, modelo?: string }[];
     allCourses?: { id: string; nombre_es: string; nombre_eu: string }[];
+=======
+    allInstructors: { id: string; nombre: string; apellidos: string, rol?: string }[];
+    allBoats: { id: string; nombre: string, modelo?: string }[];
+    allCourses: { id: string; nombre_es: string; nombre_eu: string }[];
+>>>>>>> pr-286
 }
 
 export default function SessionDetailModal({ session, onClose, onUpdate, allInstructors, allBoats, allCourses }: SessionDetailModalProps) {
@@ -255,7 +261,11 @@ export default function SessionDetailModal({ session, onClose, onUpdate, allInst
                                     placeholder="Seleccionar instructor..."
                                     value={formData.instructor_id}
                                     onChange={(val) => setFormData({ ...formData, instructor_id: val })}
+<<<<<<< HEAD
                                     options={(allInstructors || []).map(i => ({
+=======
+                                    options={allInstructors.map(i => ({
+>>>>>>> pr-286
                                         id: i.id,
                                         label: `${i.nombre} ${i.apellidos}`,
                                         subLabel: i.rol
@@ -271,7 +281,11 @@ export default function SessionDetailModal({ session, onClose, onUpdate, allInst
                                     placeholder="Sin barco asignado"
                                     value={formData.embarcacion_id || ''}
                                     onChange={(val) => setFormData({ ...formData, embarcacion_id: val || null })}
+<<<<<<< HEAD
                                     options={(allBoats || []).map(b => {
+=======
+                                    options={allBoats.map(b => {
+>>>>>>> pr-286
                                         const isOccupied = availability[b.id];
                                         return {
                                             id: b.id,
@@ -298,7 +312,11 @@ export default function SessionDetailModal({ session, onClose, onUpdate, allInst
                                     onChange={(val) => setFormData({ ...formData, curso_id: val })}
                                     options={[
                                         { id: '00000000-0000-0000-0000-000000000000', label: 'Otros / Eventos Especiales', subLabel: 'Actividades varias' },
+<<<<<<< HEAD
                                         ...(allCourses || []).map(c => ({
+=======
+                                        ...allCourses.map(c => ({
+>>>>>>> pr-286
                                             id: c.id,
                                             label: c.nombre_es,
                                             subLabel: c.nombre_eu

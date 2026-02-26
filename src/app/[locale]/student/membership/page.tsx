@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl';
 import { ArrowLeft, Check, Sparkles, Anchor, Star, Shield } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { apiUrl } from '@/lib/api';
+<<<<<<< HEAD
 import LegalConsentModal from '@/components/shared/LegalConsentModal';
 import { createClient } from '@/lib/supabase/client';
 
@@ -67,6 +68,25 @@ export default function MembershipPage({ params: { locale } }: { params: { local
             });
             const data = await res.json();
             if (data.url) {
+=======
+
+export default function MembershipPage({ params: { locale } }: { params: { locale: string } }) {
+    const [loading, setLoading] = useState(false);
+
+    const handleSubscribe = async () => {
+        try {
+            setLoading(true);
+            const res = await fetch(apiUrl('/api/membership/subscribe'), {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ locale })
+            });
+            const data = await res.json();
+            if (data.url) {
+                // Use window.open for external links in Capacitor if needed,
+                // but window.location.href usually works for replacing the view.
+                // For a checkout flow, we want to go there.
+>>>>>>> pr-286
                 window.location.href = data.url;
             } else {
                 alert(data.error || 'Error al iniciar suscripción');
@@ -176,7 +196,11 @@ export default function MembershipPage({ params: { locale } }: { params: { local
                 {/* CTA Action */}
                 <div className="fixed bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-nautical-black via-nautical-black/95 to-transparent z-40">
                     <button
+<<<<<<< HEAD
                         onClick={handleSubscribeClick}
+=======
+                        onClick={handleSubscribe}
+>>>>>>> pr-286
                         disabled={loading}
                         className="w-full py-4 bg-brass-gold text-nautical-black font-black uppercase tracking-widest text-sm rounded-lg hover:bg-white transition-all shadow-[0_0_30px_rgba(184,134,11,0.3)] active:scale-95 flex items-center justify-center gap-2"
                     >
@@ -193,6 +217,7 @@ export default function MembershipPage({ params: { locale } }: { params: { local
                         El cobro se realizará de forma segura a través de Stripe. Puedes cancelar en cualquier momento.
                     </p>
                 </div>
+<<<<<<< HEAD
 
                 <LegalConsentModal
                     isOpen={isLegalModalOpen}
@@ -206,6 +231,8 @@ export default function MembershipPage({ params: { locale } }: { params: { local
                     } : undefined}
                     legalText={tLegal('consent_acceptance')}
                 />
+=======
+>>>>>>> pr-286
             </div>
         </main>
     );

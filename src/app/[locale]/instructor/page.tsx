@@ -28,7 +28,11 @@ export default async function InstructorPage({
         .from('profiles')
         .select('*')
         .eq('id', user.id)
+<<<<<<< HEAD
         .single() as { data: any, error: any };
+=======
+        .single();
+>>>>>>> pr-286
 
     if (!profile || (profile.rol !== 'instructor' && profile.rol !== 'admin')) {
         redirect(`/${locale}/student/dashboard`);

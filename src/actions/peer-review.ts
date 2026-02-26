@@ -1,7 +1,10 @@
 // This file no longer uses 'use server' to allow static export for Capacitor.
 // It now calls an API route instead.
+<<<<<<< HEAD
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/client';
+=======
+>>>>>>> pr-286
 
 export async function getPendingReviews(moduleId: string) {
     try {
@@ -34,6 +37,7 @@ export async function submitReview(reviewData: {
         return { error: 'Error de conexión' };
     }
 }
+<<<<<<< HEAD
 
 export async function submitExerciseAttempt(data: {
     activityId: string;
@@ -105,3 +109,5 @@ export async function submitExerciseAttempt(data: {
     }
     return { success: true };
 }
+=======
+>>>>>>> pr-286

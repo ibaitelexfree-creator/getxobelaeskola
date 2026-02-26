@@ -36,6 +36,7 @@
   box-sizing: border-box;
   padding: 0;
   margin: 0;
+<<<<<<< HEAD
   -webkit-tap-highlight-color: transparent;
 }
 
@@ -46,6 +47,8 @@
 *:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 4px;
+=======
+>>>>>>> pr-286
 }
 
 html,
@@ -58,12 +61,19 @@ body {
   color: var(--sea-foam);
   font-family: var(--font-sans);
   font-size: 0.95rem;
+<<<<<<< HEAD
   scrollbar-gutter: stable;
+=======
+  /* Mobile first */
+>>>>>>> pr-286
   -webkit-font-smoothing: antialiased;
   -webkit-overflow-scrolling: touch;
 }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> pr-286
 @media (min-width: 768px) {
 
   html,

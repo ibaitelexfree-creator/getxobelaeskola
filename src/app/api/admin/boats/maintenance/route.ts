@@ -6,9 +6,14 @@ export async function GET(request: Request) {
     const boatId = searchParams.get('boatId');
 
     try {
+<<<<<<< HEAD
         const auth = await requireInstructor();
         if (auth.error) return auth.error;
         const { supabaseAdmin } = auth;
+=======
+        const { supabaseAdmin, error: authError } = await requireInstructor();
+        if (authError) return authError;
+>>>>>>> pr-286
 
         let query = supabaseAdmin
             .from('mantenimiento_logs')
@@ -33,9 +38,14 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
     try {
+<<<<<<< HEAD
         const auth = await requireInstructor();
         if (auth.error) return auth.error;
         const { supabaseAdmin, user } = auth;
+=======
+        const { supabaseAdmin, user, error: authError } = await requireInstructor();
+        if (authError) return authError;
+>>>>>>> pr-286
 
         const body = await request.json();
         const { embarcacion_id, tipo, descripcion, coste, estado, notas } = body;
@@ -44,8 +54,12 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
         }
 
+<<<<<<< HEAD
 
         const { data, error } = await supabaseAdmin
+=======
+        const { data, error } = await (supabaseAdmin as any)
+>>>>>>> pr-286
             .from('mantenimiento_logs')
             .insert({
                 embarcacion_id,
@@ -63,7 +77,11 @@ export async function POST(request: Request) {
 
         // --- NEW: SMART AUTO-UPDATE BOAT STATUS ---
         // A boat should be 'mantenimiento' if ANY log is 'pendiente' or 'en_proceso'
+<<<<<<< HEAD
         const { data: activeLogs } = await supabaseAdmin
+=======
+        const { data: activeLogs } = await (supabaseAdmin as any)
+>>>>>>> pr-286
             .from('mantenimiento_logs')
             .select('id')
             .eq('embarcacion_id', embarcacion_id)
@@ -72,7 +90,11 @@ export async function POST(request: Request) {
         const hasActiveMaintenance = activeLogs && activeLogs.length > 0;
         const newBoatStatus = hasActiveMaintenance ? 'mantenimiento' : 'disponible';
 
+<<<<<<< HEAD
         await supabaseAdmin
+=======
+        await (supabaseAdmin as any)
+>>>>>>> pr-286
             .from('embarcaciones')
             .update({ estado: newBoatStatus })
             .eq('id', embarcacion_id);

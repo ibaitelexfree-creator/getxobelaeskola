@@ -1,6 +1,10 @@
 'use client';
 
+<<<<<<< HEAD
 import { useState, useEffect } from 'react';
+=======
+import { useState } from 'react';
+>>>>>>> pr-286
 import { motion } from 'framer-motion';
 import { useMissionStore } from '@/store/useMissionStore';
 import { pausePool, resumePool, pauseWatchdog, resumeWatchdog } from '@/lib/maestro-client';
@@ -9,9 +13,12 @@ import {
     Play, Pause, AlertTriangle, Shield, Settings,
 } from 'lucide-react';
 
+<<<<<<< HEAD
 import BuildTrigger from './BuildTrigger';
 import EnvironmentSelector from './EnvironmentSelector';
 
+=======
+>>>>>>> pr-286
 function ToggleSwitch({
     on,
     onToggle,
@@ -44,6 +51,7 @@ function ToggleSwitch({
 
 export default function ControlPanel() {
     const { services } = useMissionStore();
+<<<<<<< HEAD
     const watchdogActive = services.watchdog.state === 'ACTIVE' || services.watchdog.state === 'RUNNING';
     const watchdogPaused = services.watchdog.state === 'PAUSED';
 
@@ -65,6 +73,18 @@ export default function ControlPanel() {
             setPoolOn(!poolOn);
         } catch (e) {
             console.error('Pool toggle failed:', e);
+=======
+    const [poolPaused, setPoolPaused] = useState(false);
+    const [watchdogPaused, setWatchdogPaused] = useState(services.watchdog.state === 'PAUSED');
+    const [loadingPool, setLoadingPool] = useState(false);
+    const [loadingWatchdog, setLoadingWatchdog] = useState(false);
+
+    const handlePoolToggle = async () => {
+        setLoadingPool(true);
+        try {
+            if (poolPaused) await resumePool(); else await pausePool();
+            setPoolPaused(!poolPaused);
+>>>>>>> pr-286
         } finally {
             setLoadingPool(false);
         }
@@ -73,10 +93,15 @@ export default function ControlPanel() {
     const handleWatchdogToggle = async () => {
         setLoadingWatchdog(true);
         try {
+<<<<<<< HEAD
             if (watchdogOn) await pauseWatchdog(); else await resumeWatchdog();
             setWatchdogOn(!watchdogOn);
         } catch (e) {
             console.error('Watchdog toggle failed:', e);
+=======
+            if (watchdogPaused) await resumeWatchdog(); else await pauseWatchdog();
+            setWatchdogPaused(!watchdogPaused);
+>>>>>>> pr-286
         } finally {
             setLoadingWatchdog(false);
         }
@@ -89,6 +114,7 @@ export default function ControlPanel() {
                 <p className="text-2xs text-white/30 mt-1">System controls & monitoring</p>
             </motion.div>
 
+<<<<<<< HEAD
             {/* Environment Selection */}
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -99,6 +125,8 @@ export default function ControlPanel() {
                 <EnvironmentSelector />
             </motion.div>
 
+=======
+>>>>>>> pr-286
             {/* Thermal Monitor */}
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -114,7 +142,11 @@ export default function ControlPanel() {
                 <div className="flex items-center justify-between">
                     <div>
                         <p className={`text-2xl font-display ${services.thermal.level > 2 ? 'text-status-red' :
+<<<<<<< HEAD
                             services.thermal.level > 1 ? 'text-status-amber' : 'text-status-green'
+=======
+                                services.thermal.level > 1 ? 'text-status-amber' : 'text-status-green'
+>>>>>>> pr-286
                             }`}>
                             {services.thermal.label}
                         </p>
@@ -165,9 +197,15 @@ export default function ControlPanel() {
                 </div>
 
                 <ToggleSwitch
+<<<<<<< HEAD
                     on={poolOn}
                     onToggle={handlePoolToggle}
                     label={!poolOn ? 'Pool Paused' : 'Pool Active'}
+=======
+                    on={!poolPaused}
+                    onToggle={handlePoolToggle}
+                    label={poolPaused ? 'Pool Paused' : 'Pool Active'}
+>>>>>>> pr-286
                     loading={loadingPool}
                 />
             </motion.div>
@@ -199,6 +237,7 @@ export default function ControlPanel() {
                 </div>
 
                 <ToggleSwitch
+<<<<<<< HEAD
                     on={watchdogOn}
                     onToggle={handleWatchdogToggle}
                     label={!watchdogOn ? 'Watchdog Paused' : 'Watchdog Active'}
@@ -319,3 +358,14 @@ function TrustTunnelCard() {
         </motion.div>
     );
 }
+=======
+                    on={!watchdogPaused}
+                    onToggle={handleWatchdogToggle}
+                    label={watchdogPaused ? 'Watchdog Paused' : 'Watchdog Active'}
+                    loading={loadingWatchdog}
+                />
+            </motion.div>
+        </div>
+    );
+}
+>>>>>>> pr-286

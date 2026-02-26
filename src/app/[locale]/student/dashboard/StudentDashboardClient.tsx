@@ -3,10 +3,16 @@
 import dynamic from 'next/dynamic';
 import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { getApiUrl } from '@/lib/platform';
+<<<<<<< HEAD
 import { Menu, X, ChevronRight, Sparkles, Flame } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
+=======
+import { Menu, X, ChevronRight, Sparkles } from 'lucide-react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+>>>>>>> pr-286
 import { createClient } from '@/lib/supabase/client';
 import DashboardSkeleton from '@/components/student/DashboardSkeleton';
 
@@ -22,8 +28,13 @@ const DashboardRefresh = dynamic(() => import('@/components/student/DashboardRef
 const EmptyState = dynamic(() => import('@/components/ui/EmptyState'));
 const BonosWallet = dynamic(() => import('@/components/student/BonosWallet'));
 const BonoPurchaseModal = dynamic(() => import('@/components/student/BonoPurchaseModal'));
+<<<<<<< HEAD
 const DailyNauticalQuote = dynamic(() => import('@/components/student/DailyNauticalQuote'));
 const MicroLessonTray = dynamic(() => import('@/components/academy/micro-lessons/MicroLessonTray'));
+=======
+const DailyNauticalQuote = dynamic(() => import('@/components/student/DailyNauticalQuote'));
+const MicroLeccionesWidget = dynamic(() => import('@/components/student/MicroLeccionesWidget'));
+>>>>>>> pr-286
 
 interface DashboardItem {
     id: string;
@@ -107,11 +118,15 @@ export default function StudentDashboardClient({
         totalMiles = 0,
         academyLevels = 0,
         academyCerts = 0,
+<<<<<<< HEAD
         hasAcademyActivity = false,
         currentStreak = 0,
         globalProgress = 0,
         completedModules = 0,
         totalModules = 0
+=======
+        hasAcademyActivity = false
+>>>>>>> pr-286
     } = academyStats;
 
     const hasAnyData = inscripciones.length > 0 || rentals.length > 0;
@@ -224,14 +239,22 @@ export default function StudentDashboardClient({
 
                     <DashboardRefresh hasData={hasAnyData} />
 
+<<<<<<< HEAD
                     <MicroLessonTray />
 
+=======
+>>>>>>> pr-286
                     <div className="mb-12">
                         <WeatherPremium />
                     </div>
 
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
                         <div className="lg:col-span-2 space-y-16">
+<<<<<<< HEAD
+=======
+                            <MicroLeccionesWidget locale={locale} translations={t.micro_lessons || {}} />
+
+>>>>>>> pr-286
                             <BonosWallet
                                 bonos={bonos}
                                 locale={locale}
@@ -255,6 +278,7 @@ export default function StudentDashboardClient({
                                     <div className="absolute top-0 right-0 p-8 opacity-[0.03] text-9xl pointer-events-none group-hover:scale-110 group-hover:opacity-[0.07] transition-all duration-1000">🎓</div>
 
                                     <div className="bg-[#050c18] p-8 rounded-[1px] relative z-10">
+<<<<<<< HEAD
                                         {/* Streak Widget */}
                                         {currentStreak > 0 && (
                                             <div className="absolute top-6 right-6 flex items-center gap-2 bg-orange-500/10 border border-orange-500/20 px-3 py-1.5 rounded-full backdrop-blur-sm">
@@ -270,6 +294,8 @@ export default function StudentDashboardClient({
                                             </div>
                                         )}
 
+=======
+>>>>>>> pr-286
                                         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-10">
                                             <div className="flex-1">
                                                 <div className="flex items-center gap-3 mb-4">
@@ -283,7 +309,11 @@ export default function StudentDashboardClient({
                                                     {hasAcademyActivity ? t.academy_widget.card_desc_active : t.academy_widget.card_desc_inactive}
                                                 </p>
 
+<<<<<<< HEAD
                                                 <div className="grid grid-cols-3 gap-4 lg:gap-8 mb-8">
+=======
+                                                <div className="grid grid-cols-3 gap-4 lg:gap-8">
+>>>>>>> pr-286
                                                     <div className="space-y-1">
                                                         <div className="text-3xl font-black text-white italic tracking-tighter leading-none">{totalMiles}</div>
                                                         <div className="text-[8px] uppercase tracking-[0.2em] text-accent/60 font-medium">Millas</div>
@@ -297,6 +327,7 @@ export default function StudentDashboardClient({
                                                         <div className="text-[8px] uppercase tracking-[0.2em] text-accent/60 font-medium">{t.academy_widget.stats_certs}</div>
                                                     </div>
                                                 </div>
+<<<<<<< HEAD
 
                                                 {/* Global Progress Bar */}
                                                 <div className="space-y-2 group relative">
@@ -317,6 +348,8 @@ export default function StudentDashboardClient({
                                                         <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 rotate-45 w-2 h-2 bg-black border-r border-b border-white/10"></div>
                                                     </div>
                                                 </div>
+=======
+>>>>>>> pr-286
                                             </div>
 
                                             <div className="flex flex-col items-center gap-6 w-full md:w-auto">

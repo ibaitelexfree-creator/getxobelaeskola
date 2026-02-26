@@ -6,9 +6,12 @@ import { NAUTICAL_TERMS, NomenclatureCard } from '@/data/academy/nautical-nomenc
 import { Shuffle, Check, RefreshCw, X } from 'lucide-react';
 
 import ThreePartCard from './ThreePartCard';
+<<<<<<< HEAD
 import dynamic from 'next/dynamic';
 
 const Nomenclature3DView = dynamic(() => import('./Nomenclature3DView'), { ssr: false });
+=======
+>>>>>>> pr-286
 
 interface NomenclatureLessonProps {
     locale: string;
@@ -44,6 +47,14 @@ export default function NomenclatureLesson({ locale }: NomenclatureLessonProps) 
         setShuffledLabels([...finalDeck].sort(() => 0.5 - Math.random()));
     }, [activeCategory]);
 
+<<<<<<< HEAD
+=======
+    // Remove the separate effect for deck -> shuffledLabels to avoid race/desync
+    // useEffect(() => {
+    //    setShuffledLabels([...deck].sort(() => 0.5 - Math.random()));
+    // }, [deck]);
+
+>>>>>>> pr-286
     const handleImageClick = (cardId: string) => {
         if (!selectedLabel) return;
 
@@ -60,11 +71,19 @@ export default function NomenclatureLesson({ locale }: NomenclatureLessonProps) 
 
     const isAllMatched = deck.length > 0 && matchedPairs.length === deck.length;
 
+<<<<<<< HEAD
+=======
+    // Separate lists for Images (Top) and Labels (Bottom)
+    // In Montessori, you lay out images first.
+    // Then you pick a label and place it.
+
+>>>>>>> pr-286
     // Labels should be shuffled independently from Images for challenge.
     const [shuffledLabels, setShuffledLabels] = useState<NomenclatureCard[]>([]);
 
     return (
         <div className="w-full h-full flex flex-col p-6 max-w-6xl mx-auto font-display">
+<<<<<<< HEAD
             {/* Toolbar - Only show category filter in Practice mode or if we want to filter the 3D view (not implemented yet) */}
             {learningMode === 'practice' && (
                 <div className="flex flex-wrap items-center justify-between gap-4 mb-8 bg-white/5 p-4 rounded-lg border border-white/10">
@@ -103,6 +122,44 @@ export default function NomenclatureLesson({ locale }: NomenclatureLessonProps) 
 
             {/* Victory Screen */}
             {isAllMatched && learningMode === 'practice' && (
+=======
+            {/* Toolbar */}
+            <div className="flex flex-wrap items-center justify-between gap-4 mb-8 bg-white/5 p-4 rounded-lg border border-white/10">
+                <div className="flex gap-2 text-2xs uppercase tracking-widest">
+                    <button
+                        onClick={() => setActiveCategory('all')}
+                        className={`px-3 py-1 rounded transition-colors ${activeCategory === 'all' ? 'bg-accent text-nautical-black font-bold' : 'text-white/60 hover:text-white'}`}
+                    >
+                        Todos
+                    </button>
+                    <button
+                        onClick={() => setActiveCategory('general')}
+                        className={`px-3 py-1 rounded transition-colors ${activeCategory === 'general' ? 'bg-accent text-nautical-black font-bold' : 'text-white/60 hover:text-white'}`}
+                    >
+                        General
+                    </button>
+                    <button
+                        onClick={() => setActiveCategory('rigging')}
+                        className={`px-3 py-1 rounded transition-colors ${activeCategory === 'rigging' ? 'bg-accent text-nautical-black font-bold' : 'text-white/60 hover:text-white'}`}
+                    >
+                        Jarcia
+                    </button>
+                    <button
+                        onClick={() => setActiveCategory('sails')}
+                        className={`px-3 py-1 rounded transition-colors ${activeCategory === 'sails' ? 'bg-accent text-nautical-black font-bold' : 'text-white/60 hover:text-white'}`}
+                    >
+                        Velas
+                    </button>
+                </div>
+
+                <div className="flex items-center gap-2 text-white/50 text-sm">
+                    {matchedPairs.length} / {deck.length} <Check size={16} />
+                </div>
+            </div>
+
+            {/* Victory Screen */}
+            {isAllMatched && (
+>>>>>>> pr-286
                 <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
                     <div className="bg-white p-8 rounded-lg shadow-2xl text-center max-w-sm">
                         <h2 className="text-2xl font-bold text-nautical-black mb-2">¡Perfecto!</h2>
@@ -135,7 +192,11 @@ export default function NomenclatureLesson({ locale }: NomenclatureLessonProps) 
                     onClick={() => setLearningMode('learn')}
                     className={`px-6 py-2 rounded-full font-bold transition-all ${learningMode === 'learn' ? 'bg-white text-nautical-black shadow-lg scale-105' : 'bg-white/10 text-white hover:bg-white/20'}`}
                 >
+<<<<<<< HEAD
                     1. Exploración 3D (Aprender)
+=======
+                    1. Aprender (Control)
+>>>>>>> pr-286
                 </button>
                 <button
                     onClick={() => setLearningMode('practice')}
@@ -147,6 +208,7 @@ export default function NomenclatureLesson({ locale }: NomenclatureLessonProps) 
 
             {/* Teaching Area */}
             {learningMode === 'learn' ? (
+<<<<<<< HEAD
                 <div className="w-full flex-grow flex flex-col items-center justify-center p-4">
                     <Nomenclature3DView locale={locale} />
 
@@ -154,6 +216,22 @@ export default function NomenclatureLesson({ locale }: NomenclatureLessonProps) 
                         <p>Interactúa con el modelo 3D para descubrir las partes de la embarcación.</p>
                         <p>Haz click y arrastra para rotar. Usa la rueda del ratón para hacer zoom.</p>
                     </div>
+=======
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 p-4">
+                    <AnimatePresence>
+                        {deck.map(card => (
+                            <motion.div
+                                key={card.id}
+                                initial={{ opacity: 0, scale: 0.9 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                exit={{ opacity: 0, scale: 0.9 }}
+                                layoutId={`card-${card.id}`}
+                            >
+                                <ThreePartCard card={card} mode="control" locale={locale} />
+                            </motion.div>
+                        ))}
+                    </AnimatePresence>
+>>>>>>> pr-286
                 </div>
             ) : (
                 <div className="flex flex-col gap-12 flex-grow overflow-y-auto custom-scrollbar pr-2">

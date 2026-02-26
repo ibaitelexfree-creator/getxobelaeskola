@@ -6,8 +6,12 @@ export type MissionType =
     | 'mision_nudos'
     | 'inventario'
     | 'simulador'
+<<<<<<< HEAD
     | 'hotspot'
     | 'video_interactivo';
+=======
+    | 'hotspot';
+>>>>>>> pr-286
 
 export interface MissionData {
     tipo_contenido: MissionType;
@@ -17,6 +21,7 @@ export interface MissionData {
     [key: string]: any;
 }
 
+<<<<<<< HEAD
 export interface VideoCheckpoint {
     time: number; // seconds
     question: string;
@@ -30,13 +35,18 @@ export interface VideoMissionData extends MissionData {
     checkpoints: VideoCheckpoint[];
 }
 
+=======
+>>>>>>> pr-286
 export interface MissionState {
     status: MissionStatus;
     score: number;
     maxScore: number;
     currentStep: number;
+<<<<<<< HEAD
     currentStepId: string | null;
     history: string[];
+=======
+>>>>>>> pr-286
     totalSteps: number;
     errors: number;
     feedbackMessage: string | null;
@@ -52,6 +62,7 @@ export interface MissionActions {
     setFeedback: (message: string | null, type?: 'success' | 'error' | 'info') => void;
     reset: () => void;
 }
+<<<<<<< HEAD
 
 export interface BranchOption {
     label: string;
@@ -110,3 +121,5 @@ export interface GraphMissionData extends MissionData {
     initial_step_id: string;
     steps: Record<string, GraphMissionStep>;
 }
+=======
+>>>>>>> pr-286

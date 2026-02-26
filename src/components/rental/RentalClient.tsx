@@ -3,7 +3,10 @@
 import { useState, useRef, useEffect, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
+<<<<<<< HEAD
 import { X } from 'lucide-react';
+=======
+>>>>>>> pr-286
 import LegalConsentModal from '../shared/LegalConsentModal';
 import { createClient } from '@/lib/supabase/client';
 import RentalCard from './RentalCard';
@@ -245,7 +248,11 @@ export default function RentalClient({
                     email: legalData.email,
                     dni: legalData.dni,
                     legalText: tLegal('consent_acceptance'),
+<<<<<<< HEAD
                     consentType: services.find(s => s.id === serviceId)?.categoria === 'membresias' ? 'membership' : 'rental',
+=======
+                    consentType: 'rental',
+>>>>>>> pr-286
                     referenceId: serviceId
                 })
             });
@@ -335,6 +342,7 @@ export default function RentalClient({
 
             {/* Booking Sheet - Now it's a separate UI state but for now RentalCard triggers it */}
             {bookingService && (
+<<<<<<< HEAD
                 <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4 overflow-y-auto bg-nautical-black/20">
                     <div className="absolute inset-0 bg-nautical-black/90 backdrop-blur-md transition-opacity duration-500" onClick={() => setBookingService(null)} />
                     <div className="relative bg-nautical-black border border-white/10 max-w-lg w-full p-8 md:p-12 animate-fade-in shadow-2xl rounded-sm">
@@ -345,6 +353,16 @@ export default function RentalClient({
 
                         <div className="space-y-8">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+=======
+                <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4">
+                    <div className="absolute inset-0 bg-nautical-black/80 backdrop-blur-md" onClick={() => setBookingService(null)} />
+                    <div className="relative glass-card max-w-lg w-full p-8 md:p-12 animate-in fade-in zoom-in-95 duration-300">
+                        <button onClick={() => setBookingService(null)} className="absolute top-4 right-4 text-white/40 hover:text-white"><X className="w-6 h-6" /></button>
+                        <h3 className="text-3xl font-display italic text-white mb-8">{t('booking.booking_details')}</h3>
+
+                        <div className="space-y-8">
+                            <div className="grid grid-cols-2 gap-6">
+>>>>>>> pr-286
                                 <div className="space-y-4">
                                     <label className="text-[10px] uppercase tracking-[0.3em] text-accent font-black">{t('booking.date_label')}</label>
                                     <div className="flex items-center gap-4 bg-nautical-black/50 border border-white/10 p-4 rounded-sm">
@@ -389,7 +407,11 @@ export default function RentalClient({
                 isOpen={isLegalModalOpen}
                 onClose={() => setIsLegalModalOpen(false)}
                 onConfirm={handleLegalConfirm}
+<<<<<<< HEAD
                 activityType={services.find(s => s.id === pendingBooking?.serviceId)?.categoria === 'membresias' ? 'membership' : 'rental'}
+=======
+                consentType="rental"
+>>>>>>> pr-286
                 initialData={user ? {
                     fullName: profile ? `${profile.nombre} ${profile.apellidos}` : undefined,
                     email: user.email,
@@ -400,3 +422,8 @@ export default function RentalClient({
         </div>
     );
 }
+<<<<<<< HEAD
+=======
+
+import { X } from 'lucide-react';
+>>>>>>> pr-286

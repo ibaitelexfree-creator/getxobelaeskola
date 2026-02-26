@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 version: '3.8'
 
 services:
@@ -128,3 +129,54 @@ volumes:
     driver: local
   grafana-data:
     driver: local
+=======
+version: '3.8'
+
+services:
+  orchestration:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: jules-mission-control-server
+    restart: always
+    ports:
+      - "3323:3323"
+    environment:
+      - NODE_ENV=production
+      - PORT=3323
+      - JULES_API_KEY=${JULES_API_KEY}
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+      - DB_HOST=mysql
+      - DB_USER=jules
+      - DB_PASSWORD=${DB_PASSWORD:-jules_pass}
+      - DB_NAME=jules_mission_control
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID}
+    volumes:
+      - ./state:/usr/src/app/state
+    depends_on:
+      - mysql
+    networks:
+      - n8n_default
+
+  mysql:
+    image: mysql:8.0
+    container_name: jules-mysql
+    restart: always
+    environment:
+      - MYSQL_DATABASE=jules_mission_control
+      - MYSQL_USER=jules
+      - MYSQL_PASSWORD=${DB_PASSWORD:-jules_pass}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-root_pass}
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - n8n_default
+
+networks:
+  n8n_default:
+    external: true
+
+volumes:
+  mysql-data:
+>>>>>>> pr-286

@@ -22,7 +22,11 @@ interface Certificado {
 }
 
 export default function CertificatesPage({ params }: { params: { locale: string } }) {
+<<<<<<< HEAD
 
+=======
+    const t = useTranslations('academy');
+>>>>>>> pr-286
     const [certificados, setCertificados] = useState<Certificado[]>([]);
     const [loading, setLoading] = useState(true);
     const [studentName, setStudentName] = useState<string>('Navegante');

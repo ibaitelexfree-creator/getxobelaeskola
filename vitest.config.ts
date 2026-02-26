@@ -8,6 +8,7 @@ export default defineConfig({
         environment: 'jsdom',
         setupFiles: './vitest.setup.ts',
         include: ['**/*.test.ts', '**/*.test.tsx'],
+<<<<<<< HEAD
         exclude: [
             '**/node_modules/**',
             '**/dist/**',
@@ -16,12 +17,17 @@ export default defineConfig({
             '**/orchestration/**',
             '**/tmp/**',
         ],
+=======
+>>>>>>> pr-286
         globals: true,
     },
     resolve: {
         alias: {
             '@': path.resolve(__dirname, './src'),
+<<<<<<< HEAD
             'server-only': path.resolve(__dirname, './scripts/mock-server-only.js'),
+=======
+>>>>>>> pr-286
         },
     },
 });

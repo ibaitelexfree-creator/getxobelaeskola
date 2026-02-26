@@ -2,6 +2,7 @@ name: Build & Distribute Android
 
 on:
   push:
+<<<<<<< HEAD
     branches: [main]
   workflow_dispatch:
     inputs:
@@ -13,6 +14,10 @@ on:
 concurrency:
   group: android-build-${{ github.ref }}
   cancel-in-progress: true
+=======
+    branches: [ main, master ]
+  workflow_dispatch:
+>>>>>>> pr-286
 
 jobs:
   build:
@@ -26,7 +31,11 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
+<<<<<<< HEAD
           cache: "npm"
+=======
+          cache: 'npm'
+>>>>>>> pr-286
 
       # Cache Next.js build
       - name: Cache Next.js build
@@ -58,10 +67,17 @@ jobs:
       - name: Java Setup
         uses: actions/setup-java@v4
         with:
+<<<<<<< HEAD
           distribution: "zulu"
           java-version: "21"
           # Gradle caching is built into setup-java@v4
           cache: "gradle"
+=======
+          distribution: 'zulu'
+          java-version: '17'
+          # Gradle caching is built into setup-java@v4
+          cache: 'gradle'
+>>>>>>> pr-286
 
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3

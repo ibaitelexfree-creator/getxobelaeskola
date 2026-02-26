@@ -20,7 +20,10 @@ export async function generateMetadata({ params: { locale } }: { params: { local
                 'es': `${siteUrl}/es/experiences`,
                 'eu': `${siteUrl}/eu/experiences`,
                 'en': `${siteUrl}/en/experiences`,
+<<<<<<< HEAD
                 'fr': `${siteUrl}/fr/experiences`,
+=======
+>>>>>>> pr-286
             }
         },
         openGraph: {
@@ -47,7 +50,11 @@ export async function generateMetadata({ params: { locale } }: { params: { local
 }
 
 export function generateStaticParams() {
+<<<<<<< HEAD
     return ['es', 'eu', 'en', 'fr'].map(locale => ({ locale }));
+=======
+    return ['es', 'eu', 'en'].map(locale => ({ locale }));
+>>>>>>> pr-286
 }
 
 export default async function ExperiencesPage({ params: { locale } }: { params: { locale: string } }) {
@@ -83,12 +90,18 @@ export default async function ExperiencesPage({ params: { locale } }: { params: 
                     nombre: item.nombre,
                     nombre_eu: item.nombre_eu || item.nombre,
                     nombre_en: item.nombre_en || item.nombre,
+<<<<<<< HEAD
                     nombre_fr: item.nombre_fr || item.nombre,
+=======
+>>>>>>> pr-286
                     slug: item.slug,
                     descripcion: item.descripcion,
                     descripcion_eu: item.descripcion_eu || item.descripcion,
                     descripcion_en: item.descripcion_en || item.descripcion,
+<<<<<<< HEAD
                     descripcion_fr: item.descripcion_fr || item.descripcion,
+=======
+>>>>>>> pr-286
                     categoria: item.categoria || 'evento',
                     precio: item.precio_base || item.precio_hora,
                     imagen_url: item.imagen_url || '/images/home-hero-sailing-action.webp',
@@ -102,12 +115,18 @@ export default async function ExperiencesPage({ params: { locale } }: { params: 
                 nombre: item.nombre_es,
                 nombre_eu: item.nombre_eu || item.nombre_es,
                 nombre_en: item.nombre_en || item.nombre_es,
+<<<<<<< HEAD
                 nombre_fr: item.nombre_fr || item.nombre_es,
+=======
+>>>>>>> pr-286
                 slug: item.slug,
                 descripcion: item.descripcion_es,
                 descripcion_eu: item.descripcion_eu || item.descripcion_es,
                 descripcion_en: item.descripcion_en || item.descripcion_es,
+<<<<<<< HEAD
                 descripcion_fr: item.descripcion_fr || item.descripcion_es,
+=======
+>>>>>>> pr-286
                 categoria: item.tipo || 'evento',
                 precio: item.precio,
                 imagen_url: item.imagen_url || '/images/home-hero-sailing-action.webp',
@@ -132,8 +151,13 @@ export default async function ExperiencesPage({ params: { locale } }: { params: 
             'position': index + 1,
             'item': {
                 '@type': 'Product',
+<<<<<<< HEAD
                 'name': locale === 'eu' ? (exp.nombre_eu || exp.nombre) : locale === 'en' ? (exp.nombre_en || exp.nombre) : locale === 'fr' ? (exp.nombre_fr || exp.nombre) : exp.nombre,
                 'description': locale === 'eu' ? (exp.descripcion_eu || exp.descripcion) : locale === 'en' ? (exp.descripcion_en || exp.descripcion) : locale === 'fr' ? (exp.descripcion_fr || exp.descripcion) : exp.descripcion,
+=======
+                'name': locale === 'eu' ? (exp.nombre_eu || exp.nombre) : locale === 'en' ? (exp.nombre_en || exp.nombre) : exp.nombre,
+                'description': locale === 'eu' ? (exp.descripcion_eu || exp.descripcion) : locale === 'en' ? (exp.descripcion_en || exp.descripcion) : exp.descripcion,
+>>>>>>> pr-286
                 'image': `${siteUrl}${exp.imagen_url || '/images/home-hero-sailing-action.webp'}`,
                 'offers': {
                     '@type': 'Offer',

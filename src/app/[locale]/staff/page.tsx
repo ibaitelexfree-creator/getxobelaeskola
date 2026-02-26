@@ -39,7 +39,11 @@ export default async function StaffPage({ params: { locale } }: { params: { loca
         .from('profiles')
         .select('id, rol, nombre, apellidos, email')
         .eq('id', user.id)
+<<<<<<< HEAD
         .single() as { data: any, error: any };
+=======
+        .single();
+>>>>>>> pr-286
 
     if (profileError || (profile?.rol !== 'admin' && profile?.rol !== 'instructor')) {
         redirect(`/${locale}/student/dashboard`);

@@ -25,7 +25,11 @@ export const workflowDuration = new client.Histogram({
 export const julesTaskCounter = new client.Counter({
   name: 'jules_tasks_total',
   help: 'Total Jules tasks created',
+<<<<<<< HEAD
   labelNames: ['status', 'account'],
+=======
+  labelNames: ['status'],
+>>>>>>> pr-286
   registers: [register]
 });
 
@@ -49,6 +53,7 @@ export const activeWorkflows = new client.Gauge({
   registers: [register]
 });
 
+<<<<<<< HEAD
 export const julesPoolGauge = new client.Gauge({
   name: 'jules_pool_usage',
   help: 'Number of active Jules sessions per account',
@@ -56,6 +61,8 @@ export const julesPoolGauge = new client.Gauge({
   registers: [register]
 });
 
+=======
+>>>>>>> pr-286
 export async function getMetrics() {
   return register.metrics();
 }

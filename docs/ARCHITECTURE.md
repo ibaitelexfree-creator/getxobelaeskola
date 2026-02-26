@@ -85,6 +85,7 @@ src/
 ```
 
 ## 4. Development Guidelines
+<<<<<<< HEAD
 ## 5. Portability & Orchestration
 The project environment is designed for absolute portability. 
 - **Relative Paths:** All management scripts (`/scripts/*.ps1`, `/orchestration/*.py`) utilize dynamic path detection (via `$PSScriptRoot` or `__file__`) to eliminate dependencies on local user directories.
@@ -93,3 +94,8 @@ The project environment is designed for absolute portability.
 
 ---
 *Last Updated: February 2024*
+=======
+- **Strict Typing:** All new code must be fully typed. Avoid `any`.
+- **Localization:** All user-facing text must be in `messages/es.json` & `eu.json`.
+- **Server vs Client:** Prefer Server Components by default. Use 'use client' only for interactive islands.
+>>>>>>> pr-286

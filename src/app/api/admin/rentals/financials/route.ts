@@ -5,6 +5,7 @@ import { NextResponse } from 'next/server';
 export async function GET() {
     try {
         console.log('API: Fetching financial reports...');
+<<<<<<< HEAD
         const auth = await requireInstructor();
 
         if (auth.error) {
@@ -12,6 +13,14 @@ export async function GET() {
             return auth.error;
         }
         const { supabaseAdmin } = auth;
+=======
+        const { supabaseAdmin, error: authError } = await requireInstructor();
+
+        if (authError) {
+            console.error('API Error: Not an instructor or admin');
+            return authError;
+        }
+>>>>>>> pr-286
 
         const { data: rentalsData, error } = await supabaseAdmin
             .from('reservas_alquiler')
@@ -29,6 +38,7 @@ export async function GET() {
             throw error;
         }
 
+<<<<<<< HEAD
         interface Rental {
             id: string;
             perfil_id: string;
@@ -51,6 +61,11 @@ export async function GET() {
         // Manual join for profiles since the FK might be missing in DB schema cache
         const profileIds = Array.from(new Set(typedRentals.map(r => r.perfil_id).filter(Boolean)));
         let profilesData: Profile[] = [];
+=======
+        // Manual join for profiles since the FK might be missing in DB schema cache
+        const profileIds = Array.from(new Set(rentalsData?.map(r => r.perfil_id).filter(Boolean) || []));
+        let profilesData: any[] = [];
+>>>>>>> pr-286
 
         if (profileIds.length > 0) {
             const { data: pData, error: pError } = await supabaseAdmin
@@ -59,7 +74,11 @@ export async function GET() {
                 .in('id', profileIds);
 
             if (!pError && pData) {
+<<<<<<< HEAD
                 profilesData = pData as Profile[];
+=======
+                profilesData = pData;
+>>>>>>> pr-286
             } else if (pError) {
                 console.error('API Profiles Error:', pError);
             }
@@ -69,14 +88,19 @@ export async function GET() {
         const { data: historyData, error: historyError } = await supabaseAdmin
             .from('financial_edits')
             .select('*, profiles(nombre, apellidos)')
+<<<<<<< HEAD
             .in('reserva_id', typedRentals.map(r => r.id));
 
         const typedHistory = (historyData || []) as unknown as HistoryEntry[];
+=======
+            .in('reserva_id', rentalsData?.map(r => r.id) || []);
+>>>>>>> pr-286
 
         if (historyError) {
             console.error('API History Error:', historyError);
         }
 
+<<<<<<< HEAD
         const enrichedRentals = typedRentals.map(r => ({
             ...r,
             profiles: profilesData.find(p => p.id === r.perfil_id) || null,
@@ -84,6 +108,15 @@ export async function GET() {
         }));
 
         const { count } = await supabaseAdmin
+=======
+        const enrichedRentals = rentalsData?.map(r => ({
+            ...r,
+            profiles: profilesData.find(p => p.id === r.perfil_id) || null,
+            history: historyData?.filter(h => h.reserva_id === r.id) || []
+        })) || [];
+
+        const { count, error: countError } = await supabaseAdmin
+>>>>>>> pr-286
             .from('reservas_alquiler')
             .select('*', { count: 'exact', head: true });
 
@@ -94,9 +127,15 @@ export async function GET() {
             rentals: enrichedRentals,
             totalCount: count || 0
         });
+<<<<<<< HEAD
     } catch (error: unknown) {
         const err = error as Error;
         console.error('API Fatal Error:', err.message);
         return NextResponse.json({ error: err.message }, { status: 500 });
+=======
+    } catch (error: any) {
+        console.error('API Fatal Error:', error.message);
+        return NextResponse.json({ error: error.message }, { status: 500 });
+>>>>>>> pr-286
     }
 }

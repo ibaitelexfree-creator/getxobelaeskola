@@ -38,11 +38,17 @@ import { ClawdBotBridge } from './clawdbot-bridge.js';
 import { FlashExecutor } from './flash-executor.js';
 import { VisualRelay } from './visual-relay.js';
 import { CreditMonitor } from './credit-monitor.js';
+<<<<<<< HEAD
 import { VercelMonitor } from './vercel-monitor.js';
 import { AgentWatchdog } from './watchdog.js';
 import { appendToProjectMemory, readProjectMemory } from './project-memory.js';
 import { config } from 'dotenv';
 import { tasks as dbTasks } from './db.js';
+=======
+import { AgentWatchdog } from './watchdog.js';
+import { appendToProjectMemory, readProjectMemory } from './project-memory.js';
+import { config } from 'dotenv';
+>>>>>>> pr-286
 import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
 
@@ -61,8 +67,12 @@ export class Maestro {
         this.clawdbot = new ClawdBotBridge(options.clawdbot || {});
         this.flash = new FlashExecutor(options.flash || {});
         this.visual = new VisualRelay(options.visual || {});
+<<<<<<< HEAD
         this.vercel = new VercelMonitor();
         this.credits = new CreditMonitor(this.pool, this.flash, this.clawdbot, this.visual, this.vercel);
+=======
+        this.credits = new CreditMonitor(this.pool, this.flash, this.clawdbot);
+>>>>>>> pr-286
         this.watchdog = new AgentWatchdog(options.watchdog || {});
 
         // Task queue for when pool is exhausted and ClawdBot not available
@@ -99,9 +109,12 @@ export class Maestro {
         // Start thermal monitoring
         this.thermal.start();
 
+<<<<<<< HEAD
         // Start Vercel polling (1 hora)
         this.vercel.startPolling();
 
+=======
+>>>>>>> pr-286
         // Start watchdog
         this.watchdog.start();
         console.log('[Maestro] 🐕 Watchdog activo.');
@@ -263,6 +276,7 @@ export class Maestro {
             await this._send(`⚠️ Flash falló: ${result.error}`);
         }
 
+<<<<<<< HEAD
         // Level 3: Enqueue for Approval / Processing
         const externalId = `T-${Date.now().toString(36).toUpperCase()}`;
         dbTasks.add({
@@ -280,6 +294,34 @@ export class Maestro {
             `📝 ${description}`,
             `ID: ${externalId}`,
             `Aprobar en el APK de Mission Control para ejecutar.`
+=======
+        // Level 3: ClawdBot (WITH CONFIRMATION)
+        const reason = this._getExhaustionMessage();
+        const clawdbotAvailable = await this.clawdbot.isAvailable();
+
+        if (clawdbotAvailable || this.thermal.shouldDelegateToClawdBot()) {
+            // Store pending approval
+            this.pendingApproval = { task, reason };
+            await this._send([
+                `⚠️ **Jules y Flash agotados**`,
+                `📝 ${description}`,
+                `Motivo: ${reason}`,
+                '',
+                `🤖 ¿Enviar a ClawdBot?`,
+                `/approve — Sí, ejecutar`,
+                `/reject — No, encolar`
+            ].join('\n'));
+            return;
+        }
+
+        // Nothing available — queue the task
+        this.taskQueue.push(task);
+        await this._send([
+            `⏳ **Tarea en cola** (posición ${this.taskQueue.length})`,
+            `📝 ${description}`,
+            `Motivo: ${reason}`,
+            `Se ejecutará automáticamente cuando haya capacidad.`
+>>>>>>> pr-286
         ].join('\n'));
     }
 
@@ -331,6 +373,7 @@ export class Maestro {
     }
 
     async _cmdQueue() {
+<<<<<<< HEAD
         const pending = dbTasks.getPending();
         if (pending.length === 0) {
             return this._send('📋 Cola vacía. No hay tareas pendientes.');
@@ -346,6 +389,21 @@ export class Maestro {
             ...lines,
             pending.length > 20 ? `... y ${pending.length - 20} más.` : ''
         ].filter(Boolean).join('\n'));
+=======
+        if (this.taskQueue.length === 0) {
+            return this._send('📋 Cola vacía. No hay tareas pendientes.');
+        }
+
+        const lines = this.taskQueue.map((t, i) =>
+            `${i + 1}. ${t.title} (${new Date(t.createdAt).toLocaleTimeString()})`
+        );
+
+        await this._send([
+            `📋 **Cola de tareas** (${this.taskQueue.length})`,
+            '',
+            ...lines
+        ].join('\n'));
+>>>>>>> pr-286
     }
 
     async _cmdForceClawdBot() {
@@ -403,7 +461,11 @@ export class Maestro {
     }
 
     async _cmdUsage() {
+<<<<<<< HEAD
         await this._send(await this.credits.getSummaryMessage());
+=======
+        await this._send(this.credits.getSummaryMessage());
+>>>>>>> pr-286
     }
 
     async _cmdDoctor() {
@@ -536,6 +598,7 @@ export class Maestro {
     }
 
     async _processQueue() {
+<<<<<<< HEAD
         const pending = dbTasks.getPending().filter(t => t.status === 'pending' || t.status === 'queued');
 
         for (const task of pending) {
@@ -547,6 +610,40 @@ export class Maestro {
             this.stats.tasksAssigned++;
 
             await this._send(`🚀 Tarea procesada: ${task.title}`);
+=======
+        while (this.taskQueue.length > 0) {
+            const task = this.taskQueue[0];
+            const slot = this.pool.acquire(task);
+
+            if (!slot) break; // Pool still full
+
+            this.taskQueue.shift();
+            this.stats.tasksAssigned++;
+            this._logTask(task, slot.accountId);
+
+            await this._send(`🚀 Tarea de cola procesada: ${task.title}`);
+        }
+    }
+
+    _logTask(task, accountId) {
+        try {
+            const date = new Date().toISOString().split('T')[0];
+            const currentTasks = readProjectMemory('AGENT_TASKS.md');
+            let nextId = 'T-001';
+
+            if (currentTasks.success) {
+                const matches = currentTasks.content.match(/T-(\d+)/g);
+                if (matches) {
+                    const ids = matches.map(m => parseInt(m.split('-')[1]));
+                    nextId = `T-${(Math.max(...ids) + 1).toString().padStart(3, '0')}`;
+                }
+            }
+
+            const newRow = `| ${nextId} | 3 | en_curso | ${task.title} | interno-${accountId.toLowerCase()} | ${date} |`;
+            appendToProjectMemory('AGENT_TASKS.md', newRow);
+        } catch (err) {
+            console.warn('[Maestro] Failed to log task:', err.message);
+>>>>>>> pr-286
         }
     }
 

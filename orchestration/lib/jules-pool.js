@@ -25,6 +25,7 @@ const DAILY_LIMIT = 100;
 const DEFAULT_MAX_CONCURRENT = 15;
 
 const ACCOUNTS = {
+<<<<<<< HEAD
     A: { id: 'A', name: 'Jules 1 (Architect)', email: 'getxobelaeskola@gmail.com', domain: 'architect', priority: 1 },
     B: { id: 'B', name: 'Jules 2 (Data)', email: 'ibaitnt@gmail.com', domain: 'data', priority: 2 },
     C: { id: 'C', name: 'Jules 3 (UI)', email: 'ibaitelexfree@gmail.com', domain: 'ui', priority: 3 }
@@ -67,6 +68,38 @@ const DOMAIN_MAP = {
     animation: 'C',
     deploy: 'C',
     render: 'C'
+=======
+    A: { id: 'A', name: 'Jules A', domain: 'backend', priority: 1 },
+    B: { id: 'B', name: 'Jules B', domain: 'ui', priority: 2 },
+    C: { id: 'C', name: 'Jules C', domain: 'qa', priority: 3 }
+};
+
+const DOMAIN_MAP = {
+    backend: 'A',
+    api: 'A',
+    supabase: 'A',
+    database: 'A',
+    migration: 'A',
+    config: 'A',
+    types: 'A',
+    ui: 'B',
+    component: 'B',
+    page: 'B',
+    design: 'B',
+    i18n: 'B',
+    translation: 'B',
+    style: 'B',
+    css: 'B',
+    animation: 'B',
+    qa: 'C',
+    test: 'C',
+    e2e: 'C',
+    lint: 'C',
+    audit: 'C',
+    docs: 'C',
+    documentation: 'C',
+    security: 'C'
+>>>>>>> pr-286
 };
 
 export class JulesPool extends EventEmitter {

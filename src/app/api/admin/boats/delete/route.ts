@@ -3,9 +3,14 @@ import { NextResponse } from 'next/server';
 
 export async function POST(_request: Request) {
     try {
+<<<<<<< HEAD
         const auth = await requireAdmin();
         if (auth.error) return auth.error;
         const { supabaseAdmin } = auth;
+=======
+        const { supabaseAdmin, error: authError } = await requireAdmin();
+        if (authError) return authError;
+>>>>>>> pr-286
 
         const { id } = await _request.json();
 

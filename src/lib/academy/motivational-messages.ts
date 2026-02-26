@@ -68,6 +68,10 @@ export function getStreakMessage(days: number): string | null {
     const streaks = [30, 14, 7, 5, 3];
     for (const milestone of streaks) {
         if (days === milestone) {
+<<<<<<< HEAD
+=======
+            // @ts-expect-error - milestone is a valid key for streak object
+>>>>>>> pr-286
             return MOTIVATIONAL_MESSAGES.streak[milestone];
         }
     }

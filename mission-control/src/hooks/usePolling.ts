@@ -2,8 +2,12 @@
 
 import { useEffect, useRef, useCallback } from 'react';
 import { useMissionStore } from '@/store/useMissionStore';
+<<<<<<< HEAD
 import { getHealth, getWatchdogStatus, getActiveSessions, getResourceStatus, getQueue, getLivePreviewConfig, getJulesBlockedStatus, getSyncHistory, getPreviews } from '@/lib/api';
 
+=======
+import { getHealth, getWatchdogStatus } from '@/lib/api';
+>>>>>>> pr-286
 
 export function usePolling() {
     const intervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -13,6 +17,7 @@ export function usePolling() {
         updateServices,
         updateStats,
         setLastSync,
+<<<<<<< HEAD
         updateActiveThreads,
         updatePower,
         setLivePreviewUrl,
@@ -36,14 +41,28 @@ export function usePolling() {
             ]);
 
 
+=======
+    } = useMissionStore();
+
+    const poll = useCallback(async () => {
+        try {
+            const [health, watchdog] = await Promise.all([
+                getHealth().catch(() => null),
+                getWatchdogStatus().catch(() => null),
+            ]);
+
+>>>>>>> pr-286
             if (health) {
                 setConnected(true);
                 setLastSync(Date.now());
 
+<<<<<<< HEAD
                 if (julesBlocked) {
                     updateJulesWaiting(julesBlocked.blocked, julesBlocked.sessions || []);
                 }
 
+=======
+>>>>>>> pr-286
                 const svc = health.services || {};
                 updateServices({
                     jules: {
@@ -62,23 +81,30 @@ export function usePolling() {
                         delegations: 0,
                     },
                     browserless: {
+<<<<<<< HEAD
                         health: svc.browserless !== 'error' ? (resources?.services?.BROWSERLESS?.running ? 'online' : 'offline') : 'offline',
                         used: resources?.services?.BROWSERLESS?.used || 0,
                         total: resources?.services?.BROWSERLESS?.limit || 0,
                     },
                     orchestrator: {
                         health: svc.orchestrator === 'online' ? 'online' : 'offline',
+=======
+                        health: svc.browserless !== 'error' ? 'online' : 'offline',
+>>>>>>> pr-286
                     },
                 });
             } else {
                 setConnected(false);
             }
 
+<<<<<<< HEAD
             if (liveConfig?.url && (liveConfig.url !== livePreviewUrl || liveConfig.password !== useMissionStore.getState().livePreviewPassword)) {
                 setLivePreviewUrl(liveConfig.url);
                 if (liveConfig.password) useMissionStore.getState().setLivePreviewPassword(liveConfig.password);
             }
 
+=======
+>>>>>>> pr-286
             if (watchdog) {
                 updateServices({
                     watchdog: {
@@ -89,6 +115,7 @@ export function usePolling() {
                     },
                 });
             }
+<<<<<<< HEAD
 
             if (queueData?.success && queueData.result) {
                 const { queue, history } = queueData.result as any;
@@ -153,6 +180,12 @@ export function usePolling() {
             setConnected(false);
         }
     }, [setConnected, updateServices, setLastSync, updateActiveThreads, updatePower]);
+=======
+        } catch {
+            setConnected(false);
+        }
+    }, [setConnected, updateServices, setLastSync]);
+>>>>>>> pr-286
 
     useEffect(() => {
         poll(); // Initial fetch

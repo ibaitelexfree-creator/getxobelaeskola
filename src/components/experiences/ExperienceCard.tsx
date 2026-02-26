@@ -45,7 +45,11 @@ export default function ExperienceCard({ experience, locale }: ExperienceCardPro
             <div className="absolute top-6 left-6 z-30">
                 <div className="flex items-center gap-2 px-4 py-2 bg-nautical-deep/80 backdrop-blur-md rounded-full border border-white/10">
                     <Star className="w-3 h-3 text-brass-gold fill-brass-gold" />
+<<<<<<< HEAD
                     <span className="text-[8px] uppercase tracking-[0.3em] font-black text-white/80">{t('premium_experience')}</span>
+=======
+                    <span className="text-[8px] uppercase tracking-[0.3em] font-black text-white/80">Premium Experience</span>
+>>>>>>> pr-286
                 </div>
             </div>
 

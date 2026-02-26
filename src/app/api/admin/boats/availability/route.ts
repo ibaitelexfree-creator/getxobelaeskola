@@ -3,9 +3,14 @@ import { NextResponse } from 'next/server';
 
 export async function GET(request: Request) {
     try {
+<<<<<<< HEAD
         const auth = await requireInstructor();
         if (auth.error) return auth.error;
         const { supabaseAdmin } = auth;
+=======
+        const { supabaseAdmin, error: authError } = await requireInstructor();
+        if (authError) return authError;
+>>>>>>> pr-286
 
         const { searchParams } = new URL(request.url);
         const start = searchParams.get('start');
@@ -34,6 +39,7 @@ export async function GET(request: Request) {
 
         if (sessionError) throw sessionError;
 
+<<<<<<< HEAD
         interface SessionData {
             id: string;
             embarcacion_id: string;
@@ -50,6 +56,15 @@ export async function GET(request: Request) {
 
         // Mapeamos los IDs de embarcación a la información de la sesión que la ocupa
         const availability = (filteredSessions || []).reduce((acc: Record<string, { occupiedBy: string, instructor: string, start: string, end: string }>, session: SessionData) => {
+=======
+        // Filtramos la sesión actual si se proporciona el ID
+        const filteredSessions = excludeSessionId
+            ? overlappingSessions.filter(s => s.id !== excludeSessionId)
+            : overlappingSessions;
+
+        // Mapeamos los IDs de embarcación a la información de la sesión que la ocupa
+        const availability = (filteredSessions || []).reduce((acc: Record<string, any>, session: any) => {
+>>>>>>> pr-286
             if (session.embarcacion_id) {
                 // Manejar tanto si es objeto como si es array (dependiendo de la relación en Supabase)
                 const curso = Array.isArray(session.curso) ? session.curso[0] : session.curso;

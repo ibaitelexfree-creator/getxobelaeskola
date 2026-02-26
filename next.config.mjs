@@ -1,10 +1,14 @@
 import createNextIntlPlugin from 'next-intl/plugin';
+<<<<<<< HEAD
 import withPWAInit from "@ducanh2912/next-pwa";
+=======
+>>>>>>> pr-286
 
 const withNextIntl = createNextIntlPlugin('./i18n.ts');
 
 const isCapacitor = process.env.IS_CAPACITOR === 'true';
 
+<<<<<<< HEAD
 const withPWA = withPWAInit({
     dest: "public",
     cacheOnFrontEndNav: true,
@@ -152,6 +156,8 @@ const withPWA = withPWAInit({
     },
 });
 
+=======
+>>>>>>> pr-286
 /** @type {import('next').NextConfig} */
 const nextConfig = {
     trailingSlash: true,
@@ -171,10 +177,13 @@ const nextConfig = {
                 protocol: 'https',
                 hostname: '**.supabase.co',
             },
+<<<<<<< HEAD
             {
                 protocol: 'https',
                 hostname: 'getxobelaeskola.cloud',
             },
+=======
+>>>>>>> pr-286
         ],
     },
     eslint: {
@@ -185,10 +194,15 @@ const nextConfig = {
     },
     compress: true,
     poweredByHeader: false,
+<<<<<<< HEAD
     output: isCapacitor ? 'export' : undefined,
     staticPageGenerationTimeout: 300, // Increase timeout to 5 minutes
 
 
+=======
+    output: isCapacitor ? 'export' : 'standalone',
+    staticPageGenerationTimeout: 300, // Increase timeout to 5 minutes
+>>>>>>> pr-286
     transpilePackages: [
         '@capacitor/core',
         '@capacitor/android',
@@ -197,6 +211,7 @@ const nextConfig = {
         '@capacitor/network',
         '@capacitor/push-notifications'
     ],
+<<<<<<< HEAD
     async headers() {
         if (isCapacitor) return [];
         return [
@@ -226,3 +241,35 @@ const nextConfig = {
 };
 
 export default withPWA(withNextIntl(nextConfig));
+=======
+    ...(isCapacitor ? {} : {
+        async headers() {
+            return [
+                {
+                    source: '/:path*',
+                    headers: [
+                        {
+                            key: 'X-Frame-Options',
+                            value: 'DENY',
+                        },
+                        {
+                            key: 'X-Content-Type-Options',
+                            value: 'nosniff',
+                        },
+                        {
+                            key: 'Referrer-Policy',
+                            value: 'strict-origin-when-cross-origin',
+                        },
+                        {
+                            key: 'Permissions-Policy',
+                            value: 'camera=(), microphone=(), geolocation=()',
+                        },
+                    ],
+                },
+            ];
+        },
+    }),
+};
+
+export default withNextIntl(nextConfig);
+>>>>>>> pr-286

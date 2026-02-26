@@ -89,7 +89,11 @@ export default function HeroCarousel({ initialSlides }: HeroCarouselProps) {
     }, [slides.length]);
 
     return (
+<<<<<<< HEAD
         <section className="relative h-screen w-full overflow-hidden bg-nautical-black z-0">
+=======
+        <section className="relative h-screen w-full overflow-hidden bg-nautical-black">
+>>>>>>> pr-286
             {/* Ambient Background Noise Texture */}
             <div className="absolute inset-0 z-10 opacity-[0.03] pointer-events-none mix-blend-overlay bg-[url('/images/noise.png')] bg-repeat" />
 
@@ -113,11 +117,18 @@ export default function HeroCarousel({ initialSlides }: HeroCarouselProps) {
                     <div className="absolute inset-0 bg-gradient-to-t from-nautical-black via-nautical-black/20 to-nautical-black/10" />
                     <div className="absolute inset-0 bg-gradient-to-r from-nautical-black/80 via-transparent to-transparent" />
 
+<<<<<<< HEAD
                     <div className="absolute inset-0 flex items-center pt-32 md:pt-0">
                         <div className="container mx-auto px-6 md:px-12">
                             <div className={`max-w-4xl transition-all duration-700 delay-200 transform ${index === current ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'
                                 }`}>
 
+=======
+                    <div className="absolute inset-0 flex items-center">
+                        <div className="container mx-auto px-6 md:px-12">
+                            <div className={`max-w-4xl transition-all duration-1000 delay-500 transform ${index === current ? 'translate-y-0 opacity-100 blur-0' : 'translate-y-12 opacity-0 blur-md'
+                                }`}>
+>>>>>>> pr-286
                                 <div className="flex items-center gap-4 mb-8">
                                     <div className="w-12 h-[1px] bg-accent/40" />
                                     <span className="text-accent uppercase tracking-[0.6em] text-[10px] font-black">
@@ -125,15 +136,23 @@ export default function HeroCarousel({ initialSlides }: HeroCarouselProps) {
                                     </span>
                                 </div>
 
+<<<<<<< HEAD
                                 <h2 className="text-5xl sm:text-7xl md:text-[8rem] lg:text-[10rem] font-display text-white mb-10 leading-[0.85] tracking-tighter">
                                     {slide.title.split(/\s+/).map((word, i) => (
+=======
+                                <h2 className="text-5xl sm:text-7xl md:text-[10rem] lg:text-[12rem] font-display text-white mb-10 leading-[0.85] tracking-tighter">
+                                    {slide.title.split(' ').map((word, i) => (
+>>>>>>> pr-286
                                         <span key={i} className={`block ${i % 2 !== 0 ? 'italic font-light text-accent/90 ml-12 sm:ml-24' : ''}`}>
                                             {word}
                                         </span>
                                     ))}
                                 </h2>
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> pr-286
                                 <p className="text-lg md:text-2xl text-foreground/70 font-light mb-16 max-w-xl leading-relaxed tracking-wide italic">
                                     {slide.subtitle}
                                 </p>
@@ -188,7 +207,11 @@ export default function HeroCarousel({ initialSlides }: HeroCarouselProps) {
 
             {/* Cinematic Scroll Indicator */}
             <div className="absolute bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-6 z-30 opacity-40 hover:opacity-100 transition-premium group shadow-2xl">
+<<<<<<< HEAD
                 <span className="text-[9px] uppercase tracking-[0.5em] font-black text-white vertical-text">{t('scroll')}</span>
+=======
+                <span className="text-[9px] uppercase tracking-[0.5em] font-black text-white vertical-text">Scroll</span>
+>>>>>>> pr-286
                 <div className="w-[1px] h-20 bg-gradient-to-b from-accent via-accent/20 to-transparent relative overflow-hidden">
                     <div className="absolute top-0 left-0 w-full h-1/2 bg-white animate-scroll-dash" />
                 </div>

@@ -1,4 +1,5 @@
 
+<<<<<<< HEAD
 
 import { requireInstructor } from '@/lib/auth-guard';
 import { NextResponse } from 'next/server';
@@ -10,6 +11,16 @@ export async function POST(request: Request) {
         const auth = await requireInstructor();
         if (auth.error) return auth.error;
         const { user, profile, supabaseAdmin } = auth;
+=======
+import { requireInstructor } from '@/lib/auth-guard';
+import { NextResponse } from 'next/server';
+import { createGoogleEvent, updateGoogleEvent } from '@/lib/google-calendar';
+
+export async function POST(request: Request) {
+    try {
+        const { user, profile, supabaseAdmin, error: authError } = await requireInstructor();
+        if (authError) return authError;
+>>>>>>> pr-286
 
         const body = await request.json();
         const {
@@ -27,8 +38,13 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: 'ID es obligatorio' }, { status: 400 });
         }
 
+<<<<<<< HEAD
         const isAdmin = profile?.rol === 'admin';
         const isInstructor = profile?.rol === 'instructor';
+=======
+        const isAdmin = profile.rol === 'admin';
+        const isInstructor = profile.rol === 'instructor';
+>>>>>>> pr-286
 
         // Fetch current session for permissions and history comparison
         const { data: currentSession, error: fetchError } = await supabaseAdmin
@@ -46,7 +62,11 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: 'No puedes modificar sesiones que no tienes asignadas' }, { status: 403 });
         }
 
+<<<<<<< HEAD
         const updateData: Record<string, unknown> = {};
+=======
+        const updateData: Record<string, any> = {};
+>>>>>>> pr-286
 
         // Anyone with access to this route (Instructors/Admins) can update these fields
         if (curso_id !== undefined) {
@@ -66,6 +86,7 @@ export async function POST(request: Request) {
         if (estado !== undefined) updateData.estado = estado;
         if (observaciones !== undefined) updateData.observaciones = observaciones;
 
+<<<<<<< HEAD
         // Validate overlapping sessions (unless cancelling)
         const nextState = updateData.estado !== undefined ? updateData.estado : currentSession.estado;
 
@@ -94,6 +115,8 @@ export async function POST(request: Request) {
             }
         }
 
+=======
+>>>>>>> pr-286
         // Perform update
         const { data, error } = await supabaseAdmin
             .from('sesiones')
@@ -105,6 +128,7 @@ export async function POST(request: Request) {
         if (error) throw error;
 
         // --- HISTORY LOGGING ---
+<<<<<<< HEAD
         interface HistoryEntry {
             session_id: string;
             staff_id: string;
@@ -121,6 +145,20 @@ export async function POST(request: Request) {
                     staff_id: user.id,
                     field_name: key,
                     old_value: String(oldValue || ''),
+=======
+        // Compare values and log changes
+        const historyEntries = [];
+        for (const [key, newValue] of Object.entries(updateData)) {
+            const oldValue = currentSession[key];
+            // Simple comparison, might need refinement for dates/objects
+            if (String(newValue) !== String(oldValue)) {
+                // If value changed, log it
+                historyEntries.push({
+                    session_id: id,
+                    staff_id: user.id, // Log who made the change
+                    field_name: key,
+                    old_value: String(oldValue || ''), // Handle nulls
+>>>>>>> pr-286
                     new_value: String(newValue || '')
                 });
             }
@@ -133,6 +171,10 @@ export async function POST(request: Request) {
 
             if (historyError) {
                 console.error('Error logging session history:', historyError);
+<<<<<<< HEAD
+=======
+                // Don't fail the request, just log error
+>>>>>>> pr-286
             }
         }
 
@@ -173,4 +215,7 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: err.message }, { status: 500 });
     }
 }
+<<<<<<< HEAD
 
+=======
+>>>>>>> pr-286

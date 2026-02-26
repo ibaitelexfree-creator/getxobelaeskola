@@ -1,9 +1,16 @@
 
 import { create } from 'zustand';
+<<<<<<< HEAD
 import { MissionStatus } from './types';
 
 // --- Types ---
 
+=======
+
+// --- Types ---
+
+export type MissionStatus = 'idle' | 'playing' | 'paused' | 'completed' | 'failed';
+>>>>>>> pr-286
 export type FeedbackType = 'success' | 'error' | 'info';
 
 interface FeedbackState {
@@ -17,8 +24,11 @@ interface MissionState {
     status: MissionStatus;
     score: number;
     currentStep: number;
+<<<<<<< HEAD
     currentStepId: string | null; // For graph/branching missions
     history: string[]; // Track path taken
+=======
+>>>>>>> pr-286
     totalSteps: number;
     errors: number;
     isComplete: boolean; // Gating flag
@@ -31,9 +41,14 @@ interface MissionActions {
     /** 
      * Initialize and start a new mission 
      * @param totalSteps Number of steps/scenarios in this mission
+<<<<<<< HEAD
      * @param initialStepId Optional starting step ID for graph missions
      */
     startMission: (totalSteps?: number, initialStepId?: string) => void;
+=======
+     */
+    startMission: (totalSteps?: number) => void;
+>>>>>>> pr-286
 
     /**
      * Process an answer submission
@@ -45,9 +60,12 @@ interface MissionActions {
     /** Move to the next step (e.g., next slide/scenario) */
     nextStep: () => void;
 
+<<<<<<< HEAD
     /** Move to a specific step ID (for branching) */
     goToStep: (stepId: string) => void;
 
+=======
+>>>>>>> pr-286
     /** Fail the mission immediately */
     failMission: (reason?: string) => void;
 
@@ -57,9 +75,12 @@ interface MissionActions {
     /** Reset state to retry the mission */
     retryMission: () => void;
 
+<<<<<<< HEAD
     /** Restore saved progress from persistence */
     restoreProgress: (savedState: Partial<MissionState>) => void;
 
+=======
+>>>>>>> pr-286
     /** Show feedback message (toast/overlay) */
     setFeedback: (message: string | null, type?: FeedbackType) => void;
 
@@ -75,8 +96,11 @@ const initialState: MissionState = {
     status: 'idle',
     score: 0,
     currentStep: 0,
+<<<<<<< HEAD
     currentStepId: null,
     history: [],
+=======
+>>>>>>> pr-286
     totalSteps: 1,
     errors: 0,
     isComplete: false,
@@ -91,12 +115,27 @@ const initialState: MissionState = {
 export const useMissionStore = create<MissionStore>((set, get) => ({
     ...initialState,
 
+<<<<<<< HEAD
     startMission: (totalSteps = 1, initialStepId) => set({
         ...initialState,
         status: 'playing',
         totalSteps,
         currentStepId: initialStepId || null,
         history: initialStepId ? [initialStepId] : [],
+=======
+    startMission: (totalSteps = 1) => set({
+        ...initialState,
+        status: 'playing',
+        totalSteps,
+        // Preserve isComplete if replaying an already completed mission?
+        // Usually we want to allow re-playing but maybe keep isComplete true if it was ever true.
+        // For now, let's reset isComplete on start to force a fresh "run",
+        // OR keeps it true if we want the "next" button to remain enabled.
+        // Let's keep isComplete from previous state if strictly needed, but
+        // usually a generic reset is safer for game logic.
+        // If we want to persist "Unlock" state, we should rely on the parent component's fetched progress,
+        // not just this ephemeral store. But for this specific requirement:
+>>>>>>> pr-286
         isComplete: false
     }),
 
@@ -110,6 +149,7 @@ export const useMissionStore = create<MissionStore>((set, get) => ({
         feedback: { message: null, type: null }
     })),
 
+<<<<<<< HEAD
     goToStep: (stepId) => set((state) => {
         // Only add to history if it's new (prevent loops or verify logic in component)
         // Usually we track the path.
@@ -123,6 +163,8 @@ export const useMissionStore = create<MissionStore>((set, get) => ({
         };
     }),
 
+=======
+>>>>>>> pr-286
     failMission: (reason) => set((state) => ({
         status: 'failed',
         feedback: {
@@ -150,6 +192,7 @@ export const useMissionStore = create<MissionStore>((set, get) => ({
         totalSteps: state.totalSteps
     })),
 
+<<<<<<< HEAD
     restoreProgress: (savedState) => set((state) => ({
         ...state,
         ...savedState,
@@ -157,6 +200,8 @@ export const useMissionStore = create<MissionStore>((set, get) => ({
         status: savedState.status || state.status
     })),
 
+=======
+>>>>>>> pr-286
     setFeedback: (message, type = 'info') => set({
         feedback: { message, type }
     }),

@@ -1,7 +1,11 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 # dependencies
+<<<<<<< HEAD
 node_modules/
+=======
+/node_modules
+>>>>>>> pr-286
 /.pnp
 .pnp.js
 .yarn/install-state.gz
@@ -10,8 +14,13 @@ node_modules/
 /coverage
 
 # next.js
+<<<<<<< HEAD
 .next/
 out/
+=======
+/.next/
+/out/
+>>>>>>> pr-286
 
 # production
 /build
@@ -27,8 +36,11 @@ yarn-error.log*
 
 # local env files
 .env*.local
+<<<<<<< HEAD
 .env.vercel
 .env.hostinger
+=======
+>>>>>>> pr-286
 
 # vercel
 .vercel
@@ -41,10 +53,13 @@ next-env.d.ts
 .env
 .env.*
 !.env.example
+<<<<<<< HEAD
 google-services.json
 GoogleService-Info.plist
 *.keystore
 *.jks
+=======
+>>>>>>> pr-286
 
 # debug & logs
 *.log
@@ -64,6 +79,7 @@ gen_ssh.ps1
 !scripts/*.ps1
 !deploy.ps1
 !vuela.ps1
+<<<<<<< HEAD
 orchestration/*.db
 orchestration/*.err
 
@@ -98,3 +114,5 @@ diff.txt
 infra/backups/
 infra/.env
 infra/fly/fly.toml
+=======
+>>>>>>> pr-286

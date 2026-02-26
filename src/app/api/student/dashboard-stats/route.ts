@@ -19,6 +19,7 @@ export async function GET() {
             .eq('id', user.id)
             .single();
 
+<<<<<<< HEAD
         // 2. Fetch Inscriptions with relational joins to avoid in-memory merges
         const { data: rawInscriptions, error: insError } = await supabase
             .from('inscripciones')
@@ -40,6 +41,37 @@ export async function GET() {
         }
 
         const enrichedInscriptions = rawInscriptions || [];
+=======
+        // 2. Fetch Inscriptions
+        const { data: rawInscriptions } = await supabase
+            .from('inscripciones')
+            .select('*')
+            .eq('perfil_id', user.id);
+
+        // Fetch Reference data for Inscriptions (minimal set for performance)
+        const [
+            { data: editions },
+            { data: allCourses }
+        ] = await Promise.all([
+            supabase.from('ediciones_curso').select('id, curso_id, fecha_inicio, fecha_fin'),
+            supabase.from('cursos').select('id, nombre_es, nombre_eu, slug')
+        ]);
+
+        const enrichedInscriptions = (rawInscriptions || []).map(ins => {
+            const ed = (editions || []).find(e => e.id === ins.edicion_id);
+            const courseDirect = (allCourses || []).find(c => c.id === ins.curso_id);
+            const courseViaEd = ed ? (allCourses || []).find(c => c.id === ed.curso_id) : null;
+
+            return {
+                ...ins,
+                cursos: courseDirect || null,
+                ediciones_curso: ed ? {
+                    ...ed,
+                    cursos: courseViaEd || null
+                } : null
+            };
+        });
+>>>>>>> pr-286
 
         // 3. Fetch Rentals
         const { data: rentals } = await supabase
@@ -57,7 +89,11 @@ export async function GET() {
             { data: horas },
             { data: userBonos }
         ] = await Promise.all([
+<<<<<<< HEAD
             supabase.from('progreso_alumno').select('id, tipo_entidad, estado, updated_at, created_at').eq('alumno_id', user.id),
+=======
+            supabase.from('progreso_alumno').select('id, tipo_entidad, estado').eq('alumno_id', user.id),
+>>>>>>> pr-286
             supabase.from('certificados').select('id').eq('alumno_id', user.id),
             supabase.from('horas_navegacion').select('duracion_h').eq('alumno_id', user.id),
             supabase.from('bonos_usuario')
@@ -69,6 +105,7 @@ export async function GET() {
                 .in('estado', ['activo', 'agotado'])
         ]);
 
+<<<<<<< HEAD
         // Fetch Total Modules for enrolled courses
         const enrolledCourseIds = enrichedInscriptions
             .map(ins => ins.curso_id)
@@ -79,12 +116,15 @@ export async function GET() {
             .select('*', { count: 'exact', head: true })
             .in('curso_id', enrolledCourseIds);
 
+=======
+>>>>>>> pr-286
         const totalHours = horas?.reduce((acc, curr) => acc + Number(curr.duracion_h), 0) || 0;
         const totalMiles = totalHours * 5.2;
         const academyLevels = progress?.filter(p => p.tipo_entidad === 'nivel' && p.estado === 'completado').length || 0;
         const academyCerts = certs?.length || 0;
         const hasAcademyActivity = (progress?.length || 0) > 0;
 
+<<<<<<< HEAD
         // Streak Calculation
         const activityDates = (progress || [])
             .map(p => {
@@ -126,6 +166,8 @@ export async function GET() {
         const safeTotalModules = totalModules || 1; // Prevent division by zero
         const globalProgress = Math.min(100, Math.round((completedModules / safeTotalModules) * 100));
 
+=======
+>>>>>>> pr-286
         return NextResponse.json({
             profile: profile || null,
             user: {
@@ -140,6 +182,7 @@ export async function GET() {
                 totalMiles: Math.round(totalMiles),
                 academyLevels,
                 academyCerts,
+<<<<<<< HEAD
                 hasAcademyActivity,
                 currentStreak,
                 globalProgress,
@@ -157,12 +200,31 @@ export async function GET() {
         if (err.message) console.error('Error Message:', err.message);
         if (err.details) console.error('Error Details:', err.details);
         if (err.stack) console.error('Error Stack:', err.stack);
+=======
+                hasAcademyActivity
+            }
+        });
+
+    } catch (error: any) {
+        console.error('CRITICAL: Error fetching dashboard stats:', error);
+
+        // Detailed error logging for debugging
+        if (error.code) console.error('Error Code:', error.code);
+        if (error.message) console.error('Error Message:', error.message);
+        if (error.details) console.error('Error Details:', error.details);
+        if (error.stack) console.error('Error Stack:', error.stack);
+>>>>>>> pr-286
 
         return NextResponse.json(
             {
                 error: 'Internal Server Error',
+<<<<<<< HEAD
                 message: String(err.message || 'Unknown error'),
                 code: String(err.code || 'UNKNOWN')
+=======
+                message: error.message || 'Unknown error',
+                code: error.code || 'UNKNOWN'
+>>>>>>> pr-286
             },
             { status: 500 }
         );

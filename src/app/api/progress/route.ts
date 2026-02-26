@@ -27,7 +27,11 @@ export async function GET(request: Request) {
             ), request);
         }
 
+<<<<<<< HEAD
 
+=======
+        const is_staff = profile?.rol === 'admin' || profile?.rol === 'instructor';
+>>>>>>> pr-286
 
         // 2. AUTHORIZATION
         const enrolledCourseIds = await getUserEnrollments(user.id);
@@ -158,7 +162,11 @@ export async function GET(request: Request) {
         });
 
         // 6. ADVANCED CAREER ADVISOR ENGINE (V2)
+<<<<<<< HEAD
         const recommendations: any[] = [];
+=======
+        const recommendations = [];
+>>>>>>> pr-286
         const userHabilidades = (skills || []).map((s: any) =>
             Array.isArray(s.habilidad) ? s.habilidad[0]?.slug : s.habilidad?.slug
         );
@@ -242,10 +250,15 @@ export async function GET(request: Request) {
 
         return withCors(NextResponse.json({
             user: {
+<<<<<<< HEAD
                 id: user.id,
                 full_name: profile?.nombre ? `${profile.nombre} ${profile.apellidos || ''}`.trim() : user.email,
                 avatar_url: profile?.avatar_url,
                 is_public: profile?.is_public || false
+=======
+                full_name: profile?.nombre ? `${profile.nombre} ${profile.apellidos || ''}`.trim() : user.email,
+                avatar_url: profile?.avatar_url
+>>>>>>> pr-286
             },
             progreso: filteredProgress,
             habilidades: skills?.map((s: any) => ({

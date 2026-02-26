@@ -3,11 +3,24 @@
  * Each method maps to a Telegram command from maestro.js
  */
 
+<<<<<<< HEAD
 const DEFAULT_MAESTRO = 'http://localhost:3323';
 
 function getMaestroUrl(): string {
     if (typeof window !== 'undefined') {
         return localStorage.getItem('mc_server_url') || DEFAULT_MAESTRO;
+=======
+const DEFAULT_MAESTRO = 'https://agent.scarmonit.com';
+
+function getMaestroUrl(): string {
+    if (typeof window !== 'undefined') {
+        const stored = localStorage.getItem('mc_server_url');
+        if (stored && (stored.includes('localhost') || stored.includes('127.0.0.1'))) {
+            localStorage.setItem('mc_server_url', DEFAULT_MAESTRO);
+            return DEFAULT_MAESTRO;
+        }
+        return stored || DEFAULT_MAESTRO;
+>>>>>>> pr-286
     }
     return DEFAULT_MAESTRO;
 }
@@ -41,6 +54,7 @@ export async function sendTask(description: string, mode: 'cascade' | 'flash' | 
     });
 }
 
+<<<<<<< HEAD
 /** Direct question to specific Jules via Telegram */
 export async function sendQuestion(text: string, julesId: string) {
     const roles: Record<string, string> = {
@@ -60,6 +74,8 @@ export async function sendQuestion(text: string, julesId: string) {
     });
 }
 
+=======
+>>>>>>> pr-286
 /** /approve — Approve pending ClawdBot task */
 export async function approve() {
     return maestroPost('/watchdog/action', { action: 'feed', message: '/approve' });
@@ -147,6 +163,7 @@ export const pauseWatchdog = () => maestroPost('/watchdog/action', { action: 'pa
 
 /** /watchdog resume */
 export const resumeWatchdog = () => maestroPost('/watchdog/action', { action: 'resume' });
+<<<<<<< HEAD
 
 // ─── Release Management ───
 
@@ -180,3 +197,5 @@ export async function getTrustStatus(): Promise<{ active: boolean }> {
 export async function toggleTrustTunnel(password: string): Promise<{ active: boolean }> {
     return maestroPost('/api/trust/toggle', { password });
 }
+=======
+>>>>>>> pr-286

@@ -11,7 +11,19 @@ import EditProfileModal from '@/components/student/EditProfileModal';
 import SafetySettingsModal from '@/components/student/SafetySettingsModal';
 import LogoutButton from '@/components/auth/LogoutButton';
 
+<<<<<<< HEAD
 import { Profile } from '@/types/student';
+=======
+interface Profile {
+    id: string;
+    nombre: string;
+    apellidos: string;
+    telefono: string;
+    rol: string;
+    status_socio?: string;
+    dni?: string;
+}
+>>>>>>> pr-286
 
 export default function MobileProfileClient({
     profile: initialProfile,

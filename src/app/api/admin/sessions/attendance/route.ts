@@ -13,9 +13,14 @@ export async function GET(request: Request) {
             return NextResponse.json({ error: 'Session ID is required' }, { status: 400 });
         }
 
+<<<<<<< HEAD
         const auth = await requireInstructor();
         if (auth.error) return auth.error;
         const { supabaseAdmin } = auth;
+=======
+        const { supabaseAdmin, error: authError } = await requireInstructor();
+        if (authError) return authError;
+>>>>>>> pr-286
 
         const { data, error } = await supabaseAdmin
             .from('sesion_asistentes')
@@ -36,9 +41,14 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
     try {
+<<<<<<< HEAD
         const auth = await requireInstructor();
         if (auth.error) return auth.error;
         const { supabaseAdmin } = auth;
+=======
+        const { supabaseAdmin, error: authError } = await requireInstructor();
+        if (authError) return authError;
+>>>>>>> pr-286
 
         const body = await request.json();
         const { sessionId, studentId, asistencia, notas } = body;

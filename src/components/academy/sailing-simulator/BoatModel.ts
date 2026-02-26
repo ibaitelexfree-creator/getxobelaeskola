@@ -234,6 +234,13 @@ export class BoatModel {
         this.sailMaterial.uniforms.windForce.value = state.efficiency; // Use efficiency for billow strength
         this.sailMaterial.uniforms.efficiency.value = state.efficiency;
 
+<<<<<<< HEAD
+=======
+        this.sailMaterial.uniforms.time.value = time;
+        this.sailMaterial.uniforms.windForce.value = state.efficiency; // Use efficiency for billow strength
+        this.sailMaterial.uniforms.efficiency.value = state.efficiency;
+
+>>>>>>> pr-286
         // Windex (Apparent Wind) arrow points into the wind
         this.windex.rotation.y = apparentWind.angleToBoat + Math.PI;
     }

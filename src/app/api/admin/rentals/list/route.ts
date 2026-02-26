@@ -4,9 +4,14 @@ import { NextResponse } from 'next/server';
 
 export async function GET(_request: Request) {
     try {
+<<<<<<< HEAD
         const auth = await requireInstructor();
         if (auth.error) return auth.error;
         const { supabaseAdmin } = auth;
+=======
+        const { supabaseAdmin, error: authError } = await requireInstructor();
+        if (authError) return authError;
+>>>>>>> pr-286
 
         const { searchParams } = new URL(_request.url);
         const page = parseInt(searchParams.get('page') || '1');
@@ -36,7 +41,11 @@ export async function GET(_request: Request) {
                 .or(`nombre.ilike.%${query}%,apellidos.ilike.%${query}%`)
                 .limit(50);
 
+<<<<<<< HEAD
             const matchedProfileIds = (matchedProfiles as { id: string }[] || []).map((p) => p.id);
+=======
+            const matchedProfileIds = matchedProfiles?.map(p => p.id) || [];
+>>>>>>> pr-286
 
             // Search services for matching names
             const { data: matchedServices } = await supabaseAdmin
@@ -45,7 +54,11 @@ export async function GET(_request: Request) {
                 .or(`nombre_es.ilike.%${query}%,nombre_eu.ilike.%${query}%`)
                 .limit(50);
 
+<<<<<<< HEAD
             const matchedServiceIds = (matchedServices as { id: string }[] || []).map((s) => s.id);
+=======
+            const matchedServiceIds = matchedServices?.map(s => s.id) || [];
+>>>>>>> pr-286
 
             // Combine filters: 
             // 1. Matches in profile or service (from previous queries)
@@ -105,6 +118,7 @@ export async function GET(_request: Request) {
             throw error;
         }
 
+<<<<<<< HEAD
         interface Rental {
             id: string;
             perfil_id: string;
@@ -123,6 +137,11 @@ export async function GET(_request: Request) {
         // Manual join for profiles since the FK might be missing
         const profileIds = Array.from(new Set(typedRentals.map(r => r.perfil_id).filter(Boolean)));
         let profilesData: Profile[] = [];
+=======
+        // Manual join for profiles since the FK might be missing
+        const profileIds = Array.from(new Set(rentalsData?.map(r => r.perfil_id).filter(Boolean) || []));
+        let profilesData: any[] = [];
+>>>>>>> pr-286
 
         if (profileIds.length > 0) {
             const { data: pData, error: pError } = await supabaseAdmin
@@ -131,11 +150,19 @@ export async function GET(_request: Request) {
                 .in('id', profileIds);
 
             if (!pError && pData) {
+<<<<<<< HEAD
                 profilesData = pData as Profile[];
             }
         }
 
         const enrichedRentals = typedRentals.map(r => ({
+=======
+                profilesData = pData;
+            }
+        }
+
+        const enrichedRentals = (rentalsData || []).map(r => ({
+>>>>>>> pr-286
             ...r,
             profiles: profilesData.find(p => p.id === r.perfil_id) || null
         }));

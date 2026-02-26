@@ -1,5 +1,9 @@
 {
+<<<<<<< HEAD
   "updatedAt": "2026-02-23T12:32:45.031Z",
+=======
+  "updatedAt": "2026-02-12T16:17:40.705Z",
+>>>>>>> pr-286
   "createdAt": "2026-02-02T10:38:54.119Z",
   "id": "fo5YcBW1yw1abXmjbYWnm",
   "name": "Invoice Processing Drive + Financial Report",
@@ -37,7 +41,11 @@
       "name": "Google Drive Trigger",
       "credentials": {
         "googleDriveOAuth2Api": {
+<<<<<<< HEAD
           "id": "XSpJhn6iXEXi75WV",
+=======
+          "id": "rkAvBhrG2aTKhyaO",
+>>>>>>> pr-286
           "name": "Google Drive account"
         }
       }
@@ -62,8 +70,13 @@
       "name": "Google Drive",
       "credentials": {
         "googleDriveOAuth2Api": {
+<<<<<<< HEAD
           "id": "2gaIPeitppocMDEZ",
           "name": "Google Drive getxobelaeskola@gmail.com"
+=======
+          "id": "rkAvBhrG2aTKhyaO",
+          "name": "Google Drive account"
+>>>>>>> pr-286
         }
       }
     },
@@ -218,8 +231,13 @@
       "name": "Google Sheets",
       "credentials": {
         "googleSheetsOAuth2Api": {
+<<<<<<< HEAD
           "id": "5NG4wsqVSIpvAJSA",
           "name": "Google Sheets account 2"
+=======
+          "id": "teD9HPVe2g2Ob0VX",
+          "name": "Google Sheets account"
+>>>>>>> pr-286
         }
       }
     },
@@ -250,8 +268,13 @@
       "name": "Google Drive1",
       "credentials": {
         "googleDriveOAuth2Api": {
+<<<<<<< HEAD
           "id": "2gaIPeitppocMDEZ",
           "name": "Google Drive getxobelaeskola@gmail.com"
+=======
+          "id": "rkAvBhrG2aTKhyaO",
+          "name": "Google Drive account"
+>>>>>>> pr-286
         }
       }
     },
@@ -275,8 +298,13 @@
       "name": "Google Drive2",
       "credentials": {
         "googleDriveOAuth2Api": {
+<<<<<<< HEAD
           "id": "2gaIPeitppocMDEZ",
           "name": "Google Drive getxobelaeskola@gmail.com"
+=======
+          "id": "rkAvBhrG2aTKhyaO",
+          "name": "Google Drive account"
+>>>>>>> pr-286
         }
       }
     },
@@ -300,8 +328,13 @@
       "name": "Google Drive3",
       "credentials": {
         "googleDriveOAuth2Api": {
+<<<<<<< HEAD
           "id": "2gaIPeitppocMDEZ",
           "name": "Google Drive getxobelaeskola@gmail.com"
+=======
+          "id": "rkAvBhrG2aTKhyaO",
+          "name": "Google Drive account"
+>>>>>>> pr-286
         }
       }
     },
@@ -364,8 +397,13 @@
       "name": "Google Sheets1",
       "credentials": {
         "googleSheetsOAuth2Api": {
+<<<<<<< HEAD
           "id": "8Lg9UKDJqJkCocXn",
           "name": "Google Sheets  getxobelaeskola@gmail.com"
+=======
+          "id": "teD9HPVe2g2Ob0VX",
+          "name": "Google Sheets account"
+>>>>>>> pr-286
         }
       }
     },
@@ -544,7 +582,11 @@
             },
             {
               "name": "Authorization",
+<<<<<<< HEAD
               "value": "=Bearer llx-OTsqI0NdN6mbDS8NbsjuGE4Y4i5ZIJNdJyqquapQvmjzh12p"
+=======
+              "value": "=Bearer llx-PQRz9SVFDWt2z2HAGo7wpYS4sTRQIXGXVz4CNcP8djybUnEt"
+>>>>>>> pr-286
             }
           ]
         },
@@ -758,8 +800,13 @@
       "name": "Generate",
       "credentials": {
         "googleDocsOAuth2Api": {
+<<<<<<< HEAD
           "id": "467RgOfNrXYR7tRq",
           "name": "Google Docs  getxobelaeskola@gmail.com"
+=======
+          "id": "WmIr3aKK4oG026X1",
+          "name": "Google Docs account"
+>>>>>>> pr-286
         }
       }
     },
@@ -786,8 +833,13 @@
       "name": "Update",
       "credentials": {
         "googleDocsOAuth2Api": {
+<<<<<<< HEAD
           "id": "467RgOfNrXYR7tRq",
           "name": "Google Docs  getxobelaeskola@gmail.com"
+=======
+          "id": "WmIr3aKK4oG026X1",
+          "name": "Google Docs account"
+>>>>>>> pr-286
         }
       }
     },
@@ -1347,9 +1399,15 @@
     "templateCredsSetupCompleted": true
   },
   "pinData": {},
+<<<<<<< HEAD
   "versionId": "8add3c28-1e01-41f1-bfbb-656d4aeba207",
   "activeVersionId": null,
   "versionCounter": 118,
+=======
+  "versionId": "d703a0ab-58ff-4880-b1a9-516c80247e4a",
+  "activeVersionId": null,
+  "versionCounter": 98,
+>>>>>>> pr-286
   "triggerCount": 1,
   "shared": [
     {
@@ -1374,7 +1432,11 @@
             "userId": "ebf74c25-213c-46b9-a63b-e349de02195f",
             "projectId": "3Aa1TdMrn6HM1XQF",
             "user": {
+<<<<<<< HEAD
               "updatedAt": "2026-02-25T06:07:46.200Z",
+=======
+              "updatedAt": "2026-02-13T11:35:46.641Z",
+>>>>>>> pr-286
               "createdAt": "2026-02-12T15:59:25.537Z",
               "id": "ebf74c25-213c-46b9-a63b-e349de02195f",
               "email": "getxobelaeskola@gmail.com",
@@ -1390,6 +1452,7 @@
                 "reportedSource": "google"
               },
               "settings": {
+<<<<<<< HEAD
                 "userActivated": true,
                 "easyAIWorkflowOnboarded": true,
                 "firstSuccessfulWorkflowId": "eeqPCy1bi0DhhlxA",
@@ -1403,6 +1466,14 @@
               "disabled": false,
               "mfaEnabled": false,
               "lastActiveAt": "2026-02-24",
+=======
+                "userActivated": false,
+                "easyAIWorkflowOnboarded": true
+              },
+              "disabled": false,
+              "mfaEnabled": false,
+              "lastActiveAt": "2026-02-13",
+>>>>>>> pr-286
               "isPending": false
             }
           }

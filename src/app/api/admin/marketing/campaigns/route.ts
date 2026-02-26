@@ -15,9 +15,14 @@ export async function GET() {
 
         if (error) throw error;
         return NextResponse.json({ campaigns: data });
+<<<<<<< HEAD
     } catch (error: unknown) {
         const err = error as Error;
         return NextResponse.json({ error: err.message }, { status: 500 });
+=======
+    } catch (error: any) {
+        return NextResponse.json({ error: error.message }, { status: 500 });
+>>>>>>> pr-286
     }
 }
 
@@ -33,8 +38,13 @@ export async function POST(request: Request) {
 
         if (error) throw error;
         return NextResponse.json({ campaign: data });
+<<<<<<< HEAD
     } catch (error: unknown) {
         const err = error as Error;
         return NextResponse.json({ error: err.message }, { status: 500 });
+=======
+    } catch (error: any) {
+        return NextResponse.json({ error: error.message }, { status: 500 });
+>>>>>>> pr-286
     }
 }

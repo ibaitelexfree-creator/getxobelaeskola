@@ -4,13 +4,20 @@ import React, { useState } from 'react';
 import { validateIdentityDocument, validateEmail, DocumentType } from '@/lib/utils/validators';
 import { useTranslations } from 'next-intl';
 
+<<<<<<< HEAD
 export type ActivityType = 'course' | 'rental' | 'udalekus' | 'membership' | 'training';
 
+=======
+>>>>>>> pr-286
 interface LegalConsentModalProps {
     isOpen: boolean;
     onClose: () => void;
     onConfirm: (data: { fullName: string; email: string; dni: string; password?: string }) => void;
+<<<<<<< HEAD
     activityType: ActivityType;
+=======
+    consentType: 'course' | 'rental';
+>>>>>>> pr-286
     legalText: string;
     initialData?: {
         fullName?: string;
@@ -23,7 +30,11 @@ export default function LegalConsentModal({
     isOpen,
     onClose,
     onConfirm,
+<<<<<<< HEAD
     activityType,
+=======
+    consentType,
+>>>>>>> pr-286
     legalText,
     initialData
 }: LegalConsentModalProps) {
@@ -48,6 +59,7 @@ export default function LegalConsentModal({
         }
     }, [isOpen, initialData]);
 
+<<<<<<< HEAD
     const documents = React.useMemo(() => {
         const allDocs = [
             { id: 'course', name: 'Formulario Inscripción a cursos', path: '/Documentos/Formularios inscripcion, LOPD y normas a firmar al contratar servicioos/Formulario Inscripción a cursos.pdf' },
@@ -69,6 +81,16 @@ export default function LegalConsentModal({
                 return allDocs.filter(d => d.id === 'course');
         }
     }, [activityType]);
+=======
+    // Documentos disponibles - labels translated via specific keys if needed,
+    // but these are proper names of files
+    const documents = [
+        { name: 'Formulario Inscripción a cursos', path: '/Documentos/Formularios inscripcion, LOPD y normas a firmar al contratar servicioos/Formulario Inscripción a cursos.pdf' },
+        { name: 'Formulario Inscripción Socios', path: '/Documentos/Formularios inscripcion, LOPD y normas a firmar al contratar servicioos/Formulario Inscripción Socias.pdf' },
+        { name: 'Formulario Inscripción Equipos', path: '/Documentos/Formularios inscripcion, LOPD y normas a firmar al contratar servicioos/Formulario Inscripción Equipos de entrenamiento.pdf' },
+        { name: 'Normas y LOPD Udalekus', path: '/Documentos/Formularios inscripcion, LOPD y normas a firmar al contratar servicioos/Formulario Inscripción Udalekus.pdf' },
+    ];
+>>>>>>> pr-286
 
     if (!isOpen) return null;
 
@@ -104,7 +126,11 @@ export default function LegalConsentModal({
                 {/* Header */}
                 <div className="p-6 border-b border-white/10 flex justify-between items-center bg-white/5">
                     <h2 className="text-xl font-display text-white uppercase tracking-widest">
+<<<<<<< HEAD
                         {viewingDoc ? t('viewing_doc') : (activityType === 'rental' ? t('rental_title') : t('terms_title'))}
+=======
+                        {viewingDoc ? t('viewing_doc') : (consentType === 'course' ? t('terms_title') : t('rental_title'))}
+>>>>>>> pr-286
                     </h2>
                     <button
                         onClick={viewingDoc ? () => setViewingDoc(null) : onClose}

@@ -3,9 +3,14 @@ import { NextResponse } from 'next/server';
 
 export async function POST(request: Request) {
     try {
+<<<<<<< HEAD
         const auth = await requireAdmin();
         if (auth.error) return auth.error;
         const { supabaseAdmin } = auth;
+=======
+        const { supabaseAdmin, error: authError } = await requireAdmin();
+        if (authError) return authError;
+>>>>>>> pr-286
 
         const { email, nombre, apellidos, telefono } = await request.json();
 
@@ -24,7 +29,11 @@ export async function POST(request: Request) {
                 const { data: { users }, error: listError } = await supabaseAdmin.auth.admin.listUsers();
                 if (listError) throw listError;
 
+<<<<<<< HEAD
                 const existing = users.find((u) => u.email?.toLowerCase() === requestedEmail);
+=======
+                const existing = users.find(u => u.email?.toLowerCase() === requestedEmail);
+>>>>>>> pr-286
                 if (!existing) {
                     throw new Error(`El usuario ${requestedEmail} parece existir pero no pudimos encontrar su registro. Contacte con soporte.`);
                 }
@@ -53,6 +62,11 @@ export async function POST(request: Request) {
             throw profileError;
         }
 
+<<<<<<< HEAD
+=======
+        if (profileError) throw profileError;
+
+>>>>>>> pr-286
         return NextResponse.json({ success: true, message: 'Instructor creado correctamente' });
     } catch (err: unknown) {
         const error = err as Error;

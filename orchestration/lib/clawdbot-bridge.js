@@ -139,7 +139,11 @@ export class ClawdBotBridge extends EventEmitter {
      */
     async ensureRunning() {
         const composePath = this.dockerComposePath ||
+<<<<<<< HEAD
             'c:\\Users\\User\\Desktop\\getxobelaeskola\\docker-compose.openclaw.yml';
+=======
+            'c:\\Users\\User\\Desktop\\Saili8ng School Test\\docker-compose.openclaw.yml';
+>>>>>>> pr-286
 
         try {
             console.log('[ClawdBot] Attempting to start Docker compose...');

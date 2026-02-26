@@ -3,7 +3,11 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
+<<<<<<< HEAD
 import LegalConsentModal, { ActivityType } from '../shared/LegalConsentModal';
+=======
+import LegalConsentModal from '../shared/LegalConsentModal';
+>>>>>>> pr-286
 import { createClient } from '@/lib/supabase/client';
 import { apiUrl } from '@/lib/api';
 
@@ -21,10 +25,16 @@ interface BookingSelectorProps {
     editions: Edition[];
     coursePrice: number;
     courseId: string;
+<<<<<<< HEAD
     activityType?: ActivityType;
 }
 
 export default function BookingSelector({ editions, coursePrice, courseId, activityType = 'course' }: BookingSelectorProps) {
+=======
+}
+
+export default function BookingSelector({ editions, coursePrice, courseId }: BookingSelectorProps) {
+>>>>>>> pr-286
     const t = useTranslations('booking');
     const router = useRouter();
     const [selectedEdition, setSelectedEdition] = useState<string | null>(null);
@@ -76,7 +86,11 @@ export default function BookingSelector({ editions, coursePrice, courseId, activ
                     email: legalData.email,
                     dni: legalData.dni,
                     legalText: "He leído y acepto expresamente las condiciones legales detalladas anteriormente. Entiendo que esta aceptación equivale a una firma digital vinculante.",
+<<<<<<< HEAD
                     consentType: activityType,
+=======
+                    consentType: 'course',
+>>>>>>> pr-286
                     referenceId: courseId
                 })
             });
@@ -226,7 +240,11 @@ export default function BookingSelector({ editions, coursePrice, courseId, activ
                 isOpen={isLegalModalOpen}
                 onClose={() => setIsLegalModalOpen(false)}
                 onConfirm={handleLegalConfirm}
+<<<<<<< HEAD
                 activityType={activityType}
+=======
+                consentType="course"
+>>>>>>> pr-286
                 initialData={user ? {
                     fullName: profile ? `${profile.nombre} ${profile.apellidos}` : undefined,
                     email: user.email,

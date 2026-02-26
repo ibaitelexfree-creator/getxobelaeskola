@@ -8,6 +8,7 @@
  */
 
 export class CreditMonitor {
+<<<<<<< HEAD
     constructor(julesPool, flashExecutor, clawdbot, visualRelay, vercelMonitor) {
         this.pool = julesPool;
         this.flash = flashExecutor;
@@ -38,6 +39,12 @@ export class CreditMonitor {
                 pct: Math.round((m.used / m.limit) * 100)
             };
         });
+=======
+    constructor(julesPool, flashExecutor, clawdbot) {
+        this.pool = julesPool;
+        this.flash = flashExecutor;
+        this.clawdbot = clawdbot;
+>>>>>>> pr-286
     }
 
     julesUsage() {
@@ -78,6 +85,7 @@ export class CreditMonitor {
         };
     }
 
+<<<<<<< HEAD
     async browserlessUsage() {
         if (!this.visual) return { enabled: false };
         const usage = await this.visual.getUsage();
@@ -95,6 +103,12 @@ export class CreditMonitor {
         const claw = this.clawdbotCost();
         const browse = await this.browserlessUsage();
         const vercel = this.vercelUsage();
+=======
+    getSummaryMessage() {
+        const jules = this.julesUsage();
+        const flash = this.flashCredits();
+        const claw = this.clawdbotCost();
+>>>>>>> pr-286
 
         const julesLines = jules.accounts.map(a => {
             const bar = this._progressBar(a.used, a.limit);
@@ -102,12 +116,15 @@ export class CreditMonitor {
             return `  ${emoji} ${a.name}: ${a.used}/${a.limit} ${bar}`;
         });
 
+<<<<<<< HEAD
         const vercelLines = vercel ? vercel.map(v => {
             const bar = this._progressBar(v.used, v.limit);
             const emoji = v.pct >= 90 ? '🔴' : (v.pct >= 70 ? '🟡' : '🟢');
             return `  ${emoji} ${v.name}: ${v.used}/${v.limit} ${v.unit} ${bar}`;
         }) : [];
 
+=======
+>>>>>>> pr-286
         const flashEmoji = flash.hasCredits ? '🟢' : (flash.enabled ? '🟡' : '🔴');
         const clawEmoji = claw.available ? '🟢' : '🔴';
 
@@ -118,12 +135,17 @@ export class CreditMonitor {
             `**Jules Pool** (${jules.totalUsed}/${jules.totalLimit})`,
             ...julesLines,
             '',
+<<<<<<< HEAD
             `**Vercel Quotas** (Limit 100%)`,
             ...vercelLines,
             '',
             `**Flash** ${flashEmoji} — ${flash.tasksToday} tareas | ${flash.tokensUsed.toLocaleString()} tokens`,
             `**ClawdBot** ${clawEmoji} — ${claw.sessionsToday} sesiones hoy`,
             `**Browserless** ${browse.enabled ? '🟢' : '🔴'} — ${browse.used}/${browse.limit} hoy`,
+=======
+            `**Flash** ${flashEmoji} — ${flash.tasksToday} tareas | ${flash.tokensUsed.toLocaleString()} tokens`,
+            `**ClawdBot** ${clawEmoji} — ${claw.sessionsToday} sesiones hoy`,
+>>>>>>> pr-286
             '',
             `🏗️ Prioridad: Jules → Flash → ClawdBot`
         ].join('\n');

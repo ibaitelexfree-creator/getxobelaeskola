@@ -68,6 +68,7 @@ export const usePushNotifications = () => {
             console.log('Push Registration Token:', token.value);
             setState(prev => ({ ...prev, token: token.value }));
 
+<<<<<<< HEAD
             // Save token to Supabase
             try {
                 const supabase = createClient();
@@ -93,6 +94,11 @@ export const usePushNotifications = () => {
             } catch (err) {
                 console.error('Unexpected error saving FCM token:', err);
             }
+=======
+            // Here you would typically send the token to your backend
+            // const supabase = createClient();
+            // await supabase.from('user_devices').upsert({ ... });
+>>>>>>> pr-286
         });
 
         // Listener for registration error

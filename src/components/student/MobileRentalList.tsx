@@ -96,7 +96,11 @@ export default function MobileRentalList({
                     email: legalData.email,
                     dni: legalData.dni,
                     legalText: tLegal('consent_acceptance'),
+<<<<<<< HEAD
                     consentType: selectedService.categoria === 'membresias' ? 'membership' : 'rental',
+=======
+                    consentType: 'rental',
+>>>>>>> pr-286
                     referenceId: selectedService.id
                 })
             });
@@ -150,7 +154,11 @@ export default function MobileRentalList({
 
             {/* List */}
             <StaggeredEntrance className="px-6 grid gap-4 mt-6" type="recombine">
+<<<<<<< HEAD
                 {services.map((service, idx) => (
+=======
+                {services.map((service) => (
+>>>>>>> pr-286
                     <button
                         key={service.id}
                         onClick={() => openBooking(service)}
@@ -158,6 +166,7 @@ export default function MobileRentalList({
                     >
                         <div className="h-40 relative bg-white/5">
                             {service.imagen_url ? (
+<<<<<<< HEAD
                                 <Image
                                     src={service.imagen_url}
                                     alt={getServiceName(service)}
@@ -165,6 +174,12 @@ export default function MobileRentalList({
                                     sizes="(max-width: 768px) 100vw, 50vw"
                                     priority={idx < 2}
                                     className="object-cover"
+=======
+                                <img
+                                    src={service.imagen_url}
+                                    alt={getServiceName(service)}
+                                    className="w-full h-full object-cover"
+>>>>>>> pr-286
                                 />
                             ) : (
                                 <div className="w-full h-full flex items-center justify-center text-4xl">⚓</div>
@@ -266,7 +281,11 @@ export default function MobileRentalList({
                 isOpen={isLegalModalOpen}
                 onClose={() => setIsLegalModalOpen(false)}
                 onConfirm={processBooking}
+<<<<<<< HEAD
                 activityType={selectedService?.categoria === 'membresias' ? 'membership' : 'rental'}
+=======
+                consentType="rental"
+>>>>>>> pr-286
                 initialData={user ? {
                     fullName: profile ? `${profile.nombre} ${profile.apellidos}` : undefined,
                     email: user.email,

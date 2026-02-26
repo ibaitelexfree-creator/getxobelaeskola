@@ -120,7 +120,11 @@ export default function LoginForm({ locale = 'es' }: { locale?: string }) {
                     id="password"
                     {...register('password')}
                     type={showPassword ? 'text' : 'password'}
+<<<<<<< HEAD
                     autoComplete="new-password"
+=======
+                    autoComplete="current-password"
+>>>>>>> pr-286
                     className="w-full h-12 bg-white/5 border border-white/10 rounded-xl px-4 outline-none focus:border-accent focus:bg-white/[0.08] transition-all font-light text-white placeholder:text-white/40"
                     placeholder="••••••••"
                 />

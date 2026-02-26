@@ -55,7 +55,11 @@ export default function KioskMap() {
             }).addTo(map);
 
             // Add Route
+<<<<<<< HEAD
             const polyline = L.polyline(MOCK_ROUTE as any, {
+=======
+            const polyline = L.polyline(MOCK_ROUTE, {
+>>>>>>> pr-286
                 color: '#fbbf24', // Amber/Accent
                 weight: 4,
                 opacity: 0.8,
@@ -63,7 +67,11 @@ export default function KioskMap() {
             }).addTo(map);
 
             // Add Start/End Markers
+<<<<<<< HEAD
             L.circleMarker(MOCK_ROUTE[0] as any, {
+=======
+            L.circleMarker(MOCK_ROUTE[0], {
+>>>>>>> pr-286
                 radius: 8,
                 fillColor: '#0ea5e9', // Sky Blue
                 color: '#ffffff',
@@ -71,7 +79,11 @@ export default function KioskMap() {
                 fillOpacity: 1
             }).addTo(map).bindPopup("Salida: Getxo");
 
+<<<<<<< HEAD
             L.circleMarker(MOCK_ROUTE[MOCK_ROUTE.length - 1] as any, {
+=======
+            L.circleMarker(MOCK_ROUTE[MOCK_ROUTE.length - 1], {
+>>>>>>> pr-286
                 radius: 8,
                 fillColor: '#22c55e', // Green
                 color: '#ffffff',
@@ -97,11 +109,19 @@ export default function KioskMap() {
 
     return (
         <div className="w-full h-full relative">
+<<<<<<< HEAD
             <div ref={mapRef} className="w-full h-full bg-[#0a1628]" />
             <div className="absolute top-12 left-12 z-[1000] pointer-events-none">
                 <h2 className="text-white font-display italic text-5xl drop-shadow-md">Ruta del Día</h2>
                 <p className="text-white/60 text-xl font-light mt-2">Getxo ➔ Castro Urdiales</p>
             </div>
+=======
+             <div ref={mapRef} className="w-full h-full bg-[#0a1628]" />
+             <div className="absolute top-12 left-12 z-[1000] pointer-events-none">
+                <h2 className="text-white font-display italic text-5xl drop-shadow-md">Ruta del Día</h2>
+                <p className="text-white/60 text-xl font-light mt-2">Getxo ➔ Castro Urdiales</p>
+             </div>
+>>>>>>> pr-286
         </div>
     );
 }

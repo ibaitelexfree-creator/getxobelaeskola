@@ -16,18 +16,27 @@ type RateLimitEntry = {
 const store = new Map<string, RateLimitEntry>();
 const CLEANUP_INTERVAL = 60000; // 1 minute cleanup
 
+<<<<<<< HEAD
 /** @internal For testing only */
 export function _cleanupRateLimitStore() {
+=======
+// Periodic cleanup to avoid memory leaks
+setInterval(() => {
+>>>>>>> pr-286
     const now = Date.now();
     for (const [key, value] of store.entries()) {
         if (now > value.resetTime) {
             store.delete(key);
         }
     }
+<<<<<<< HEAD
 }
 
 // Periodic cleanup to avoid memory leaks
 setInterval(_cleanupRateLimitStore, CLEANUP_INTERVAL);
+=======
+}, CLEANUP_INTERVAL);
+>>>>>>> pr-286
 
 /**
  * Checks if a key has exceeded the rate limit.
@@ -67,6 +76,7 @@ export function rateLimit(key: string, limit: number, windowSeconds: number) {
     record.count += 1;
     return { success: true, remaining: limit - record.count, reset: record.resetTime };
 }
+<<<<<<< HEAD
 
 /** @internal For testing only */
 export function _resetRateLimitStore() {
@@ -77,3 +87,5 @@ export function _resetRateLimitStore() {
 export function _getRateLimitStoreSize() {
     return store.size;
 }
+=======
+>>>>>>> pr-286

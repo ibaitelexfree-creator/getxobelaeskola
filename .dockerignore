@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 node_modules
 .next
 .git
@@ -7,3 +8,14 @@ README.md
 DEPLOY.md
 scripts
 *.log
+=======
+node_modules
+.next
+.git
+.env.local
+public/uploads
+README.md
+DEPLOY.md
+scripts
+*.log
+>>>>>>> pr-286

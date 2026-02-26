@@ -12,6 +12,7 @@
         "apk": "npm run build && npx cap sync android"
     },
     "dependencies": {
+<<<<<<< HEAD
         "@capacitor-community/firebase-crashlytics": "^3.0.0",
         "@capacitor/android": "^8.1.0",
         "@capacitor/app": "^8.0.1",
@@ -20,30 +21,52 @@
         "@capacitor/core": "^8.1.0",
         "@capacitor/device": "^8.0.1",
         "@capacitor/haptics": "^8.0.0",
+=======
+        "@capacitor/android": "^8.1.0",
+        "@capacitor/cli": "^8.1.0",
+        "@capacitor/core": "^8.1.0",
+        "@capacitor/haptics": "^8.0.1",
+>>>>>>> pr-286
         "@capacitor/network": "^8.0.1",
         "@capacitor/push-notifications": "^8.0.1",
         "@capacitor/status-bar": "^8.0.1",
         "framer-motion": "^12.34.0",
+<<<<<<< HEAD
         "i18next": "^25.8.13",
         "i18next-browser-languagedetector": "^8.2.1",
+=======
+>>>>>>> pr-286
         "lucide-react": "^0.563.0",
         "next": "^14.2.23",
         "react": "^18.3.1",
         "react-dom": "^18.3.1",
+<<<<<<< HEAD
         "react-i18next": "^16.5.4",
         "react-is": "^18.3.1",
         "recharts": "^3.7.0",
+=======
+>>>>>>> pr-286
         "tailwindcss": "^3.4.1",
         "zustand": "^5.0.11"
     },
     "devDependencies": {
+<<<<<<< HEAD
         "@capacitor/assets": "^3.0.5",
+=======
+>>>>>>> pr-286
         "@types/node": "^20.19.33",
         "@types/react": "^18.3.28",
         "@types/react-dom": "^18",
         "autoprefixer": "10.4",
+<<<<<<< HEAD
         "cross-env": "^10.1.0",
         "postcss": "8.4",
         "typescript": "^5.9.3"
     }
 }
+=======
+        "postcss": "8.4",
+        "typescript": "^5.9.3"
+    }
+}
+>>>>>>> pr-286

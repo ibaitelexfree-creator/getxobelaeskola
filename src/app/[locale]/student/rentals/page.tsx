@@ -11,7 +11,11 @@ export default async function MobileRentalPage({
     params: { locale: string }
 }) {
     const supabase = createClient();
+<<<<<<< HEAD
     let services: any[] = [];
+=======
+    let services = [];
+>>>>>>> pr-286
 
     try {
         const { data, error } = await supabase

@@ -115,6 +115,7 @@ export default function SkillsPage({ params }: { params: { locale: string } }) {
                 </div>
             </div>
 
+<<<<<<< HEAD
             {/* Simulation Exam Section */}
             <div className="container mx-auto px-6 pt-12 pb-4">
                 <div className="flex flex-col md:flex-row items-center justify-between gap-8 bg-gradient-to-r from-blue-900/20 to-indigo-900/20 p-8 rounded-3xl border border-blue-500/30 backdrop-blur-sm relative overflow-hidden group">
@@ -145,6 +146,8 @@ export default function SkillsPage({ params }: { params: { locale: string } }) {
                 </div>
             </div>
 
+=======
+>>>>>>> pr-286
             <div className="container mx-auto px-6 py-20">
                 <h2 className="text-3xl font-display italic mb-12 flex items-center gap-4">
                     <span className="text-accent">⚡</span> Árbol de Habilidades

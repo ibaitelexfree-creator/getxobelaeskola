@@ -16,6 +16,7 @@ const supabaseKey = env['SUPABASE_SERVICE_ROLE_KEY'];
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
+<<<<<<< HEAD
 function isRedundant(courseName, levelName, lang) {
     if (!courseName || !levelName) return false;
     if (courseName === levelName) return false;
@@ -119,3 +120,26 @@ async function renameCourses() {
 }
 
 renameCourses();
+=======
+async function renameCourse() {
+    console.log('Renaming course to match level name...');
+
+    // Level: Iniciación a la Vela
+    // Course: Iniciación a la Vela Ligera -> Iniciación a la Vela
+    const { error } = await supabase
+        .from('cursos')
+        .update({
+            nombre_es: 'Iniciación a la Vela',
+            nombre_eu: 'Belaren Hasiera',
+            slug: 'iniciacion-vela' // Matching the level slug more closely
+        })
+        .eq('slug', 'iniciacion-vela-ligera');
+
+    if (error) console.error(error);
+    else console.log('✓ Renamed course "Iniciación a la Vela Ligera" to "Iniciación a la Vela"');
+
+    // Check others (although they have no courses yet, we should fix the logic if they are added later)
+}
+
+renameCourse();
+>>>>>>> pr-286

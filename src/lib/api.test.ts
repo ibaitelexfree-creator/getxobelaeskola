@@ -27,6 +27,9 @@ describe('getApiBaseUrl', () => {
             origin: 'http://localhost:3000',
         };
         vi.stubGlobal('window', { location: mockLocation });
+        vi.stubEnv('NODE_ENV', 'development');
+        // Clear NEXT_PUBLIC_APP_URL to prevent it from taking precedence if set in test setup
+        delete process.env.NEXT_PUBLIC_APP_URL;
 
         expect(getApiBaseUrl()).toBe('http://localhost:3000');
     });

@@ -10,9 +10,13 @@ export default function NotificationContainer() {
     const genericNotifications = notifications.filter(n => n.type !== 'achievement' && n.type !== 'skill');
 
     return (
+<<<<<<< HEAD
         <div className={`fixed bottom-6 z-[100] flex flex-col gap-4 pointer-events-none transition-all duration-500
             left-2 right-2
             sm:left-auto sm:right-6 sm:w-full ${genericNotifications.some(n => n.type === 'info') ? 'sm:max-w-md' : 'sm:max-w-sm'}`}>
+=======
+        <div className={`fixed bottom-6 right-6 z-[100] flex flex-col gap-4 w-full ${genericNotifications.some(n => n.type === 'info') ? 'max-w-md' : 'max-w-sm'} pointer-events-none transition-all duration-500`}>
+>>>>>>> pr-286
             {genericNotifications.map((n) => (
                 <NotificationItem key={n.id} notification={n} onDismiss={() => removeNotification(n.id)} />
             ))}

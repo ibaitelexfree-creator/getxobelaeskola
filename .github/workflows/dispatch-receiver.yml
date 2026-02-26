@@ -7,7 +7,11 @@ on:
 
 env:
   NODE_VERSION: "22"
+<<<<<<< HEAD
   JAVA_VERSION: "21"
+=======
+  JAVA_VERSION: "17"
+>>>>>>> pr-286
   BROWSERLESS_TOKEN: ${{ secrets.BROWSERLESS_TOKEN }}
 
 jobs:

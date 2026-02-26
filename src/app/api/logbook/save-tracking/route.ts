@@ -46,6 +46,7 @@ export async function POST(req: Request) {
 
         if (error) throw error;
 
+<<<<<<< HEAD
         // 3. Save to Exploration System
         try {
             const { ExplorationService } = await import('@/lib/geospatial/exploration-service');
@@ -54,6 +55,8 @@ export async function POST(req: Request) {
             console.error('Exploration sync error from tracking:', e);
         }
 
+=======
+>>>>>>> pr-286
         return NextResponse.json({
             success: true,
             sessionId: data.id,
@@ -61,8 +64,14 @@ export async function POST(req: Request) {
             durationH
         });
 
+<<<<<<< HEAD
     } catch (err: unknown) {
         console.error('Error saving tracking session:', err);
         return NextResponse.json({ error: err instanceof Error ? err.message : 'Internal Server Error' }, { status: 500 });
+=======
+    } catch (err: any) {
+        console.error('Error saving tracking session:', err);
+        return NextResponse.json({ error: err.message || 'Internal Server Error' }, { status: 500 });
+>>>>>>> pr-286
     }
 }

@@ -66,7 +66,10 @@ async function callMemoryTool(tool, params = {}) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ tool, params }),
+<<<<<<< HEAD
       signal: AbortSignal.timeout(10000), // 10s timeout
+=======
+>>>>>>> pr-286
     });
 
     if (!response.ok) {

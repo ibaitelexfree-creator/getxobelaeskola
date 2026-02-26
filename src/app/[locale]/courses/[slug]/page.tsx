@@ -17,7 +17,11 @@ export async function generateMetadata({
     params: { locale: string; slug: string }
 }): Promise<Metadata> {
     const supabase = createClient();
+<<<<<<< HEAD
     let course: any = null;
+=======
+    let course = null;
+>>>>>>> pr-286
     try {
         const { data } = await supabase
             .from('cursos')
@@ -57,7 +61,11 @@ export async function generateMetadata({
         }
     };
 
+<<<<<<< HEAD
     const displayCourse = (course || fallbacks[slug]) as any;
+=======
+    const displayCourse = course || fallbacks[slug];
+>>>>>>> pr-286
     if (!displayCourse) return { title: 'Curso no encontrado' };
 
     const name = locale === 'es' ? displayCourse.nombre_es : displayCourse.nombre_eu;
@@ -97,26 +105,25 @@ export default async function CourseDetailPage({
     params: { locale, slug }
 }: {
     params: { locale: string; slug: string }
-}) {
-    interface Edition {
-        id: string;
-        fecha_inicio: string;
         fecha_fin: string;
         plazas_totales: number;
         plazas_ocupadas: number;
         is_calendar_event?: boolean;
     }
 
-    interface CourseFallback {
-        id: string;
         nombre_es: string;
         nombre_eu: string;
+<<<<<<< HEAD
         nombre_en?: string;
         nombre_fr?: string;
         descripcion_es: string;
         descripcion_eu: string;
         descripcion_en?: string;
         descripcion_fr?: string;
+=======
+        descripcion_es: string;
+        descripcion_eu: string;
+>>>>>>> pr-286
         precio: number;
         duracion_h: number;
         nivel: string;
@@ -129,7 +136,11 @@ export default async function CourseDetailPage({
     const supabase = createClient();
 
     // 1. Fetch main course data
+<<<<<<< HEAD
     let course: any = null;
+=======
+    let course = null;
+>>>>>>> pr-286
     try {
         const { data } = await supabase
             .from('cursos')
@@ -255,7 +266,11 @@ export default async function CourseDetailPage({
         }
     };
 
+<<<<<<< HEAD
     const displayCourse = (course || fallbacks[slug]) as any;
+=======
+    const displayCourse = course || fallbacks[slug];
+>>>>>>> pr-286
 
     if (!displayCourse) {
         notFound();
@@ -267,6 +282,7 @@ export default async function CourseDetailPage({
     const currentLocale = locale as 'es' | 'eu' | 'en' | 'fr';
 
     const name = (currentLocale === 'eu' && displayCourse.nombre_eu) ? displayCourse.nombre_eu :
+<<<<<<< HEAD
         (currentLocale === 'en' && displayCourse.nombre_es) ? displayCourse.nombre_es :
             (currentLocale === 'fr' && displayCourse.nombre_es) ? displayCourse.nombre_es :
                 displayCourse.nombre_es || displayCourse.nombre_es || displayCourse.nombre_eu || 'Course';
@@ -274,6 +290,15 @@ export default async function CourseDetailPage({
     const description = (currentLocale === 'eu' && displayCourse.descripcion_eu) ? displayCourse.descripcion_eu :
         (currentLocale === 'en' && displayCourse.descripcion_es) ? displayCourse.descripcion_es :
             (currentLocale === 'fr' && displayCourse.descripcion_es) ? displayCourse.descripcion_es :
+=======
+        (currentLocale === 'en' && displayCourse.nombre_en) ? displayCourse.nombre_en :
+            (currentLocale === 'fr' && displayCourse.nombre_fr) ? displayCourse.nombre_fr :
+                displayCourse.nombre_es || displayCourse.nombre_en || displayCourse.nombre_eu || 'Course';
+
+    const description = (currentLocale === 'eu' && displayCourse.descripcion_eu) ? displayCourse.descripcion_eu :
+        (currentLocale === 'en' && displayCourse.descripcion_en) ? displayCourse.descripcion_en :
+            (currentLocale === 'fr' && displayCourse.descripcion_fr) ? displayCourse.descripcion_fr :
+>>>>>>> pr-286
                 displayCourse.descripcion_es || 'Course description...';
 
     const jsonLd = {
@@ -307,6 +332,7 @@ export default async function CourseDetailPage({
                     </Link>
 
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-20">
+<<<<<<< HEAD
                         {/* Mobile: booking first (above-the-fold). Desktop: right column via order */}
                         <div className="space-y-12 lg:order-last">
                             <div className="relative h-[300px] md:h-[450px] rounded-sm overflow-hidden border border-white/10 shadow-2xl">
@@ -332,6 +358,9 @@ export default async function CourseDetailPage({
                         </div>
 
                         <div className="space-y-12 lg:order-first">
+=======
+                        <div className="space-y-12">
+>>>>>>> pr-286
                             <h1 className="text-6xl md:text-8xl font-display leading-tight">{name}</h1>
                             <div className="w-24 h-px bg-accent/30" />
                             <p className="text-xl font-light leading-relaxed text-foreground/80">
@@ -367,6 +396,31 @@ export default async function CourseDetailPage({
                                 </div>
                             )}
                         </div>
+<<<<<<< HEAD
+=======
+
+                        <div className="space-y-12">
+                            <div className="relative h-[450px] rounded-sm overflow-hidden border border-white/10 shadow-2xl">
+                                <Image
+                                    src={displayCourse.imagen_url || 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5997?auto=format&fit=crop&q=80&w=2074'}
+                                    alt={name}
+                                    fill
+                                    priority
+                                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 800px"
+                                    className="object-cover"
+                                />
+                            </div>
+
+                            <div className="card-luxury p-10 bg-white/5 backdrop-blur-xl border border-white/10">
+                                <h3 className="font-display text-4xl mb-6 text-sea-foam">Reserva tu plaza</h3>
+                                <BookingSelector
+                                    editions={displayEditions}
+                                    coursePrice={displayCourse.precio}
+                                    courseId={displayCourse.id}
+                                />
+                            </div>
+                        </div>
+>>>>>>> pr-286
                     </div>
                 </div>
             </div>

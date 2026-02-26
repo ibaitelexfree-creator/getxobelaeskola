@@ -90,9 +90,13 @@ function updatePhysics(dt: number) {
     newHeading = ((newHeading % 360) + 360) % 360;
 
     // 4. Heel Physics
+<<<<<<< HEAD
     // Apparent wind from starboard (positive angle) should heel to port (positive heel)
     const heelSide = physics.apparentWindAngle >= 0 ? 1 : -1;
     const targetHeel = Math.min(45, physics.heelForce * 20) * heelSide;
+=======
+    const targetHeel = Math.min(45, physics.heelForce * 20);
+>>>>>>> pr-286
     const heelDiff = targetHeel - state.heelAngle;
     const newHeel = state.heelAngle + (heelDiff * deltaTime * 2.0);
 

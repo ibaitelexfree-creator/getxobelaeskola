@@ -8,7 +8,10 @@
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
+<<<<<<< HEAD
     "noImplicitAny": false,
+=======
+>>>>>>> pr-286
     "noEmit": true,
     "esModuleInterop": true,
     "module": "esnext",
@@ -17,7 +20,10 @@
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,
+<<<<<<< HEAD
     "downlevelIteration": true,
+=======
+>>>>>>> pr-286
     "plugins": [
       {
         "name": "next"
@@ -36,6 +42,7 @@
     ".next/types/**/*.ts"
   ],
   "exclude": [
+<<<<<<< HEAD
     "node_modules",
     "supabase/functions",
     "mission-control",
@@ -43,5 +50,8 @@
     "scripts",
     "mission-control.db",
     "supabase/functions"
+=======
+    "node_modules"
+>>>>>>> pr-286
   ]
 }

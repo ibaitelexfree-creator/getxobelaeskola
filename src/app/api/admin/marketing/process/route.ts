@@ -46,6 +46,7 @@ export async function POST(request: Request) {
         const result = await processMarketingAutomations();
 
         return NextResponse.json({
+<<<<<<< HEAD
             ...result,
             success: true,
             timestamp: new Date().toISOString()
@@ -57,6 +58,18 @@ export async function POST(request: Request) {
         return NextResponse.json({
             success: false,
             error: err.message || 'Error interno del servidor'
+=======
+            success: true,
+            timestamp: new Date().toISOString(),
+            ...result
+        });
+
+    } catch (error: any) {
+        console.error('Marketing process API error:', error);
+        return NextResponse.json({
+            success: false,
+            error: error.message || 'Error interno del servidor'
+>>>>>>> pr-286
         }, { status: 500 });
     }
 }
