@@ -153,7 +153,7 @@ export async function POST(request: Request) {
 
                     const next = calculateNextReview(current.interval, current.ease_factor, isCorrect);
 
-                    updates.push({ // @ts-expect-error: Ignoring type mismatch for upsert payload
+                    updates.push({
 
                         user_id: user.id,
                         question_id: q.id,

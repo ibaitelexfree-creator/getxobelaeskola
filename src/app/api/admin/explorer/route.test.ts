@@ -11,73 +11,56 @@ vi.mock('next/headers', () => ({
     cookies: vi.fn(),
 }));
 
-describe('Admin Explorer API Performance Optimization', () => {
+describe('Admin Explorer API', () => {
     let mockSupabase: any;
+
+    const createChain = (response: any = { data: [], error: null }) => {
+        const chain: any = {
+            select: vi.fn().mockReturnThis(),
+            or: vi.fn().mockReturnThis(),
+            limit: vi.fn().mockResolvedValue(response),
+            in: vi.fn().mockResolvedValue(response),
+            eq: vi.fn().mockReturnThis(),
+            single: vi.fn().mockResolvedValue(response)
+        };
+        return chain;
+    };
 
     beforeEach(() => {
         vi.clearAllMocks();
-        // Base mock structure
         mockSupabase = {
             from: vi.fn(),
         };
         (createClient as any).mockReturnValue(mockSupabase);
     });
 
-    it('should use resource embedding and avoid N+1 queries for profiles', async () => {
+    it('should correctly aggregate relations using manual batching', async () => {
         const mockData = [
             {
                 id: 'user1',
                 nombre: 'John',
-                count_reservas_alquiler_perfil_id: [{ count: 2 }],
-                count_inscripciones_perfil_id: [{ count: 1 }],
-                count_mensajes_contacto_email: [{ count: 0 }],
-                count_newsletter_subscriptions_email: [{ count: 5 }]
+                email: 'john@example.com'
             }
         ];
 
-        // Setup mock responses based on table
+        // Mocks for relation queries
+        const chainReservas = createChain({ data: [{ perfil_id: 'user1' }, { perfil_id: 'user1' }], error: null });
+        const chainInscripciones = createChain({ data: [{ perfil_id: 'user1' }], error: null });
+        const chainMensajes = createChain({ data: [], error: null });
+        const chainSubscriptions = createChain({ data: Array(5).fill({ email: 'john@example.com' }), error: null });
+        const chainProfiles = createChain({ data: mockData, error: null });
+
+        // Capture the select mock for verification
+        const selectProfiles = chainProfiles.select;
+
         mockSupabase.from.mockImplementation((table: string) => {
-            if (table === 'profiles') {
-                return {
-                    select: vi.fn().mockReturnThis(),
-                    or: vi.fn().mockReturnThis(),
-                    limit: vi.fn().mockResolvedValue({ data: mockData, error: null })
-                };
-            }
-            if (table === 'reservas_alquiler') {
-                return {
-                    select: vi.fn().mockReturnThis(),
-                    in: vi.fn().mockResolvedValue({ data: [{ perfil_id: 'user1' }, { perfil_id: 'user1' }], error: null })
-                };
-            }
-            if (table === 'inscripciones') {
-                return {
-                    select: vi.fn().mockReturnThis(),
-                    in: vi.fn().mockResolvedValue({ data: [{ perfil_id: 'user1' }], error: null })
-                };
-            }
-            if (table === 'mensajes_contacto') {
-                return {
-                    select: vi.fn().mockReturnThis(),
-                    in: vi.fn().mockResolvedValue({ data: [], error: null })
-                };
-            }
-            if (table === 'newsletter_subscriptions') {
-                return {
-                    select: vi.fn().mockReturnThis(),
-                    in: vi.fn().mockResolvedValue({
-                        data: Array(5).fill({ email: 'john@example.com' }),
-                        error: null
-                    })
-                };
-            }
-            // Default mock for any other table
-            return {
-                select: vi.fn().mockReturnThis(),
-                or: vi.fn().mockReturnThis(),
-                limit: vi.fn().mockResolvedValue({ data: [], error: null }),
-                in: vi.fn().mockResolvedValue({ data: [], error: null })
-            };
+            if (table === 'profiles') return chainProfiles;
+            if (table === 'reservas_alquiler') return chainReservas;
+            if (table === 'inscripciones') return chainInscripciones;
+            if (table === 'mensajes_contacto') return chainMensajes;
+            if (table === 'newsletter_subscriptions') return chainSubscriptions;
+
+            return createChain();
         });
 
         const req = new Request('http://localhost/api/admin/explorer?q=john&table=profiles');
@@ -87,47 +70,32 @@ describe('Admin Explorer API Performance Optimization', () => {
         // Verify that from was called with 'profiles'
         expect(mockSupabase.from).toHaveBeenCalledWith('profiles');
 
-        // Verify that select was called with the optimized embedding string with aliases
-        const selectCall = mockSupabase.select.mock.calls[0][0];
-        expect(selectCall).toContain('count_reservas_alquiler_perfil_id:reservas_alquiler!perfil_id(count)');
-        expect(selectCall).toContain('count_inscripciones_perfil_id:inscripciones!perfil_id(count)');
-        expect(selectCall).toContain('count_mensajes_contacto_email:mensajes_contacto!email(count)');
-        expect(selectCall).toContain('count_newsletter_subscriptions_email:newsletter_subscriptions!email(count)');
+        // Verify that main query was simple select *
+        expect(selectProfiles).toHaveBeenCalledWith('*');
 
-        // Verify output format is correctly mapped from aliased results
-        expect(json.results[0]._relations).toHaveLength(3); // 2 rentals + 1 inscripcion + 5 subscriptions (0 messages skipped)
-        expect(json.results[0]._relations).toContainEqual({ label: 'Alquileres', count: 2, table: 'reservas_alquiler' });
-        expect(json.results[0]._relations).toContainEqual({ label: 'Cursos Inscritos', count: 1, table: 'inscripciones' });
-        expect(json.results[0]._relations).toContainEqual({ label: 'Suscripciones (por Email)', count: 5, table: 'newsletter_subscriptions' });
+        // Verify that secondary queries were made for relations
+        expect(mockSupabase.from).toHaveBeenCalledWith('reservas_alquiler');
+        expect(mockSupabase.from).toHaveBeenCalledWith('inscripciones');
+        expect(mockSupabase.from).toHaveBeenCalledWith('newsletter_subscriptions');
 
-        const rentalRel = json.results[0]._relations.find((r: any) => r.table === 'reservas_alquiler');
+        // Verify aggregation
+        const relations = json.results[0]._relations;
+        expect(relations).toHaveLength(3);
+
+        const rentalRel = relations.find((r: any) => r.table === 'reservas_alquiler');
         expect(rentalRel).toEqual({ label: 'Alquileres', count: 2, table: 'reservas_alquiler' });
 
-        const subRel = json.results[0]._relations.find((r: any) => r.table === 'newsletter_subscriptions');
+        const subRel = relations.find((r: any) => r.table === 'newsletter_subscriptions');
         expect(subRel).toEqual({ label: 'Suscripciones (por Email)', count: 5, table: 'newsletter_subscriptions' });
-
-        // Verify total queries: 1 (main) + 4 (relations) = 5
-        expect(mockSupabase.from).toHaveBeenCalledTimes(5);
     });
 
     it('should correctly handle tables without relations', async () => {
         const mockData = [{ id: 'res1', estado_entrega: 'pendiente' }];
+        const chainReservas = createChain({ data: mockData, error: null });
 
         mockSupabase.from.mockImplementation((table: string) => {
-            if (table === 'reservas_alquiler') {
-                return {
-                    select: vi.fn().mockReturnThis(),
-                    or: vi.fn().mockReturnThis(),
-                    limit: vi.fn().mockResolvedValue({ data: mockData, error: null }),
-                    in: vi.fn().mockResolvedValue({ data: [], error: null })
-                };
-            }
-            return {
-                select: vi.fn().mockReturnThis(),
-                or: vi.fn().mockReturnThis(),
-                limit: vi.fn().mockResolvedValue({ data: [], error: null }),
-                in: vi.fn().mockResolvedValue({ data: [], error: null })
-            };
+            if (table === 'reservas_alquiler') return chainReservas;
+            return createChain();
         });
 
         const req = new Request('http://localhost/api/admin/explorer?q=res1&table=reservas_alquiler');
@@ -136,39 +104,19 @@ describe('Admin Explorer API Performance Optimization', () => {
 
         expect(mockSupabase.from).toHaveBeenCalledWith('reservas_alquiler');
         expect(json.results[0]._relations).toHaveLength(0);
-        // Only 1 query since no relations configured for reservas_alquiler in RELATIONS map
+        // Only 1 query (main) + 0 queries (relations) = 1
         expect(mockSupabase.from).toHaveBeenCalledTimes(1);
     });
 
-    it('should search all tables in parallel and perform one query per table', async () => {
-        mockSupabase.limit.mockResolvedValue({ data: [], error: null });
+    it('should search all tables in parallel', async () => {
+        // Setup simple mocks for all tables
+        mockSupabase.from.mockImplementation(() => createChain({ data: [], error: null }));
 
-        mockSupabase.from.mockImplementation((table: string) => {
-            if (table === 'profiles') {
-                return {
-                    select: vi.fn().mockReturnThis(),
-                    or: vi.fn().mockReturnThis(),
-                    limit: vi.fn().mockResolvedValue({ data: [], error: null })
-                };
-            }
-            if (table === 'reservas_alquiler') {
-                return {
-                    select: vi.fn().mockReturnThis(),
-                    in: vi.fn().mockResolvedValue({
-                        data: null,
-                        error: { message: 'DB Error' }
-                    })
-                };
-            }
-            // Other relations succeed
-            return {
-                select: vi.fn().mockReturnThis(),
-                in: vi.fn().mockResolvedValue({ data: [], error: null })
-            };
-        });
+        // We trigger a search across all tables (no 'table' param)
+        const req = new Request('http://localhost/api/admin/explorer?q=search');
+        await GET(req);
 
-        // Should call from once for each table in SEARCHABLE_COLS (6 tables)
-        expect(mockSupabase.from).toHaveBeenCalledTimes(6);
+        // Should call from for each table in SEARCHABLE_COLS (6 tables)
         expect(mockSupabase.from).toHaveBeenCalledWith('profiles');
         expect(mockSupabase.from).toHaveBeenCalledWith('cursos');
         expect(mockSupabase.from).toHaveBeenCalledWith('embarcaciones');
