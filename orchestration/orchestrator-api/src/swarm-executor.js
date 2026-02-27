@@ -264,15 +264,20 @@ async function executeSingleTask(db, swarmId, task, relayContext, chatId) {
 
     for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
         try {
-            console.log(`[Swarm] Creating session for ${taskId} (attempt ${attempt + 1}, account: ${accountEmail})`);
+            let sessionId = task.jules_session_id || task.julesSessionId;
+            let session = null;
 
-            const session = await createJulesSession(task, relayContext);
-            const sessionId = session.name;
+            if (!sessionId) {
+                console.log(`[Swarm] Creating session for ${taskId} (attempt ${attempt + 1}, account: ${accountEmail})`);
+                session = await createJulesSession(task, relayContext);
+                sessionId = session.name;
+                await updateTaskStatus(db, swarmId, taskId, 'running', { julesSessionId: sessionId });
 
-            await updateTaskStatus(db, swarmId, taskId, 'running', { julesSessionId: sessionId });
-
-            if (chatId) {
-                await sendMessage(chatId, `  🔧 \`${taskId}\`: ${task.title} → Sesión creada`);
+                if (chatId) {
+                    await sendMessage(chatId, `  🔧 \`${taskId}\`: ${task.title} → Sesión creada`);
+                }
+            } else {
+                console.log(`[Swarm] Reusing existing session for ${taskId}: ${sessionId}`);
             }
 
             const apiKey = ACCOUNTS_MAP[accountEmail];

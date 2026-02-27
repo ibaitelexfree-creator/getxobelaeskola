@@ -87,7 +87,7 @@ export default function VerifyCertificateClient({ params }: { params: { locale: 
                 {error ? (
                     <div className="bg-red-500/5 border border-red-500/20 backdrop-blur-xl rounded-3xl p-12 text-center animate-in fade-in zoom-in duration-500">
                         <div className="text-6xl mb-6">🚫</div>
-                        <h1 className="text-3xl font-display italic text-red-500 mb-4">Certificado Inválido</h1>
+                        <h2 className="text-3xl font-display italic text-red-500 mb-4">Certificado Inválido</h2>
                         <p className="text-white/60 mb-8 max-w-md mx-auto">
                             El código de verificación proporcionado no corresponde a ningún certificado emitido oficialmente por Getxo Bela Eskola.
                         </p>

@@ -7,6 +7,10 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <html lang="es">
             <head>
                 <title>Getxo Bela Eskola</title>
+                <meta name="description" content="Getxo Bela Eskola - Escuela de Navegación en Getxo" />
+                <meta property="og:title" content="Getxo Bela Eskola" />
+                <meta property="og:description" content="Aprende a navegar en el Cantábrico." />
+                <meta property="og:type" content="website" />
                 <meta name="viewport" content="width=device-width, initial-scale=1" />
             </head>
             <body>{children}</body>

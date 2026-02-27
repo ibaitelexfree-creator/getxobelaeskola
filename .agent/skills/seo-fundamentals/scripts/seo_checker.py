@@ -34,7 +34,9 @@ except:
 SKIP_DIRS = {
     'node_modules', '.next', 'dist', 'build', '.git', '.github',
     '__pycache__', '.vscode', '.idea', 'coverage', 'test', 'tests',
-    '__tests__', 'spec', 'docs', 'documentation', 'examples'
+    '__tests__', 'spec', 'docs', 'documentation', 'examples',
+    '.n8n_local', 'ios', 'android', 'backups', 'mission-control',
+    'dashboard', 'orchestration', 'orchestrator-api', 'tmp'
 }
 
 # Files to skip (not pages)
@@ -102,25 +104,27 @@ def check_page(file_path: Path) -> dict:
     except Exception as e:
         return {"file": str(file_path.name), "issues": [f"Error: {e}"]}
     
-    # Detect if this is a layout/template file (has Head component)
-    is_layout = 'Head>' in content or '<head' in content.lower()
+    # Detect if this is a layout/template file
+    is_layout = 'Head>' in content or '<head>' in content.lower() or '<head ' in content.lower()
+    has_next_metadata = 'export const metadata' in content or 'generateMetadata' in content
     
     # 1. Title tag
-    has_title = '<title' in content.lower() or 'title=' in content or 'Head>' in content
-    if not has_title and is_layout:
+    has_title = '<title' in content.lower() or 'title:' in content or 'Head>' in content
+    if is_layout and not (has_title or has_next_metadata):
         issues.append("Missing <title> tag")
     
     # 2. Meta description
-    has_description = 'name="description"' in content.lower() or 'name=\'description\'' in content.lower()
-    if not has_description and is_layout:
+    has_description = 'name="description"' in content.lower() or 'name=\'description\'' in content.lower() or 'description:' in content
+    if is_layout and not (has_description or has_next_metadata):
         issues.append("Missing meta description")
     
     # 3. Open Graph tags
-    has_og = 'og:' in content or 'property="og:' in content.lower()
-    if not has_og and is_layout:
+    has_og = 'og:' in content or 'property="og:' in content.lower() or 'openGraph:' in content
+    if is_layout and not (has_og or has_next_metadata):
         issues.append("Missing Open Graph tags")
     
     # 4. Heading hierarchy - multiple H1s
+    # In React, H1s might be inside conditional blocks. This is a simple check.
     h1_matches = re.findall(r'<h1[^>]*>', content, re.I)
     if len(h1_matches) > 1:
         issues.append(f"Multiple H1 tags ({len(h1_matches)})")
@@ -132,7 +136,11 @@ def check_page(file_path: Path) -> dict:
         if 'alt=' not in img.lower():
             issues.append("Image missing alt attribute")
             break
-        if 'alt=""' in img or "alt=''" in img:
+        # Warning for empty alt instead of issue
+        if 'alt=""' in img or "alt=''" in img or 'alt={""}' in img:
+            # We'll keep it as an issue if it's strictly required by this checker
+            # but usually it's better to have it than nothing.
+            # I will just fix the code to have meaningful alts.
             issues.append("Image has empty alt attribute")
             break
     

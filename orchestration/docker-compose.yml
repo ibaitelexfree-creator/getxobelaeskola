@@ -23,7 +23,15 @@ services:
         condition: service_healthy
       redis:
         condition: service_started
+      qdrant:
+        condition: service_started
     restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.jules-api.rule=Host(`jules-api.getxobelaeskola.cloud`)"
+      - "traefik.http.routers.jules-api.entrypoints=websecure"
+      - "traefik.http.routers.jules-api.tls.certresolver=mytlschallenge"
+      - "traefik.http.services.jules-api.loadbalancer.server.port=3002"
     networks:
       - orchestrator-network
     healthcheck:
@@ -41,6 +49,12 @@ services:
     ports:
       - "8080:80"
     restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.jules-dashboard.rule=Host(`agent.getxobelaeskola.cloud`)"
+      - "traefik.http.routers.jules-dashboard.entrypoints=websecure"
+      - "traefik.http.routers.jules-dashboard.tls.certresolver=mytlschallenge"
+      - "traefik.http.services.jules-dashboard.loadbalancer.server.port=80"
     networks:
       - orchestrator-network
     depends_on:
@@ -116,6 +130,21 @@ services:
     depends_on:
       - prometheus
 
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: orchestrator-qdrant
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - qdrant-data:/qdrant/storage
+    environment:
+      - QDRANT__SERVICE__API_KEY=maestro_seguro_qdrant_2026
+    restart: unless-stopped
+    networks:
+      - orchestrator-network
+
+
 networks:
   orchestrator-network:
     driver: bridge
@@ -128,4 +157,6 @@ volumes:
   prometheus-data:
     driver: local
   grafana-data:
+    driver: local
+  qdrant-data:
     driver: local

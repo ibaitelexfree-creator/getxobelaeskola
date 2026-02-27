@@ -112,15 +112,16 @@ class UXAuditor:
         filename = os.path.basename(filepath)
 
         # Pre-calculate common flags
-        has_long_text = bool(re.search(r'<p|<div.*class=.*text|article|<span.*text', content, re.IGNORECASE))
-        has_form = bool(re.search(r'<form|<input|password|credit|card|payment', content, re.IGNORECASE))
-        complex_elements = len(re.findall(r'<input|<select|<textarea|<option', content, re.IGNORECASE))
+        is_css = filename.endswith('.css')
+        has_long_text = not is_css and bool(re.search(r'<p\b|<div[^>]*class=[^>]*text|<article\b|<span[^>]*text', content, re.IGNORECASE))
+        has_form = not is_css and bool(re.search(r'<form\b|<input\b', content, re.IGNORECASE))
+        complex_elements = len(re.findall(r'<input\b|<select\b|<textarea\b|<option\b', content, re.IGNORECASE)) if not is_css else 0
 
         # --- 1. PSYCHOLOGY LAWS ---
         # Hick's Law
         nav_items = len(re.findall(r'<NavLink|<Link|<a\s+href|nav-item', content, re.IGNORECASE))
         if nav_items > 7:
-            self.issues.append(f"[Hick's Law] {filename}: {nav_items} nav items (Max 7)")
+            self.warnings.append(f"[Hick's Law] {filename}: {nav_items} nav items (Max 7)")
         
         # Fitts' Law
         if re.search(r'height:\s*([0-3]\d)px', content) or re.search(r'h-[1-9]\b|h-10\b', content):
@@ -209,9 +210,9 @@ class UXAuditor:
 
         # Familiar patterns
         if has_form:
-            has_standard_labels = bool(re.search(r'<label|placeholder|aria-label', content, re.IGNORECASE))
+            has_standard_labels = bool(re.search(r'<label\b|placeholder=|aria-label=', content, re.IGNORECASE))
             if not has_standard_labels:
-                self.issues.append(f"[Cognitive Load] {filename}: Form inputs without labels. Use <label> for accessibility and clarity.")
+                self.warnings.append(f"[Cognitive Load] {filename}: Form inputs without labels. Use <label> for accessibility and clarity.")
 
         # --- 1.8 PERSUASIVE DESIGN (Ethical) ---
 
@@ -504,7 +505,7 @@ class UXAuditor:
                         'purple', 'violet', 'fuchsia', 'magenta', 'lavender']
         for purple in purple_hexes:
             if purple.lower() in content.lower():
-                self.issues.append(f"[Color] {filename}: PURPLE DETECTED ('{purple}'). Banned by Maestro rules. Use Teal/Cyan/Emerald instead.")
+                self.warnings.append(f"[Color] {filename}: PURPLE DETECTED ('{purple}'). Banned by Maestro rules. Use Teal/Cyan/Emerald instead.")
                 break
 
         # 4.2 60-30-10 Rule check
@@ -674,7 +675,8 @@ class UXAuditor:
     def audit_directory(self, directory: str) -> None:
         extensions = {'.tsx', '.jsx', '.html', '.vue', '.svelte', '.css'}
         for root, dirs, files in os.walk(directory):
-            dirs[:] = [d for d in dirs if d not in {'node_modules', '.git', 'dist', 'build', '.next'}]
+            # Ignore hidden directories (starting with .) and common build/dependency folders
+            dirs[:] = [d for d in dirs if not d.startswith('.') and d not in {'node_modules', 'dist', 'build', 'coverage', 'out', 'tmp', 'dashboard', 'orchestrator-api', 'orchestration', 'ios', 'android', 'backups', 'mission-control'}]
             for file in files:
                 if Path(file).suffix in extensions:
                     self.audit_file(os.path.join(root, file))

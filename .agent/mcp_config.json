@@ -15,10 +15,26 @@
                 "shadcn@latest",
                 "mcp"
             ]
+        },
+        "docker": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "@modelcontextprotocol/server-docker"
+            ]
+        },
+        "qdrant": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "@mhalder/qdrant-mcp-server"
+            ],
+            "env": {
+                "QDRANT_URL": "http://localhost:6333",
+                "QDRANT_API_KEY": "maestro_seguro_qdrant_2026"
+            }
         }
         //other mcp servers
     }
 }
-
 // setup mcp server in  ~/.gemini\antigravity\mcp_config.json
-

@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mission Control | Gateway Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@400;700&display=swap"
+        rel="stylesheet">
+</head>
+
+<body class="dark-mode">
+    <div class="glow-container"></div>
+
+    <header class="main-header">
+        <div class="brand">
+            <span class="logo">🦅</span>
+            <h1>MISSION CONTROL</h1>
+            <span class="version">v4.0.0-CANARY</span>
+        </div>
+        <div class="system-status" id="system-status-container">
+            <div class="status-indicator" id="main-status-indicator"></div>
+            <span id="gateway-status-text">HEALTHY</span>
+        </div>
+    </header>
+
+    <main class="dashboard-content">
+        <!-- KPI Grid -->
+        <section class="kpi-grid">
+            <div class="kpi-card glass" id="card-gateway">
+                <h3>GATEWAY</h3>
+                <div class="kpi-value" id="kpi-gateway-failures">0</div>
+                <div class="kpi-label">Fallos Consecutivos</div>
+                <div class="kpi-sub" id="kpi-canary-count">Canary: 0</div>
+            </div>
+            <div class="kpi-card glass" id="card-auditor">
+                <h3>AUDITOR DRIFT</h3>
+                <div class="kpi-value" id="kpi-drift">0%</div>
+                <div class="kpi-label">Avg Score (24h): <span id="kpi-avg-score">0</span></div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" id="drift-progress"></div>
+                </div>
+            </div>
+            <div class="kpi-card glass highlight" id="card-killswitch">
+                <h3>KILL SWITCH</h3>
+                <div class="kpi-value" id="kpi-killswitch-status">OFF</div>
+                <div class="kpi-label" id="kpi-global-status">GLOBAL_EXEC_ENABLED</div>
+            </div>
+            <div class="kpi-card glass" id="card-performance">
+                <h3>RUNTIME</h3>
+                <div class="kpi-value" id="kpi-heap">0 MB</div>
+                <div class="kpi-label">Event Loop: <span id="kpi-lag">0</span>ms</div>
+            </div>
+        </section>
+
+        <!-- Expansion & Stability Grid -->
+        <section class="kpi-grid stability-grid">
+            <div class="kpi-card glass" id="card-ssi">
+                <h3>STABILITY INDEX (SSI)</h3>
+                <div class="kpi-value" id="kpi-ssi-total">0</div>
+                <div class="kpi-label">Health Score (Min 75)</div>
+            </div>
+            <div class="kpi-card glass" id="card-canary-limit">
+                <h3>EXPANSION LIMIT</h3>
+                <div class="kpi-value" id="kpi-limit-val">50%</div>
+                <div class="kpi-label">Current Canary Scale</div>
+            </div>
+            <div class="kpi-card glass" id="card-semantic">
+                <h3>SEMANTIC DRIFT</h3>
+                <div class="kpi-value" id="kpi-semantic-total">0</div>
+                <div class="kpi-label">Failures / 24h</div>
+            </div>
+        </section>
+
+        <!-- Finance KPI Grid -->
+        <section class="kpi-grid finance-grid">
+            <div class="kpi-card glass coin" id="card-daily-cost">
+                <h3>DAILY COST</h3>
+                <div class="kpi-value">$<span id="kpi-daily-cost">0.00</span></div>
+                <div class="kpi-label">Tokens: <span id="kpi-daily-tokens">0</span></div>
+            </div>
+            <div class="kpi-card glass" id="card-total-cost">
+                <h3>TOTAL COST</h3>
+                <div class="kpi-value">$<span id="kpi-total-cost">0.00</span></div>
+                <div class="kpi-label">Acumulado (All Time)</div>
+            </div>
+            <div class="kpi-card glass" id="card-projection">
+                <h3>PROYECCIÓN</h3>
+                <div class="kpi-value">$<span id="kpi-projection">0.00</span></div>
+                <div class="kpi-label">Mensual Estimado</div>
+            </div>
+            <div class="kpi-card glass" id="card-tpm">
+                <h3>BURN RATE</h3>
+                <div class="kpi-value"><span id="kpi-tpm">0</span></div>
+                <div class="kpi-label">Tokens/Min (Last 5m)</div>
+            </div>
+        </section>
+
+        <!-- Main Body Grid -->
+        <div class="body-grid">
+            <!-- Jobs List -->
+            <section class="panel glass missions-panel">
+                <div class="panel-header">
+                    <h2>MISIONES RECIENTES</h2>
+                    <div class="controls">
+                        <select id="status-filter">
+                            <option value="">TODOS</option>
+                            <option value="READY_FOR_EXECUTION">READY</option>
+                            <option value="EXECUTION_TRIGGERED">TRIGGERED</option>
+                            <option value="GATEWAY_DEGRADED">DEGRADED</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table id="jobs-table">
+                        <thead>
+                            <tr>
+                                <th>JOB ID</th>
+                                <th>ESTADO</th>
+                                <th>SCORE</th>
+                                <th>DRIFT</th>
+                                <th>UPDATED</th>
+                                <th>ACCIÓN</th>
+                            </tr>
+                        </thead>
+                        <tbody id="jobs-tbody">
+                            <!-- Injected by app.js -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Distribution Panel -->
+            <aside class="panel glass distribution-panel">
+                <h2>DISTRIBUCIÓN (24H)</h2>
+                <div class="dist-list">
+                    <div class="dist-item">
+                        <span>Audit Failed</span>
+                        <span class="dist-val" id="dist-audit-failed">0</span>
+                    </div>
+                    <div class="dist-item">
+                        <span>Gateway Degraded</span>
+                        <span class="dist-val danger" id="dist-gateway-degraded">0</span>
+                    </div>
+                    <div class="dist-item">
+                        <span>Execution Triggered</span>
+                        <span class="dist-val success" id="dist-execution-triggered">0</span>
+                    </div>
+                    <div class="dist-item">
+                        <span>Ready</span>
+                        <span class="dist-val info" id="dist-ready">0</span>
+                    </div>
+                </div>
+                <div class="uptime-footer">
+                    UPTIME: <span id="runtime-uptime">0s</span>
+                </div>
+            </aside>
+
+            <!-- Expensive Missions Panel -->
+            <section class="panel glass expensive-panel">
+                <div class="panel-header">
+                    <h2>TOP EXPENSIVE MISSIONS</h2>
+                </div>
+                <div class="table-container small-table">
+                    <table id="expensive-table">
+                        <thead>
+                            <tr>
+                                <th>JOB ID</th>
+                                <th>COST</th>
+                                <th>TOKENS</th>
+                            </tr>
+                        </thead>
+                        <tbody id="expensive-tbody">
+                            <!-- Injected by app.js -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <script src="app.js"></script>
+</body>
+
+</html>

@@ -2,6 +2,9 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import './App.css';
 import { RateLimiterMetrics } from './RateLimiterMetrics';
+import { SwarmVisualizer } from './SwarmVisualizer';
+import { MissionControl } from './MissionControl';
+import Swarm2Audit from './Swarm2Audit';
 
 // Status color and icon maps - defined outside component to avoid recreation
 const STATUS_COLORS = {
@@ -27,6 +30,7 @@ function App() {
   const [stats, setStats] = useState({ total: 0, running: 0, completed: 0, failed: 0 });
   const [executingWorkflow, setExecutingWorkflow] = useState(null);
   const [ws, setWs] = useState(null);
+  const [activeTab, setActiveTab] = useState('dashboard');
 
   useEffect(() => {
     // Fetch initial workflows
@@ -36,7 +40,7 @@ function App() {
       .catch(() => setWorkflows([])); // Graceful error handling
 
     // Connect WebSocket for real-time updates
-    const websocket = new WebSocket('wss://agent.scarmonit.com/ws');
+    const websocket = new WebSocket(`wss://${window.location.host}/ws`);
 
     websocket.onmessage = (event) => {
       const update = JSON.parse(event.data);
@@ -82,10 +86,84 @@ function App() {
   const getStatusColor = useCallback((status) => STATUS_COLORS[status] || '#999', []);
   const getStatusIcon = useCallback((status) => STATUS_ICONS[status] || '•', []);
 
+  if (activeTab === 'swarm') {
+    return (
+      <div className="App alternate-view">
+        <button
+          className="back-button"
+          onClick={() => setActiveTab('dashboard')}
+          style={{
+            position: 'absolute',
+            top: '20px',
+            right: '20px',
+            zIndex: 1000,
+            background: '#00e5ff20',
+            border: '1px solid #00e5ff',
+            color: '#00e5ff',
+            padding: '8px 16px',
+            borderRadius: '8px',
+            cursor: 'pointer'
+          }}
+        >
+          ← Back to Dashboard
+        </button>
+        <Swarm2Audit />
+      </div>
+    );
+  }
+
+  if (activeTab === 'mission_control') {
+    return (
+      <div className="App alternate-view">
+        <button
+          className="back-button"
+          onClick={() => setActiveTab('dashboard')}
+          style={{
+            position: 'absolute',
+            top: '20px',
+            right: '20px',
+            zIndex: 1000,
+            background: '#ff6b3520',
+            border: '1px solid #ff6b35',
+            color: '#ff6b35',
+            padding: '8px 16px',
+            borderRadius: '8px',
+            cursor: 'pointer'
+          }}
+        >
+          ← Back to Dashboard
+        </button>
+        <MissionControl />
+      </div>
+    );
+  }
+
   return (
     <div className="App">
       <header>
-        <h1>🤖 Jules Orchestrator</h1>
+        <div className="header-main">
+          <h1>🤖 Jules Orchestrator</h1>
+          <nav className="header-nav">
+            <button
+              className={activeTab === 'dashboard' ? 'active' : ''}
+              onClick={() => setActiveTab('dashboard')}
+            >
+              📊 Monitoring
+            </button>
+            <button
+              className={activeTab === 'swarm' ? 'active' : ''}
+              onClick={() => setActiveTab('swarm')}
+            >
+              🕸️ Swarm 2.0
+            </button>
+            <button
+              className={activeTab === 'mission_control' ? 'active' : ''}
+              onClick={() => setActiveTab('mission_control')}
+            >
+              🕹️ Mission Control
+            </button>
+          </nav>
+        </div>
         <div className="stats">
           <div className="stat">
             <span className="label">Total</span>
@@ -152,7 +230,7 @@ function App() {
                     {workflow.status}
                   </span>
                 </div>
-                
+
                 <div className="workflow-details">
                   <div className="detail">
                     <span className="detail-label">Template:</span>
@@ -170,7 +248,7 @@ function App() {
                     </div>
                   )}
                 </div>
-                
+
                 {workflow.status === 'awaiting_approval' && (
                   <div className="workflow-actions">
                     <button className="approve">✓ Approve</button>

@@ -60,13 +60,13 @@ export default function LeaderboardClient({
         };
 
         const checkPrivacy = async () => {
-             const supabase = createClient();
-             const { data: { user } } = await supabase.auth.getUser();
-             if (user) {
-                 const { data } = await supabase.from('profiles').select('public_profile').eq('id', user.id).single();
-                 if (data) setIsPublic(data.public_profile || false);
-                 setCurrentUserId(user.id);
-             }
+            const supabase = createClient();
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user) {
+                const { data } = await supabase.from('profiles').select('public_profile').eq('id', user.id).single();
+                if (data) setIsPublic(data.public_profile || false);
+                setCurrentUserId(user.id);
+            }
         }
 
         fetchLeaderboard();
@@ -108,9 +108,9 @@ export default function LeaderboardClient({
 
     return (
         <div className="min-h-screen bg-nautical-black text-white relative overflow-hidden">
-             <div className="bg-mesh fixed inset-0 z-0 pointer-events-none" />
+            <div className="bg-mesh fixed inset-0 z-0 pointer-events-none" />
 
-             <div className="relative z-10 max-w-5xl mx-auto p-4 md:p-8 pt-20">
+            <div className="relative z-10 max-w-5xl mx-auto p-4 md:p-8 pt-20">
                 <div className="flex items-center gap-4 mb-8">
                     <Link href={`/${locale}/student/dashboard`} className="p-2 bg-white/5 rounded-full hover:bg-white/10 transition-colors">
                         <ArrowLeft size={20} />
@@ -161,7 +161,7 @@ export default function LeaderboardClient({
                                                                 {isAnonymous ? (
                                                                     <Shield size={14} className="text-white/30" />
                                                                 ) : user.avatar_url ? (
-                                                                    <img src={user.avatar_url} alt="" className="w-full h-full object-cover" />
+                                                                    <img src={user.avatar_url} alt={user.nombre} className="w-full h-full object-cover" />
                                                                 ) : (
                                                                     <div className="text-xs font-bold text-white/50">
                                                                         {(user.nombre?.[0] || 'U') + (user.apellidos?.[0] || '')}
@@ -212,11 +212,10 @@ export default function LeaderboardClient({
                             <button
                                 onClick={togglePrivacy}
                                 disabled={togglingPrivacy}
-                                className={`w-full p-4 rounded-sm border flex items-center justify-between transition-all ${
-                                    isPublic
-                                    ? 'bg-accent/10 border-accent/30 text-accent hover:bg-accent/20'
-                                    : 'bg-white/5 border-white/10 text-white/60 hover:bg-white/10'
-                                }`}
+                                className={`w-full p-4 rounded-sm border flex items-center justify-between transition-all ${isPublic
+                                        ? 'bg-accent/10 border-accent/30 text-accent hover:bg-accent/20'
+                                        : 'bg-white/5 border-white/10 text-white/60 hover:bg-white/10'
+                                    }`}
                             >
                                 <div className="flex items-center gap-3">
                                     {isPublic ? <Globe size={18} /> : <Lock size={18} />}
@@ -237,7 +236,7 @@ export default function LeaderboardClient({
                         </div>
                     </div>
                 </div>
-             </div>
+            </div>
         </div>
     );
 }

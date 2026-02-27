@@ -1,0 +1,415 @@
+{
+  "id": "986",
+  "finished": false,
+  "mode": "webhook",
+  "retryOf": null,
+  "retrySuccessId": null,
+  "status": "error",
+  "createdAt": "2026-02-26T20:07:48.560Z",
+  "startedAt": "2026-02-26T20:07:48.588Z",
+  "stoppedAt": "2026-02-26T20:07:48.722Z",
+  "deletedAt": null,
+  "workflowId": "40AUNe77gzCV02QA",
+  "waitTill": null,
+  "storedAt": "db",
+  "data": {
+    "version": 1,
+    "startData": {},
+    "resultData": {
+      "runData": {
+        "Webhook": [
+          {
+            "startTime": 1772136468593,
+            "executionIndex": 0,
+            "source": [],
+            "hints": [],
+            "executionTime": 0,
+            "executionStatus": "success",
+            "data": {
+              "main": [
+                [
+                  {
+                    "json": {
+                      "headers": {
+                        "host": "n8n.srv1368175.hstgr.cloud",
+                        "content-length": "132",
+                        "content-type": "application/json",
+                        "x-forwarded-for": "49.230.214.148",
+                        "x-forwarded-host": "n8n.srv1368175.hstgr.cloud",
+                        "x-forwarded-port": "443",
+                        "x-forwarded-proto": "https",
+                        "x-forwarded-server": "f29adb8ea13d",
+                        "x-real-ip": "49.230.214.148",
+                        "accept-encoding": "gzip"
+                      },
+                      "params": {},
+                      "query": {},
+                      "body": {
+                        "original_prompt": "Test Swarm: Hello World",
+                        "proposal": [
+                          {
+                            "role": "Lead Architect",
+                            "count": 1,
+                            "account": "getxobelaeskola@gmail.com"
+                          }
+                        ]
+                      },
+                      "webhookUrl": "https://n8n.srv1368175.hstgr.cloud/webhook/swarm-dispatcher",
+                      "executionMode": "production"
+                    },
+                    "pairedItem": {
+                      "item": 0
+                    }
+                  }
+                ]
+              ]
+            }
+          }
+        ],
+        "Split Out": [
+          {
+            "startTime": 1772136468593,
+            "executionIndex": 1,
+            "source": [
+              {
+                "previousNode": "Webhook",
+                "previousNodeOutput": 0,
+                "previousNodeRun": 0
+              }
+            ],
+            "hints": [],
+            "executionTime": 1,
+            "executionStatus": "success",
+            "data": {
+              "main": [
+                [
+                  {
+                    "json": {
+                      "role": "Lead Architect",
+                      "count": 1,
+                      "account": "getxobelaeskola@gmail.com"
+                    },
+                    "pairedItem": {
+                      "item": 0
+                    }
+                  }
+                ]
+              ]
+            }
+          }
+        ],
+        "HTTP Request1": [
+          {
+            "startTime": 1772136468594,
+            "executionIndex": 2,
+            "source": [
+              {
+                "previousNode": "Split Out",
+                "previousNodeOutput": 0,
+                "previousNodeRun": 0
+              }
+            ],
+            "hints": [],
+            "executionTime": 127,
+            "executionStatus": "error",
+            "error": {
+              "level": "warning",
+              "tags": {},
+              "description": "404 page not found\n",
+              "timestamp": 1772136468719,
+              "context": {
+                "itemIndex": 0,
+                "request": {
+                  "body": {
+                    "task": "Test Swarm: Hello World - Rol: Lead Architect",
+                    "account": "getxobelaeskola@gmail.com",
+                    "title": "Lead Architect Task from Swarm"
+                  },
+                  "headers": {
+                    "accept": "application/json,text/html,application/xhtml+xml,application/xml,text/*;q=0.9, image/*;q=0.8, */*;q=0.7"
+                  },
+                  "method": "POST",
+                  "uri": "https://jules-api.getxobelaeskola.cloud/api/v1/sessions",
+                  "gzip": true,
+                  "rejectUnauthorized": true,
+                  "followRedirect": true,
+                  "resolveWithFullResponse": true,
+                  "sendCredentialsOnCrossOriginRedirect": false,
+                  "followAllRedirects": true,
+                  "timeout": 300000,
+                  "encoding": null,
+                  "json": false,
+                  "useStream": true
+                }
+              },
+              "functionality": "regular",
+              "name": "NodeApiError",
+              "node": {
+                "parameters": {
+                  "curlImport": "",
+                  "method": "POST",
+                  "url": "https://jules-api.getxobelaeskola.cloud/api/v1/sessions",
+                  "authentication": "none",
+                  "provideSslCertificates": false,
+                  "sendQuery": false,
+                  "sendHeaders": false,
+                  "sendBody": true,
+                  "contentType": "json",
+                  "specifyBody": "json",
+                  "jsonBody": "={\n  \"task\": \"{{$node['Webhook'].json['body']['original_prompt']}} - Rol: {{$json['role']}}\",\n  \"account\": \"{{$json['account']}}\",\n  \"title\": \"{{$json['role']}} Task from Swarm\"\n}",
+                  "options": {},
+                  "infoMessage": ""
+                },
+                "type": "n8n-nodes-base.httpRequest",
+                "typeVersion": 4.4,
+                "position": [
+                  448,
+                  -16
+                ],
+                "id": "681c6d0f-ecad-4676-9186-da625ab8a2a0",
+                "name": "HTTP Request1"
+              },
+              "messages": [
+                "404 - \"404 page not found\\n\""
+              ],
+              "httpCode": "404",
+              "message": "The resource you are requesting could not be found",
+              "stack": "NodeApiError: The resource you are requesting could not be found\n    at ExecuteContext.execute (/usr/local/lib/node_modules/n8n/node_modules/.pnpm/n8n-nodes-base@file+packages+nodes-base_@aws-sdk+credential-providers@3.808.0_asn1.js@5_8da18263ca0574b0db58d4fefd8173ce/node_modules/n8n-nodes-base/nodes/HttpRequest/V3/HttpRequestV3.node.ts:864:16)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at WorkflowExecute.executeNode (/usr/local/lib/node_modules/n8n/node_modules/.pnpm/n8n-core@file+packages+core_@opentelemetry+api@1.9.0_@opentelemetry+exporter-trace-otlp_4dbefa9881a7c57a9e05a20ce4387c10/node_modules/n8n-core/src/execution-engine/workflow-execute.ts:1039:8)\n    at WorkflowExecute.runNode (/usr/local/lib/node_modules/n8n/node_modules/.pnpm/n8n-core@file+packages+core_@opentelemetry+api@1.9.0_@opentelemetry+exporter-trace-otlp_4dbefa9881a7c57a9e05a20ce4387c10/node_modules/n8n-core/src/execution-engine/workflow-execute.ts:1218:11)\n    at /usr/local/lib/node_modules/n8n/node_modules/.pnpm/n8n-core@file+packages+core_@opentelemetry+api@1.9.0_@opentelemetry+exporter-trace-otlp_4dbefa9881a7c57a9e05a20ce4387c10/node_modules/n8n-core/src/execution-engine/workflow-execute.ts:1653:27\n    at /usr/local/lib/node_modules/n8n/node_modules/.pnpm/n8n-core@file+packages+core_@opentelemetry+api@1.9.0_@opentelemetry+exporter-trace-otlp_4dbefa9881a7c57a9e05a20ce4387c10/node_modules/n8n-core/src/execution-engine/workflow-execute.ts:2296:11"
+            }
+          }
+        ]
+      },
+      "lastNodeExecuted": "HTTP Request1",
+      "error": {
+        "level": "warning",
+        "tags": {},
+        "description": "404 page not found\n",
+        "timestamp": 1772136468719,
+        "context": {
+          "itemIndex": 0,
+          "request": {
+            "body": {
+              "task": "Test Swarm: Hello World - Rol: Lead Architect",
+              "account": "getxobelaeskola@gmail.com",
+              "title": "Lead Architect Task from Swarm"
+            },
+            "headers": {
+              "accept": "application/json,text/html,application/xhtml+xml,application/xml,text/*;q=0.9, image/*;q=0.8, */*;q=0.7"
+            },
+            "method": "POST",
+            "uri": "https://jules-api.getxobelaeskola.cloud/api/v1/sessions",
+            "gzip": true,
+            "rejectUnauthorized": true,
+            "followRedirect": true,
+            "resolveWithFullResponse": true,
+            "sendCredentialsOnCrossOriginRedirect": false,
+            "followAllRedirects": true,
+            "timeout": 300000,
+            "encoding": null,
+            "json": false,
+            "useStream": true
+          }
+        },
+        "functionality": "regular",
+        "name": "NodeApiError",
+        "node": {
+          "parameters": {
+            "curlImport": "",
+            "method": "POST",
+            "url": "https://jules-api.getxobelaeskola.cloud/api/v1/sessions",
+            "authentication": "none",
+            "provideSslCertificates": false,
+            "sendQuery": false,
+            "sendHeaders": false,
+            "sendBody": true,
+            "contentType": "json",
+            "specifyBody": "json",
+            "jsonBody": "={\n  \"task\": \"{{$node['Webhook'].json['body']['original_prompt']}} - Rol: {{$json['role']}}\",\n  \"account\": \"{{$json['account']}}\",\n  \"title\": \"{{$json['role']}} Task from Swarm\"\n}",
+            "options": {},
+            "infoMessage": ""
+          },
+          "type": "n8n-nodes-base.httpRequest",
+          "typeVersion": 4.4,
+          "position": [
+            448,
+            -16
+          ],
+          "id": "681c6d0f-ecad-4676-9186-da625ab8a2a0",
+          "name": "HTTP Request1"
+        },
+        "messages": [
+          "404 - \"404 page not found\\n\""
+        ],
+        "httpCode": "404",
+        "message": "The resource you are requesting could not be found",
+        "stack": "NodeApiError: The resource you are requesting could not be found\n    at ExecuteContext.execute (/usr/local/lib/node_modules/n8n/node_modules/.pnpm/n8n-nodes-base@file+packages+nodes-base_@aws-sdk+credential-providers@3.808.0_asn1.js@5_8da18263ca0574b0db58d4fefd8173ce/node_modules/n8n-nodes-base/nodes/HttpRequest/V3/HttpRequestV3.node.ts:864:16)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at WorkflowExecute.executeNode (/usr/local/lib/node_modules/n8n/node_modules/.pnpm/n8n-core@file+packages+core_@opentelemetry+api@1.9.0_@opentelemetry+exporter-trace-otlp_4dbefa9881a7c57a9e05a20ce4387c10/node_modules/n8n-core/src/execution-engine/workflow-execute.ts:1039:8)\n    at WorkflowExecute.runNode (/usr/local/lib/node_modules/n8n/node_modules/.pnpm/n8n-core@file+packages+core_@opentelemetry+api@1.9.0_@opentelemetry+exporter-trace-otlp_4dbefa9881a7c57a9e05a20ce4387c10/node_modules/n8n-core/src/execution-engine/workflow-execute.ts:1218:11)\n    at /usr/local/lib/node_modules/n8n/node_modules/.pnpm/n8n-core@file+packages+core_@opentelemetry+api@1.9.0_@opentelemetry+exporter-trace-otlp_4dbefa9881a7c57a9e05a20ce4387c10/node_modules/n8n-core/src/execution-engine/workflow-execute.ts:1653:27\n    at /usr/local/lib/node_modules/n8n/node_modules/.pnpm/n8n-core@file+packages+core_@opentelemetry+api@1.9.0_@opentelemetry+exporter-trace-otlp_4dbefa9881a7c57a9e05a20ce4387c10/node_modules/n8n-core/src/execution-engine/workflow-execute.ts:2296:11"
+      }
+    },
+    "executionData": {
+      "contextData": {},
+      "nodeExecutionStack": [
+        {
+          "node": {
+            "parameters": {
+              "curlImport": "",
+              "method": "POST",
+              "url": "https://jules-api.getxobelaeskola.cloud/api/v1/sessions",
+              "authentication": "none",
+              "provideSslCertificates": false,
+              "sendQuery": false,
+              "sendHeaders": false,
+              "sendBody": true,
+              "contentType": "json",
+              "specifyBody": "json",
+              "jsonBody": "={\n  \"task\": \"{{$node['Webhook'].json['body']['original_prompt']}} - Rol: {{$json['role']}}\",\n  \"account\": \"{{$json['account']}}\",\n  \"title\": \"{{$json['role']}} Task from Swarm\"\n}",
+              "options": {},
+              "infoMessage": ""
+            },
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.4,
+            "position": [
+              448,
+              -16
+            ],
+            "id": "681c6d0f-ecad-4676-9186-da625ab8a2a0",
+            "name": "HTTP Request1"
+          },
+          "data": {
+            "main": [
+              [
+                {
+                  "json": {
+                    "role": "Lead Architect",
+                    "count": 1,
+                    "account": "getxobelaeskola@gmail.com"
+                  },
+                  "pairedItem": {
+                    "item": 0
+                  }
+                }
+              ]
+            ]
+          },
+          "source": {
+            "main": [
+              {
+                "previousNode": "Split Out",
+                "previousNodeOutput": 0,
+                "previousNodeRun": 0
+              }
+            ]
+          }
+        }
+      ],
+      "metadata": {},
+      "waitingExecution": {},
+      "waitingExecutionSource": {},
+      "runtimeData": {
+        "version": 1,
+        "establishedAt": 1772136468593,
+        "source": "webhook",
+        "triggerNode": {
+          "name": "Webhook",
+          "type": "n8n-nodes-base.webhook"
+        }
+      }
+    }
+  },
+  "workflowData": {
+    "id": "40AUNe77gzCV02QA",
+    "name": "Swarm Dispatcher",
+    "nodes": [
+      {
+        "parameters": {
+          "multipleMethods": false,
+          "httpMethod": "POST",
+          "path": "swarm-dispatcher",
+          "authentication": "none",
+          "responseMode": "onReceived",
+          "contentTypeNotice": "",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 2.1,
+        "position": [
+          0,
+          -16
+        ],
+        "id": "15dac834-330a-4250-b296-9906967232ca",
+        "name": "Webhook",
+        "webhookId": "6164d4d8-59ce-4c52-8d2a-5c0b4437ce5a"
+      },
+      {
+        "parameters": {
+          "fieldToSplitOut": "body.proposal",
+          "include": "noOtherFields",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.splitOut",
+        "typeVersion": 1,
+        "position": [
+          224,
+          -16
+        ],
+        "id": "2f768262-1c14-4961-ba2d-0c2e9669e215",
+        "name": "Split Out"
+      },
+      {
+        "parameters": {
+          "curlImport": "",
+          "method": "POST",
+          "url": "https://jules-api.getxobelaeskola.cloud/api/v1/sessions",
+          "authentication": "none",
+          "provideSslCertificates": false,
+          "sendQuery": false,
+          "sendHeaders": false,
+          "sendBody": true,
+          "contentType": "json",
+          "specifyBody": "json",
+          "jsonBody": "={\n  \"task\": \"{{$node['Webhook'].json['body']['original_prompt']}} - Rol: {{$json['role']}}\",\n  \"account\": \"{{$json['account']}}\",\n  \"title\": \"{{$json['role']}} Task from Swarm\"\n}",
+          "options": {},
+          "infoMessage": ""
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.4,
+        "position": [
+          448,
+          -16
+        ],
+        "id": "681c6d0f-ecad-4676-9186-da625ab8a2a0",
+        "name": "HTTP Request1"
+      }
+    ],
+    "connections": {
+      "Webhook": {
+        "main": [
+          [
+            {
+              "node": "Split Out",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Split Out": {
+        "main": [
+          [
+            {
+              "node": "HTTP Request1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "settings": {
+      "executionOrder": "v1",
+      "binaryMode": "separate",
+      "availableInMCP": false,
+      "callerPolicy": "workflowsFromSameOwner"
+    }
+  },
+  "customData": {}
+}

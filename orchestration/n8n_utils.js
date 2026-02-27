@@ -60,6 +60,13 @@ async function push(workflowName) {
 
     const localData = JSON.parse(fs.readFileSync(path.join(workflowDir, file), 'utf8'));
 
+    const cleanedData = {
+        name: localData.name,
+        nodes: localData.nodes,
+        connections: localData.connections,
+        settings: localData.settings || {}
+    };
+
     // Get cloud workflows to find the ID
     const cloudData = await n8nRequest('/workflows?limit=100');
     const cloudWorkflow = cloudData.data.find(w => w.name === workflowName);
@@ -68,14 +75,14 @@ async function push(workflowName) {
         console.log(`Matching found (ID: ${cloudWorkflow.id}). Updating...`);
         await n8nRequest(`/workflows/${cloudWorkflow.id}`, {
             method: 'PUT',
-            body: JSON.stringify(localData)
+            body: JSON.stringify(cleanedData)
         });
         console.log('✅ Update successful.');
     } else {
         console.log('No matching workflow found in cloud. Creating new...');
         await n8nRequest('/workflows', {
             method: 'POST',
-            body: JSON.stringify(localData)
+            body: JSON.stringify(cleanedData)
         });
         console.log('✅ Creation successful.');
     }

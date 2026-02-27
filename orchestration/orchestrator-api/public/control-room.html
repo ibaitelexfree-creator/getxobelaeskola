@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Swarm 2.0 Control Room</title>
+
+    <!-- Tailwind CSS Minimal -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- React & ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+
+    <!-- Babel for JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <style>
+        body {
+            background-color: #0f172a;
+            color: #f8fafc;
+            font-family: ui-sans-serif, system-ui, sans-serif;
+        }
+
+        .neon-border {
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            box-shadow: 0 0 10px rgba(56, 189, 248, 0.1);
+        }
+
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(10px);
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #1e293b;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        function App() {
+            // State
+            const [health, setHealth] = useState(null);
+            const [metrics, setMetrics] = useState(null);
+            const [executions, setExecutions] = useState([]);
+            const [loading, setLoading] = useState(true);
+
+            const fetchData = async () => {
+                try {
+                    const [hRes, mRes, eRes] = await Promise.all([
+                        fetch('/api/v2/system/health').catch(() => null),
+                        fetch('/api/v2/metrics').catch(() => null),
+                        fetch('/api/v2/executions/realtime').catch(() => null)
+                    ]);
+
+                    if (hRes && hRes.ok) setHealth(await hRes.json());
+                    if (mRes && mRes.ok) setMetrics(await mRes.json());
+                    if (eRes && eRes.ok) setExecutions(await eRes.json());
+
+                    setLoading(false);
+                } catch (error) {
+                    console.error("Polling error", error);
+                }
+            };
+
+            // Polling every 5s
+            useEffect(() => {
+                fetchData();
+                const intv = setInterval(fetchData, 5000);
+                return () => clearInterval(intv);
+            }, []);
+
+            const handleReplay = async (id, costEst) => {
+                if (confirm(`⚠ Advertencia: ¿Estás seguro de que quieres lanzar un Replay de la ejecución ${id.substring(0, 8)}?\nTendrá un costo estimado similar de $${parseFloat(costEst).toFixed(4)}.`)) {
+                    try {
+                        const res = await fetch(`/api/v2/swarms/${id}/replay`, { method: 'POST' });
+                        if (res.ok) alert(`Replay iniciado en background.`);
+                        else alert("Error al iniciar replay.");
+                    } catch (e) {
+                        alert("Error de conexión");
+                    }
+                }
+            };
+
+            if (loading) return <div className="h-screen w-full flex items-center justify-center text-xl">Iniciando Control Room...</div>;
+
+            const isDrift = health?.status === '🔴 Drift Detected';
+            const isKillSwitch = metrics?.kill_switch_active;
+
+            return (
+                <div className={`min-h-screen w-full ${isKillSwitch ? 'border-4 border-red-600 bg-red-950/20' : ''}`}>
+
+                    {/* Top Banners */}
+                    {isDrift && (
+                        <div className="w-full bg-red-600 text-white font-bold p-3 text-center uppercase tracking-wider animate-pulse">
+                            {"¡ ALERTA CRÍTICA: DRIFT DEL MODELO > 15% DETECTADO !"}
+                        </div>
+                    )}
+                    {isKillSwitch && (
+                        <div className="w-full bg-red-800 text-white font-bold p-3 text-center uppercase tracking-wider">
+                            ¡ KILL SWITCH ACTIVO - EXCESO DE COSTES DIARIO !
+                        </div>
+                    )}
+
+                    <div className="max-w-7xl mx-auto p-4 md:p-6 space-y-6">
+                        <header className="flex justify-between items-center pb-4 border-b border-slate-700">
+                            <h1 className="text-2xl font-bold text-sky-400">Swarm 2.0 <span className="text-slate-300">Control Room</span></h1>
+                            <div className="flex gap-4 text-sm text-slate-400">
+                                <span className="flex items-center gap-2">
+                                    <span className={`w-3 h-3 rounded-full ${isKillSwitch ? 'bg-red-500' : 'bg-emerald-500'} animate-pulse`}></span>
+                                    {isKillSwitch ? 'LOCKDOWN' : 'En línea (Polling 5s)'}
+                                </span>
+                                <span>UTC: {new Date().toISOString().substring(11, 19)}</span>
+                            </div>
+                        </header>
+
+                        {/* Top Cards: Health & Cost & Arch */}
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+                            {/* Health */}
+                            <div className="glass-panel p-5 rounded-xl neon-border flex flex-col space-y-3">
+                                <h2 className="text-lg text-slate-300 font-semibold border-b border-slate-700 pb-2">1. Health del Pipeline</h2>
+                                <div className="flex justify-between items-end">
+                                    <span className="text-3xl font-mono text-white">{health?.moving_average || '0.00'}</span>
+                                    <span className="text-sm text-slate-400 uppercase">Avg Score</span>
+                                </div>
+                                <div className="text-sm flex justify-between">
+                                    <span className="text-slate-400">Baseline: {health?.baseline || '0.00'}</span>
+                                    <span className={`${parseFloat(health?.drift_pct) < -10 ? 'text-red-400' : 'text-emerald-400 font-semibold'}`}>{health?.drift_pct || '0.0'}% desv.</span>
+                                </div>
+                                <div className={`mt-auto pt-2 text-sm font-bold uppercase rounded p-1 text-center ${isDrift ? 'bg-red-900/50 text-red-400' : health?.status?.includes('Degrading') ? 'bg-yellow-900/50 text-yellow-400' : 'bg-emerald-900/50 text-emerald-400'}`}>
+                                    {health?.status || 'Unknown'}
+                                </div>
+                            </div>
+
+                            {/* Cost Governance */}
+                            <div className={`glass-panel p-5 rounded-xl border ${isKillSwitch ? 'border-red-500' : 'border-slate-700'} flex flex-col space-y-3`}>
+                                <h2 className="text-lg text-slate-300 font-semibold border-b border-slate-700 pb-2 flex justify-between">
+                                    <span>2. Cost Governance</span>
+                                    {isKillSwitch && <span className="text-red-500 uppercase text-sm animate-pulse">Block</span>}
+                                </h2>
+                                <div className="flex justify-between items-end">
+                                    <span className={`text-3xl font-mono ${isKillSwitch ? 'text-red-400' : 'text-emerald-400'}`}>${metrics?.cost_today_usd || '0.00'}</span>
+                                    <span className="text-sm text-slate-400 uppercase">Gasto Hoy</span>
+                                </div>
+                                <div className="text-sm flex justify-between">
+                                    <span className="text-slate-400">Daily Limit: ${metrics?.daily_limit_usd || '0.00'}</span>
+                                    <span className={`${parseFloat(metrics?.percent_consumed) > 80 ? 'text-red-400' : 'text-sky-400'}`}>{metrics?.percent_consumed || '0.0'}% consumed</span>
+                                </div>
+
+                                {/* Progress bar */}
+                                <div className="w-full bg-slate-800 rounded-full h-2 mt-2">
+                                    <div className={`h-2 rounded-full ${isKillSwitch ? 'bg-red-600' : parseFloat(metrics?.percent_consumed) > 80 ? 'bg-yellow-500' : 'bg-emerald-500'}`} style={{ width: `${Math.min(parseFloat(metrics?.percent_consumed || 0), 100)}%` }}></div>
+                                </div>
+                            </div>
+
+                            {/* Arquitecto (Fast Fail) */}
+                            <div className="glass-panel p-5 rounded-xl border border-slate-700 flex flex-col space-y-3">
+                                <h2 className="text-lg text-slate-300 font-semibold border-b border-slate-700 pb-2">3. Arquitecto Metric (24h)</h2>
+                                <div className="flex justify-between items-end">
+                                    <span className={`text-3xl font-mono ${parseFloat(metrics?.architect_fast_fail_rate_pct) > 20 ? 'text-yellow-400' : 'text-white'}`}>
+                                        {metrics?.architect_fast_fail_rate_pct || '0.00'}%
+                                    </span>
+                                    <span className="text-sm text-slate-400 uppercase">Fail Rate</span>
+                                </div>
+                                <div className="text-sm text-slate-400 pb-2">
+                                    Fail rate global (Block vs Pass + Retry)
+                                </div>
+                                <div className="grid grid-cols-2 gap-2 mt-auto text-center border-t border-slate-700 pt-2">
+                                    <div className="flex flex-col">
+                                        <span className="text-xs uppercase text-slate-500">Block Rate</span>
+                                        <span className="text-red-400 font-mono">{metrics?.block_rate_pct || '0'}%</span>
+                                    </div>
+                                    <div className="flex flex-col border-l border-slate-700">
+                                        <span className="text-xs uppercase text-slate-500">Human Rev</span>
+                                        <span className="text-sky-400 font-mono">{metrics?.human_review_rate_pct || '0'}%</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        {/* Executions Table */}
+                        <div className="glass-panel rounded-xl border border-slate-700 overflow-hidden">
+                            <div className="p-4 border-b border-slate-700 bg-slate-800/50 flex justify-between items-center">
+                                <h2 className="text-lg font-semibold text-slate-200">4. Ejecuciones en Tiempo Real (Top 100)</h2>
+                            </div>
+                            <div className="overflow-x-auto max-h-[500px]">
+                                <table className="w-full text-left text-sm text-slate-300">
+                                    <thead className="text-xs uppercase bg-slate-800/80 text-slate-400 sticky top-0">
+                                        <tr>
+                                            <th className="px-4 py-3">Correlation ID</th>
+                                            <th className="px-4 py-3">Estado</th>
+                                            <th className="px-4 py-3 text-center">Score</th>
+                                            <th className="px-4 py-3 text-center">Tamper (Sec)</th>
+                                            <th className="px-4 py-3 text-center">Policy Ver.</th>
+                                            <th className="px-4 py-3 text-right">Cost Estimate</th>
+                                            <th className="px-4 py-3 text-center">Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-slate-700">
+                                        {executions.length === 0 ? (
+                                            <tr><td colSpan="7" className="text-center p-6 text-slate-500">No hay ejecuciones recientes.</td></tr>
+                                        ) : (
+                                            executions.map((ex, i) => (
+                                                <tr key={i} className="hover:bg-slate-800/30 transition-colors">
+                                                    <td className="px-4 py-3 font-mono text-xs text-sky-400/80 truncate max-w-[150px]" title={ex.correlation_id}>
+                                                        {ex.correlation_id}
+                                                    </td>
+                                                    <td className="px-4 py-3">
+                                                        <span className={`px-2 py-1 rounded text-xs font-semibold ${ex.status === 'BLOCK' ? 'bg-red-900/50 text-red-400' : ex.status === 'PROCEED_TRIBUNAL' || ex.status === 'MERGE' ? 'bg-emerald-900/50 text-emerald-400' : 'bg-yellow-900/50 text-yellow-400'}`}>
+                                                            {ex.status}
+                                                        </span>
+                                                    </td>
+                                                    <td className="px-4 py-3 text-center font-mono">
+                                                        {ex.audit_score}/10
+                                                    </td>
+                                                    <td className="px-4 py-3 text-center">
+                                                        {ex.tamper === 'PASS' ? '✅' : '🚨 FAIL'}
+                                                    </td>
+                                                    <td className="px-4 py-3 text-center text-xs text-slate-500">
+                                                        {ex.policy_version}
+                                                    </td>
+                                                    <td className="px-4 py-3 text-right font-mono text-emerald-400">
+                                                        ${parseFloat(ex.cost_estimate || 0).toFixed(4)}
+                                                    </td>
+                                                    <td className="px-4 py-3 text-center">
+                                                        {/* Replay Console */}
+                                                        <button
+                                                            onClick={() => handleReplay(ex.swarm_id, ex.cost_estimate)}
+                                                            className="px-3 py-1 bg-slate-700 hover:bg-slate-600 rounded text-xs transition border border-slate-600"
+                                                            title="Replay Determinista"
+                                                        >
+                                                            ⏪ Replay
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            ))
+                                        )}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+
+</html>

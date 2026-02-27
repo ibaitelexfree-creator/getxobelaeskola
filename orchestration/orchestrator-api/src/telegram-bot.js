@@ -138,7 +138,7 @@ export function getAllPendingProposals() {
 
 // ─── Command Router ───
 
-async function handleMessage(msg, { onSwarm, onApprove, onCancel, onStatus, onCicd, onRetry, onHealth }) {
+async function handleMessage(msg, { onSwarm, onApprove, onCancel, onStatus, onCicd, onRetry, onHealth, onSwarm2 }) {
     const chatId = msg.chat.id;
     const text = (msg.text || '').trim();
     const authorizedChatId = process.env.TELEGRAM_CHAT_ID;
@@ -163,6 +163,20 @@ async function handleMessage(msg, { onSwarm, onApprove, onCancel, onStatus, onCi
                 await onSwarm(chatId, prompt, maxJules);
             } catch (e) {
                 await sendMessage(chatId, `❌ Error en análisis: ${e.message}`);
+            }
+        }
+        return;
+    }
+
+    if (text.startsWith('/swarm2 ') || text.startsWith('/s2 ')) {
+        const prompt = text.replace(/^\/(swarm2|s2)\s+/, '');
+        await sendMessage(chatId, '🚀 *Iniciando SWARM 2.0 (Especializado + RAG)...*');
+
+        if (onSwarm2) {
+            try {
+                await onSwarm2(chatId, prompt);
+            } catch (e) {
+                await sendMessage(chatId, `❌ Error en Swarm 2.0: ${e.message}`);
             }
         }
         return;
@@ -271,6 +285,7 @@ async function handleMessage(msg, { onSwarm, onApprove, onCancel, onStatus, onCi
             '🤖 *Swarm Commander - Comandos*',
             '',
             '`/swarm <tarea> [N jules]` — Analizar tarea con Groq AI',
+            '`/swarm2 <tarea>` — Swarm 2.0 Especializado (Gemini + RAG)',
             '`/approve <id> [filtros]` — Aprobar propuesta (ej: `/approve x1y2 1,3`)',
             '`/cancel <id>` — Cancelar propuesta',
             '`/retry <id>` — Reintentar tareas fallidas',
@@ -298,6 +313,30 @@ async function handleMessage(msg, { onSwarm, onApprove, onCancel, onStatus, onCi
         }
         return;
     }
+}
+
+/**
+ * Handles button interactions from Inline Keyboards
+ */
+async function handleCallbackQuery(query, handlers) {
+    const chatId = query.message.chat.id;
+    const data = query.data;
+
+    console.log(`[TelegramBot] Callback Query: ${data}`);
+
+    if (data.startsWith('approve_all_')) {
+        const swarmId = data.replace('approve_all_', '');
+        if (handlers.onApprove) await handlers.onApprove(chatId, swarmId);
+    } else if (data.startsWith('cancel_swarm_')) {
+        const swarmId = data.replace('cancel_swarm_', '');
+        if (handlers.onCancel) await handlers.onCancel(chatId, swarmId);
+    } else if (data.startsWith('retry_ui_')) {
+        const swarmId = data.replace('retry_ui_', '');
+        if (handlers.onRetry) await handlers.onRetry(chatId, swarmId);
+    }
+
+    // Answer the callback to remove the "loading" state on the button
+    await telegramAPI('answerCallbackQuery', { callback_query_id: query.id });
 }
 
 // ─── Proposal Formatter ───
@@ -349,11 +388,13 @@ export async function startPolling(handlers = {}) {
 
     while (pollingActive) {
         try {
-            console.log(`[TelegramBot] Polling... (offset: ${lastUpdateId + 1})`);
+            // First call with offset -1 will skip everything and get current state
+            const offset = (lastUpdateId === -1) ? -1 : (lastUpdateId + 1);
+            console.log(`[TelegramBot] Polling... (offset: ${offset})`);
             const result = await telegramAPI('getUpdates', {
-                offset: lastUpdateId + 1,
+                offset: offset,
                 timeout: 30, // Long poll: wait up to 30s
-                allowed_updates: ['message', 'edited_message', 'message_reaction']
+                allowed_updates: ['message', 'edited_message', 'message_reaction', 'callback_query']
             });
 
             if (!result.ok) {
@@ -380,6 +421,12 @@ export async function startPolling(handlers = {}) {
                             await handleMessage(message, handlers);
                         } catch (e) {
                             console.error('[TelegramBot] Handler error:', e.message);
+                        }
+                    } else if (update.callback_query) {
+                        try {
+                            await handleCallbackQuery(update.callback_query, handlers);
+                        } catch (e) {
+                            console.error('[TelegramBot] Callback error:', e.message);
                         }
                     } else if (update.message_reaction) {
                         try {

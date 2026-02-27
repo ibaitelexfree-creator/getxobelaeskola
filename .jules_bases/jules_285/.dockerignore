@@ -1,9 +1,0 @@
-node_modules
-.next
-.git
-.env.local
-public/uploads
-README.md
-DEPLOY.md
-scripts
-*.log
