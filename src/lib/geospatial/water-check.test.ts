@@ -30,8 +30,11 @@ vi.mock('../../data/geospatial/water-geometry.json', () => ({
 }));
 
 describe('isPointInWater', () => {
-    beforeEach(() => {
+    beforeEach(async () => {
         vi.resetModules();
+        const { _resetSpatialIndex } = await import('./water-check');
+        _resetSpatialIndex();
+
         // Reset to default FeatureCollection state
         mockData.data.type = 'FeatureCollection';
         mockData.data.features = [

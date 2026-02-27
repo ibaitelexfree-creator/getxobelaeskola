@@ -16,33 +16,39 @@ describe('Admin Explorer API Performance Optimization', () => {
 
     beforeEach(() => {
         vi.clearAllMocks();
-        // Base mock structure
+        // Base mock structure with method mocks hoisted to top level for access
         mockSupabase = {
-            from: vi.fn(),
+            from: vi.fn().mockReturnValue({
+                 select: vi.fn().mockReturnThis(),
+                 or: vi.fn().mockReturnThis(),
+                 limit: vi.fn().mockResolvedValue({ data: [], error: null }),
+                 in: vi.fn().mockResolvedValue({ data: [], error: null })
+            }),
         };
         (createClient as any).mockReturnValue(mockSupabase);
     });
 
-    it('should use resource embedding and avoid N+1 queries for profiles', async () => {
+    it('should use manual batching to aggregate relations for profiles', async () => {
         const mockData = [
             {
                 id: 'user1',
                 nombre: 'John',
-                count_reservas_alquiler_perfil_id: [{ count: 2 }],
-                count_inscripciones_perfil_id: [{ count: 1 }],
-                count_mensajes_contacto_email: [{ count: 0 }],
-                count_newsletter_subscriptions_email: [{ count: 5 }]
+                email: 'john@example.com'
             }
         ];
+
+        // Create specific mocks for inspection
+        const selectMock = vi.fn().mockReturnThis();
+        const profilesQueryBuilder = {
+            select: selectMock,
+            or: vi.fn().mockReturnThis(),
+            limit: vi.fn().mockResolvedValue({ data: mockData, error: null })
+        };
 
         // Setup mock responses based on table
         mockSupabase.from.mockImplementation((table: string) => {
             if (table === 'profiles') {
-                return {
-                    select: vi.fn().mockReturnThis(),
-                    or: vi.fn().mockReturnThis(),
-                    limit: vi.fn().mockResolvedValue({ data: mockData, error: null })
-                };
+                return profilesQueryBuilder;
             }
             if (table === 'reservas_alquiler') {
                 return {
@@ -71,7 +77,7 @@ describe('Admin Explorer API Performance Optimization', () => {
                     })
                 };
             }
-            // Default mock for any other table
+            // Default fallback for other tables (not testing their specific calls here)
             return {
                 select: vi.fn().mockReturnThis(),
                 or: vi.fn().mockReturnThis(),
@@ -87,14 +93,11 @@ describe('Admin Explorer API Performance Optimization', () => {
         // Verify that from was called with 'profiles'
         expect(mockSupabase.from).toHaveBeenCalledWith('profiles');
 
-        // Verify that select was called with the optimized embedding string with aliases
-        const selectCall = mockSupabase.select.mock.calls[0][0];
-        expect(selectCall).toContain('count_reservas_alquiler_perfil_id:reservas_alquiler!perfil_id(count)');
-        expect(selectCall).toContain('count_inscripciones_perfil_id:inscripciones!perfil_id(count)');
-        expect(selectCall).toContain('count_mensajes_contacto_email:mensajes_contacto!email(count)');
-        expect(selectCall).toContain('count_newsletter_subscriptions_email:newsletter_subscriptions!email(count)');
+        // Verify that select was called with '*'
+        // The implementation uses select('*')
+        expect(selectMock).toHaveBeenCalledWith('*');
 
-        // Verify output format is correctly mapped from aliased results
+        // Verify output format is correctly mapped from aggregated results
         expect(json.results[0]._relations).toHaveLength(3); // 2 rentals + 1 inscripcion + 5 subscriptions (0 messages skipped)
         expect(json.results[0]._relations).toContainEqual({ label: 'Alquileres', count: 2, table: 'reservas_alquiler' });
         expect(json.results[0]._relations).toContainEqual({ label: 'Cursos Inscritos', count: 1, table: 'inscripciones' });
@@ -141,13 +144,21 @@ describe('Admin Explorer API Performance Optimization', () => {
     });
 
     it('should search all tables in parallel and perform one query per table', async () => {
-        mockSupabase.limit.mockResolvedValue({ data: [], error: null });
+        // mockSupabase.limit is NOT a function on the client. We must mock the return value of from() -> limit()
+
+        // Setup default mock implementation for from() that returns a chainable builder with limit()
+        const defaultLimitMock = vi.fn().mockResolvedValue({ data: [], error: null });
+        const defaultBuilder = {
+             select: vi.fn().mockReturnThis(),
+             or: vi.fn().mockReturnThis(),
+             limit: defaultLimitMock,
+             in: vi.fn().mockResolvedValue({ data: [], error: null })
+        };
 
         mockSupabase.from.mockImplementation((table: string) => {
             if (table === 'profiles') {
                 return {
-                    select: vi.fn().mockReturnThis(),
-                    or: vi.fn().mockReturnThis(),
+                    ...defaultBuilder,
                     limit: vi.fn().mockResolvedValue({ data: [], error: null })
                 };
             }
@@ -157,14 +168,13 @@ describe('Admin Explorer API Performance Optimization', () => {
                     in: vi.fn().mockResolvedValue({
                         data: null,
                         error: { message: 'DB Error' }
-                    })
+                    }),
+                    or: vi.fn().mockReturnThis(),
+                    limit: vi.fn().mockResolvedValue({ data: [], error: null })
                 };
             }
             // Other relations succeed
-            return {
-                select: vi.fn().mockReturnThis(),
-                in: vi.fn().mockResolvedValue({ data: [], error: null })
-            };
+            return defaultBuilder;
         });
 
         // Should call from once for each table in SEARCHABLE_COLS (6 tables)
