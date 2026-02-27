@@ -141,7 +141,8 @@ describe('Admin Explorer API Performance Optimization', () => {
     });
 
     it('should search all tables in parallel and perform one query per table', async () => {
-        mockSupabase.limit.mockResolvedValue({ data: [], error: null });
+        // mockSupabase.limit is undefined because the chain is mocked in from().
+        // We set up the behavior inside mockImplementation.
 
         mockSupabase.from.mockImplementation((table: string) => {
             if (table === 'profiles') {
