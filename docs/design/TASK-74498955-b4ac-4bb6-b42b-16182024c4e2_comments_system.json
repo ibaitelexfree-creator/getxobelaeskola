@@ -1,0 +1,5 @@
+{
+  "vote": "FAIL",
+  "category": "ARCHITECT_CONTRADICTION",
+  "reason": "La tabla 'comments' no existe en el esquema actual (se verificaron migraciones y definiciones). Además, solicitar explícitamente 'una columna duplicada' es una contradicción técnica insalvable en SQL."
+}
