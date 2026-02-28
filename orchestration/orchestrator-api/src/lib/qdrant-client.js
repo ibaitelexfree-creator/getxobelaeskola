@@ -70,26 +70,36 @@ export async function storeContext(collection, id, textPayload, metadata = {}) {
  * Placeholder for Embedding Generation
  * In CI/CD 2.0, this should call Gemini Embedding model via OpenRouter.
  */
+/**
+ * Real Embedding Generation via LOCAL Ollama
+ * Uses mxbai-embed-large (1024 dimensions)
+ */
 export async function generateEmbedding(text) {
-    // Generate an embedding deterministically from the text using a simple hash.
-    // This allows similar strings to produce slightly similar vectors, but mainly ensures identical strings match perfectly.
-    const hash = crypto.createHash('sha256').update(text || '').digest();
+    const OLLAMA_URL = process.env.OLLAMA_URL || 'http://localhost:11434';
+    const MODEL = 'mxbai-embed-large';
 
-    const vector = new Array(1536).fill(0);
-    // Use the 32-byte hash to seed the pseudo-random generator
-    for (let i = 0; i < 1536; i++) {
-        // Pseudo-random deterministic distribution based on hash
-        const byte1 = hash[i % 32];
-        const byte2 = hash[(i + 7) % 32];
-        const byte3 = hash[(i + 13) % 32];
-        // Center around 0 and scale
-        vector[i] = ((byte1 ^ byte2) + byte3) / 255.0 - 0.5;
+    try {
+        const response = await axios.post(`${OLLAMA_URL}/api/embeddings`, {
+            model: MODEL,
+            prompt: (text || '').substring(0, 8000)
+        });
+
+        const embedding = response.data?.embedding;
+        if (!embedding || !Array.isArray(embedding)) {
+            throw new Error(`[Qdrant] No embedding returned from Ollama (model: ${MODEL})`);
+        }
+
+        // Runtime vector integrity check
+        if (embedding.length !== 1024) {
+            throw new Error(`[Qdrant] Dimension mismatch: Expected 1024, got ${embedding.length}`);
+        }
+
+        return embedding;
+    } catch (error) {
+        if (error.code === 'ECONNREFUSED') {
+            console.error('[Qdrant] Ollama is not running. Start it with "ollama serve"');
+        }
+        console.error('[Qdrant] Local embedding generation failed:', error.message);
+        throw error;
     }
-
-    // Runtime vector integrity check
-    if (!vector || !Array.isArray(vector) || vector.length !== 1536) {
-        throw new Error(`[Qdrant] Vector Integrity Error: Expected dimension 1536, got ${vector?.length || 'undefined'}`);
-    }
-
-    return vector;
 }

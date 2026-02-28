@@ -11,11 +11,11 @@ const COLLECTIONS = [
 ];
 
 async function initQdrant() {
-    console.log('🔍 Inicializando Colecciones Qdrant (1536 dims)...');
+    console.log('🔍 Inicializando Colecciones Qdrant (1024 dims)...');
 
     for (const name of COLLECTIONS) {
         try {
-            await QdrantClient.ensureCollection(name, 1536);
+            await QdrantClient.ensureCollection(name, 1024);
             console.log(`✅ Colección ${name} lista.`);
         } catch (error) {
             console.error(`❌ Error en colección ${name}:`, error.message);
