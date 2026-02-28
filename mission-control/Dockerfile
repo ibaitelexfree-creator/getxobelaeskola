@@ -21,6 +21,7 @@ COPY mission-control/ .
 # Uncomment the following line in case you want to disable telemetry during the build.
 ENV NEXT_TELEMETRY_DISABLED=1
 
+RUN mkdir -p public
 RUN npm run build:web
 
 # Production image, copy all the files and run next
