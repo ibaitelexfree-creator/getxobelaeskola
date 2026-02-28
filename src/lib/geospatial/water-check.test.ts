@@ -57,15 +57,15 @@ describe('isPointInWater', () => {
         ];
         // Ensure geometry property is removed if it was added
         if (mockData.data.geometry) {
-             delete mockData.data.geometry;
+            delete mockData.data.geometry;
         }
     });
 
     async function getIsPointInWater() {
         const mod = await import('./water-check');
         // Force reload of internal state if the export exists (for test isolation)
-        if (mod._reloadWaterData_TEST_ONLY) {
-            mod._reloadWaterData_TEST_ONLY();
+        if ((mod as any)._reloadWaterData_TEST_ONLY) {
+            (mod as any)._reloadWaterData_TEST_ONLY();
         }
         return mod.isPointInWater;
     }
@@ -86,8 +86,8 @@ describe('isPointInWater', () => {
     });
 
     it('returns true for a point on the edge', async () => {
-         const isPointInWater = await getIsPointInWater();
-         expect(isPointInWater(5, 0)).toBe(true);
+        const isPointInWater = await getIsPointInWater();
+        expect(isPointInWater(5, 0)).toBe(true);
     });
 
     it('handles single Feature fallback', async () => {

@@ -6,4 +6,5 @@ public/uploads
 README.md
 DEPLOY.md
 scripts
+!scripts/ci-build.js
 *.log

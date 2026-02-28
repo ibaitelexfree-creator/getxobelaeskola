@@ -27,10 +27,7 @@ export default function NauticalChart() {
         // Convert to GeoJSON LineString (lng, lat order for Turf)
         try {
             const line = turf.lineString(routePoints.map(p => [p[1], p[0]]));
-<<<<<<< HEAD
-=======
             // @ts-ignore: Turf types sometimes mismatch with options object but units: 'nauticalmiles' is valid
->>>>>>> origin/jules/fix-lint-errors-17071256425989174302
             return turf.length(line, { units: 'nauticalmiles' });
         } catch (e) {
             console.error("Error calculating distance", e);
