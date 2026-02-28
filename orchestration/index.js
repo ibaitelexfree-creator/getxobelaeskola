@@ -2698,27 +2698,31 @@ const server = app.listen(PORT, '0.0.0.0', () => {
 
   setInterval(runNightlyQARobot, 60 * 60 * 1000);
   console.log('[Chain 4] Nightly-Watch (Getxo 3 AM) & Self-Healing & QA Robot ACTIVE');
-  // ── SELF-HEALING ENGINE (Chain 4) ────────────────────────
-  async function triggerSelfHealing(errorMsg, stack) {
-    if (process.env.JULES_DISABLE_SELF_HEALING === 'true') return;
-    metrics.errorsTotal++;
-    console.log('[Self-Healing] 🤖 Crítico detectado. Iniciando reparación autónoma...');
-
-    try {
-      await createJulesSession({
-        prompt: `CRITICAL ERROR DETECTED IN PRODUCTION:\nError: ${errorMsg}\nStack: ${stack}\n\nTask: Find the root cause, fix it, and create a PR. Check logs and recent changes.`,
-        source: process.env.JULES_DEFAULT_SOURCE || 'sources/github/ibaitelexfree-creator/getxobelaeskola',
-        title: '🆘 Self-Healing: Repairing Crash',
-        automationMode: 'AUTO_CREATE_PR'
-      });
-
-      sendTelegramMessage(`🆘 *Self-Healing Activado*\nHe detectado un crash crítico y he lanzado a Jules para repararlo automáticamente.`);
-    } catch (e) {
-      console.error('[Self-Healing] Failed to launch:', e.message);
-    }
-  }
-
+  // Initialize O(1) tool registry (must be after batchProcessor/sessionMonitor)
+  initializeToolRegistry();
+  console.log('Modules initialized: BatchProcessor, SessionMonitor, ToolRegistry (' + toolRegistry.size + ' tools)');
 });
+
+// ── SELF-HEALING ENGINE (Chain 4) ────────────────────────
+async function triggerSelfHealing(errorMsg, stack) {
+  if (process.env.JULES_DISABLE_SELF_HEALING === 'true') return;
+  if (typeof metrics !== 'undefined') metrics.errorsTotal++;
+  console.log('[Self-Healing] 🤖 Crítico detectado. Iniciando reparación autónoma...');
+
+  try {
+    await createJulesSession({
+      prompt: `CRITICAL ERROR DETECTED IN PRODUCTION:\nError: ${errorMsg}\nStack: ${stack}\n\nTask: Find the root cause, fix it, and create a PR. Check logs and recent changes.`,
+      source: process.env.JULES_DEFAULT_SOURCE || 'sources/github/ibaitelexfree-creator/getxobelaeskola',
+      title: '🆘 Self-Healing: Repairing Crash',
+      automationMode: 'AUTO_CREATE_PR'
+    });
+
+    sendTelegramMessage(`🆘 *Self-Healing Activado*\nHe detectado un crash crítico y he lanzado a Jules para repararlo automáticamente.`);
+  } catch (e) {
+    console.error('[Self-Healing] Failed to launch:', e.message);
+  }
+}
+
 
 process.on('SIGTERM', () => {
   console.log('SIGTERM received, shutting down gracefully');
