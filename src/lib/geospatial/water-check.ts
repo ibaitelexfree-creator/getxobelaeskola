@@ -29,6 +29,11 @@ export function resetSpatialIndex() {
     spatialIndex = null;
 }
 
+// Export for testing
+export function _reloadWaterData_TEST_ONLY() {
+    spatialIndex = null;
+}
+
 /**
  * Loads the water polygon data from the GeoJSON file and builds the spatial index.
  * This function should be called once at startup or lazily when needed.
@@ -45,10 +50,13 @@ function initializeSpatialIndex() {
         // Support for FeatureCollection
         if (geojson.type === 'FeatureCollection' && Array.isArray(geojson.features)) {
             geojson.features.forEach((feature: any) => {
-                if (!feature.geometry) return;
+                if (!feature || !feature.geometry || !feature.geometry.coordinates) return;
 
                 try {
                     const bbox = turf.bbox(feature);
+                    // Ensure bbox is valid before adding
+                    if (bbox.some(coord => typeof coord !== 'number' || isNaN(coord))) return;
+
                     items.push({
                         minX: bbox[0],
                         minY: bbox[1],
@@ -62,16 +70,18 @@ function initializeSpatialIndex() {
             });
         }
         // Support for single Feature fallback (Jules' fix)
-        else if (geojson.type === 'Feature' && geojson.geometry) {
+        else if (geojson.type === 'Feature' && geojson.geometry && geojson.geometry.coordinates) {
             try {
                 const bbox = turf.bbox(geojson);
-                items.push({
-                    minX: bbox[0],
-                    minY: bbox[1],
-                    maxX: bbox[2],
-                    maxY: bbox[3],
-                    feature: geojson as GeoJSONFeature
-                });
+                if (!bbox.some(coord => typeof coord !== 'number' || isNaN(coord))) {
+                    items.push({
+                        minX: bbox[0],
+                        minY: bbox[1],
+                        maxX: bbox[2],
+                        maxY: bbox[3],
+                        feature: geojson as GeoJSONFeature
+                    });
+                }
             } catch (e) {
                 console.warn('Failed to process single feature for spatial index', e);
             }
@@ -101,7 +111,8 @@ export function isPointInWater(lat: number, lng: number): boolean {
         initializeSpatialIndex();
     }
 
-    if (!spatialIndex) return false; // Should not happen due to init logic
+    // Safety check: if index still null or empty
+    if (!spatialIndex || spatialIndex.all().length === 0) return false;
 
     const point = turf.point([lng, lat]);
 
@@ -120,7 +131,8 @@ export function isPointInWater(lat: number, lng: number): boolean {
     // Iterate through candidates that might contain the point
     return candidates.some((item) => {
         try {
-            if (!item.feature || !item.feature.geometry) return false; return turf.booleanPointInPolygon(point, item.feature);
+            if (!item.feature || !item.feature.geometry) return false;
+            return turf.booleanPointInPolygon(point, item.feature);
         } catch (e) {
             return false;
         }

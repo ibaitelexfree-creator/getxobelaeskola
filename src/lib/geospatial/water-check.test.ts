@@ -25,7 +25,7 @@ const mockData = vi.hoisted(() => ({
     } as any
 }));
 
-vi.mock('../../data/geospatial/water-geometry.json', () => ({
+vi.mock('@/data/geospatial/water-geometry.json', () => ({
     default: mockData.data
 }));
 
@@ -62,8 +62,12 @@ describe('isPointInWater', () => {
     });
 
     async function getIsPointInWater() {
-        const { isPointInWater } = await import('./water-check');
-        return isPointInWater;
+        const mod = await import('./water-check');
+        // Force reload of internal state if the export exists (for test isolation)
+        if (mod._reloadWaterData_TEST_ONLY) {
+            mod._reloadWaterData_TEST_ONLY();
+        }
+        return mod.isPointInWater;
     }
 
     it('returns true for a point clearly inside the water polygon (FeatureCollection)', async () => {
