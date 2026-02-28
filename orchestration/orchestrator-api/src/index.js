@@ -1,9 +1,6 @@
 import 'dotenv/config';
-<<<<<<< HEAD
 console.log('--- STARTING ORCHESTRATOR API v2.0.1 (DEBUG ENABLED) ---'); // Hardened Production Ready 🛡️
-=======
-console.log('--- STARTING ORCHESTRATOR API v2.0.1 (DEBUG ENABLED) ---');
->>>>>>> origin/jules/fix-lint-errors-17071256425989174302
+
 import express from 'express';
 import pg from 'pg';
 import axios from 'axios';
@@ -20,7 +17,6 @@ import { startPolling, sendMessage, formatProposal, storeProposal } from './tele
 import * as taskQueue from './task-queue.js';
 import { executeSwarm, isSimulationMode, getActiveSwarms, getHealthReport, resumeActiveTasks } from './swarm-executor.js';
 import { ACCOUNTS_MAP, ACCOUNT_ROLES, buildAuthHeaders, validateAllKeys } from './account-health.js';
-<<<<<<< HEAD
 import { startSwarmV2 } from './lib/swarm-orchestrator-v2.js';
 import pool, { query } from './lib/db-client.js';
 import { runSwarmWatchdog } from './lib/swarm-watchdog.js';
@@ -37,8 +33,7 @@ startNodeHealthMonitor();
 
 import { startCanary, getCanaryStatus } from './lib/canary-controller.js';
 import { captureIntegritySnapshot } from './lib/integrity-snapshot.js';
-=======
->>>>>>> origin/jules/fix-lint-errors-17071256425989174302
+
 
 // Fix connection hangs by prioritizing IPv4
 if (dns.setDefaultResultOrder) {
@@ -96,13 +91,9 @@ app.use(express.static('public'));
 // Initialize database
 let db = null;
 if (DATABASE_URL) {
-<<<<<<< HEAD
   db = pool;
   console.log('[Init] Unified database pool connected');
-=======
-  db = new pg.Pool({ connectionString: DATABASE_URL });
-  console.log('[Init] Database pool created');
->>>>>>> origin/jules/fix-lint-errors-17071256425989174302
+
 
   // Initialize task queue schema and then resume any active tasks
   taskQueue.initializeSchema(db).then(() => {
@@ -1007,39 +998,6 @@ server.listen(PORT, '0.0.0.0', () => {
       }
     },
     onRetry: async (cid, id) => {
-<<<<<<< HEAD
-=======
-      try {
-        const resetCount = await taskQueue.resetFailedTasks(db, id);
-        if (resetCount === 0) {
-          await sendMessage(cid, `❌ No hay tareas fallidas en swarm \`${id}\`.`);
-          return;
-        }
-        await sendMessage(cid, `🔄 *Swarm \`#${id}\` retry!* ${resetCount} tareas reseteadas. Re-ejecutando...`);
-        executeSwarm(db, id, cid, { simulationMode: isSimulationMode() })
-          .catch(e => sendMessage(cid, `❌ Retry error: ${e.message}`));
-      } catch (e) {
-        await sendMessage(cid, `❌ Error en retry: ${e.message}`);
-      }
-    },
-    onHealth: async (cid) => {
-      try {
-        const results = await validateAllKeys();
-        const lines = ['🔑 *Estado de Cuentas Jules:*', ''];
-        for (const [email, result] of Object.entries(results)) {
-          const role = ACCOUNT_ROLES[email] || 'Unknown';
-          const icon = result.valid ? '✅' : '❌';
-          lines.push(`${icon} *${role}*: \`${email}\``);
-          if (!result.valid) lines.push(`   └ ${result.reason}`);
-        }
-        await sendMessage(cid, lines.join('\n'));
-      } catch (e) {
-        await sendMessage(cid, `❌ Error checking health: ${e.message}`);
-      }
-    },
-    onCicd: async (cid, taskPrompt) => {
-      console.log(`[onCicd] Triggered for CID ${cid} with prompt: "${taskPrompt}"`);
->>>>>>> origin/jules/fix-lint-errors-17071256425989174302
       try {
         const resetCount = await taskQueue.resetFailedTasks(db, id);
         if (resetCount === 0) {
@@ -1082,7 +1040,6 @@ server.listen(PORT, '0.0.0.0', () => {
       try {
         await sendMessage(cid, `⚙️ *Iniciando Proceso CI/CD de Alto Nivel...*\nAnalizando arquitectura y flujo de relay (Architect → Data → UI)...`);
 
-<<<<<<< HEAD
         // 1. Analizar con Groq para obtener el plan de múltiples agentes
         const analysis = await analyzeTask(taskPrompt, 3); // Forzar 3 roles base
 
@@ -1092,36 +1049,6 @@ server.listen(PORT, '0.0.0.0', () => {
           prompt: taskPrompt,
           maxJules: 3,
           analysis
-=======
-        console.log(`[onCicd] Using account: ${accountEmail}, Key prefix: ${apiKey?.substring(0, 5)}...`);
-
-        await sendMessage(cid, `✅ *Tarea CI/CD creada.*\n_Prompt:_ ${taskPrompt}\n_Agente:_ LEAD ORCHESTRATOR`);
-        console.log(`[onCicd] Confirmation message sent to Telegram`);
-
-        // Usar la función helper para construir headers correctos
-        const headers = buildAuthHeaders(apiKey);
-        console.log(`[onCicd] Headers built:`, JSON.stringify(headers).replace(apiKey, 'REDACTED'));
-
-        console.log(`[onCicd] Sending POST request to Jules API...`);
-        axios.post('https://jules.googleapis.com/v1alpha/sessions', {
-          prompt: `CI/CD MANUAL TRIGGER: ${taskPrompt}\n\nMISSION: Use LEAD_ORCHESTRATOR identity. Fix issues or implement features as requested, then process it as an Auto-Healing/Auto-Merge task.`,
-          sourceContext: {
-            source: 'sources/github/ibaitelexfree-creator/getxobelaeskola',
-            githubRepoContext: {
-              startingBranch: 'main'
-            }
-          },
-          automationMode: 'AUTO_CREATE_PR'
-        }, {
-          headers
-        }).then(response => {
-          console.log(`[onCicd] Jules session created: ${response.data.name}`);
-          sendMessage(cid, `🚀 Sesión de Jules iniciada para CI/CD: \`${response.data.name}\``).catch(() => { });
-        }).catch(err => {
-          console.error(`[onCicd] Jules API Error:`, err.response?.data || err.message);
-          const errMsg = err.response?.data?.error?.message || err.message;
-          sendMessage(cid, `❌ Falló la creación de la sesión Jules: ${errMsg}`).catch(() => { });
->>>>>>> origin/jules/fix-lint-errors-17071256425989174302
         });
 
         // 3. Auto-aprobar y ejecutar el swarm
@@ -1137,13 +1064,8 @@ ${result.taskCount} tareas en cola.`);
           .catch(e => sendMessage(cid, `❌ Error de ejecución en Swarm CI/CD: ${e.message}`));
 
       } catch (e) {
-<<<<<<< HEAD
         console.error(`[onCicd] Swarm Error:`, e.message);
         await sendMessage(cid, `❌ Error al iniciar Swarm CI/CD: ${e.message}`);
-=======
-        console.error(`[onCicd] Catch Error:`, e.message);
-        await sendMessage(cid, `❌ Error en CI/CD: ${e.message}`);
->>>>>>> origin/jules/fix-lint-errors-17071256425989174302
       }
     }
   }).catch(e => console.error('[TelegramBot] Fatal:', e.message));

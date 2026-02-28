@@ -10,11 +10,12 @@ dotenv.config({ path: './orchestration/.env' });
 const QDRANT_URL = process.env.QDRANT_URL || 'http://localhost:6333';
 const COLLECTION_NAME = 'swarm_v2_code_intelligence';
 const TARGET_DIR = process.cwd();
+const PROGRESS_FILE = path.join(TARGET_DIR, 'orchestration', '.index-progress.json');
 const IGNORE_DIRS = [
     '.git', 'node_modules', 'dist', 'build', '.next', 'artifacts', 'tmp', 'brain', '.gemini', '.agent',
     '.n8n_local', '.cache', 'public', 'static', 'coverage', 'backups', 'out'
 ];
-const IGNORE_FILES = ['package-lock.json', 'pnpm-lock.yaml', 'yarn.lock', 'composer.lock'];
+const IGNORE_FILES = ['package-lock.json', 'pnpm-lock.yaml', 'yarn.lock', 'composer.lock', 'state_dump.json', 'pool-state.json'];
 const ALLOWED_EXTENSIONS = ['.js', '.ts', '.tsx', '.md', '.json', '.html', '.css', '.py', '.sh', '.ps1', '.sql', '.tla'];
 
 /**
@@ -100,26 +101,59 @@ async function runIndexer() {
 
     await ensureCollection();
 
+    let processedMap = {};
+    if (fs.existsSync(PROGRESS_FILE)) {
+        try {
+            processedMap = JSON.parse(fs.readFileSync(PROGRESS_FILE, 'utf8'));
+            console.log(`♻️ Progreso anterior detectado. ${Object.keys(processedMap).length} archivos ya listos serán omitidos.`);
+        } catch (e) {
+            console.warn(`[Warning] No se pudo leer el archivo de progreso. Se re-indexará todo.`);
+        }
+    }
+
     console.log(`🔍 Escaneando archivos...`);
     const files = await walkDir(TARGET_DIR);
     console.log(`📊 Encontrados ${files.length} archivos relevantes.\n`);
 
     let totalChunks = 0;
     let processedFiles = 0;
+    let skippedFiles = 0;
 
     for (const file of files) {
         const relativePath = path.relative(TARGET_DIR, file);
+
+        // Skip check
+        if (processedMap[relativePath]) {
+            skippedFiles++;
+            processedFiles++;
+            continue;
+        }
+
         let content;
         try {
             content = fs.readFileSync(file, 'utf8');
         } catch (e) { continue; }
 
-        if (!content || content.length < 50) continue;
+        if (!content || content.length < 50) {
+            processedMap[relativePath] = true; // Mark as done to avoid checking again
+            continue;
+        }
 
         const chunks = chunkText(content, 800, 80);
+        let successChunks = 0;
+
+        processedFiles++;
+        console.log(`  📄 [${processedFiles}/${files.length - skippedFiles}] Indexando: ${relativePath} (${chunks.length} chunks) ...`);
 
         for (let i = 0; i < chunks.length; i++) {
-            const chunk = chunks[i];
+            const chunk = chunks[i].trim(); // Trim spaces/newlines
+
+            // Skip nearly empty chunks that might cause Ollama 400 Bad Request
+            if (chunk.length < 10) {
+                successChunks++;
+                continue;
+            }
+
             const id = crypto.createHash('md5').update(`${relativePath}_${i}`).digest('hex');
 
             try {
@@ -141,25 +175,37 @@ async function runIndexer() {
                         }
                     }]
                 });
+                successChunks++;
                 totalChunks++;
             } catch (err) {
                 console.error(`  ⚠️ Chunk ${i} de ${relativePath} falló: ${err.message}`);
                 // Only skip on 500/timeout, stop on connection loss
                 if (err.message.includes('ECONNREFUSED')) process.exit(1);
+
+                // If it's a 400 Bad Request, treat the chunk as successfully bypassed so it
+                // doesn't loop infinitely on the exact same error text next time
+                if (err.response && (err.response.status === 400 || err.response.status === 500)) {
+                    successChunks++;
+                }
             }
         }
 
-        processedFiles++;
-        console.log(`  📄 [${processedFiles}/${files.length}] Indexando: ${relativePath} (${chunks.length} chunks)`);
+        // If we processed all chunks successfully, mark the file as completely indexed
+        if (successChunks === chunks.length) {
+            processedMap[relativePath] = true;
+            fs.writeFileSync(PROGRESS_FILE, JSON.stringify(processedMap, null, 2));
+            console.log(`     ✅ Completado: ${relativePath}`);
+        }
 
-        if (processedFiles % 20 === 0) {
-            console.log(`\n  🕒 RECORDER: ${totalChunks} chunks en total hasta ahora...\n`);
+        if ((processedFiles - skippedFiles) % 20 === 0 && (processedFiles - skippedFiles) !== 0) {
+            console.log(`\n  🕒 RECORDER: ${totalChunks} chunks nuevos hasta ahora...\n`);
         }
     }
 
     console.log(`\n✅ REPOSITORIO "ENTRENADO" CORRECTAMENTE!`);
-    console.log(`Archivos Procesados: ${processedFiles}`);
-    console.log(`Vectores en Qdrant:  ${totalChunks}`);
+    console.log(`Archivos Omitidos (Ya Indexados): ${skippedFiles}`);
+    console.log(`Archivos Procesados Nuevos: ${processedFiles - skippedFiles}`);
+    console.log(`Vectores NUEVOS en Qdrant:  ${totalChunks}`);
     console.log(`\nAhora el orquestador puede usar esta memoria para RAG.`);
     process.exit(0);
 }
@@ -168,3 +214,4 @@ runIndexer().catch(err => {
     console.error(`\n💥 Error Fatal:`, err.message);
     process.exit(1);
 });
+

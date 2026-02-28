@@ -57,7 +57,7 @@ export default function LoginForm({ locale = 'es' }: { locale?: string }) {
         setResendStatus('idle');
         setCurrentEmail(data.email);
 
-        const { error: authError } = await supabase.auth.signInWithPassword({
+        const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
             email: data.email,
             password: data.password,
         });
@@ -97,11 +97,27 @@ export default function LoginForm({ locale = 'es' }: { locale?: string }) {
 
             if (returnTo) {
                 router.push(returnTo);
+                router.refresh();
             } else {
+                // Determine if admin
+                if (authData?.user?.id) {
+                    const { data: profile } = await supabase
+                        .from('profiles')
+                        .select('rol')
+                        .eq('id', authData.user.id)
+                        .single();
+
+                    if (profile && (profile.rol === 'admin' || profile.rol === 'instructor')) {
+                        router.push(`/${locale}/staff`);
+                        router.refresh();
+                        return;
+                    }
+                }
+
                 // Default redirect to dashboard
                 router.push(`/${locale}/student/dashboard`);
+                router.refresh();
             }
-            router.refresh();
         }
     };
 

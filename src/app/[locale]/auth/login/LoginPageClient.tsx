@@ -29,7 +29,13 @@ function LoginPageContent({ locale }: { locale: string }) {
         const supabase = createClient();
         supabase.auth.getSession().then(({ data: { session } }: { data: { session: any } }) => {
             if (session) {
-                router.replace(returnTo || `/${locale}/student/dashboard`);
+                supabase.from('profiles').select('rol').eq('id', session.user.id).single().then(({ data }) => {
+                    if (data && (data.rol === 'admin' || data.rol === 'instructor')) {
+                        router.replace(returnTo || `/${locale}/staff`);
+                    } else {
+                        router.replace(returnTo || `/${locale}/student/dashboard`);
+                    }
+                });
             } else {
                 setChecking(false);
             }
