@@ -28,6 +28,7 @@ describe('getMotivationalMessage', () => {
     });
 
     it('returns empty string for streak context (not an array in getMotivationalMessage)', () => {
+        // We cast to any to test the runtime behavior of invalid input, but TS is correct to complain
         const message = getMotivationalMessage('streak' as any);
         expect(message).toBe("");
     });

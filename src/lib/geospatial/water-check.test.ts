@@ -59,7 +59,8 @@ describe('isPointInWater', () => {
     });
 
     async function getIsPointInWater() {
-        const { isPointInWater } = await import('./water-check');
+        const { isPointInWater, resetSpatialIndex } = await import('./water-check');
+        resetSpatialIndex(); // Force reload with new mock data
         return isPointInWater;
     }
 

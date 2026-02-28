@@ -114,6 +114,8 @@ describe('Auth Guard', () => {
 
             expect(result.error).toBeDefined();
             const errorResponse = result.error as any;
+            // requireAdmin wraps error in NextResponse, so we check body or status if mocked
+            // But here the mock returns { body, status }
             expect(errorResponse.status).toBe(401);
         });
 

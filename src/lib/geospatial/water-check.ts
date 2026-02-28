@@ -84,6 +84,14 @@ function initializeSpatialIndex() {
 }
 
 /**
+ * Resets the spatial index to force reloading data.
+ * Useful for testing or hot-reloading data.
+ */
+export function resetSpatialIndex() {
+    spatialIndex = null;
+}
+
+/**
  * Checks if a given coordinate (lat, lng) is inside any water polygon.
  * Uses RBush spatial index for performance.
  *

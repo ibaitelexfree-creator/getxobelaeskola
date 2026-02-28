@@ -1,4 +1,4 @@
-import { defineConfig } from 'vitest/config';
+import { defineConfig, configDefaults } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 import path from 'path';
 
@@ -8,6 +8,14 @@ export default defineConfig({
         environment: 'jsdom',
         setupFiles: './vitest.setup.ts',
         include: ['**/*.test.ts', '**/*.test.tsx'],
+        exclude: [
+            ...configDefaults.exclude,
+            '.jules_bases/**',
+            '.agent/**',
+            '.openclaw/**',
+            '**/.jules_bases/**',
+            '**/.agent/**'
+        ],
         globals: true,
     },
     resolve: {
