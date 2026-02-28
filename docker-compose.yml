@@ -23,6 +23,15 @@ services:
       - "3000"
     labels:
       - "traefik.enable=true"
+      # Global HTTP to HTTPS redirect middleware
+      - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
+      
+      # HTTP Router (Permanent Redirect)
+      - "traefik.http.routers.getxo-http.rule=Host(`getxobelaeskola.cloud`) || Host(`www.getxobelaeskola.cloud`)"
+      - "traefik.http.routers.getxo-http.entrypoints=web"
+      - "traefik.http.routers.getxo-http.middlewares=redirect-to-https"
+      
+      # HTTPS Router
       - "traefik.http.routers.getxo.rule=Host(`getxobelaeskola.cloud`) || Host(`www.getxobelaeskola.cloud`)"
       - "traefik.http.routers.getxo.entrypoints=websecure"
       - "traefik.http.routers.getxo.tls.certresolver=mytlschallenge"
@@ -36,7 +45,7 @@ services:
     networks:
       - n8n_default
 
-  # 2. Control Manager Dashboard
+  # 2. Control Manager / Explorer Dashboard
   mission-control:
     build:
       context: .
@@ -48,46 +57,47 @@ services:
       - "3100"
     labels:
       - "traefik.enable=true"
+      # HTTP Router (Redirect)
+      - "traefik.http.routers.controlmanager-http.rule=Host(`controlmanager.cloud`)"
+      - "traefik.http.routers.controlmanager-http.entrypoints=web"
+      - "traefik.http.routers.controlmanager-http.middlewares=redirect-to-https"
+      
+      # HTTPS Router (Dashboard)
       - "traefik.http.routers.controlmanager.rule=Host(`controlmanager.cloud`)"
       - "traefik.http.routers.controlmanager.entrypoints=websecure"
       - "traefik.http.routers.controlmanager.tls.certresolver=mytlschallenge"
       - "traefik.http.services.controlmanager.loadbalancer.server.port=3100"
-      - "traefik.http.routers.controlmanager-http.rule=Host(`controlmanager.cloud`)"
-      - "traefik.http.routers.controlmanager-http.entrypoints=web"
-      - "traefik.http.routers.controlmanager-http.middlewares=redirect-to-https"
-    env_file:
-      - .env
     networks:
       - n8n_default
-    depends_on:
-      - orchestrator
 
-  # 3. AI Orchestrator Gateway (The Brain)
+  # 3. Orchestrator Gateway (AI Maestro)
   orchestrator:
     build:
       context: .
       dockerfile: orchestration/Dockerfile
-    image: ${ORCHESTRATOR_IMAGE:-jules-orchestrator-gateway:latest}
-    container_name: orchestrator-gateway
+    image: ${ORCHESTRATOR_IMAGE:-nodejs-orchestrator:latest}
+    container_name: nodejs-orchestrator
     restart: always
-    expose:
-      - "3323"
     environment:
-      - JULES_API_KEY=${JULES_API_KEY}
-      - GROQ_API_KEY=${GROQ_API_KEY}
-      - GITHUB_TOKEN=${GITHUB_TOKEN}
-      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
-      - TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID}
       - NODE_ENV=production
       - PORT=3323
+      - JULES_API_KEY=${JULES_API_KEY}
+      - GROQ_API_KEY=${GROQ_API_KEY}
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID}
+      - OPEN_WEATHER_API_KEY=${OPEN_WEATHER_API_KEY}
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+    expose:
+      - "3323"
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.orchestrator.rule=Host(`controlmanager.cloud`) && PathPrefix(`/orchestrator`)"
-      - "traefik.http.routers.orchestrator.entrypoints=websecure"
-      - "traefik.http.routers.orchestrator.tls.certresolver=mytlschallenge"
-      - "traefik.http.routers.orchestrator.middlewares=orchestrator-strip"
-      - "traefik.http.middlewares.orchestrator-strip.stripprefix.prefixes=/orchestrator"
-      - "traefik.http.services.orchestrator.loadbalancer.server.port=3323"
+      # Route for /orchestrator path under the same domain
+      - "traefik.http.routers.orchestrator-api.rule=Host(`controlmanager.cloud`) && PathPrefix(`/orchestrator`)"
+      - "traefik.http.middleware.orchestrator-strip.stripprefix.prefixes=/orchestrator"
+      - "traefik.http.routers.orchestrator-api.entrypoints=websecure"
+      - "traefik.http.routers.orchestrator-api.tls.certresolver=mytlschallenge"
+      - "traefik.http.routers.orchestrator-api.middlewares=orchestrator-strip"
+      - "traefik.http.services.orchestrator-api.loadbalancer.server.port=3323"
     networks:
       - n8n_default
 

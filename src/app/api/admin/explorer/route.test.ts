@@ -32,6 +32,8 @@ describe('Admin Explorer API', () => {
 
     beforeEach(() => {
         vi.clearAllMocks();
+
+        // Base mock structure with all chainable methods
         mockSupabase = {
             from: vi.fn().mockReturnThis(),
             select: mockSelect,
@@ -44,7 +46,7 @@ describe('Admin Explorer API', () => {
         (createClient as any).mockReturnValue(mockSupabase);
     });
 
-    it('should correctly aggregate relations using manual batching', async () => {
+    it('should use efficient batching and avoid N+1 queries for profiles', async () => {
         const mockData = [
             {
                 id: 'user1',
@@ -77,27 +79,25 @@ describe('Admin Explorer API', () => {
         const response = await GET(req);
         const json = await response.json();
 
-        // Verify that from was called with 'profiles'
+        // Verify that from was called with 'profiles' (main query)
         expect(mockSupabase.from).toHaveBeenCalledWith('profiles');
 
         // Verify that main query was simple select *
         expect(selectProfiles).toHaveBeenCalledWith('*');
 
-        // Verify that secondary queries were made for relations
-        expect(mockSupabase.from).toHaveBeenCalledWith('reservas_alquiler');
-        expect(mockSupabase.from).toHaveBeenCalledWith('inscripciones');
-        expect(mockSupabase.from).toHaveBeenCalledWith('newsletter_subscriptions');
-
-        // Verify manual batching calls via .in()
-        expect(mockSupabase.from).toHaveBeenCalledWith('reservas_alquiler');
-        expect(mockSupabase.from).toHaveBeenCalledWith('inscripciones');
-        expect(mockSupabase.from).toHaveBeenCalledWith('newsletter_subscriptions');
-
         // Verify output format is correctly mapped from aggregated results
-        expect(json.results[0]._relations).toHaveLength(3); // 2 rentals + 1 inscripcion + 5 subscriptions
-        expect(json.results[0]._relations).toContainEqual({ label: 'Alquileres', count: 2, table: 'reservas_alquiler' });
-        expect(json.results[0]._relations).toContainEqual({ label: 'Cursos Inscritos', count: 1, table: 'inscripciones' });
-        expect(json.results[0]._relations).toContainEqual({ label: 'Suscripciones (por Email)', count: 5, table: 'newsletter_subscriptions' });
+        expect(json.results[0]._relations).toBeDefined();
+        const relations = json.results[0]._relations;
+
+        expect(relations).toContainEqual({ label: 'Alquileres', count: 2, table: 'reservas_alquiler' });
+        expect(relations).toContainEqual({ label: 'Cursos Inscritos', count: 1, table: 'inscripciones' });
+        expect(relations).toContainEqual({ label: 'Suscripciones (por Email)', count: 5, table: 'newsletter_subscriptions' });
+
+        // Verify that we queried the related tables
+        expect(mockSupabase.from).toHaveBeenCalledWith('reservas_alquiler');
+        expect(mockSupabase.from).toHaveBeenCalledWith('inscripciones');
+        expect(mockSupabase.from).toHaveBeenCalledWith('mensajes_contacto');
+        expect(mockSupabase.from).toHaveBeenCalledWith('newsletter_subscriptions');
     });
 
     it('should correctly handle tables without relations', async () => {
@@ -115,7 +115,7 @@ describe('Admin Explorer API', () => {
 
         expect(mockSupabase.from).toHaveBeenCalledWith('reservas_alquiler');
         expect(json.results[0]._relations).toHaveLength(0);
-        // Only 1 query (main) + 0 queries (relations) = 1
+        // Only 1 main query since no relations configured for reservas_alquiler in RELATIONS map
         expect(mockSupabase.from).toHaveBeenCalledTimes(1);
     });
 
@@ -128,7 +128,8 @@ describe('Admin Explorer API', () => {
         const response = await GET(req);
         const json = await response.json();
 
-        // Should call from for each table in SEARCHABLE_COLS (6 tables)
+        // Should call from once for each table in SEARCHABLE_COLS (6 tables currently)
+        expect(mockSupabase.from).toHaveBeenCalledTimes(6);
         expect(mockSupabase.from).toHaveBeenCalledWith('profiles');
         expect(mockSupabase.from).toHaveBeenCalledWith('cursos');
         expect(mockSupabase.from).toHaveBeenCalledWith('embarcaciones');

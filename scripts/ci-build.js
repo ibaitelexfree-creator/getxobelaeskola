@@ -19,7 +19,7 @@ if (!fs.existsSync('.env.local')) {
 }
 
 // Run next build
-const build = spawn('next', ['build'], {
+const build = spawn('npx', ['next', 'build'], {
     stdio: 'inherit',
     env: process.env,
     shell: true

@@ -138,7 +138,11 @@ export function getAllPendingProposals() {
 
 // ─── Command Router ───
 
+<<<<<<< HEAD
 async function handleMessage(msg, { onSwarm, onApprove, onCancel, onStatus, onCicd, onRetry, onHealth, onSwarm2 }) {
+=======
+async function handleMessage(msg, { onSwarm, onApprove, onCancel, onStatus, onCicd, onRetry, onHealth }) {
+>>>>>>> origin/jules/fix-lint-errors-17071256425989174302
     const chatId = msg.chat.id;
     const text = (msg.text || '').trim();
     const authorizedChatId = process.env.TELEGRAM_CHAT_ID;
@@ -285,7 +289,10 @@ async function handleMessage(msg, { onSwarm, onApprove, onCancel, onStatus, onCi
             '🤖 *Swarm Commander - Comandos*',
             '',
             '`/swarm <tarea> [N jules]` — Analizar tarea con Groq AI',
+<<<<<<< HEAD
             '`/swarm2 <tarea>` — Swarm 2.0 Especializado (Gemini + RAG)',
+=======
+>>>>>>> origin/jules/fix-lint-errors-17071256425989174302
             '`/approve <id> [filtros]` — Aprobar propuesta (ej: `/approve x1y2 1,3`)',
             '`/cancel <id>` — Cancelar propuesta',
             '`/retry <id>` — Reintentar tareas fallidas',
@@ -388,9 +395,13 @@ export async function startPolling(handlers = {}) {
 
     while (pollingActive) {
         try {
+<<<<<<< HEAD
             // First call with offset -1 will skip everything and get current state
             const offset = (lastUpdateId === -1) ? -1 : (lastUpdateId + 1);
             console.log(`[TelegramBot] Polling... (offset: ${offset})`);
+=======
+            console.log(`[TelegramBot] Polling... (offset: ${lastUpdateId + 1})`);
+>>>>>>> origin/jules/fix-lint-errors-17071256425989174302
             const result = await telegramAPI('getUpdates', {
                 offset: offset,
                 timeout: 30, // Long poll: wait up to 30s

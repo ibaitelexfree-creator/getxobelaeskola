@@ -63,6 +63,9 @@ export default function LoginForm({ locale = 'es' }: { locale?: string }) {
         });
 
         if (authError) {
+            console.error("Auth error:", authError);
+            console.log("Supabase URL used:", process.env.NEXT_PUBLIC_SUPABASE_URL);
+
             const msg = authError.message.toLowerCase();
             if (msg.includes('email not confirmed') || (msg.includes('invalid') && msg.includes('address'))) {
                 setError(t('email_not_confirmed'));
@@ -72,11 +75,14 @@ export default function LoginForm({ locale = 'es' }: { locale?: string }) {
                 setError(t('rate_limit'));
                 setIsEmailNotConfirmed(false);
                 setIsCredsError(false);
-            } else if (msg.includes('invalid') || msg.includes('credentials') || msg.includes('incorrect')) {
+            } else if (msg.includes('invalid') || msg.includes('credentials') || msg.includes('incorrect') || msg.includes('invalid login credentials')) {
                 setError(t('invalid_creds'));
                 setIsCredsError(true);
+            } else if (msg.includes('fetch') || msg.includes('network')) {
+                setError('Error de conexión con el servidor. Por favor, comprueba tu conexión a internet o inténtalo más tarde.');
+                setIsCredsError(false);
             } else {
-                setError(authError.message);
+                setError(t('invalid_creds')); // Fallback to generic invalid creds rather than exposing raw error, or maybe 'Ha ocurrido un error inesperado'
                 setIsCredsError(false);
             }
             setLoading(false);

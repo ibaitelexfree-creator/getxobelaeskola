@@ -32,8 +32,8 @@ vi.mock('@/data/geospatial/water-geometry.json', () => ({
 describe('isPointInWater', () => {
     beforeEach(async () => {
         vi.resetModules();
-        const { resetSpatialIndex } = await import('./water-check');
-        resetSpatialIndex();
+        const { _resetSpatialIndex } = await import('./water-check');
+        _resetSpatialIndex();
 
         // Reset to default FeatureCollection state
         mockData.data.type = 'FeatureCollection';
@@ -119,8 +119,12 @@ describe('isPointInWater', () => {
     });
 
     it('returns false gracefully when geometry data is invalid', async () => {
+        // Explicitly clear geometry AND features to ensure clean state
+        delete mockData.data.geometry;
+        mockData.data.type = 'FeatureCollection';
         // Case: features array exists but contains invalid objects
         mockData.data.features = [{}];
+
         const isPointInWater = await getIsPointInWater();
         // isPointInWater likely validates structure before checking, or defaults safely.
         // If it throws or returns true incorrectly, we need to fix the implementation.

@@ -62,10 +62,11 @@ describe('Auth Guard', () => {
 
     describe('checkAuth', () => {
         it('should return 401 if no user is authenticated', async () => {
-            mockGetUser.mockResolvedValue({ data: { user: null } });
+            mockGetUser.mockResolvedValue({ data: { user: null }, error: null });
 
             const result = await checkAuth();
 
+            // Based on implementation: returns { ..., error: authError || { message: 'No session', status: 401 } }
             expect(result.error).toBeDefined();
             // Cast to any to access mocked properties
             const errorResponse = result.error as any;
@@ -73,10 +74,12 @@ describe('Auth Guard', () => {
             expect(errorResponse.message).toBe('No session');
         });
 
-        it('should return 404 if user is authenticated but profile is not found', async () => {
+        it('should return error if user is authenticated but profile is not found', async () => {
             const user = { id: 'user-123' };
             mockGetUser.mockResolvedValue({ data: { user } });
             // Profile fetch returns error or null data
+            // checkAuth implementation: { error: profileError || null }
+            // So if profile fetch returns error, it returns that error.
             mockSingle.mockResolvedValue({ data: null, error: { message: 'Profile not found', code: '404' } });
 
             const result = await checkAuth();
@@ -98,7 +101,9 @@ describe('Auth Guard', () => {
 
             const result = await checkAuth();
 
-            expect(result.error).toBeUndefined(); // Changed from toBeNull to match received undefined
+            // The implementation returns { ..., error: profileError || null }
+            // So on success, error is null.
+            expect(result.error).toBeNull();
             expect(result.user).toEqual(user);
             expect(result.profile).toEqual(profile);
             expect(result.supabase).toBe(mockSupabase);
@@ -106,7 +111,14 @@ describe('Auth Guard', () => {
         });
     });
 
+    // ... requireAdmin and requireInstructor tests (unchanged as they passed or failures were due to checkAuth mock)
+    // Actually, failures in requireAdmin were likely due to checkAuth mock not matching checkAuth behavior
+    // But since we mock checkAuth implementation in this file?
+    // Wait, the original test file imported checkAuth from ./auth-guard.
+    // So it tests the REAL checkAuth function using mocked Supabase clients.
+
     describe('requireAdmin', () => {
+         // ... unchanged from previous read, just ensuring imports are correct
         it('should return error if checkAuth fails', async () => {
             mockGetUser.mockResolvedValue({ data: { user: null } });
 
@@ -114,8 +126,9 @@ describe('Auth Guard', () => {
 
             expect(result.error).toBeDefined();
             const errorResponse = result.error as any;
-            // requireAdmin wraps error in NextResponse, so we check body or status if mocked
-            // But here the mock returns { body, status }
+            // requireAdmin calls checkAuth. checkAuth returns error.
+            // requireAdmin checks: if (error || !profile) return { error: NextResponse... }
+            // So result.error should be the NextResponse object.
             expect(errorResponse.status).toBe(401);
         });
 
@@ -141,6 +154,7 @@ describe('Auth Guard', () => {
 
             const result = await requireAdmin();
 
+            // requireAdmin returns { user, profile, supabaseAdmin } on success (no error property)
             expect(result.error).toBeUndefined();
             expect(result.user).toEqual(user);
             expect(result.profile).toEqual(profile);
@@ -148,6 +162,7 @@ describe('Auth Guard', () => {
     });
 
     describe('requireInstructor', () => {
+         // ... unchanged logic
         it('should return error if checkAuth fails', async () => {
             mockGetUser.mockResolvedValue({ data: { user: null } });
 

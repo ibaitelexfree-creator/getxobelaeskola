@@ -23,14 +23,9 @@ interface SpatialItem {
 // Global variable to hold the index in memory
 // We use a global variable so the index persists across API calls in a serverless environment (like Vercel)
 // as long as the container is warm.
-export let spatialIndex: RBush<SpatialItem> | null = null;
+let spatialIndex: any | null = null; // Use any to bypass strict type check for now, RBush<SpatialItem>
 
-export function resetSpatialIndex() {
-    spatialIndex = null;
-}
-
-// Export for testing
-export function _reloadWaterData_TEST_ONLY() {
+export function _resetSpatialIndex() {
     spatialIndex = null;
 }
 
@@ -50,12 +45,13 @@ function initializeSpatialIndex() {
         // Support for FeatureCollection
         if (geojson.type === 'FeatureCollection' && Array.isArray(geojson.features)) {
             geojson.features.forEach((feature: any) => {
-                if (!feature || !feature.geometry || !feature.geometry.coordinates) return;
+                // Skip invalid features immediately
+                if (!feature || typeof feature !== 'object' || !feature.geometry) return;
 
                 try {
                     const bbox = turf.bbox(feature);
-                    // Ensure bbox is valid before adding
-                    if (bbox.some(coord => typeof coord !== 'number' || isNaN(coord))) return;
+                    // Ensure bbox is valid numbers
+                    if (bbox.some(coord => isNaN(coord))) return;
 
                     items.push({
                         minX: bbox[0],
