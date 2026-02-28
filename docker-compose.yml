@@ -31,6 +31,26 @@ services:
     networks:
       - n8n_default
 
+  mission-control:
+    build:
+      context: .
+      dockerfile: mission-control/Dockerfile
+    image: ${MISSION_CONTROL_IMAGE:-mission-control-web:latest}
+    container_name: mission-control
+    restart: always
+    expose:
+      - "3100"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.controlmanager.rule=Host(`controlmanager.cloud`)"
+      - "traefik.http.routers.controlmanager.entrypoints=websecure"
+      - "traefik.http.routers.controlmanager.tls.certresolver=mytlschallenge"
+      - "traefik.http.services.controlmanager.loadbalancer.server.port=3100"
+    env_file:
+      - .env
+    networks:
+      - n8n_default
+
 networks:
   n8n_default:
     external: true
