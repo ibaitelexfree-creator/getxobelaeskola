@@ -28,12 +28,7 @@ describe('getMotivationalMessage', () => {
     });
 
     it('returns empty string for streak context (not an array in getMotivationalMessage)', () => {
-<<<<<<< HEAD
         const message = getMotivationalMessage('streak' as any);
-=======
-        // @ts-ignore: testing behavior with unexpected key that is not an array
-        const message = getMotivationalMessage('streak');
->>>>>>> origin/jules/fix-lint-errors-17071256425989174302
         expect(message).toBe("");
     });
 });

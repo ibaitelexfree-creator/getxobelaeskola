@@ -46,8 +46,10 @@ ENV RESEND_API_KEY=${RESEND_API_KEY}
 
 # Cache Next.js build cache
 RUN --mount=type=cache,target=/app/.next/cache \
+    echo "NEXT_PUBLIC_SUPABASE_URL=https://placeholder.supabase.co" > .env.local && \
+    echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=placeholder" >> .env.local && \
     export NODE_OPTIONS="--max-old-space-size=4096" && \
-    npm run build
+    npx next build
 
 # -----------------------------
 # Stage 3: Runner
