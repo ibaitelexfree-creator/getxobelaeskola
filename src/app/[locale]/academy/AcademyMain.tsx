@@ -103,7 +103,7 @@ export default function AcademyMain({ params }: { params: { locale: string } }) 
                         </>
                     ) : (
                         <>
-                            <Map className="w-5 h-5 text-accent group-hover:text-nautical-black" />
+                            <MapIcon className="w-5 h-5 text-accent group-hover:text-nautical-black" />
                             <span className="text-xs font-black uppercase tracking-widest text-white group-hover:text-nautical-black">
                                 Modo Mapa
                             </span>
