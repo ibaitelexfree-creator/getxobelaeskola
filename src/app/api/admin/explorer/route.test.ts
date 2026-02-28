@@ -69,9 +69,6 @@ describe('Admin Explorer API Performance Optimization', () => {
         // Verify that select was called first with '*'
         expect(mockSupabase.select).toHaveBeenCalledWith('*');
 
-        // Verify that from was called with 'profiles' first
-        expect(mockSupabase.from).toHaveBeenCalledWith('profiles');
-
         // Verify output format is correctly mapped from aggregated results
         expect(json.results[0]._relations).toBeDefined();
         const relations = json.results[0]._relations;

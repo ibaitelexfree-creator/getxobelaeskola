@@ -1,6 +1,7 @@
 import dynamic from 'next/dynamic';
 import { getTranslations } from 'next-intl/server';
 import { Metadata } from 'next';
+import { unstable_cache } from 'next/cache';
 import JsonLd from '@/components/shared/JsonLd';
 
 import HeroCarousel from '@/components/home/HeroCarousel';
@@ -37,6 +38,23 @@ export async function generateMetadata({ params: { locale } }: { params: { local
   };
 }
 
+const getCachedFlotaCount = unstable_cache(
+  async () => {
+    try {
+      const supabase = createAdminClient();
+      const { count } = await supabase
+        .from('embarcaciones')
+        .select('*', { count: 'exact', head: true });
+      return count !== null ? count.toString() : '12';
+    } catch (e) {
+      console.warn('Could not fetch boat count for landing page, using fallback:', e);
+      return '12';
+    }
+  },
+  ['flota-count'],
+  { revalidate: 3600 }
+);
+
 export default async function LandingPage({ params: { locale } }: { params: { locale: string } }) {
   const tHero = await getTranslations({ locale, namespace: 'home.hero' });
   const tStats = await getTranslations({ locale, namespace: 'home.stats' });
@@ -45,16 +63,7 @@ export default async function LandingPage({ params: { locale } }: { params: { lo
   const tFeat = await getTranslations({ locale, namespace: 'home.features' });
 
   // Fetch boat count
-  let flotaValue = '12';
-  try {
-    const supabase = createAdminClient();
-    const { count } = await supabase
-      .from('embarcaciones')
-      .select('*', { count: 'exact', head: true });
-    if (count !== null) flotaValue = count.toString();
-  } catch (e) {
-    console.warn('Could not fetch boat count for landing page, using fallback:', e);
-  }
+  const flotaValue = await getCachedFlotaCount();
 
   const jsonLd = {
     "@context": "https://schema.org",

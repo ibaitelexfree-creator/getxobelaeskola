@@ -22,6 +22,11 @@ export default function HeroCarousel({ initialSlides }: HeroCarouselProps) {
     const t = useTranslations('home.hero');
     const { locale } = useParams();
     const [current, setCurrent] = useState(0);
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
 
     const slides: HeroSlide[] = initialSlides || [
         {
@@ -99,17 +104,20 @@ export default function HeroCarousel({ initialSlides }: HeroCarouselProps) {
                     className={`absolute inset-0 transition-opacity duration-1000 ease-[cubic-bezier(0.165,0.84,0.44,1)] ${index === current ? 'opacity-100 z-0' : 'opacity-0 -z-10'
                         }`}
                 >
-                    <Image
-                        src={slide.image}
-                        alt={`${slide.title}: ${slide.subtitle}`}
-                        fill
-                        priority={index === 0}
-                        fetchPriority={index === 0 ? "high" : "auto"}
-                        quality={90}
-                        sizes="100vw"
-                        className={`object-cover transition-transform duration-[8000ms] ease-linear will-change-transform ${index === current ? 'scale-110 translate-y-2' : 'scale-100 translate-y-0'
-                            }`}
-                    />
+                    {/* Only render first slide immediately, delay others until hydration */}
+                    {(index === 0 || mounted) && (
+                        <Image
+                            src={slide.image}
+                            alt={`${slide.title}: ${slide.subtitle}`}
+                            fill
+                            priority={index === 0}
+                            fetchPriority={index === 0 ? "high" : "auto"}
+                            quality={90}
+                            sizes="100vw"
+                            className={`object-cover transition-transform duration-[8000ms] ease-linear will-change-transform ${index === current ? 'scale-110 translate-y-2' : 'scale-100 translate-y-0'
+                                }`}
+                        />
+                    )}
                     <div className="absolute inset-0 bg-gradient-to-t from-nautical-black via-nautical-black/20 to-nautical-black/10" />
                     <div className="absolute inset-0 bg-gradient-to-r from-nautical-black/80 via-transparent to-transparent" />
 
