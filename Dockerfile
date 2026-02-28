@@ -66,6 +66,7 @@ RUN adduser --system --uid 1001 nextjs
 COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+COPY --from=builder --chown=nextjs:nodejs /app/messages ./messages
 
 # Ensure public/images exists and is writable
 RUN mkdir -p public/images && chown -R nextjs:nodejs public/images

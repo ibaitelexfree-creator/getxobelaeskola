@@ -36,10 +36,6 @@ services:
       - "traefik.http.routers.getxo.entrypoints=websecure"
       - "traefik.http.routers.getxo.tls.certresolver=mytlschallenge"
       - "traefik.http.services.getxo.loadbalancer.server.port=3000"
-      - "traefik.http.routers.getxo-http.rule=Host(`getxobelaeskola.cloud`) || Host(`www.getxobelaeskola.cloud`)"
-      - "traefik.http.routers.getxo-http.entrypoints=web"
-      - "traefik.http.routers.getxo-http.middlewares=redirect-to-https"
-      - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
     env_file:
       - .env
     networks:
