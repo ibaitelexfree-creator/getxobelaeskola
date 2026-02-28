@@ -26,6 +26,11 @@ services:
       - "traefik.http.routers.getxo.entrypoints=websecure"
       - "traefik.http.routers.getxo.tls.certresolver=mytlschallenge"
       - "traefik.http.services.getxo.loadbalancer.server.port=3000"
+      # HTTPS Redirect
+      - "traefik.http.routers.getxo-http.rule=Host(`getxobelaeskola.cloud`) || Host(`www.getxobelaeskola.cloud`)"
+      - "traefik.http.routers.getxo-http.entrypoints=web"
+      - "traefik.http.routers.getxo-http.middlewares=redirect-to-https"
+      - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
     env_file:
       - .env
     networks:
@@ -35,7 +40,7 @@ services:
     build:
       context: .
       dockerfile: mission-control/Dockerfile
-    image: ${MISSION_CONTROL_IMAGE:-mission-control-web:latest}
+    image: ${MISSION_CONTROL_IMAGE:-mission-control-dashboard:latest}
     container_name: mission-control
     restart: always
     expose:
@@ -46,8 +51,35 @@ services:
       - "traefik.http.routers.controlmanager.entrypoints=websecure"
       - "traefik.http.routers.controlmanager.tls.certresolver=mytlschallenge"
       - "traefik.http.services.controlmanager.loadbalancer.server.port=3100"
+      # HTTPS Redirect
+      - "traefik.http.routers.controlmanager-http.rule=Host(`controlmanager.cloud`)"
+      - "traefik.http.routers.controlmanager-http.entrypoints=web"
+      - "traefik.http.routers.controlmanager-http.middlewares=redirect-to-https"
     env_file:
       - .env
+    networks:
+      - n8n_default
+    depends_on:
+      - orchestrator
+
+  orchestrator:
+    build:
+      context: .
+      dockerfile: orchestration/Dockerfile
+    image: ${ORCHESTRATOR_IMAGE:-jules-orchestrator-gateway:latest}
+    container_name: orchestrator-gateway
+    restart: always
+    expose:
+      - "3323"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.orchestrator.rule=Host(`controlmanager.cloud`) && PathPrefix(`/api`)"
+      - "traefik.http.routers.orchestrator.entrypoints=websecure"
+      - "traefik.http.routers.orchestrator.tls.certresolver=mytlschallenge"
+      - "traefik.http.services.orchestrator.loadbalancer.server.port=3323"
+    env_file:
+      - .env
+      - orchestration/.env
     networks:
       - n8n_default
 

@@ -7,7 +7,15 @@ const DEFAULT_MAESTRO = 'http://localhost:3323';
 
 function getMaestroUrl(): string {
     if (typeof window !== 'undefined') {
-        return localStorage.getItem('mc_server_url') || DEFAULT_MAESTRO;
+        const saved = localStorage.getItem('mc_server_url');
+        if (saved) return saved;
+
+        // Auto-detect production VPS
+        if (window.location.hostname === 'controlmanager.cloud') {
+            return `${window.location.origin}/api`;
+        }
+
+        return DEFAULT_MAESTRO;
     }
     return DEFAULT_MAESTRO;
 }

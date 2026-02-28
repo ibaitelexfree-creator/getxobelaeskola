@@ -2,7 +2,15 @@ const DEFAULT_BASE = 'http://localhost:3323';
 
 function getBaseUrl(): string {
     if (typeof window !== 'undefined') {
-        return localStorage.getItem('mc_server_url') || DEFAULT_BASE;
+        const saved = localStorage.getItem('mc_server_url');
+        if (saved) return saved;
+
+        // Auto-detect production VPS
+        if (window.location.hostname === 'controlmanager.cloud') {
+            return `${window.location.origin}/api`;
+        }
+
+        return DEFAULT_BASE;
     }
     return DEFAULT_BASE;
 }
