@@ -45,7 +45,7 @@ export class RoundRobinRotator implements KeyRotator {
         console.warn(`[KeyRotator] Key ending in ...${key.slice(-4)} reported failure.`);
     }
 
-    public reportSuccess(key: string): void {
+    public reportSuccess(_key: string): void {
         // Optional: Track success metrics.
     }
 
