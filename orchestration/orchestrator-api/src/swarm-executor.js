@@ -264,8 +264,12 @@ async function executeSingleTask(db, swarmId, task, relayContext, chatId) {
 
     for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
         try {
+<<<<<<< HEAD
             let sessionId = task.jules_session_id || task.julesSessionId;
             let session = null;
+=======
+            console.log(`[Swarm] Creating session for ${taskId} (attempt ${attempt + 1}, account: ${accountEmail})`);
+>>>>>>> origin/jules/fix-lint-errors-17071256425989174302
 
             if (!sessionId) {
                 console.log(`[Swarm] Creating session for ${taskId} (attempt ${attempt + 1}, account: ${accountEmail})`);

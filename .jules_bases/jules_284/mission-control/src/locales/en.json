@@ -1,0 +1,167 @@
+{
+    "common": {
+        "loading": "Loading...",
+        "close": "Close",
+        "save": "Save",
+        "active": "Active",
+        "standby": "Standby",
+        "ready": "Ready",
+        "offline": "Offline",
+        "never": "Never",
+        "pending": "Pending",
+        "done": "Done",
+        "fail": "Fail",
+        "confirm": "Confirm",
+        "skip": "Skip",
+        "approve": "Approve",
+        "reject": "Reject",
+        "sending": "Sending...",
+        "title": "Mission Control",
+        "subtitle": "Maestro v3 • HQ Relay",
+        "status": "STATUS",
+        "stabilized": "STABILIZED"
+    },
+    "nav": {
+        "dashboard": "Dash",
+        "tasks": "Tasks",
+        "queue": "Queue",
+        "live": "Live",
+        "control": "Control",
+        "settings": "Settings"
+    },
+    "dashboard": {
+        "system_ready": "System Ready",
+        "system_offline": "System Offline",
+        "last_sync": "Last Sync",
+        "tactical_view": "Tactical View",
+        "action_required": "Action Required",
+        "stats": {
+            "pending": "Pending",
+            "done": "Done",
+            "fail": "Fail"
+        },
+        "groups": {
+            "core": "Core Agents",
+            "infra": "Infrastructure"
+        },
+        "details": {
+            "delegations": "Master Delegations",
+            "input_required": "Input Required",
+            "session": "Session",
+            "anthropic_tasks": "Anthropic tasks today",
+            "manual_restart": "Requires manual restart",
+            "visual_cloud": "Cloud Visualization",
+            "node_api": "Backend Node.js API"
+        }
+    },
+    "tasks": {
+        "title": "Launch Task",
+        "subtitle": "Send tasks to the orchestration cascade",
+        "placeholder": "Describe the task...",
+        "btn_launch": "Launch Task",
+        "status": {
+            "success": "Task launched successfully",
+            "error": "Failed"
+        },
+        "modes": {
+            "cascade": {
+                "label": "Cascade",
+                "desc": "Jules → Flash → ClawdeBot"
+            },
+            "flash": {
+                "label": "Flash Only",
+                "desc": "Gemini Flash direct"
+            },
+            "clawdebot": {
+                "label": "ClawdeBot",
+                "desc": "Direct bypass"
+            }
+        },
+        "approval": {
+            "title": "ClawdeBot Approval",
+            "btn_approve": "Approve",
+            "btn_reject": "Reject"
+        }
+    },
+    "visual": {
+        "title": "Visual Relay",
+        "tunnel_active": "ENCRYPTED TUNNEL ACTIVE",
+        "live_feed": "LIVE_FEED: JULES_WORKSPACE",
+        "tap_to_copy": "TAP TO COPY",
+        "pwd_help": "* Use this if Localtunnel asks for an IP or Password",
+        "troubleshoot": "503 TROUBLESHOOT",
+        "troubleshoot_msg": "If you see a '503 Service Unavailable' error, it means the tunnel is struggling. Try refreshing or check if the local server is running. Want to refresh?",
+        "signal": "SIGNAL: STABLE",
+        "bypass": "BYPASS MODE ACTIVE",
+        "no_tunnel": "No Tunnel Detected",
+        "no_tunnel_desc": "Active your secure tunnel or enter a custom URL to see Jules' changes in real-time.",
+        "establish": "Establish Connection",
+        "settings_title": "Visual Relay Setup",
+        "settings_subtitle": "VPN / Secure Tunnel Configuration",
+        "preview_url": "Live Preview URL",
+        "dismiss": "Dismiss",
+        "link_relay": "Link Relay",
+        "remote_enabled": "REMOTE_VISUAL_ENABLED"
+    },
+    "urgent": {
+        "needs_input": "Jules needs your input",
+        "sessions": "sessions",
+        "open_ide": "Open IDE"
+    },
+    "settings": {
+        "title": "Configuration",
+        "subtitle": "Mission Control Preferences",
+        "orchestration_server": "Orchestration Server",
+        "sync_operational": "Sync Operational",
+        "offline": "Offline / Interrupted",
+        "save_endpoint": "Save Endpoint",
+        "polling_interval": "Polling Interval",
+        "sync_rate": "Sync Rate",
+        "version_control": "Version Control",
+        "current_version": "Current Version",
+        "scanning": "Scanning for updates...",
+        "systems_integrity": "Systems Integrity",
+        "auto_healing": "Auto-Healing Protocols",
+        "auto_healing_desc": "Critical failures are automatically routed to the Orchestrator for diagnosis and patching.",
+        "trigger_test_crash": "Trigger Test Crash",
+        "warning_crash": "WARNING: App will close immediately.",
+        "language": "Interface Language"
+    },
+    "reactor": {
+        "core": "Reactor Core",
+        "management": "RESOURCE_CONSUMPTION_MANAGEMENT",
+        "power_save": "Power Save Protocol: Standby services auto-purge after 15m idle."
+    },
+    "actions": {
+        "start": {
+            "label": "Start",
+            "desc": "Starts the service or container to enable its functions."
+        },
+        "pause": {
+            "label": "Pause",
+            "desc": "Temporarily suspends execution without closing the process. Maintains state."
+        },
+        "stop": {
+            "label": "Stop",
+            "desc": "Completely terminates the process or stops the Docker container."
+        },
+        "reset": {
+            "label": "Restart",
+            "desc": "Performs a full shutdown and power-on cycle to refresh the service."
+        },
+        "logs": {
+            "label": "Logs",
+            "desc": "Accesses the diagnostic history and error logs of the service."
+        },
+        "link": {
+            "label": "Link",
+            "desc": "Opens the service's external web interface in a new tab."
+        }
+    },
+    "analytics": {
+        "sync_history": "Sync History",
+        "usage_trends": "Usage Trends",
+        "filter_service": "Filter by Service",
+        "all_services": "All Services"
+    }
+}

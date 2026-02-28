@@ -68,7 +68,12 @@ export function getStreakMessage(days: number): string | null {
     const streaks = [30, 14, 7, 5, 3];
     for (const milestone of streaks) {
         if (days === milestone) {
+<<<<<<< HEAD
             return MOTIVATIONAL_MESSAGES.streak[milestone as keyof typeof MOTIVATIONAL_MESSAGES.streak];
+=======
+            // @ts-ignore: milestone is a valid key for streak object
+            return MOTIVATIONAL_MESSAGES.streak[milestone];
+>>>>>>> origin/jules/fix-lint-errors-17071256425989174302
         }
     }
     return null;
