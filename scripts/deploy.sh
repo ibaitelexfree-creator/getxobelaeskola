@@ -16,17 +16,26 @@ rsync -az --delete \
 --exclude .next \
 --exclude .git \
 --exclude .env.local \
+--exclude .env \
 --exclude public/uploads \
 ./ \
 "$VPS_USER@$VPS_IP:$REMOTE_PATH/"
 
 if [ -f ".env.local" ]; then
-  echo "Subiendo variables de entorno..."
-  scp -i "$SSH_KEY" .env.local "$VPS_USER@$VPS_IP:$REMOTE_PATH/.env.local"
+  echo "Subiendo variables de entorno (.env.local -> .env)..."
+  scp -i "$SSH_KEY" .env.local "$VPS_USER@$VPS_IP:$REMOTE_PATH/.env"
+else
+  echo "⚠️ ADVERTENCIA: No se encontró .env.local localmente."
 fi
 
 ssh -i "$SSH_KEY" "$VPS_USER@$VPS_IP" << EOF
 cd $REMOTE_PATH
+# Asegurar permisos correctos
+if [ -f .env ]; then
+  chmod 600 .env
+fi
+
+echo "Iniciando Docker Compose..."
 docker compose up -d --build --remove-orphans
 docker image prune -f
 docker ps

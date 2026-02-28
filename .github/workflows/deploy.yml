@@ -10,6 +10,7 @@ on:
       - "public/**"
       - "orchestration/**"
       - "infra/**"
+      - "mission-control/**"
       - "docker-compose.yml"
       - "Dockerfile"
       - "package.json"
@@ -36,8 +37,9 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Extract metadata (tags, labels) for Docker
-        id: meta
+      # ── Build 1: getxo-web (Main App) ──
+      - name: Extract metadata for getxo-web
+        id: meta-web
         uses: docker/metadata-action@v5
         with:
           images: ghcr.io/${{ github.repository }}
@@ -45,19 +47,16 @@ jobs:
             type=ref,event=branch
             type=sha,format=short
             latest
-        # Add this to ensure lowercase
-        env:
-          DOCKER_METADATA_ANNOTATIONS_LEVELS: manifest,index
 
-      - name: Build and push Docker image
+      - name: Build and push getxo-web
         uses: docker/build-push-action@v5
         with:
           context: .
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          tags: ${{ steps.meta-web.outputs.tags }}
+          labels: ${{ steps.meta-web.outputs.labels }}
+          cache-from: type=gha,scope=getxo-web
+          cache-to: type=gha,mode=max,scope=getxo-web
           build-args: |
             NEXT_PUBLIC_SUPABASE_URL=${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
             NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
@@ -71,17 +70,61 @@ jobs:
             STRIPE_WEBHOOK_SECRET=${{ secrets.STRIPE_WEBHOOK_SECRET }}
             RESEND_API_KEY=${{ secrets.RESEND_API_KEY }}
 
-      - name: Copy docker-compose files to VPS
+      # ── Build 2: mission-control (Dashboard) ──
+      - name: Extract metadata for mission-control
+        id: meta-mc
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository }}/mission-control
+          tags: |
+            type=ref,event=branch
+            type=sha,format=short
+            latest
+
+      - name: Build and push mission-control
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: mission-control/Dockerfile
+          push: true
+          tags: ${{ steps.meta-mc.outputs.tags }}
+          labels: ${{ steps.meta-mc.outputs.labels }}
+          cache-from: type=gha,scope=mission-control
+          cache-to: type=gha,mode=max,scope=mission-control
+
+      # ── Build 3: orchestrator (Gateway) ──
+      - name: Extract metadata for orchestrator
+        id: meta-orchestrator
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository }}/orchestrator
+          tags: |
+            type=ref,event=branch
+            type=sha,format=short
+            latest
+
+      - name: Build and push orchestrator
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: orchestration/Dockerfile
+          push: true
+          tags: ${{ steps.meta-orchestrator.outputs.tags }}
+          labels: ${{ steps.meta-orchestrator.outputs.labels }}
+          cache-from: type=gha,scope=orchestrator
+          cache-to: type=gha,mode=max,scope=orchestrator
+
+      # ── Deploy to VPS ──
+      - name: Copy deployment files to VPS
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.VPS_IP }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
-          source: "docker-compose.yml,orchestration/docker-compose.yml,orchestration/orchestrator-api/.env.hostinger"
+          source: "docker-compose.yml"
           target: "/opt/getxo-sailing"
           timeout: 60s
           command_timeout: 10m
-          debug: true
 
       - name: Deploy to VPS
         uses: appleboy/ssh-action@v1.0.3
@@ -89,41 +132,37 @@ jobs:
           GITHUB_REPOSITORY: ${{ github.repository }}
           GITHUB_ACTOR: ${{ github.actor }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          JULES_API_KEY: ${{ secrets.JULES_API_KEY }}
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          GITHUB_TOKEN_SECRET: ${{ secrets.GITHUB_TOKEN }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         with:
           host: ${{ secrets.VPS_IP }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
-          envs: GITHUB_REPOSITORY,GITHUB_ACTOR,GITHUB_TOKEN,GROQ_API_KEY
+          envs: GITHUB_REPOSITORY,GITHUB_ACTOR,GITHUB_TOKEN,JULES_API_KEY,GROQ_API_KEY,GITHUB_TOKEN_SECRET,TELEGRAM_BOT_TOKEN,TELEGRAM_CHAT_ID
           timeout: 60s
           command_timeout: 10m
           script: |
-            # Set the remote path
             REMOTE_PATH="/opt/getxo-sailing"
             cd $REMOTE_PATH
-
-            # Login to GHCR
-            echo "$GITHUB_TOKEN" | docker login ghcr.io -u $GITHUB_ACTOR --password-stdin
-
-            # Lowercase the repo name for docker (GHCR requires lowercase)
-            REPO_LOWER=$(echo "$GITHUB_REPOSITORY" | tr '[:upper:]' '[:lower:]')
-            export DOCKER_IMAGE=ghcr.io/$REPO_LOWER:latest
+            echo "${GITHUB_TOKEN}" | docker login ghcr.io -u ${GITHUB_ACTOR} --password-stdin
+            REPO_LOWER=$(echo "${GITHUB_REPOSITORY}" | tr '[:upper:]' '[:lower:]')
+            export DOCKER_IMAGE=ghcr.io/${REPO_LOWER}:latest
+            export MISSION_CONTROL_IMAGE=ghcr.io/${REPO_LOWER}/mission-control:latest
+            export ORCHESTRATOR_IMAGE=ghcr.io/${REPO_LOWER}/orchestrator:latest
 
             echo "Pulling latest images..."
-            docker compose -f docker-compose.yml pull web
+            docker compose pull
 
-            # Note: We need to pull jules-api as well if it's built from this repo
-            # For now, let's just make sure orchestration is updated
+            # Create/Update .env file with secrets
+            echo "JULES_API_KEY=${JULES_API_KEY}" > .env
+            echo "GROQ_API_KEY=${GROQ_API_KEY}" >> .env
+            echo "GITHUB_TOKEN=${GITHUB_TOKEN_SECRET}" >> .env
+            echo "TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}" >> .env
+            echo "TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID}" >> .env
 
             echo "Deploying update..."
-            docker compose -f docker-compose.yml up -d --remove-orphans --force-recreate web
-
-            # Update Orchestration
-            if [ -d "orchestration" ]; then
-                echo "Updating orchestration services..."
-                cd orchestration
-                docker compose up -d --build jules-api
-            fi
-
-            # Cleanup old images to save space
+            docker compose up -d --remove-orphans --force-recreate
             docker image prune -f

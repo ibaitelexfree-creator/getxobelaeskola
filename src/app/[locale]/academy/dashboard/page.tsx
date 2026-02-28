@@ -2,14 +2,12 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { useTranslations } from 'next-intl';
-import { X, Book, Ship, Globe, Anchor, Wind, Shield, ChevronRight } from 'lucide-react';
+import { X, Book, Ship, Globe, Anchor, Wind, Shield } from 'lucide-react';
 import { useNotificationStore } from '@/lib/store/useNotificationStore';
 import dynamic from 'next/dynamic';
 
 const CertificateCard = dynamic(() => import('@/components/academy/CertificateCard'), { ssr: false });
-const EmptyState = dynamic(() => import('@/components/academy/EmptyState'), { ssr: false });
 const RankProgress = dynamic(() => import('@/components/academy/gamification/RankProgress'), { ssr: false });
 const ActivityHeatmap = dynamic(() => import('@/components/academy/dashboard/ActivityHeatmap'), { ssr: false });
 const SkillRadar = dynamic(() => import('@/components/academy/dashboard/SkillRadar'), { ssr: false });

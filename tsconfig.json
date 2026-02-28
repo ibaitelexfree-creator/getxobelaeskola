@@ -42,6 +42,10 @@
     "orchestration",
     "scripts",
     "mission-control.db",
-    "supabase/functions"
+    "supabase/functions",
+    ".jules_bases",
+    ".agent",
+    ".Jules",
+    ".openclaw"
   ]
 }

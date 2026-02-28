@@ -28,7 +28,7 @@ services:
       - "traefik.http.routers.getxo.entrypoints=websecure"
       - "traefik.http.routers.getxo.tls.certresolver=mytlschallenge"
       - "traefik.http.services.getxo.loadbalancer.server.port=3000"
-      # HTTP to HTTPS Redirect
+      # HTTPS Redirect
       - "traefik.http.routers.getxo-http.rule=Host(`getxobelaeskola.cloud`) || Host(`www.getxobelaeskola.cloud`)"
       - "traefik.http.routers.getxo-http.entrypoints=web"
       - "traefik.http.routers.getxo-http.middlewares=redirect-to-https"
@@ -38,7 +38,6 @@ services:
     networks:
       - n8n_default
 
-  # 2. Control Manager Dashboard
   mission-control:
     build:
       context: .
@@ -50,12 +49,11 @@ services:
       - "3100"
     labels:
       - "traefik.enable=true"
-      # Secure Router
       - "traefik.http.routers.controlmanager.rule=Host(`controlmanager.cloud`)"
       - "traefik.http.routers.controlmanager.entrypoints=websecure"
       - "traefik.http.routers.controlmanager.tls.certresolver=mytlschallenge"
       - "traefik.http.services.controlmanager.loadbalancer.server.port=3100"
-      # HTTP to HTTPS Redirect
+      # HTTPS Redirect
       - "traefik.http.routers.controlmanager-http.rule=Host(`controlmanager.cloud`)"
       - "traefik.http.routers.controlmanager-http.entrypoints=web"
       - "traefik.http.routers.controlmanager-http.middlewares=redirect-to-https"
@@ -66,7 +64,6 @@ services:
     depends_on:
       - orchestrator
 
-  # 3. AI Orchestrator Gateway (The Brain)
   orchestrator:
     build:
       context: .
@@ -78,16 +75,13 @@ services:
       - "3323"
     labels:
       - "traefik.enable=true"
-      # API Path Specific Routing (matches /api/orchestrator/...)
-      - "traefik.http.routers.orchestrator.rule=Host(`controlmanager.cloud`) && PathPrefix(`/orchestrator`)"
+      - "traefik.http.routers.orchestrator.rule=Host(`controlmanager.cloud`) && PathPrefix(`/api`)"
       - "traefik.http.routers.orchestrator.entrypoints=websecure"
       - "traefik.http.routers.orchestrator.tls.certresolver=mytlschallenge"
-      - "traefik.http.routers.orchestrator.middlewares=orchestrator-strip"
-      # Strip the /orchestrator prefix before sending to node app
-      - "traefik.http.middlewares.orchestrator-strip.stripprefix.prefixes=/orchestrator"
       - "traefik.http.services.orchestrator.loadbalancer.server.port=3323"
     env_file:
       - .env
+      - orchestration/.env
     networks:
       - n8n_default
 

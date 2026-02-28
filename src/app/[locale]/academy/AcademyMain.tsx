@@ -7,7 +7,7 @@ import { useAcademyData } from '@/hooks/useAcademyData';
 import { useNotificationStore } from '@/lib/store/useNotificationStore';
 import { useAcademyMode } from '@/lib/store/useAcademyMode';
 import AcademySkeleton from '@/components/academy/AcademySkeleton';
-import { Compass, Book, Ship, Anchor, Globe, Shield, Wind, ChevronRight, AlertCircle, LayoutGrid, Map } from 'lucide-react';
+import { Compass, Book, Ship, Anchor, Globe, Shield, Wind, ChevronRight, AlertCircle, LayoutGrid, Map as MapIcon } from 'lucide-react';
 import StaggeredEntrance from '@/components/shared/StaggeredEntrance';
 import { MontessoriMode } from '@/components/academy/montessori/MontessoriMode';
 
@@ -90,6 +90,7 @@ export default function AcademyMain({ params }: { params: { locale: string } }) 
              {/* Mode Toggle */}
              <div className="fixed top-24 right-6 z-50 animate-fade-in">
                 <button
+                    type="button"
                     onClick={toggleMode}
                     className="flex items-center gap-3 px-6 py-3 bg-nautical-deep/80 backdrop-blur border border-accent/20 rounded-full hover:bg-accent hover:text-nautical-black transition-all group shadow-xl"
                 >
@@ -151,6 +152,7 @@ export default function AcademyMain({ params }: { params: { locale: string } }) 
                                                     {t('connection_error.message')}
                                                 </p>
                                                 <button
+                                                    type="button"
                                                     onClick={() => window.location.reload()}
                                                     className="px-8 py-3 bg-accent text-nautical-black text-xs font-black uppercase tracking-widest hover:bg-white transition-all"
                                                 >

@@ -103,8 +103,6 @@ export async function createRentalGoogleEvent(rental: any, serviceName: string, 
     try {
         // rental.fecha_reserva is YYYY-MM-DD
         // rental.hora_inicio is HH:mm:ss
-        const startDateTime = new Date(`${rental.fecha_reserva}T${rental.hora_inicio}`);
-        const endDateTime = new Date(startDateTime.getTime() + (rental.duracion_horas || 1) * 60 * 60 * 1000);
         const adminLink = `${BASE_URL}/es/staff?tab=alquileres`;
 
         const res = await calendar.events.insert({

@@ -1,39 +1,19 @@
-# syntax=docker/dockerfile:1
+# Dockerfile for Orchestrator Gateway
+FROM node:22-alpine
 
-ARG NODE_VERSION=20
+WORKDIR /app
 
-###############################
-# Stage 1: Build dependencies #
-###############################
-FROM node:${NODE_VERSION}-alpine AS builder
+# Install build dependencies for better-sqlite3 and other native modules
+RUN apk add --no-cache python3 make g++ 
 
-WORKDIR /usr/src/app
+COPY orchestration/package*.json ./
+RUN npm install --production
 
-# Copy only package management files first to optimize cache
-COPY package*.json ./
-
-# Install only production dependencies; use cache mount for npm cache
-RUN --mount=type=cache,target=/root/.npm \
-    npm ci --omit=dev
-
-# Copy the rest of the app source
-COPY . .
-
-###############################
-# Stage 2: Minimal runtime    #
-###############################
-FROM node:${NODE_VERSION}-alpine AS runtime
-
-WORKDIR /usr/src/app
-
-# Run as non-root for better security
-USER node
-
-# Copy app from builder, owned by non-root user
-COPY --from=builder --chown=node:node /usr/src/app /usr/src/app
-
-# Persistent state volume
-VOLUME /usr/src/app/state
+COPY orchestration/ .
 
 EXPOSE 3323
+
+ENV PORT=3323
+ENV NODE_ENV=production
+
 CMD ["node", "index.js"]

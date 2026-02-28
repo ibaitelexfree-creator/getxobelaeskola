@@ -353,6 +353,7 @@ const DEFAULT_ORIGINS = [
   'http://localhost:3000',
   'http://localhost:3100',
   'http://localhost:5173',
+  'https://controlmanager.cloud',
   'https://antigravity-jules-orchestration.onrender.com',
   'https://scarmonit.com',
   'https://agent.scarmonit.com'

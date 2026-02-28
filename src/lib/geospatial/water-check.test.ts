@@ -25,13 +25,16 @@ const mockData = vi.hoisted(() => ({
     } as any
 }));
 
-vi.mock('../../data/geospatial/water-geometry.json', () => ({
+vi.mock('@/data/geospatial/water-geometry.json', () => ({
     default: mockData.data
 }));
 
 describe('isPointInWater', () => {
-    beforeEach(() => {
+    beforeEach(async () => {
         vi.resetModules();
+        const { resetSpatialIndex } = await import('./water-check');
+        resetSpatialIndex();
+
         // Reset to default FeatureCollection state
         mockData.data.type = 'FeatureCollection';
         mockData.data.features = [
@@ -59,9 +62,12 @@ describe('isPointInWater', () => {
     });
 
     async function getIsPointInWater() {
-        const { isPointInWater, resetSpatialIndex } = await import('./water-check');
-        resetSpatialIndex(); // Force reload with new mock data
-        return isPointInWater;
+        const mod = await import('./water-check');
+        // Force reload of internal state if the export exists (for test isolation)
+        if (mod._reloadWaterData_TEST_ONLY) {
+            mod._reloadWaterData_TEST_ONLY();
+        }
+        return mod.isPointInWater;
     }
 
     it('returns true for a point clearly inside the water polygon (FeatureCollection)', async () => {
@@ -116,6 +122,9 @@ describe('isPointInWater', () => {
         // Case: features array exists but contains invalid objects
         mockData.data.features = [{}];
         const isPointInWater = await getIsPointInWater();
+        // isPointInWater likely validates structure before checking, or defaults safely.
+        // If it throws or returns true incorrectly, we need to fix the implementation.
+        // Assuming implementation handles it by filtering valid features:
         expect(isPointInWater(5, 5)).toBe(false);
     });
 });
