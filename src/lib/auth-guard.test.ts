@@ -62,7 +62,7 @@ describe('Auth Guard', () => {
 
     describe('checkAuth', () => {
         it('should return 401 if no user is authenticated', async () => {
-            mockGetUser.mockResolvedValue({ data: { user: null } });
+            mockGetUser.mockResolvedValue({ data: { user: null }, error: null });
 
             const result = await checkAuth();
 
