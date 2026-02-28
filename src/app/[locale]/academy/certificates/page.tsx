@@ -1,10 +1,10 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import Link from 'next/link';
-import { useTranslations } from 'next-intl';
 import CertificateCard from '@/components/academy/CertificateCard';
 import { apiUrl } from '@/lib/api';
+import { useTranslations } from 'next-intl';
+import Link from 'next/link';
+import { useEffect, useState } from 'react';
 
 interface Certificado {
     id: string;

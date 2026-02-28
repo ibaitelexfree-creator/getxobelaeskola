@@ -22,7 +22,7 @@ rsync -az --delete \
 
 if [ -f ".env.local" ]; then
   echo "Subiendo variables de entorno..."
-  scp -i "$SSH_KEY" .env.local "$VPS_USER@$VPS_IP:$REMOTE_PATH/.env.local"
+  scp -i "$SSH_KEY" .env.local "$VPS_USER@$VPS_IP:$REMOTE_PATH/.env"
 fi
 
 ssh -i "$SSH_KEY" "$VPS_USER@$VPS_IP" << EOF
