@@ -46,6 +46,7 @@ ENV RESEND_API_KEY=${RESEND_API_KEY}
 
 # Cache Next.js build cache
 RUN --mount=type=cache,target=/app/.next/cache \
+    export NODE_OPTIONS="--max-old-space-size=4096" && \
     npm run build
 
 # -----------------------------

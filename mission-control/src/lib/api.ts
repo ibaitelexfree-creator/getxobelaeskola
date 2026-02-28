@@ -7,7 +7,7 @@ function getBaseUrl(): string {
 
         // Auto-detect production VPS
         if (window.location.hostname === 'controlmanager.cloud') {
-            return `${window.location.origin}/api`;
+            return `${window.location.origin}/orchestrator`;
         }
 
         return DEFAULT_BASE;

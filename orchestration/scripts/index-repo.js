@@ -128,7 +128,7 @@ async function runIndexer() {
 
                 // Prefix with 'passage: ' as recommended for mxbai-embed-large docs
                 const vector = await generateEmbedding(`passage: ${chunk}`);
-                await axios.put(`${QDRANT_URL}/collections/${COLLECTION_NAME}/points?wait=true`, {
+                await axios.put(`${QDRANT_URL}/collections/${COLLECTION_NAME}/points?wait=false`, {
                     points: [{
                         id: id,
                         vector: vector,
@@ -150,8 +150,10 @@ async function runIndexer() {
         }
 
         processedFiles++;
-        if (processedFiles % 10 === 0) {
-            console.log(`  🕒 Progreso: ${processedFiles}/${files.length} archivos | ${totalChunks} chunks indexados...`);
+        console.log(`  📄 [${processedFiles}/${files.length}] Indexando: ${relativePath} (${chunks.length} chunks)`);
+
+        if (processedFiles % 20 === 0) {
+            console.log(`\n  🕒 RECORDER: ${totalChunks} chunks en total hasta ahora...\n`);
         }
     }
 
