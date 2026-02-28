@@ -53,13 +53,13 @@ export default function AchievementsPage({ params }: { params: { locale: string 
                             onClick={() => unlockBadge('grumete_novato')}
                             className="px-3 py-1 bg-white/10 hover:bg-white/20 rounded text-xs"
                         >
-                            Desbloquear "Grumete Novato"
+                            Desbloquear &quot;Grumete Novato&quot;
                         </button>
                         <button
                             onClick={() => unlockBadge('navegante_nocturno')}
                             className="px-3 py-1 bg-white/10 hover:bg-white/20 rounded text-xs"
                         >
-                            Desbloquear "Navegante Nocturno"
+                            Desbloquear &quot;Navegante Nocturno&quot;
                         </button>
                     </div>
                 </div>
