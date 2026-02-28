@@ -38,6 +38,8 @@ services:
       - "traefik.http.services.getxo.loadbalancer.server.port=3000"
     env_file:
       - .env
+    environment:
+      - PORT=3000
     networks:
       - n8n_default
 
@@ -89,7 +91,7 @@ services:
       - "traefik.enable=true"
       # Route for /orchestrator path under the same domain
       - "traefik.http.routers.orchestrator-api.rule=Host(`controlmanager.cloud`) && PathPrefix(`/orchestrator`)"
-      - "traefik.http.middleware.orchestrator-strip.stripprefix.prefixes=/orchestrator"
+      - "traefik.http.middlewares.orchestrator-strip.stripprefix.prefixes=/orchestrator"
       - "traefik.http.routers.orchestrator-api.entrypoints=websecure"
       - "traefik.http.routers.orchestrator-api.tls.certresolver=mytlschallenge"
       - "traefik.http.routers.orchestrator-api.middlewares=orchestrator-strip"
