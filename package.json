@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "NODE_OPTIONS='--max-old-space-size=4096' next build",
+    "build": "node scripts/ci-build.js",
     "build:capacitor": "node scripts/build-capacitor.js",
     "start": "next start",
     "test": "vitest run",
