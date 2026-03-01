@@ -3,6 +3,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import ModelRouter from './model-router.js';
 import QdrantClient from './qdrant-client.js';
+import GlobalBrain from './global-brain.js';
 import pg from './pg-client.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -22,27 +23,22 @@ export class JulesExecutor {
     static async executeJules(expert, task, swarmId) {
         console.log(`[JulesExecutor] 🚀 Iniciando experto: ${expert}...`);
 
+        const taskDesc = typeof task === 'object' ? (task.description || task.title) : task;
+
         // 1. Cargar Prompt de Sistema
         const promptPath = path.join(__dirname, `../prompts/jules-${expert}.md`);
         const systemPrompt = await fs.readFile(promptPath, 'utf-8');
 
-        // 2. RAG: Recuperar contexto histórico
-        let ragContext = '';
-        try {
-            const histories = await QdrantClient.searchSimilar('git-history', task, 3);
-            const solutions = await QdrantClient.searchSimilar('errors-solutions', task, 2);
-            const expertMem = await QdrantClient.searchSimilar(`jules-${expert}`, task, 2);
+        // 2. Global Brain: Priorizar contexto inyectado si existe
+        let ragContext = (typeof task === 'object' && task.context) ? task.context : '';
 
-            ragContext = "\n\n### CONTEXTO HISTÓRICO (RAG):\n";
-            [...histories, ...solutions, ...expertMem].forEach((hit, i) => {
-                ragContext += `\n[Memoria ${i + 1}]: ${hit.payload.text || hit.payload.message || ''}`;
-            });
-        } catch (e) {
-            console.warn(`[JulesExecutor] RAG Skip: ${e.message}`);
+        // Fallback: Si no hay contexto, consultamos Global Brain directamente
+        if (!ragContext) {
+            ragContext = await GlobalBrain.getUnifiedContext(taskDesc, { expert });
         }
 
         // 3. Ejecutar via ModelRouter (Maneja Rate Limit y Fallback)
-        const prompt = `TAREA A REALIZAR:\n${task}\n\n${ragContext}\n\nResponde siguiendo estrictamente el formato JSON definido en tu prompt de sistema.`;
+        const prompt = `TAREA A REALIZAR:\n${taskDesc}\n\n${ragContext}\n\nResponde siguiendo estrictamente el formato JSON definido en tu prompt de sistema.`;
 
         const result = await ModelRouter.execute(prompt, {
             systemPrompt,

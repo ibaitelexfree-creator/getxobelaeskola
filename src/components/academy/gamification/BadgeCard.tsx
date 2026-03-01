@@ -13,7 +13,7 @@ export default function BadgeCard({ badge, locale }: BadgeCardProps) {
 
     const rarityColors = {
         legendario: 'border-yellow-500 text-yellow-500 shadow-yellow-500/20',
-        epico: 'border-purple-500 text-purple-500 shadow-purple-500/20',
+        epico: 'border-emerald-500 text-emerald-500 shadow-emerald-500/20',
         raro: 'border-blue-500 text-blue-500 shadow-blue-500/20',
         comun: 'border-white/20 text-white/40 shadow-white/5'
     };

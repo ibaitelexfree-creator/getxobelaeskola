@@ -7,6 +7,7 @@ const sessionCreateSchema = Joi.object({
   title: Joi.string().max(200),
   requirePlanApproval: Joi.boolean(),
   automationMode: Joi.string().valid('AUTO_CREATE_PR', 'NONE'),
+  context: Joi.string().allow('', null).max(30000),
 });
 
 export default sessionCreateSchema;

@@ -38,8 +38,8 @@ export default function SymbolLegend() {
             <div className="flex flex-col gap-4">
                 {/* Lighthouse */}
                 <div className="flex items-center gap-4 group hover:bg-slate-50 p-1.5 rounded-lg transition-colors -mx-1.5">
-                    <div className="w-10 h-10 flex items-center justify-center bg-white rounded-lg border border-slate-100 shadow-sm group-hover:border-purple-200 transition-colors">
-                         <span className="text-purple-600 font-bold text-xl drop-shadow-sm">★</span>
+                    <div className="w-10 h-10 flex items-center justify-center bg-white rounded-lg border border-slate-100 shadow-sm group-hover:border-amber-200 transition-colors">
+                        <span className="text-amber-500 font-bold text-xl drop-shadow-sm">★</span>
                     </div>
                     <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 group-hover:text-slate-800 transition-colors">{t('lighthouse')}</span>
                 </div>

@@ -34,14 +34,17 @@
 import TelegramBot from 'node-telegram-bot-api';
 import { ThermalGuard } from './thermal-guard.js';
 import { JulesPool } from './jules-pool.js';
-import { ClawdeBotBridge } from './clawdebot-bridge.js';
+import { ClawdeBotBridge } from './clawdbot-bridge.js';
 import { FlashExecutor } from './flash-executor.js';
 import { VisualRelay } from './visual-relay.js';
 import { CreditMonitor } from './credit-monitor.js';
 import { AgentWatchdog } from './watchdog.js';
 import { appendToProjectMemory, readProjectMemory } from './project-memory.js';
 import { config } from 'dotenv';
-import { tasks as dbTasks } from './db.js';
+import { tasks as dbTasks, logs as dbLogs } from './db.js';
+import QdrantClient from './qdrant-client.js';
+import GlobalBrain from './global-brain.js';
+import db from './pg-client.js';
 import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
 
@@ -208,9 +211,14 @@ export class Maestro {
             return this._send('❌ Usa: `/task descripción de la tarea`');
         }
 
-        await this._send(`🔄 Procesando tarea...`);
+        await this._send(`🔄 Analizando contexto del Global Brain...`);
 
-        const task = { title: description, description, createdAt: Date.now() };
+        // Brain Middleware: Enrichment
+        const task = await this._enrichTaskWithContext({
+            title: description,
+            description,
+            createdAt: Date.now()
+        });
 
         // Check if forced to ClawdeBot
         if (this.forceClawdeBot) {
@@ -267,14 +275,19 @@ export class Maestro {
             status: 'pending_approval',
             priority: 3,
             requires_approval: 1,
-            source: 'telegram'
+            source: 'telegram',
+            context: task.context
         });
+
+        this.pendingApproval = { task, reason: this._getExhaustionMessage() };
 
         await this._send([
             `⏳ **Tarea encolada para aprobación**`,
             `📝 ${description}`,
             `ID: ${externalId}`,
-            `Aprobar en el APK de Mission Control para ejecutar.`
+            '',
+            `Usa /approve para delegar a ClawdeBot ahora,`,
+            `o espera a que Jules/Flash tengan hueco.`
         ].join('\n'));
     }
 
@@ -379,9 +392,15 @@ export class Maestro {
     async _cmdClawdebot(prompt) {
         if (!prompt) return this._send('❌ Usa: `/clawdebot <prompt>`');
 
-        await this._send('🤖 **Modo ClawdeBot directo** — Bypass de la cascada...');
+        await this._send('🤖 **Modo ClawdeBot directo** — Consultando memoria 1024...');
 
-        const task = { title: prompt, description: prompt, createdAt: Date.now(), direct: true };
+        // Brain Middleware: Enrichment
+        const task = await this._enrichTaskWithContext({
+            title: prompt,
+            description: prompt,
+            createdAt: Date.now(),
+            direct: true
+        });
         const available = await this.clawdebot.isAvailable();
 
         if (!available) {
@@ -494,7 +513,44 @@ export class Maestro {
         ].join('\n'));
     }
 
+    /**
+     * Brain Middleware: Enriquecer cualquier objeto de tarea con contexto RAG 1024.
+     */
+    async _enrichTaskWithContext(task) {
+        if (task.context && task.context.length > 100) return task; // Ya enriquecido
+
+        const query = task.title || task.description;
+        const context = await GlobalBrain.getUnifiedContext(query);
+
+        return {
+            ...task,
+            context: context || ''
+        };
+    }
+
+    /**
+     * Global Brain — Pre-consulta unificada a Qdrant antes de asignar tareas.
+     */
+    async _getUnifiedContext(query) {
+        return await GlobalBrain.getUnifiedContext(query);
+    }
+
     // ───────────────────── INTERNAL METHODS ─────────────────────
+
+    /**
+     * Log task assignment to database
+     */
+    async _logTask(task, accountId) {
+        try {
+            dbLogs.add('maestro', 'task_assigned', {
+                title: task.title,
+                accountId,
+                timestamp: new Date().toISOString()
+            });
+        } catch (err) {
+            console.error('[Maestro] Error logging task:', err.message);
+        }
+    }
 
     async _delegateToClawdeBot(task, reason) {
         this.stats.clawdebotUsed++;
@@ -533,13 +589,19 @@ export class Maestro {
     async _processQueue() {
         const pending = dbTasks.getPending().filter(t => t.status === 'pending' || t.status === 'queued');
 
-        for (const task of pending) {
+        for (let task of pending) {
+            // Brain Middleware: Auto-enrichment if missing
+            if (!task.context) {
+                task = await this._enrichTaskWithContext(task);
+            }
+
             const slot = this.pool.acquire(task);
             if (!slot) break; // Pool still full
 
             // Update status in DB
             dbTasks.updateStatus(task.external_id, 'running');
             this.stats.tasksAssigned++;
+            this._logTask(task, slot.accountId);
 
             await this._send(`🚀 Tarea procesada: ${task.title}`);
         }
@@ -663,6 +725,11 @@ export class Maestro {
             const session = account.activeSessions.find(s => s.ref === sessionRef);
             if (session) {
                 this.pool.release(account.id, sessionRef);
+                dbLogs.add('maestro', 'task_completed', {
+                    sessionRef,
+                    accountId: account.id,
+                    title: result.title || session.task
+                });
                 break;
             }
         }
@@ -685,6 +752,11 @@ export class Maestro {
             const session = account.activeSessions.find(s => s.ref === sessionRef);
             if (session) {
                 this.pool.release(account.id, sessionRef);
+                dbLogs.add('maestro', 'task_failed', {
+                    sessionRef,
+                    accountId: account.id,
+                    error
+                });
                 break;
             }
         }

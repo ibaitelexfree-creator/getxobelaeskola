@@ -74,7 +74,7 @@ export default function AchievementsWidget({ logros, locale }: AchievementsWidge
                             {/* Tooltip */}
                             <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 bg-[#0a1628] border border-white/10 p-3 rounded-xl shadow-xl opacity-0 group-hover:opacity-100 group-focus:opacity-100 pointer-events-none transition-opacity z-50">
                                 <div className="flex justify-between items-start mb-1">
-                                    <span className={`text-[8px] uppercase tracking-widest font-black px-1.5 py-0.5 rounded ${item.logro.rareza === 'legendario' ? 'bg-purple-500/20 text-purple-400' :
+                                    <span className={`text-[8px] uppercase tracking-widest font-black px-1.5 py-0.5 rounded ${item.logro.rareza === 'legendario' ? 'bg-emerald-500/20 text-emerald-400' :
                                         item.logro.rareza === 'epico' ? 'bg-amber-500/20 text-amber-400' :
                                             'bg-blue-500/20 text-blue-400'
                                         }`}>

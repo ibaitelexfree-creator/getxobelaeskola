@@ -14,7 +14,11 @@ import http from 'http';
 import { exec } from 'child_process';
 import { promisify } from 'util';
 import { EventEmitter } from 'events';
-
+import QdrantClient from './qdrant-client.js';
+import GlobalBrain from './global-brain.js';
+import { resolve, dirname } from 'path';
+import { fileURLToPath } from 'url';
+const __dirname = dirname(fileURLToPath(import.meta.url));
 const execAsync = promisify(exec);
 
 const GATEWAY_HOST = 'localhost';
@@ -79,7 +83,15 @@ export class ClawdeBotBridge extends EventEmitter {
             }
         }
 
-        const prompt = this._formatTaskAsPrompt(task);
+        // Global Brain: Usar el contexto inyectado por el Maestro desde el origen
+        let ragContext = task.context || '';
+
+        // Fallback: Si no viene contexto del Maestro, consultamos Global Brain directamente
+        if (!ragContext) {
+            ragContext = await GlobalBrain.getUnifiedContext(task.title || task.description);
+        }
+
+        const prompt = this._formatTaskAsPrompt(task, ragContext);
 
         try {
             const result = await this._request('POST', '/api/chat', {
@@ -139,7 +151,7 @@ export class ClawdeBotBridge extends EventEmitter {
      */
     async ensureRunning() {
         const composePath = this.dockerComposePath ||
-            'c:\\Users\\User\\Desktop\\Saili8ng School Test\\docker-compose.openclaw.yml';
+            resolve(__dirname, '../../infra/docker/docker-compose.openclaw.yml');
 
         try {
             console.log('[ClawdeBot] Attempting to start Docker compose...');
@@ -168,7 +180,7 @@ export class ClawdeBotBridge extends EventEmitter {
     /**
      * Format a Jules-style task into an OpenClaw chat prompt
      */
-    _formatTaskAsPrompt(task) {
+    _formatTaskAsPrompt(task, ragContext = '') {
         const parts = [
             `TAREA: ${task.title || task.description || 'Sin título'}`,
         ];
@@ -178,7 +190,11 @@ export class ClawdeBotBridge extends EventEmitter {
         if (task.constraints) parts.push(`RESTRICCIONES: ${task.constraints}`);
         if (task.description && task.title) parts.push(`DESCRIPCIÓN: ${task.description}`);
 
-        parts.push('\nEjecuta esta tarea en el repositorio. Sé conciso y directo.');
+        if (ragContext) {
+            parts.push(ragContext);
+        }
+
+        parts.push('\nEjecuta esta tarea en el repositorio basándote en el contexto anterior. Sé conciso y directo.');
 
         return parts.join('\n');
     }

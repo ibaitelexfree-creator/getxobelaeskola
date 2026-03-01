@@ -3,7 +3,7 @@ import React, { useState } from "react";
 const cyan = "#00e5ff";
 const green = "#00ff9f";
 const orange = "#ff6b35";
-const purple = "#b388ff";
+const purple = "#00e5ff"; // Changed from purple to cyan to comply with Purple Ban
 const yellow = "#ffd600";
 const dark = "#0a0e1a";
 const card = "#0f1629";
@@ -498,7 +498,7 @@ export const SwarmVisualizer = () => {
                     <div>
                         <SectionTitle icon="🔧" title="Árboles de Nodos n8n — Side by Side" />
                         <div style={{ background: `${orange}10`, border: `1px solid ${orange}30`, borderRadius: 8, padding: 12, marginBottom: 20, fontSize: 11, color: orange }}>
-                            💡 Haz clic en cualquier nodo con ▶ para expandir/colapsar sus sub-nodos. Los nodos morados <span style={{ color: purple }}>🧠 QDRANT</span> son los puntos de integración con tu RAG de Git.
+                            💡 Haz clic en cualquier nodo con ▶ para expandir/colapsar sus sub-nodos. Los nodos cyan <span style={{ color: purple }}>🧠 QDRANT</span> son los puntos de integración con tu RAG de Git.
                         </div>
                         <div style={{ display: "flex", gap: 20 }}>
                             <NodeTree plan="Plan 2 🚀 — Grok + Backoff + RCA" nodes={plan2Nodes} color={cyan} />

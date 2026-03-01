@@ -132,7 +132,7 @@ export default function MobileProfileClient({
 
                         <div className="w-full flex items-center justify-between p-4 border-b border-white/5 last:border-0">
                             <div className="flex items-center gap-4">
-                                <div className="w-8 h-8 rounded-full bg-purple-500/10 flex items-center justify-center text-purple-400">
+                                <div className="w-8 h-8 rounded-full bg-indigo-500/10 flex items-center justify-center text-indigo-400">
                                     <Shield className="w-4 h-4" />
                                 </div>
                                 <span className="text-white font-medium text-sm">Rol</span>

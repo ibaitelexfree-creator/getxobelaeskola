@@ -1,7 +1,10 @@
 import { callOpenRouter } from './openrouter-client.js';
+import { fileURLToPath } from 'url';
+import { dirname, resolve } from 'path';
 import dotenv from 'dotenv';
 
-dotenv.config();
+const __dirname = dirname(fileURLToPath(import.meta.url));
+dotenv.config({ path: resolve(__dirname, '../.env') });
 
 /**
  * Classifier: Segmentación inteligente de tareas para el Swarm.
@@ -32,6 +35,16 @@ Responde ÚNICAMENTE con el nombre de la categoría en mayúsculas.`;
             ], {
                 model: process.env.OPENROUTER_MODEL || 'google/gemini-2.0-flash-001',
                 temperature: parseFloat(process.env.OPENROUTER_CLASSIFIER_TEMP || '0.1')
+            }).catch(async (e) => {
+                // Fallback direct to Gemini if OpenRouter is down
+                if (e.message.includes('401') || e.message.includes('429')) {
+                    const { callGemini } = await import('./gemini-client.js');
+                    return callGemini([
+                        { role: 'system', content: systemPrompt },
+                        { role: 'user', content: `Clasifica esta tarea: "${taskDescription}"` }
+                    ]);
+                }
+                throw e;
             });
 
             const category = response.text.trim().toUpperCase();

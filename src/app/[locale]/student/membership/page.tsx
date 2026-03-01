@@ -96,7 +96,7 @@ export default function MembershipPage({ params: { locale } }: { params: { local
             desc: "Acceso exclusivo a travesías nocturnas supervisadas."
         },
         {
-            icon: <Sparkles className="w-5 h-5 text-purple-400" />,
+            icon: <Sparkles className="w-5 h-5 text-cyan-400" />,
             title: "Merchandising",
             desc: "Pack de bienvenida y ropa oficial del equipo."
         }

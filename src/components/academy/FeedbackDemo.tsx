@@ -72,7 +72,7 @@ export default function FeedbackDemo() {
             </button>
             <button
                 onClick={testSkill}
-                className="block w-full px-4 py-2 bg-purple-500/20 hover:bg-purple-500/40 border border-purple-400/30 text-purple-300 text-2xs font-bold rounded transition-all"
+                className="block w-full px-4 py-2 bg-cyan-500/20 hover:bg-cyan-500/40 border border-cyan-400/30 text-cyan-300 text-2xs font-bold rounded transition-all"
             >
                 Habilidad Desbloqueada
             </button>

@@ -73,7 +73,7 @@ function Toast({ notification, index, onDismiss }: ToastProps) {
 
     const rarityColors: Record<string, string> = {
         legendario: 'from-yellow-500/20 to-orange-500/20 border-yellow-400/50 shadow-[0_0_30px_rgba(234,179,8,0.3)]',
-        epico: 'from-purple-500/20 to-pink-500/20 border-purple-400/50 shadow-[0_0_30px_rgba(168,85,247,0.3)]',
+        epico: 'from-emerald-500/20 to-teal-500/20 border-emerald-400/50 shadow-[0_0_30px_rgba(16,185,129,0.3)]',
         raro: 'from-blue-500/20 to-cyan-500/20 border-blue-400/50 shadow-[0_0_20px_rgba(59,130,246,0.3)]',
         comun: 'from-white/10 to-white/5 border-white/20'
     };
@@ -143,7 +143,7 @@ function Toast({ notification, index, onDismiss }: ToastProps) {
                     </p>
                     <div className="mt-2 flex items-center gap-2">
                         <span className={`text-2xs font-black uppercase px-2 py-0.5 rounded-full ${rarity === 'legendario' ? 'bg-yellow-500/30 text-yellow-300' :
-                            rarity === 'epico' ? 'bg-purple-500/30 text-purple-300' :
+                            rarity === 'epico' ? 'bg-emerald-500/30 text-emerald-300' :
                                 rarity === 'raro' ? 'bg-blue-500/30 text-blue-300' :
                                     'bg-white/20 text-white/60'
                             }`}>

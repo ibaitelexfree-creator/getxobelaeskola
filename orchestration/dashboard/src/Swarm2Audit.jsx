@@ -4,7 +4,7 @@ const colors = {
     cyan: "#00e5ff",
     green: "#00ff9f",
     orange: "#ff6b35",
-    purple: "#b388ff",
+    purple: "#00e5ff", // Changed from purple to cyan to comply with Purple Ban
     yellow: "#ffd600",
     dark: "#0a0e1a",
     card: "#0f1629",

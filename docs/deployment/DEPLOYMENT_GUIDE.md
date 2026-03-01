@@ -1,96 +1,76 @@
-# 🚀 Deployment Guide - Getxo Bela Eskola
+# 🚀 Deployment Guide - Ecosistema Getxo Bela Eskola
 
-This guide connects the dots between your local development and a production-grade deployment on **Vercel** + **Supabase**.
+Esta guía consolida el despliegue del ecosistema completo: la **Aplicación Principal (Next.js)** y el **Orquestador Swarm (Node.js)** junto con su motor RAG.
 
-## 1. Prerequisites
+---
 
-- [ ] **GitHub Repository**: Ensure all your code is pushed to a `main` branch.
-- [ ] **Vercel Account**: Linked to your GitHub.
-- [ ] **Supabase Project**: A separate production project (recommended) or the same one if strictly controlling keys.
+## 🏗️ 1. Despliegue de la Aplicación Next.js (Frontend & Supabase)
 
-## 2. Supabase Production Setup
+La aplicación principal está diseñada para ser desplegada en **Vercel** o plataformas compatibles con Edge/Serverless.
 
-If creating a **new** production project:
+### Requisitos Vercel & Supabase
+1. **Crear Proyecto Supabase**: Configurar la base de datos de producción y aplicar las migraciones (`supabase/migrations`).
+2. **Variables de Entorno Vercel**:
+   - `NEXT_PUBLIC_SUPABASE_URL`
+   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+   - `SUPABASE_SERVICE_ROLE_KEY` (Requerida para webhooks y scripts admin)
+   - `NEXT_PUBLIC_APP_URL` (URL de producción, p.ej. https://getxobelaeskola.cloud)
+3. **Poblar la Base de Datos (Seeding)**: Ejecutar en orden los seeds:
+   - `FINAL_SEED_CURSO1.sql`
+   - `004_skills_catalog.sql`
+   - `005_logros_catalog_v2.sql`
+4. **Almacenamiento (Storage)**: Asegurar que los buckets `avatars`, `course-images` y `certificates` están en público.
 
-1.  **Create Project**: Go to [database.new](https://database.new) and create a new project.
-2.  **link** (Optional): You can link locally, but for production, we'll apply migrations.
-3.  **Apply Schema & Migrations**:
-    - Go to the SQL Editor in your new project.
-    - Copy content from `supabase/schema.sql` (if it contains the baseline).
-    - Apply all migrations in `supabase/migrations/` in numeric order.
-    - *Tip*: You can concatenate them or use `supabase db push` if you link the project locally to a prod target.
+---
 
-### Vital: Enable Row Level Security (RLS)
-The migrations should have enabled this, but verify in **Authentication -> Policies**:
-- `profiles`, `progreso_alumno`, `certificados`, etc. should have active policies.
-- **Instructors table**: Ensure you manually insert your instructor records if not seeded.
+## 🧠 2. Despliegue del Orquestador Swarm (Backend Node.js & Qdrant)
 
-### Storage Buckets
-Create the following public buckets if they don't exist:
-- `avatars`
-- `course-images`
-- `certificates` (This one handles generated PDFs)
+El orquestador de agentes de IA y su GlobalBrain residen en la carpeta `/orchestration`. Su entorno natural de producción es **Render.com**, **Railway**, o un VPS con **Docker**.
 
-## 3. Environment Variables (Vercel)
+### Configuración del VPS/Docker (Recomendado)
+El stack requiere Node.js y un contenedor Qdrant para la Base Vectorial (RAG).
 
-Go to your Vercel Project -> **Settings** -> **Environment Variables**.
-Add the following (use the values from your *Production* Supabase project):
+1. **Clonar e Iniciar**:
+   ```bash
+   cd orchestration
+   docker-compose up -d qdrant  # Inicia Qdrant Vector DB
+   npm install --production
+   ```
 
-| Variable Key | Description |
-| :--- | :--- |
-| `NEXT_PUBLIC_SUPABASE_URL` | Check Supabase Settings -> API |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Check Supabase Settings -> API |
-| `SUPABASE_SERVICE_ROLE_KEY` | **SECRET**. Check Supabase Settings -> API |
-| `NEXT_PUBLIC_APP_URL` | Your production domain (e.g. `https://getxobela.vercel.app`) |
-| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`| Stripe Live PK |
-| `STRIPE_SECRET_KEY` | Stripe Live SK |
-| `STRIPE_WEBHOOK_SECRET` | Webhook signing secret (see below) |
+2. **Variables de Entorno (.env en /orchestration)**:
+   - Claves de LLMs: `ANTHROPIC_API_KEY`, `GEMINI_API_KEY`
+   - Configuración MCP: `QDRANT_URL=http://localhost:6333`
+   - Claves de Integración: Supabase, Stripe, etc. que requieran los agentes.
 
-## 4. Stripe Webhook Configuration
+3. **Autostart (PM2 / Systemd)**:
+   ```bash
+   npm install -g pm2
+   pm2 start index.js --name "gbe-swarm"
+   pm2 save
+   ```
 
-1.  Go to [Stripe Dashboard > Webhooks](https://dashboard.stripe.com/webhooks).
-2.  Add Endpoint: `https://your-production-domain.com/api/webhook`.
-3.  Select Events: `checkout.session.completed`, `payment_intent.succeeded`.
-4.  Copy the `Signing Secret` (`whsec_...`) and add it to Vercel Environment Variables.
+4. **Reglas de Red**: Asegurarse de abrir los puertos para Mission Control (API por defecto 3000 o 3323) si va a ser consultado externamente, aplicando validación de tokens o IP whitelisting.
 
-## 5. Deployment
+---
 
-1.  Push to `main`.
-2.  Vercel should automatically trigger a build.
-3.  **Verify**:
-    - Navigate to the URL.
-    - Sign Up as a new user.
-    - Check if the profile is created in Supabase.
-    - Try to access a paid course (should be redirected to Stripe/Locked).
+## ⚡ 3. Documentación de APIs Core (Mission Control)
 
-## 6. Post-Deployment Checks
+El sistema expone endpoints clave tanto en Next.js como en el Orquestador para comunicación inter-servicios y monitoreo.
 
-- **Cron Jobs**: If using Vercel Cron for reminders, ensure `vercel.json` is configured (currently handled by client-trigger/user action, so no cron needed strictly for MVP).
-- **Assets**: Navigate to the Academy. Do images load? (Check `NEXT_PUBLIC_SUPABASE_URL` in `next.config.mjs` images domains).
-- **Certificates**: Complete a course and check if the PDF generation works (this uses `SUPABASE_SERVICE_ROLE_KEY`).
+### API de Next.js (Supabase Sync & Pagos)
+Las APIs Serverless manejan lógica transaccional:
+- `POST /api/webhooks/stripe`: Gestión asíncrona de pagos de bonos y subscripciones.
+- `GET /api/dashboard/stats`: Consumo SSR del dashboard del estudiante.
 
-## 🚨 Troubleshooting
+### API del Orquestador (Swarm Control)
+Si se habilita el puerto HTTP en `index.js`, el orquestador expone:
+- `GET /status`: Healthcheck de los agentes (Jules, Flash, ClawdeBot) y conexión Qdrant.
+- `POST /evaluate`: Endpoint MCP para inyectar tareas priorizadas al Swarm externamente.
 
-- **500 Errors on API**: Check Vercel Logs. Usually missing ENVs.
-- **Images not loading**: Add the production Supabase hostname to `next.config.mjs` -> `images.domains`.
-- **"Database error saving new user"**: Check `profiles` RLS or Triggers.
+---
 
-## 7. Seeding Production Data (Critical)
+## 🚨 4. Troubleshooting & Mantenimiento
 
-After applying the schema and migrations, you must populate the database with the initial content. Run these SQL files in the **exact order**:
-
-1.  `supabase/seeds/FINAL_SEED_CURSO1.sql`
-    *   *Creates the Course structure (Levels, Modules, Units) and Questions.*
-    *   *Must run first so Skills can link to these IDs.*
-2.  `supabase/seeds/004_skills_catalog.sql`
-    *   *Creates the Skills Tree and unlock rules.*
-3.  `supabase/seeds/005_logros_catalog_v2.sql`
-    *   *Creates the Achievements (Logros) catalog.*
-
-**How to run:**
-- **Option A (Supabase Dashboard)**: Copy-paste the content of each file into the SQL Editor.
-- **Option B (CLI)**:
-  ```bash
-  psql -h aws-0-eu-central-1.pooler.supabase.com -p 6543 -d postgres -U postgres.<your-ref> -f supabase/seeds/FINAL_SEED_CURSO1.sql
-  # ... repeat for others
-  ```
+- **Latencia Elevada en el Orquestador**: Verificar que `GlobalBrain` no esté agotando la memoria caché LRU (por defecto 500 ítems).
+- **Fallos en Qdrant**: Los ejecutores RAG tienen callbacks de gracia (`fallback: direct prompt`) si Qdrant cae, el sistema seguirá operando pero perdiendo contexto histórico. Revisar `docker logs <qdrant_container>`.
+- **Desincronización Vercel/Node**: Asegurar siempre que `NEXT_PUBLIC_APP_URL` esté correctamente enlazado para los correos y webhooks.

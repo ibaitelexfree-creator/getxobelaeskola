@@ -55,7 +55,7 @@ export default function SkillsPage({ params }: { params: { locale: string } }) {
 
     const getRankInfo = (count: number) => {
         if (count >= 10) return { name: 'Capitán', icon: '👑', color: 'bg-yellow-500', next: null };
-        if (count >= 7) return { name: 'Patrón', icon: '⚓', color: 'bg-purple-500', next: 10 };
+        if (count >= 7) return { name: 'Patrón', icon: '⚓', color: 'bg-indigo-500', next: 10 };
         if (count >= 4) return { name: 'Timonel', icon: '舵', color: 'bg-blue-500', next: 7 };
         if (count >= 1) return { name: 'Marinero', icon: '⛵', color: 'bg-green-500', next: 4 };
         return { name: 'Grumete', icon: '🪵', color: 'bg-stone-500', next: 1 };

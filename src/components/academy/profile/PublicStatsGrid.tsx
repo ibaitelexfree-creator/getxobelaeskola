@@ -12,7 +12,7 @@ interface PublicStatsGridProps {
 export default function PublicStatsGrid({ stats }: PublicStatsGridProps) {
     const statItems = [
         { label: 'Módulos', value: stats.modulesCompleted, icon: <Book size={20} />, color: 'text-blue-400' },
-        { label: 'Cursos', value: stats.coursesCompleted, icon: <Award size={20} />, color: 'text-purple-400' },
+        { label: 'Cursos', value: stats.coursesCompleted, icon: <Award size={20} />, color: 'text-indigo-400' },
         { label: 'Horas Navegadas', value: stats.totalHours.toFixed(0), icon: <Anchor size={20} />, color: 'text-amber-400' },
         { label: 'Millas (aprox)', value: stats.totalMiles, icon: <Globe size={20} />, color: 'text-emerald-400' },
     ];

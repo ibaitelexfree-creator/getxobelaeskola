@@ -30,7 +30,7 @@ export async function POST(request: Request) {
         // Attempt to update 'profiles' table
         const { error: dbError } = await supabase
             .from('profiles')
-            .update({ is_public_profile: is_public })
+            .update({ is_public: is_public })
             .eq('id', user.id);
 
         if (dbError) {

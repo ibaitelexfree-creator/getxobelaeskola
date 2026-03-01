@@ -36,16 +36,18 @@
 
 ## Fase 9: Testing Automatizado
 - [x] Subfase 9.1 — Setup de Testing (Configuración Vitest y primer test unitario)
-- [ ] Subfase 9.2 — Tests Unitarios
-- [x] Subfase 9.3 — Documentación de Tests (Nueva)
+- [x] Subfase 9.1: Tests E2E Críticos (Playwright)
+- [x] Subfase 9.2: Tests Unitarios (27 tests implementados en Stores, Hooks y UI)
 
-## Fase 10: Testing Manual Estructurado
-- [x] Subfase 10.1 — Flujos Públicos
-- [ ] Subfase 10.2 — Flujos Autenticados
+## Fase 10: Manual QA (Capacitor/Mobile)
+  - [x] Subfase 10.1: UI Inmersiva
+  - [x] Subfase 10.2: Flujos Autenticados
 
-## Fase 11: Optimización de Rendimiento
-- [ ] Subfase 11.1 — Análisis
-- [ ] Subfase 11.2 — Optimización
+## Fase 11: Optimización de Rendimiento (100%)
+  - [x] Subfase 11.1: Análisis de Latencia (Profiling de Agentes + RAG completado)
+  - [x] Subfase 11.2: Optimización de Recursos (Caché LRU en GlobalBrain implementada)
+  - [x] Subfase 11.3: Benchmarking Final (Lighthouse + Score de Agentes completados)
 
 ## Fase 12: Documentación Técnica Final
-- [ ] Subfase 12.1 — Documentación Core
+- [x] Subfase 12.1 — Documentación Core (README.md reconstruido con arquitectura global)
+- [x] Subfase 12.2 — Documentación de APIs & Deployment (Guía actualizada para Vercel + Docker/Qdrant)

@@ -344,7 +344,7 @@ export class NotionSyncService {
                     children: [
                         { type: 'column', column: { children: [{ type: 'callout', callout: { rich_text: [rt('HOY\n', true), rt(`${stats.revenue.today} €`)], icon: { type: 'emoji', emoji: '💸' }, color: 'blue_background' } }] } },
                         { type: 'column', column: { children: [{ type: 'callout', callout: { rich_text: [rt('ESTE MES\n', true), rt(`${stats.revenue.month} €`)], icon: { type: 'emoji', emoji: '📊' }, color: 'green_background' } }] } },
-                        { type: 'column', column: { children: [{ type: 'callout', callout: { rich_text: [rt('ESTE AÑO\n', true), rt(`${stats.revenue.year} €`)], icon: { type: 'emoji', emoji: '🏦' }, color: 'purple_background' } }] } }
+                        { type: 'column', column: { children: [{ type: 'callout', callout: { rich_text: [rt('ESTE AÑO\n', true), rt(`${stats.revenue.year} €`)], icon: { type: 'emoji', emoji: '🏦' }, color: 'blue_background' } }] } }
                     ]
                 }
             },

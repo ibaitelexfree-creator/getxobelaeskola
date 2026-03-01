@@ -31,7 +31,10 @@ export class SwarmOrchestratorV2 {
 
             // 3. Fase 1: ARCHITECT
             console.log('\n--- 🏗️  FASE: ARCHITECT ---');
-            const architectOutput = await JulesExecutor.executeWithRetry('architect', taskDescription, swarmId);
+            const architectOutput = await JulesExecutor.executeWithRetry('architect', {
+                description: taskDescription,
+                context: options.context || ''
+            }, swarmId);
 
             if (architectOutput.vote === 'FAIL') {
                 throw new Error(`Architect bloqueó la tarea: ${architectOutput.vote_reason}`);
@@ -40,7 +43,10 @@ export class SwarmOrchestratorV2 {
             // 4. Fase 2: DATA (Con contexto del Arquitecto)
             console.log('\n--- 🗄️  FASE: DATA MASTER ---');
             const dataTask = `Realiza la implementación backend y bases de datos para esta tarea: "${taskDescription}".\n\nDISEÑO DEL ARQUITECTO:\n${JSON.stringify(architectOutput, null, 2)}`;
-            const dataOutput = await JulesExecutor.executeWithRetry('data', dataTask, swarmId);
+            const dataOutput = await JulesExecutor.executeWithRetry('data', {
+                description: dataTask,
+                context: options.context || ''
+            }, swarmId);
 
             if (dataOutput.vote === 'FAIL') {
                 throw new Error(`Data Master bloqueó la tarea: ${dataOutput.vote_reason}`);
@@ -49,7 +55,10 @@ export class SwarmOrchestratorV2 {
             // 5. Fase 3: UI (Con contexto de ambos)
             console.log('\n--- 🎨  FASE: UI ENGINE ---');
             const uiTask = `Crea la interfaz de usuario para esta tarea: "${taskDescription}".\n\nDISEÑO ARQUITECTÓNICO:\n${JSON.stringify(architectOutput, null, 2)}\n\nIMPLEMENTACIÓN BACKEND:\n${JSON.stringify(dataOutput, null, 2)}`;
-            const uiOutput = await JulesExecutor.executeWithRetry('ui', uiTask, swarmId);
+            const uiOutput = await JulesExecutor.executeWithRetry('ui', {
+                description: uiTask,
+                context: options.context || ''
+            }, swarmId);
 
             // 6. Finalización Exitosa
             await pg.query(

@@ -29,7 +29,7 @@ export async function GET() {
         let rango = 'Grumete';
         let color = 'text-slate-400';
         if (skillCount >= 10) { rango = 'Capitán'; color = 'text-yellow-400'; }
-        else if (skillCount >= 7) { rango = 'Patrón'; color = 'text-purple-400'; }
+        else if (skillCount >= 7) { rango = 'Patrón'; color = 'text-indigo-400'; }
         else if (skillCount >= 4) { rango = 'Timonel'; color = 'text-blue-400'; }
         else if (skillCount >= 1) { rango = 'Marinero'; color = 'text-green-400'; }
 

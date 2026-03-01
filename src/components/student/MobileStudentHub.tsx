@@ -46,9 +46,9 @@ export default function MobileStudentHub({
         },
         {
             label: 'Academia Digital',
-            icon: <Compass className="w-6 h-6 text-purple-400" />,
-            bg: 'bg-purple-500/10',
-            border: 'border-purple-500/20',
+            icon: <Compass className="w-6 h-6 text-cyan-400" />,
+            bg: 'bg-cyan-500/10',
+            border: 'border-cyan-500/20',
             href: `/${locale}/academy`
         },
         {

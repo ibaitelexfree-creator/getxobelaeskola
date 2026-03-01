@@ -168,7 +168,7 @@ export default function BITab() {
         doc.save(`BI_Report_${dateRange.start}_${dateRange.end}.pdf`);
     };
 
-    const COLORS = ['#00E5FF', '#FF0055', '#FFCC00', '#00FFAA', '#9900FF', '#FF6600'];
+    const COLORS = ['#00E5FF', '#FF0055', '#FFCC00', '#00FFAA', '#6366F1', '#FF6600']; // Changed purple to indigo
 
     const courseDemandData = useMemo(() => {
         if (!data?.courseDemand) return [];
@@ -299,7 +299,7 @@ export default function BITab() {
                         },
                         { label: 'COSTES MTTO', value: `${data?.kpis.totalCost.toLocaleString()}€`, icon: <Activity className="text-red-400" />, color: 'border-red-500/20' },
                         { label: 'BENEFICIO NETO', value: `${((data?.kpis.totalRevenue || 0) - (data?.kpis.totalCost || 0)).toLocaleString()}€`, icon: <Target className="text-green-400" />, color: 'border-green-500/20' },
-                        { label: 'FIDELIZACIÓN', value: `${data?.kpis.retentionRate}%`, icon: <TrendingUp className="text-purple-400" />, color: 'border-purple-500/20' }
+                        { label: 'FIDELIZACIÓN', value: `${data?.kpis.retentionRate}%`, icon: <TrendingUp className="text-indigo-400" />, color: 'border-indigo-500/20' }
                     ].map((kpi, i) => (
                         <div key={i} className={`glass-card p-6 border ${kpi.color} group hover:bg-white/5 transition-all relative overflow-hidden`}>
                             <div className="flex justify-between items-start mb-4">
@@ -323,14 +323,14 @@ export default function BITab() {
 
                 {/* A. Conversion Funnel */}
                 <div className="glass-panel p-10 space-y-8 min-h-[500px] flex flex-col relative overflow-hidden">
-                    <div className="absolute top-[-10%] left-[-5%] w-[40%] h-[40%] bg-purple-500/5 blur-[100px] rounded-full pointer-events-none" />
+                    <div className="absolute top-[-10%] left-[-5%] w-[40%] h-[40%] bg-indigo-500/5 blur-[100px] rounded-full pointer-events-none" />
 
                     <header className="flex justify-between items-center">
                         <div className="space-y-1">
                             <h3 className="text-2xl font-display text-white italic">Embudo de Fidelización</h3>
                             <p className="text-[10px] text-white/20 uppercase tracking-[0.2em] font-black">Conversión de alumnos a clientes recurrentes</p>
                         </div>
-                        <TrendingUp className="w-4 h-4 text-purple-400" />
+                        <TrendingUp className="w-4 h-4 text-indigo-400" />
                     </header>
 
                     <div className="flex-1 w-full pt-4">
@@ -459,7 +459,7 @@ export default function BITab() {
 
                 {/* C. Course Demand Over Time */}
                 <div className="glass-panel p-10 col-span-full space-y-8 min-h-[500px] flex flex-col relative overflow-hidden">
-                    <div className="absolute top-[-20%] right-[-10%] w-[30%] h-[60%] bg-pink-500/5 blur-[120px] rounded-full pointer-events-none" />
+                    <div className="absolute top-[-20%] right-[-10%] w-[30%] h-[60%] bg-indigo-500/5 blur-[120px] rounded-full pointer-events-none" />
 
                     <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                         <div className="space-y-1">
@@ -519,7 +519,7 @@ export default function BITab() {
                     </div>
 
                     <div className="space-y-4">
-                        <div className="flex items-center gap-2 text-pink-500 font-black tracking-widest text-[10px]">
+                        <div className="flex items-center gap-2 text-indigo-500 font-black tracking-widest text-[10px]">
                             <GraduationCap className="w-3 h-3" /> TENDENCIA ACADÉMICA
                         </div>
                         <p className="text-sm text-white/60 leading-relaxed font-display italic">
