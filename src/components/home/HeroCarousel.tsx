@@ -90,8 +90,9 @@ export default function HeroCarousel({ initialSlides }: HeroCarouselProps) {
 
     return (
         <section className="relative h-screen w-full overflow-hidden bg-nautical-black z-0">
-            {/* Ambient Background Noise Texture */}
-            <div className="absolute inset-0 z-10 opacity-[0.03] pointer-events-none mix-blend-overlay bg-[url('/images/noise.png')] bg-repeat" />
+            {/* Ambient Background Noise Texture - High Performance CSS Pattern */}
+            <div className="absolute inset-0 z-10 opacity-[0.05] pointer-events-none"
+                style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='1' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")` }} />
 
             {slides.map((slide, index) => (
                 <div
@@ -105,7 +106,7 @@ export default function HeroCarousel({ initialSlides }: HeroCarouselProps) {
                         fill
                         priority={index === 0}
                         fetchPriority={index === 0 ? "high" : "auto"}
-                        quality={90}
+                        quality={75}
                         sizes="100vw"
                         className={`object-cover transition-transform duration-[8000ms] ease-linear will-change-transform ${index === current ? 'scale-110 translate-y-2' : 'scale-100 translate-y-0'
                             }`}
