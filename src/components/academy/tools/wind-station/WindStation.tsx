@@ -172,10 +172,10 @@ export default function WindStation() {
                                 </div>
                                 <div className="bg-white/5 rounded-xl p-4 text-center border border-white/5">
                                     <div className="flex items-center justify-center gap-2 mb-2">
-                                        <Wind size={14} className="text-pink-400/70" />
-                                        <span className="text-[10px] text-pink-400/70 uppercase tracking-widest font-bold">Racha Máx</span>
+                                        <Wind size={14} className="text-amber-400/70" />
+                                        <span className="text-[10px] text-amber-400/70 uppercase tracking-widest font-bold">Racha Máx</span>
                                     </div>
-                                    <span className="text-2xl font-mono text-pink-400 tabular-nums">{currentReading.gust_knots?.toFixed(1) || '-'}</span>
+                                    <span className="text-2xl font-mono text-amber-400 tabular-nums">{currentReading.gust_knots?.toFixed(1) || '-'}</span>
                                 </div>
                             </div>
                         </>
@@ -200,7 +200,7 @@ export default function WindStation() {
                                 Viento Real
                             </div>
                             <div className="flex items-center gap-1.5">
-                                <span className="w-2 h-2 rounded-full bg-pink-500"></span>
+                                <span className="w-2 h-2 rounded-full bg-amber-500"></span>
                                 Rachas
                             </div>
                         </div>
@@ -211,22 +211,22 @@ export default function WindStation() {
                             <AreaChart data={readings} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                                 <defs>
                                     <linearGradient id="colorSpeed" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor="#06b6d4" stopOpacity={0.3}/>
-                                        <stop offset="95%" stopColor="#06b6d4" stopOpacity={0}/>
+                                        <stop offset="5%" stopColor="#06b6d4" stopOpacity={0.3} />
+                                        <stop offset="95%" stopColor="#06b6d4" stopOpacity={0} />
                                     </linearGradient>
                                 </defs>
                                 <XAxis
                                     dataKey="timestamp"
                                     tickFormatter={formatTime}
                                     stroke="#ffffff20"
-                                    tick={{fontSize: 10, fill: '#ffffff50'}}
+                                    tick={{ fontSize: 10, fill: '#ffffff50' }}
                                     tickLine={false}
                                     axisLine={false}
                                     minTickGap={30}
                                 />
                                 <YAxis
                                     stroke="#ffffff20"
-                                    tick={{fontSize: 10, fill: '#ffffff50'}}
+                                    tick={{ fontSize: 10, fill: '#ffffff50' }}
                                     tickLine={false}
                                     axisLine={false}
                                     domain={[0, 'auto']}
@@ -259,7 +259,7 @@ export default function WindStation() {
                                 <Line
                                     type="monotone"
                                     dataKey="gust_knots"
-                                    stroke="#ec4899"
+                                    stroke="#f59e0b"
                                     strokeWidth={1}
                                     strokeDasharray="4 4"
                                     dot={false}

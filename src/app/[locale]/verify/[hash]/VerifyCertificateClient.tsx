@@ -52,7 +52,7 @@ export default function VerifyCertificateClient({ params }: { params: { locale: 
     const getDistinctionColor = (level: string) => {
         switch (level) {
             case 'excelencia': return 'text-yellow-400 drop-shadow-[0_0_10px_rgba(250,204,21,0.5)]';
-            case 'merito': return 'text-purple-400 drop-shadow-[0_0_10px_rgba(192,132,252,0.5)]';
+            case 'merito': return 'text-cyan-400 drop-shadow-[0_0_10px_rgba(34,211,238,0.5)]';
             default: return 'text-white';
         }
     };

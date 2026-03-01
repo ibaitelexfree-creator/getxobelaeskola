@@ -50,7 +50,7 @@ export default function NauticalChartTool() {
     for (let i = 0; i < waypoints.length - 1; i++) {
       totalDist += calculateDistance(
         waypoints[i].lat, waypoints[i].lng,
-        waypoints[i+1].lat, waypoints[i+1].lng
+        waypoints[i + 1].lat, waypoints[i + 1].lng
       );
     }
 
@@ -129,7 +129,7 @@ export default function NauticalChartTool() {
       <div className="flex-1 relative flex">
         {/* Map Container */}
         <div className="flex-1 relative bg-slate-100">
-           <Map waypoints={waypoints} onMapClick={handleMapClick} />
+          <Map waypoints={waypoints} onMapClick={handleMapClick} />
         </div>
 
         {/* Legend Sidebar (Overlay on mobile, sidebar on desktop if we wanted, but let's make it an overlay for max map space) */}
@@ -154,7 +154,7 @@ export default function NauticalChartTool() {
               </li>
               <li className="flex items-center gap-3">
                 <div className="relative">
-                    <span className="text-purple-600">★</span>
+                  <span className="text-amber-500">★</span>
                 </div>
                 <span>Faro / Luz</span>
               </li>
@@ -168,30 +168,30 @@ export default function NauticalChartTool() {
               </li>
             </ul>
             <div className="mt-4 pt-2 border-t text-xs text-slate-500">
-              Datos provistos por OpenSeaMap. <br/>No usar para navegación real.
+              Datos provistos por OpenSeaMap. <br />No usar para navegación real.
             </div>
           </div>
         )}
 
         {/* Instructions Overlay (Bottom Left) */}
         <div className="absolute bottom-6 left-6 z-[400] pointer-events-none">
-            <div className="bg-white/90 backdrop-blur px-4 py-2 rounded shadow text-sm text-slate-700 border border-slate-200 pointer-events-auto">
-                {waypoints.length === 0 ? (
-                    <p className="flex items-center gap-2"><Navigation size={16} /> Haz clic en el mapa para iniciar ruta</p>
-                ) : (
-                    <div className="flex flex-col gap-1">
-                        <p className="font-bold text-brand-blue">Waypoints: {waypoints.length}</p>
-                        <div className="max-h-32 overflow-y-auto text-xs font-mono space-y-1 pr-2">
-                            {waypoints.map((wp, i) => (
-                                <div key={wp.id} className="flex justify-between gap-4">
-                                    <span>{i+1}.</span>
-                                    <span>{wp.lat.toFixed(4)}, {wp.lng.toFixed(4)}</span>
-                                </div>
-                            ))}
-                        </div>
+          <div className="bg-white/90 backdrop-blur px-4 py-2 rounded shadow text-sm text-slate-700 border border-slate-200 pointer-events-auto">
+            {waypoints.length === 0 ? (
+              <p className="flex items-center gap-2"><Navigation size={16} /> Haz clic en el mapa para iniciar ruta</p>
+            ) : (
+              <div className="flex flex-col gap-1">
+                <p className="font-bold text-brand-blue">Waypoints: {waypoints.length}</p>
+                <div className="max-h-32 overflow-y-auto text-xs font-mono space-y-1 pr-2">
+                  {waypoints.map((wp, i) => (
+                    <div key={wp.id} className="flex justify-between gap-4">
+                      <span>{i + 1}.</span>
+                      <span>{wp.lat.toFixed(4)}, {wp.lng.toFixed(4)}</span>
                     </div>
-                )}
-            </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
         </div>
 
       </div>

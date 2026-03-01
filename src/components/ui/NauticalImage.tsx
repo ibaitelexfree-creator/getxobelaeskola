@@ -3,11 +3,14 @@
 import Image, { ImageProps } from 'next/image';
 import { useState, useEffect, useMemo } from 'react';
 
+import { getOptimizedExternalImage } from '@/lib/utils/image';
+
 type NauticalCategory = 'veleros' | 'kayak' | 'paddle' | 'windsurf' | 'piragua' | 'academy' | 'general';
 
 interface NauticalImageProps extends Omit<ImageProps, 'onError'> {
     fallbackSrc?: string;
     category?: NauticalCategory;
+    autoOptimize?: boolean;
 }
 
 const CATEGORY_FALLBACKS: Record<NauticalCategory, string> = {
@@ -25,6 +28,7 @@ export default function NauticalImage({
     alt,
     category = 'general',
     fallbackSrc,
+    autoOptimize = true,
     className,
     ...props
 }: NauticalImageProps) {
@@ -37,10 +41,19 @@ export default function NauticalImage({
         setHasError(false);
     }, [src]);
 
+    // Apply optimization if it's an external URL and autoOptimize is enabled
+    const finalSrc = useMemo(() => {
+        const baseSrc = (!imgSrc || hasError) ? (fallbackSrc || defaultFallback) : imgSrc;
+        if (autoOptimize && typeof baseSrc === 'string' && baseSrc.startsWith('http')) {
+            return getOptimizedExternalImage(baseSrc);
+        }
+        return baseSrc;
+    }, [imgSrc, hasError, fallbackSrc, defaultFallback, autoOptimize]);
+
     return (
         <Image
             {...props}
-            src={(!imgSrc || hasError) ? (fallbackSrc || defaultFallback) : imgSrc}
+            src={finalSrc}
             alt={alt}
             className={className}
             onError={() => {

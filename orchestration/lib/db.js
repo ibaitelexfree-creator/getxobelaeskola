@@ -26,6 +26,7 @@ db.exec(`
         retry_count INTEGER DEFAULT 0,
         requires_approval INTEGER DEFAULT 0,
         source TEXT,
+        context TEXT,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
     );
@@ -51,6 +52,11 @@ db.exec(`
         metric_label TEXT,
         timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
     );
+
+    CREATE TABLE IF NOT EXISTS pool_state (
+        id INTEGER PRIMARY KEY,
+        state_json TEXT
+    );
 `);
 
 // Migration: Check if columns exist, add if not
@@ -64,6 +70,9 @@ try {
     if (!columnNames.includes('source')) {
         db.exec("ALTER TABLE tasks ADD COLUMN source TEXT");
     }
+    if (!columnNames.includes('context')) {
+        db.exec("ALTER TABLE tasks ADD COLUMN context TEXT");
+    }
 } catch (e) {
     console.error('[DB Migration] Error:', e.message);
 }
@@ -74,8 +83,8 @@ try {
 export const tasks = {
     add: (task) => {
         const stmt = db.prepare(`
-            INSERT INTO tasks (external_id, title, executor, status, priority, retry_count, requires_approval, source, created_at, updated_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+            INSERT INTO tasks (external_id, title, executor, status, priority, retry_count, requires_approval, source, context, created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
         `);
         const info = stmt.run(
             task.id || `T-${Date.now().toString(36).toUpperCase()}`,
@@ -85,7 +94,8 @@ export const tasks = {
             task.priority || 3,
             task.retry_count || 0,
             task.requires_approval ? 1 : 0,
-            task.source || 'orchestrator'
+            task.source || 'orchestrator',
+            task.context || null
         );
         return info.lastInsertRowid;
     },
@@ -205,6 +215,22 @@ export const settings = {
     },
     all: () => {
         return db.prepare('SELECT * FROM settings').all();
+    }
+};
+
+/**
+ * Compatibility helper for JulesPool
+ */
+export const query = (sql, params = []) => {
+    try {
+        if (sql.toLowerCase().startsWith('select')) {
+            return db.prepare(sql).all(...params);
+        } else {
+            return db.prepare(sql).run(...params);
+        }
+    } catch (e) {
+        console.error('[DB Query Error]:', e.message);
+        throw e;
     }
 };
 

@@ -9,7 +9,12 @@ import { useAcademyMode } from '@/lib/store/useAcademyMode';
 import AcademySkeleton from '@/components/academy/AcademySkeleton';
 import { Compass, Book, Ship, Anchor, Globe, Shield, Wind, ChevronRight, AlertCircle, LayoutGrid, Map as MapIcon } from 'lucide-react';
 import StaggeredEntrance from '@/components/shared/StaggeredEntrance';
-import { MontessoriMode } from '@/components/academy/montessori/MontessoriMode';
+import dynamic from 'next/dynamic';
+
+const MontessoriMode = dynamic(() => import('@/components/academy/montessori/MontessoriMode').then(mod => mod.MontessoriMode), {
+    ssr: false,
+    loading: () => <AcademySkeleton />
+});
 
 export default function AcademyMain({ params }: { params: { locale: string } }) {
     const t = useTranslations('academy');
@@ -87,8 +92,8 @@ export default function AcademyMain({ params }: { params: { locale: string } }) 
 
     return (
         <div className="min-h-screen bg-premium-mesh text-white pb-32 relative">
-             {/* Mode Toggle */}
-             <div className="fixed top-24 right-6 z-50 animate-fade-in">
+            {/* Mode Toggle */}
+            <div className="fixed top-24 right-6 z-50 animate-fade-in">
                 <button
                     type="button"
                     onClick={toggleMode}
@@ -114,7 +119,7 @@ export default function AcademyMain({ params }: { params: { locale: string } }) 
 
             {mode === 'exploration' ? (
                 <div className="animate-fade-in pt-24">
-                     <MontessoriMode />
+                    <MontessoriMode />
                 </div>
             ) : (
                 <>

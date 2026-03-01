@@ -2,6 +2,10 @@ import Redis from 'ioredis';
 import pg from './pg-client.js';
 
 const redis = new Redis(process.env.REDIS_URL || 'redis://localhost:6379');
+redis.on('error', (err) => {
+    // Silently handle redis errors - the rest of the code already has try/catch blocks
+    // This prevents "Unhandled error event" from crashing the process or spamming logs.
+});
 
 // Límites configurables (Fase 2.3)
 const LIMITS = {

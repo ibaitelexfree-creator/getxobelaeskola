@@ -1,10 +1,14 @@
 import { callOpenRouter } from './openrouter-client.js';
 import { callGrok } from './xai-client.js';
+import { callGemini } from './gemini-client.js';
 import RateGuard from './rate-guard.js';
 import Classifier from './classifier.js';
+import { fileURLToPath } from 'url';
+import { dirname, resolve } from 'path';
 import dotenv from 'dotenv';
 
-dotenv.config();
+const __dirname = dirname(fileURLToPath(import.meta.url));
+dotenv.config({ path: resolve(__dirname, '../.env') });
 
 /**
  * ModelRouter: Orquestador inteligente de ejecución de LLMs.
@@ -31,7 +35,7 @@ export class ModelRouter {
         let category = 'GENERAL';
         if (!forceModel) {
             category = await Classifier.classifyTask(prompt);
-            console.log(`[ModelRouter] Tarea clasificada como: ${category}`);
+            console.log(`[ModelRouter] Tarea clasificada como: ${category} `);
         }
 
         // 2. Intento de ejecución con el modelo primario
@@ -56,9 +60,28 @@ export class ModelRouter {
             };
 
         } catch (error) {
-            console.error(`[ModelRouter] ❌ Error en modelo primario: ${error.message}`);
+            console.error(`[ModelRouter] ❌ Error en modelo primario: ${error.message} `);
 
-            // 3. Estrategia de Fallback a Grok
+            // 3. Estrategia de Fallback a Gemini (Si OR falla con 401/403 o Rate Limit)
+            if (error.message.includes('401') || error.message.includes('402') || error.message.includes('403') || error.message.includes('Rate Limit')) {
+                console.log(`[ModelRouter] 🔄 Iniciando Fallback a GEMINI (gemini-flash-latest)...`);
+                try {
+                    const geminiResult = await callGemini([
+                        { role: 'system', content: systemPrompt },
+                        { role: 'user', content: prompt }
+                    ]);
+
+                    return {
+                        ...geminiResult,
+                        category,
+                        engine: 'gemini-fallback'
+                    };
+                } catch (geminiError) {
+                    console.error(`[ModelRouter] 💀 Error crítico: Fallback Gemini también falló.${geminiError.message} `);
+                }
+            }
+
+            // 4. Estrategia de Fallback a Grok (Si está configurado)
             if (error.message.includes('Rate Limit') || error.message.includes('API Error')) {
                 console.log(`[ModelRouter] 🔄 Iniciando Fallback a ${fallbackModel}...`);
 
@@ -80,7 +103,7 @@ export class ModelRouter {
                         engine: 'fallback'
                     };
                 } catch (fallbackError) {
-                    console.error(`[ModelRouter] 💀 Error crítico: Fallback también falló. ${fallbackError.message}`);
+                    console.error(`[ModelRouter] 💀 Error crítico: Fallback también falló.${fallbackError.message} `);
                     throw fallbackError;
                 }
             }

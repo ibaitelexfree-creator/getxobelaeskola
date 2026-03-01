@@ -31,9 +31,7 @@ BEGIN
         horas_practicas,
         nivel_formacion_id,
         orden_en_nivel,
-        activo,
-        objetivos_json,
-        competencias_json
+        activo
     ) VALUES (
         'iniciacion-vela-ligera',
         'Iniciación a la Vela Ligera',
@@ -45,9 +43,7 @@ BEGIN
         14,
         v_nivel_id,
         1,
-        true,
-        '["Comprender los principios básicos de la navegación a vela", "Identificar las partes del barco y su función", "Realizar maniobras básicas de forma autónoma", "Navegar con seguridad en condiciones favorables"]'::jsonb,
-        '["Conocimiento básico de terminología náutica", "Capacidad de realizar viradas y trasluchadas", "Autonomía en navegación en condiciones de viento suave"]'::jsonb
+        true
     )
     RETURNING id INTO v_curso_id;
 

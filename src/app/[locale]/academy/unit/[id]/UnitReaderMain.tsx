@@ -6,16 +6,18 @@ import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { UnlockStatusBadge, UnlockStatus } from '@/components/academy/UnlockStatusBadge';
-import { SimpleEvaluation } from '@/components/academy/evaluation';
-import { useAcademyFeedback } from '@/hooks/useAcademyFeedback';
+const SimpleEvaluation = dynamic(() => import('@/components/academy/evaluation').then(mod => mod.SimpleEvaluation), { ssr: false });
+const WrittenExerciseSubmission = dynamic(() => import('@/components/academy/peer-review/WrittenExerciseSubmission'), { ssr: false });
+const InteractiveMission = dynamic(() => import('@/components/academy/interactive-engine').then(mod => mod.InteractiveMission), { ssr: false });
+import { useMissionStore } from '@/components/academy/interactive-engine';
+import { apiUrl } from '@/lib/api';
+import dynamic from 'next/dynamic';
 import Breadcrumbs from '@/components/ui/Breadcrumbs';
+import { useAcademyFeedback } from '@/hooks/useAcademyFeedback';
 import { useNotificationStore } from '@/lib/store/useNotificationStore';
 import { useUnitProgress } from '@/hooks/useUnitProgress';
 import { checkAchievements } from '@/lib/gamification/AchievementEngine';
 import { useAcademyMode } from '@/lib/store/useAcademyMode';
-import { InteractiveMission, useMissionStore } from '@/components/academy/interactive-engine';
-import { apiUrl } from '@/lib/api';
-import WrittenExerciseSubmission from '@/components/academy/peer-review/WrittenExerciseSubmission';
 
 interface Unidad {
     id: string;

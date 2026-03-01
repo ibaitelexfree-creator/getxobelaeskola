@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 const cyan = "#00e5ff";
 const green = "#00ff9f";
 const orange = "#ff6b35";
-const purple = "#b388ff";
+const purple = "#00e5ff"; // Changed from purple to cyan to comply with Purple Ban
 const yellow = "#ffd600";
 const dark = "#0a0e1a";
 const card = "#0f1629";

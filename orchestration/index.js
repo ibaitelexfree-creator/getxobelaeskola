@@ -69,6 +69,7 @@ import { setupTelegramInbound } from './lib/telegram-inbound.js';
 import * as resourceManager from './lib/resource-manager.js';
 import { handleRecoverySignal } from './lib/recovery-agent.js';
 import { tasks as dbTasks, logs as dbLogs, syncHistory, settings } from './lib/db.js';
+import { Maestro } from './lib/maestro.js';
 
 
 
@@ -91,7 +92,10 @@ const JULES_API_KEYS = [
   process.env.JULES_API_KEY_3,
 ].filter(Boolean);
 let _julesKeyIndex = 0;
-function getJulesApiKey() {
+function getJulesApiKey(forcedIndex = null) {
+  if (forcedIndex !== null && JULES_API_KEYS[forcedIndex]) {
+    return JULES_API_KEYS[forcedIndex];
+  }
   const key = JULES_API_KEYS[_julesKeyIndex % JULES_API_KEYS.length];
   _julesKeyIndex++;
   return key;
@@ -308,6 +312,7 @@ app.use('/mcp/', (req, res, next) => {
 // Initialize modules
 let batchProcessor = null;
 let sessionMonitor = null;
+let maestro = null;
 const agentWatchdog = new AgentWatchdog();
 agentWatchdog.start();
 
@@ -1707,7 +1712,7 @@ app.post('/mcp/execute', validateRequest(mcpExecuteSchema), async (req, res) => 
 // ============ HELPER FUNCTIONS ============
 
 // Jules API helper - make authenticated request with connection pooling
-function julesRequest(method, path, body = null) {
+function julesRequest(method, path, body = null, forcedKeyIndex = null) {
   // Circuit breaker check
   if (circuitBreaker.isOpen()) {
     return Promise.reject(new Error('Circuit breaker is open - Jules API temporarily unavailable'));
@@ -1715,7 +1720,7 @@ function julesRequest(method, path, body = null) {
 
   return new Promise(async (resolve, reject) => {
     let authHeader = {};
-    const apiKey = getJulesApiKey();
+    const apiKey = getJulesApiKey(forcedKeyIndex);
 
     if (julesAuth) {
       try {
@@ -1798,7 +1803,7 @@ function julesRequest(method, path, body = null) {
 }
 
 // Create a new Jules session with correct API schema
-async function createJulesSession(config) {
+async function createJulesSession(config, apiKeyIndex = null) {
   const { error } = sessionCreateSchema.validate(config);
   if (error) {
     // Sanitize and format the error to be more user-friendly
@@ -1835,7 +1840,7 @@ async function createJulesSession(config) {
     } else {
       console.log('[Jules API] No branch specified, fetching default branch from source...');
       try {
-        const sources = await julesRequest('GET', '/sources');
+        const sources = await julesRequest('GET', '/sources', null, apiKeyIndex);
         const source = sources.sources?.find(s => s.name === config.source);
         if (source?.githubRepo?.defaultBranch?.displayName) {
           startingBranch = source.githubRepo.defaultBranch.displayName;
@@ -1854,8 +1859,15 @@ async function createJulesSession(config) {
 
   // Enhance prompt with memory context if available
   let enhancedPrompt = config.prompt;
+
+  // v3.0: Inyectar contexto del Maestro (Global Brain) si existe
+  if (config.context) {
+    enhancedPrompt = `${config.context}\n\n${enhancedPrompt}`;
+    structuredLog('info', 'Enhanced prompt with Maestro context');
+  }
+
   if (memoryContext?.suggestions) {
-    enhancedPrompt = `${config.prompt}\n\n---\n${memoryContext.suggestions}`;
+    enhancedPrompt = `${enhancedPrompt}\n\n---\n${memoryContext.suggestions}`;
     structuredLog('info', 'Enhanced prompt with memory context');
   }
 
@@ -1883,7 +1895,7 @@ async function createJulesSession(config) {
   }
 
   console.log('[Jules API] Creating session:', JSON.stringify(sessionData, null, 2));
-  const session = await julesRequest('POST', '/sessions', sessionData);
+  const session = await julesRequest('POST', '/sessions', sessionData, apiKeyIndex);
   invalidateCaches();
 
   // Record in DB
@@ -2367,6 +2379,8 @@ const server = app.listen(PORT, '0.0.0.0', () => {
 
   batchProcessor = new BatchProcessor(julesRequest, createJulesSession);
   sessionMonitor = new SessionMonitor(julesRequest);
+  maestro = new Maestro();
+  maestro.start();
 
   // Initialize O(1) tool registry (must be after batchProcessor/sessionMonitor)
   initializeToolRegistry();
@@ -2433,22 +2447,55 @@ const server = app.listen(PORT, '0.0.0.0', () => {
           ? fullPrompt.substring(0, 192) + '...'
           : fullPrompt;
 
-        const session = await createJulesSession({
-          prompt: fullPrompt,
-          source: process.env.JULES_DEFAULT_SOURCE || 'sources/github/ibaitelexfree-creator/getxobelaeskola',
-          title: shortTitle,
-          automationMode: 'AUTO_CREATE_PR',
-          requirePlanApproval: false // Explicitly disable plan approval for auto-dispatch
-        });
+        // v3.0: Pre-consulta Global Brain si no hay contexto
+        let context = task.context;
+        if (!context && maestro) {
+          console.log(`[AutoDispatch] 🧠 Recuperando Global Brain context para task: ${task.external_id}`);
+          context = await maestro._getUnifiedContext(fullPrompt);
+          dbTasks.updateTask(task.external_id, { context });
+        }
 
-        const sessionId = session?.name?.split('/')?.pop() || session?.id || 'unknown';
-        dbTasks.updateStatus(task.external_id, 'running', `Jules session: ${sessionId}`, true); // incRetry=true
+        // v3.1: Acquire slot from Maestro Pool for better resource management
+        let slot = null;
+        if (maestro) {
+          slot = maestro.pool.acquire({ title: fullPrompt });
+        }
 
-        console.log(`[AutoDispatch] ✅ Task "${task.title}" → Jules session ${sessionId} (Retry: ${task.retry_count + 1})`);
+        if (slot) {
+          const accountIdx = slot.accountId === 'A' ? 0 : (slot.accountId === 'B' ? 1 : 2);
+          const session = await createJulesSession({
+            prompt: fullPrompt,
+            source: process.env.JULES_DEFAULT_SOURCE || 'sources/github/ibaitelexfree-creator/getxobelaeskola',
+            title: shortTitle,
+            context: context,
+            automationMode: 'AUTO_CREATE_PR',
+            requirePlanApproval: false
+          }, accountIdx); // Pass the acquired account index
 
-        sendTelegramMessage(
-          `🤖 *Auto-Dispatch*\n\n*Tarea:* ${task.title}\n*Jules ID:* \`${sessionId}\`\n*Intento:* ${task.retry_count + 1}/${maxRetries}`
-        ).catch(() => { });
+          const sessionId = session?.name?.split('/')?.pop() || session?.id || 'unknown';
+          dbTasks.updateStatus(task.external_id, 'running', `Jules session: ${sessionId} (${slot.accountId})|ref:${slot.sessionRef}`, true);
+          console.log(`[AutoDispatch] ✅ Task "${task.title}" → Jules ${slot.accountId} | session ${sessionId}`);
+
+          sendTelegramMessage(`🤖 *Auto-Dispatch*\n\n*Tarea:* ${task.title}\n*Jules ID:* \`${sessionId}\`\n*Pool:* ${slot.accountId} | ${slot.dailyUsed}/100`).catch(() => { });
+          return;
+        }
+
+        // v3.2: Fallback to Flash if pool is full
+        if (maestro && maestro.flash.hasCredits()) {
+          console.log(`[AutoDispatch] ⚡ Pool full. Falling back to Gemini Flash for "${task.title}"`);
+          const result = await maestro.flash.execute({ title: fullPrompt, context });
+          if (result.success) {
+            dbTasks.updateStatus(task.external_id, 'completed', `Flash execution: ${result.summary}`);
+            sendTelegramMessage(`⚡ *Auto-Dispatch (Flash)*\n\n*Tarea:* ${task.title}\n*Status:* Completada`).catch(() => { });
+            return;
+          } else {
+            console.error(`[AutoDispatch] ❌ Flash execution failed: ${result.error}`);
+          }
+        }
+
+        // Pool and Flash exhausted - revert to pending
+        dbTasks.updateStatus(task.external_id, 'pending', 'Pool and Flash exhausted');
+        console.warn(`[AutoDispatch] ✋ Capacity reached (Pool/Flash). Task "${task.title}" remains pending.`);
 
       } catch (err) {
         // Revert to pending so next cycle can retry
@@ -2526,6 +2573,63 @@ const server = app.listen(PORT, '0.0.0.0', () => {
 
     res.json({ active: newState });
   });
+
+  // ── TASK STATUS SYNC LOOP ──────────────────────────────────────────
+  async function syncTaskStatuses() {
+    if (!maestro) return;
+
+    try {
+      const runningTasks = dbTasks.getAll().filter(t =>
+        (t.status === 'running' || t.status === 'en_curso') && t.executor === 'jules'
+      );
+
+      for (const task of runningTasks) {
+        const idMatch = (task.result || '').match(/Jules session: ([a-zA-Z0-9-]+)/);
+        const refMatch = (task.result || '').match(/\|ref:([a-zA-Z0-9-]+-[0-9]+-[a-z0-9]+)/);
+
+        const sessionId = idMatch ? idMatch[1] : null;
+        const sessionRef = refMatch ? refMatch[1] : null;
+
+        if (!sessionId) continue;
+
+        try {
+          const allSessions = await sessionMonitor.getAllSessions();
+          const session = allSessions.find(s => s.name?.endsWith('/' + sessionId) || s.id === sessionId);
+
+          if (!session) continue;
+
+          if (session.state === 'COMPLETED') {
+            console.log(`[StatusSync] ✅ Task ${task.external_id} completed. Notify Maestro.`);
+
+            if (sessionRef) {
+              await maestro.notifyCompletion(sessionRef, {
+                title: task.title,
+                prUrl: session.artifact?.prUrl || ''
+              });
+              dbTasks.updateStatus(task.external_id, 'completed', 'Finalizado y notificado');
+            } else {
+              dbTasks.updateStatus(task.external_id, 'completed');
+            }
+          } else if (session.state === 'FAILED' || session.state === 'CANCELLED') {
+            console.log(`[StatusSync] ❌ Task ${task.external_id} failed.`);
+            if (sessionRef) {
+              await maestro.notifyFailure(sessionRef, session.error || 'Session failed');
+              dbTasks.updateStatus(task.external_id, 'failed', session.error || 'Session failed');
+            } else {
+              dbTasks.updateStatus(task.external_id, 'failed');
+            }
+          }
+        } catch (e) {
+          console.error(`[StatusSync] Error checking task ${task.external_id}:`, e.message);
+        }
+      }
+    } catch (err) {
+      console.error('[StatusSync] Loop error:', err.message);
+    }
+  }
+
+  // Poll status every 60 seconds
+  setInterval(syncTaskStatuses, 60_000);
 
   // ── TRUST TUNNEL: AUTO-APPROVE LOOP ────────────────────────────────────
   let trustTunnelInterval = null;

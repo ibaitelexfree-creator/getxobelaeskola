@@ -23,7 +23,6 @@ const nextConfig = {
     poweredByHeader: false,
     output: isCapacitor ? 'export' : 'standalone',
     staticPageGenerationTimeout: 600,
-    // Add transpile only if needed, currently removing to rule out conflicts
     transpilePackages: isCapacitor ? [
         '@capacitor/core',
         '@capacitor/android',

@@ -37,7 +37,7 @@ export default function ConditionalLayout({ children, navbar, footer }: Conditio
     if (isAcademy) {
         return (
             <>
-                <main className="flex-grow flex flex-col relative w-full h-full min-h-screen bg-nautical-black">
+                <main id="main-content" className="flex-grow flex flex-col relative w-full h-full min-h-screen bg-nautical-black">
                     {children}
                     <AcademyControls />
                 </main>
@@ -62,7 +62,7 @@ export default function ConditionalLayout({ children, navbar, footer }: Conditio
                 <div className="block">{navbar}</div>
             )}
 
-            <main className={`flex-grow min-h-screen bg-nautical-black ${!isAuth ? 'pb-24 md:pb-0' : ''}`}>
+            <main id="main-content" className={`flex-grow min-h-screen bg-nautical-black ${!isAuth ? 'pb-24 md:pb-0' : ''}`}>
                 {children}
             </main>
 

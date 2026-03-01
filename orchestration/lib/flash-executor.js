@@ -12,9 +12,12 @@
 
 import https from 'https';
 import { EventEmitter } from 'events';
+import QdrantClient from './qdrant-client.js';
+import GlobalBrain from './global-brain.js';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
 const GEMINI_API_BASE = 'generativelanguage.googleapis.com';
-const DEFAULT_MODEL = 'gemini-2.5-flash';
+const DEFAULT_MODEL = 'gemini-flash-latest';
 const CREDIT_CHECK_INTERVAL = 5 * 60 * 1000; // 5 min
 
 export class FlashExecutor extends EventEmitter {
@@ -59,7 +62,15 @@ export class FlashExecutor extends EventEmitter {
 
         this._checkDailyReset();
 
-        const prompt = this._buildPrompt(task);
+        // Global Brain: Si el Maestro ya inyectó contexto, lo usamos. 
+        // Si no, hacemos una búsqueda unificada (Fase 1024).
+        let ragContext = task.context || '';
+
+        if (!ragContext) {
+            ragContext = await GlobalBrain.getUnifiedContext(task.title || task.description);
+        }
+
+        const prompt = this._buildPrompt(task, ragContext);
 
         try {
             const result = await this._callGemini(prompt);
@@ -128,13 +139,24 @@ export class FlashExecutor extends EventEmitter {
 
     // ───────── INTERNAL ─────────
 
-    _buildPrompt(task) {
-        return [
-            'You are a fast code execution agent. Complete this task efficiently.',
-            `Task: ${task.title || task.description}`,
-            task.context ? `Context: ${task.context}` : '',
-            'Respond with a concise summary of what was done.'
-        ].filter(Boolean).join('\n');
+    _buildPrompt(task, ragContext = '') {
+        const parts = [];
+
+        if (task.systemPrompt) {
+            parts.push(`[SYSTEM PROMPT]: ${task.systemPrompt}\n`);
+        } else {
+            parts.push('You are a fast code execution agent for the Swarm v3. Your goal is to be concise but code-aware.\n');
+        }
+
+        parts.push(`TASK: ${task.title || task.description}`);
+
+        if (ragContext) {
+            parts.push('\n=== HISTORICAL CONTEXT & MEMORIES ===');
+            parts.push(ragContext);
+        }
+
+        parts.push('\nFollow instructions and return a summary. Be aware of the previous context shown above.');
+        return parts.join('\n');
     }
 
     async _callGemini(prompt) {

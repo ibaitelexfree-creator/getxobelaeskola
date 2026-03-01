@@ -38,7 +38,7 @@ export const RANKS: Rank[] = [
         minXP: 2000,
         icon: '⚓',
         description: 'Responsable de la embarcación y la seguridad.',
-        color: 'text-purple-400'
+        color: 'text-indigo-400'
     },
     {
         id: 'capitan',

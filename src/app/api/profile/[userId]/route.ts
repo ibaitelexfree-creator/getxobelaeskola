@@ -37,9 +37,9 @@ export async function GET(request: Request, { params }: { params: { userId: stri
         }
 
         // 3. VISIBILITY CHECK
-        // Check if "is_public_profile" exists in the profile object (it might be null or undefined if column missing)
+        // Check if "is_public" exists in the profile object (it might be null or undefined if column missing)
         // Default to false if missing.
-        let isPublic = profile.is_public_profile === true;
+        let isPublic = profile.is_public === true;
         const isOwner = requester?.id === userId;
 
         // Fallback: Check auth metadata if column is missing or false (maybe user set it via settings API fallback)

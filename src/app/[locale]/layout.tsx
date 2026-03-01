@@ -53,9 +53,7 @@ export default async function LocaleLayout({
                 navbar={<Navbar locale={locale} />}
                 footer={<Footer locale={locale} />}
               >
-                <main id="main-content" className="flex-grow">
-                  {children}
-                </main>
+                {children}
               </ConditionalLayout>
             </div>
             <ScrollUpButton />
@@ -106,10 +104,10 @@ export async function generateMetadata({ params: { locale } }: { params: { local
     alternates: {
       canonical: `${siteUrl}/${locale}/`,
       languages: {
-        'es-ES': '/es/',
-        'eu-ES': '/eu/',
-        'en-US': '/en/',
-        'fr-FR': '/fr/',
+        'es-ES': `${siteUrl}/es/`,
+        'eu-ES': `${siteUrl}/eu/`,
+        'en-US': `${siteUrl}/en/`,
+        'fr-FR': `${siteUrl}/fr/`,
       },
     },
     openGraph: {

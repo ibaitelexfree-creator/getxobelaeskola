@@ -118,7 +118,7 @@ describe('Auth Guard', () => {
     // So it tests the REAL checkAuth function using mocked Supabase clients.
 
     describe('requireAdmin', () => {
-         // ... unchanged from previous read, just ensuring imports are correct
+        // ... unchanged from previous read, just ensuring imports are correct
         it('should return error if checkAuth fails', async () => {
             mockGetUser.mockResolvedValue({ data: { user: null } });
 
@@ -162,7 +162,7 @@ describe('Auth Guard', () => {
     });
 
     describe('requireInstructor', () => {
-         // ... unchanged logic
+        // ... unchanged logic
         it('should return error if checkAuth fails', async () => {
             mockGetUser.mockResolvedValue({ data: { user: null } });
 

@@ -149,6 +149,7 @@ export default function Chatbot() {
                                 value={input}
                                 onChange={(e) => setInput(e.target.value)}
                                 placeholder="Pregunta sobre navegación..."
+                                aria-label="Escribe tu pregunta para El Piloto"
                                 className="flex-1 bg-slate-900 text-white text-sm rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 border border-slate-700 placeholder:text-slate-500"
                                 disabled={isLoading}
                             />

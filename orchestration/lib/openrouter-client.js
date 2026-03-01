@@ -3,11 +3,15 @@
  * @description Client for OpenRouter API - Primary engine for Swarm CI/CD 2.0
  */
 
+import { fileURLToPath } from 'url';
+import { dirname, resolve } from 'path';
 import dotenv from 'dotenv';
-dotenv.config();
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+dotenv.config({ path: resolve(__dirname, '../.env') });
 
 const OPENROUTER_URL = 'https://openrouter.ai/api/v1/chat/completions';
-const API_KEY = process.env.OPEN_ROUTER_API_KEY;
+const getApiKey = () => process.env.OPEN_ROUTER_API_KEY;
 
 /**
  * Calls OpenRouter AI API
@@ -23,8 +27,8 @@ export async function callOpenRouter(messages, options = {}) {
         response_format = null,
     } = options;
 
-    if (!API_KEY) {
-        throw new Error('OPEN_ROUTER_API_KEY is not defined in environment variables');
+    if (!getApiKey()) {
+        throw new Error('OPEN_ROUTER_API_KEY is not defined in environment variables (checked .env in orchestration/)');
     }
 
     const startTime = Date.now();
@@ -44,7 +48,7 @@ export async function callOpenRouter(messages, options = {}) {
         const response = await fetch(OPENROUTER_URL, {
             method: 'POST',
             headers: {
-                'Authorization': `Bearer ${API_KEY}`,
+                'Authorization': `Bearer ${getApiKey()}`,
                 'Content-Type': 'application/json',
                 'HTTP-Referer': 'https://getxobelaeskola.cloud',
                 'X-Title': 'Swarm CI/CD 2.0',

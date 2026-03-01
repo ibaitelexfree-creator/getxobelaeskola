@@ -17,149 +17,79 @@ export async function GET(request: NextRequest) {
     try {
         const { searchParams } = new URL(request.url);
         const includeHistory = searchParams.get('history') === 'true';
-
-        const now = Date.now();
-        let weather: any;
-        let alerts: any[] = [];
-        let seaState: any;
-
-        if (cachedWeather && cachedAlerts && cachedSeaState && (now - lastFetchTime < CACHE_DURATION)) {
-            weather = cachedWeather;
-            alerts = cachedAlerts;
-            seaState = cachedSeaState;
-        } else {
-            const [w, a, s] = await Promise.all([
-                fetchWeatherData(),
-                fetchEuskalmetAlerts(),
-                fetchSeaState()
-            ]);
-            weather = w;
-            alerts = Array.isArray(a) ? a : [];
-            seaState = s;
-
-            cachedWeather = weather;
-            cachedAlerts = alerts;
-            cachedSeaState = seaState;
-            lastFetchTime = now;
-        }
-
         const supabase = createAdminClient();
 
-        // 1. Data Collection: Save snapshot to history (max once every 15 mins)
-        try {
-            // Only try if we have valid weather data
-            if (weather && weather.knots !== undefined) {
-                // Check last entry time
-                const { data: lastEntry } = await supabase
-                    .from('weather_history')
-                    .select('timestamp')
-                    .order('timestamp', { ascending: false })
-                    .limit(1)
-                    .single();
+        // 1. Fetch current state from DB Cache
+        const { data: cacheEntries } = await supabase
+            .from('api_cache')
+            .select('key, data')
+            .in('key', ['weather_current', 'euskalmet_alerts', 'sea_state']);
 
-                const nowTime = new Date();
-                const shouldSave = !lastEntry ||
-                    (nowTime.getTime() - new Date(lastEntry.timestamp).getTime() > 15 * 60 * 1000);
-
-                if (shouldSave) {
-                    await supabase.from('weather_history').insert({
-                        station: weather.station,
-                        wind_speed: weather.knots,
-                        wind_gust: weather.gusts || weather.knots,
-                        wind_direction: weather.direction,
-                        temperature: weather.temp,
-                        timestamp: nowTime.toISOString()
-                    });
-                }
-            }
-        } catch (e) {
-            // Silently fail if table doesn't exist yet
-            console.warn('Weather history persistence skipped (table might not exist)');
-        }
-
-        let fleetSub: { agua: number; retorno: number; pendiente: number } = {
-            agua: 1,
-            retorno: 0,
-            pendiente: 2
+        const weather = cacheEntries?.find(e => e.key === 'weather_current')?.data || null;
+        const alerts = cacheEntries?.find(e => e.key === 'euskalmet_alerts')?.data || [];
+        const seaState = cacheEntries?.find(e => e.key === 'sea_state')?.data || {
+            waveHeight: 1.0,
+            period: 8,
+            waterTemp: 18,
+            windSpeed: 10,
+            timestamp: new Date().toISOString(),
+            isSimulated: true
         };
 
+        // Filter alerts (only yellow/orange/red)
+        const warningAlerts = Array.isArray(alerts) ? alerts.filter((a: any) =>
+            a.level && !['verde', 'green', 'null', 'none'].includes(a.level.toLowerCase())
+        ) : [];
+
+        // 2. Fetch History from DB
+        let history: any[] | undefined = undefined;
+        if (includeHistory) {
+            const { data: dbHistory } = await supabase
+                .from('weather_history')
+                .select('*')
+                .order('timestamp', { ascending: false })
+                .limit(48);
+
+            if (dbHistory && dbHistory.length > 0) {
+                history = dbHistory.map((h: any) => ({
+                    time: new Date(h.timestamp).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }),
+                    wind: h.wind_speed,
+                    gust: h.wind_gust,
+                    direction: h.wind_direction,
+                    temp: h.temperature,
+                    tide: h.tide_height || 1.5
+                })).reverse();
+            }
+        }
+
+        // Fleet stats (keep existing logic as it's internal DB)
+        let fleetSub = { agua: 1, retorno: 0, pendiente: 2 };
         try {
             const { data: rentals } = await supabase
                 .from('reservas_alquiler')
                 .select('estado_entrega');
 
-            if (rentals) {
+            if (rentals && rentals.length > 0) {
                 fleetSub = {
                     agua: rentals.filter((r: any) => r.estado_entrega === 'entregado').length,
                     retorno: rentals.filter((r: any) => r.estado_entrega === 'devuelto').length,
                     pendiente: rentals.filter((r: any) => r.estado_entrega === 'pendiente').length
                 };
-
-                if (fleetSub.agua === 0 && fleetSub.pendiente === 0) {
-                    fleetSub = { agua: 1, retorno: 0, pendiente: 2 };
-                }
             }
         } catch (e) {
             console.error('Error fetching fleet stats:', e);
         }
 
-        // Filter alerts (only yellow/orange/red)
-        const warningAlerts = alerts.filter((a: any) =>
-            a.level && !['verde', 'green', 'null'].includes(a.level.toLowerCase())
-        );
-
-        // 2. Fetch History from DB or Fallback to mock
-        let history: any[] | undefined = undefined;
-        if (includeHistory) {
-            try {
-                const { data: dbHistory, error: historyError } = await supabase
-                    .from('weather_history')
-                    .select('*')
-                    .order('timestamp', { ascending: false })
-                    .limit(48); // Last 12 hours if 15min intervals
-
-                if (dbHistory && dbHistory.length > 0) {
-                    // Map DB results to UI format
-                    history = dbHistory.map((h: any) => ({
-                        time: new Date(h.timestamp).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }),
-                        wind: h.wind_speed,
-                        gust: h.wind_gust,
-                        direction: h.wind_direction,
-                        temp: h.temperature,
-                        tide: h.tide_height || 1.5 // Fallback if not available
-                    })).reverse(); // Oldest first for charts
-                }
-            } catch (e) {
-                console.warn('Falling back to mock history');
-            }
-
-            // Fallback to mock if DB empty or error
-            if (!history) {
-                const nowTime = new Date();
-                history = Array.from({ length: 24 }).map((_, i) => {
-                    const hour = new Date(nowTime.getTime() - (23 - i) * 3600000);
-                    const baseWind = 10 + Math.sin(i / 3) * 5 + Math.random() * 3;
-                    return {
-                        time: `${hour.getHours().toString().padStart(2, '0')}:00`,
-                        wind: Math.round(baseWind),
-                        gust: Math.round(baseWind * (1.2 + Math.random() * 0.4)),
-                        direction: Math.round((280 + Math.sin(i / 5) * 40 + Math.random() * 20) % 360),
-                        temp: Math.round(14 + Math.cos(i / 10) * 4),
-                        tide: 1.5 + Math.sin(i / 4) * 1.2
-                    };
-                });
-            }
-        }
-
         return NextResponse.json({
             weather,
-            seaState, // Added seaState to response
+            seaState,
             fleet: fleetSub,
             alerts: warningAlerts,
-            history
+            history: history || []
         });
     } catch (error) {
         console.error('Weather API Error:', error);
         return NextResponse.json({ error: 'Failed to fetch weather data' }, { status: 500 });
     }
 }
+
