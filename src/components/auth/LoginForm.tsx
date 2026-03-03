@@ -6,6 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
+import { getSafeRedirectUrl } from '@/lib/utils/url';
 import { useTranslations } from 'next-intl';
 
 import Link from 'next/link';
@@ -96,7 +97,7 @@ export default function LoginForm({ locale = 'es' }: { locale?: string }) {
             const returnTo = searchParams.get('returnTo');
 
             if (returnTo) {
-                router.push(returnTo);
+                router.push(getSafeRedirectUrl(returnTo, `/${locale}/student/dashboard`));
                 router.refresh();
             } else {
                 // Determine if admin
