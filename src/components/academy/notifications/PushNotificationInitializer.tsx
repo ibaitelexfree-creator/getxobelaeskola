@@ -2,7 +2,6 @@
 
 import { useEffect } from 'react';
 import { usePushNotifications } from '@/hooks/usePushNotifications';
-// import { Capacitor } from '@capacitor/core';
 
 
 export default function PushNotificationInitializer() {
