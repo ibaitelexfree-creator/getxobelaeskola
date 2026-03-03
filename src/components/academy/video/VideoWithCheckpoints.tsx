@@ -43,46 +43,6 @@ export default function VideoWithCheckpoints({
     const intervalRef = useRef<NodeJS.Timeout | null>(null);
     const containerRef = useRef<HTMLDivElement>(null);
 
-    const onPlayerReady = (event: any) => {
-        setIsPlayerReady(true);
-        setDuration(event.target.getDuration());
-    };
-
-    const startTracking = () => {
-        if (intervalRef.current) clearInterval(intervalRef.current);
-        intervalRef.current = setInterval(() => {
-            if (!playerRef.current) return;
-
-            let time = 0;
-            if (videoType === 'youtube' && playerRef.current.getCurrentTime) {
-                time = playerRef.current.getCurrentTime();
-            } else if (videoType === 'native' && playerRef.current) {
-                time = playerRef.current.currentTime;
-            }
-
-            setCurrentTime(time);
-            checkCheckpoints(time);
-        }, 500); // Check every 500ms
-    };
-
-    const stopTracking = () => {
-        if (intervalRef.current) clearInterval(intervalRef.current);
-    };
-
-    const onPlayerStateChange = (event: any) => {
-        if (event.data === window.YT.PlayerState.PLAYING) {
-            setIsPlaying(true);
-            startTracking();
-        } else {
-            setIsPlaying(false);
-            stopTracking();
-        }
-
-        if (event.data === window.YT.PlayerState.ENDED) {
-            if (onComplete) onComplete();
-        }
-    };
-
     // Initialize YouTube API
     useEffect(() => {
         if (videoType !== 'youtube') return;
@@ -148,6 +108,45 @@ export default function VideoWithCheckpoints({
         };
     }, [videoUrl, videoType]);
 
+    const onPlayerReady = (event: any) => {
+        setIsPlayerReady(true);
+        setDuration(event.target.getDuration());
+    };
+
+    const onPlayerStateChange = (event: any) => {
+        if (event.data === window.YT.PlayerState.PLAYING) {
+            setIsPlaying(true);
+            startTracking();
+        } else {
+            setIsPlaying(false);
+            stopTracking();
+        }
+
+        if (event.data === window.YT.PlayerState.ENDED) {
+            if (onComplete) onComplete();
+        }
+    };
+
+    const startTracking = () => {
+        if (intervalRef.current) clearInterval(intervalRef.current);
+        intervalRef.current = setInterval(() => {
+            if (!playerRef.current) return;
+
+            let time = 0;
+            if (videoType === 'youtube' && playerRef.current.getCurrentTime) {
+                time = playerRef.current.getCurrentTime();
+            } else if (videoType === 'native' && playerRef.current) {
+                time = playerRef.current.currentTime;
+            }
+
+            setCurrentTime(time);
+            checkCheckpoints(time);
+        }, 500); // Check every 500ms
+    };
+
+    const stopTracking = () => {
+        if (intervalRef.current) clearInterval(intervalRef.current);
+    };
 
     const checkCheckpoints = (time: number) => {
         // Find a checkpoint that is close to current time (within 1 second) and hasn't been completed

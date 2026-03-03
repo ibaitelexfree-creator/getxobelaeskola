@@ -33,7 +33,24 @@ export default function CampaignManager() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingCampaign, setEditingCampaign] = useState<Campaign | null>(null);
 
-    const fetchInitialData = React.useCallback(async () => {
+    // Form states
+    const [formData, setFormData] = useState<Partial<Campaign>>({
+        nombre: '',
+        descripcion: '',
+        curso_trigger_id: '',
+        dias_espera: 90,
+        curso_objetivo_id: '',
+        cupon_codigo: '',
+        stripe_coupon_id: '',
+        descuento_porcentaje: 10,
+        activo: true
+    });
+
+    useEffect(() => {
+        fetchInitialData();
+    }, []);
+
+    const fetchInitialData = async () => {
         setIsLoading(true);
         try {
             const [campRes, courseRes] = await Promise.all([
@@ -50,24 +67,7 @@ export default function CampaignManager() {
         } finally {
             setIsLoading(false);
         }
-    }, []);
-
-    // Form states
-    const [formData, setFormData] = useState<Partial<Campaign>>({
-        nombre: '',
-        descripcion: '',
-        curso_trigger_id: '',
-        dias_espera: 90,
-        curso_objetivo_id: '',
-        cupon_codigo: '',
-        stripe_coupon_id: '',
-        descuento_porcentaje: 10,
-        activo: true
-    });
-
-    useEffect(() => {
-        fetchInitialData();
-    }, [fetchInitialData]);
+    };
 
     const handleToggleStatus = async (id: string, currentStatus: boolean) => {
         try {

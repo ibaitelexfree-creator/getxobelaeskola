@@ -14,8 +14,12 @@ export default function FlashcardGame() {
     const [finished, setFinished] = useState(false);
     const [filter, setFilter] = useState<'all' | 'luces' | 'banderas' | 'nudos'>('all');
 
-    const restartGame = React.useCallback(() => {
-    const restartGame = React.useCallback(() => {
+    // Initialize & shuffle
+    useEffect(() => {
+        restartGame();
+    }, [filter]);
+
+    const restartGame = () => {
         let filtered = FLASHCARDS_DATA;
         if (filter !== 'all') {
             filtered = FLASHCARDS_DATA.filter(c => c.category === filter);
@@ -27,12 +31,7 @@ export default function FlashcardGame() {
         setIsFlipped(false);
         setScore({ correct: 0, wrong: 0 });
         setFinished(false);
-    }, [filter]);
-
-    // Initialize & shuffle
-    useEffect(() => {
-        restartGame();
-    }, [restartGame]);
+    };
 
     const handleNext = (isCorrect: boolean) => {
         if (isCorrect) {

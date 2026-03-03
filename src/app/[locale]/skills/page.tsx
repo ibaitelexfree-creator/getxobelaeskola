@@ -285,7 +285,7 @@ export default function SkillsPage() {
         }));
     };
 
-    const handleSubmit = React.useCallback(() => {
+    const handleSubmit = () => {
         // Calculate Score
         let correctCount = 0;
         const totalQuestions = perExamQuestions.length;
@@ -340,7 +340,7 @@ export default function SkillsPage() {
         });
         setBlockScores(blockScoresArray);
         setStatus('finished');
-    }, [answers]);
+    };
 
     if (status === 'intro') {
         return <IntroView onStart={handleStart} />;

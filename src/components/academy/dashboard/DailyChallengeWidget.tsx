@@ -17,7 +17,11 @@ export default function DailyChallengeWidget({ locale }: DailyChallengeWidgetPro
     const [submitting, setSubmitting] = useState(false);
     const [loading, setLoading] = useState(true);
 
-    const fetchChallenge = React.useCallback(async () => {
+    useEffect(() => {
+        fetchChallenge();
+    }, []);
+
+    const fetchChallenge = async () => {
         try {
             const res = await fetch(apiUrl('/api/academy/daily-challenge'));
             const json = await res.json();
@@ -29,11 +33,7 @@ export default function DailyChallengeWidget({ locale }: DailyChallengeWidgetPro
         } finally {
             setLoading(false);
         }
-    }, []);
-
-    useEffect(() => {
-        fetchChallenge();
-    }, [fetchChallenge]);
+    };
 
     const handleSubmit = async () => {
         if (selectedOption === null || submitting) return;

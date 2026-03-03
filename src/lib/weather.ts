@@ -104,12 +104,9 @@ export async function fetchWeatherData(): Promise<WeatherData> {
                 const dir = galea.readings.find((r) => r.sensorId === 'wind_direction');
                 const temp = galea.readings.find((r) => r.sensorId === 'temperature');
 
-                if (wind && !isNaN(wind.value) && wind.value !== null) {
+                if (wind && !isNaN(wind.value)) {
                     const ms = wind.value; // Euskalmet usually gives m/s
                     const knots = parseFloat((ms * 1.94384).toFixed(1));
-
-                    if (isNaN(knots)) throw new Error('Invalid wind value from Euskalmet');
-
                     return {
                         station: 'Punta Galea (Euskalmet)',
                         knots,

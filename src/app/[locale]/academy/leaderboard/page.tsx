@@ -115,6 +115,7 @@ export default function LeaderboardPage({ params }: { params: { locale: string }
                                 ].map((option) => (
                                     <button
                                         key={option.id}
+                                        type="button"
                                         onClick={() => handleVisibilityChange(option.id)}
                                         disabled={savingVisibility}
                                         className={`flex-1 py-2 px-2 rounded text-[10px] uppercase tracking-wider font-bold flex flex-col items-center gap-1 transition-all

@@ -19,59 +19,6 @@ export default function CurrentMap({ date }: CurrentMapProps) {
     // Calculate current state
     const [currentState, setCurrentState] = useState({ speed: 0, direction: 0, type: 'SLACK' });
 
-    const updateArrows = React.useCallback(() => {
-        const map = mapInstance.current;
-        const L = LRef.current;
-        const layer = layerRef.current;
-
-        if (!map || !L || !layer) return;
-
-        layer.clearLayers();
-
-        if (currentState.type === 'SLACK') return;
-
-        // Grid of points in the bay
-        const points = [
-            [43.35, -3.04], [43.35, -3.02], [43.35, -3.00],
-            [43.34, -3.04], [43.34, -3.02], [43.34, -3.00],
-            [43.33, -3.03], [43.33, -3.01],
-            [43.36, -3.05], [43.36, -3.03]
-        ];
-
-        points.forEach(pt => {
-            // Create arrow icon
-            // Scale and opacity based on speed
-            const size = 20 + (currentState.speed * 20); // 20 to 40px
-            const opacity = 0.3 + (currentState.speed * 0.7);
-
-            const arrowHtml = `
-                <div style="
-                    transform: rotate(${currentState.direction}deg);
-                    opacity: ${opacity};
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    width: ${size}px;
-                    height: ${size}px;
-                    transition: all 0.5s ease;
-                ">
-                    <svg width="100%" height="100%" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M12 2L12 22M12 2L5 9M12 2L19 9" stroke="${currentState.type === 'FLOOD' ? '#3b82f6' : '#f97316'}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                </div>
-            `;
-
-            const icon = L.divIcon({
-                html: arrowHtml,
-                className: 'current-arrow-icon',
-                iconSize: [size, size],
-                iconAnchor: [size/2, size/2]
-            });
-
-            L.marker(pt, { icon }).addTo(layer);
-        });
-    }, [currentState]);
-
     useEffect(() => {
         // Calculate current based on rate of change
         const t0 = date;
@@ -150,6 +97,62 @@ export default function CurrentMap({ date }: CurrentMapProps) {
     }, []);
 
     // Effect to update arrows when state changes
+    useEffect(() => {
+        updateArrows();
+    }, [currentState]);
+
+    const updateArrows = () => {
+        const map = mapInstance.current;
+        const L = LRef.current;
+        const layer = layerRef.current;
+
+        if (!map || !L || !layer) return;
+
+        layer.clearLayers();
+
+        if (currentState.type === 'SLACK') return;
+
+        // Grid of points in the bay
+        const points = [
+            [43.35, -3.04], [43.35, -3.02], [43.35, -3.00],
+            [43.34, -3.04], [43.34, -3.02], [43.34, -3.00],
+            [43.33, -3.03], [43.33, -3.01],
+            [43.36, -3.05], [43.36, -3.03]
+        ];
+
+        points.forEach(pt => {
+            // Create arrow icon
+            // Scale and opacity based on speed
+            const size = 20 + (currentState.speed * 20); // 20 to 40px
+            const opacity = 0.3 + (currentState.speed * 0.7);
+
+            const arrowHtml = `
+                <div style="
+                    transform: rotate(${currentState.direction}deg);
+                    opacity: ${opacity};
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    width: ${size}px;
+                    height: ${size}px;
+                    transition: all 0.5s ease;
+                ">
+                    <svg width="100%" height="100%" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 2L12 22M12 2L5 9M12 2L19 9" stroke="${currentState.type === 'FLOOD' ? '#3b82f6' : '#f97316'}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+            `;
+
+            const icon = L.divIcon({
+                html: arrowHtml,
+                className: 'current-arrow-icon',
+                iconSize: [size, size],
+                iconAnchor: [size/2, size/2]
+            });
+
+            L.marker(pt, { icon }).addTo(layer);
+        });
+    };
 
     return (
         <div className="relative w-full h-full rounded-2xl overflow-hidden border border-white/10 shadow-2xl">

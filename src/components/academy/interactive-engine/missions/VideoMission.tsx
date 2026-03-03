@@ -30,51 +30,6 @@ export const VideoMission: React.FC<VideoMissionProps> = ({ data, onComplete }) 
     // Use a unique ID for the player to avoid conflicts if multiple instances are mounted
     const [playerId] = useState(`yt-player-${Math.random().toString(36).substr(2, 9)}`);
 
-    const extractYouTubeId = (url: string) => {
-        const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
-        const match = url.match(regExp);
-        return (match && match[2].length === 11) ? match[2] : null;
-    };
-
-    const handleVideoEnd = React.useCallback(() => {
-        if (completedCheckpoints.size === checkpoints.length) {
-            completeMission(100);
-            if (onComplete) onComplete(100);
-        }
-    }, [completedCheckpoints.size, checkpoints.length, completeMission, onComplete]);
-
-    const onPlayerReady = React.useCallback((event: any) => {
-        setDuration(event.target.getDuration());
-        setIsLoading(false);
-    }, []);
-
-    const initPlayer = React.useCallback((videoId: string) => {
-        if ((window as any).YT && (window as any).YT.Player) {
-             const player = new (window as any).YT.Player(playerId, {
-                height: '100%',
-                width: '100%',
-                videoId: videoId,
-                playerVars: {
-                    'playsinline': 1,
-                    'controls': 1,
-                    'modestbranding': 1,
-                    'rel': 0
-                },
-                events: {
-                    'onReady': (event: any) => {
-                        onPlayerReady(event);
-                        setYtPlayer(player);
-                    },
-                    'onStateChange': (event: any) => {
-                         if (event.data === (window as any).YT.PlayerState.ENDED) {
-                             handleVideoEnd();
-                         }
-                    }
-                }
-            });
-        }
-    }, [playerId, handleVideoEnd, onPlayerReady]);
-
     // YouTube API Load
     useEffect(() => {
         if (videoUrl && (videoUrl.includes('youtube.com') || videoUrl.includes('youtu.be'))) {
@@ -93,7 +48,7 @@ export const VideoMission: React.FC<VideoMissionProps> = ({ data, onComplete }) 
                 firstScriptTag.parentNode?.insertBefore(tag, firstScriptTag);
 
                 (window as any).onYouTubeIframeAPIReady = () => {
-                   if (videoId) initPlayer(videoId);
+                   initPlayer(videoId);
                 };
             } else {
                 initPlayer(videoId);
@@ -117,6 +72,39 @@ export const VideoMission: React.FC<VideoMissionProps> = ({ data, onComplete }) 
         };
     }, [ytPlayer]);
 
+    const initPlayer = (videoId: string) => {
+        if ((window as any).YT && (window as any).YT.Player) {
+             const player = new (window as any).YT.Player(playerId, {
+                height: '100%',
+                width: '100%',
+                videoId: videoId,
+                playerVars: {
+                    'playsinline': 1,
+                    'controls': 1,
+                    'modestbranding': 1,
+                    'rel': 0
+                },
+                events: {
+                    'onReady': (event: any) => {
+                        setDuration(event.target.getDuration());
+                        setYtPlayer(player);
+                        setIsLoading(false);
+                    },
+                    'onStateChange': (event: any) => {
+                         if (event.data === (window as any).YT.PlayerState.ENDED) {
+                             handleVideoEnd();
+                         }
+                    }
+                }
+            });
+        }
+    };
+
+    const extractYouTubeId = (url: string) => {
+        const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+        const match = url.match(regExp);
+        return (match && match[2].length === 11) ? match[2] : null;
+    };
 
     // Time Tracking Loop
     useEffect(() => {
@@ -178,6 +166,12 @@ export const VideoMission: React.FC<VideoMissionProps> = ({ data, onComplete }) 
         }
     };
 
+    const handleVideoEnd = () => {
+        if (completedCheckpoints.size === checkpoints.length) {
+            completeMission(100);
+            if (onComplete) onComplete(100);
+        }
+    };
 
     const handleAnswer = () => {
         if (!activeCheckpoint || selectedOption === null) return;

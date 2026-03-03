@@ -51,8 +51,15 @@ export default function AcademyStaffTab({
     const [academyData, setAcademyData] = useState<AcademyData | null>(null);
     const [isLoading, setIsLoading] = useState(false);
 
-    const fetchAcademyData = React.useCallback(async (studentId: string) => {
-    const fetchAcademyData = React.useCallback(async (studentId: string) => {
+    useEffect(() => {
+        if (selectedStudent) {
+            fetchAcademyData(selectedStudent.id);
+        } else {
+            setAcademyData(null);
+        }
+    }, [selectedStudent]);
+
+    const fetchAcademyData = async (studentId: string) => {
         setIsLoading(true);
         try {
             const res = await fetch(`/api/admin/academy/student-progress?student_id=${studentId}`);
@@ -65,15 +72,7 @@ export default function AcademyStaffTab({
         } finally {
             setIsLoading(false);
         }
-    }, []);
-
-    useEffect(() => {
-        if (selectedStudent) {
-            fetchAcademyData(selectedStudent.id);
-        } else {
-            setAcademyData(null);
-        }
-    }, [selectedStudent, fetchAcademyData]);
+    };
 
     return (
         <div className="space-y-12 animate-premium-in">

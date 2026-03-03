@@ -19,7 +19,12 @@ export default function ForumMain({ moduloId }: ForumMainProps) {
     const [currentUser, setCurrentUser] = useState<any>(null);
     const [isStaff, setIsStaff] = useState(false);
 
-    const checkUser = React.useCallback(async () => {
+    useEffect(() => {
+        fetchQuestions();
+        checkUser();
+    }, [moduloId]);
+
+    const checkUser = async () => {
         const supabase = createClient();
         const { data: { user } } = await supabase.auth.getUser();
         if (user) {
@@ -35,9 +40,9 @@ export default function ForumMain({ moduloId }: ForumMainProps) {
                 setIsStaff(profile.rol === 'admin' || profile.rol === 'instructor');
             }
         }
-    }, []);
+    };
 
-    const fetchQuestions = React.useCallback(async () => {
+    const fetchQuestions = async () => {
         setLoading(true);
         try {
             const res = await fetch(apiUrl(`/api/forum/questions?modulo_id=${moduloId}`));
@@ -50,12 +55,7 @@ export default function ForumMain({ moduloId }: ForumMainProps) {
         } finally {
             setLoading(false);
         }
-    }, [moduloId]);
-
-    useEffect(() => {
-        fetchQuestions();
-        checkUser();
-    }, [fetchQuestions, checkUser]);
+    };
 
     const handleSelectQuestion = async (question: any) => {
         // Fetch full details
