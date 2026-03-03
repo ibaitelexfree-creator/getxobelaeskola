@@ -8,7 +8,6 @@ export function generateEuskalmetToken() {
     const email = getEmail();
 
     if (!privateKey) {
-
         throw new Error('EUSKALMET_PRIVATE_KEY is not defined');
     }
 
@@ -20,11 +19,7 @@ export function generateEuskalmetToken() {
         aud: 'met01.apikey',
         iss: 'GetxoBelaEskola',
         version: '1.0.0',
-<<<<<<< HEAD
         email: email,
-=======
-        email: getEmail(),
->>>>>>> origin/jules/fix-seastate-widget-tests-10194027282109193822
         iat: now,
         exp: now + 3600 // 1 hour
     };
