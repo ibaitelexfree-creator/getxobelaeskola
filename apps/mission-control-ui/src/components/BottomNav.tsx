@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion';
 import { useMissionStore, Tab } from '@/store/useMissionStore';
 import { LayoutDashboard, Rocket, ListOrdered, SlidersHorizontal, Radio, Settings } from 'lucide-react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 
 const getTabs = (t: any): { id: Tab; label: string; icon: React.ReactNode }[] => [
@@ -17,6 +18,14 @@ const getTabs = (t: any): { id: Tab; label: string; icon: React.ReactNode }[] =>
 export default function BottomNav() {
     const { activeTab, setActiveTab } = useMissionStore();
     const { t } = useTranslation();
+    const [isMounted, setIsMounted] = useState(false);
+
+    useEffect(() => {
+        setIsMounted(true);
+    }, []);
+
+    if (!isMounted) return null;
+
     const tabs = getTabs(t);
 
     return (

@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { Globe } from 'lucide-react';
@@ -7,6 +8,14 @@ import { Haptics, ImpactStyle } from '@capacitor/haptics';
 
 export default function LanguageSwitch() {
     const { i18n } = useTranslation();
+    const [isMounted, setIsMounted] = useState(false);
+
+    useEffect(() => {
+        setIsMounted(true);
+    }, []);
+
+    if (!isMounted) return null;
+
     const currentLang = i18n.language.split('-')[0]; // Handle cases like 'en-US'
 
     const toggleLanguage = async () => {

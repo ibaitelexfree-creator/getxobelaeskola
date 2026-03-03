@@ -29,6 +29,13 @@ export default function Settings() {
     const [hasChanges, setHasChanges] = useState(false);
     const [releases, setReleases] = useState<Release[]>([]);
     const [downloading, setDownloading] = useState<number | null>(null);
+    const [isMounted, setIsMounted] = useState(false);
+
+    useEffect(() => {
+        setIsMounted(true);
+    }, []);
+
+    if (!isMounted) return null;
 
     useEffect(() => {
         setHasChanges(localUrl !== serverUrl);

@@ -24,6 +24,12 @@ interface MissionState {
         cpu: { load: number; temp: number };
         gpu: { temp: number; hotspot: number; name: string };
     };
+    cerebro: {
+        status: 'idle' | 'indexing' | 'unknown';
+        embeddings: string;
+        dimensions: number;
+        vectorDb: string;
+    };
     power: {
         mode: 'eco' | 'performance';
         lastActivity: string;
@@ -90,6 +96,10 @@ interface MissionState {
     previewMode: 'render' | 'local';
     latestPreviews: Array<{ branch: string; url: string; timestamp: number }>;
 
+    // Active Tenant
+    activeTenant: string;
+    tenants: string[];
+
     // Settings
     autoRefreshMs: number;
 
@@ -115,11 +125,16 @@ interface MissionState {
     setSyncHistory: (history: MissionState['syncHistory']) => void;
     setPreviewMode: (mode: 'render' | 'local') => void;
     setLatestPreviews: (previews: MissionState['latestPreviews']) => void;
+    setActiveTenant: (tenant: string) => void;
 
     // Task Operations
     updateTask: (id: string, updates: Partial<MissionState['queue'][0]>) => Promise<void>;
     deleteTask: (id: string) => Promise<void>;
     approveTask: (id: string) => Promise<void>;
+
+    // Cerebro Actions
+    fetchCerebroStatus: () => Promise<void>;
+    triggerCerebroRescan: () => Promise<void>;
 }
 
 interface HardwareState {
@@ -151,12 +166,17 @@ export const useMissionStore = create<MissionState>((set, get) => ({
         cpu: { load: 0, temp: 0 },
         gpu: { temp: 0, hotspot: 0, name: 'NVIDIA GPU' },
     },
+    cerebro: {
+        status: 'unknown',
+        embeddings: 'unknown',
+        dimensions: 0,
+        vectorDb: 'unknown'
+    },
     power: {
         mode: 'eco',
         lastActivity: '',
         services: {},
     },
-
 
     stats: { assigned: 0, completed: 0, failed: 0 },
     queue: [],
@@ -175,6 +195,8 @@ export const useMissionStore = create<MissionState>((set, get) => ({
     syncHistory: [],
     previewMode: (typeof window !== 'undefined' ? (localStorage.getItem('mc_preview_mode') as 'render' | 'local') : 'render') || 'render',
     latestPreviews: [],
+    activeTenant: (typeof window !== 'undefined' ? localStorage.getItem('mc_active_tenant') : 'getxo') || 'getxo',
+    tenants: ['core', 'getxo', 'realstate'],
 
     // Actions
     setServerUrl: (url) => {
@@ -220,6 +242,10 @@ export const useMissionStore = create<MissionState>((set, get) => ({
         set({ previewMode });
     },
     setLatestPreviews: (latestPreviews) => set({ latestPreviews }),
+    setActiveTenant: (activeTenant) => {
+        if (typeof window !== 'undefined') localStorage.setItem('mc_active_tenant', activeTenant);
+        set({ activeTenant });
+    },
 
     // Task Operations
     updateTask: async (id, updates) => {
@@ -268,4 +294,30 @@ export const useMissionStore = create<MissionState>((set, get) => ({
             console.error('Failed to approve task:', e);
         }
     },
+
+    fetchCerebroStatus: async () => {
+        const { serverUrl } = get();
+        try {
+            const res = await fetch(`${serverUrl}/api/v1/cerebro/status`);
+            if (res.ok) {
+                const data = await res.json();
+                set({ cerebro: data });
+            }
+        } catch (e) {
+            console.error('Failed to fetch Cerebro status:', e);
+            set({ cerebro: { status: 'unknown', embeddings: 'error', dimensions: 0, vectorDb: 'disconnected' } });
+        }
+    },
+
+    triggerCerebroRescan: async () => {
+        const { serverUrl } = get();
+        try {
+            const res = await fetch(`${serverUrl}/api/v1/cerebro/rescan`, { method: 'POST' });
+            if (res.ok) {
+                set({ cerebro: { ...get().cerebro, status: 'indexing' } });
+            }
+        } catch (e) {
+            console.error('Failed to trigger Cerebro rescan:', e);
+        }
+    }
 }));

@@ -2,6 +2,7 @@
 
 import { usePolling } from '@/hooks/usePolling';
 import { useMissionStore } from '@/store/useMissionStore';
+import { useState, useEffect } from 'react';
 import Dashboard from '@/components/Dashboard';
 import TaskLauncher from '@/components/TaskLauncher';
 import QueueHistory from '@/components/QueueHistory';
@@ -22,6 +23,14 @@ const views = {
 export default function MissionControlPage() {
     usePolling();
     const { activeTab } = useMissionStore();
+    const [isMounted, setIsMounted] = useState(false);
+
+    useEffect(() => {
+        setIsMounted(true);
+    }, []);
+
+    if (!isMounted) return null;
+
     const ActiveView = views[activeTab];
 
     return (

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useMissionStore } from '@/store/useMissionStore';
 import {
@@ -16,6 +16,13 @@ export default function ConnectionDiagnostics() {
     const [tempUrl, setTempUrl] = useState(serverUrl);
     const [isTesting, setIsTesting] = useState(false);
     const [testResult, setTestResult] = useState<{ success: boolean; msg: string } | null>(null);
+    const [isMounted, setIsMounted] = useState(false);
+
+    useEffect(() => {
+        setIsMounted(true);
+    }, []);
+
+    if (!isMounted) return null;
 
     const handleTestConnection = async () => {
         setIsTesting(true);
@@ -60,14 +67,14 @@ export default function ConnectionDiagnostics() {
     ];
 
     return (
-        <div className="flex flex-col gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500 overflow-y-auto pb-32 px-4">
+        <div suppressHydrationWarning className="flex flex-col gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500 overflow-y-auto pb-32 px-4">
             {/* Status Header */}
             <div className="bg-status-red/10 border-2 border-status-red/30 rounded-[2.5rem] p-8 text-center relative overflow-hidden mt-6">
                 <div className="absolute top-0 left-0 w-full h-1 bg-status-red/50 shadow-[0_0_20px_rgba(255,51,51,0.5)]" />
                 <div className="w-20 h-20 rounded-full bg-status-red/20 flex items-center justify-center mx-auto mb-6 border-2 border-status-red/40 shadow-2xl">
                     <WifiOff size={40} className="text-status-red animate-pulse" />
                 </div>
-                <h2 className="text-white text-2xl font-black uppercase tracking-tight mb-2">
+                <h2 suppressHydrationWarning className="text-white text-2xl font-black uppercase tracking-tight mb-2">
                     {t('dashboard.system_offline')}
                 </h2>
                 <p className="text-white/40 font-mono text-[10px] uppercase tracking-[0.2em]">
@@ -79,7 +86,7 @@ export default function ConnectionDiagnostics() {
             <div className="glass-panel rounded-[2rem] p-6 border-t-4 border-white/10">
                 <div className="flex items-center gap-3 mb-6">
                     <Terminal size={18} className="text-buoy-orange" />
-                    <h3 className="text-white font-black uppercase tracking-widest text-xs">{t('connection.diagnostic_title')}</h3>
+                    <h3 suppressHydrationWarning className="text-white font-black uppercase tracking-widest text-xs">{t('connection.diagnostic_title')}</h3>
                 </div>
 
                 <div className="space-y-6">

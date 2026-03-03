@@ -37,11 +37,14 @@ async function fetchWithTimeout(url: string, options: RequestInit & { timeout?: 
 
 async function request<T>(method: string, path: string, body?: unknown, retries = MAX_RETRIES): Promise<T> {
     const url = `${getBaseUrl()}${path}`;
+    const tenantId = typeof window !== 'undefined' ? localStorage.getItem('mc_active_tenant') || 'getxo' : 'getxo';
+
     const opts: RequestInit = {
         method,
         headers: {
             'Content-Type': 'application/json',
-            'X-Requested-With': 'MissionControlV3'
+            'X-Requested-With': 'MissionControlV3',
+            'X-Tenant-ID': tenantId
         },
     };
     if (body) opts.body = JSON.stringify(body);

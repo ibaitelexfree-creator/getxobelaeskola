@@ -7,10 +7,11 @@ import TacticalRadar from '@/components/TacticalRadar';
 import ResourceManager from '@/components/ResourceManager';
 import HardwareStats from './HardwareStats';
 import SyncHistoryGraph from './SyncHistoryGraph';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import ConnectionDiagnostics from '@/components/ConnectionDiagnostics';
+import TenantSelector from '@/components/TenantSelector';
 
 /* ═══════════════════════════════════════════════════
    SERVICE ITEM COMPONENT
@@ -71,10 +72,27 @@ function ServiceItemCard({ service, index, onAlert }: {
    MAIN DASHBOARD
 ═══════════════════════════════════════════════════ */
 export default function Dashboard() {
-    const { services, stats, pendingApproval, connected, lastSync, setActiveTab, julesWaiting } = useMissionStore();
+    const { services, stats, pendingApproval, connected, lastSync, setActiveTab, julesWaiting, cerebro, fetchCerebroStatus, triggerCerebroRescan } = useMissionStore();
     const { t } = useTranslation();
     const [alertService, setAlertService] = useState<ServiceItem | null>(null);
     const [isGeneratingReport, setIsGeneratingReport] = useState(false);
+    const [isMounted, setIsMounted] = useState(false);
+
+    useEffect(() => {
+        setIsMounted(true);
+    }, []);
+
+
+
+    useEffect(() => {
+        if (connected) {
+            fetchCerebroStatus();
+            const interval = setInterval(fetchCerebroStatus, 10000);
+            return () => clearInterval(interval);
+        }
+    }, [connected, fetchCerebroStatus]);
+
+    if (!isMounted) return null;
 
     const generateReport = async () => {
         setIsGeneratingReport(true);
@@ -175,7 +193,12 @@ export default function Dashboard() {
     ];
 
     return (
-        <div className="flex flex-col gap-6 pb-28">
+        <div suppressHydrationWarning className="flex flex-col gap-6 pb-28">
+
+            {/* ── Tenant & Product Selection ── */}
+            <div className="px-1">
+                <TenantSelector />
+            </div>
 
             {/* ── Status Banner ── */}
             <div className={`p-5 rounded-3xl border-2 flex items-center justify-between ${connected ? 'bg-status-green/20 border-status-green/40' : 'bg-status-red/20 border-status-red/40 animate-pulse'
@@ -183,7 +206,7 @@ export default function Dashboard() {
                 <div className="flex items-center gap-4">
                     <div className={`w-4 h-4 rounded-full ${connected ? 'bg-status-green' : 'bg-status-red'}`} />
                     <div>
-                        <h1 className="text-white text-3xl font-black uppercase leading-none">{connected ? t('dashboard.system_ready') : t('dashboard.system_offline')}</h1>
+                        <h1 suppressHydrationWarning className="text-white text-3xl font-black uppercase leading-none">{connected ? t('dashboard.system_ready') : t('dashboard.system_offline')}</h1>
                         <p className="text-white text-sm font-mono font-black mt-1 uppercase tracking-tighter">{t('dashboard.last_sync')}: {lastSync ? new Date(lastSync).toLocaleTimeString() : t('common.never')}</p>
                     </div>
                 </div>
@@ -260,67 +283,103 @@ export default function Dashboard() {
                 </div>
 
                 <p className="text-white/70 mb-6 font-bold text-lg max-w-2xl">
-                    Sintetiza la actividad técnica de los últimos 7 días y obtén una infografía y un podcast en audio español para compartir los avances del desarrollo.
+                    Sintetiza la actividad técnica, genera un reporte en Notebook LM, o re-indexa la memoria a largo plazo (Qdrant) apuntando a todos los repositorios activos vinculados al tenant.
                 </p>
 
-                <motion.button
-                    whileTap={{ scale: 0.95 }}
-                    disabled={isGeneratingReport}
-                    onClick={generateReport}
-                    className={`w-full lg:w-auto px-8 py-5 text-xl font-black rounded-3xl uppercase tracking-tighter border-2 flex items-center justify-center gap-3 transition-all ${isGeneratingReport
-                        ? 'bg-status-amber text-black border-status-amber/40 animate-pulse'
-                        : 'bg-status-blue text-black border-status-blue hover:bg-white hover:border-white shadow-[0_0_30px_rgba(0,180,216,0.3)]'
-                        }`}
-                >
-                    {isGeneratingReport ? (
-                        <>
-                            <Activity className="animate-spin" size={24} />
-                            Generando Reporte...
-                        </>
-                    ) : (
-                        <>
-                            🎙️ Crear Podcast e Infografía
-                        </>
-                    )}
-                </motion.button>
+                <div className="flex flex-col lg:flex-row gap-4">
+                    <motion.button
+                        whileTap={{ scale: 0.95 }}
+                        disabled={isGeneratingReport}
+                        onClick={generateReport}
+                        className={`flex-1 px-8 py-5 text-xl font-black rounded-3xl uppercase tracking-tighter border-2 flex items-center justify-center gap-3 transition-all ${isGeneratingReport
+                            ? 'bg-status-amber text-black border-status-amber/40 animate-pulse'
+                            : 'bg-status-blue text-black border-status-blue hover:bg-white hover:border-white shadow-[0_0_30px_rgba(0,180,216,0.3)]'
+                            }`}
+                    >
+                        {isGeneratingReport ? (
+                            <>
+                                <Activity className="animate-spin" size={24} />
+                                Generando Reporte...
+                            </>
+                        ) : (
+                            <>
+                                🎙️ Crear Podcast
+                            </>
+                        )}
+                    </motion.button>
+
+                    <motion.button
+                        whileTap={{ scale: 0.95 }}
+                        disabled={cerebro.status === 'indexing'}
+                        onClick={triggerCerebroRescan}
+                        className={`flex-1 px-8 py-5 text-xl font-black rounded-3xl uppercase tracking-tighter border-2 flex items-center justify-center gap-3 transition-all ${cerebro.status === 'indexing'
+                            ? 'bg-status-amber text-black border-status-amber/40 animate-pulse'
+                            : 'bg-black/50 text-white border-white/20 hover:border-white/50'
+                            }`}
+                    >
+                        {cerebro.status === 'indexing' ? (
+                            <>
+                                <Activity className="animate-spin" size={24} />
+                                Indexando Base de Datos...
+                            </>
+                        ) : (
+                            <>
+                                🔄 Re-escaneo Inteligente
+                            </>
+                        )}
+                    </motion.button>
+                </div>
+
+                <div className="mt-6 flex flex-wrap gap-4 items-center">
+                    <span className="text-white/60 text-xs font-black uppercase tracking-widest">Estado Memoria:</span>
+                    <span className={`text-xs font-bold uppercase py-1 px-3 rounded-full ${cerebro.status === 'idle' ? 'bg-status-green/20 text-status-green border border-status-green/50' : 'bg-status-amber/20 text-status-amber border border-status-amber/50'}`}>
+                        {cerebro.status === 'idle' ? 'ONLINE (Sincronizado)' : 'INDEXANDO (Operativo)'}
+                    </span>
+                    <span className="text-xs font-mono text-white/50">Vectores: {cerebro.dimensions}d</span>
+                    <span className="text-xs font-mono text-white/50">Modelo: {cerebro.embeddings}</span>
+                </div>
             </div>
 
             {/* ── Pending Approvals (High Visibility) ── */}
-            {pendingApproval && (
-                <motion.div
-                    initial={{ scale: 0.9, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    className="p-8 rounded-[3rem] bg-white border-8 border-status-amber shadow-[0_0_80px_rgba(255,255,255,0.4)]"
-                >
-                    <div className="flex items-center gap-4 mb-6">
-                        <AlertTriangle size={48} className="text-status-amber" />
-                        <h2 className="text-black text-3xl font-black uppercase leading-tight">{t('dashboard.action_required')}</h2>
-                    </div>
-                    <p className="text-black font-black text-xl leading-snug mb-8">{pendingApproval.task}</p>
-                    <div className="flex gap-4">
-                        <button className="flex-1 py-5 bg-black text-white text-2xl font-black rounded-3xl uppercase tracking-tighter active:scale-95 transition-transform">{t('common.confirm')}</button>
-                        <button className="flex-1 py-5 bg-black/10 text-black text-2xl font-black rounded-3xl uppercase tracking-tighter border-2 border-black/20">{t('common.skip')}</button>
-                    </div>
-                </motion.div>
-            )}
+            {
+                pendingApproval && (
+                    <motion.div
+                        initial={{ scale: 0.9, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        className="p-8 rounded-[3rem] bg-white border-8 border-status-amber shadow-[0_0_80px_rgba(255,255,255,0.4)]"
+                    >
+                        <div className="flex items-center gap-4 mb-6">
+                            <AlertTriangle size={48} className="text-status-amber" />
+                            <h2 className="text-black text-3xl font-black uppercase leading-tight">{t('dashboard.action_required')}</h2>
+                        </div>
+                        <p className="text-black font-black text-xl leading-snug mb-8">{pendingApproval.task}</p>
+                        <div className="flex gap-4">
+                            <button className="flex-1 py-5 bg-black text-white text-2xl font-black rounded-3xl uppercase tracking-tighter active:scale-95 transition-transform">{t('common.confirm')}</button>
+                            <button className="flex-1 py-5 bg-black/10 text-black text-2xl font-black rounded-3xl uppercase tracking-tighter border-2 border-black/20">{t('common.skip')}</button>
+                        </div>
+                    </motion.div>
+                )
+            }
 
             {/* ── Service Groups ── */}
-            {groups.map((group) => (
-                <div key={group.title} className="mb-10">
-                    <div className="flex items-center gap-4 mb-6 px-2">
-                        {group.icon}
-                        <h3 className="text-white text-lg font-black uppercase tracking-[0.2em]">{group.title}</h3>
+            {
+                groups.map((group) => (
+                    <div key={group.title} className="mb-10">
+                        <div className="flex items-center gap-4 mb-6 px-2">
+                            {group.icon}
+                            <h3 className="text-white text-lg font-black uppercase tracking-[0.2em]">{group.title}</h3>
+                        </div>
+                        {group.items.map((item, i) => (
+                            <ServiceItemCard
+                                key={item.id}
+                                service={item as any}
+                                index={i}
+                                onAlert={(s) => setAlertService(s)}
+                            />
+                        ))}
                     </div>
-                    {group.items.map((item, i) => (
-                        <ServiceItemCard
-                            key={item.id}
-                            service={item as any}
-                            index={i}
-                            onAlert={(s) => setAlertService(s)}
-                        />
-                    ))}
-                </div>
-            ))}
+                ))
+            }
 
             {/* ── Error Modal (High Emphasis) ── */}
             <AnimatePresence>
@@ -355,6 +414,6 @@ export default function Dashboard() {
                     </motion.div>
                 )}
             </AnimatePresence>
-        </div>
+        </div >
     );
 }
