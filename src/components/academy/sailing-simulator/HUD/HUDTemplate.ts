@@ -3,11 +3,11 @@ export const getHUDTemplate = (labels: any) => `
     <div id="panel-score" class="hud-panel" style="display: flex; flex-direction: column; align-items: flex-start;">
         <div style="display: flex; gap: 20px; align-items: center;">
             <div>
-                <div class="hud-label">${labels.score || 'PUNTUACIÓN'}</div>
+                <div class="hud-label">${labels.score || "PUNTUACIÓN"}</div>
                 <div class="hud-value" id="score-display">000000</div>
             </div>
             <div>
-                <div class="hud-label">${labels.buoys || 'BOYAS RECOGIDAS'}</div>
+                <div class="hud-label">${labels.buoys || "BOYAS RECOGIDAS"}</div>
                 <div class="hud-value" id="buoy-display">0 / 5</div>
             </div>
         </div>
@@ -21,10 +21,10 @@ export const getHUDTemplate = (labels: any) => `
     <!-- Instruments -->
     <div id="panel-instruments" class="hud-panel">
         <div class="instrument-group">
-            <div class="hud-label">${labels.speed || 'VELOCIDAD'}</div>
+            <div class="hud-label">${labels.speed || "VELOCIDAD"}</div>
             <div class="hud-value" style="font-size: 20px;">
                 <span id="speed-val">0.0</span>
-                <div class="hud-unit" style="display:inline-block; font-size:10px;">${labels.knots || 'NUDOS'}</div>
+                <div class="hud-unit" style="display:inline-block; font-size:10px;">${labels.knots || "NUDOS"}</div>
                 <div id="speed-kmh" style="font-size: 14px; color: #88ccff; margin-top:-4px;">0 km/h</div>
             </div>
         </div>
@@ -32,12 +32,12 @@ export const getHUDTemplate = (labels: any) => `
         <div style="width: 1px; height: 30px; background: rgba(255,255,255,0.2);"></div>
 
         <div class="instrument-group" style="width: 140px;">
-            <div class="hud-label">${labels.efficiency || 'EFICIENCIA'}</div>
+            <div class="hud-label">${labels.efficiency || "EFICIENCIA"}</div>
             <div class="trim-gauge">
                 <div id="trim-bar" class="trim-fill"></div>
             </div>
             <div class="hud-unit" style="margin-top: 4px; font-size: 10px;">
-                <span id="trim-val">0</span>% ${labels.optimal || 'ÓPTIMO'}
+                <span id="trim-val">0</span>% ${labels.optimal || "ÓPTIMO"}
             </div>
         </div>
     </div>

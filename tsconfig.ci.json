@@ -1,0 +1,16 @@
+{
+  "extends": "./tsconfig.json",
+  "exclude": [
+    "apps",
+    "node_modules",
+    "supabase/functions",
+    "mission-control",
+    "orchestration",
+    "scripts",
+    "mission-control.db",
+    ".jules_bases",
+    ".agent",
+    ".Jules",
+    ".openclaw"
+  ]
+}

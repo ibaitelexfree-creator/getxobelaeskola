@@ -1,27 +1,27 @@
 import {
-    Mesh,
-    Scene,
-    PlaneGeometry,
-    ShaderMaterial,
-    Color,
-    DoubleSide,
-    SphereGeometry,
-    BackSide
-} from 'three';
+	BackSide,
+	Color,
+	DoubleSide,
+	Mesh,
+	PlaneGeometry,
+	type Scene,
+	ShaderMaterial,
+	SphereGeometry,
+} from "three";
 
 export class EnvironmentManager {
-    private water: Mesh;
-    private sky: Mesh;
+	private water: Mesh;
+	private sky: Mesh;
 
-    constructor(scene: Scene) {
-        // Water
-        const waterGeometry = new PlaneGeometry(1000, 1000, 100, 100);
-        const waterMaterial = new ShaderMaterial({
-            uniforms: {
-                uTime: { value: 0 },
-                uColor: { value: new Color(0x004488) },
-            },
-            vertexShader: `
+	constructor(scene: Scene) {
+		// Water
+		const waterGeometry = new PlaneGeometry(1000, 1000, 100, 100);
+		const waterMaterial = new ShaderMaterial({
+			uniforms: {
+				uTime: { value: 0 },
+				uColor: { value: new Color(0x004488) },
+			},
+			vertexShader: `
                 uniform float uTime;
                 varying vec2 vUv;
                 varying float vElevation;
@@ -41,7 +41,7 @@ export class EnvironmentManager {
                     gl_Position = projectedPosition;
                 }
             `,
-            fragmentShader: `
+			fragmentShader: `
                 uniform vec3 uColor;
                 varying float vElevation;
                 
@@ -51,26 +51,26 @@ export class EnvironmentManager {
                     gl_FragColor = vec4(color, 0.9);
                 }
             `,
-            transparent: true,
-            side: DoubleSide,
-        });
+			transparent: true,
+			side: DoubleSide,
+		});
 
-        this.water = new Mesh(waterGeometry, waterMaterial);
-        this.water.rotation.x = -Math.PI / 2;
-        this.water.receiveShadow = true;
-        scene.add(this.water);
+		this.water = new Mesh(waterGeometry, waterMaterial);
+		this.water.rotation.x = -Math.PI / 2;
+		this.water.receiveShadow = true;
+		scene.add(this.water);
 
-        // Sky
-        const skyGeometry = new SphereGeometry(1000, 32, 32);
-        const skyMaterial = new ShaderMaterial({
-            side: BackSide,
-            uniforms: {
-                topColor: { value: new Color(0x0077ff) },
-                bottomColor: { value: new Color(0xffffff) },
-                offset: { value: 33 },
-                exponent: { value: 0.6 }
-            },
-            vertexShader: `
+		// Sky
+		const skyGeometry = new SphereGeometry(1000, 32, 32);
+		const skyMaterial = new ShaderMaterial({
+			side: BackSide,
+			uniforms: {
+				topColor: { value: new Color(0x0077ff) },
+				bottomColor: { value: new Color(0xffffff) },
+				offset: { value: 33 },
+				exponent: { value: 0.6 },
+			},
+			vertexShader: `
                 varying vec3 vWorldPosition;
                 void main() {
                     vec4 worldPosition = modelMatrix * vec4(position, 1.0);
@@ -78,7 +78,7 @@ export class EnvironmentManager {
                     gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
                 }
             `,
-            fragmentShader: `
+			fragmentShader: `
                 uniform vec3 topColor;
                 uniform vec3 bottomColor;
                 uniform float offset;
@@ -88,15 +88,15 @@ export class EnvironmentManager {
                     float h = normalize(vWorldPosition + offset).y;
                     gl_FragColor = vec4(mix(bottomColor, topColor, max(pow(max(h, 0.0), exponent), 0.0)), 1.0);
                 }
-            `
-        });
-        this.sky = new Mesh(skyGeometry, skyMaterial);
-        scene.add(this.sky);
-    }
+            `,
+		});
+		this.sky = new Mesh(skyGeometry, skyMaterial);
+		scene.add(this.sky);
+	}
 
-    update(time: number) {
-        if (this.water.material instanceof ShaderMaterial) {
-            this.water.material.uniforms.uTime.value = time;
-        }
-    }
+	update(time: number) {
+		if (this.water.material instanceof ShaderMaterial) {
+			this.water.material.uniforms.uTime.value = time;
+		}
+	}
 }

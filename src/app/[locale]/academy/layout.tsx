@@ -1,20 +1,20 @@
-import dynamic from 'next/dynamic';
+import dynamic from "next/dynamic";
 
-const Chatbot = dynamic(() => import('@/components/academy/Chatbot'), {
-    ssr: false
+const Chatbot = dynamic(() => import("@/components/academy/Chatbot"), {
+	ssr: false,
 });
 
 export default function AcademyLayout({
-    children,
-    params: { locale }
+	children,
+	params: { locale },
 }: {
-    children: React.ReactNode;
-    params: { locale: string };
+	children: React.ReactNode;
+	params: { locale: string };
 }) {
-    return (
-        <div className="min-h-screen bg-nautical-black relative">
-            {children}
-            <Chatbot />
-        </div>
-    );
+	return (
+		<div className="min-h-screen bg-nautical-black relative">
+			{children}
+			<Chatbot />
+		</div>
+	);
 }

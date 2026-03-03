@@ -1,33 +1,33 @@
-import { WebGLRenderer, PerspectiveCamera } from 'three';
+import type { PerspectiveCamera, WebGLRenderer } from "three";
 
 export class ResizeHandler {
-    static handleResize(
-        container: HTMLElement,
-        renderer: WebGLRenderer,
-        camera: PerspectiveCamera
-    ) {
-        const width = container.clientWidth;
-        const height = container.clientHeight;
+	static handleResize(
+		container: HTMLElement,
+		renderer: WebGLRenderer,
+		camera: PerspectiveCamera,
+	) {
+		const width = container.clientWidth;
+		const height = container.clientHeight;
 
-        camera.aspect = width / height;
-        camera.updateProjectionMatrix();
+		camera.aspect = width / height;
+		camera.updateProjectionMatrix();
 
-        renderer.setSize(width, height, false);
-    }
+		renderer.setSize(width, height, false);
+	}
 
-    static observe(
-        container: HTMLElement,
-        renderer: WebGLRenderer,
-        camera: PerspectiveCamera
-    ): () => void {
-        const resizeObserver = new ResizeObserver(() => {
-            this.handleResize(container, renderer, camera);
-        });
+	static observe(
+		container: HTMLElement,
+		renderer: WebGLRenderer,
+		camera: PerspectiveCamera,
+	): () => void {
+		const resizeObserver = new ResizeObserver(() => {
+			ResizeHandler.handleResize(container, renderer, camera);
+		});
 
-        resizeObserver.observe(container);
+		resizeObserver.observe(container);
 
-        return () => {
-            resizeObserver.disconnect();
-        };
-    }
+		return () => {
+			resizeObserver.disconnect();
+		};
+	}
 }
