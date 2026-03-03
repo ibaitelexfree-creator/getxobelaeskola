@@ -6,19 +6,33 @@ import axios from 'axios';
 const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 // Correct Webhook URL: https://controlmanager.cloud/realstate/api/telegram/webhook/
 
-async function sendTelegramMessage(chatId: number, text: string, replyMarkup?: any) {
-    const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
+async function sendTelegram(method: 'sendMessage' | 'sendPhoto', payload: any) {
+    const url = `https://api.telegram.org/bot${BOT_TOKEN}/${method}`;
     try {
-        await axios.post(url, {
-            chat_id: chatId,
-            text: text,
-            parse_mode: 'Markdown',
-            reply_markup: replyMarkup
-        });
+        await axios.post(url, payload);
     } catch (error: any) {
-        console.error('Telegram API Error (sendMessage):', error.response?.status, error.response?.data || error.message);
+        console.error(`Telegram API Error (${method}):`, error.response?.status, error.response?.data || error.message);
         throw error;
     }
+}
+
+async function sendTelegramMessage(chatId: number, text: string, replyMarkup?: any) {
+    await sendTelegram('sendMessage', {
+        chat_id: chatId,
+        text: text,
+        parse_mode: 'Markdown',
+        reply_markup: replyMarkup
+    });
+}
+
+async function sendTelegramPhoto(chatId: number, photoUrl: string, caption: string, replyMarkup?: any) {
+    await sendTelegram('sendPhoto', {
+        chat_id: chatId,
+        photo: photoUrl,
+        caption: caption,
+        parse_mode: 'Markdown',
+        reply_markup: replyMarkup
+    });
 }
 
 export async function POST(req: NextRequest) {
@@ -135,22 +149,38 @@ export async function POST(req: NextRequest) {
             // Trigger n8n
             await triggerN8nVideo(propertyId, chatId);
 
-            // Send result summary
-            const resultMessage =
-                `✨ *Content Generated for ${property.title}*\n\n` +
-                `📸 *Instagram:* \`${content.instagram_post.substring(0, 100)}...\`\n\n` +
-                `💬 *WhatsApp:* \`${content.whatsapp_message}\`\n\n` +
-                `🎬 *Video:* Rendering initiated via n8n. You will receive an alert once it's ready! 🚀\n\n` +
-                `Ready to publish?`;
+            // Construct Links
+            const webUrl = `${process.env.NEXT_PUBLIC_APP_URL}/properties/${property.id}`;
+            const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(property.location)}`;
+            const waUrl = `https://wa.me/447541364266?text=${encodeURIComponent(`Hello! I'm interested in the property: ${property.title} (${webUrl})`)}`;
+
+            // Formatting
+            const price_formatted = new Intl.NumberFormat('en-AE', { style: 'currency', currency: 'AED' }).format(Number(property.price));
+
+            const resultCaption =
+                `✨ *Property Promotion Ready: ${property.title}*\n\n` +
+                `💰 *Price:* ${price_formatted}\n` +
+                `📍 *Location:* [${property.location}](${mapUrl})\n\n` +
+                `🔗 [View details on the website](${webUrl})\n` +
+                `💬 [Contact Agent via WhatsApp](${waUrl})\n\n` +
+                `🎬 *Status:* Video rendering started via n8n. You will receive an alert once it's ready! 🚀`;
 
             const publishKeyboard = {
                 inline_keyboard: [
                     [{ text: "🚀 Publish to All Networks", callback_data: `publish_${propertyId}` }],
-                    [{ text: "📝 Edit in Dashboard", url: `${process.env.NEXT_PUBLIC_APP_URL}/admin/marketing` }]
+                    [{ text: "📝 Edit in Marketing Dashboard", url: `${process.env.NEXT_PUBLIC_APP_URL}/admin/marketing` }]
                 ]
             };
 
-            await sendTelegramMessage(chatId, resultMessage, publishKeyboard);
+            // Send as Photo if available, otherwise as text
+            const firstImage = Array.isArray(property.images) && property.images.length > 0 ? property.images[0] : null;
+
+            if (firstImage) {
+                await sendTelegramPhoto(chatId, firstImage, resultCaption, publishKeyboard);
+            } else {
+                await sendTelegramMessage(chatId, resultCaption, publishKeyboard);
+            }
+
             return NextResponse.json({ ok: true });
         }
 
