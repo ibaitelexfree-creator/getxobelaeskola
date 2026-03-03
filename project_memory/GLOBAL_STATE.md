@@ -1,11 +1,12 @@
 # Estado Global del Proyecto
-Última actualización: 2026-02-24 06:50 UTC
+Última actualización: 2026-03-03 07:50 UTC
 
 ## Ramas Activas
 | Rama | Agente | Estado | Descripción |
 |------|--------|--------|-------------|
 | main | - | Estable | Producción |
-| feature/jules-weather-tests | Jules | en_curso | Testing improvements for weather data |
+| feature/jules-weather-tests | Jules | completado | Testing improvements for weather data |
+| jules/fix-middleware-test-coverage | Jules | en_curso | Add error path coverage for middleware.ts |
 
 ## Tareas en Curso
 | ID | Agente | Tarea | Inicio | Estado |
@@ -18,6 +19,7 @@
 | T-007 | Antigravity | Notion Premium Dashboard Refactor & Update | 2026-02-23 | completado |
 | T-008 | Jules | Strengthen edge-case coverage for fetchWeatherData | 2026-02-24 | completado |
 | T-009 | Jules | Optimize Dashboard Stats API | 2026-02-23 | completado |
+| T-010 | Jules | Add error path coverage for middleware.ts | 2026-03-03 | completado |
 
 ## Bloqueos / Conflictos
 Ninguno actualmente.
