@@ -431,10 +431,13 @@ export class NotionSyncService {
         const results: Promise<unknown>[] = [];
         const executing: Promise<unknown>[] = [];
         for (const item of items) {
-            const p = Promise.resolve().then(() => fn(item));
+            const p = (async () => fn(item))();
             results.push(p);
             if (limit <= items.length) {
-                const e: Promise<unknown> = p.then(() => executing.splice(executing.indexOf(e), 1));
+                const e: Promise<unknown> = p.finally(() => {
+                    const index = executing.indexOf(e);
+                    if (index !== -1) executing.splice(index, 1);
+                });
                 executing.push(e);
                 if (executing.length >= limit) {
                     await Promise.race(executing);
