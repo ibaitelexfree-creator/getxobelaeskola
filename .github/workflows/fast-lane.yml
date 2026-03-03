@@ -5,14 +5,14 @@ on:
     branches: [main, master, "feature/**", "fix/**"]
     paths:
       - "src/**"
-      - "mission-control/**"
+      - "apps/mission-control-ui/**"
       - "orchestration/**"
       - ".github/workflows/fast-lane.yml"
   pull_request:
     branches: [main, master]
     paths:
       - "src/**"
-      - "mission-control/**"
+      - "apps/mission-control-ui/**"
       - "orchestration/**"
       - ".github/workflows/fast-lane.yml"
 
@@ -42,7 +42,7 @@ jobs:
           wait
 
       - name: "📦 Install Deps (Cached)"
-        run: npm ci --legacy-peer-deps --prefer-offline --no-audit --no-fund --loglevel=error
+        run: npm install --legacy-peer-deps --prefer-offline --no-audit --no-fund --loglevel=error
 
       - name: "🧪 Type Check (Root)"
         env:
@@ -51,6 +51,6 @@ jobs:
 
       - name: "🧪 Type Check (Mission Control)"
         run: |
-          cd mission-control
-          npm ci --legacy-peer-deps --prefer-offline --no-audit --no-fund --loglevel=error
-          npx tsc --noEmit && echo "✅ Mission Control TypeScript Passed"
+          cd apps/mission-control-ui
+          npm install --legacy-peer-deps --prefer-offline --no-audit --no-fund --loglevel=error
+          NODE_OPTIONS="--max_old_space_size=4096" npx tsc --noEmit && echo "✅ Mission Control TypeScript Passed"
