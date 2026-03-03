@@ -30,7 +30,7 @@ export default function Home() {
         <NeighborhoodGrid />
         <CTASection />
       </main>
-      <Footer />
+      <Footer locale="en" />
     </>
   );
 }

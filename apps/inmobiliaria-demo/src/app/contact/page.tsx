@@ -151,7 +151,7 @@ export default function ContactPage() {
                     </div>
                 </section>
             </main>
-            <Footer />
+            <Footer locale="en" />
             <style jsx>{`
         @media (max-width: 1024px) {
           .container > div { grid-template-columns: 1fr !important; gap: 4rem !important; }

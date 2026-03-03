@@ -280,7 +280,7 @@ export default function PropertiesPage() {
             <Suspense fallback={<div className="container" style={{ padding: '20vh' }}>Loading properties...</div>}>
                 <PropertiesContent />
             </Suspense>
-            <Footer />
+            <Footer locale="en" />
             <style jsx>{`
         @media (max-width: 1024px) {
           .container > div { grid-template-columns: 1fr !important; }

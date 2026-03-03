@@ -54,7 +54,7 @@ export default async function PropertyDetailPage({ params }: PageProps) {
                 similarProperties={similarProperties}
                 formattedPrice={formattedPrice}
             />
-            <Footer />
+            <Footer locale="en" />
         </>
     );
 }

@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 
-const Footer = () => {
+const Footer = ({ locale }: { locale: string }) => {
     const currentYear = new Date().getFullYear();
 
     return (
