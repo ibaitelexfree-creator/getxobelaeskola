@@ -5,14 +5,14 @@ on:
     branches: [main, master, "feature/**", "fix/**"]
     paths:
       - "src/**"
-      - "mission-control/**"
+      - "apps/**"
       - "orchestration/**"
       - ".github/workflows/fast-lane.yml"
   pull_request:
     branches: [main, master]
     paths:
       - "src/**"
-      - "mission-control/**"
+      - "apps/**"
       - "orchestration/**"
       - ".github/workflows/fast-lane.yml"
 
@@ -49,8 +49,18 @@ jobs:
           NODE_OPTIONS: "--max_old_space_size=4096"
         run: npx tsc --noEmit && echo "✅ Root TypeScript Passed"
 
-      - name: "🧪 Type Check (Mission Control)"
+      - name: "🧪 Type Check (Apps)"
         run: |
-          cd mission-control
-          npm ci --legacy-peer-deps --prefer-offline --no-audit --no-fund --loglevel=error
-          npx tsc --noEmit && echo "✅ Mission Control TypeScript Passed"
+          for app in apps/*; do
+            if [ -d "$app" ] && [ -f "$app/package.json" ]; then
+              echo "Checking $app..."
+              cd "$app"
+              if [ -f "package-lock.json" ]; then
+                npm ci --legacy-peer-deps --prefer-offline --no-audit --no-fund --loglevel=error
+              else
+                npm install --legacy-peer-deps --prefer-offline --no-audit --no-fund --loglevel=error
+              fi
+              npx tsc --noEmit && echo "✅ $app TypeScript Passed"
+              cd - > /dev/null
+            fi
+          done
