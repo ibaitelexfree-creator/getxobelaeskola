@@ -1,9 +1,9 @@
 import jwt from 'jsonwebtoken';
 
-const PRIVATE_KEY = process.env.EUSKALMET_PRIVATE_KEY?.replace(/\\n/g, '\n');
-const EMAIL = process.env.EUSKALMET_EMAIL || 'info@getxobelaeskola.com';
-
 export function generateEuskalmetToken() {
+    const PRIVATE_KEY = process.env.EUSKALMET_PRIVATE_KEY?.replace(/\\n/g, '\n');
+    const EMAIL = process.env.EUSKALMET_EMAIL || 'info@getxobelaeskola.com';
+
     if (!PRIVATE_KEY) {
         throw new Error('EUSKALMET_PRIVATE_KEY is not defined');
     }
@@ -24,18 +24,18 @@ export function generateEuskalmetToken() {
 export async function fetchEuskalmetStationData(stationId: string) {
     try {
         const token = generateEuskalmetToken();
-        if (!token) return null;
-        const url = `https://api.euskadi.eus/met01/euskalmet/stations/${stationId}/current`;
+        const url = "https://api.euskadi.eus/met01/euskalmet/stations/" + stationId + "/current";
 
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 5000);
 
         const res = await fetch(url, {
             headers: {
-                'Authorization': `Bearer ${token}`,
+                'Authorization': "Bearer " + token,
                 'Accept': 'application/json'
             },
             signal: controller.signal,
+            // @ts-ignore - next is a property used by Next.js fetch extension
             next: { revalidate: 600 }
         });
 
@@ -52,7 +52,6 @@ export async function fetchEuskalmetStationData(stationId: string) {
 export async function fetchEuskalmetAlerts() {
     try {
         const token = generateEuskalmetToken();
-        if (!token) return [];
         const now = new Date();
         const yyyy = now.getFullYear();
         const mm = String(now.getMonth() + 1).padStart(2, '0');
@@ -60,16 +59,17 @@ export async function fetchEuskalmetAlerts() {
 
         // Try both 'costa' and '1' for Costa Bizkaia
         const endpoints = [
-            `https://api.euskadi.eus/met01/euskalmet/alerts/forRegion/1/at/${yyyy}/${mm}/${dd}`,
-            `https://api.euskadi.eus/met01/euskalmet/alerts/forRegionZone/costa/at/${yyyy}/${mm}/${dd}`
+            "https://api.euskadi.eus/met01/euskalmet/alerts/forRegion/1/at/" + yyyy + "/" + mm + "/" + dd,
+            "https://api.euskadi.eus/met01/euskalmet/alerts/forRegionZone/costa/at/" + yyyy + "/" + mm + "/" + dd
         ];
 
         for (const url of endpoints) {
             const res = await fetch(url, {
                 headers: {
-                    'Authorization': `Bearer ${token}`,
+                    'Authorization': "Bearer " + token,
                     'Accept': 'application/json'
                 },
+                // @ts-ignore - next is a property used by Next.js fetch extension
                 next: { revalidate: 3600 }
             });
 
