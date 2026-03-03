@@ -7,8 +7,10 @@ RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
 # Install dependencies based on the preferred package manager
-COPY apps/mission-control-ui/package.json apps/mission-control-ui/package-lock.json ./
-RUN npm ci --legacy-peer-deps
+COPY apps/mission-control-ui/package.json ./
+# If package-lock.json exists, copy it. Otherwise skip.
+COPY apps/mission-control-ui/package*.json ./
+RUN npm install --legacy-peer-deps
 
 # Rebuild the source code only when needed
 FROM base AS builder

@@ -86,7 +86,7 @@ export default function TacticalRadar() {
             : services.watchdog.state === 'STALLED' ? 'degraded' : 'offline';
 
         // 1. Calculate usage-based distances
-        // Formula: distance = 90 - (normalizedUsage * 70) 
+        // Formula: distance = 90 - (normalizedUsage * 70)
         // -> Usage 0% = Distance 90 (Edge)
         // -> Usage 100% = Distance 20 (Center)
 

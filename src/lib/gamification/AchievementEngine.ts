@@ -1,7 +1,7 @@
 
 /**
  * Lightweight Achievement Engine
- * 
+ *
  * Purpose: Evaluate mission results against a set of rules to unlock achievements.
  * Design: Pure functions, Rule-based, Extensible.
  */
@@ -96,13 +96,13 @@ export const checkAchievements = (missionType: string, score: number): string[] 
         console.log(`🏆 Achievements Unlocked: ${unlocked.join(', ')}`);
 
         // In a real app, you might dispatch a store action here if this wasn't pure:
-        // useNotificationStore.getState()... 
+        // useNotificationStore.getState()...
         // But per requirements, we keep it pure-ish mostly or just return IDs.
 
         // HOWEVER, the existing component expects this function to DO something (like notify).
         // Since the requirement said "Return unlocked achievement IDs", the caller should handle the notifying.
         // But to avoid breaking the existing call site which ignores the return value:
-        // We will keep the side-effect here strictly for compatibility if needed, 
+        // We will keep the side-effect here strictly for compatibility if needed,
         // OR we rely on the caller to update.
         // The previous file had: console.log(...) and comments about triggering store.
     }

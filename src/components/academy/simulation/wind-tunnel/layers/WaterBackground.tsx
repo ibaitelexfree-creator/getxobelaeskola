@@ -19,7 +19,7 @@ export const WaterBackground: React.FC<WaterBackgroundProps> = ({ physicsRef }) 
         let animationFrameId: number;
         let offsetYSpeed = 0; // Vertical scroll offset (boat moving forward)
         // We simulate infinite scrolling water texture moving DOWN to simulate boat moving UP/NORTH
-        // Physics: Y negative is North. 
+        // Physics: Y negative is North.
         // If boat moves North (positive speed), texture moves South (positive Y).
 
         // Setup scaling

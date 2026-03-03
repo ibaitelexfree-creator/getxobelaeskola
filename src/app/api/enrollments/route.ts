@@ -8,7 +8,7 @@ export const dynamic = 'force-dynamic';
 
 /**
  * GET /api/enrollments
- * 
+ *
  * Returns the list of course IDs that the currently authenticated user
  * has successfully purchased.
  */

@@ -269,4 +269,3 @@ export default function StudySessionsHistory({ locale = 'es' }: { locale?: strin
         </section >
     );
 }
-

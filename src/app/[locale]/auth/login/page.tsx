@@ -22,4 +22,3 @@ export default function LoginPage({
 }) {
     return <LoginPageClient locale={locale} />;
 }
-
