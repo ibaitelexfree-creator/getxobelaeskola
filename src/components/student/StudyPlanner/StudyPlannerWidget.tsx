@@ -7,7 +7,6 @@ import WeeklyCalendar from './WeeklyCalendar';
 import SessionModal from './SessionModal';
 import GoalProgress from './GoalProgress';
 import { subMinutes } from 'date-fns';
-import { Capacitor } from '@capacitor/core';
 
 interface StudyPlannerWidgetProps {
     locale: string;
@@ -53,6 +52,7 @@ export default function StudyPlannerWidget({ locale }: StudyPlannerWidgetProps) 
     };
 
     const scheduleNotification = async (session: StudySession) => {
+        const { Capacitor } = await import('@capacitor/core');
         if (!Capacitor.isNativePlatform()) return;
 
         try {
@@ -101,6 +101,7 @@ export default function StudyPlannerWidget({ locale }: StudyPlannerWidgetProps) 
     };
 
     const cancelNotification = async (sessionId: string) => {
+        const { Capacitor } = await import('@capacitor/core');
         if (!Capacitor.isNativePlatform()) return;
 
         try {

@@ -1,7 +1,9 @@
 export async function register() {
   if (process.env.NEXT_RUNTIME === 'nodejs') {
     try {
-      const dns = await import('node:dns');
+      // Use require for Node.js-only module to avoid Edge runtime bundling issues during build
+      // @ts-ignore - require is available in nodejs runtime
+      const dns = require('node:dns');
       if (dns.setDefaultResultOrder) {
         dns.setDefaultResultOrder('ipv4first');
       }
