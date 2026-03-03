@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { createClient } from '@/lib/supabase/client';
+import { generateSecureRoomCode } from '@/lib/secureRandom';
 import { RealtimeChannel, RealtimePostgresChangesPayload } from '@supabase/supabase-js';
 import { RaceLobby, RaceParticipant, MultiplayerBoatState } from '@/types/competition';
 
@@ -32,7 +33,7 @@ export const useMultiplayerStore = create<MultiplayerStore>((set, get) => ({
     isHost: false,
 
     createLobby: async (userId: string, username: string) => {
-        const code = crypto.randomUUID().substring(0, 6).toUpperCase();
+        const code = generateSecureRoomCode(6);
 
         const { data: lobby, error } = await supabase
             .from('race_lobbies')
@@ -91,7 +92,7 @@ export const useMultiplayerStore = create<MultiplayerStore>((set, get) => ({
             .single();
 
         if (!existing) {
-             const { error: joinError } = await supabase
+            const { error: joinError } = await supabase
                 .from('race_participants')
                 .insert({
                     lobby_id: lobby.id,
@@ -193,7 +194,7 @@ export const useMultiplayerStore = create<MultiplayerStore>((set, get) => ({
         // Trigger a countdown via broadcast? Or just rely on status change.
         // Status change to 'racing' is simpler.
         setTimeout(async () => {
-             await supabase
+            await supabase
                 .from('race_lobbies')
                 .update({ status: 'racing' })
                 .eq('id', lobby.id);
