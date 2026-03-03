@@ -13,9 +13,14 @@ vi.mock('@supabase/ssr', () => ({
 // Mock next/server to ensure NextResponse.next() returns something we can modify
 vi.mock('next/server', async () => {
     const actual = await vi.importActual<typeof import('next/server')>('next/server');
+
+    // We need to handle the fact that actual.NextResponse might not be a simple class in all environments
+    // But since we are in a test environment, we can assume it's available or mock its constructor behavior
+
     const mockedNextResponse = {
         ...actual.NextResponse,
         next: vi.fn().mockImplementation((options) => {
+            // Create a basic response object
             const res = new actual.NextResponse(null);
             if (options?.request?.headers) {
                 options.request.headers.forEach((value: string, key: string) => {
