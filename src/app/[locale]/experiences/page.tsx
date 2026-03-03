@@ -76,7 +76,7 @@ export default async function ExperiencesPage({ params: { locale } }: { params: 
                 .limit(50);
 
             if (fallbackError) {
-                console.error('Fallback error:', fallbackError.message);
+                if (process.env.NODE_ENV !== 'production') console.error('Fallback error:', fallbackError.message);
             } else {
                 experiences = (fallbackData || []).map(item => ({
                     id: item.id,
@@ -117,7 +117,7 @@ export default async function ExperiencesPage({ params: { locale } }: { params: 
             }));
         }
     } catch (err) {
-        console.error('Network error fetching experiences:', err);
+        if (process.env.NODE_ENV !== 'production') console.error('Network error fetching experiences:', err);
     }
 
     // Structured Data (JSON-LD)

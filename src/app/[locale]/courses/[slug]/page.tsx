@@ -26,7 +26,7 @@ export async function generateMetadata({
             .single();
         course = data;
     } catch (e) {
-        console.error('Metadata fetch failed:', e);
+        if (process.env.NODE_ENV !== 'production') console.error('Metadata fetch failed:', e);
     }
 
     // Re-use fallback logic for metadata
@@ -138,7 +138,7 @@ export default async function CourseDetailPage({
             .single();
         course = data;
     } catch (e) {
-        console.error('Course fetch failed:', e);
+        if (process.env.NODE_ENV !== 'production') console.error('Course fetch failed:', e);
     }
 
     // 2. Fetch real sessions/editions (if table works)
@@ -152,7 +152,7 @@ export default async function CourseDetailPage({
             .order('fecha_inicio', { ascending: true });
         dbEditions = (editionsData as unknown as Edition[]) || [];
     } catch (e) {
-        console.error('Fetch editions failed', e);
+        if (process.env.NODE_ENV !== 'production') console.error('Fetch editions failed', e);
     }
 
     // 3. Fetch from Google Calendar
@@ -183,7 +183,7 @@ export default async function CourseDetailPage({
                 google_event_id: event.id
             }));
     } catch (e) {
-        console.error('Fetch calendar events failed', e);
+        if (process.env.NODE_ENV !== 'production') console.error('Fetch calendar events failed', e);
     }
 
     // 4. Merge and deduplicate (roughly by date)
