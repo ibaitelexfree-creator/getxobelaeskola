@@ -5,7 +5,7 @@ export function generateEuskalmetToken() {
     const email = process.env.EUSKALMET_EMAIL || 'info@getxobelaeskola.com';
 
     if (!privateKey) {
-        throw new Error('EUSKALMET_PRIVATE_KEY is not defined');
+        return null;
     }
 
     const now = Math.floor(Date.now() / 1000);
@@ -24,6 +24,7 @@ export function generateEuskalmetToken() {
 export async function fetchEuskalmetStationData(stationId: string) {
     try {
         const token = generateEuskalmetToken();
+        if (!token) return null;
         const url = `https://api.euskadi.eus/met01/euskalmet/stations/${stationId}/current`;
 
         const controller = new AbortController();
@@ -51,6 +52,7 @@ export async function fetchEuskalmetStationData(stationId: string) {
 export async function fetchEuskalmetAlerts() {
     try {
         const token = generateEuskalmetToken();
+        if (!token) return [];
         const now = new Date();
         const yyyy = now.getFullYear();
         const mm = String(now.getMonth() + 1).padStart(2, '0');
