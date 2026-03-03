@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { renderHook, act, waitFor } from '@testing-library/react';
 import { useSmartNotifications } from './useSmartNotifications';
 import { LocalNotifications } from '@capacitor/local-notifications';
@@ -30,6 +30,12 @@ vi.mock('@/lib/store/useNotificationStore', () => ({
 }));
 
 describe('useSmartNotifications', () => {
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    afterEach(() => {
+        consoleSpy.mockClear();
+    });
+
     let mockAddNotification: any;
     let mockSupabase: any;
 
@@ -149,5 +155,79 @@ describe('useSmartNotifications', () => {
             title: '¡Módulo Completado!',
             message: 'Has completado Meteorología.'
         }));
+    });
+
+    describe('error paths', () => {
+        it('should log error when requestLocalPermissions fails', async () => {
+            (Capacitor.isNativePlatform as any).mockReturnValue(true);
+            const error = new Error('Permission check failed');
+            (LocalNotifications.checkPermissions as any).mockRejectedValue(error);
+
+            const { result } = renderHook(() => useSmartNotifications());
+
+            await act(async () => {
+                await result.current.requestLocalPermissions();
+            });
+
+            expect(consoleSpy).toHaveBeenCalledWith('Error requesting local notifications permissions', error);
+        });
+
+        it('should log error when scheduleStreakReminder fails', async () => {
+            (Capacitor.isNativePlatform as any).mockReturnValue(true);
+            const error = new Error('Database error');
+            mockSupabase.gte.mockRejectedValue(error);
+
+            const { result } = renderHook(() => useSmartNotifications());
+
+            await act(async () => {
+                await result.current.scheduleStreakReminder('user-123');
+            });
+
+            expect(consoleSpy).toHaveBeenCalledWith('Error scheduling streak reminder', error);
+        });
+
+        it('should log error when scheduleExamReminders fails', async () => {
+            (Capacitor.isNativePlatform as any).mockReturnValue(true);
+            const error = new Error('Database error');
+            mockSupabase.gt.mockRejectedValue(error);
+
+            const { result } = renderHook(() => useSmartNotifications());
+
+            await act(async () => {
+                await result.current.scheduleExamReminders('user-123');
+            });
+
+            expect(consoleSpy).toHaveBeenCalledWith('Error scheduling exam reminders', error);
+        });
+
+        it('should log error when notification scheduling in listenToModuleCompletion fails', async () => {
+             (Capacitor.isNativePlatform as any).mockReturnValue(true);
+             let postgresChangesCallback: any;
+             mockSupabase.on.mockImplementation((event, filter, callback) => {
+                 postgresChangesCallback = callback;
+                 return mockSupabase;
+             });
+
+             const { result } = renderHook(() => useSmartNotifications());
+             result.current.listenToModuleCompletion('user-123');
+
+             // Mock module data fetch
+             mockSupabase.single.mockResolvedValue({ data: { nombre_es: 'Meteorología' } });
+
+             const error = new Error('Schedule failed');
+             (LocalNotifications.schedule as any).mockRejectedValue(error);
+
+             await act(async () => {
+                 await postgresChangesCallback({
+                     new: {
+                         estado: 'completado',
+                         tipo_entidad: 'modulo',
+                         entidad_id: 'mod-1'
+                     }
+                 });
+             });
+
+             expect(consoleSpy).toHaveBeenCalledWith('Error triggering local notification', error);
+        });
     });
 });
