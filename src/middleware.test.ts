@@ -12,22 +12,23 @@ vi.mock('@supabase/ssr', () => ({
 
 // Mock next/server to ensure NextResponse.next() returns something we can modify
 vi.mock('next/server', async () => {
-    const actual = await vi.importActual('next/server');
+    const actual = await vi.importActual<typeof import('next/server')>('next/server');
+    const mockedNextResponse = {
+        ...actual.NextResponse,
+        next: vi.fn().mockImplementation((options) => {
+            const res = new actual.NextResponse(null);
+            if (options?.request?.headers) {
+                options.request.headers.forEach((value: string, key: string) => {
+                    res.headers.set(key, value);
+                });
+            }
+            return res;
+        }),
+    };
+
     return {
         ...actual,
-        NextResponse: {
-            ...actual.NextResponse,
-            next: vi.fn().mockImplementation((options) => {
-                // If options.request.headers is provided, we simulate the header injection
-                const res = new actual.NextResponse(null);
-                if (options?.request?.headers) {
-                    options.request.headers.forEach((value: string, key: string) => {
-                        res.headers.set(key, value);
-                    });
-                }
-                return res;
-            }),
-        },
+        NextResponse: mockedNextResponse,
     };
 });
 
