@@ -172,7 +172,7 @@ export const PropertyDetailClient: React.FC<PropertyDetailClientProps> = ({
                                 {[
                                     { icon: '🛏', value: property.bedrooms, label: 'Suites' },
                                     { icon: '🚿', value: property.bathrooms, label: 'Bathrooms' },
-                                    { icon: '📐', value: property.sqft.toLocaleString(), label: 'Total Sq Ft' },
+                                    { icon: '📐', value: property.sqft.toLocaleString('en-US'), label: 'Total Sq Ft' },
                                     { icon: '📅', value: property.yearBuilt, label: 'Built Year' }
                                 ].map((stat, i) => (
                                     <div

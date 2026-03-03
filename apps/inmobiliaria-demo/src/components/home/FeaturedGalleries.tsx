@@ -176,7 +176,7 @@ export const FeaturedGalleries = () => {
                                                     fontWeight: 700,
                                                     fontFamily: 'var(--font-display)'
                                                 }}>
-                                                    AED {p.price.toLocaleString()}
+                                                    AED {p.price.toLocaleString('en-US')}
                                                 </span>
                                             </div>
                                         </div>

@@ -4,6 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { Property } from '@/data/properties';
 import { formatPrice, formatSqft, getBadgeForProperty } from '@/lib/utils';
+import { getAssetPath } from '@/lib/constants';
 
 interface PropertyCardProps {
     property: Property;
@@ -28,7 +29,7 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
             >
                 <div className="card-image" style={{ position: 'relative', height: '260px', overflow: 'hidden' }}>
                     <img
-                        src={`/controlmanager/realstate${property.mainImage}`}
+                        src={getAssetPath(property.mainImage)}
                         alt={property.name}
                         style={{
                             width: '100%',

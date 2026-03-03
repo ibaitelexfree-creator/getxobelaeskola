@@ -7,8 +7,15 @@ import LuxuryReveal from '@/components/ui/LuxuryReveal';
 import { Reveal, MaskReveal } from '@/components/ui/Reveal';
 import { StaggerContainer, StaggerItem } from '@/components/ui/StaggerContainer';
 import { motion } from 'framer-motion';
+import { getAssetPath } from '@/lib/constants';
 
 const GoldParticles = ({ count = 20 }: { count?: number }) => {
+    const [mounted, setMounted] = React.useState(false);
+
+    React.useEffect(() => {
+        setMounted(true);
+    }, []);
+
     const particles = useMemo(() => {
         return Array.from({ length: count }).map((_, i) => ({
             id: i,
@@ -21,6 +28,8 @@ const GoldParticles = ({ count = 20 }: { count?: number }) => {
             ty: -(Math.random() * 300 + 100),
         }));
     }, [count]);
+
+    if (!mounted) return null;
 
     return (
         <>
@@ -69,7 +78,7 @@ export const HeroSection = () => {
                     ...getHeroStyle(),
                     position: 'absolute',
                     inset: '-10%',
-                    backgroundImage: 'url("/images/hero/hero-dubai-skyline.jpg")',
+                    backgroundImage: `url("${getAssetPath('/images/hero/hero-dubai-skyline.jpg')}")`,
                     backgroundSize: 'cover',
                     backgroundPosition: 'center',
                     zIndex: 1,

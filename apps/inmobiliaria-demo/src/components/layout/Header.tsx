@@ -97,6 +97,7 @@ const Header = () => {
                             </Link>
                         ))}
                         <LanguageSelector />
+
                         <Link href="/list-property" className="btn-primary" style={{ padding: '0.6rem 1.5rem', fontSize: '0.8rem' }}>
                             List Property
                         </Link>
@@ -159,6 +160,7 @@ const Header = () => {
                         {link.name}
                     </Link>
                 ))}
+
                 <Link
                     href="/list-property"
                     className="btn-primary"

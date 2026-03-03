@@ -7,6 +7,8 @@ import { Badge } from '@/components/ui/Badge';
 import { StaggerContainer, StaggerItem } from '@/components/ui/StaggerContainer';
 import LuxuryReveal from '@/components/ui/LuxuryReveal';
 
+import { getAssetPath } from '@/lib/constants';
+
 export const NeighborhoodGrid = () => {
     return (
         <section id="neighborhoods" className="section" style={{ backgroundColor: 'var(--bg-secondary)', overflow: 'hidden' }}>
@@ -52,7 +54,7 @@ export const NeighborhoodGrid = () => {
                                 className="neighborhood-card perspective-1000"
                             >
                                 <img
-                                    src={neighborhood.image}
+                                    src={getAssetPath(neighborhood.image)}
                                     alt={neighborhood.name}
                                     className="bg-image luxury-glow"
                                     style={{
