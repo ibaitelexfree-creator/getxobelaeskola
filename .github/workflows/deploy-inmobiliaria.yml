@@ -100,7 +100,7 @@ jobs:
               -e NEXT_PUBLIC_SUPABASE_ANON_KEY="${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}" \
               -e SUPABASE_SERVICE_ROLE_KEY="${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" \
               -e TELEGRAM_BOT_TOKEN="${{ secrets.TELEGRAM_BOT_TOKEN }}" \
-              -e NEXT_PUBLIC_APP_URL="${{ secrets.NEXT_PUBLIC_APP_URL }}" \
+              -e NEXT_PUBLIC_APP_URL="${{ secrets.TELEGRAM_INMOBILIARIA_APP_URL }}" \
               -e N8N_VIDEO_WEBHOOK_URL="${{ secrets.N8N_VIDEO_WEBHOOK_URL }}" \
               --label "traefik.enable=true" \
               --label "traefik.http.routers.inmobiliaria.rule=Host(\`controlmanager.cloud\`) && PathPrefix(\`/realstate\`)" \
