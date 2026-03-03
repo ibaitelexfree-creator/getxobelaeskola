@@ -32,7 +32,7 @@ export const useMultiplayerStore = create<MultiplayerStore>((set, get) => ({
     isHost: false,
 
     createLobby: async (userId: string, username: string) => {
-        const code = Math.random().toString(36).substring(2, 8).toUpperCase();
+        const code = crypto.randomUUID().substring(0, 6).toUpperCase();
 
         const { data: lobby, error } = await supabase
             .from('race_lobbies')
