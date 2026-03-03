@@ -1,30 +1,32 @@
+'use client';
+
 import React from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { Property } from '@/data/properties';
-import { Badge } from '@/components/ui/Badge';
+import { formatPrice, formatSqft, getBadgeForProperty } from '@/lib/utils';
 
 interface PropertyCardProps {
     property: Property;
-    showBadge?: boolean;
     index?: number;
 }
 
 export const PropertyCard: React.FC<PropertyCardProps> = ({
     property,
-    showBadge = true,
     index = 0
 }) => {
-    const formattedPrice = new Intl.NumberFormat('en-AE', {
-        style: 'currency',
-        currency: 'AED',
-        maximumFractionDigits: 0
-    }).format(property.price);
+    const badge = getBadgeForProperty({
+        featured: property.featured,
+        status: 'available', // Assuming available by default for the card
+        yearBuilt: property.yearBuilt
+    });
 
     return (
-        <Link href={`/properties/${property.slug}`} style={{ textDecoration: 'none' }}>
-            <div className="property-card luxury-glow">
-                <div className="card-image">
+        <article className="property-card" style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+            <Link
+                href={`/properties/${property.slug}`}
+                style={{ textDecoration: 'none', color: 'inherit', flex: 1, display: 'flex', flexDirection: 'column' }}
+            >
+                <div className="card-image" style={{ position: 'relative', height: '260px', overflow: 'hidden' }}>
                     <img
                         src={`/controlmanager/realstate${property.mainImage}`}
                         alt={property.name}
@@ -34,90 +36,105 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
                             objectFit: 'cover',
                             transition: 'transform 0.5s ease'
                         }}
-                        className="hover-zoom"
+                        onMouseEnter={(e) => (e.currentTarget.style.transform = 'scale(1.1)')}
+                        onMouseLeave={(e) => (e.currentTarget.style.transform = 'scale(1)')}
                     />
-                    {showBadge && (
-                        <div style={{ position: 'absolute', top: '1rem', right: '1rem', zIndex: 10 }}>
-                            <Badge variant="gold">
-                                {property.type}
-                            </Badge>
-                        </div>
-                    )}
-                </div>
-                <div className="card-body">
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', marginBottom: '1.25rem' }}>
-                        <span style={{ color: 'var(--gold-500)', fontSize: '0.75rem', fontWeight: 600, letterSpacing: '0.1em' }}>
-                            {property.neighborhood.toUpperCase()}
+                    <div style={{
+                        position: 'absolute',
+                        top: '1rem',
+                        left: '1rem',
+                        display: 'flex',
+                        gap: '0.5rem',
+                        zIndex: 1
+                    }}>
+                        {badge && (
+                            <span className="badge badge-gold" style={{
+                                backgroundColor: 'var(--gold-500)',
+                                color: '#0a0a0a',
+                                padding: '0.25rem 0.75rem',
+                                borderRadius: 'var(--radius-full)',
+                                fontSize: '0.7rem',
+                                fontWeight: 700,
+                                letterSpacing: '0.1rem'
+                            }}>
+                                {badge.toUpperCase()}
+                            </span>
+                        )}
+                        <span className="badge" style={{
+                            backgroundColor: 'rgba(0,0,0,0.6)',
+                            backdropFilter: 'blur(4px)',
+                            color: '#fff',
+                            padding: '0.25rem 0.75rem',
+                            borderRadius: 'var(--radius-full)',
+                            fontSize: '0.7rem',
+                            fontWeight: 700,
+                            letterSpacing: '0.1rem',
+                            border: '1px solid rgba(255,255,255,0.1)'
+                        }}>
+                            {property.type.toUpperCase()}
                         </span>
-                        <h3 className="card-title" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-display)', fontSize: '1.5rem', fontWeight: 600, margin: 0 }}>
+                    </div>
+                </div>
+
+                <div className="card-body" style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '1.5rem' }}>
+                    <div style={{ marginBottom: '1.5rem' }}>
+                        <span style={{
+                            fontSize: '0.75rem',
+                            color: 'var(--gold-500)',
+                            fontWeight: 700,
+                            letterSpacing: '0.15rem',
+                            textTransform: 'uppercase'
+                        }}>
+                            {property.neighborhood}
+                        </span>
+                        <h3 style={{
+                            fontSize: '1.4rem',
+                            marginTop: '0.5rem',
+                            marginBottom: '0.5rem',
+                            fontFamily: 'var(--font-display)',
+                            color: '#fff',
+                            fontWeight: 400,
+                            lineHeight: 1.2
+                        }}>
                             {property.name}
                         </h3>
                     </div>
 
-                    <div className="divider" style={{ margin: '1rem 0' }}></div>
+                    <div style={{ marginTop: 'auto' }}>
+                        <div style={{
+                            fontFamily: 'var(--font-display)',
+                            fontSize: '1.6rem',
+                            color: 'var(--gold-400)',
+                            fontWeight: 600,
+                            marginBottom: '1rem'
+                        }}>
+                            {formatPrice(property.price)}
+                        </div>
 
-                    <div className="specs-row" style={{ marginBottom: '1.5rem' }}>
-                        <div className="spec-item">
-                            <span style={{ color: 'var(--gold-400)' }}>🛏</span>
-                            <span>{property.bedrooms} Beds</span>
-                        </div>
-                        <div className="spec-item">
-                            <span style={{ color: 'var(--gold-400)' }}>🚿</span>
-                            <span>{property.bathrooms} Baths</span>
-                        </div>
-                        <div className="spec-item">
-                            <span style={{ color: 'var(--gold-400)' }}>📐</span>
-                            <span>{property.sqft.toLocaleString()} Sqft</span>
-                        </div>
-                    </div>
+                        <div style={{
+                            width: '100%',
+                            height: '1px',
+                            backgroundColor: 'rgba(255,255,255,0.1)',
+                            margin: '1.2rem 0'
+                        }} />
 
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <span className="price-tag">{formattedPrice}</span>
-                        <span className="explore-link" style={{ color: 'var(--gold-500)', fontSize: '0.9rem', fontWeight: 600 }}>Explore &rarr;</span>
+                        <div className="specs-row" style={{ display: 'flex', gap: '1.5rem', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                                <span style={{ opacity: 0.6 }}>🛏</span>
+                                <span style={{ fontWeight: 500 }}>{property.bedrooms === 'Studio' ? 'S' : property.bedrooms}</span>
+                            </div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                                <span style={{ opacity: 0.6 }}>🚿</span>
+                                <span style={{ fontWeight: 500 }}>{property.bathrooms}</span>
+                            </div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                                <span style={{ opacity: 0.6 }}>📐</span>
+                                <span style={{ fontWeight: 500 }}>{formatSqft(property.sqft)}</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <style jsx>{`
-                    .property-card {
-                        transition: all 0.5s var(--ease-out);
-                        border: 1px solid var(--border-subtle);
-                        cursor: pointer;
-                        height: 100%;
-                        background: var(--bg-secondary);
-                        border-radius: var(--radius-lg);
-                        overflow: hidden;
-                    }
-                    .property-card:hover {
-                        transform: translateY(-12px);
-                        border-color: var(--gold-500);
-                        box-shadow: 0 20px 40px rgba(0,0,0,0.6), 0 0 20px rgba(212,168,67,0.1);
-                    }
-                    .card-image {
-                        position: relative;
-                        aspect-ratio: 16/10;
-                        overflow: hidden;
-                    }
-                    .card-body {
-                        padding: 2rem;
-                        background: linear-gradient(to bottom, transparent, rgba(10,10,15,0.2));
-                    }
-                    .card-title {
-                        transition: color 0.3s ease;
-                    }
-                    .property-card:hover .card-title {
-                        color: var(--gold-400) !important;
-                    }
-                    .explore-link {
-                        transform: translateX(-5px);
-                        opacity: 0.8;
-                        transition: all 0.3s ease;
-                    }
-                    .property-card:hover .explore-link {
-                        transform: translateX(0);
-                        opacity: 1;
-                        color: #fff !important;
-                    }
-                `}</style>
-            </div>
-        </Link>
+            </Link>
+        </article>
     );
 };

@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import LanguageSelector from '../ui/LanguageSelector';
 
 const Header = () => {
     const [scrolled, setScrolled] = useState(false);
@@ -20,8 +21,8 @@ const Header = () => {
     const navLinks = [
         { name: 'Home', path: '/' },
         { name: 'Properties', path: '/properties' },
-        { name: 'Neighborhoods', path: '#neighborhoods' },
-        { name: 'About', path: '#about' },
+        { name: 'Neighborhoods', path: '/neighborhoods' },
+        { name: 'About', path: '/about' },
         { name: 'Contact', path: '/contact' },
     ];
 
@@ -95,26 +96,32 @@ const Header = () => {
                                 {link.name}
                             </Link>
                         ))}
-                        <Link href="/contact" className="btn-primary" style={{ padding: '0.6rem 1.5rem', fontSize: '0.8rem' }}>
+                        <LanguageSelector />
+                        <Link href="/list-property" className="btn-primary" style={{ padding: '0.6rem 1.5rem', fontSize: '0.8rem' }}>
                             List Property
                         </Link>
                     </nav>
 
-                    {/* Mobile Toggle */}
-                    <button
-                        onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                        style={{
-                            display: 'none',
-                            background: 'none',
-                            border: 'none',
-                            color: 'var(--text-primary)',
-                            fontSize: '1.5rem',
-                            cursor: 'pointer'
-                        }}
-                        id="mobile-menu-toggle"
-                    >
-                        {isMobileMenuOpen ? '✕' : '☰'}
-                    </button>
+                    {/* Mobile Toggle & Actions */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }} className="mobile-actions">
+                        <div className="mobile-only" style={{ display: 'none' }} id="mobile-lang-wrapper">
+                            <LanguageSelector />
+                        </div>
+                        <button
+                            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                            style={{
+                                display: 'none',
+                                background: 'none',
+                                border: 'none',
+                                color: 'var(--text-primary)',
+                                fontSize: '1.5rem',
+                                cursor: 'pointer'
+                            }}
+                            id="mobile-menu-toggle"
+                        >
+                            {isMobileMenuOpen ? '✕' : '☰'}
+                        </button>
+                    </div>
                 </div>
             </header>
 
@@ -153,7 +160,7 @@ const Header = () => {
                     </Link>
                 ))}
                 <Link
-                    href="/contact"
+                    href="/list-property"
                     className="btn-primary"
                     onClick={() => setIsMobileMenuOpen(false)}
                     style={{ width: '100%', maxWidth: '250px' }}

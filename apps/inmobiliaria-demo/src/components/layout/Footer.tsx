@@ -45,7 +45,7 @@ const Footer = ({ locale }: { locale: string }) => {
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                             <Link href="/" style={{ color: 'var(--text-secondary)', textDecoration: 'none', fontSize: '0.9rem' }}>Home</Link>
                             <Link href="/properties" style={{ color: 'var(--text-secondary)', textDecoration: 'none', fontSize: '0.9rem' }}>All Properties</Link>
-                            <Link href="#neighborhoods" style={{ color: 'var(--text-secondary)', textDecoration: 'none', fontSize: '0.9rem' }}>Neighborhoods</Link>
+                            <Link href="/#neighborhoods" style={{ color: 'var(--text-secondary)', textDecoration: 'none', fontSize: '0.9rem' }}>Neighborhoods</Link>
                             <Link href="/contact" style={{ color: 'var(--text-secondary)', textDecoration: 'none', fontSize: '0.9rem' }}>Contact Us</Link>
                         </div>
                     </div>

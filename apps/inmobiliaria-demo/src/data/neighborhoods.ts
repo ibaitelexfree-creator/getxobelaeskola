@@ -74,7 +74,7 @@ export const NEIGHBORHOODS: Neighborhood[] = [
         avgPricePerSqft: 1800,
         propertyCount: 450,
         vibe: ['Business', 'Canal', 'Modern'],
-        image: '/images/properties/business-bay-loft.png',
+        image: '/images/neighborhoods/business-bay.png',
         latitude: 25.1857,
         longitude: 55.2631
     },
@@ -87,7 +87,7 @@ export const NEIGHBORHOODS: Neighborhood[] = [
         avgPricePerSqft: 2200,
         propertyCount: 380,
         vibe: ['Beachfront', 'Lively', 'Tourism'],
-        image: '/images/properties/jbr-residence.png',
+        image: '/images/neighborhoods/jbr.png',
         latitude: 25.0755,
         longitude: 55.1319
     },
@@ -100,7 +100,7 @@ export const NEIGHBORHOODS: Neighborhood[] = [
         avgPricePerSqft: 3400,
         propertyCount: 145,
         vibe: ['Sophisticated', 'Finance', 'Dining'],
-        image: '/images/properties/difc-loft.png',
+        image: '/images/neighborhoods/difc.png',
         latitude: 25.2122,
         longitude: 55.2835
     },
@@ -113,8 +113,73 @@ export const NEIGHBORHOODS: Neighborhood[] = [
         avgPricePerSqft: 2000,
         propertyCount: 290,
         vibe: ['Family-Friendly', 'Greenery', 'Quiet'],
-        image: '/images/properties/dubai-hills-villa.png',
+        image: '/images/neighborhoods/dubai-hills.png',
         latitude: 25.1130,
         longitude: 55.2472
+    },
+    {
+        id: '9',
+        name: 'Jumeirah Bay',
+        slug: 'jumeirah-bay',
+        tagline: 'Private Island Sophistication',
+        description: 'A private island community shaped like a seahorse. Home to the Bulgari Resort and some of the world\'s most exclusive villas.',
+        avgPricePerSqft: 6800,
+        propertyCount: 45,
+        vibe: ['Secluded', 'Seafront', 'Wealthy'],
+        image: '/images/neighborhoods/jbr.png',
+        latitude: 25.2152,
+        longitude: 55.2429
+    },
+    {
+        id: '10',
+        name: 'MBR City',
+        slug: 'mbr-city',
+        tagline: 'A Vision of the Future',
+        description: 'Home to District One and its massive Crystal Lagoon. Offering high-end villas and apartments with vast green spaces.',
+        avgPricePerSqft: 2500,
+        propertyCount: 2200,
+        vibe: ['Expansive', 'Lagoon', 'Modern'],
+        image: '/images/neighborhoods/dubai-hills.png',
+        latitude: 25.1528,
+        longitude: 55.3093
+    },
+    {
+        id: '11',
+        name: 'Tilal Al Ghaf',
+        slug: 'tilal-al-ghaf',
+        tagline: 'Luxury Lagoon Living',
+        description: 'A resort-style community centered around Lagoon Al Ghaf. Combining residential space with recreational lagoon experiences.',
+        avgPricePerSqft: 1600,
+        propertyCount: 1500,
+        vibe: ['Resort', 'Community', 'Lakes'],
+        image: '/images/neighborhoods/dubai-hills.png',
+        latitude: 25.0210,
+        longitude: 55.2110
+    },
+    {
+        id: '12',
+        name: 'Al Barari',
+        slug: 'al-barari',
+        tagline: 'Desert Botanical Oasis',
+        description: 'A lush green community with a microclimate. Offering botanical surrounds and some of the quietest mansions in Dubai.',
+        avgPricePerSqft: 2800,
+        propertyCount: 300,
+        vibe: ['Greenery', 'Quiet', 'Botanical'],
+        image: '/images/neighborhoods/dubai-hills.png',
+        latitude: 25.0880,
+        longitude: 55.3260
+    },
+    {
+        id: '13',
+        name: 'Bluewaters Island',
+        slug: 'bluewaters-island',
+        tagline: 'Urban Island Luxury',
+        description: 'Home to Ain Dubai. Blending residential, hospitality, and retail in a sophisticated waterfront island setting.',
+        avgPricePerSqft: 4000,
+        propertyCount: 700,
+        vibe: ['Modern', 'Tourism', 'Waterfront'],
+        image: '/images/neighborhoods/jbr.png',
+        latitude: 25.0710,
+        longitude: 55.1220
     }
 ];

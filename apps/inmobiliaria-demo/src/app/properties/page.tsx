@@ -151,7 +151,7 @@ function PropertiesContent() {
                                     {
                                         label: 'ARCHITECTURAL TYPE',
                                         value: filterType,
-                                        options: ['All', 'Apartment', 'Villa', 'Penthouse', 'Townhouse', 'Duplex', 'Mansion'],
+                                        options: ['All', 'Apartment', 'Villa', 'Penthouse', 'Townhouse', 'Duplex', 'Mansion', 'Sky Villa', 'Waterfront Mansion'],
                                         onChange: (v: string) => updateUrl({ type: v })
                                     },
                                     {
