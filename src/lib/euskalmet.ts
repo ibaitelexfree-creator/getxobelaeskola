@@ -44,6 +44,7 @@ export async function fetchEuskalmetStationData(stationId: string) {
         return res.json();
 
     } catch (e) {
+        // Only log error and return null to prevent crashing the whole weather service
         console.error('Euskalmet Station Fetch Error:', e);
         return null;
     }
