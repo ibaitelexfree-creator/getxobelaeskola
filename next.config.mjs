@@ -31,7 +31,7 @@ const nextConfig = {
         '@capacitor/network',
         '@capacitor/push-notifications'
     ] : [],
-    experimental: { workerThreads: false, cpus: 2 },
+    experimental: { workerThreads: false, cpus: 1 },
     env: {
         NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://xbledhifomblirxurtyv.supabase.co',
         NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhibGVkaGlmb21ibGlyeHVydHl2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA2MjIxOTcsImV4cCI6MjA4NjE5ODE5N30.zja6S9AAEpZETNgt6aFEm0PCVq6gIORZ7hfUETKJyhM',
