@@ -8,6 +8,7 @@ import { useParallax } from '@/lib/useParallax';
 import { Magnetic } from '@/components/ui/Magnetic';
 import { Reveal, MaskReveal } from '@/components/ui/Reveal';
 import LuxuryReveal from '@/components/ui/LuxuryReveal';
+import { getAssetPath } from '@/lib/constants';
 
 export const FeaturedGalleries = () => {
     const { getStyle: getTextStyle } = useParallax({ speed: -0.1, limit: 100 });
@@ -137,7 +138,7 @@ export const FeaturedGalleries = () => {
                                 <LuxuryReveal delay={0.3 + index * 0.2}>
                                     <div style={{ position: 'relative', width: '100%', height: '100%' }}>
                                         <Image
-                                            src={p.mainImage}
+                                            src={getAssetPath(p.mainImage)}
                                             alt={p.name}
                                             fill
                                             className="ken-burns"

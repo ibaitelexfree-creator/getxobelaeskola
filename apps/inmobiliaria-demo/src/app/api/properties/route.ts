@@ -59,3 +59,22 @@ export async function POST(request: Request) {
         );
     }
 }
+export async function GET() {
+    try {
+        const properties = await sql`
+            SELECT * FROM properties 
+            ORDER BY created_at DESC
+        `;
+
+        return NextResponse.json({
+            success: true,
+            properties
+        });
+    } catch (error: any) {
+        console.error('Error fetching properties:', error);
+        return NextResponse.json(
+            { error: 'Internal server error while fetching data' },
+            { status: 500 }
+        );
+    }
+}

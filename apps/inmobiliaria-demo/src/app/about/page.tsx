@@ -1,84 +1,128 @@
 'use client';
-import { motion } from 'framer-motion';
+
+import React from 'react';
 import Image from 'next/image';
+import Header from '@/components/layout/Header';
+import Footer from '@/components/layout/Footer';
+import LuxuryReveal from '@/components/ui/LuxuryReveal';
+import { revealOnScroll } from '@/lib/revealOnScroll';
 
 export default function AboutPage() {
     return (
-        <div className="min-h-screen bg-[#050505] text-[#D4D4D4] pt-32 pb-16 font-inter selection:bg-[#CBAA61] selection:text-[#050505]">
-            <div className="container mx-auto px-4">
+        <div style={{ backgroundColor: 'var(--bg-primary)', minHeight: '100vh' }}>
+            <Header />
+            <main style={{ paddingTop: '12rem', paddingBottom: '10rem' }}>
+                <div className="container">
+                    {/* Header Section */}
+                    <div style={{ textAlign: 'center', marginBottom: '10rem' }}>
+                        <LuxuryReveal>
+                            <span className="section-label" style={{ letterSpacing: '0.6em' }}>OUR HERITAGE</span>
+                        </LuxuryReveal>
+                        <LuxuryReveal delay={0.2}>
+                            <h1 className="section-title" style={{ fontSize: 'clamp(3rem, 8vw, 6rem)', marginBottom: '3rem' }}>
+                                Curating <span className="gold-text">Extraordinary</span> Living
+                            </h1>
+                        </LuxuryReveal>
+                        <LuxuryReveal delay={0.4}>
+                            <p style={{
+                                color: 'var(--text-secondary)',
+                                fontSize: '1.25rem',
+                                maxWidth: '800px',
+                                margin: '0 auto',
+                                fontWeight: 300,
+                                lineHeight: 1.8
+                            }}>
+                                Luxe Dubai Estates is a boutique real estate advisory firm dedicated to representing
+                                the most exclusive properties in the world's most dynamic city. We don't just find
+                                properties; we curate legacies.
+                            </p>
+                        </LuxuryReveal>
+                    </div>
 
-                {/* Header */}
-                <div className="max-w-4xl mx-auto text-center mb-24">
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ duration: 1, ease: 'easeOut' }}
+                    {/* Content Section */}
+                    <div
+                        style={{
+                            display: 'grid',
+                            gridTemplateColumns: '1fr 1fr',
+                            gap: '8rem',
+                            alignItems: 'center',
+                            marginBottom: '12rem'
+                        }}
+                        className="responsive-grid"
                     >
-                        <h1 className="text-5xl md:text-7xl font-playfair font-bold text-white mb-6 tracking-tight">
-                            Curating <span className="text-[#CBAA61] italic">Extraordinary</span> Living
-                        </h1>
-                        <p className="text-lg md:text-xl text-[#A0A0A0] font-light max-w-2xl mx-auto leading-relaxed mt-6">
-                            Luxe Dubai Estates is a boutique real estate advisory firm dedicated to representing
-                            the most exclusive properties in the world's most dynamic city.
-                        </p>
-                    </motion.div>
-                </div>
-
-                {/* Story Section */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-center mb-32 max-w-6xl mx-auto">
-                    <motion.div
-                        className="relative aspect-[4/5] md:aspect-[3/4] rounded-lg overflow-hidden group border border-[#1A1A1A]"
-                        initial={{ opacity: 0, x: -30 }}
-                        whileInView={{ opacity: 1, x: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 1, ease: 'easeOut' }}
-                    >
-                        <Image
-                            src="/images/properties/penthouse-pool.png"
-                            alt="Luxe Dubai Estates Vision"
-                            fill
-                            className="object-cover transition-transform duration-[1.5s] ease-out group-hover:scale-105"
-                        />
-                        {/* Overlay Gradient */}
-                        <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-transparent opacity-80" />
-                        <div className="absolute bottom-6 left-6">
-                            <span className="text-white font-playfair text-2xl">Vision & Legacy</span>
+                        <div
+                            style={{
+                                position: 'relative',
+                                aspectRatio: '4/5',
+                                borderRadius: 'var(--radius-lg)',
+                                overflow: 'hidden',
+                                border: '1px solid var(--border-subtle)',
+                                boxShadow: 'var(--shadow-md)'
+                            }}
+                            className="luxury-glow"
+                        >
+                            <Image
+                                src="/images/properties/penthouse-pool.png"
+                                alt="Luxe Dubai Estates Vision"
+                                fill
+                                style={{ objectFit: 'cover' }}
+                                className="ken-burns"
+                            />
+                            <div style={{
+                                position: 'absolute',
+                                inset: 0,
+                                background: 'linear-gradient(to top, rgba(5,5,5,0.8), transparent)',
+                                pointerEvents: 'none'
+                            }} />
+                            <div style={{ position: 'absolute', bottom: '3rem', left: '3rem' }}>
+                                <h3 style={{ fontFamily: 'var(--font-display)', fontSize: '2.5rem', color: '#fff' }}>Vision & Legacy</h3>
+                            </div>
                         </div>
-                    </motion.div>
 
-                    <div className="space-y-12">
-                        <motion.div
-                            initial={{ opacity: 0, x: 20 }}
-                            whileInView={{ opacity: 1, x: 0 }}
-                            viewport={{ once: true }}
-                            transition={{ duration: 0.8, delay: 0.2 }}
-                        >
-                            <h2 className="text-3xl font-playfair text-white mb-4">Our Heritage</h2>
-                            <div className="h-px w-12 bg-[#CBAA61] mb-6" />
-                            <p className="font-light leading-relaxed text-[#A0A0A0] text-lg">
-                                Founded on the principles of absolute discretion and unparalleled architectural appreciation,
-                                Luxe Dubai Estates serves a global clientele of visionaries and connoisseurs. We do not simply
-                                sell properties; we match extraordinary individuals with spaces that reflect their unique legacy.
-                            </p>
-                        </motion.div>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '5rem' }}>
+                            <div>
+                                <h2 className="section-title" style={{ fontSize: '2.2rem', marginBottom: '1.5rem' }}>Our Heritage</h2>
+                                <div className="divider" />
+                                <p style={{ color: 'var(--text-secondary)', fontSize: '1.15rem', fontWeight: 300, lineHeight: 1.9 }}>
+                                    Founded on the principles of absolute discretion and unparalleled architectural appreciation,
+                                    Luxe Dubai Estates serves a global clientele of visionaries and connoisseurs. We do not simply
+                                    sell properties; we match extraordinary individuals with spaces that reflect their unique legacy.
+                                </p>
+                            </div>
 
-                        <motion.div
-                            initial={{ opacity: 0, x: 20 }}
-                            whileInView={{ opacity: 1, x: 0 }}
-                            viewport={{ once: true }}
-                            transition={{ duration: 0.8, delay: 0.4 }}
-                        >
-                            <h2 className="text-3xl font-playfair text-white mb-4">The Standard</h2>
-                            <div className="h-px w-12 bg-[#CBAA61] mb-6" />
-                            <p className="font-light leading-relaxed text-[#A0A0A0] text-lg">
-                                Every property in our portfolio has been rigorously selected for its design pedigree,
-                                location, and potential for appreciation. Our bespoke advisory approach ensures that
-                                your acquisition process is as elegant as the home you seek.
-                            </p>
-                        </motion.div>
+                            <div>
+                                <h2 className="section-title" style={{ fontSize: '2.2rem', marginBottom: '1.5rem' }}>The Standard</h2>
+                                <div className="divider" />
+                                <p style={{ color: 'var(--text-secondary)', fontSize: '1.15rem', fontWeight: 300, lineHeight: 1.9 }}>
+                                    Every property in our portfolio has been rigorously selected for its design pedigree,
+                                    location, and potential for appreciation. Our bespoke advisory approach ensures that
+                                    your acquisition process is as elegant as the home you seek.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Expertise Section */}
+                    <div style={{ textAlign: 'center', padding: '8rem 4rem', backgroundColor: 'var(--bg-secondary)', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border-gold)', position: 'relative', overflow: 'hidden' }}>
+                        <div className="luxury-sweep" style={{ opacity: 0.05 }} />
+                        <h2 className="section-title" style={{ fontSize: '2.5rem', marginBottom: '2rem' }}>Private Advisory</h2>
+                        <p style={{ color: 'var(--text-secondary)', fontSize: '1.1rem', maxWidth: '600px', margin: '0 auto 3.5rem', fontWeight: 300 }}>
+                            Beyond the acquisition, we provide a full suite of family office services including property management,
+                            interior curation, and residency advisory.
+                        </p>
+                        <div style={{ display: 'flex', justifyContent: 'center' }}>
+                            <a href="/contact" className="btn-primary" style={{ padding: '1.2rem 3.5rem' }}>Consult an Advisor</a>
+                        </div>
                     </div>
                 </div>
-            </div>
+            </main>
+            <Footer locale="en" />
+
+            <style jsx>{`
+                @media (max-width: 1024px) {
+                    .responsive-grid { grid-template-columns: 1fr !important; gap: 4rem !important; }
+                }
+            `}</style>
         </div>
     );
 }

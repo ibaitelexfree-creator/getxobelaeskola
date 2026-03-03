@@ -6,6 +6,8 @@ import { Badge } from '@/components/ui/Badge';
 import { PropertyCard } from '@/components/properties/PropertyCard';
 import { PropertyMapSection } from '@/components/properties/PropertyMapSection';
 import { BookingModal } from '@/components/ui/BookingModal';
+import { formatPrice, formatSqft } from '@/lib/utils';
+import { getAssetPath } from '@/lib/constants';
 import { Property } from '@/data/properties';
 import { Magnetic } from '@/components/ui/Magnetic';
 import { useScrollReveal } from '@/lib/useScrollReveal';
@@ -61,7 +63,7 @@ export const PropertyDetailClient: React.FC<PropertyDetailClientProps> = ({
                             animation: 'ken-burns 20s infinite alternate'
                         }}>
                             <img
-                                src={`/controlmanager/realstate${property.mainImage}`}
+                                src={getAssetPath(property.mainImage)}
                                 alt={property.name}
                                 style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                             />
@@ -88,7 +90,7 @@ export const PropertyDetailClient: React.FC<PropertyDetailClientProps> = ({
                                 }}
                             >
                                 <img
-                                    src={`/controlmanager/realstate${img}`}
+                                    src={getAssetPath(img)}
                                     alt={`${property.name} gallery ${idx + 2}`}
                                     style={{
                                         width: '100%',
