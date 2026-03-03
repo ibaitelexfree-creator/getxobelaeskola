@@ -1,3 +1,9 @@
+export function generateStaticParams() {
+    return [{ id: 'dummy' }];
+}
+
+export const dynamicParams = true;
+
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 

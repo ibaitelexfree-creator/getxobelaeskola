@@ -6,7 +6,6 @@ import { withCors, corsHeaders } from '@/lib/api-headers';
  * Registra la lectura de una sección de una unidad (Teoría, Práctica o Errores)
  * y recalcula el progreso de la unidad.
  */
-export const dynamic = 'force-dynamic';
 
 export async function OPTIONS(request: Request) {
     return new NextResponse(null, {

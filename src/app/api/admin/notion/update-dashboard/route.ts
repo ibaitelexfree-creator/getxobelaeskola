@@ -2,7 +2,6 @@
 import { NextResponse } from 'next/server';
 import { NotionSyncService } from '@/lib/services/notion-sync';
 
-export const dynamic = 'force-dynamic';
 
 export async function POST() {
     try {

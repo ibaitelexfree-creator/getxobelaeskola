@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import { fetchWeatherData } from '@/lib/weather';
 
-export const dynamic = 'force-dynamic';
 
 export async function GET() {
     try {
