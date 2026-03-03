@@ -18,7 +18,8 @@ export default defineConfig({
             '**/.agent/**',
             '**/.Jules/**',
             '**/.openclaw/**',
-            '**/scripts/**'
+            '**/scripts/**',
+            '**/apps/**'
         ],
         globals: true,
     },
