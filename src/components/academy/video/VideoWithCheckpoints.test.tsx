@@ -3,7 +3,7 @@ import React from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import VideoWithCheckpoints from "./VideoWithCheckpoints";
 
-// Mock YT Player
+// Mock YT Player instance
 const mockPlayer = {
 	pauseVideo: vi.fn(),
 	playVideo: vi.fn(),
@@ -13,11 +13,16 @@ const mockPlayer = {
 	getDuration: vi.fn().mockReturnValue(100),
 };
 
-// Use a regular function so 'new' works
-const MockPlayerConstructor = vi.fn((id, config) => mockPlayer);
+/**
+ * YouTube API player constructor mock.
+ * Needs to be a regular function that can be used with 'new'.
+ */
+const MockPlayer = vi.fn().mockImplementation(function(id, config) {
+    return mockPlayer;
+});
 
 const mockYT = {
-	Player: MockPlayerConstructor,
+	Player: MockPlayer,
 	PlayerState: {
 		PLAYING: 1,
 		ENDED: 0,
@@ -34,7 +39,7 @@ describe("VideoWithCheckpoints", () => {
 		mockPlayer.pauseVideo.mockClear();
 		mockPlayer.playVideo.mockClear();
 		mockPlayer.getCurrentTime.mockClear();
-		MockPlayerConstructor.mockClear();
+		MockPlayer.mockClear();
 	});
 
 	afterEach(() => {
@@ -45,7 +50,7 @@ describe("VideoWithCheckpoints", () => {
 	it("initializes YouTube player", () => {
 		render(<VideoWithCheckpoints videoUrl="test-id" checkpoints={[]} />);
 
-		expect(window.YT.Player).toHaveBeenCalledWith(
+		expect(MockPlayer).toHaveBeenCalledWith(
 			"youtube-player",
 			expect.any(Object),
 		);
@@ -66,7 +71,7 @@ describe("VideoWithCheckpoints", () => {
 		);
 
 		// Get the onStateChange handler passed to YT.Player
-		const playerConfig = MockPlayerConstructor.mock.calls[0][1];
+		const playerConfig = MockPlayer.mock.calls[0][1];
 		const onStateChange = playerConfig.events.onStateChange;
 
 		// Simulate playing
