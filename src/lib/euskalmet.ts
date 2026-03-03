@@ -11,9 +11,6 @@ export function generateEuskalmetToken() {
         throw new Error('EUSKALMET_PRIVATE_KEY is not defined');
     }
 
-
-
-
     const now = Math.floor(Date.now() / 1000);
     const payload = {
         aud: 'met01.apikey',
@@ -69,7 +66,7 @@ export async function fetchEuskalmetAlerts() {
         // Try both 'costa' and '1' for Costa Bizkaia
         const endpoints = [
             `https://api.euskadi.eus/met01/euskalmet/alerts/forRegion/1/at/${yyyy}/${mm}/${dd}`,
-            `https://api.euskadi.eus/met01/euskalmet/alerts/forRegionZone/costa/at/${yyyy}/${mm}/${dd}`
+            `https://api.euskadi.eus/met0zone/costa/at/${yyyy}/${mm}/${dd}`
         ];
 
         for (const url of endpoints) {

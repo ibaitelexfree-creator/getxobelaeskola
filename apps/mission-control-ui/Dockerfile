@@ -7,14 +7,14 @@ RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
 # Install dependencies based on the preferred package manager
-COPY mission-control/package.json mission-control/package-lock.json ./
+COPY apps/mission-control-ui/package.json apps/mission-control-ui/package-lock.json ./
 RUN npm ci --legacy-peer-deps
 
 # Rebuild the source code only when needed
 FROM base AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
-COPY mission-control/ .
+COPY apps/mission-control-ui/ .
 
 # Next.js collects completely anonymous telemetry data about general usage.
 # Learn more here: https://nextjs.org/telemetry

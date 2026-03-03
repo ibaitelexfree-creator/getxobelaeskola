@@ -47,7 +47,7 @@ services:
   mission-control:
     build:
       context: .
-      dockerfile: mission-control/Dockerfile
+      dockerfile: apps/mission-control-ui/Dockerfile
     image: ${MISSION_CONTROL_IMAGE:-mission-control-dashboard:latest}
     container_name: mission-control
     restart: always
