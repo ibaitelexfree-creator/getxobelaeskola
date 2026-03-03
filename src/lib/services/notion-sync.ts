@@ -1,4 +1,3 @@
-
 import { Client } from '@notionhq/client';
 import { PageObjectResponse, QueryDatabaseResponse } from '@notionhq/client/build/src/api-endpoints';
 import { createAdminClient } from '@/lib/supabase/admin';
@@ -272,19 +271,22 @@ export class NotionSyncService {
             .order('created_at', { ascending: false })
             .limit(8);
 
-        const staffIds = Array.from(new Set((rawAuditLogs as any[] || []).map(log => log.staff_id).filter(Boolean)));
-        const { data: staffProfiles } = await this.supabase
+        const auditStaffIds = [...new Set((rawAuditLogs as any[] || []).map(l => l.staff_id).filter(Boolean))];
+        const { data: auditProfiles } = await this.supabase
             .from('profiles')
             .select('id,nombre')
-            .in('id', staffIds);
-        const staffMap = Object.fromEntries((staffProfiles || []).map(p => [p.id, p]));
+            .in('id', auditStaffIds);
+        const auditProfileMap = Object.fromEntries((auditProfiles || []).map(p => [p.id, p]));
 
-        const auditLogs = (rawAuditLogs as any[] || []).map(log => ({
-            action: log.action_type,
-            desc: log.description,
-            time: new Date(log.created_at).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }),
-            operator: (staffMap[log.staff_id] as any)?.nombre || 'Sistemas'
-        }));
+        const auditLogs = (rawAuditLogs as any[] || []).map(log => {
+            const operator = auditProfileMap[log.staff_id];
+            return {
+                action: log.action_type,
+                desc: log.description,
+                time: new Date(log.created_at).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }),
+                operator: operator?.nombre || 'Sistemas'
+            };
+        });
 
         const { data: rawRentals } = await this.supabase
             .from('reservas_alquiler')
@@ -292,12 +294,12 @@ export class NotionSyncService {
             .order('created_at', { ascending: false })
             .limit(10);
 
-        const customerIds = Array.from(new Set((rawRentals as any[] || []).map(r => r.perfil_id).filter(Boolean)));
-        const serviceIds = Array.from(new Set((rawRentals as any[] || []).map(r => r.servicio_id).filter(Boolean)));
+        const rentalProfileIds = [...new Set((rawRentals as any[] || []).map(r => r.perfil_id).filter(Boolean))];
+        const rentalServiceIds = [...new Set((rawRentals as any[] || []).map(r => r.servicio_id).filter(Boolean))];
 
         const [{ data: customerProfiles }, { data: services }] = await Promise.all([
-            this.supabase.from('profiles').select('id,nombre,apellidos').in('id', customerIds) as any,
-            this.supabase.from('servicios_alquiler').select('id,nombre_es').in('id', serviceIds) as any
+            this.supabase.from('profiles').select('id,nombre,apellidos').in('id', rentalProfileIds) as any,
+            this.supabase.from('servicios_alquiler').select('id,nombre_es').in('id', rentalServiceIds) as any
         ]);
 
         const customerMap = Object.fromEntries((customerProfiles || []).map((p: any) => [p.id, p]));
