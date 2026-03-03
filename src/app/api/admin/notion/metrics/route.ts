@@ -7,6 +7,7 @@ export const dynamic = 'force-dynamic';
 export async function GET() {
     try {
         const syncService = new NotionSyncService();
+        await syncService.init();
         const metrics = await syncService.getGlobalMetrics();
 
         return NextResponse.json({
