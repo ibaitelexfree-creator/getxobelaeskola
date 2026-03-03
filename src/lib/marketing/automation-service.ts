@@ -35,7 +35,7 @@ export async function processMarketingAutomations() {
 
         const { data: triggerInscriptions, error: insError } = await supabase
             .from('inscripciones')
-            .select('perfil_id, profiles(nombre)')
+            .select('perfil_id, profiles(nombre, email)')
             .eq('curso_id', campaign.curso_trigger_id)
             .lte('created_at', daysAgo.toISOString());
 
@@ -46,35 +46,50 @@ export async function processMarketingAutomations() {
 
         console.log(`Found ${triggerInscriptions.length} possible candidates who took the trigger course.`);
 
+        const candidateProfileIds = triggerInscriptions.map((ins: any) => ins.perfil_id);
+
+        if (candidateProfileIds.length === 0) continue;
+
+        // 2. Batch check if already bought target course
+        const { data: boughtTargetInscriptions, error: boughtError } = await supabase
+            .from('inscripciones')
+            .select('perfil_id')
+            .eq('curso_id', campaign.curso_objetivo_id)
+            .in('perfil_id', candidateProfileIds);
+
+        if (boughtError) {
+            console.error(`Error checking target course inscriptions for campaign ${campaign.id}:`, boughtError);
+            continue;
+        }
+        const boughtTargetSet = new Set(boughtTargetInscriptions?.map((ins: any) => ins.perfil_id) || []);
+
+        // 3. Batch check if already received this campaign
+        const { data: historyExistsList, error: historyError } = await supabase
+            .from('marketing_history')
+            .select('perfil_id')
+            .eq('campana_id', campaign.id)
+            .in('perfil_id', candidateProfileIds);
+
+        if (historyError) {
+            console.error(`Error checking marketing history for campaign ${campaign.id}:`, historyError);
+            continue;
+        }
+        const historySet = new Set(historyExistsList?.map((h: any) => h.perfil_id) || []);
+
         for (const ins of (triggerInscriptions as any[])) {
             const profileId = ins.perfil_id;
 
             // 2. Check if already bought target course
-            const { count: boughtTarget, error: boughtError } = await supabase
-                .from('inscripciones')
-                .select('*', { count: 'exact', head: true })
-                .eq('perfil_id', profileId)
-                .eq('curso_id', campaign.curso_objetivo_id);
-
-            if (boughtError) continue;
-            if (boughtTarget && boughtTarget > 0) continue;
+            if (boughtTargetSet.has(profileId)) continue;
 
             // 3. Check if already received this campaign
-            const { data: historyExists, error: historyError } = await supabase
-                .from('marketing_history')
-                .select('id')
-                .eq('campana_id', campaign.id)
-                .eq('perfil_id', profileId)
-                .maybeSingle();
-
-            if (historyError || historyExists) continue;
+            if (historySet.has(profileId)) continue;
 
             // 4. Get User Email
-            const { data: userResponse, error: userError } = await supabase.auth.admin.getUserById(profileId);
-            const user = userResponse?.user;
+            const userEmail = (ins.profiles as any)?.email;
 
-            if (userError || !user?.email) {
-                console.warn(`Could not get email for profile ${profileId}:`, userError);
+            if (!userEmail) {
+                console.warn(`Could not get email for profile ${profileId}`);
                 continue;
             }
 
@@ -92,7 +107,7 @@ export async function processMarketingAutomations() {
                         }
                     });
                     finalCode = promoCode.code;
-                    console.log(`Generated dynamic Stripe code: ${finalCode} for ${user.email}`);
+                    console.log(`Generated dynamic Stripe code: ${finalCode} for ${userEmail}`);
                 } catch (stripeErr) {
                     console.error('Error creating Stripe promotion code:', stripeErr);
                     // Fallback to static code if specified, otherwise skip to avoid sending invalid offer
@@ -102,7 +117,7 @@ export async function processMarketingAutomations() {
 
             // 6. Send Email
             const profileName = (ins.profiles as any)?.nombre || 'Navegante';
-            const emailSent = await sendAutomationEmail(user.email, profileName, campaign, finalCode);
+            const emailSent = await sendAutomationEmail(userEmail, profileName, campaign, finalCode);
 
             if (emailSent) {
                 // 7. Log history
@@ -111,7 +126,7 @@ export async function processMarketingAutomations() {
                     perfil_id: profileId
                 });
                 totalSent++;
-                console.log(`Successfully sent marketing email to ${user.email} for campaign ${campaign.nombre}`);
+                console.log(`Successfully sent marketing email to ${userEmail} for campaign ${campaign.nombre}`);
             }
         }
     }
