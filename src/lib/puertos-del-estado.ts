@@ -54,8 +54,9 @@ export async function fetchSeaState(): Promise<SeaStateData> {
 
         const response = await fetch(PUERTOS_API_URL, {
             signal: controller.signal,
-            next: { revalidate: 1800 } // Cache for 30 minutes
-        });
+            // @ts-ignore - Next.js fetch extension for revalidation
+            next: { revalidate: 1800 }
+        } as RequestInit);
 
         clearTimeout(timeoutId);
 
