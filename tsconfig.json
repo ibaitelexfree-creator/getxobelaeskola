@@ -35,7 +35,9 @@
     "src/**/*.ts",
     "src/**/*.tsx",
     ".next/types/**/*.ts",
-    "vitest.setup.ts"
+    "vitest.setup.ts",
+    "i18n.ts",
+    "next.config.mjs"
   ],
   "exclude": [
     "node_modules",
