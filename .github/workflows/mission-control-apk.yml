@@ -30,12 +30,12 @@ jobs:
 
       - name: Install dependencies
         run: |
-          cd mission-control
+          cd apps/mission-control-ui
           npm ci --legacy-peer-deps
 
       - name: Build Next.js (SSG)
         run: |
-          cd mission-control
+          cd apps/mission-control-ui
           npm run build
         env:
           IS_CAPACITOR: "true"
@@ -52,12 +52,12 @@ jobs:
 
       - name: Capacitor Sync
         run: |
-          cd mission-control
+          cd apps/mission-control-ui
           npx cap sync android
 
       - name: Build Android APK (Debug)
         run: |
-          cd mission-control/android
+          cd apps/mission-control-ui/android
           chmod +x gradlew
           ./gradlew assembleDebug
 
