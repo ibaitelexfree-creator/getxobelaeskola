@@ -50,14 +50,17 @@ function initializeSpatialIndex() {
 
                 try {
                     const bbox = turf.bbox(feature);
-                    // Ensure bbox is valid numbers and has 4 elements
-                    if (!bbox || bbox.length !== 4 || bbox.some(coord => typeof coord !== 'number' || isNaN(coord))) return;
+                    // Ensure bbox is valid numbers and has 4 or 6 elements (2D or 3D)
+                    if (!bbox || (bbox.length !== 4 && bbox.length !== 6) || bbox.some(coord => typeof coord !== 'number' || isNaN(coord))) return;
+
+                    const maxX = bbox.length === 6 ? bbox[3] : bbox[2];
+                    const maxY = bbox.length === 6 ? bbox[4] : bbox[3];
 
                     items.push({
                         minX: bbox[0],
                         minY: bbox[1],
-                        maxX: bbox[2],
-                        maxY: bbox[3],
+                        maxX: maxX,
+                        maxY: maxY,
                         feature: feature as GeoJSONFeature
                     });
                 } catch (e) {
@@ -69,12 +72,15 @@ function initializeSpatialIndex() {
         else if (geojson.type === 'Feature' && geojson.geometry && geojson.geometry.coordinates) {
             try {
                 const bbox = turf.bbox(geojson);
-                if (bbox && bbox.length === 4 && !bbox.some(coord => typeof coord !== 'number' || isNaN(coord))) {
+                if (bbox && (bbox.length === 4 || bbox.length === 6) && !bbox.some(coord => typeof coord !== 'number' || isNaN(coord))) {
+                    const maxX = bbox.length === 6 ? bbox[3] : bbox[2];
+                    const maxY = bbox.length === 6 ? bbox[4] : bbox[3];
+
                     items.push({
                         minX: bbox[0],
                         minY: bbox[1],
-                        maxX: bbox[2],
-                        maxY: bbox[3],
+                        maxX: maxX,
+                        maxY: maxY,
                         feature: geojson as GeoJSONFeature
                     });
                 }
