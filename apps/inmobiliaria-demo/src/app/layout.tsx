@@ -4,7 +4,7 @@ import { AishaChatWidget } from '@/components/chat/AishaChatWidget';
 import { SpotlightCursor } from '@/components/ui/SpotlightCursor';
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://getxobelaeskola.cloud/controlmanager/realstate'),
+  metadataBase: new URL('https://controlmanager.cloud/realstate'),
   title: 'Luxe Dubai Estates | Premium Real Estate in Dubai',
   description: 'Discover the most exclusive properties in Dubai. From Palm Jumeirah penthouses to Emirates Hills mansions, find your ultra-luxury home with Luxe Dubai Estates.',
   keywords: 'Dubai real estate, luxury properties Dubai, buy villa Dubai, Palm Jumeirah penthouse, Emirates Hills mansion, real estate investment Dubai',

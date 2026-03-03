@@ -1,7 +1,7 @@
 const axios = require('axios');
 const token = '8287082204:AAEfPganohul_Ic_8SiWn973zTGvG93UohU';
-// Correct URL including the Next.js basePath
-const webhookUrl = 'https://scarmonit.com/controlmanager/realstate/api/telegram/webhook';
+// Adding the trailing slash to avoid the 308 redirect that Telegram doesn't like
+const webhookUrl = 'https://controlmanager.cloud/controlmanager/realstate/api/telegram/webhook/';
 
 async function setup() {
     try {

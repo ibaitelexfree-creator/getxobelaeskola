@@ -4,26 +4,40 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import LanguageSelector from '../ui/LanguageSelector';
+import { UI_TRANSLATIONS } from '@/lib/translations';
 
 const Header = () => {
     const [scrolled, setScrolled] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const pathname = usePathname();
 
+    const [lang, setLang] = useState<'en' | 'es' | 'ar' | 'ru'>('en');
+
     useEffect(() => {
         const handleScroll = () => {
             setScrolled(window.scrollY > 50);
         };
         window.addEventListener('scroll', handleScroll);
+
+        const match = document.cookie.match(/(^|;) ?googtrans=([^;]*)(;|$)/);
+        if (match) {
+            const gLang = match[2].split('/')[2];
+            if (gLang === 'en' || gLang === 'es' || gLang === 'ar' || gLang === 'ru') {
+                setLang(gLang as 'en' | 'es' | 'ar' | 'ru');
+            }
+        }
+
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
+    const t = (UI_TRANSLATIONS as any)[lang]?.nav || UI_TRANSLATIONS.en.nav;
+
     const navLinks = [
-        { name: 'Home', path: '/' },
-        { name: 'Properties', path: '/properties' },
-        { name: 'Neighborhoods', path: '/neighborhoods' },
-        { name: 'About', path: '/about' },
-        { name: 'Contact', path: '/contact' },
+        { name: t.home, path: '/' },
+        { name: t.properties, path: '/properties' },
+        { name: t.neighborhoods, path: '/neighborhoods' },
+        { name: t.about, path: '/about' },
+        { name: t.contact, path: '/contact' },
     ];
 
     return (
@@ -99,7 +113,7 @@ const Header = () => {
                         <LanguageSelector />
 
                         <Link href="/list-property" className="btn-primary" style={{ padding: '0.6rem 1.5rem', fontSize: '0.8rem' }}>
-                            List Property
+                            {t.list}
                         </Link>
                     </nav>
 
@@ -167,7 +181,7 @@ const Header = () => {
                     onClick={() => setIsMobileMenuOpen(false)}
                     style={{ width: '100%', maxWidth: '250px' }}
                 >
-                    List Property
+                    {t.list}
                 </Link>
             </div>
         </>

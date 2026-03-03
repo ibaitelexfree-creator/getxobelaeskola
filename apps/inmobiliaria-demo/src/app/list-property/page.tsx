@@ -4,15 +4,16 @@ import React, { useState } from 'react';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import LuxuryReveal from '@/components/ui/LuxuryReveal';
+import { NEIGHBORHOODS } from '@/data/neighborhoods';
 
 export default function ListPropertyPage() {
     const [formData, setFormData] = useState({
         title: '',
         price: '',
-        location: '',
+        location: NEIGHBORHOODS[0].name,
         bedrooms: '',
         bathrooms: '',
-        type: 'Villa',
+        property_type: 'Villa',
         description: '',
         images: [] as string[]
     });
@@ -46,6 +47,14 @@ export default function ListPropertyPage() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(formData)
             });
+
+            // Handle non-JSON responses (like 404 or 500 HTML pages)
+            const contentType = response.headers.get('content-type');
+            if (!contentType || !contentType.includes('application/json')) {
+                const text = await response.text();
+                console.error('Server returned non-JSON response:', text);
+                throw new Error('Server returned an invalid response. Please check the API status.');
+            }
 
             const resData = await response.json();
             if (!response.ok) {
@@ -92,7 +101,7 @@ export default function ListPropertyPage() {
                             <button
                                 onClick={() => {
                                     setIsSuccess(false);
-                                    setFormData({ title: '', price: '', location: '', bedrooms: '', bathrooms: '', type: 'Villa', description: '', images: [] });
+                                    setFormData({ title: '', price: '', location: NEIGHBORHOODS[0].name, bedrooms: '', bathrooms: '', property_type: 'Villa', description: '', images: [] });
                                 }}
                                 className="btn-primary"
                                 style={{ padding: '1.2rem 3rem' }}
@@ -142,22 +151,25 @@ export default function ListPropertyPage() {
 
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                                     <label style={{ fontSize: '0.75rem', color: 'var(--gold-500)', fontWeight: 700, letterSpacing: '0.15em' }}>NEIGHBORHOOD</label>
-                                    <input
-                                        type="text"
+                                    <select
                                         name="location"
                                         required
                                         value={formData.location}
                                         onChange={handleInputChange}
                                         className="input-field"
-                                        placeholder="e.g. Palm Jumeirah"
-                                    />
+                                        style={{ appearance: 'none' }}
+                                    >
+                                        {NEIGHBORHOODS.map(n => (
+                                            <option key={n.id} value={n.name}>{n.name}</option>
+                                        ))}
+                                    </select>
                                 </div>
 
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                                     <label style={{ fontSize: '0.75rem', color: 'var(--gold-500)', fontWeight: 700, letterSpacing: '0.15em' }}>ARCHITECTURAL TYPE</label>
                                     <select
-                                        name="type"
-                                        value={formData.type}
+                                        name="property_type"
+                                        value={formData.property_type}
                                         onChange={handleInputChange}
                                         className="input-field"
                                         style={{ appearance: 'none' }}

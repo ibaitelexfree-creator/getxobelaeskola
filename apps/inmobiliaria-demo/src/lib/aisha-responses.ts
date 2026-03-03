@@ -62,6 +62,9 @@ export async function getAishaResponse(message: string): Promise<string> {
         if (msg.includes('invest') || msg.includes('rental') || msg.includes('yield') || msg.includes('roi')) {
             return "Dubai's real estate market continues to outperform global benchmarks, offering yields up to 8% tax-free. I can provide a detailed ROI analysis for our top-performing assets if you'd like.";
         }
+        if (msg.includes('privacy') || msg.includes('legal') || msg.includes('data') || msg.includes('terms') || msg.includes('policy')) {
+            return "We take data protection very seriously at Luxe Dubai Estates. Our Privacy Policy is fully compliant with UAE Federal Law No. 45 and RERA regulations. You can find the full details at /privacy-policy. Is there a specific legal aspect you're concerned about?";
+        }
 
         return "I'm currently attending to several high-profile consultations, but I'm here to assist! I'm Aisha, your AI luxury property advisor. Are you interested in exploring our villas, penthouses, or perhaps a signature residence on the Palm?";
     }
