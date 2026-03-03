@@ -47,6 +47,7 @@ export async function POST(req: Request) {
 
         return NextResponse.json({ message: 'Sync started successfully', mode });
     } catch (err: any) {
+        console.error("Sync API Error:", err);
         return NextResponse.json({ error: err.message }, { status: 500 });
     }
 }

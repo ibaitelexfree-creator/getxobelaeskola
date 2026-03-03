@@ -11,6 +11,7 @@ vi.mock('child_process', async (importOriginal) => {
     execFile: vi.fn((cmd, args, options, callback) => {
       if (callback) callback(null, 'success', '');
     }),
+    exec: vi.fn(),
   };
 });
 
