@@ -51,6 +51,7 @@ describe('processMarketingAutomations', () => {
             select: vi.fn().mockReturnThis(),
             eq: vi.fn().mockReturnThis(),
             lte: vi.fn().mockReturnThis(),
+            in: vi.fn().mockReturnThis(),
             maybeSingle: vi.fn(),
             insert: vi.fn().mockResolvedValue({ error: null }),
         };
@@ -107,23 +108,21 @@ describe('processMarketingAutomations', () => {
                 return createQueryBuilder({ data: [mockCampaign] });
             }
             if (table === 'inscripciones') {
-                // We need to distinguish between trigger check (lte) and target check (eq only)
-                // Since the builder is created fresh each time, we can't inspect previous calls easily
-                // UNLESS we return a proxy or inspect the stack.
-                // EASIER: Return a builder that captures calls and decides on resolve.
-
                 const builder: any = {
                     select: vi.fn().mockReturnThis(),
                     eq: vi.fn().mockReturnThis(),
                     lte: vi.fn().mockReturnThis(),
+                    in: vi.fn().mockReturnThis(),
                 };
 
                 builder.then = (resolve: any) => {
-                    // Check if lte was called (Trigger Query)
                     if (builder.lte.mock.calls.length > 0) {
                         resolve({ data: [mockInscription], error: null });
+                    } else if (builder.in.mock.calls.length > 0) {
+                        // Batch check target course
+                        resolve({ data: [], error: null });
                     } else {
-                        // Target Query (Check if bought)
+                        // Sequential check (fallback for older code if any)
                         resolve({ count: 0, error: null });
                     }
                 };
@@ -133,8 +132,12 @@ describe('processMarketingAutomations', () => {
                 const builder: any = {
                     select: vi.fn().mockReturnThis(),
                     eq: vi.fn().mockReturnThis(),
-                    maybeSingle: vi.fn().mockResolvedValue({ data: null, error: null }), // No history
+                    in: vi.fn().mockReturnThis(),
+                    maybeSingle: vi.fn().mockResolvedValue({ data: null, error: null }),
                     insert: vi.fn().mockResolvedValue({ error: null }),
+                };
+                builder.then = (resolve: any) => {
+                    resolve({ data: [], error: null });
                 };
                 return builder;
             }
@@ -178,12 +181,15 @@ describe('processMarketingAutomations', () => {
                     select: vi.fn().mockReturnThis(),
                     eq: vi.fn().mockReturnThis(),
                     lte: vi.fn().mockReturnThis(),
+                    in: vi.fn().mockReturnThis(),
                 };
                 builder.then = (resolve: any) => {
                     if (builder.lte.mock.calls.length > 0) {
                         resolve({ data: [{ perfil_id: 'user_1' }], error: null });
+                    } else if (builder.in.mock.calls.length > 0) {
+                        // Batch check - User has bought it!
+                        resolve({ data: [{ perfil_id: 'user_1' }], error: null });
                     } else {
-                        // Target Query - User has bought it!
                         resolve({ count: 1, error: null });
                     }
                 };
@@ -208,22 +214,29 @@ describe('processMarketingAutomations', () => {
                     select: vi.fn().mockReturnThis(),
                     eq: vi.fn().mockReturnThis(),
                     lte: vi.fn().mockReturnThis(),
+                    in: vi.fn().mockReturnThis(),
                 };
                 builder.then = (resolve: any) => {
                     if (builder.lte.mock.calls.length > 0) {
                         resolve({ data: [{ perfil_id: 'user_1' }], error: null });
                     } else {
-                        resolve({ count: 0, error: null });
+                        resolve({ data: [], error: null });
                     }
                 };
                 return builder;
             }
             if (table === 'marketing_history') {
-                return {
+                const builder: any = {
                     select: vi.fn().mockReturnThis(),
                     eq: vi.fn().mockReturnThis(),
-                    maybeSingle: vi.fn().mockResolvedValue({ data: { id: 'hist_1' }, error: null }), // History exists
-                } as any;
+                    in: vi.fn().mockReturnThis(),
+                    maybeSingle: vi.fn().mockResolvedValue({ data: { id: 'hist_1' }, error: null }),
+                };
+                builder.then = (resolve: any) => {
+                    // History exists
+                    resolve({ data: [{ perfil_id: 'user_1' }], error: null });
+                };
+                return builder;
             }
             return createQueryBuilder();
         });
@@ -250,20 +263,26 @@ describe('processMarketingAutomations', () => {
                     select: vi.fn().mockReturnThis(),
                     eq: vi.fn().mockReturnThis(),
                     lte: vi.fn().mockReturnThis(),
+                    in: vi.fn().mockReturnThis(),
                 };
                 builder.then = (resolve: any) => {
                     if (builder.lte.mock.calls.length > 0) resolve({ data: [{ perfil_id: 'user_1' }], error: null });
-                    else resolve({ count: 0, error: null });
+                    else resolve({ data: [], error: null });
                 };
                 return builder;
             }
             if (table === 'marketing_history') {
-                return {
+                const builder: any = {
                     select: vi.fn().mockReturnThis(),
                     eq: vi.fn().mockReturnThis(),
+                    in: vi.fn().mockReturnThis(),
                     maybeSingle: vi.fn().mockResolvedValue({ data: null, error: null }),
                     insert: vi.fn().mockResolvedValue({ error: null }),
-                } as any;
+                };
+                builder.then = (resolve: any) => {
+                    resolve({ data: [], error: null });
+                };
+                return builder;
             }
             return createQueryBuilder();
         });
@@ -293,20 +312,26 @@ describe('processMarketingAutomations', () => {
                     select: vi.fn().mockReturnThis(),
                     eq: vi.fn().mockReturnThis(),
                     lte: vi.fn().mockReturnThis(),
+                    in: vi.fn().mockReturnThis(),
                 };
                 builder.then = (resolve: any) => {
                     if (builder.lte.mock.calls.length > 0) resolve({ data: [{ perfil_id: 'user_1' }], error: null });
-                    else resolve({ count: 0, error: null });
+                    else resolve({ data: [], error: null });
                 };
                 return builder;
             }
             if (table === 'marketing_history') {
-                return {
+                const builder: any = {
                     select: vi.fn().mockReturnThis(),
                     eq: vi.fn().mockReturnThis(),
+                    in: vi.fn().mockReturnThis(),
                     maybeSingle: vi.fn().mockResolvedValue({ data: null, error: null }),
                     insert: insertSpy,
-                } as any;
+                };
+                builder.then = (resolve: any) => {
+                    resolve({ data: [], error: null });
+                };
+                return builder;
             }
             return createQueryBuilder();
         });

@@ -18,6 +18,7 @@
 | T-007 | Antigravity | Notion Premium Dashboard Refactor & Update | 2026-02-23 | completado |
 | T-008 | Jules | Strengthen edge-case coverage for fetchWeatherData | 2026-02-24 | completado |
 | T-009 | Jules | Optimize Dashboard Stats API | 2026-02-23 | completado |
+| T-010 | Jules | Fix N+1 Query in Automation Service | 2026-02-25 | completado |
 
 ## Bloqueos / Conflictos
 Ninguno actualmente.
