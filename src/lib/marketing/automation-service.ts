@@ -111,7 +111,7 @@ export async function processMarketingAutomations() {
                         }
                     });
                     finalCode = promoCode.code;
-                    console.log(`Generated dynamic Stripe code: ${finalCode} for ${user.email}`);
+                    console.log(`Generated dynamic Stripe code: ${finalCode} for ${email}`);
                 } catch (stripeErr) {
                     console.error('Error creating Stripe promotion code:', stripeErr);
                     // Fallback to static code if specified, otherwise skip to avoid sending invalid offer
