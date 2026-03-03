@@ -4,10 +4,10 @@ on:
     push:
         branches: [main]
         paths:
-            - "apps/mission-control-ui/src/**"
-            - "apps/mission-control-ui/public/**"
-            - "apps/mission-control-ui/package.json"
-            - "apps/mission-control-ui/next.config.mjs"
+            - "mission-control/src/**"
+            - "mission-control/public/**"
+            - "mission-control/package.json"
+            - "mission-control/next.config.mjs"
             - ".github/workflows/mission-control-web.yml"
     workflow_dispatch:
 
@@ -28,20 +28,20 @@ jobs:
               with:
                   node-version: 22
                   cache: "npm"
-                  cache-dependency-path: apps/mission-control-ui/package-lock.json
+                  cache-dependency-path: mission-control/package-lock.json
 
             - name: Install dependencies
               run: |
-                  cd apps/mission-control-ui
+                  cd mission-control
                   npm ci --legacy-peer-deps
 
             - name: Build Next.js Web App
               run: |
-                  cd apps/mission-control-ui
+                  cd mission-control
                   npm run build
 
             - name: Upload Web Artifact
               uses: actions/upload-artifact@v4
               with:
                   name: mission-control-web-build
-                  path: apps/mission-control-ui/out/
+                  path: mission-control/out/
