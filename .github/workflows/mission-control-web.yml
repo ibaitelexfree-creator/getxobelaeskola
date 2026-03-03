@@ -33,7 +33,7 @@ jobs:
             - name: Install dependencies
               run: |
                   cd apps/mission-control-ui
-                  npm ci --legacy-peer-deps
+                  npm install --legacy-peer-deps
 
             - name: Build Next.js Web App
               run: |
