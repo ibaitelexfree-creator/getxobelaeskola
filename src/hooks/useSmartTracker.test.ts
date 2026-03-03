@@ -159,4 +159,37 @@ describe('useSmartTracker', () => {
         });
         expect(result.current.points).toHaveLength(2); // Enough time
     });
+
+    it('should handle error when watchPosition fails to start', async () => {
+        (Geolocation.watchPosition as any).mockRejectedValue(new Error('Failed to start watch'));
+
+        const { result } = renderHook(() => useSmartTracker());
+
+        await act(async () => {
+            await result.current.startTracking(false);
+        });
+
+        expect(result.current.isTracking).toBe(false);
+        expect(result.current.error).toBe('Failed to start watch');
+    });
+
+    it('should handle error in watchPosition callback', async () => {
+        let watchCallback: any;
+        (Geolocation.watchPosition as any).mockImplementation((options: any, callback: any) => {
+            watchCallback = callback;
+            return Promise.resolve('watch-error-123');
+        });
+
+        const { result } = renderHook(() => useSmartTracker());
+
+        await act(async () => {
+            await result.current.startTracking(false);
+        });
+
+        act(() => {
+            watchCallback(null, new Error('Location error'));
+        });
+
+        expect(result.current.error).toBe('Location error');
+    });
 });
