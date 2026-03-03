@@ -10,7 +10,7 @@ on:
       - "public/**"
       - "orchestration/**"
       - "infra/**"
-      - "mission-control/**"
+      - "apps/mission-control-ui/**"
       - "docker-compose.yml"
       - "Dockerfile"
       - "package.json"
@@ -85,7 +85,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: mission-control/Dockerfile
+          file: apps/mission-control-ui/Dockerfile
           push: true
           tags: ${{ steps.meta-mc.outputs.tags }}
           labels: ${{ steps.meta-mc.outputs.labels }}
