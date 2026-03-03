@@ -30,11 +30,10 @@ function LoginPageContent({ locale }: { locale: string }) {
         supabase.auth.getSession().then(({ data: { session } }: { data: { session: any } }) => {
             if (session) {
                 supabase.from('profiles').select('rol').eq('id', session.user.id).single().then(({ data }) => {
-                    const safeReturnTo = (returnTo && returnTo.startsWith('/') && !returnTo.startsWith('//')) ? returnTo : null;
                     if (data && (data.rol === 'admin' || data.rol === 'instructor')) {
-                        router.replace(safeReturnTo || `/${locale}/staff`);
+                        router.replace(returnTo || `/${locale}/staff`);
                     } else {
-                        router.replace(safeReturnTo || `/${locale}/student/dashboard`);
+                        router.replace(returnTo || `/${locale}/student/dashboard`);
                     }
                 });
             } else {

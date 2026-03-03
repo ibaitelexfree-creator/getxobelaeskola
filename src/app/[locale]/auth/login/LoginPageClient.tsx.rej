@@ -1,0 +1,16 @@
+--- src/app/[locale]/auth/login/LoginPageClient.tsx
++++ src/app/[locale]/auth/login/LoginPageClient.tsx
+@@ -31,9 +31,11 @@
+                     const isAdmin = profile?.rol === 'admin' || profile?.rol === 'instructor';
+
+                     if (isAdmin) {
+-                        router.replace(returnTo || `/${locale}/staff`);
++                        const safeReturnTo = (returnTo && returnTo.startsWith('/') && !returnTo.startsWith('//')) ? returnTo : null;
++                        router.replace(safeReturnTo || `/${locale}/staff`);
+                     } else {
+-                        router.replace(returnTo || `/${locale}/student/dashboard`);
++                        const safeReturnTo = (returnTo && returnTo.startsWith('/') && !returnTo.startsWith('//')) ? returnTo : null;
++                        router.replace(safeReturnTo || `/${locale}/student/dashboard`);
+                     }
+                 } catch (error) {
+                     console.error('Error in session fetch:', error);
