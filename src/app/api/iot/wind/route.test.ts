@@ -25,7 +25,6 @@ describe('POST /api/iot/wind', () => {
       }),
       body: JSON.stringify(body),
     });
-    // Mock the .json() method since NextRequest inside Node might not parse it easily without a proper server setup in some mock environments
     req.json = vi.fn().mockResolvedValue(body);
     return req;
   };
@@ -60,7 +59,6 @@ describe('POST /api/iot/wind', () => {
 
     const res = await POST(req);
 
-    // Status should be 200 (Success)
     expect(res.status).toBe(200);
     const data = await res.json();
     expect(data.success).toBe(true);

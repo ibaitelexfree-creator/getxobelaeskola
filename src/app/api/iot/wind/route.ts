@@ -7,7 +7,6 @@ export async function POST(request: NextRequest) {
     try {
         // Security Check
         const apiKey = request.headers.get('x-api-key');
-
         const validKey = process.env.IOT_API_KEY;
 
         // Require the environment variable to be set to prevent unauthenticated access
