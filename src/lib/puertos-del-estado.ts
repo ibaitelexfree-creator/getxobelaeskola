@@ -23,7 +23,7 @@ export async function fetchSeaState(): Promise<SeaStateData> {
         const res = await fetch('https://portus.puertos.es/Portus_RT/point/3136/data', {
             signal: controller.signal,
             next: { revalidate: 1800 } // 30 minutes cache
-        });
+        } as RequestInit); // Casting to handle potential type differences in custom environments
 
         clearTimeout(timeoutId);
 
@@ -34,23 +34,25 @@ export async function fetchSeaState(): Promise<SeaStateData> {
             if (Array.isArray(data) && data.length > 0) {
                 const latest = data[data.length - 1]; // Usually last is most recent
 
-                // Puertos del Estado field mapping (defensive)
-                // Hm0: Significant Wave Height
-                // Tp: Peak Period
-                // water_temp: Water Temperature
-                const waveHeight = latest.Hm0 ?? latest.wave_height ?? latest.height ?? 1.2;
-                const period = latest.Tp ?? latest.period ?? latest.wave_period ?? 8;
-                const waterTemp = latest.water_temp ?? latest.temp ?? 16;
+                if (latest) {
+                    // Puertos del Estado field mapping (defensive)
+                    // Hm0: Significant Wave Height
+                    // Tp: Peak Period
+                    // water_temp: Water Temperature
+                    const waveHeight = latest.Hm0 ?? latest.wave_height ?? latest.height ?? 1.2;
+                    const period = latest.Tp ?? latest.period ?? latest.wave_period ?? 8;
+                    const waterTemp = latest.water_temp ?? latest.temp ?? 16;
 
-                return {
-                    waveHeight: parseFloat(Number(waveHeight).toFixed(2)),
-                    period: Math.round(Number(period)),
-                    waterTemp: parseFloat(Number(waterTemp).toFixed(1)),
-                    windSpeed: latest.wind_speed ?? 10,
-                    windDirection: latest.wind_direction ?? 0,
-                    timestamp: latest.timestamp ?? new Date().toISOString(),
-                    isSimulated: false
-                };
+                    return {
+                        waveHeight: parseFloat(Number(waveHeight).toFixed(2)),
+                        period: Math.round(Number(period)),
+                        waterTemp: parseFloat(Number(waterTemp).toFixed(1)),
+                        windSpeed: latest.wind_speed ?? 10,
+                        windDirection: latest.wind_direction ?? 0,
+                        timestamp: latest.timestamp ?? new Date().toISOString(),
+                        isSimulated: false
+                    };
+                }
             }
         }
     } catch (error) {
