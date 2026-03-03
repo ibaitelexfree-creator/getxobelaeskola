@@ -44,7 +44,7 @@ export const offlineSyncManager = {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(newQueue));
     },
 
-    processQueue: async (concurrencyLimit = 5) => {
+    processQueue: async (concurrencyLimit = 5): Promise<void> => {
         if (typeof navigator === 'undefined' || !navigator.onLine) return;
 
         const initialQueue = offlineSyncManager.getQueue();
