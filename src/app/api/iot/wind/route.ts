@@ -7,6 +7,7 @@ export async function POST(request: NextRequest) {
     try {
         // Security Check
         const apiKey = request.headers.get('x-api-key');
+        // In production, ensure IOT_API_KEY is set. Fallback is for demo/dev only.
         const validKey = process.env.IOT_API_KEY;
 
         if (!validKey || apiKey !== validKey) {

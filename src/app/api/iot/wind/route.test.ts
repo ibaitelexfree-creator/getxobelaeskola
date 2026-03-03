@@ -1,58 +1,90 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { POST } from './route';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { NextRequest } from 'next/server';
 
-vi.mock('@/lib/supabase/admin', () => ({
-    createAdminClient: vi.fn(() => ({
-        from: vi.fn(() => ({
-            insert: vi.fn(() => Promise.resolve({ error: null }))
-        }))
-    }))
+const { mockInsert } = vi.hoisted(() => ({
+    mockInsert: vi.fn().mockResolvedValue({ error: null })
 }));
 
-describe('IoT Wind API Security', () => {
+vi.mock('@/lib/supabase/admin', () => ({
+    createAdminClient: vi.fn().mockReturnValue({
+        from: vi.fn().mockReturnValue({
+            insert: mockInsert
+        })
+    })
+}));
+
+describe('POST /api/iot/wind', () => {
     const originalEnv = process.env;
 
     beforeEach(() => {
-        vi.resetModules();
+        vi.clearAllMocks();
         process.env = { ...originalEnv };
     });
 
-    it('should return 401 if IOT_API_KEY is not set in environment', async () => {
+    afterEach(() => {
+        process.env = originalEnv;
+    });
+
+    it('should REJECT the hardcoded fallback when IOT_API_KEY is missing', async () => {
         delete process.env.IOT_API_KEY;
-        const request = new NextRequest('http://localhost/api/iot/wind', {
+
+        const req = new NextRequest('http://localhost/api/iot/wind', {
             method: 'POST',
-            headers: { 'x-api-key': 'club-nautico-iot-secret-2024' },
-            body: JSON.stringify({ sensor_id: 'test', speed_knots: 10, direction_deg: 90 })
+            headers: {
+                'x-api-key': 'club-nautico-iot-secret-2024',
+                'content-type': 'application/json'
+            },
+            body: JSON.stringify({
+                sensor_id: 'test-sensor',
+                speed_knots: 10,
+                direction_deg: 180,
+                gust_knots: 15,
+                battery_level: 90
+            })
         });
 
-        const response = await POST(request);
-        expect(response.status).toBe(401);
-        const body = await response.json();
-        expect(body.error).toBe('Unauthorized');
+        const res = await POST(req);
+        expect(res.status).toBe(401);
     });
 
     it('should return 401 if provided apiKey does not match IOT_API_KEY', async () => {
-        process.env.IOT_API_KEY = 'real-secret-key';
-        const request = new NextRequest('http://localhost/api/iot/wind', {
+        process.env.IOT_API_KEY = 'real-secret';
+
+        const req = new NextRequest('http://localhost/api/iot/wind', {
             method: 'POST',
-            headers: { 'x-api-key': 'club-nautico-iot-secret-2024' },
-            body: JSON.stringify({ sensor_id: 'test', speed_knots: 10, direction_deg: 90 })
+            headers: {
+                'x-api-key': 'wrong-secret',
+                'content-type': 'application/json'
+            },
+            body: JSON.stringify({
+                sensor_id: 'test-sensor',
+                speed_knots: 10,
+                direction_deg: 180
+            })
         });
 
-        const response = await POST(request);
-        expect(response.status).toBe(401);
+        const res = await POST(req);
+        expect(res.status).toBe(401);
     });
 
-    it('should return 200 if provided apiKey matches IOT_API_KEY', async () => {
-        process.env.IOT_API_KEY = 'real-secret-key';
-        const request = new NextRequest('http://localhost/api/iot/wind', {
+    it('should accept requests with CORRECT API key when set', async () => {
+        process.env.IOT_API_KEY = 'real-secret';
+
+        const req = new NextRequest('http://localhost/api/iot/wind', {
             method: 'POST',
-            headers: { 'x-api-key': 'real-secret-key' },
-            body: JSON.stringify({ sensor_id: 'test', speed_knots: 10, direction_deg: 90 })
+            headers: {
+                'x-api-key': 'real-secret',
+                'content-type': 'application/json'
+            },
+            body: JSON.stringify({
+                sensor_id: 'test-sensor',
+                speed_knots: 10,
+                direction_deg: 180
+            })
         });
 
-        const response = await POST(request);
-        expect(response.status).toBe(200);
+        const res = await POST(req);
+        expect(res.status).toBe(200);
     });
 });

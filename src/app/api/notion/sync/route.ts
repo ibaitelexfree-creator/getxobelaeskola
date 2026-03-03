@@ -9,7 +9,7 @@ export async function POST(req: Request) {
     const mode = searchParams.get('mode') || 'pull'; // 'pull' or 'push'
     const table = searchParams.get('table');
 
-    if (secret !== 'getxo_notion_sync_2026_pro') {
+    if (!process.env.NOTION_SYNC_SECRET || secret !== process.env.NOTION_SYNC_SECRET) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 

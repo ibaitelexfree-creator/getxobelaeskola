@@ -9,7 +9,7 @@ import { createClient } from "@/lib/supabase/server";
 export async function POST(request: Request) {
   try {
     const apiKey = request.headers.get('x-api-key');
-    const systemSecret = process.env.INTERNAL_API_SECRET || "getxo-secret-2024";
+    const systemSecret = process.env.INTERNAL_API_SECRET; // No fallback
 
     let authorized = false;
 
