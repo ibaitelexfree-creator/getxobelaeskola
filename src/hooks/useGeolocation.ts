@@ -1,97 +1,104 @@
-'use client';
+"use client";
 
-import { useState, useEffect, useRef } from 'react';
-import { Geolocation } from '@capacitor/geolocation';
-import { LocationPoint } from '@/lib/geospatial/types';
+import { Geolocation } from "@capacitor/geolocation";
+import { useEffect, useRef, useState } from "react";
+import type { LocationPoint } from "@/lib/geospatial/types";
 
 export type { LocationPoint };
 
 export function useGeolocation() {
-    const [isTracking, setIsTracking] = useState(false);
-    const [points, setPoints] = useState<LocationPoint[]>([]);
-    const [currentPosition, setCurrentPosition] = useState<LocationPoint | null>(null);
-    const [error, setError] = useState<string | null>(null);
-    const watchId = useRef<string | null>(null);
+	const [isTracking, setIsTracking] = useState(false);
+	const [points, setPoints] = useState<LocationPoint[]>([]);
+	const [currentPosition, setCurrentPosition] = useState<LocationPoint | null>(
+		null,
+	);
+	const [error, setError] = useState<string | null>(null);
+	const watchId = useRef<string | null>(null);
 
-    const startTracking = async () => {
-        try {
-            const { Capacitor } = await import('@capacitor/core');
-            if (Capacitor.isNativePlatform()) {
-                const permissions = await Geolocation.checkPermissions();
-                if (permissions.location !== 'granted') {
-                    const request = await Geolocation.requestPermissions();
-                    if (request.location !== 'granted') {
-                        setError('Permiso de ubicación denegado');
-                        return;
-                    }
-                }
-            }
+	const startTracking = async () => {
+		try {
+			const { Capacitor } = await import("@capacitor/core");
+			if (Capacitor.isNativePlatform()) {
+				const permissions = await Geolocation.checkPermissions();
+				if (permissions.location !== "granted") {
+					const request = await Geolocation.requestPermissions();
+					if (request.location !== "granted") {
+						setError("Permiso de ubicación denegado");
+						return;
+					}
+				}
+			}
 
-            setIsTracking(true);
-            setError(null);
-            setPoints([]);
+			setIsTracking(true);
+			setError(null);
+			setPoints([]);
 
-            watchId.current = await Geolocation.watchPosition(
-                {
-                    enableHighAccuracy: true,
-                    timeout: 10000,
-                    maximumAge: 0
-                },
-                (position, err) => {
-                    if (err) {
-                        console.error('Watch error:', err);
-                        setError(err.message);
-                        return;
-                    }
+			watchId.current = await Geolocation.watchPosition(
+				{
+					enableHighAccuracy: true,
+					timeout: 10000,
+					maximumAge: 0,
+				},
+				(position, err) => {
+					if (err) {
+						console.error("Watch error:", err);
+						setError(err.message);
+						return;
+					}
 
-                    if (position) {
-                        const newPoint: LocationPoint = {
-                            lat: position.coords.latitude,
-                            lng: position.coords.longitude,
-                            timestamp: position.timestamp,
-                            speed: position.coords.speed
-                        };
-                        setCurrentPosition(newPoint);
-                        setPoints(prev => {
-                            // Only add if significantly different or every 5 seconds to avoid too many points
-                            const lastPoint = prev[prev.length - 1];
-                            if (!lastPoint || (newPoint.timestamp - lastPoint.timestamp) > 5000) {
-                                return [...prev, newPoint];
-                            }
-                            return prev;
-                        });
-                    }
-                }
-            );
-        } catch (err: unknown) {
-            setError(err instanceof Error ? err.message : 'Error al iniciar el seguimiento');
-            setIsTracking(false);
-        }
-    };
+					if (position) {
+						const newPoint: LocationPoint = {
+							lat: position.coords.latitude,
+							lng: position.coords.longitude,
+							timestamp: position.timestamp,
+							speed: position.coords.speed,
+						};
+						setCurrentPosition(newPoint);
+						setPoints((prev) => {
+							// Only add if significantly different or every 5 seconds to avoid too many points
+							const lastPoint = prev[prev.length - 1];
+							if (
+								!lastPoint ||
+								newPoint.timestamp - lastPoint.timestamp > 5000
+							) {
+								return [...prev, newPoint];
+							}
+							return prev;
+						});
+					}
+				},
+			);
+		} catch (err: unknown) {
+			setError(
+				err instanceof Error ? err.message : "Error al iniciar el seguimiento",
+			);
+			setIsTracking(false);
+		}
+	};
 
-    const stopTracking = () => {
-        if (watchId.current) {
-            Geolocation.clearWatch({ id: watchId.current });
-            watchId.current = null;
-        }
-        setIsTracking(false);
-    };
+	const stopTracking = () => {
+		if (watchId.current) {
+			Geolocation.clearWatch({ id: watchId.current });
+			watchId.current = null;
+		}
+		setIsTracking(false);
+	};
 
-    useEffect(() => {
-        return () => {
-            if (watchId.current) {
-                Geolocation.clearWatch({ id: watchId.current });
-            }
-        };
-    }, []);
+	useEffect(() => {
+		return () => {
+			if (watchId.current) {
+				Geolocation.clearWatch({ id: watchId.current });
+			}
+		};
+	}, []);
 
-    return {
-        isTracking,
-        points,
-        currentPosition,
-        error,
-        startTracking,
-        stopTracking,
-        clearPoints: () => setPoints([])
-    };
+	return {
+		isTracking,
+		points,
+		currentPosition,
+		error,
+		startTracking,
+		stopTracking,
+		clearPoints: () => setPoints([]),
+	};
 }

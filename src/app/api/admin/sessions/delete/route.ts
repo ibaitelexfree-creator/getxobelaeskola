@@ -1,40 +1,39 @@
-
-import { requireAdmin } from '@/lib/auth-guard';
-import { NextResponse } from 'next/server';
-import { deleteGoogleEvent } from '@/lib/google-calendar';
+import { NextResponse } from "next/server";
+import { requireAdmin } from "@/lib/auth-guard";
+import { deleteGoogleEvent } from "@/lib/google-calendar";
 
 export async function POST(request: Request) {
-    try {
-        const { supabaseAdmin, error: authError } = await requireAdmin();
-        if (authError) return authError;
+	try {
+		const { supabaseAdmin, error: authError } = await requireAdmin();
+		if (authError) return authError;
 
-        const { id } = await request.json();
+		const { id } = await request.json();
 
-        // Check if there is a google event id before deleting
-        const { data: session } = await supabaseAdmin
-            .from('sesiones')
-            .select('google_event_id')
-            .eq('id', id)
-            .single();
+		// Check if there is a google event id before deleting
+		const { data: session } = await supabaseAdmin
+			.from("sesiones")
+			.select("google_event_id")
+			.eq("id", id)
+			.single();
 
-        if (session?.google_event_id) {
-            try {
-                await deleteGoogleEvent(session.google_event_id);
-            } catch (calError) {
-                console.error('Calendar Delete Error:', calError);
-            }
-        }
+		if (session?.google_event_id) {
+			try {
+				await deleteGoogleEvent(session.google_event_id);
+			} catch (calError) {
+				console.error("Calendar Delete Error:", calError);
+			}
+		}
 
-        const { error } = await supabaseAdmin
-            .from('sesiones')
-            .delete()
-            .eq('id', id);
+		const { error } = await supabaseAdmin
+			.from("sesiones")
+			.delete()
+			.eq("id", id);
 
-        if (error) throw error;
+		if (error) throw error;
 
-        return NextResponse.json({ success: true, message: 'Sesión eliminada' });
-    } catch (error: unknown) {
-        const err = error as Error;
-        return NextResponse.json({ error: err.message }, { status: 500 });
-    }
+		return NextResponse.json({ success: true, message: "Sesión eliminada" });
+	} catch (error: unknown) {
+		const err = error as Error;
+		return NextResponse.json({ error: err.message }, { status: 500 });
+	}
 }
