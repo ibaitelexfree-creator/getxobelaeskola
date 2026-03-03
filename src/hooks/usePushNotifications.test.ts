@@ -43,7 +43,8 @@ describe('usePushNotifications', () => {
 
         const { result } = renderHook(() => usePushNotifications());
 
-        await waitFor(() => expect(PushNotifications.checkPermissions).toHaveBeenCalled());
+        await waitFor(() => expect(result.current.permission).toBe('granted'));
+        expect(PushNotifications.checkPermissions).toHaveBeenCalled();
         expect(result.current.permission).toBe('granted');
     });
 
