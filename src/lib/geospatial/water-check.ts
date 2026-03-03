@@ -66,6 +66,9 @@ function initializeSpatialIndex() {
             });
         }
         // Support for single Feature fallback (Jules' fix)
+        // This fallback handles cases where the geometry data is provided as a single GeoJSON Feature
+        // rather than a FeatureCollection. It ensures that the spatial index still gets populated correctly
+        // by generating a bounding box for the single polygon/multipolygon.
         else if (geojson.type === 'Feature' && geojson.geometry && geojson.geometry.coordinates) {
             try {
                 const bbox = turf.bbox(geojson);
