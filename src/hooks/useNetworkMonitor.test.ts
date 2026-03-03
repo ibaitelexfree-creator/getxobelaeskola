@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { renderHook, waitFor } from '@testing-library/react';
+import { renderHook, waitFor, act } from '@testing-library/react';
 import { useNetworkMonitor } from './useNetworkMonitor';
 import { Network } from '@capacitor/network';
 
@@ -66,7 +66,16 @@ describe('useNetworkMonitor', () => {
 
         expect(mockOnWifiDisconnect).not.toHaveBeenCalled();
     });
-});
 
-// Import act from react explicitly for hooks test
-import { act } from 'react';
+    it('should handle errors when setting up network listener', async () => {
+        const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+        const error = new Error('Network error');
+        (Network.getStatus as any).mockRejectedValue(error);
+
+        renderHook(() => useNetworkMonitor(mockOnWifiDisconnect));
+
+        await waitFor(() => expect(consoleSpy).toHaveBeenCalledWith('Error setting up network listener:', error));
+
+        consoleSpy.mockRestore();
+    });
+});
