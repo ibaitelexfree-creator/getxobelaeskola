@@ -16,7 +16,7 @@ export const TESTIMONIALS: Testimonial[] = [
         nationality: 'Russian',
         propertyPurchased: 'The Pearl Penthouse, Palm Jumeirah',
         text: 'Luxe Dubai Estates provided a level of service I have only experienced in the private banking sector. They found my dream home before it even hit the market.',
-        avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e'
+        avatar: '/images/avatars/avatar-alexander.svg'
     },
     {
         id: '2',
@@ -25,7 +25,7 @@ export const TESTIMONIALS: Testimonial[] = [
         nationality: 'British',
         propertyPurchased: 'Emerald Mansion, Emirates Hills',
         text: "The expertise of the team is unmatched. They handled the complex negotiations for our Emirates Hills estate with complete professionalism and discretion.",
-        avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330'
+        avatar: '/images/avatars/avatar-sarah.svg'
     },
     {
         id: '3',
@@ -34,7 +34,7 @@ export const TESTIMONIALS: Testimonial[] = [
         nationality: 'Emirati',
         propertyPurchased: 'Dubai Hills Estate Villa',
         text: "Moving our family to Dubai Hills was a major decision. Luxe Dubai Estates made it seamless, handling everything from property search to Golden Visa guidance.",
-        avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d'
+        avatar: '/images/avatars/avatar-hamad.svg'
     },
     {
         id: '4',
@@ -43,7 +43,7 @@ export const TESTIMONIALS: Testimonial[] = [
         nationality: 'Chinese',
         propertyPurchased: 'Marina Royal Duplex',
         text: 'Excellent investment advice. The team provided detailed ROI projections for my Marina property that have already been exceeded within the first six months.',
-        avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e'
+        avatar: '/images/avatars/avatar-chen.svg'
     },
     {
         id: '5',
@@ -52,6 +52,6 @@ export const TESTIMONIALS: Testimonial[] = [
         nationality: 'Italian',
         propertyPurchased: 'DIFC Signature Loft',
         text: "Finding a space that truly reflects my aesthetic was priority number one. The team found me a signature loft in DIFC that is a living piece of art.",
-        avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80'
+        avatar: '/images/avatars/avatar-isabella.svg'
     }
 ];

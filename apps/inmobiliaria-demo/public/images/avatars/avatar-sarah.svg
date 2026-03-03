@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120">
+  <defs>
+    <radialGradient id="bg2" cx="50%" cy="40%" r="60%">
+      <stop offset="0%" stop-color="#1a1a2e"/>
+      <stop offset="100%" stop-color="#0a0a12"/>
+    </radialGradient>
+  </defs>
+  <circle cx="60" cy="60" r="60" fill="url(#bg2)"/>
+  <!-- Body -->
+  <path d="M30 108 Q60 118 90 108 L90 120 H30Z" fill="#1e1e2e"/>
+  <!-- Blouse -->
+  <path d="M38 98 Q60 108 82 98 L86 120 H34 Z" fill="#c9a84c" opacity="0.9"/>
+  <!-- Neck -->
+  <rect x="54" y="80" width="12" height="18" rx="6" fill="#f0d0b0"/>
+  <!-- Head -->
+  <ellipse cx="60" cy="63" rx="22" ry="25" fill="#f0d0b0"/>
+  <!-- Hair - long blonde -->
+  <path d="M38 60 Q36 45 60 38 Q84 45 82 60 Q84 75 84 90 Q74 95 74 90 Q78 78 78 65 Q60 70 42 65 Q42 78 46 90 Q46 95 36 90 Q36 75 38 60Z" fill="#d4a017"/>
+  <!-- Eyes -->
+  <ellipse cx="51" cy="60" rx="3.5" ry="3.2" fill="#3d5a80"/>
+  <ellipse cx="69" cy="60" rx="3.5" ry="3.2" fill="#3d5a80"/>
+  <!-- Eyebrows -->
+  <path d="M46 54 Q51 52 56 53" stroke="#a07830" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+  <path d="M64 53 Q69 52 74 54" stroke="#a07830" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+  <!-- Nose -->
+  <path d="M59 63 Q57 68 59 70 Q61 68 63 70" stroke="#d4a88e" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+  <!-- Lips -->
+  <path d="M53 76 Q60 81 67 76" stroke="#c06060" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+  <circle cx="60" cy="60" r="58" fill="none" stroke="#c9a84c" stroke-width="1.5" opacity="0.5"/>
+</svg>

@@ -22,7 +22,7 @@ export const NEIGHBORHOODS: Neighborhood[] = [
         avgPricePerSqft: 4500,
         propertyCount: 342,
         vibe: ['Ultra-Luxury', 'Beachfront', 'Iconic'],
-        image: 'https://images.unsplash.com/photo-1544161442-e3dbfe448285?auto=format&fit=crop&w=1200&q=80',
+        image: '/images/neighborhoods/palm-jumeirah.png',
         latitude: 25.1124,
         longitude: 55.1390
     },
@@ -35,7 +35,7 @@ export const NEIGHBORHOODS: Neighborhood[] = [
         avgPricePerSqft: 3200,
         propertyCount: 512,
         vibe: ['Iconic Views', 'Central', 'Vibrant'],
-        image: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=1200&q=80',
+        image: '/images/neighborhoods/downtown-dubai.png',
         latitude: 25.1972,
         longitude: 55.2744
     },
@@ -48,7 +48,7 @@ export const NEIGHBORHOODS: Neighborhood[] = [
         avgPricePerSqft: 2400,
         propertyCount: 820,
         vibe: ['Waterfront', 'Young Professionals', 'Lifestyle'],
-        image: 'https://images.unsplash.com/photo-1512918766675-ed41f39c273a?auto=format&fit=crop&w=1200&q=80',
+        image: '/images/neighborhoods/dubai-marina.png',
         latitude: 25.0780,
         longitude: 55.1384
     },
@@ -61,7 +61,7 @@ export const NEIGHBORHOODS: Neighborhood[] = [
         avgPricePerSqft: 5500,
         propertyCount: 120,
         vibe: ['Ultra-Exclusive', 'Gated', 'Golf'],
-        image: 'https://images.unsplash.com/photo-1613977252367-a8fe8799b776?auto=format&fit=crop&w=1200&q=80',
+        image: '/images/neighborhoods/emirates-hills.png',
         latitude: 25.0714,
         longitude: 55.1700
     },
@@ -74,7 +74,7 @@ export const NEIGHBORHOODS: Neighborhood[] = [
         avgPricePerSqft: 1800,
         propertyCount: 450,
         vibe: ['Business', 'Canal', 'Modern'],
-        image: 'https://images.unsplash.com/photo-1582672060674-bc2bd808a8b5?auto=format&fit=crop&w=1200&q=80',
+        image: '/images/properties/business-bay-loft.png',
         latitude: 25.1857,
         longitude: 55.2631
     },
@@ -87,7 +87,7 @@ export const NEIGHBORHOODS: Neighborhood[] = [
         avgPricePerSqft: 2200,
         propertyCount: 380,
         vibe: ['Beachfront', 'Lively', 'Tourism'],
-        image: 'https://images.unsplash.com/photo-1523438885200-e635ba2c371e?auto=format&fit=crop&w=1200&q=80',
+        image: '/images/properties/jbr-residence.png',
         latitude: 25.0755,
         longitude: 55.1319
     },
@@ -100,7 +100,7 @@ export const NEIGHBORHOODS: Neighborhood[] = [
         avgPricePerSqft: 3400,
         propertyCount: 145,
         vibe: ['Sophisticated', 'Finance', 'Dining'],
-        image: 'https://images.unsplash.com/photo-1518684079-3c830dcef090?auto=format&fit=crop&w=1200&q=80',
+        image: '/images/properties/difc-loft.png',
         latitude: 25.2122,
         longitude: 55.2835
     },
@@ -113,7 +113,7 @@ export const NEIGHBORHOODS: Neighborhood[] = [
         avgPricePerSqft: 2000,
         propertyCount: 290,
         vibe: ['Family-Friendly', 'Greenery', 'Quiet'],
-        image: 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=1200&q=80',
+        image: '/images/properties/dubai-hills-villa.png',
         latitude: 25.1130,
         longitude: 55.2472
     }

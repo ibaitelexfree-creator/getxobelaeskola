@@ -14,7 +14,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Luxe Dubai Estates | Premier Luxury Real Estate Agency",
     description: "Discover exclusive luxury properties across Dubai's iconic skyline and waterfront living.",
-    images: ['https://images.unsplash.com/photo-1512453979798-5ea266f8880c']
+    images: ['/images/neighborhoods/downtown-dubai.png']
   }
 };
 

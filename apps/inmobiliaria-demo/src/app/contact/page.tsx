@@ -42,7 +42,7 @@ export default function ContactPage() {
                         height: '400px',
                         width: '100%',
                         position: 'relative',
-                        background: `linear-gradient(rgba(0,0,0,0.6), var(--bg-primary)), url('https://images.unsplash.com/photo-1518684079-3c830dcef090') center/cover no-repeat`,
+                        background: `linear-gradient(rgba(0,0,0,0.6), var(--bg-primary)), url('/images/properties/difc-loft.png') center/cover no-repeat`,
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
