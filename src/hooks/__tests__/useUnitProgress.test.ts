@@ -86,10 +86,10 @@ describe('useUnitProgress hook', () => {
     });
 
     it('should register section view via API and update state', async () => {
-        (global.fetch as any).mockResolvedValue({
+        vi.mocked(global.fetch).mockResolvedValue({
             ok: true,
             json: async () => ({ success: true })
-        });
+        } as Response);
 
         const { result } = renderHook(() => useUnitProgress({
             unidadId: 'u1',
@@ -130,10 +130,10 @@ describe('useUnitProgress hook', () => {
 
     it('should log warning if API returns success: false', async () => {
         const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-        (global.fetch as any).mockResolvedValue({
+        vi.mocked(global.fetch).mockResolvedValue({
             ok: true,
             json: async () => ({ success: false })
-        });
+        } as Response);
 
         const { result } = renderHook(() => useUnitProgress({
             unidadId: 'u1',
@@ -152,7 +152,7 @@ describe('useUnitProgress hook', () => {
 
     it('should log error if fetch throws exception', async () => {
         const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-        (global.fetch as any).mockRejectedValue(new Error('Network Error'));
+        vi.mocked(global.fetch).mockRejectedValue(new Error('Network Error'));
 
         const { result } = renderHook(() => useUnitProgress({
             unidadId: 'u1',
