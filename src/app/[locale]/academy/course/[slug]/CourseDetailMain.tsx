@@ -120,7 +120,7 @@ export default function CourseDetailMain({
     // isCourseLocked is handled below
 
 
-    // We no longer block the entire course view if locked. 
+    // We no longer block the entire course view if locked.
     // This allows users to see the "Career Plan" (modules) before enrolling.
     // The modules themselves will still appear as locked.
     const isCourseLocked = false;

@@ -17,13 +17,13 @@ interface SimpleEvaluationProps {
 /**
  * Componente simplificado listo para usar en cualquier página.
  * Maneja automáticamente todos los estados incluyendo bloqueos.
- * 
+ *
  * Puede recibir:
  * 1. evaluacionId directo
  * 2. entidadTipo + entidadId para buscar la evaluación automáticamente
- * 
+ *
  * @example
- * <SimpleEvaluation 
+ * <SimpleEvaluation
  *   entidadTipo="unidad"
  *   entidadId={unidad.id}
  *   titulo="Quiz: Seguridad en el Mar"

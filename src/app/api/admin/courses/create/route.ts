@@ -34,7 +34,7 @@ export async function POST(request: Request) {
                 .replace(/[^a-z0-9]+/g, '-') // replace non-alphanum with dash
                 .replace(/^-+|-+$/g, ''); // trim dashes
 
-            // Append random string to ensure uniqueness if needed? 
+            // Append random string to ensure uniqueness if needed?
             // For now, let's trust the admin or let DB constraint fail if duplicate
         }
 

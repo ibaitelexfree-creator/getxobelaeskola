@@ -109,7 +109,7 @@ export class PhysicsEngine {
         // Thrust component: L * sin(AWA) - D * cos(AWA)
         // If AWA=90 (Beam Reach): Thrust = L * 1 - D * 0 = L. Correct.
         // If AWA=0 (Irons): Thrust = L * 0 - D * 1 = -D. Correct.
-        // If AWA=180 (Run): Thrust = L * 0 - D * (-1) = D. Correct. 
+        // If AWA=180 (Run): Thrust = L * 0 - D * (-1) = D. Correct.
 
         const absAwaRad = Math.abs(awaRad);
         let driveForce = totalLift * Math.sin(absAwaRad) - totalDrag * Math.cos(absAwaRad);
@@ -148,7 +148,7 @@ export class PhysicsEngine {
 
     private static computeFoil(absAwa: number, sailAngle: number, sizeFactor: number) {
         // AoA: Angle between Chord (Sail) and Wind
-        // AWA is angle of wind to centerline. 
+        // AWA is angle of wind to centerline.
         // Sail Angle is angle of boom to centerline.
         // AoA = AWA - SailAngle.
         // If AWA = 45, Sail = 0 -> AoA = 45 (Stall)
