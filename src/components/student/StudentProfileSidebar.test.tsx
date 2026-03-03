@@ -58,11 +58,14 @@ describe('StudentProfileSidebar', () => {
         vi.spyOn(console, 'error').mockImplementation(() => {});
 
         // Mock window.location.href
+        // @ts-ignore
         delete (window as any).location;
-        window.location = { ...originalLocation, href: '' } as any;
+        // @ts-ignore
+        window.location = { ...originalLocation, href: '' };
     });
 
     afterEach(() => {
+        // @ts-ignore
         window.location = originalLocation;
         vi.restoreAllMocks();
     });
