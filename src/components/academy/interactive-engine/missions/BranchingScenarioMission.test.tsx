@@ -1,7 +1,7 @@
 
 import { render } from '@testing-library/react';
 import { BranchingScenarioMission } from './BranchingScenarioMission';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import React from 'react';
 import { GraphMissionData } from '../types';
 
