@@ -31,7 +31,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
             .eq('visible', true);
 
         if (coursesError) {
-            console.error('Error fetching courses for sitemap:', coursesError);
+            // Suppress log during build to avoid CI noise
+            if (process.env.NODE_ENV !== 'production') console.error('Error fetching courses for sitemap:', coursesError);
         } else if (courses) {
             locales.forEach((locale) => {
                 courses.forEach((course: any) => {
@@ -54,7 +55,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
             .eq('curso.visible', true);
 
         if (modulesError) {
-            console.error('Error fetching modules for sitemap:', modulesError);
+            // Suppress log during build to avoid CI noise
+            if (process.env.NODE_ENV !== 'production') console.error('Error fetching modules for sitemap:', modulesError);
         } else if (modules) {
             locales.forEach((locale) => {
                 modules.forEach((module: any) => {
@@ -71,7 +73,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         }
 
     } catch (e) {
-        console.error('Sitemap dynamic paths error:', e);
+        if (process.env.NODE_ENV !== 'production') console.error('Sitemap dynamic paths error:', e);
     }
 
     return sitemapEntries;

@@ -66,7 +66,7 @@ export default async function ExperiencesPage({ params: { locale } }: { params: 
             .limit(50); // Performance: cap results
 
         if (error) {
-            console.error('Error fetching experiences:', error.message);
+            if (process.env.NODE_ENV !== 'production') console.error('Error fetching experiences:', error.message);
             // Fallback: fetch from servicios_alquiler with category eventos
             const { data: fallbackData, error: fallbackError } = await supabase
                 .from('servicios_alquiler')
