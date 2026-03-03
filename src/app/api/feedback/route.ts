@@ -82,20 +82,16 @@ export async function POST(req: NextRequest) {
         }
 
         // Send Push Notification
-        try {
-            await sendPushNotification({
-                userId: student_id,
-                title: 'Nuevo Feedback del Instructor',
-                body: `Has recibido feedback en tu ${context_type === 'logbook' ? 'bitácora' : 'evaluación'}.`,
-                data: {
-                    context_id,
-                    context_type,
-                    type: 'feedback'
-                }
-            });
-        } catch (pushError) {
-            console.warn('Push notification failed:', pushError);
-        }
+        await sendPushNotification({
+            userId: student_id,
+            title: 'Nuevo Feedback del Instructor',
+            body: `Has recibido feedback en tu ${context_type === 'logbook' ? 'bitácora' : 'evaluación'}.`,
+            data: {
+                context_id,
+                context_type,
+                type: 'feedback'
+            }
+        });
 
         // Attempt to insert a notification if a table exists (Best Effort)
         try {
