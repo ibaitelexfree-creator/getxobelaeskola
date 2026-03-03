@@ -46,6 +46,8 @@
     ".jules_bases",
     ".agent",
     ".Jules",
-    ".openclaw"
+    ".openclaw",
+    "apps/inmobiliaria-demo",
+    "apps/mission-control-ui"
   ]
 }

@@ -2,7 +2,7 @@ name: "⚡ Fast Lane: Consolidated Verification"
 
 on:
   push:
-    branches: [main, master, "feature/**", "fix/**"]
+    branches: [main, master, "feature/**", "fix/**", "jules/**"]
     paths:
       - "src/**"
       - "mission-control/**"
