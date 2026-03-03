@@ -326,10 +326,9 @@ export class NotionSyncService {
 
     private async clearPageChildren(pageId: string) {
         const { results } = await this.notion.blocks.children.list({ block_id: pageId });
-        for (const block of results) {
-            await this.notion.blocks.delete({ block_id: block.id });
-            await new Promise(r => setTimeout(r, 100));
-        }
+        await this.runWithConcurrency(results, 3, (block: unknown) =>
+            this.notion.blocks.delete({ block_id: (block as any).id })
+        );
     }
 
     private async buildDashboardBlocks(pageId: string, stats: DashboardStats) {
@@ -418,5 +417,25 @@ export class NotionSyncService {
                 children: blocks.slice(i, i + chunkSize) as any
             });
         }
+    }
+
+    private async runWithConcurrency<T>(items: T[], limit: number, fn: (item: T) => Promise<unknown>) {
+        const results: Promise<unknown>[] = [];
+        const executing: Promise<unknown>[] = [];
+        for (const item of items) {
+            const p = (async () => fn(item))();
+            results.push(p);
+            if (limit <= items.length) {
+                const e: Promise<unknown> = p.finally(() => {
+                    const index = executing.indexOf(e);
+                    if (index !== -1) executing.splice(index, 1);
+                });
+                executing.push(e);
+                if (executing.length >= limit) {
+                    await Promise.race(executing);
+                }
+            }
+        }
+        return Promise.all(results);
     }
 }
