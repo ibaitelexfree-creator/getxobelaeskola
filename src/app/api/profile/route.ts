@@ -1,7 +1,7 @@
-import { createClient } from '@/lib/supabase/server';
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
+import { checkAuth } from '@/lib/auth-guard';
 
-export async function GET(request: NextRequest) {
+export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const userId = searchParams.get('user_id');
 
@@ -9,33 +9,23 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({ error: 'User ID is required' }, { status: 400 });
     }
 
-    const supabase = createClient();
-
-    // Check if the requester is authenticated
-    const { data: { user: requester }, error: authError } = await supabase.auth.getUser();
+    const { user: requester, profile: requesterProfile, error: authError, supabase } = await checkAuth();
 
     if (authError || !requester) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Optional: Allow users to only see their own profile, or admins to see any profile
-    // For now, let's keep it simple as the navbar uses it for the current user.
-    // However, if we want to be strict:
-    // if (requester.id !== userId) {
-    //     // Check if requester is admin
-    //     const { data: adminProfile } = await supabase
-    //         .from('profiles')
-    //         .select('rol')
-    //         .eq('id', requester.id)
-    //         .single();
-    //     if (adminProfile?.rol !== 'admin') {
-    //         return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-    //     }
-    // }
+    // Allow users to only see their own profile, or admins to see any profile
+    const isOwner = requester.id === userId;
+    const isAdmin = requesterProfile?.rol === 'admin';
+
+    if (!isOwner && !isAdmin) {
+        return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
 
     const { data: profile, error } = await supabase
         .from('profiles')
-      .select('id, rol, nombre, status_socio')
+        .select('id, rol, nombre, status_socio')
         .eq('id', userId)
         .single();
 
