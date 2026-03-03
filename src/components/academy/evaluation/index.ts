@@ -1,17 +1,18 @@
 // Componentes principales
+export { default as SimpleEvaluation } from './SimpleEvaluation';
+export { default as EvaluationContainer } from './EvaluationContainer';
+export { default as CooldownScreen } from './CooldownScreen';
+export { default as QuizView } from './QuizView';
+export { default as ResultScreen } from './ResultScreen';
 
-export { default as CooldownScreen } from "./CooldownScreen";
-export { default as EvaluationContainer } from "./EvaluationContainer";
-export { default as QuizView } from "./QuizView";
-export { default as ResultScreen } from "./ResultScreen";
-export { default as SimpleEvaluation } from "./SimpleEvaluation";
+// Hook personalizado
+export { useEvaluation } from './useEvaluation';
+
 // Tipos
 export type {
-	BlockInfo,
-	BlockReason,
-	EvaluationResult,
-	EvaluationState,
-	Question,
-} from "./types";
-// Hook personalizado
-export { useEvaluation } from "./useEvaluation";
+    Question,
+    EvaluationResult,
+    EvaluationState,
+    BlockReason,
+    BlockInfo
+} from './types';

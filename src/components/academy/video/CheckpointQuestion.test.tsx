@@ -1,66 +1,61 @@
-import { act, fireEvent, render, screen } from "@testing-library/react";
-import React from "react";
-import { describe, expect, it, vi } from "vitest";
-import CheckpointQuestion from "./CheckpointQuestion";
 
-describe("CheckpointQuestion", () => {
-	it("renders question and options", () => {
-		render(
-			<CheckpointQuestion
-				question="Test Q"
-				options={["Option A", "Option B"]}
-				correctOptionIndex={0}
-				onCorrect={() => {}}
-			/>,
-		);
-		expect(screen.getByText("Test Q")).toBeInTheDocument();
-		expect(screen.getByText("Option A")).toBeInTheDocument();
-		expect(screen.getByText("Option B")).toBeInTheDocument();
-	});
+import { render, screen, fireEvent, act } from '@testing-library/react';
+import CheckpointQuestion from './CheckpointQuestion';
+import { vi, describe, it, expect } from 'vitest';
+import React from 'react';
 
-	it("handles correct answer", () => {
-		const onCorrect = vi.fn();
-		vi.useFakeTimers();
-		render(
-			<CheckpointQuestion
-				question="Test Q"
-				options={["Option A", "Option B"]}
-				correctOptionIndex={0}
-				onCorrect={onCorrect}
-			/>,
-		);
+describe('CheckpointQuestion', () => {
+    it('renders question and options', () => {
+        render(<CheckpointQuestion
+            question="Test Q"
+            options={['Option A', 'Option B']}
+            correctOptionIndex={0}
+            onCorrect={() => {}}
+        />);
+        expect(screen.getByText('Test Q')).toBeInTheDocument();
+        expect(screen.getByText('Option A')).toBeInTheDocument();
+        expect(screen.getByText('Option B')).toBeInTheDocument();
+    });
 
-		fireEvent.click(screen.getByText("Option A"));
-		fireEvent.click(screen.getByText("Responder"));
+    it('handles correct answer', () => {
+        const onCorrect = vi.fn();
+        vi.useFakeTimers();
+        render(<CheckpointQuestion
+            question="Test Q"
+            options={['Option A', 'Option B']}
+            correctOptionIndex={0}
+            onCorrect={onCorrect}
+        />);
 
-		// Should show correct feedback immediately
-		expect(screen.getByText(/¡Correcto!/)).toBeInTheDocument();
+        fireEvent.click(screen.getByText('Option A'));
+        fireEvent.click(screen.getByText('Responder'));
 
-		// Fast-forward time
-		act(() => {
-			vi.advanceTimersByTime(1500);
-		});
+        // Should show correct feedback immediately
+        expect(screen.getByText(/¡Correcto!/)).toBeInTheDocument();
 
-		expect(onCorrect).toHaveBeenCalled();
-		vi.useRealTimers();
-	});
+        // Fast-forward time
+        act(() => {
+            vi.advanceTimersByTime(1500);
+        });
 
-	it("handles incorrect answer", () => {
-		const onIncorrect = vi.fn();
-		render(
-			<CheckpointQuestion
-				question="Test Q"
-				options={["Option A", "Option B"]}
-				correctOptionIndex={0}
-				onCorrect={() => {}}
-				onIncorrect={onIncorrect}
-			/>,
-		);
+        expect(onCorrect).toHaveBeenCalled();
+        vi.useRealTimers();
+    });
 
-		fireEvent.click(screen.getByText("Option B"));
-		fireEvent.click(screen.getByText("Responder"));
+    it('handles incorrect answer', () => {
+        const onIncorrect = vi.fn();
+        render(<CheckpointQuestion
+            question="Test Q"
+            options={['Option A', 'Option B']}
+            correctOptionIndex={0}
+            onCorrect={() => {}}
+            onIncorrect={onIncorrect}
+        />);
 
-		expect(screen.getByText("Intentar de nuevo")).toBeInTheDocument();
-		expect(onIncorrect).toHaveBeenCalled();
-	});
+        fireEvent.click(screen.getByText('Option B'));
+        fireEvent.click(screen.getByText('Responder'));
+
+        expect(screen.getByText('Intentar de nuevo')).toBeInTheDocument();
+        expect(onIncorrect).toHaveBeenCalled();
+    });
 });
