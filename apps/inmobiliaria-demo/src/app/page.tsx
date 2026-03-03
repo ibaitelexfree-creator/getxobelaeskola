@@ -5,8 +5,8 @@ import { FeaturedProperties } from '@/components/home/FeaturedProperties';
 import { NeighborhoodGrid } from '@/components/home/NeighborhoodGrid';
 import { DubaiInteractiveMap } from '@/components/home/DubaiInteractiveMap';
 import { CTASection } from '@/components/home/CTASection';
-import { Header } from '@/components/layout/Header';
-import { Footer } from '@/components/layout/Footer';
+import Header from '@/components/layout/Header';
+import Footer from '@/components/layout/Footer';
 
 export const metadata: Metadata = {
   title: "Luxe Dubai Estates | Where Dreams Meet Skylines",
@@ -30,7 +30,7 @@ export default function Home() {
         <NeighborhoodGrid />
         <CTASection />
       </main>
-      <Footer />
+      <Footer locale="en" />
     </>
   );
 }
