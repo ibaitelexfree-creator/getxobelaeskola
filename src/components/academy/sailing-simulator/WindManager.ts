@@ -15,7 +15,7 @@ export class WindManager {
     private trueApparentWind: ApparentWind; // This property was added in the instruction, but its usage is not fully defined in the provided snippet. Keeping it as per instruction.
 
     constructor(baseDirection: number = 0, baseSpeed: number = 10) {
-        // Random start direction if not provided? 
+        // Random start direction if not provided?
         // Or just randomize on init:
         this.baseDirection = Math.random() * Math.PI * 2;
         this.baseSpeed = baseSpeed;

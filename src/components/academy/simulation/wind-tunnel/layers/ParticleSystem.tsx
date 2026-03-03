@@ -75,7 +75,7 @@ export const ParticleSystem: React.FC<ParticleSystemProps> = ({
             // AWA 90 = Starboard (Right/East). In Canvas X+, Y0.
             // Angle in Rad (Standard Math: 0 = Right, 90 = Down)
             // We need to convert Navigation Angle (0=Up, 90=Right) to Math Angle to use cos/sin for X/Y?
-            // Math Angle = (90 - NavAngle) ? 
+            // Math Angle = (90 - NavAngle) ?
             // Nav: 0 (Up). Math: -90 (Up).
             // Let's use our util: polarToCartesian gives x/y correct for Nav angle?
             // Our util says: 0deg -> (0, -1). 90deg -> (1, 0). Perfect.
@@ -122,7 +122,7 @@ export const ParticleSystem: React.FC<ParticleSystemProps> = ({
                 p.y += moveY;
 
                 // Wrap around screen
-                // We need to wrap opposite to wind direction ideally, 
+                // We need to wrap opposite to wind direction ideally,
                 // but simple toroidal wrap (mod width/height) works if wind changes direction dynamically.
                 if (p.x < 0) p.x += w;
                 if (p.x > w) p.x -= w;

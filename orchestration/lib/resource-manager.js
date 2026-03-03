@@ -59,7 +59,7 @@ const SERVICES = {
         displayName: 'Mission Control',
         description: 'Web Dashboard & Mission Management',
         command: 'npm run dev', // or npm start
-        cwd: 'mission-control',
+        cwd: 'apps/mission-control-ui',
         apiCheck: 'http://localhost:3100'
     },
     MAIN_APP: {

@@ -89,4 +89,3 @@ export function calculateEstimatedXP(progress: any[], achievements: any[]): numb
 
     return xp;
 }
-

@@ -3,7 +3,7 @@ import 'server-only';
 
 /**
  * Returns a list of course IDs that the user has successfully purchased.
- * 
+ *
  * @param userId - The user's profile ID (UUID).
  * @returns Array of course IDs (UUIDs).
  */
@@ -72,7 +72,7 @@ async function isEntityUnlocked(userId: string, type: 'niveles' | 'cursos' | 'mo
 
 /**
  * Verifies if a user has access to a specific course by its slug.
- * 
+ *
  * @param userId - The user's profile ID.
  * @param courseSlug - The unique slug of the course.
  * @returns boolean - true if access is granted.
@@ -120,7 +120,7 @@ export async function verifyCourseAccess(userId: string, courseSlug: string): Pr
 /**
  * Verifies if a user has access to a specific module.
  * Access is granted if the user owns the parent Course OR if it's unlocked via progress.
- * 
+ *
  * @param userId - The user's profile ID.
  * @param moduleId - The UUID of the module.
  * @returns boolean - true if access is granted.
@@ -167,7 +167,7 @@ export async function verifyModuleAccess(userId: string, moduleId: string): Prom
 /**
  * Verifies if a user has access to a specific unit.
  * Access is granted if the user owns the grandparent Course OR if it's unlocked via progress.
- * 
+ *
  * @param userId - The user's profile ID.
  * @param unitId - The UUID of the unit.
  * @returns boolean - true if access is granted.

@@ -121,7 +121,7 @@ export const InteractiveMission: React.FC<InteractiveMissionProps> = ({
                 {/* Main Game Area: Dynamic Component based on Type */}
                 <div className="relative min-h-[400px] flex flex-col">
                     <MissionCanvas missionData={data} onComplete={(score) => {
-                        // This handles internal completion logic if needed, 
+                        // This handles internal completion logic if needed,
                         // but the store action 'completeMission' usually triggers the status change
                         // which then triggers the useEffect above.
                         // However, some missions might call this prop directly.

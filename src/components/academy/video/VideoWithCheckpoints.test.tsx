@@ -1,4 +1,3 @@
-
 import { render, screen, act, fireEvent } from '@testing-library/react';
 import VideoWithCheckpoints from './VideoWithCheckpoints';
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
@@ -14,13 +13,15 @@ const mockPlayer = {
     getDuration: vi.fn().mockReturnValue(100),
 };
 
-// Use a regular function so 'new' works
-const MockPlayerConstructor = vi.fn(function(id, config) {
-    return mockPlayer;
+// Properly mock the constructor using a class
+const MockPlayer = vi.fn().mockImplementation(class {
+    constructor() {
+        return mockPlayer;
+    }
 });
 
 const mockYT = {
-    Player: MockPlayerConstructor,
+    Player: MockPlayer,
     PlayerState: {
         PLAYING: 1,
         ENDED: 0,
@@ -30,14 +31,14 @@ const mockYT = {
 
 describe('VideoWithCheckpoints', () => {
     beforeEach(() => {
-        window.YT = mockYT;
+        window.YT = mockYT as any;
         // Mock setInterval
         vi.useFakeTimers();
         // Reset mocks
         mockPlayer.pauseVideo.mockClear();
         mockPlayer.playVideo.mockClear();
         mockPlayer.getCurrentTime.mockClear();
-        MockPlayerConstructor.mockClear();
+        MockPlayer.mockClear();
     });
 
     afterEach(() => {
@@ -68,7 +69,7 @@ describe('VideoWithCheckpoints', () => {
         />);
 
         // Get the onStateChange handler passed to YT.Player
-        const playerConfig = MockPlayerConstructor.mock.calls[0][1];
+        const playerConfig = MockPlayer.mock.calls[0][1];
         const onStateChange = playerConfig.events.onStateChange;
 
         // Simulate playing

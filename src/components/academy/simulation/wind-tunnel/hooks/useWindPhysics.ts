@@ -11,7 +11,7 @@ interface UseWindPhysicsProps {
 
 /**
  * Hook to manage the physics engine.
- * 
+ *
  * Returns:
  * - physicsState: Mutable Ref to the current state (Use this for 60fps Canvas drawing)
  * - setSailAngle: Function to update control input
