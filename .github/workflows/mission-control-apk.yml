@@ -4,8 +4,8 @@ on:
   push:
     branches: [main]
     paths:
-      - "mission-control/android/**"
-      - "mission-control/capacitor.config.ts"
+      - "apps/mission-control-ui/android/**"
+      - "apps/mission-control-ui/capacitor.config.ts"
       - ".github/workflows/mission-control-apk.yml"
   workflow_dispatch:
 
@@ -30,12 +30,12 @@ jobs:
 
       - name: Install dependencies
         run: |
-          cd mission-control
+          cd apps/mission-control-ui
           npm ci --legacy-peer-deps
 
       - name: Build Next.js (SSG)
         run: |
-          cd mission-control
+          cd apps/mission-control-ui
           npm run build
         env:
           IS_CAPACITOR: "true"
@@ -52,12 +52,12 @@ jobs:
 
       - name: Capacitor Sync
         run: |
-          cd mission-control
+          cd apps/mission-control-ui
           npx cap sync android
 
       - name: Build Android APK (Debug)
         run: |
-          cd mission-control/android
+          cd apps/mission-control-ui/android
           chmod +x gradlew
           ./gradlew assembleDebug
 
@@ -65,7 +65,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: mission-control-debug-apk
-          path: mission-control/android/app/build/outputs/apk/debug/app-debug.apk
+          path: apps/mission-control-ui/android/app/build/outputs/apk/debug/app-debug.apk
 
       - name: Create GitHub Release
         id: create_release
@@ -75,7 +75,7 @@ jobs:
           name: Mission Control v1.0.${{ github.run_number }}
           draft: false
           prerelease: false
-          files: mission-control/android/app/build/outputs/apk/debug/app-debug.apk
+          files: apps/mission-control-ui/android/app/build/outputs/apk/debug/app-debug.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -85,4 +85,4 @@ jobs:
           appId: "${{ secrets.FIREBASE_MISSION_CONTROL_APP_ID }}"
           serviceCredentialsFileContent: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_KEY }}
           groups: testers
-          file: mission-control/android/app/build/outputs/apk/debug/app-debug.apk
+          file: apps/mission-control-ui/android/app/build/outputs/apk/debug/app-debug.apk
