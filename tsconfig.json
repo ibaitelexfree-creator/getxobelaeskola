@@ -27,16 +27,21 @@
       "@/*": [
         "./src/*"
       ]
-    }
+    },
+    "types": ["vitest/globals", "@testing-library/jest-dom"]
   },
   "include": [
     "next-env.d.ts",
-    "**/*.ts",
-    "**/*.tsx",
-    ".next/types/**/*.ts"
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    ".next/types/**/*.ts",
+    "vitest.setup.ts",
+    "i18n.ts",
+    "next.config.mjs"
   ],
   "exclude": [
     "node_modules",
+    "apps",
     "supabase/functions",
     "mission-control",
     "orchestration",
