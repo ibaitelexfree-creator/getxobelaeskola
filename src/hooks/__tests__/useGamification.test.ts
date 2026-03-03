@@ -22,7 +22,7 @@ describe('useGamification hook', () => {
 
     beforeEach(() => {
         vi.clearAllMocks();
-        vi.mocked(useNotificationStore).mockImplementation((selector: (state: unknown) => unknown) =>
+        vi.mocked(useNotificationStore).mockImplementation((selector: any) =>
             selector({ addNotification: mockAddNotification })
         );
     });
@@ -32,7 +32,7 @@ describe('useGamification hook', () => {
         vi.mocked(global.fetch).mockResolvedValue({
             ok: true,
             json: async () => mockBadges
-        } as Response);
+        } as unknown as Response);
 
         const { result } = renderHook(() => useGamification());
 
@@ -49,7 +49,7 @@ describe('useGamification hook', () => {
             ok: false,
             status: 500,
             statusText: 'Internal Server Error'
-        } as Response);
+        } as unknown as Response);
 
         const { result } = renderHook(() => useGamification());
 
@@ -86,7 +86,7 @@ describe('useGamification hook', () => {
         vi.mocked(global.fetch).mockResolvedValue({
             ok: true,
             json: async () => { throw new Error('Invalid JSON'); }
-        } as Response);
+        } as unknown as Response);
 
         const { result } = renderHook(() => useGamification());
 
@@ -107,7 +107,7 @@ describe('useGamification hook', () => {
         vi.mocked(global.fetch).mockResolvedValue({
             ok: true,
             json: async () => ({ new: true, achievement: mockAchievement })
-        } as Response);
+        } as unknown as Response);
 
         const { result } = renderHook(() => useGamification());
 
