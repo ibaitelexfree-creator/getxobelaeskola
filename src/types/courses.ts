@@ -45,7 +45,7 @@ export interface Inscription {
 	metadata?: {
 		start_date?: string;
 		end_date?: string;
-		[key: string]: any;
+		[key: string]: unknown;
 	};
 	created_at?: string;
 }

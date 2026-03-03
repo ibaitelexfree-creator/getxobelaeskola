@@ -3,7 +3,7 @@ export interface RegattaMatch {
 	code: string;
 	host_id: string;
 	status: "waiting" | "racing" | "finished";
-	config: any;
+	config: unknown;
 	created_at: string;
 }
 
