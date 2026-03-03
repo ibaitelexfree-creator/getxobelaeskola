@@ -21,8 +21,6 @@ export default function DividersTool({ p1, p2, scale, onUpdate, worldToScreen, s
         e.preventDefault();
         setDraggingPart(part);
 
-        // const worldMouse = screenToWorld(e.clientX, e.clientY);
-
         // Actually, let's use screen coords for "offset" logic to be safer
         // But we need to know the initial "click" world position relative to the object center/point
 

@@ -8,6 +8,7 @@ export function generateEuskalmetToken() {
         throw new Error('EUSKALMET_PRIVATE_KEY is not defined');
     }
 
+
     const now = Math.floor(Date.now() / 1000);
     const payload = {
         aud: 'met01.apikey',
