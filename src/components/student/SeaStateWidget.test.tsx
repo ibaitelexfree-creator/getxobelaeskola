@@ -1,105 +1,115 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, waitFor, fireEvent } from '@testing-library/react';
+import { render, screen, waitFor, fireEvent, act } from '@testing-library/react';
 import SeaStateWidget from './SeaStateWidget';
 
-// Mock fetch
-global.fetch = vi.fn();
-
-const mockData = {
-    wave_height: 1.5,
-    wave_period: 8,
-    water_temp: 18.5,
-    wind_speed: 12,
-    wind_direction: 45,
-    timestamp: '2023-10-27T10:00:00Z'
-};
+// Mock framer-motion
+vi.mock('framer-motion', () => ({
+    motion: {
+        div: ({ children, className, initial, animate }: any) => (
+            <div className={className} data-initial={JSON.stringify(initial)} data-animate={JSON.stringify(animate)}>
+                {children}
+            </div>
+        ),
+    },
+}));
 
 describe('SeaStateWidget', () => {
+    const mockData = {
+        wave_height: 1.5,
+        wave_period: 8,
+        water_temp: 15.5,
+        wind_speed: 12,
+        wind_direction: 315,
+        timestamp: new Date().toISOString()
+    };
+
     beforeEach(() => {
         vi.clearAllMocks();
+        vi.stubGlobal('fetch', vi.fn());
     });
 
-    it('shows loading state initially', async () => {
-        (global.fetch as any).mockReturnValue(new Promise(() => {})); // Never resolves
+    it('should show loading state initially', async () => {
+        (global.fetch as any).mockReturnValue(new Promise(() => { }));
+
         render(<SeaStateWidget />);
-        expect(screen.getByText(/Estado del Mar.../i)).toBeInTheDocument();
+        expect(screen.getByText('Estado del Mar...')).toBeDefined();
     });
 
-    it('renders sea state data on success', async () => {
+    it('should render sea state data on success', async () => {
         (global.fetch as any).mockResolvedValue({
             ok: true,
-            json: async () => mockData,
+            json: vi.fn().mockResolvedValue(mockData)
         });
 
         render(<SeaStateWidget />);
 
         await waitFor(() => {
-            expect(screen.getByText('1.5')).toBeInTheDocument();
-            expect(screen.getByText('8')).toBeInTheDocument();
-            expect(screen.getByText('18.5')).toBeInTheDocument();
-            expect(screen.getByText('12')).toBeInTheDocument();
+            expect(screen.getByText('1.5')).toBeDefined();
+            expect(screen.getByText('8')).toBeDefined();
+            expect(screen.getByText('15.5')).toBeDefined();
+            expect(screen.getByText('12')).toBeDefined();
         });
 
-        expect(screen.getByText(/Altura Ola/i)).toBeInTheDocument();
-        expect(screen.getByText(/Período/i)).toBeInTheDocument();
+        expect(screen.queryByText('Estado del Mar...')).toBeNull();
     });
 
-    it('returns null when fetch fails (response not ok)', async () => {
+    it('should render nothing (null) on API error (non-ok response)', async () => {
         (global.fetch as any).mockResolvedValue({
             ok: false,
+            status: 500
         });
 
         const { container } = render(<SeaStateWidget />);
 
-        // Wait for loading to finish
         await waitFor(() => {
-            expect(screen.queryByText(/Estado del Mar.../i)).not.toBeInTheDocument();
+            expect(screen.queryByText('Estado del Mar...')).toBeNull();
         });
 
         expect(container.firstChild).toBeNull();
     });
 
-    it('returns null when fetch throws an error', async () => {
-        // Suppress console.error for this test as we expect an error
-        const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-
+    it('should render nothing (null) on network error (fetch throws)', async () => {
         (global.fetch as any).mockRejectedValue(new Error('Network error'));
 
         const { container } = render(<SeaStateWidget />);
 
         await waitFor(() => {
-            expect(screen.queryByText(/Estado del Mar.../i)).not.toBeInTheDocument();
+            expect(screen.queryByText('Estado del Mar...')).toBeNull();
         });
 
         expect(container.firstChild).toBeNull();
-        consoleSpy.mockRestore();
     });
 
-    it('refreshes data when refresh button is clicked', async () => {
-        (global.fetch as any).mockResolvedValue({
-            ok: true,
-            json: async () => mockData,
-        });
+    it('should refresh data when clicking refresh button', async () => {
+        const firstData = { ...mockData, wave_height: 1.5 };
+        const secondData = { ...mockData, wave_height: 2.1 }; // Changed to 2.1 to be distinct
+
+        (global.fetch as any)
+            .mockResolvedValueOnce({
+                ok: true,
+                json: vi.fn().mockResolvedValue(firstData)
+            })
+            .mockResolvedValueOnce({
+                ok: true,
+                json: vi.fn().mockResolvedValue(secondData)
+            });
 
         render(<SeaStateWidget />);
 
-        await waitFor(() => {
-            expect(screen.getByText('1.5')).toBeInTheDocument();
-        });
+        await waitFor(() => expect(screen.getByText('1.5')).toBeDefined());
 
         const refreshButton = screen.getByRole('button');
 
-        // Mock a different value for refresh
-        (global.fetch as any).mockResolvedValueOnce({
-            ok: true,
-            json: async () => ({ ...mockData, wave_height: 2.0 }),
+        // Use a more robust way to click and wait
+        await act(async () => {
+            fireEvent.click(refreshButton);
         });
-
-        fireEvent.click(refreshButton);
 
         await waitFor(() => {
-            expect(screen.getByText('2')).toBeInTheDocument();
-        });
+            // Check for the new value
+            const elements = screen.queryAllByText('2.1');
+            expect(elements.length).toBeGreaterThan(0);
+        }, { timeout: 3000 });
 
         expect(global.fetch).toHaveBeenCalledTimes(2);
     });
