@@ -75,7 +75,7 @@ jobs:
         id: meta-mc
         uses: docker/metadata-action@v5
         with:
-          images: ghcr.io/${{ github.repository }}/mission-control
+          images: ghcr.io/${{ github.repository }}/mission-control-ui
           tags: |
             type=ref,event=branch
             type=sha,format=short
@@ -89,8 +89,8 @@ jobs:
           push: true
           tags: ${{ steps.meta-mc.outputs.tags }}
           labels: ${{ steps.meta-mc.outputs.labels }}
-          cache-from: type=gha,scope=mission-control
-          cache-to: type=gha,mode=max,scope=mission-control
+          cache-from: type=gha,scope=mission-control-ui
+          cache-to: type=gha,mode=max,scope=mission-control-ui
 
       # ── Build 3: orchestrator (Gateway) ──
       - name: Extract metadata for orchestrator
@@ -151,7 +151,7 @@ jobs:
 
             REPO_LOWER=$(echo "${GITHUB_REPOSITORY}" | tr '[:upper:]' '[:lower:]')
             export DOCKER_IMAGE=ghcr.io/${REPO_LOWER}:latest
-            export MISSION_CONTROL_IMAGE=ghcr.io/${REPO_LOWER}/mission-control:latest
+            export MISSION_CONTROL_IMAGE=ghcr.io/${REPO_LOWER}/mission-control-ui:latest
             export ORCHESTRATOR_IMAGE=ghcr.io/${REPO_LOWER}/orchestrator:latest
 
             # Export secrets for docker-compose interpolation

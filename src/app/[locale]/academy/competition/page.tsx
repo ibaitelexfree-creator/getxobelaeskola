@@ -73,7 +73,7 @@ export default function CompetitionPage() {
                 </div>
 
                 <div className="flex flex-col gap-4">
-                    <button
+                    <button type="button"
                         onClick={handleCreate}
                         className="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-4 px-6 rounded-lg transition-all transform hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-cyan-900/50 uppercase tracking-wide"
                     >
@@ -96,7 +96,7 @@ export default function CompetitionPage() {
                             maxLength={6}
                         />
                     </div>
-                    <button
+                    <button type="button"
                         onClick={handleJoin}
                         disabled={!joinCode}
                         className={`w-full font-bold py-3 px-6 rounded-lg transition-all uppercase tracking-wide ${
