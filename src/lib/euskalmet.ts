@@ -49,6 +49,9 @@ export async function fetchEuskalmetStationData(stationId: string) {
         return res.json();
 
     } catch (e) {
+        if (e instanceof Error && e.message === 'EUSKALMET_PRIVATE_KEY is not defined') {
+            return null;
+        }
         console.error('Euskalmet Station Fetch Error:', e);
         return null;
     }
@@ -84,6 +87,9 @@ export async function fetchEuskalmetAlerts() {
         }
         return [];
     } catch (e) {
+        if (e instanceof Error && e.message === 'EUSKALMET_PRIVATE_KEY is not defined') {
+            return [];
+        }
         console.error('Euskalmet Alert Fetch Error:', e);
         return [];
     }
