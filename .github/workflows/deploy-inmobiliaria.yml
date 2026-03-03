@@ -7,6 +7,7 @@ on:
       - features
     paths:
       - "apps/inmobiliaria-demo/**"
+  workflow_dispatch:
 
 env:
   APP_NAME: inmobiliaria
@@ -99,7 +100,7 @@ jobs:
               --label "traefik.http.routers.inmobiliaria.entrypoints=websecure" \
               --label "traefik.http.routers.inmobiliaria.tls.certresolver=mytlschallenge" \
               --label "traefik.http.services.inmobiliaria.loadbalancer.server.port=3020" \
-              --label "traefik.http.routers.inmobiliaria.priority=10" \
+              --label "traefik.http.routers.inmobiliaria.priority=200" \
               ghcr.io/${{ github.repository_owner }}/inmobiliaria-demo:latest
 
             echo "🧹 Prune dangling images..."
