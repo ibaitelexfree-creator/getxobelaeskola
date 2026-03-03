@@ -51,15 +51,7 @@ export default function AcademyStaffTab({
     const [academyData, setAcademyData] = useState<AcademyData | null>(null);
     const [isLoading, setIsLoading] = useState(false);
 
-    useEffect(() => {
-        if (selectedStudent) {
-            fetchAcademyData(selectedStudent.id);
-        } else {
-            setAcademyData(null);
-        }
-    }, [selectedStudent]);
-
-    const fetchAcademyData = async (studentId: string) => {
+    const fetchAcademyData = React.useCallback(async (studentId: string) => {
         setIsLoading(true);
         try {
             const res = await fetch(`/api/admin/academy/student-progress?student_id=${studentId}`);
@@ -72,15 +64,22 @@ export default function AcademyStaffTab({
         } finally {
             setIsLoading(false);
         }
-    };
+    }, []);
+
+    useEffect(() => {
+        if (selectedStudent) {
+            fetchAcademyData(selectedStudent.id);
+        } else {
+            setAcademyData(null);
+        }
+    }, [selectedStudent, fetchAcademyData]);
 
     return (
         <div className="space-y-12 animate-premium-in">
             <header className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 border-b border-white/10 pb-8 md:pb-12">
                 <div className="space-y-2">
-                    <span className="text-accent uppercase tracking-[0.4em] text-2xs font-bold block">{t('academia.subtitle')}</span>
+                    <span className="text-technical text-accent tracking-[0.2em] uppercase text-2xs">{t('academia.subtitle')}</span>
                     <h2 className="text-4xl md:text-6xl font-display text-white italic">{t('academia.title')}</h2>
-                    <p className="text-technical text-white/40 tracking-[0.2em] uppercase text-2xs">{t('academia.subtitle')}</p>
                 </div>
                 <div className="relative group/search w-full md:w-96">
                     <input
@@ -101,6 +100,7 @@ export default function AcademyStaffTab({
                             students.map((s, idx) => (
                                 <button
                                     key={s.id}
+                                    type="button"
                                     onClick={() => selectStudent(s)}
                                     className={`group w-full p-6 glass-card flex justify-between items-center transition-all ${selectedStudent?.id === s.id ? 'border-accent bg-accent/5' : ''}`}
                                     style={{ animationDelay: `${idx * 0.05}s` }}
@@ -145,7 +145,7 @@ export default function AcademyStaffTab({
                                         </span>
                                     </div>
                                 </div>
-                                <button onClick={() => setSelectedStudent(null)} className="text-white/20 hover:text-red-500 transition-colors">✕</button>
+                                <button type="button" onClick={() => setSelectedStudent(null)} className="text-white/20 hover:text-red-500 transition-colors">✕</button>
                             </div>
 
                             {isLoading ? (
@@ -226,6 +226,7 @@ export default function AcademyStaffTab({
                                                                 <p className="text-technical mt-1 opacity-40 text-2xs"><ClientDate date={c.created_at} format="short" /></p>
                                                             </div>
                                                             <button
+                                                                type="button"
                                                                 onClick={() => handleDownload(c)}
                                                                 className="px-6 py-2.5 border border-white/10 text-2xs uppercase font-black tracking-widest hover:bg-white hover:text-nautical-black transition-all"
                                                             >

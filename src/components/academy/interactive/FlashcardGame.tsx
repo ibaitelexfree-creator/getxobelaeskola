@@ -14,12 +14,7 @@ export default function FlashcardGame() {
     const [finished, setFinished] = useState(false);
     const [filter, setFilter] = useState<'all' | 'luces' | 'banderas' | 'nudos'>('all');
 
-    // Initialize & shuffle
-    useEffect(() => {
-        restartGame();
-    }, [filter]);
-
-    const restartGame = () => {
+    const restartGame = React.useCallback(() => {
         let filtered = FLASHCARDS_DATA;
         if (filter !== 'all') {
             filtered = FLASHCARDS_DATA.filter(c => c.category === filter);
@@ -31,7 +26,12 @@ export default function FlashcardGame() {
         setIsFlipped(false);
         setScore({ correct: 0, wrong: 0 });
         setFinished(false);
-    };
+    }, [filter]);
+
+    // Initialize & shuffle
+    useEffect(() => {
+        restartGame();
+    }, [restartGame]);
 
     const handleNext = (isCorrect: boolean) => {
         if (isCorrect) {
@@ -90,6 +90,7 @@ export default function FlashcardGame() {
                 </div>
 
                 <button
+                    type="button"
                     onClick={restartGame}
                     className="flex items-center gap-2 px-8 py-3 bg-accent text-nautical-black font-bold uppercase tracking-widest rounded-sm hover:bg-white transition-colors"
                 >
@@ -109,6 +110,7 @@ export default function FlashcardGame() {
                     {(['all', 'luces', 'banderas', 'nudos'] as const).map(cat => (
                         <button
                             key={cat}
+                            type="button"
                             onClick={() => setFilter(cat)}
                             className={`px-4 py-1.5 rounded-full text-3xs font-black uppercase tracking-widest border transition-colors
                                 ${filter === cat
@@ -136,12 +138,14 @@ export default function FlashcardGame() {
                 {/* Response Buttons */}
                 <div className={`flex gap-4 transition-opacity duration-500 ${isFlipped ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
                     <button
+                        type="button"
                         onClick={() => handleNext(false)}
                         className="flex items-center gap-2 px-6 py-4 bg-red-500/10 border border-red-500/20 text-red-400 font-bold uppercase tracking-widest rounded-sm hover:bg-red-500/20 transition-colors"
                     >
                         <X className="w-5 h-5" /> No lo sabía
                     </button>
                     <button
+                        type="button"
                         onClick={() => handleNext(true)}
                         className="flex items-center gap-2 px-6 py-4 bg-green-500/10 border border-green-500/20 text-green-400 font-bold uppercase tracking-widest rounded-sm hover:bg-green-500/20 transition-colors"
                     >
