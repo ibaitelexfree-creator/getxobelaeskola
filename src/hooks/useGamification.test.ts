@@ -1,58 +1,62 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { renderHook, waitFor, act } from '@testing-library/react';
-import { useGamification } from './useGamification';
-import { useNotificationStore } from '@/lib/store/useNotificationStore';
+import { act, renderHook } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { useNotificationStore } from "@/lib/store/useNotificationStore";
+import { useGamification } from "./useGamification";
 
 // Mock store
-vi.mock('@/lib/store/useNotificationStore', () => ({
-    useNotificationStore: vi.fn()
+vi.mock("@/lib/store/useNotificationStore", () => ({
+	useNotificationStore: vi.fn(),
 }));
 
 // Mock fetch
 global.fetch = vi.fn();
 
-describe('useGamification', () => {
-    const mockAddNotification = vi.fn();
+describe("useGamification", () => {
+	const mockAddNotification = vi.fn();
 
-    beforeEach(() => {
-        vi.clearAllMocks();
-        (useNotificationStore as any).mockImplementation((selector: any) => selector({ addNotification: mockAddNotification }));
-    });
+	beforeEach(() => {
+		vi.clearAllMocks();
+		(useNotificationStore as any).mockImplementation((selector: any) =>
+			selector({ addNotification: mockAddNotification }),
+		);
+	});
 
-    it('should fetch badges correctly', async () => {
-        const mockBadges = [{ id: 'b1', slug: 'badge-1', nombre_es: 'Badge 1' }];
-        (global.fetch as any).mockResolvedValue({
-            ok: true,
-            json: async () => mockBadges
-        });
+	it("should fetch badges correctly", async () => {
+		const mockBadges = [{ id: "b1", slug: "badge-1", nombre_es: "Badge 1" }];
+		(global.fetch as any).mockResolvedValue({
+			ok: true,
+			json: async () => mockBadges,
+		});
 
-        const { result } = renderHook(() => useGamification());
+		const { result } = renderHook(() => useGamification());
 
-        await act(async () => {
-            await result.current.fetchBadges();
-        });
+		await act(async () => {
+			await result.current.fetchBadges();
+		});
 
-        expect(result.current.badges).toEqual(mockBadges);
-        expect(result.current.loading).toBe(false);
-    });
+		expect(result.current.badges).toEqual(mockBadges);
+		expect(result.current.loading).toBe(false);
+	});
 
-    it('should unlock badge and notify', async () => {
-        const mockAchievement = { id: 'ach1', nombre: 'Winner!', puntos: 100 };
-        (global.fetch as any).mockResolvedValue({
-            ok: true,
-            json: async () => ({ new: true, achievement: mockAchievement })
-        });
+	it("should unlock badge and notify", async () => {
+		const mockAchievement = { id: "ach1", nombre: "Winner!", puntos: 100 };
+		(global.fetch as any).mockResolvedValue({
+			ok: true,
+			json: async () => ({ new: true, achievement: mockAchievement }),
+		});
 
-        const { result } = renderHook(() => useGamification());
+		const { result } = renderHook(() => useGamification());
 
-        await act(async () => {
-            await result.current.unlockBadge('winner-slug');
-        });
+		await act(async () => {
+			await result.current.unlockBadge("winner-slug");
+		});
 
-        expect(mockAddNotification).toHaveBeenCalledWith(expect.objectContaining({
-            type: 'badge',
-            title: 'Winner!',
-            icon: '🏆'
-        }));
-    });
+		expect(mockAddNotification).toHaveBeenCalledWith(
+			expect.objectContaining({
+				type: "badge",
+				title: "Winner!",
+				icon: "🏆",
+			}),
+		);
+	});
 });
