@@ -17,6 +17,7 @@ const nextConfig = {
             { protocol: 'https', hostname: 'getxobelaeskola.cloud' },
         ],
     },
+    experimental: { workerThreads: false, cpus: 2 },
     eslint: { ignoreDuringBuilds: true },
     typescript: { ignoreBuildErrors: true },
     compress: true,
