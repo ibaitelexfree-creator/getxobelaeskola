@@ -4,7 +4,7 @@ interface QueuedAction {
     id: string;
     url: string;
     method: 'POST' | 'PUT' | 'PATCH';
-    body: any;
+    body: unknown;
     timestamp: number;
     retryCount: number;
 }
@@ -23,7 +23,7 @@ export const offlineSyncManager = {
         }
     },
 
-    addToQueue: (url: string, method: 'POST' | 'PUT' | 'PATCH', body: any) => {
+    addToQueue: (url: string, method: 'POST' | 'PUT' | 'PATCH', body: unknown) => {
         const queue = offlineSyncManager.getQueue();
         const action: QueuedAction = {
             id: crypto.randomUUID(),
