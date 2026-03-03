@@ -11,6 +11,7 @@ export async function POST(req: Request) {
         }
 
         const syncService = new NotionSyncService();
+        await syncService.init();
         const result = await syncService.syncTable(table, direction);
 
         return NextResponse.json(result);

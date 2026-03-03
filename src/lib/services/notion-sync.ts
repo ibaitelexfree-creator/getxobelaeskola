@@ -2,8 +2,6 @@
 import { Client } from '@notionhq/client';
 import { PageObjectResponse, QueryDatabaseResponse } from '@notionhq/client/build/src/api-endpoints';
 import { createAdminClient } from '@/lib/supabase/admin';
-import fs from 'fs';
-import path from 'path';
 import {
     SupabaseRow,
     DashboardStats,
@@ -24,29 +22,54 @@ import {
     getBestTitleCol
 } from './notion-utils';
 
+async function getTableMap(): Promise<NotionTableMap> {
+    if (process.env.NEXT_RUNTIME === 'nodejs') {
+        try {
+            const fs = await import('node:fs');
+            const path = await import('node:path');
+            const mapPath = path.join(process.cwd(), 'scripts', 'table_to_notion_map.json');
+            if (fs.existsSync(mapPath)) {
+                return JSON.parse(fs.readFileSync(mapPath, 'utf8'));
+            }
+        } catch (e) {
+            console.warn('Failed to load table map from disk:', e);
+        }
+    }
+    return {};
+}
+
+async function getSchema(): Promise<NotionSyncConfig> {
+    if (process.env.NEXT_RUNTIME === 'nodejs') {
+        try {
+            const fs = await import('node:fs');
+            const path = await import('node:path');
+            const schemaPath = path.join(process.cwd(), 'supabase_schema.json');
+            if (fs.existsSync(schemaPath)) {
+                return JSON.parse(fs.readFileSync(schemaPath, 'utf8'));
+            }
+        } catch (e) {
+            console.warn('Failed to load schema from disk:', e);
+        }
+    }
+    return { definitions: {} };
+}
+
 export class NotionSyncService {
     private notion: Client;
     private supabase = createAdminClient();
-    private tableMap: NotionTableMap;
-    private schema: NotionSyncConfig;
+    private tableMap: NotionTableMap = {};
+    private schema: NotionSyncConfig = { definitions: {} };
 
     private readonly DASHBOARD_PAGE_ID = '30c31210-b1a1-81c3-ab5c-d1817d6a0c03';
     private readonly FLEET_DB_ID = '30c31210-b1a1-813b-a949-d7ddf66d84c9';
 
     constructor() {
         this.notion = new Client({ auth: process.env.NOTION_TOKEN });
+    }
 
-        try {
-            const mapPath = path.join(process.cwd(), 'scripts', 'table_to_notion_map.json');
-            const schemaPath = path.join(process.cwd(), 'supabase_schema.json');
-
-            this.tableMap = fs.existsSync(mapPath) ? JSON.parse(fs.readFileSync(mapPath, 'utf8')) : {};
-            this.schema = fs.existsSync(schemaPath) ? JSON.parse(fs.readFileSync(schemaPath, 'utf8')) : { definitions: {} };
-        } catch (error) {
-            console.error('Error initializing NotionSyncService:', error);
-            this.tableMap = {};
-            this.schema = { definitions: {} };
-        }
+    async init() {
+        this.tableMap = await getTableMap();
+        this.schema = await getSchema();
     }
 
     async syncTable(sbTable: string, direction: 'pull' | 'push' = 'pull') {
