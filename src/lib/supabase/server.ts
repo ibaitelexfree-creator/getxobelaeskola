@@ -10,20 +10,10 @@ export function createClient() {
     if (!url || !key || url.includes('placeholder')) {
         console.warn('Supabase keys missing or invalid. Using mock client for build.');
         // Return a mock-ish client that doesn't actually hit the network violently
-
-        // Create a mocked fetch so Next.js doesn't crash during SSG when using a dummy URL
-        const mockedFetch = async (input: RequestInfo | URL, init?: RequestInit) => {
-            return new Response(JSON.stringify({ data: [], error: null }), {
-                status: 200,
-                headers: { 'Content-Type': 'application/json' }
-            });
-        };
-
         return createServerClient<Database>(
             url || 'https://placeholder.supabase.co',
             key || 'placeholder',
             {
-                global: { fetch: mockedFetch as any },
                 cookies: {
                     getAll() { return [] },
                     setAll() { },
