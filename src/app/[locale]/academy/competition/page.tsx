@@ -19,6 +19,13 @@ export default function CompetitionPage() {
 		} = await supabase.auth.getUser();
 
 		if (!user) {
+<<<<<<< HEAD
+=======
+			// For MVP, allow anonymous if auth fails? Or require login.
+			// Let's assume login is required for persistent ID.
+			// But for testing, maybe generate random ID?
+			// "Alumnos" implies logged in users.
+>>>>>>> origin/jules/fix-notion-sync-command-injection-17401770005979444128
 			alert("Debes iniciar sesión para crear una regata.");
 			return;
 		}
@@ -65,13 +72,21 @@ export default function CompetitionPage() {
 			<div className="w-full max-w-md bg-gray-900/80 backdrop-blur-md p-8 rounded-xl border border-cyan-900 shadow-2xl shadow-cyan-900/20">
 				<div className="mb-8">
 					<label
+<<<<<<< HEAD
 						htmlFor="pilot-name"
+=======
+						htmlFor="username"
+>>>>>>> origin/jules/fix-notion-sync-command-injection-17401770005979444128
 						className="block text-xs font-bold text-cyan-500 mb-2 uppercase tracking-wider"
 					>
 						Nombre de Piloto
 					</label>
 					<input
+<<<<<<< HEAD
 						id="pilot-name"
+=======
+						id="username"
+>>>>>>> origin/jules/fix-notion-sync-command-injection-17401770005979444128
 						type="text"
 						value={username}
 						onChange={(e) => setUsername(e.target.value)}
@@ -90,11 +105,19 @@ export default function CompetitionPage() {
 					</button>
 
 					<div className="relative flex py-4 items-center">
+<<<<<<< HEAD
 						<div className="flex-grow border-t border-gray-800" />
 						<span className="flex-shrink mx-4 text-gray-600 text-xs uppercase tracking-widest">
 							O únete a una existente
 						</span>
 						<div className="flex-grow border-t border-gray-800" />
+=======
+						<div className="flex-grow border-t border-gray-800"></div>
+						<span className="flex-shrink mx-4 text-gray-600 text-xs uppercase tracking-widest">
+							O únete a una existente
+						</span>
+						<div className="flex-grow border-t border-gray-800"></div>
+>>>>>>> origin/jules/fix-notion-sync-command-injection-17401770005979444128
 					</div>
 
 					<div className="flex gap-2">
@@ -111,10 +134,18 @@ export default function CompetitionPage() {
 						type="button"
 						onClick={handleJoin}
 						disabled={!joinCode}
+<<<<<<< HEAD
 						className={`w-full font-bold py-3 px-6 rounded-lg transition-all uppercase tracking-wide ${joinCode
 							? "bg-gray-700 hover:bg-gray-600 text-white cursor-pointer hover:scale-[1.02]"
 							: "bg-gray-800 text-gray-600 cursor-not-allowed"
 							}`}
+=======
+						className={`w-full font-bold py-3 px-6 rounded-lg transition-all uppercase tracking-wide ${
+							joinCode
+								? "bg-gray-700 hover:bg-gray-600 text-white cursor-pointer hover:scale-[1.02]"
+								: "bg-gray-800 text-gray-600 cursor-not-allowed"
+						}`}
+>>>>>>> origin/jules/fix-notion-sync-command-injection-17401770005979444128
 					>
 						Unirse a Sala
 					</button>

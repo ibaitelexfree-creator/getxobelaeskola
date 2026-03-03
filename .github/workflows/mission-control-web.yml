@@ -1,30 +1,21 @@
-name: Build Mission Control Web
+name: Mission Control Web
 
 on:
     push:
-        branches: [main]
+        branches: [main, "feature/**"]
         paths:
-            - "apps/mission-control-ui/src/**"
-            - "apps/mission-control-ui/public/**"
-            - "apps/mission-control-ui/package.json"
-            - "apps/mission-control-ui/next.config.mjs"
+            - "apps/mission-control-ui/**"
             - ".github/workflows/mission-control-web.yml"
-    workflow_dispatch:
-
-concurrency:
-    group: mission-control-web-${{ github.ref }}
-    cancel-in-progress: true
+    pull_request:
+        paths:
+            - "apps/mission-control-ui/**"
 
 jobs:
-    build:
-        name: Build Mission Control Web
+    build_and_deploy:
         runs-on: ubuntu-latest
         steps:
-            - name: Checkout code
-              uses: actions/checkout@v4
-
-            - name: Set up Node.js
-              uses: actions/setup-node@v4
+            - uses: actions/checkout@v4
+            - uses: actions/setup-node@v4
               with:
                   node-version: 22
                   cache: "npm"
@@ -35,13 +26,16 @@ jobs:
                   cd apps/mission-control-ui
                   npm install --legacy-peer-deps
 
-            - name: Build Next.js Web App
+            - name: Build Web
               run: |
                   cd apps/mission-control-ui
-                  npm run build
+                  npm run build:web
 
-            - name: Upload Web Artifact
-              uses: actions/upload-artifact@v4
+            - name: Deploy to Firebase Hosting
+              uses: FirebaseExtended/action-hosting-deploy@v0
               with:
-                  name: mission-control-web-build
-                  path: apps/mission-control-ui/out/
+                  repoToken: "${{ secrets.GITHUB_TOKEN }}"
+                  firebaseServiceAccount: "${{ secrets.FIREBASE_SERVICE_ACCOUNT_KEY }}"
+                  channelId: live
+                  projectId: getxobelaeskola
+                  entryPoint: apps/mission-control-ui
