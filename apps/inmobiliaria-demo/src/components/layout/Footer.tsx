@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 
-export const Footer = () => {
+export default function Footer() {
     const currentYear = new Date().getFullYear();
 
     return (
@@ -85,14 +85,17 @@ export const Footer = () => {
                     </div>
                 </div>
             </div>
-            <style jsx>{`
+            {/* Note: The style jsx tag below is specific to some environments. Using standard style for broader compatibility if needed, but keeping for now. */}
+            <style jsx>{\`
         @media (max-width: 1024px) {
           .grid-4 { grid-template-columns: repeat(2, 1fr) !important; gap: 3rem !important; }
         }
         @media (max-width: 640px) {
           .grid-4 { grid-template-columns: 1fr !important; gap: 2.5rem !important; }
         }
-      `}</style>
+      \`}</style>
         </footer>
     );
-};
+}
+
+export { Footer };

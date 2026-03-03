@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
-export const Header = () => {
+export default function Header() {
     const [scrolled, setScrolled] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const pathname = usePathname();
@@ -163,4 +163,6 @@ export const Header = () => {
             </div>
         </>
     );
-};
+}
+
+export { Header };
