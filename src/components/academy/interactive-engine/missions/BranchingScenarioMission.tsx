@@ -2,7 +2,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import DOMPurify from 'dompurify';
+import DOMPurify from 'isomorphic-dompurify';
 import { useMissionStore } from '../store';
 import { GraphMissionData, MissionOption } from '../types';
 import { AnimatePresence, motion } from 'framer-motion';
