@@ -79,6 +79,5 @@ describe('Euskalmet Token Generation', () => {
 
         const { generateEuskalmetToken } = await import('./euskalmet');
         expect(() => generateEuskalmetToken()).toThrow('EUSKALMET_PRIVATE_KEY is not defined');
-
     });
 });
