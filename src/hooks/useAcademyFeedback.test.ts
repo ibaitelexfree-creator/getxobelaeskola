@@ -79,9 +79,39 @@ describe('useAcademyFeedback', () => {
 
         expect(localStorage.getItem('sailing_achievements')).toBe(JSON.stringify(['ach-1', 'ach-2']));
     });
+
+    it('should handle fetch error in checkForNewAchievements', async () => {
+        const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+        (global.fetch as any).mockRejectedValue(new Error('Network error'));
+
+        const { result } = renderHook(() => useAcademyFeedback());
+
+        await act(async () => {
+            await result.current.checkForNewAchievements();
+        });
+
+        expect(consoleSpy).toHaveBeenCalledWith('Error checking achievements:', expect.any(Error));
+        consoleSpy.mockRestore();
+    });
 });
 
 describe('useAnimationPreferences', () => {
+    let mockLocalStorage: any;
+
+    beforeEach(() => {
+        vi.clearAllMocks();
+
+        let store: Record<string, string> = {};
+        mockLocalStorage = {
+            getItem: vi.fn((key: string) => store[key] || null),
+            setItem: vi.fn((key: string, value: string) => { store[key] = value; }),
+            clear: vi.fn(() => { store = {}; }),
+            removeItem: vi.fn((key: string) => { delete store[key]; }),
+        };
+        vi.stubGlobal('localStorage', mockLocalStorage);
+        vi.stubGlobal('fetch', vi.fn());
+    });
+
     it('should load initial preference from localStorage', () => {
         localStorage.setItem('animations_enabled', 'false');
         const { result } = renderHook(() => useAnimationPreferences());
@@ -105,5 +135,27 @@ describe('useAnimationPreferences', () => {
 
         expect(result.current.animationsEnabled).toBe(false);
         expect(localStorage.getItem('animations_enabled')).toBe('false');
+    });
+
+    it('should revert state and localStorage when toggleAnimations fails', async () => {
+        const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+        localStorage.setItem('animations_enabled', 'true');
+        (global.fetch as any).mockRejectedValue(new Error('Update failed'));
+
+        const { result } = renderHook(() => useAnimationPreferences());
+
+        // Wait for initial load
+        await waitFor(() => expect(result.current.animationsEnabled).toBe(true));
+
+        await act(async () => {
+            await result.current.toggleAnimations();
+        });
+
+        // It should have toggled to false and then reverted to true
+        expect(result.current.animationsEnabled).toBe(true);
+        expect(localStorage.getItem('animations_enabled')).toBe('true');
+        expect(consoleSpy).toHaveBeenCalledWith('Error saving animation preference:', expect.any(Error));
+
+        consoleSpy.mockRestore();
     });
 });
