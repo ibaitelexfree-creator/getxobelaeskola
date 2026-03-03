@@ -28,7 +28,8 @@ export const VideoMission: React.FC<VideoMissionProps> = ({ data, onComplete }) 
     const [error, setError] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     // Use a unique ID for the player to avoid conflicts if multiple instances are mounted
-    const [playerId] = useState(`yt-player-${crypto.randomUUID()}`);
+    const baseId = React.useId();
+    const [playerId] = useState(`yt-player-${baseId.replace(/:/g, "")}`);
 
     // YouTube API Load
     useEffect(() => {

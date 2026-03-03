@@ -22,7 +22,7 @@ interface NotificationState {
 export const useNotificationStore = create<NotificationState>((set) => ({
     notifications: [],
     addNotification: (notification) => {
-        const id = crypto.randomUUID();
+        const id = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substring(2, 9);
         set((state) => ({
             notifications: [...state.notifications, { ...notification, id }]
         }));

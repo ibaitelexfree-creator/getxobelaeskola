@@ -31,7 +31,7 @@ export const useSafetySettingsStore = create<SafetySettingsState>()(
             addAlertToHistory: (alert) => set((state) => {
                 const newAlert: AlertRecord = {
                     ...alert,
-                    id: crypto.randomUUID(),
+                    id: typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substring(2, 9),
                     timestamp: new Date().toISOString(),
                 };
                 return {
