@@ -42,7 +42,6 @@
     "orchestration",
     "scripts",
     "mission-control.db",
-    "supabase/functions",
     ".jules_bases",
     ".agent",
     ".Jules",
