@@ -52,6 +52,46 @@ describe('useAcademyData', () => {
         expect(result.current.niveles).toEqual([]);
     });
 
+    it('should handle network failure', async () => {
+        (global.fetch as any).mockImplementation(() => Promise.reject(new Error('Network Error')));
+
+        const { result } = renderHook(() => useAcademyData());
+
+        await waitFor(() => expect(result.current.loading).toBe(false));
+
+        expect(result.current.error).toBe('Network Error');
+    });
+
+    it('should handle non-Error exceptions', async () => {
+        (global.fetch as any).mockImplementation(() => {
+            throw 'Something went wrong'; // Throwing a string, not an Error object
+        });
+
+        const { result } = renderHook(() => useAcademyData());
+
+        await waitFor(() => expect(result.current.loading).toBe(false));
+
+        expect(result.current.error).toBe('Error desconocido');
+    });
+
+    it('should handle malformed JSON in levels fetch', async () => {
+        (global.fetch as any).mockImplementation((url: string) => {
+            if (url.includes('/api/levels')) {
+                return Promise.resolve({
+                    ok: true,
+                    json: () => Promise.reject(new Error('Unexpected token'))
+                });
+            }
+            return Promise.resolve({ ok: true, json: async () => ({}) });
+        });
+
+        const { result } = renderHook(() => useAcademyData());
+
+        await waitFor(() => expect(result.current.loading).toBe(false));
+
+        expect(result.current.error).toBe('Unexpected token');
+    });
+
     describe('getEstadoNivel', () => {
         it('should return correct state based on unlockStatus', async () => {
             (global.fetch as any).mockResolvedValue({ ok: true, json: async () => ({ niveles: [], cursos: [], enrollments: [], progreso: [], niveles_unlock: { 'L1': 'available' } }) });
