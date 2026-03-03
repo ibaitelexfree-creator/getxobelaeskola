@@ -5,6 +5,7 @@ import { MapContainer, TileLayer, Polyline, Marker, Popup, useMapEvents } from '
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
+// Fixes Leaflet icon issue in Next.js
 // We check if window is defined to avoid SSR errors although this component is dynamically imported with ssr: false
 if (typeof window !== 'undefined') {
     delete (L.Icon.Default.prototype as any)._getIconUrl;
