@@ -47,7 +47,7 @@ jobs:
       - name: "🧪 Type Check (Root)"
         env:
           NODE_OPTIONS: "--max_old_space_size=4096"
-        run: npx tsc --noEmit && echo "✅ Root TypeScript Passed"
+        run: npx tsc --project tsconfig.ci.json --noEmit && echo "✅ Root TypeScript Passed"
 
       - name: "🧪 Type Check (Mission Control)"
         run: |
