@@ -45,6 +45,7 @@ export interface Inscription {
 	metadata?: {
 		start_date?: string;
 		end_date?: string;
+		// biome-ignore lint/suspicious/noExplicitAny: intentional
 		[key: string]: any;
 	};
 	created_at?: string;

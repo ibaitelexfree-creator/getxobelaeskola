@@ -3,6 +3,7 @@ export interface RegattaMatch {
 	code: string;
 	host_id: string;
 	status: "waiting" | "racing" | "finished";
+	// biome-ignore lint/suspicious/noExplicitAny: intentional
 	config: any;
 	created_at: string;
 }
