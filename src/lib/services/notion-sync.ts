@@ -1,5 +1,5 @@
 import { Client } from '@notionhq/client';
-import { PageObjectResponse, QueryDatabaseResponse } from '@notionhq/client/build/src/api-endpoints';
+import { PageObjectResponse } from '@notionhq/client/build/src/api-endpoints';
 import { createAdminClient } from '@/lib/supabase/admin';
 import fs from 'fs';
 import path from 'path';
@@ -9,8 +9,6 @@ import {
     NotionSyncConfig,
     NotionTableMap,
     NotionBlock,
-    AuditLog,
-    RentalInfo
 } from './notion-types';
 import {
     createRichText,
@@ -271,49 +269,42 @@ export class NotionSyncService {
             .order('created_at', { ascending: false })
             .limit(8);
 
-        const auditStaffIds = [...new Set((rawAuditLogs as any[] || []).map(l => l.staff_id).filter(Boolean))];
-        const { data: auditProfiles } = await this.supabase
-            .from('profiles')
-            .select('id,nombre')
-            .in('id', auditStaffIds);
-        const auditProfileMap = Object.fromEntries((auditProfiles || []).map(p => [p.id, p]));
+        const staffIds = [...new Set((rawAuditLogs as any[] || []).map(log => log.staff_id))].filter(Boolean);
+        const { data: operators } = await this.supabase.from("profiles").select("id, nombre").in("id", staffIds);
+        const operatorMap = new Map((operators || []).map((op: any) => [op.id, op.nombre]));
 
-        const auditLogs = (rawAuditLogs as any[] || []).map(log => {
-            const operator = auditProfileMap[log.staff_id];
-            return {
-                action: log.action_type,
-                desc: log.description,
-                time: new Date(log.created_at).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }),
-                operator: operator?.nombre || 'Sistemas'
-            };
-        });
+        const auditLogs = (rawAuditLogs as any[] || []).map(log => ({
+            action: log.action_type,
+            desc: log.description,
+            time: new Date(log.created_at).toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" }),
+            operator: operatorMap.get(log.staff_id) || "Sistemas"
+        }));
 
         const { data: rawRentals } = await this.supabase
-            .from('reservas_alquiler')
-            .select('id,monto_total,perfil_id,servicio_id,estado_entrega,fecha_reserva,hora_inicio')
-            .order('created_at', { ascending: false })
+            .from("reservas_alquiler")
+            .select("id,monto_total,perfil_id,servicio_id,estado_entrega,fecha_reserva,hora_inicio")
+            .order("created_at", { ascending: false })
             .limit(10);
 
-        const rentalProfileIds = [...new Set((rawRentals as any[] || []).map(r => r.perfil_id).filter(Boolean))];
-        const rentalServiceIds = [...new Set((rawRentals as any[] || []).map(r => r.servicio_id).filter(Boolean))];
+        const rentalProfileIds = [...new Set((rawRentals as any[] || []).map(r => r.perfil_id))].filter(Boolean);
+        const rentalServiceIds = [...new Set((rawRentals as any[] || []).map(r => r.servicio_id))].filter(Boolean);
 
-        const [{ data: customerProfiles }, { data: services }] = await Promise.all([
-            this.supabase.from('profiles').select('id,nombre,apellidos').in('id', rentalProfileIds) as any,
-            this.supabase.from('servicios_alquiler').select('id,nombre_es').in('id', rentalServiceIds) as any
+        const [{ data: customers }, { data: services }] = await Promise.all([
+            this.supabase.from("profiles").select("id, nombre, apellidos").in("id", rentalProfileIds),
+            this.supabase.from("servicios_alquiler").select("id, nombre_es").in("id", rentalServiceIds)
         ]);
 
-        const customerMap = Object.fromEntries((customerProfiles || []).map((p: any) => [p.id, p]));
-        const serviceMap = Object.fromEntries((services || []).map((s: any) => [s.id, s]));
+        const customerMap = new Map((customers || []).map((c: any) => [c.id, c]));
+        const serviceMap = new Map((services || []).map((s: any) => [s.id, s.nombre_es]));
 
         const recentRentals = (rawRentals as any[] || []).map(r => {
-            const p = customerMap[r.perfil_id];
-            const s = serviceMap[r.servicio_id];
+            const p = customerMap.get(r.perfil_id);
             return {
-                customer: `${p?.nombre || ''} ${p?.apellidos || ''}`.trim() || 'Cliente',
+                customer: `${p?.nombre || ""} ${p?.apellidos || ""}`.trim() || "Cliente",
                 amount: r.monto_total,
-                service: s?.nombre_es || 'Servicio',
+                service: serviceMap.get(r.servicio_id) || "Servicio",
                 status: r.estado_entrega,
-                time: r.hora_inicio || '00:00'
+                time: r.hora_inicio || "00:00"
             };
         });
 
