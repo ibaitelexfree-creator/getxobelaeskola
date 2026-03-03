@@ -31,8 +31,10 @@
   },
   "include": [
     "next-env.d.ts",
-    "**/*.ts",
-    "**/*.tsx",
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "*.ts",
+    "*.mjs",
     ".next/types/**/*.ts"
   ],
   "exclude": [
@@ -43,7 +45,6 @@
     "orchestration",
     "scripts",
     "mission-control.db",
-    "supabase/functions",
     ".jules_bases",
     ".agent",
     ".Jules",
