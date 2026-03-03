@@ -51,6 +51,7 @@ describe('processMarketingAutomations', () => {
             select: vi.fn().mockReturnThis(),
             eq: vi.fn().mockReturnThis(),
             lte: vi.fn().mockReturnThis(),
+            in: vi.fn().mockReturnThis(),
             maybeSingle: vi.fn(),
             insert: vi.fn().mockResolvedValue({ error: null }),
         };
@@ -98,7 +99,7 @@ describe('processMarketingAutomations', () => {
         const mockInscription = {
             perfil_id: 'user_1',
             created_at: '2023-01-01T00:00:00Z',
-            profiles: { nombre: 'Test User' },
+            profiles: { nombre: 'Test User', email: 'user@example.com' },
         };
 
         // Mock Supabase Calls
@@ -107,34 +108,20 @@ describe('processMarketingAutomations', () => {
                 return createQueryBuilder({ data: [mockCampaign] });
             }
             if (table === 'inscripciones') {
-                // We need to distinguish between trigger check (lte) and target check (eq only)
-                // Since the builder is created fresh each time, we can't inspect previous calls easily
-                // UNLESS we return a proxy or inspect the stack.
-                // EASIER: Return a builder that captures calls and decides on resolve.
-
-                const builder: any = {
-                    select: vi.fn().mockReturnThis(),
-                    eq: vi.fn().mockReturnThis(),
-                    lte: vi.fn().mockReturnThis(),
-                };
-
+                const builder: any = createQueryBuilder();
                 builder.then = (resolve: any) => {
-                    // Check if lte was called (Trigger Query)
                     if (builder.lte.mock.calls.length > 0) {
                         resolve({ data: [mockInscription], error: null });
                     } else {
-                        // Target Query (Check if bought)
-                        resolve({ count: 0, error: null });
+                        resolve({ data: [], error: null });
                     }
                 };
                 return builder;
             }
             if (table === 'marketing_history') {
-                const builder: any = {
-                    select: vi.fn().mockReturnThis(),
-                    eq: vi.fn().mockReturnThis(),
-                    maybeSingle: vi.fn().mockResolvedValue({ data: null, error: null }), // No history
-                    insert: vi.fn().mockResolvedValue({ error: null }),
+                const builder: any = createQueryBuilder();
+                builder.then = (resolve: any) => {
+                    resolve({ data: [], error: null });
                 };
                 return builder;
             }
@@ -156,11 +143,6 @@ describe('processMarketingAutomations', () => {
             to: 'user@example.com',
             subject: expect.stringContaining('Target Course'),
         }));
-
-        // Verify History Insert
-        expect(mockSupabase.from).toHaveBeenCalledWith('marketing_history');
-        // We can't easily check the insert call on a dynamic mock unless we capture it.
-        // But since we mocked 'insert' on the history builder, it should have been called.
     });
 
     it('should skip if user bought target course', async () => {
@@ -174,17 +156,12 @@ describe('processMarketingAutomations', () => {
         mockSupabase.from.mockImplementation((table: string) => {
             if (table === 'marketing_campaigns') return createQueryBuilder({ data: [mockCampaign] });
             if (table === 'inscripciones') {
-                const builder: any = {
-                    select: vi.fn().mockReturnThis(),
-                    eq: vi.fn().mockReturnThis(),
-                    lte: vi.fn().mockReturnThis(),
-                };
+                const builder: any = createQueryBuilder();
                 builder.then = (resolve: any) => {
                     if (builder.lte.mock.calls.length > 0) {
-                        resolve({ data: [{ perfil_id: 'user_1' }], error: null });
+                        resolve({ data: [{ perfil_id: 'user_1', profiles: { email: 'test@test.com' } }], error: null });
                     } else {
-                        // Target Query - User has bought it!
-                        resolve({ count: 1, error: null });
+                        resolve({ data: [{ perfil_id: 'user_1' }], error: null });
                     }
                 };
                 return builder;
@@ -204,26 +181,26 @@ describe('processMarketingAutomations', () => {
         mockSupabase.from.mockImplementation((table: string) => {
             if (table === 'marketing_campaigns') return createQueryBuilder({ data: [mockCampaign] });
             if (table === 'inscripciones') {
-                const builder: any = {
-                    select: vi.fn().mockReturnThis(),
-                    eq: vi.fn().mockReturnThis(),
-                    lte: vi.fn().mockReturnThis(),
-                };
+                const builder: any = createQueryBuilder();
                 builder.then = (resolve: any) => {
                     if (builder.lte.mock.calls.length > 0) {
-                        resolve({ data: [{ perfil_id: 'user_1' }], error: null });
+                        resolve({ data: [{ perfil_id: 'user_1', profiles: { email: 'test@test.com' } }], error: null });
                     } else {
-                        resolve({ count: 0, error: null });
+                        resolve({ data: [], error: null });
                     }
                 };
                 return builder;
             }
             if (table === 'marketing_history') {
-                return {
-                    select: vi.fn().mockReturnThis(),
-                    eq: vi.fn().mockReturnThis(),
-                    maybeSingle: vi.fn().mockResolvedValue({ data: { id: 'hist_1' }, error: null }), // History exists
-                } as any;
+                const builder: any = createQueryBuilder();
+                builder.then = (resolve: any) => {
+                    if (builder.in.mock.calls.length > 0) {
+                        resolve({ data: [{ perfil_id: 'user_1' }], error: null });
+                    } else {
+                        resolve({ data: [], error: null });
+                    }
+                };
+                return builder;
             }
             return createQueryBuilder();
         });
@@ -238,7 +215,7 @@ describe('processMarketingAutomations', () => {
             id: 'camp_1',
             activo: true,
             stripe_coupon_id: 'coupon_1',
-            cupon_codigo: 'STATIC10', // Fallback
+            cupon_codigo: 'STATIC10',
             curso_trigger_id: 'trigger_1',
             curso_objetivo_id: 'target_1',
         };
@@ -246,24 +223,15 @@ describe('processMarketingAutomations', () => {
         mockSupabase.from.mockImplementation((table: string) => {
             if (table === 'marketing_campaigns') return createQueryBuilder({ data: [mockCampaign] });
             if (table === 'inscripciones') {
-                 const builder: any = {
-                    select: vi.fn().mockReturnThis(),
-                    eq: vi.fn().mockReturnThis(),
-                    lte: vi.fn().mockReturnThis(),
-                };
+                const builder: any = createQueryBuilder();
                 builder.then = (resolve: any) => {
-                    if (builder.lte.mock.calls.length > 0) resolve({ data: [{ perfil_id: 'user_1' }], error: null });
-                    else resolve({ count: 0, error: null });
+                    if (builder.lte.mock.calls.length > 0) resolve({ data: [{ perfil_id: 'user_1', profiles: { email: 'test@test.com' } }], error: null });
+                    else resolve({ data: [], error: null });
                 };
                 return builder;
             }
             if (table === 'marketing_history') {
-                return {
-                    select: vi.fn().mockReturnThis(),
-                    eq: vi.fn().mockReturnThis(),
-                    maybeSingle: vi.fn().mockResolvedValue({ data: null, error: null }),
-                    insert: vi.fn().mockResolvedValue({ error: null }),
-                } as any;
+                return createQueryBuilder();
             }
             return createQueryBuilder();
         });
@@ -275,7 +243,6 @@ describe('processMarketingAutomations', () => {
         const result = await processMarketingAutomations();
 
         expect(result.totalSent).toBe(1);
-        // Verify email sent with STATIC10 (fallback)
         const emailHtml = mockResend.emails.send.mock.calls[0][0].html;
         expect(emailHtml).toContain('STATIC10');
     });
@@ -283,30 +250,23 @@ describe('processMarketingAutomations', () => {
     it('should not insert history if email fails', async () => {
         const mockCampaign = { id: 'camp_1', curso_trigger_id: 'trigger_1', curso_objetivo_id: 'target_1', activo: true };
 
-        // Setup successful checks but failing email
         const insertSpy = vi.fn().mockResolvedValue({ error: null });
 
         mockSupabase.from.mockImplementation((table: string) => {
             if (table === 'marketing_campaigns') return createQueryBuilder({ data: [mockCampaign] });
             if (table === 'inscripciones') {
-                 const builder: any = {
-                    select: vi.fn().mockReturnThis(),
-                    eq: vi.fn().mockReturnThis(),
-                    lte: vi.fn().mockReturnThis(),
-                };
+                const builder: any = createQueryBuilder();
                 builder.then = (resolve: any) => {
-                    if (builder.lte.mock.calls.length > 0) resolve({ data: [{ perfil_id: 'user_1' }], error: null });
-                    else resolve({ count: 0, error: null });
+                    if (builder.lte.mock.calls.length > 0) resolve({ data: [{ perfil_id: 'user_1', profiles: { email: 'test@test.com' } }], error: null });
+                    else resolve({ data: [], error: null });
                 };
                 return builder;
             }
             if (table === 'marketing_history') {
-                return {
-                    select: vi.fn().mockReturnThis(),
-                    eq: vi.fn().mockReturnThis(),
-                    maybeSingle: vi.fn().mockResolvedValue({ data: null, error: null }),
-                    insert: insertSpy,
-                } as any;
+                const builder: any = createQueryBuilder();
+                builder.insert = insertSpy;
+                builder.then = (resolve: any) => resolve({ data: [], error: null });
+                return builder;
             }
             return createQueryBuilder();
         });
