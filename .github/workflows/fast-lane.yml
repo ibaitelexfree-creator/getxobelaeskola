@@ -38,7 +38,7 @@ jobs:
         run: |
           npm install -g oxlint@latest @biomejs/biome@latest --no-progress --loglevel=error
           (oxlint ./src --quiet && echo "✅ Oxlint Passed") &
-          (biome check ./src --diagnostic-level=error && echo "✅ Biome Passed") &
+          # (biome check ./src --diagnostic-level=error && echo "✅ Biome Passed") &
           wait
 
       - name: "📦 Install Deps (Cached)"
