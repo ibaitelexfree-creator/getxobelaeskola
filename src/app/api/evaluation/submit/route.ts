@@ -37,49 +37,27 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: 'Este intento ya fue completado' }, { status: 400 });
         }
 
-        // Actualizar el intento con las respuestas
+        // Actualizar el intento con las respuestas atómicamente
         // FIX 2: Merge respuestas nuevas con las existentes (autosave) resuelto
-        // Utilizamos el RPC de autosave para asegurar un merge atómico de las respuestas,
-        // evitando pérdida de datos por race conditions con el autosave.
         const now = new Date().toISOString();
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        let respuestasMerged: any = { ...((intento.respuestas_json as any) || {}), ...respuestas };
 
-        const { error: mergeError } = await supabase.rpc('merge_respuestas_autosave', {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        let respuestasMerged: any;
+
+        const { data: rpcData, error: submitError } = await supabase.rpc('submit_evaluacion_atomic', {
             p_intento_id: intento_id,
             p_alumno_id: user.id,
             p_respuestas: respuestas,
+            p_tiempo_empleado_seg: tiempo_empleado_seg,
             p_timestamp: now
         });
 
-        if (!mergeError) {
-            // Si el merge atómico funcionó, actualizamos el resto de campos
-            const { error: updateError } = await supabase
-                .from('intentos_evaluacion')
-                .update({
-                    tiempo_empleado_seg: tiempo_empleado_seg,
-                    estado: 'completado',
-                    fecha_completado: now
-                })
-                .eq('id', intento_id);
+        if (submitError) {
+            console.error('Error en submit_evaluacion_atomic:', submitError);
 
-            if (updateError) {
-                return NextResponse.json({ error: updateError.message }, { status: 500 });
-            }
+            // Fallback: merge manual en memoria si el RPC falla (ej. si la migración no está aplicada en este entorno)
+            respuestasMerged = { ...((intento.respuestas_json as any) || {}), ...respuestas };
 
-            // Recuperar las respuestas finales (mergeadas atómicamente) para el cálculo del SRS
-            const { data: latestIntento } = await supabase
-                .from('intentos_evaluacion')
-                .select('respuestas_json')
-                .eq('id', intento_id)
-                .single();
-
-            if (latestIntento && latestIntento.respuestas_json) {
-                respuestasMerged = latestIntento.respuestas_json;
-            }
-        } else {
-            // Fallback: merge manual en memoria si falla el RPC
-            console.error('Error en merge_respuestas_autosave al enviar:', mergeError);
             const { error: updateError } = await supabase
                 .from('intentos_evaluacion')
                 .update({
@@ -88,11 +66,15 @@ export async function POST(request: Request) {
                     estado: 'completado',
                     fecha_completado: now
                 })
-                .eq('id', intento_id);
+                .eq('id', intento_id)
+                .eq('alumno_id', user.id)
+                .eq('estado', 'en_progreso');
 
             if (updateError) {
                 return NextResponse.json({ error: updateError.message }, { status: 500 });
             }
+        } else {
+            respuestasMerged = rpcData;
         }
 
         // Calcular puntuación
