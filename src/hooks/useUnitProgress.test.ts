@@ -85,4 +85,46 @@ describe('useUnitProgress', () => {
             body: expect.stringContaining('section-1')
         }));
     });
+
+    it('should handle API failure (success: false) but keep optimistic update', async () => {
+        const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+        (global.fetch as any).mockResolvedValue({
+            ok: true,
+            json: async () => ({ success: false })
+        });
+
+        const { result } = renderHook(() => useUnitProgress({
+            unidadId: 'u1',
+            isCompletado: false,
+            erroresComunes: []
+        }));
+
+        await act(async () => {
+            await result.current.registrarLectura('section-fail');
+        });
+
+        expect(result.current.seccionesVistas).toContain('section-fail');
+        expect(consoleSpy).toHaveBeenCalledWith('Failed to register section read');
+        consoleSpy.mockRestore();
+    });
+
+    it('should handle network error (fetch rejects) but keep optimistic update', async () => {
+        const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+        const networkError = new Error('Network error');
+        (global.fetch as any).mockRejectedValue(networkError);
+
+        const { result } = renderHook(() => useUnitProgress({
+            unidadId: 'u1',
+            isCompletado: false,
+            erroresComunes: []
+        }));
+
+        await act(async () => {
+            await result.current.registrarLectura('section-error');
+        });
+
+        expect(result.current.seccionesVistas).toContain('section-error');
+        expect(consoleSpy).toHaveBeenCalledWith('Error registering read:', networkError);
+        consoleSpy.mockRestore();
+    });
 });
