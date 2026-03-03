@@ -1,7 +1,7 @@
 const axios = require('axios');
 const token = '8287082204:AAEfPganohul_Ic_8SiWn973zTGvG93UohU';
-// The actual basePath is /realstate, not /controlmanager/realstate
-const webhookUrl = 'https://controlmanager.cloud/realstate/api/telegram/webhook/';
+// Removing slash as Next.js seems to redirect to the non-slash version
+const webhookUrl = 'https://controlmanager.cloud/realstate/api/telegram/webhook';
 
 async function setup() {
     try {
