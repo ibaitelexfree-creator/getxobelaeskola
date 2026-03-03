@@ -31,8 +31,12 @@
   },
   "include": [
     "next-env.d.ts",
-    "**/*.ts",
-    "**/*.tsx",
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "i18n.ts",
+    "vitest.config.ts",
+    "vitest.setup.ts",
+    "capacitor.config.ts",
     ".next/types/**/*.ts"
   ],
   "exclude": [
@@ -42,7 +46,6 @@
     "orchestration",
     "scripts",
     "mission-control.db",
-    "supabase/functions",
     ".jules_bases",
     ".agent",
     ".Jules",
