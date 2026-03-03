@@ -8,12 +8,17 @@ const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 
 async function sendTelegramMessage(chatId: number, text: string, replyMarkup?: any) {
     const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
-    await axios.post(url, {
-        chat_id: chatId,
-        text: text,
-        parse_mode: 'Markdown',
-        reply_markup: replyMarkup
-    });
+    try {
+        await axios.post(url, {
+            chat_id: chatId,
+            text: text,
+            parse_mode: 'Markdown',
+            reply_markup: replyMarkup
+        });
+    } catch (error: any) {
+        console.error('Telegram API Error (sendMessage):', error.response?.status, error.response?.data || error.message);
+        throw error;
+    }
 }
 
 export async function POST(req: NextRequest) {
@@ -120,7 +125,7 @@ export async function POST(req: NextRequest) {
                 bedrooms: property.bedrooms || 0,
                 bathrooms: property.bathrooms || 0,
                 amenities: property.amenities || [],
-                photos: property.images || [],
+                photos: property.images || [], // Ensure this maps correctly to 'images' field from DB
                 web_url: `${process.env.NEXT_PUBLIC_APP_URL}/properties/${property.id}`
             };
 
