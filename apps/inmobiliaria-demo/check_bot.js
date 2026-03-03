@@ -1,7 +1,7 @@
 const axios = require('axios');
 const token = '8287082204:AAEfPganohul_Ic_8SiWn973zTGvG93UohU';
-// Adding the trailing slash to avoid the 308 redirect that Telegram doesn't like
-const webhookUrl = 'https://controlmanager.cloud/controlmanager/realstate/api/telegram/webhook/';
+// The actual basePath is /realstate, not /controlmanager/realstate
+const webhookUrl = 'https://controlmanager.cloud/realstate/api/telegram/webhook/';
 
 async function setup() {
     try {

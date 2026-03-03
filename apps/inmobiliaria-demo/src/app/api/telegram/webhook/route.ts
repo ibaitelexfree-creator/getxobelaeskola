@@ -4,6 +4,7 @@ import { generateMarketingContent, triggerN8nVideo, MarketingProperty } from '@/
 import axios from 'axios';
 
 const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
+// Correct Webhook URL: https://controlmanager.cloud/realstate/api/telegram/webhook/
 
 async function sendTelegramMessage(chatId: number, text: string, replyMarkup?: any) {
     const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
