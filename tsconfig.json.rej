@@ -1,0 +1,12 @@
+--- tsconfig.json
++++ tsconfig.json
+@@ -34,7 +34,8 @@
+     "scripts",
+     "mission-control.db",
+     "supabase/functions",
+     ".jules_bases",
+     ".agent",
+     ".Jules",
+-    ".openclaw"
++    ".openclaw",
++    "apps"
