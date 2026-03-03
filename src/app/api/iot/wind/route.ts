@@ -8,9 +8,9 @@ export async function POST(request: NextRequest) {
         // Security Check
         const apiKey = request.headers.get('x-api-key');
         // In production, ensure IOT_API_KEY is set. Fallback is for demo/dev only.
-        const validKey = process.env.IOT_API_KEY || 'club-nautico-iot-secret-2024';
+        const validKey = process.env.IOT_API_KEY;
 
-        if (apiKey !== validKey) {
+        if (!validKey || apiKey !== validKey) {
             return NextResponse.json(
                 { error: 'Unauthorized' },
                 { status: 401 }
