@@ -1,6 +1,6 @@
 
 import { NextResponse } from 'next/server';
-import { exec } from 'child_process';
+import { execFile } from 'child_process';
 import path from 'path';
 
 export async function POST(req: Request) {
@@ -17,11 +17,14 @@ export async function POST(req: Request) {
         const scriptPath = path.join(process.cwd(), 'scripts', 'supabase-notion-bridge.js');
 
         // We run it as a background process to avoid timing out the request
-        const command = `node ${scriptPath} ${mode} ${table || ''}`;
+        const args = [scriptPath, mode];
+        if (table) {
+            args.push(table);
+        }
 
-        console.log(`Executing sync command: ${command}`);
+        console.log(`Executing sync command: node ${args.join(' ')}`);
 
-        exec(command, {
+        execFile('node', args, {
             env: {
                 ...process.env,
                 // Ensure env vars are passed if not already in process.env
@@ -44,6 +47,7 @@ export async function POST(req: Request) {
 
         return NextResponse.json({ message: 'Sync started successfully', mode });
     } catch (err: any) {
+        console.error("Sync API Error:", err);
         return NextResponse.json({ error: err.message }, { status: 500 });
     }
 }

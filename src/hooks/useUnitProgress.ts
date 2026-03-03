@@ -50,7 +50,7 @@ export function useUnitProgress({ unidadId, isCompletado, erroresComunes }: UseU
         }
     }, [unidadId]);
 
-    // Initialize/Sync with server state if needed (optional if passed via props, 
+    // Initialize/Sync with server state if needed (optional if passed via props,
     // but here we assume the parent component handles initial data fetching).
     // In this specific refactor, we are extracting the logic that was local to UnitReaderMain.
 

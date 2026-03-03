@@ -52,7 +52,7 @@ export function stepPhysics(state: WindPhysicsState, dt: number = PHYSICS_CONSTA
     // We strictly define AoA as the aerodynamic angle.
     // If AoA is negative (Sail is 'outside' the wind? Luffing on the other side?), handle it.
     // e.g. Wind 30, Sail 45 -> AoA -15. Meaning wind is hitting the "lee" side?
-    // In sailing, this causes the sail to collapse (luff). 
+    // In sailing, this causes the sail to collapse (luff).
     // Our curve handles calculating Cl for negative AoA symmetrically or we just take abs.
     // Let's use signed AoA for debug, but Abs for hydro.
 
@@ -79,7 +79,7 @@ export function stepPhysics(state: WindPhysicsState, dt: number = PHYSICS_CONSTA
     // Apply Density & Area
     // Force = Coeff * 0.5 * rho * v^2 * A
     // Note: resolveForces already factored v^2? No, we passed 'v' just for reference?
-    // Wait, resolveForces in previous step did: drive * v^2. 
+    // Wait, resolveForces in previous step did: drive * v^2.
     // Let's refine based on previous file implementation.
     // Checking forceModel.ts content...
     // It did: drive * dynamicPressure (where dynamicPressure = v^2).

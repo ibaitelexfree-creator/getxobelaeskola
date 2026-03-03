@@ -2,7 +2,7 @@ import { deg2rad } from './angleUtils';
 
 /**
  * Resolves the Lift and Drag forces into Drive (Forward) and Heel (Side) components.
- * 
+ *
  * Coordinate System:
  * - AWA: 0 degrees = Forward. positive = right (starboard).
  * - Lift: Perpendicular to AWA (L - 90).
@@ -27,14 +27,14 @@ export function resolveForces(
     // Drive = L * sin(AWA) - D * cos(AWA)
     // Heel  = L * cos(AWA) + D * sin(AWA)
 
-    // Note: AWA is [-180, 180]. 
+    // Note: AWA is [-180, 180].
     // sin(-x) = -sin(x). cos(-x) = cos(x).
 
     const awaRad = deg2rad(Math.abs(awa));
     const sinA = Math.sin(awaRad);
     const cosA = Math.cos(awaRad);
 
-    // Lift is perpendicular to wind. 
+    // Lift is perpendicular to wind.
     // Drag is parallel to wind.
     // Projecting onto Boat Heading (0 degrees relative):
 

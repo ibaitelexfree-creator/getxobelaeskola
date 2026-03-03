@@ -104,5 +104,3 @@ export default function ThreePartCard({ card, mode, locale, isMatched, onDragSta
 
     return null;
 }
-
-
