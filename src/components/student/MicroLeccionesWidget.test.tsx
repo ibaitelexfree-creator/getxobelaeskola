@@ -19,7 +19,7 @@ vi.mock('next/dynamic', () => ({
         const MockPlayer = ({ onClose }: any) => (
             <div data-testid="mock-player">
                 Mock Player
-                <button onClick={onClose}>Close</button>
+                <button onClick={onClose} type="button">Close</button>
             </div>
         );
         return MockPlayer;

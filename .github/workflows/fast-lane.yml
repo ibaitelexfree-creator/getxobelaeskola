@@ -51,6 +51,6 @@ jobs:
 
       - name: "🧪 Type Check (Mission Control)"
         run: |
-          cd mission-control
+          cd apps/mission-control-ui
           npm ci --legacy-peer-deps --prefer-offline --no-audit --no-fund --loglevel=error
-          npx tsc --noEmit && echo "✅ Mission Control TypeScript Passed"
+          NODE_OPTIONS="--max_old_space_size=4096" npx tsc --noEmit && echo "✅ Mission Control TypeScript Passed"
