@@ -31,11 +31,7 @@ jobs:
       - name: Install dependencies
         run: |
           cd apps/mission-control-ui
-<<<<<<< HEAD
           npm install --legacy-peer-deps
-=======
-          npm ci --legacy-peer-deps
->>>>>>> origin/jules/fix-push-notification-test-coverage-13023310960930150086
 
       - name: Build Next.js (SSG)
         run: |

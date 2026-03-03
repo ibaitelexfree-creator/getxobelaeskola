@@ -1,16 +1,9 @@
 "use client";
 
-<<<<<<< HEAD
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useMultiplayerStore } from "@/lib/store/useMultiplayerStore";
 import { createClient } from "@/lib/supabase/client";
-=======
-import { useMultiplayerStore } from "@/lib/store/useMultiplayerStore";
-import { createClient } from "@/lib/supabase/client";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
->>>>>>> origin/jules/fix-push-notification-test-coverage-13023310960930150086
 
 export default function CompetitionPage() {
 	const router = useRouter();
@@ -26,16 +19,6 @@ export default function CompetitionPage() {
 		} = await supabase.auth.getUser();
 
 		if (!user) {
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-			// For MVP, allow anonymous if auth fails? Or require login.
-			// Let's assume login is required for persistent ID.
-			// But for testing, maybe generate random ID?
-			// "Alumnos" implies logged in users.
->>>>>>> origin/jules/fix-notion-sync-command-injection-17401770005979444128
-=======
->>>>>>> origin/jules/fix-push-notification-test-coverage-13023310960930150086
 			alert("Debes iniciar sesión para crear una regata.");
 			return;
 		}
@@ -82,31 +65,14 @@ export default function CompetitionPage() {
 			<div className="w-full max-w-md bg-gray-900/80 backdrop-blur-md p-8 rounded-xl border border-cyan-900 shadow-2xl shadow-cyan-900/20">
 				<div className="mb-8">
 					<label
-<<<<<<< HEAD
-<<<<<<< HEAD
 						htmlFor="pilot-name"
-=======
-						htmlFor="username"
->>>>>>> origin/jules/fix-notion-sync-command-injection-17401770005979444128
-=======
-						htmlFor="pilot-name"
->>>>>>> origin/jules/fix-push-notification-test-coverage-13023310960930150086
 						className="block text-xs font-bold text-cyan-500 mb-2 uppercase tracking-wider"
 					>
 						Nombre de Piloto
 					</label>
 					<input
-<<<<<<< HEAD
-<<<<<<< HEAD
 						id="pilot-name"
-=======
-						id="username"
->>>>>>> origin/jules/fix-notion-sync-command-injection-17401770005979444128
 						type="text"
-=======
-						type="text"
-						id="pilot-name"
->>>>>>> origin/jules/fix-push-notification-test-coverage-13023310960930150086
 						value={username}
 						onChange={(e) => setUsername(e.target.value)}
 						className="w-full bg-black/50 border border-gray-700 rounded p-3 text-white focus:border-cyan-500 outline-none transition-colors"
@@ -124,39 +90,16 @@ export default function CompetitionPage() {
 					</button>
 
 					<div className="relative flex py-4 items-center">
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> origin/jules/fix-push-notification-test-coverage-13023310960930150086
 						<div className="flex-grow border-t border-gray-800" />
 						<span className="flex-shrink mx-4 text-gray-600 text-xs uppercase tracking-widest">
 							O únete a una existente
 						</span>
 						<div className="flex-grow border-t border-gray-800" />
-<<<<<<< HEAD
-=======
-						<div className="flex-grow border-t border-gray-800"></div>
-						<span className="flex-shrink mx-4 text-gray-600 text-xs uppercase tracking-widest">
-							O únete a una existente
-						</span>
-						<div className="flex-grow border-t border-gray-800"></div>
->>>>>>> origin/jules/fix-notion-sync-command-injection-17401770005979444128
 					</div>
 
 					<div className="flex gap-2">
 						<input
 							type="text"
-=======
-					</div>
-
-					<div className="flex flex-col gap-2">
-						<label htmlFor="join-code" className="sr-only">
-							Código de Sala
-						</label>
-						<input
-							type="text"
-							id="join-code"
->>>>>>> origin/jules/fix-push-notification-test-coverage-13023310960930150086
 							value={joinCode}
 							onChange={(e) => setJoinCode(e.target.value)}
 							className="flex-grow bg-black/50 border border-gray-700 rounded-lg p-3 text-white uppercase text-center tracking-[0.2em] font-mono text-xl focus:border-cyan-500 outline-none transition-colors placeholder-gray-700"
@@ -168,24 +111,10 @@ export default function CompetitionPage() {
 						type="button"
 						onClick={handleJoin}
 						disabled={!joinCode}
-<<<<<<< HEAD
-<<<<<<< HEAD
 						className={`w-full font-bold py-3 px-6 rounded-lg transition-all uppercase tracking-wide ${joinCode
 							? "bg-gray-700 hover:bg-gray-600 text-white cursor-pointer hover:scale-[1.02]"
 							: "bg-gray-800 text-gray-600 cursor-not-allowed"
 							}`}
-=======
-=======
->>>>>>> origin/jules/fix-push-notification-test-coverage-13023310960930150086
-						className={`w-full font-bold py-3 px-6 rounded-lg transition-all uppercase tracking-wide ${
-							joinCode
-								? "bg-gray-700 hover:bg-gray-600 text-white cursor-pointer hover:scale-[1.02]"
-								: "bg-gray-800 text-gray-600 cursor-not-allowed"
-						}`}
-<<<<<<< HEAD
->>>>>>> origin/jules/fix-notion-sync-command-injection-17401770005979444128
-=======
->>>>>>> origin/jules/fix-push-notification-test-coverage-13023310960930150086
 					>
 						Unirse a Sala
 					</button>

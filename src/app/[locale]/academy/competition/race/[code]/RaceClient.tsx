@@ -29,6 +29,7 @@ export default function RaceClient() {
 	const updateScore = useMultiplayerStore((state) => state.updateScore);
 	const finishMatch = useMultiplayerStore((state) => state.finishMatch);
 	const currentMatch = useMultiplayerStore((state) => state.currentMatch);
+	const joinLobby = useMultiplayerStore((state) => state.joinLobby);
 
 	useEffect(() => {
 		const init = async () => {
@@ -42,6 +43,16 @@ export default function RaceClient() {
 			}
 			setUserId(user.id);
 
+			// Re-join logic if not in lobby/match (e.g. refresh)
+			if (!currentMatch || currentMatch.code !== code) {
+				const name = user.email?.split("@")[0] || "Skipper";
+				const success = await joinLobby(code as string, user.id, name);
+				if (!success) {
+					router.push("/academy/competition");
+					return;
+				}
+			}
+
 			// Find our username from match participants
 			const me = currentMatch?.participants.find((p) => p.user_id === user.id);
 			if (me) {
@@ -52,7 +63,7 @@ export default function RaceClient() {
 		};
 
 		init();
-	}, [router, currentMatch]);
+	}, [router, currentMatch, code, joinLobby]);
 
 	if (!matchStarted || !userId || !code) {
 		return <SimulatorSkeleton />;
