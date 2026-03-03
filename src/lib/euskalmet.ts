@@ -1,4 +1,3 @@
-
 import jwt from 'jsonwebtoken';
 
 const EMAIL = process.env.EUSKALMET_EMAIL || 'info@getxobelaeskola.com';
