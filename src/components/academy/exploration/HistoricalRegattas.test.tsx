@@ -49,8 +49,8 @@ describe('HistoricalRegattas', () => {
 
     it('renders playback controls', () => {
         render(<HistoricalRegattas />);
-        expect(screen.getByText('Play')).toBeInTheDocument();
-        expect(screen.getByText('SkipBack')).toBeInTheDocument();
-        expect(screen.getByText('SkipForward')).toBeInTheDocument();
+        expect(screen.getByText('Play')).toBeDefined();
+        expect(screen.getByText('SkipBack')).toBeDefined();
+        expect(screen.getByText('SkipForward')).toBeDefined();
     });
 });

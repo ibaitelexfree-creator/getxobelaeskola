@@ -85,7 +85,7 @@ describe('VideoWithCheckpoints', () => {
         });
 
         expect(mockPlayer.pauseVideo).toHaveBeenCalled();
-        expect(screen.getByText('Q1')).toBeInTheDocument();
+        expect(screen.getByText('Q1')).toBeDefined();
 
         // Answer correctly
         fireEvent.click(screen.getByText('Option A'));
@@ -100,6 +100,6 @@ describe('VideoWithCheckpoints', () => {
         expect(mockPlayer.playVideo).toHaveBeenCalled();
 
         // Should hide question
-        expect(screen.queryByText('Responder')).not.toBeInTheDocument();
+        expect(screen.queryByText('Responder')).toBeNull();
     });
 });
