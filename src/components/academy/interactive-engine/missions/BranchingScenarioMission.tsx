@@ -1,7 +1,8 @@
 
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
+import DOMPurify from 'dompurify';
 import { useMissionStore } from '../store';
 import { GraphMissionData, MissionOption } from '../types';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -86,6 +87,14 @@ export const BranchingScenarioMission: React.FC<Props> = ({ data, onComplete }) 
 
     const currentStep = data.steps[currentStepId];
 
+    const [sanitizedContent, setSanitizedContent] = useState(currentStep.content);
+
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            setSanitizedContent(DOMPurify.sanitize(currentStep.content));
+        }
+    }, [currentStep.content]);
+
     return (
         <div className="w-full max-w-4xl mx-auto p-4 flex flex-col items-center">
             <AnimatePresence mode="wait">
@@ -113,7 +122,7 @@ export const BranchingScenarioMission: React.FC<Props> = ({ data, onComplete }) 
 
                         <div className="p-6 md:p-8">
                             <h3 className="text-xl md:text-2xl font-display text-white mb-4 leading-relaxed">
-                                <span dangerouslySetInnerHTML={{ __html: currentStep.content }} />
+                                <span dangerouslySetInnerHTML={{ __html: sanitizedContent }} />
                             </h3>
                         </div>
                     </div>
