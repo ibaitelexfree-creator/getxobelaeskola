@@ -2,7 +2,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getGetxoForecast, narrateForecast } from '@/lib/aemet';
 
-export const dynamic = 'force-dynamic'; // Always fetch fresh data
+ // Always fetch fresh data
 
 export async function GET(request: NextRequest) {
   try {

@@ -1,9 +1,14 @@
+export function generateStaticParams() {
+    return [{ userId: 'dummy' }];
+}
+
+export const dynamicParams = true;
+
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { NextResponse } from 'next/server';
 import { withCors, corsHeaders } from '@/lib/api-headers';
 
-export const dynamic = 'force-dynamic';
 
 export async function OPTIONS(request: Request) {
     return new NextResponse(null, {

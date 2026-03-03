@@ -1,3 +1,9 @@
+export function generateStaticParams() {
+    return [{ id: 'dummy' }];
+}
+
+export const dynamicParams = true;
+
 
 import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
@@ -7,7 +13,6 @@ import { verifyUnitAccess } from '@/lib/academy/enrollment';
 import { rateLimit } from '@/lib/security/rate-limit';
 import { withCors, corsHeaders } from '@/lib/api-headers';
 
-export const dynamic = 'force-dynamic';
 
 export async function OPTIONS(request: Request) {
     return new NextResponse(null, {
