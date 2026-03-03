@@ -272,19 +272,19 @@ export class NotionSyncService {
             .order('created_at', { ascending: false })
             .limit(8);
 
-        const auditLogs = await Promise.all((rawAuditLogs as any[] || []).map(async log => {
-            const { data: operator } = await this.supabase
-                .from('profiles')
-                .select('nombre')
-                .eq('id', log.staff_id)
-                .single() as any;
+        const staffIds = [...new Set((rawAuditLogs as any[] || []).map(log => log.staff_id).filter(Boolean))];
+        const { data: staffProfiles } = await this.supabase
+            .from('profiles')
+            .select('id,nombre')
+            .in('id', staffIds);
 
-            return {
-                action: log.action_type,
-                desc: log.description,
-                time: new Date(log.created_at).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }),
-                operator: operator?.nombre || 'Sistemas'
-            };
+        const staffMap = Object.fromEntries((staffProfiles || []).map(p => [p.id, p]));
+
+        const auditLogs = (rawAuditLogs as any[] || []).map(log => ({
+            action: log.action_type,
+            desc: log.description,
+            time: new Date(log.created_at).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }),
+            operator: staffMap[log.staff_id]?.nombre || 'Sistemas'
         }));
 
         const { data: rawRentals } = await this.supabase
@@ -293,11 +293,20 @@ export class NotionSyncService {
             .order('created_at', { ascending: false })
             .limit(10);
 
-        const recentRentals = await Promise.all((rawRentals as any[] || []).map(async r => {
-            const [{ data: p }, { data: s }] = await Promise.all([
-                this.supabase.from('profiles').select('nombre,apellidos').eq('id', r.perfil_id).single() as any,
-                this.supabase.from('servicios_alquiler').select('nombre_es').eq('id', r.servicio_id).single() as any
-            ]);
+        const profileIds = [...new Set((rawRentals as any[] || []).map(r => r.perfil_id).filter(Boolean))];
+        const serviceIds = [...new Set((rawRentals as any[] || []).map(r => r.servicio_id).filter(Boolean))];
+
+        const [{ data: profiles }, { data: services }] = await Promise.all([
+            this.supabase.from('profiles').select('id,nombre,apellidos').in('id', profileIds),
+            this.supabase.from('servicios_alquiler').select('id,nombre_es').in('id', serviceIds)
+        ]);
+
+        const profileMap = Object.fromEntries((profiles || []).map(p => [p.id, p]));
+        const serviceMap = Object.fromEntries((services || []).map(s => [s.id, s]));
+
+        const recentRentals = (rawRentals as any[] || []).map(r => {
+            const p = profileMap[r.perfil_id];
+            const s = serviceMap[r.servicio_id];
 
             return {
                 customer: `${p?.nombre || ''} ${p?.apellidos || ''}`.trim(),
@@ -306,7 +315,7 @@ export class NotionSyncService {
                 status: r.estado_entrega,
                 time: r.hora_inicio || '00:00'
             };
-        }));
+        });
 
         return {
             revenue: { today: sumMonto(revToday), month: sumMonto(revMonth), year: sumMonto(revYear) },
