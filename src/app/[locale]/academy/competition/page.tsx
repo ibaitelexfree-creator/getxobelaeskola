@@ -19,10 +19,6 @@ export default function CompetitionPage() {
 		} = await supabase.auth.getUser();
 
 		if (!user) {
-			// For MVP, allow anonymous if auth fails? Or require login.
-			// Let's assume login is required for persistent ID.
-			// But for testing, maybe generate random ID?
-			// "Alumnos" implies logged in users.
 			alert("Debes iniciar sesión para crear una regata.");
 			return;
 		}
@@ -76,10 +72,10 @@ export default function CompetitionPage() {
 					</label>
 					<input
 						type="text"
+						id="username"
 						value={username}
 						onChange={(e) => setUsername(e.target.value)}
 						className="w-full bg-black/50 border border-gray-700 rounded p-3 text-white focus:border-cyan-500 outline-none transition-colors"
-						id="username"
 						placeholder="Tu nombre (opcional)"
 					/>
 				</div>
