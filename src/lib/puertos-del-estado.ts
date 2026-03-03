@@ -8,7 +8,9 @@ export interface SeaStateData {
     isSimulated: boolean;
 }
 
-// Bilbao-Vizcaya Buoy (2630) - Deep Water
+// Bilbao-Vizcaya Buoy (3136) - Real Data from Puertos del Estado
+const STATION_ID = '3136';
+const API_URL = `https://portus.puertos.es/portussvr/api/lastData/station/${STATION_ID}?locale=es`;
 
 // Fallback mock data generator based on season and typical Cantabrian sea conditions
 function getSimulatedSeaState(): SeaStateData {
@@ -43,7 +45,57 @@ function getSimulatedSeaState(): SeaStateData {
 }
 
 export async function fetchSeaState(): Promise<SeaStateData> {
-    return getSimulatedSeaState();
+    try {
+        const response = await fetch(API_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(['WIND', 'WAVE', 'WATER_TEMP']),
+            next: { revalidate: 300 } // Cache for 5 minutes
+        });
+
+        if (!response.ok) {
+            throw new Error(`Puertos del Estado API error: ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        // Helper to find variable value in the complex API response
+        const findValue = (groupName: string, varName: string): number | null => {
+            const group = data.find((g: any) => g.variable === groupName);
+            if (!group || !group.datos) return null;
+
+            const variable = group.datos.find((v: any) => v.nombreVariable.includes(varName));
+            if (!variable || variable.valor === undefined || variable.factor === undefined) return null;
+
+            return variable.valor / variable.factor;
+        };
+
+        const waveHeight = findValue('WAVE', 'Altura_Significativa');
+        const wavePeriod = findValue('WAVE', 'Periodo_Pico');
+        const waterTemp = findValue('WATER_TEMP', 'Temperatura_del_Agua');
+        const windSpeedMs = findValue('WIND', 'Velocidad_del_Viento');
+        const windDirection = findValue('WIND', 'Direccion_del_Viento');
+
+        if (waveHeight === null || waterTemp === null) {
+            console.warn('Incomplete data from Puertos del Estado, using simulation');
+            return getSimulatedSeaState();
+        }
+
+        return {
+            waveHeight: parseFloat(waveHeight.toFixed(2)),
+            period: Math.round(wavePeriod || 0),
+            waterTemp: parseFloat(waterTemp.toFixed(1)),
+            windSpeed: windSpeedMs ? parseFloat((windSpeedMs * 1.94384).toFixed(1)) : 0,
+            windDirection: Math.round(windDirection || 0),
+            timestamp: new Date().toISOString(),
+            isSimulated: false
+        };
+    } catch (error) {
+        console.error('Failed to fetch sea state from API:', error);
+        return getSimulatedSeaState();
+    }
 }
 
 /**
