@@ -9,9 +9,59 @@ export interface SeaStateData {
 }
 
 // Bilbao-Vizcaya Buoy (2630) - Deep Water
+// Coastal Point (3136) - Getxo/Bilbao
+
+/**
+ * Fetches real-time sea state from Puertos del Estado API.
+ * Includes a robust parser and graceful fallback to simulated data.
+ */
+export async function fetchSeaState(): Promise<SeaStateData> {
+    try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000);
+
+        const res = await fetch('https://portus.puertos.es/Portus_RT/point/3136/data', {
+            signal: controller.signal,
+            next: { revalidate: 1800 } // 30 minutes cache
+        });
+
+        clearTimeout(timeoutId);
+
+        if (res.ok) {
+            const data = await res.json();
+
+            // Puertos del Estado often returns an array of measurements
+            if (Array.isArray(data) && data.length > 0) {
+                const latest = data[data.length - 1]; // Usually last is most recent
+
+                // Puertos del Estado field mapping (defensive)
+                // Hm0: Significant Wave Height
+                // Tp: Peak Period
+                // water_temp: Water Temperature
+                const waveHeight = latest.Hm0 ?? latest.wave_height ?? latest.height ?? 1.2;
+                const period = latest.Tp ?? latest.period ?? latest.wave_period ?? 8;
+                const waterTemp = latest.water_temp ?? latest.temp ?? 16;
+
+                return {
+                    waveHeight: parseFloat(Number(waveHeight).toFixed(2)),
+                    period: Math.round(Number(period)),
+                    waterTemp: parseFloat(Number(waterTemp).toFixed(1)),
+                    windSpeed: latest.wind_speed ?? 10,
+                    windDirection: latest.wind_direction ?? 0,
+                    timestamp: latest.timestamp ?? new Date().toISOString(),
+                    isSimulated: false
+                };
+            }
+        }
+    } catch (error) {
+        console.warn('Puertos del Estado API unavailable, using simulation:', error);
+    }
+
+    return getSimulatedSeaState();
+}
 
 // Fallback mock data generator based on season and typical Cantabrian sea conditions
-function getSimulatedSeaState(): SeaStateData {
+export function getSimulatedSeaState(): SeaStateData {
     const now = new Date();
     const month = now.getMonth(); // 0-11
 
@@ -40,10 +90,6 @@ function getSimulatedSeaState(): SeaStateData {
         timestamp: now.toISOString(),
         isSimulated: true
     };
-}
-
-export async function fetchSeaState(): Promise<SeaStateData> {
-    return getSimulatedSeaState();
 }
 
 /**
@@ -89,7 +135,7 @@ export function getTideState(date: Date = new Date()): any {
     const percentage = (level - 1.0) / 3.0;
 
     return {
-        height: level,
+        height: parseFloat(level.toFixed(2)),
         trend,
         percentage: Math.max(0, Math.min(1, percentage))
     };

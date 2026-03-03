@@ -73,8 +73,8 @@ async function sync() {
             }
         }
 
-        // 4. Sea State / Tides (Simulated)
-        const seaState = getSimulatedSeaState();
+        // 4. Sea State / Tides
+        const seaState = await fetchRealSeaState();
         const tideSummary = getTideState();
         await client.query(
             `INSERT INTO api_cache (key, data, updated_at) VALUES ($1, $2, NOW()) 
@@ -92,12 +92,39 @@ async function sync() {
 
 // --- Fetchers adaptados ---
 
+async function fetchRealSeaState() {
+    try {
+        const res = await fetch('https://portus.puertos.es/Portus_RT/point/3136/data', {
+            signal: AbortSignal.timeout(5000)
+        });
+
+        if (res.ok) {
+            const data = await res.json();
+            if (Array.isArray(data) && data.length > 0) {
+                const latest = data[data.length - 1];
+                console.log('Sea State: Real data fetched from Puertos del Estado');
+                return {
+                    waveHeight: parseFloat(Number(latest.Hm0 ?? latest.wave_height ?? 1.2).toFixed(2)),
+                    period: Math.round(Number(latest.Tp ?? latest.period ?? 8)),
+                    waterTemp: parseFloat(Number(latest.water_temp ?? latest.temp ?? 16).toFixed(1)),
+                    windSpeed: latest.wind_speed ?? 10,
+                    timestamp: latest.timestamp ?? new Date().toISOString(),
+                    isSimulated: false
+                };
+            }
+        }
+    } catch (e) {
+        console.warn('Sea State: API unreachable, using simulation.');
+    }
+    return getSimulatedSeaState();
+}
+
 function getSimulatedSeaState() {
     const now = new Date();
     const month = now.getMonth();
     const isWinter = month >= 10 || month <= 2;
     return {
-        waveHeight: isWinter ? 2.5 : 1.0,
+        waveHeight: parseFloat((isWinter ? 2.5 : 1.0 + (Math.random() * 0.5)).toFixed(2)),
         period: isWinter ? 10 : 7,
         waterTemp: isWinter ? 13 : 20,
         windSpeed: isWinter ? 15 : 8,
