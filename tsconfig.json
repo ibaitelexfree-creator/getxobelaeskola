@@ -31,14 +31,8 @@
   },
   "include": [
     "next-env.d.ts",
-    "src/**/*.ts",
-    "src/**/*.tsx",
-    "vitest.setup.ts",
-    "vitest.config.ts",
-    "i18n.ts",
-    "capacitor.config.ts",
-    "tailwind.config.js",
-    "postcss.config.js",
+    "**/*.ts",
+    "**/*.tsx",
     ".next/types/**/*.ts"
   ],
   "exclude": [
@@ -52,6 +46,7 @@
     ".jules_bases",
     ".agent",
     ".Jules",
-    ".openclaw"
+    ".openclaw",
+    "apps"
   ]
 }
