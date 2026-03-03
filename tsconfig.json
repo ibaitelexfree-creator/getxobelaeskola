@@ -42,7 +42,7 @@
     "orchestration",
     "scripts",
     "mission-control.db",
-    "supabase/functions",
+    "apps",
     ".jules_bases",
     ".agent",
     ".Jules",
