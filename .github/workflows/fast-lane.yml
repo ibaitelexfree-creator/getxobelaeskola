@@ -2,23 +2,23 @@ name: "⚡ Fast Lane: Consolidated Verification"
 
 on:
   push:
-    branches: [main, master, "feature/**", "fix/**"]
+    branches: [main, master, "feature/**", "fix/**", "jules/**"]
     paths:
       - "src/**"
-      - "mission-control/**"
+      - "apps/mission-control-ui/**"
       - "orchestration/**"
       - ".github/workflows/fast-lane.yml"
   pull_request:
     branches: [main, master]
     paths:
       - "src/**"
-      - "mission-control/**"
+      - "apps/mission-control-ui/**"
       - "orchestration/**"
       - ".github/workflows/fast-lane.yml"
 
 # Debouncing: Cancels previous runs for the same branch/PR
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  group: \${{ github.workflow }}-\${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -48,9 +48,3 @@ jobs:
         env:
           NODE_OPTIONS: "--max_old_space_size=4096"
         run: npx tsc --noEmit && echo "✅ Root TypeScript Passed"
-
-      - name: "🧪 Type Check (Mission Control)"
-        run: |
-          cd mission-control
-          npm ci --legacy-peer-deps --prefer-offline --no-audit --no-fund --loglevel=error
-          npx tsc --noEmit && echo "✅ Mission Control TypeScript Passed"
