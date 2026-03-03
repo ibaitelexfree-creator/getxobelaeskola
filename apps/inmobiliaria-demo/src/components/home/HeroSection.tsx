@@ -2,8 +2,8 @@
 
 import React, { useMemo } from 'react';
 import Link from 'next/link';
-import { useParallax } from '@/lib/useParallax';
-import { useScrollReveal } from '@/lib/useScrollReveal';
+import { useParallax } from '../../lib/useParallax';
+import { useScrollReveal } from '../../lib/useScrollReveal';
 
 const GoldParticles = ({ count = 20 }: { count?: number }) => {
     const particles = useMemo(() => {

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useMemo, useState } from 'react';
-import { useMissionStore } from '@/store/useMissionStore';
+import { useMissionStore } from '../store/useMissionStore';
 import { useTranslation } from 'react-i18next';
 import {
     ResponsiveContainer,

@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { Cpu, Thermometer, Zap } from 'lucide-react';
-import { useMissionStore } from '@/store/useMissionStore';
+import { useMissionStore } from '../store/useMissionStore';
 
 export default function HardwareStats({ side }: { side: 'left' | 'right' }) {
     const { hardware } = useMissionStore();

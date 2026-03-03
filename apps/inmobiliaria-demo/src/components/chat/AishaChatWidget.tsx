@@ -1,9 +1,9 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { getAishaResponse, ChatMessage } from '@/lib/aisha-responses';
+import { getAishaResponse, ChatMessage } from '../../lib/aisha-responses';
 
-export const AishaChatWidget: React.FC = () => {
+export function AishaChatWidget() {
     const [isOpen, setIsOpen] = useState(false);
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [input, setInput] = useState('');
@@ -237,4 +237,3 @@ export const AishaChatWidget: React.FC = () => {
     );
 };
 
-export default AishaChatWidget;

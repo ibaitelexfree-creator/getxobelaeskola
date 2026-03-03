@@ -3,7 +3,7 @@ import { PushNotifications } from '@capacitor/push-notifications';
 import { Device } from '@capacitor/device';
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
 import { Capacitor } from '@capacitor/core';
-import { registerDevice } from '@/lib/api';
+import { registerDevice } from '../lib/api';
 
 export interface PushNotificationState {
     permission: PermissionState | 'prompt' | 'prompt-with-rationale';

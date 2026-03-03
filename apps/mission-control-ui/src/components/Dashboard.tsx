@@ -1,17 +1,17 @@
 'use client';
 
 import { motion, AnimatePresence } from 'framer-motion';
-import { useMissionStore, ServiceHealth } from '@/store/useMissionStore';
+import { useMissionStore, ServiceHealth } from '../store/useMissionStore';
 import { AlertTriangle, X, AlertCircle, ChevronRight, Server, ShieldCheck, Cpu, Activity } from 'lucide-react';
-import TacticalRadar from '@/components/TacticalRadar';
-import ResourceManager from '@/components/ResourceManager';
+import TacticalRadar from '../components/TacticalRadar';
+import ResourceManager from '../components/ResourceManager';
 import HardwareStats from './HardwareStats';
 import SyncHistoryGraph from './SyncHistoryGraph';
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import ConnectionDiagnostics from '@/components/ConnectionDiagnostics';
-import TenantSelector from '@/components/TenantSelector';
+import ConnectionDiagnostics from '../components/ConnectionDiagnostics';
+import TenantSelector from '../components/TenantSelector';
 
 /* ═══════════════════════════════════════════════════
    SERVICE ITEM COMPONENT
@@ -97,7 +97,7 @@ export default function Dashboard() {
     const generateReport = async () => {
         setIsGeneratingReport(true);
         try {
-            const { triggerNotebookLMReport } = await import('@/lib/api');
+            const { triggerNotebookLMReport } = await import('../lib/api');
             const result = await triggerNotebookLMReport();
 
             if (result.success) {
