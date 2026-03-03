@@ -75,8 +75,6 @@ export class BoatModel {
         this.group.add(keel);
 
         // Rudder (Visual)
-        const rudderGeo = new BoxGeometry(0.1, 1.0, 0.5);
-        const rudderMat = new MeshStandardMaterial({ color: 0x884400 });
         this.rudder = new Mesh(rudderGeo, rudderMat);
         this.rudder.position.set(0, -0.5, -2.1); // Stern position
         this.group.add(this.rudder);
