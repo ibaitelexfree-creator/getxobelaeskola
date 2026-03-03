@@ -1,12 +1,12 @@
 import type { Metadata } from 'next';
-import { HeroSection } from '../components/home/HeroSection';
-import { StatsBar } from '../components/home/StatsBar';
-import { FeaturedProperties } from '../components/home/FeaturedProperties';
-import { NeighborhoodGrid } from '../components/home/NeighborhoodGrid';
-import { DubaiInteractiveMap } from '../components/home/DubaiInteractiveMap';
-import { CTASection } from '../components/home/CTASection';
-import { Header } from '../components/layout/Header';
-import { Footer } from '../components/layout/Footer';
+import { HeroSection } from '@/components/home/HeroSection';
+import { StatsBar } from '@/components/home/StatsBar';
+import { FeaturedProperties } from '@/components/home/FeaturedProperties';
+import { NeighborhoodGrid } from '@/components/home/NeighborhoodGrid';
+import { DubaiInteractiveMap } from '@/components/home/DubaiInteractiveMap';
+import { CTASection } from '@/components/home/CTASection';
+import { Header } from '@/components/layout/Header';
+import { Footer } from '@/components/layout/Footer';
 
 export const metadata: Metadata = {
   title: "Luxe Dubai Estates | Where Dreams Meet Skylines",

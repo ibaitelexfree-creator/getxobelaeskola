@@ -3,7 +3,7 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { Crosshair, X, AlertCircle } from 'lucide-react';
 import { useState, useEffect, useMemo } from 'react';
-import { useMissionStore } from '../store/useMissionStore';
+import { useMissionStore } from '@/store/useMissionStore';
 
 // ── Types ──────────────────────────────────────────────────────────────
 interface RadarContact {

@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { Globe, HardDrive, ExternalLink } from 'lucide-react';
-import { useMissionStore } from '../store/useMissionStore';
+import { useMissionStore } from '@/store/useMissionStore';
 
 export default function EnvironmentSelector() {
     const { previewMode, setPreviewMode, latestPreviews } = useMissionStore();

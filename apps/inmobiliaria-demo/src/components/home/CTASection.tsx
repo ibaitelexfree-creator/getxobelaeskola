@@ -2,9 +2,9 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { BookingModal } from '../../components/ui/BookingModal';
-import { useScrollReveal } from '../../lib/useScrollReveal';
-import { useParallax } from '../../lib/useParallax';
+import { BookingModal } from '@/components/ui/BookingModal';
+import { useScrollReveal } from '@/lib/useScrollReveal';
+import { useParallax } from '@/lib/useParallax';
 
 export const CTASection = () => {
     const [isBookingOpen, setIsBookingOpen] = useState(false);

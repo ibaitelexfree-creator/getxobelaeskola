@@ -2,8 +2,8 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { useScrollReveal } from '../../lib/useScrollReveal';
-import { useParallax } from '../../lib/useParallax';
+import { useScrollReveal } from '@/lib/useScrollReveal';
+import { useParallax } from '@/lib/useParallax';
 
 const DISTRICTS = [
     {

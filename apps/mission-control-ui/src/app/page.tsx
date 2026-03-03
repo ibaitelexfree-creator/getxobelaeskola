@@ -1,15 +1,15 @@
 'use client';
 
-import { usePolling } from '../hooks/usePolling';
-import { useMissionStore } from '../store/useMissionStore';
+import { usePolling } from '@/hooks/usePolling';
+import { useMissionStore } from '@/store/useMissionStore';
 import { useState, useEffect } from 'react';
-import Dashboard from '../components/Dashboard';
-import TaskLauncher from '../components/TaskLauncher';
-import QueueHistory from '../components/QueueHistory';
-import ControlPanel from '../components/ControlPanel';
-import VisualRelay from '../components/VisualRelay';
-import Settings from '../components/Settings';
-import BottomNav from '../components/BottomNav';
+import Dashboard from '@/components/Dashboard';
+import TaskLauncher from '@/components/TaskLauncher';
+import QueueHistory from '@/components/QueueHistory';
+import ControlPanel from '@/components/ControlPanel';
+import VisualRelay from '@/components/VisualRelay';
+import Settings from '@/components/Settings';
+import BottomNav from '@/components/BottomNav';
 
 const views = {
     dashboard: Dashboard,

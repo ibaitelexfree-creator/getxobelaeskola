@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { AishaChatWidget } from '../components/chat/AishaChatWidget';
+import { AishaChatWidget } from "@/components/chat/AishaChatWidget";
 
 export const metadata: Metadata = {
   title: "Luxe Dubai Estates | Premium Real Estate in Dubai",

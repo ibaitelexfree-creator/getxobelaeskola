@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { useMissionStore } from '../store/useMissionStore';
+import { useMissionStore } from '@/store/useMissionStore';
 import {
     WifiOff, Server, Globe, RefreshCcw, Save,
     AlertCircle, ChevronRight, Terminal, Activity,

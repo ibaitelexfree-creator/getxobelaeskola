@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useMissionStore } from '../store/useMissionStore';
+import { useMissionStore } from '@/store/useMissionStore';
 import {
     Camera, Eye, Share2, Trash2, Maximize2, X,
     ExternalLink, Download, Image as ImageIcon,
@@ -13,7 +13,7 @@ import { useTranslation } from 'react-i18next';
 import {
     getLivePreviewConfig, getVisualHistory, Screenshot,
     startService, stopService, resetService
-} from '../lib/api';
+} from '@/lib/api';
 
 export default function VisualRelay() {
     const { services, livePreviewUrl, setLivePreviewUrl, serverUrl } = useMissionStore();

@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { useMissionStore } from '../store/useMissionStore';
+import { useMissionStore } from '@/store/useMissionStore';
 import { Clock, Zap, Bot, Cpu, CheckCircle2, XCircle, Loader2, Globe } from 'lucide-react';
 
 const executorIcon: Record<string, React.ReactNode> = {

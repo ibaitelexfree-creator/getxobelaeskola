@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Rocket, Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
-import { triggerBuild } from '../lib/api';
+import { triggerBuild } from '@/lib/api';
 
 export default function BuildTrigger() {
     const [loading, setLoading] = useState(false);
