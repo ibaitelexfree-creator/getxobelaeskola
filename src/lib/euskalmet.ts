@@ -1,12 +1,12 @@
 
 import jwt from 'jsonwebtoken';
 
-const PRIVATE_KEY = process.env.EUSKALMET_PRIVATE_KEY?.replace(/\\n/g, '\n');
-const EMAIL = process.env.EUSKALMET_EMAIL || 'info@getxobelaeskola.com';
-
 export function generateEuskalmetToken() {
-    if (!PRIVATE_KEY) {
-        return null;
+    const privateKey = process.env.EUSKALMET_PRIVATE_KEY?.replace(/\\n/g, '\n');
+    const email = process.env.EUSKALMET_EMAIL || 'info@getxobelaeskola.com';
+
+    if (!privateKey) {
+        throw new Error('EUSKALMET_PRIVATE_KEY is not defined');
     }
 
     const now = Math.floor(Date.now() / 1000);
@@ -14,12 +14,12 @@ export function generateEuskalmetToken() {
         aud: 'met01.apikey',
         iss: 'GetxoBelaEskola',
         version: '1.0.0',
-        email: EMAIL,
+        email: email,
         iat: now,
         exp: now + 3600 // 1 hour
     };
 
-    return jwt.sign(payload, PRIVATE_KEY, { algorithm: 'RS256' });
+    return jwt.sign(payload, privateKey, { algorithm: 'RS256' });
 }
 
 export async function fetchEuskalmetStationData(stationId: string) {
