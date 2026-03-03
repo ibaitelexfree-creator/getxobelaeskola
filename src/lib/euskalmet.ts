@@ -1,8 +1,11 @@
 import jwt from 'jsonwebtoken';
 
+const getPrivateKey = () => process.env.EUSKALMET_PRIVATE_KEY?.replace(/\\n/g, '\n');
+const getEmail = () => process.env.EUSKALMET_EMAIL || 'info@getxobelaeskola.com';
+
 export function generateEuskalmetToken() {
-    const privateKey = process.env.EUSKALMET_PRIVATE_KEY?.replace(/\\n/g, '\n');
-    const email = process.env.EUSKALMET_EMAIL || 'info@getxobelaeskola.com';
+    const privateKey = getPrivateKey();
+    const email = getEmail();
 
     if (!privateKey) {
 
@@ -17,7 +20,11 @@ export function generateEuskalmetToken() {
         aud: 'met01.apikey',
         iss: 'GetxoBelaEskola',
         version: '1.0.0',
+<<<<<<< HEAD
         email: email,
+=======
+        email: getEmail(),
+>>>>>>> origin/jules/fix-seastate-widget-tests-10194027282109193822
         iat: now,
         exp: now + 3600 // 1 hour
     };
