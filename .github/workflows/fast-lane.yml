@@ -5,14 +5,14 @@ on:
     branches: [main, master, "feature/**", "fix/**"]
     paths:
       - "src/**"
-      - "mission-control/**"
+      - "apps/mission-control-ui/**"
       - "orchestration/**"
       - ".github/workflows/fast-lane.yml"
   pull_request:
     branches: [main, master]
     paths:
       - "src/**"
-      - "mission-control/**"
+      - "apps/mission-control-ui/**"
       - "orchestration/**"
       - ".github/workflows/fast-lane.yml"
 
