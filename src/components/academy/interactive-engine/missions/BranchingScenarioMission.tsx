@@ -7,6 +7,7 @@ import { GraphMissionData, MissionOption } from '../types';
 import { sanitizeHtml } from "@/lib/security/html-sanitizer";
 import { AnimatePresence, motion } from 'framer-motion';
 
+
 interface Props {
     data: GraphMissionData;
     onComplete?: (score: number) => void;
