@@ -4,6 +4,7 @@
 import React, { useEffect, useState } from 'react';
 import { useMissionStore } from '../store';
 import { GraphMissionData, MissionOption } from '../types';
+import { sanitizeHtml } from "@/lib/security/html-sanitizer";
 import { AnimatePresence, motion } from 'framer-motion';
 
 interface Props {
@@ -113,7 +114,7 @@ export const BranchingScenarioMission: React.FC<Props> = ({ data, onComplete }) 
 
                         <div className="p-6 md:p-8">
                             <h3 className="text-xl md:text-2xl font-display text-white mb-4 leading-relaxed">
-                                <span dangerouslySetInnerHTML={{ __html: currentStep.content }} />
+                                <span dangerouslySetInnerHTML={{ __html: sanitizeHtml(currentStep.content) }} />
                             </h3>
                         </div>
                     </div>
