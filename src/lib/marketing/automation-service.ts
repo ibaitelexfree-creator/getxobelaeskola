@@ -1,137 +1,164 @@
-import { createAdminClient } from '../supabase/admin';
-import { resend, DEFAULT_FROM_EMAIL } from '../resend';
-import { stripe } from '../stripe';
+import { DEFAULT_FROM_EMAIL, resend } from "../resend";
+import { stripe } from "../stripe";
+import { createAdminClient } from "../supabase/admin";
 
 export async function processMarketingAutomations() {
-    const supabase = createAdminClient();
+	const supabase = createAdminClient();
 
-    // 1. Fetch active campaigns
-    const { data: campaigns, error: campaignError } = await supabase
-        .from('marketing_campaigns')
-        .select(`
+	// 1. Fetch active campaigns
+	const { data: campaigns, error: campaignError } = await supabase
+		.from("marketing_campaigns")
+		.select(`
             *,
             trigger_course:curso_trigger_id(nombre_es, nombre_eu),
             target_course:curso_objetivo_id(nombre_es, nombre_eu, slug)
         `)
-        .eq('activo', true);
+		.eq("activo", true);
 
-    if (campaignError || !campaigns) {
-        console.error('Error fetching campaigns:', campaignError);
-        return { success: false, error: campaignError };
-    }
+	if (campaignError || !campaigns) {
+		console.error("Error fetching campaigns:", campaignError);
+		return { success: false, error: campaignError };
+	}
 
-    let totalSent = 0;
+	let totalSent = 0;
 
-    for (const campaign of (campaigns as any[])) {
-        console.log(`Processing campaign: ${campaign.nombre}`);
+	for (const campaign of campaigns as any[]) {
+		console.log(`Processing campaign: ${campaign.nombre}`);
 
-        const daysAgo = new Date();
-        daysAgo.setDate(daysAgo.getDate() - (campaign.dias_espera || 90));
+		const daysAgo = new Date();
+		daysAgo.setDate(daysAgo.getDate() - (campaign.dias_espera || 90));
 
-        // Logical check:
-        // - Bought TRIGGER course at least campaign.dias_espera ago
-        // - Hasn't bought TARGET course EVER
-        // - Hasn't received THIS campaign EVER
+		// Logical check:
+		// - Bought TRIGGER course at least campaign.dias_espera ago
+		// - Hasn't bought TARGET course EVER
+		// - Hasn't received THIS campaign EVER
 
-        const { data: triggerInscriptions, error: insError } = await supabase
-            .from('inscripciones')
-            .select('perfil_id, profiles(nombre)')
-            .eq('curso_id', campaign.curso_trigger_id)
-            .lte('created_at', daysAgo.toISOString());
+		const { data: triggerInscriptions, error: insError } = await supabase
+			.from("inscripciones")
+			.select("perfil_id, profiles(nombre)")
+			.eq("curso_id", campaign.curso_trigger_id)
+			.lte("created_at", daysAgo.toISOString());
 
-        if (insError || !triggerInscriptions) {
-            console.error(`Error fetching inscriptions for campaign ${campaign.id}:`, insError);
-            continue;
-        }
+		if (insError || !triggerInscriptions) {
+			console.error(
+				`Error fetching inscriptions for campaign ${campaign.id}:`,
+				insError,
+			);
+			continue;
+		}
 
-        console.log(`Found ${triggerInscriptions.length} possible candidates who took the trigger course.`);
+		console.log(
+			`Found ${triggerInscriptions.length} possible candidates who took the trigger course.`,
+		);
 
-        for (const ins of (triggerInscriptions as any[])) {
-            const profileId = ins.perfil_id;
+		for (const ins of triggerInscriptions as any[]) {
+			const profileId = ins.perfil_id;
 
-            // 2. Check if already bought target course
-            const { count: boughtTarget, error: boughtError } = await supabase
-                .from('inscripciones')
-                .select('*', { count: 'exact', head: true })
-                .eq('perfil_id', profileId)
-                .eq('curso_id', campaign.curso_objetivo_id);
+			// 2. Check if already bought target course
+			const { count: boughtTarget, error: boughtError } = await supabase
+				.from("inscripciones")
+				.select("*", { count: "exact", head: true })
+				.eq("perfil_id", profileId)
+				.eq("curso_id", campaign.curso_objetivo_id);
 
-            if (boughtError) continue;
-            if (boughtTarget && boughtTarget > 0) continue;
+			if (boughtError) continue;
+			if (boughtTarget && boughtTarget > 0) continue;
 
-            // 3. Check if already received this campaign
-            const { data: historyExists, error: historyError } = await supabase
-                .from('marketing_history')
-                .select('id')
-                .eq('campana_id', campaign.id)
-                .eq('perfil_id', profileId)
-                .maybeSingle();
+			// 3. Check if already received this campaign
+			const { data: historyExists, error: historyError } = await supabase
+				.from("marketing_history")
+				.select("id")
+				.eq("campana_id", campaign.id)
+				.eq("perfil_id", profileId)
+				.maybeSingle();
 
-            if (historyError || historyExists) continue;
+			if (historyError || historyExists) continue;
 
-            // 4. Get User Email
-            const { data: userResponse, error: userError } = await supabase.auth.admin.getUserById(profileId);
-            const user = userResponse?.user;
+			// 4. Get User Email
+			const { data: userResponse, error: userError } =
+				await supabase.auth.admin.getUserById(profileId);
+			const user = userResponse?.user;
 
-            if (userError || !user?.email) {
-                console.warn(`Could not get email for profile ${profileId}:`, userError);
-                continue;
-            }
+			if (userError || !user?.email) {
+				console.warn(
+					`Could not get email for profile ${profileId}:`,
+					userError,
+				);
+				continue;
+			}
 
-            // 5. Generate Dynamic Coupon if configured
-            let finalCode = campaign.cupon_codigo || 'WELCOME10';
+			// 5. Generate Dynamic Coupon if configured
+			let finalCode = campaign.cupon_codigo || "WELCOME10";
 
-            if (stripe && campaign.stripe_coupon_id) {
-                try {
-                    const promoCode = await (stripe as any).promotionCodes.create({
-                        coupon: campaign.stripe_coupon_id,
-                        max_redemptions: 1,
-                        metadata: {
-                            perfil_id: profileId,
-                            campana_id: campaign.id
-                        }
-                    });
-                    finalCode = promoCode.code;
-                    console.log(`Generated dynamic Stripe code: ${finalCode} for ${user.email}`);
-                } catch (stripeErr) {
-                    console.error('Error creating Stripe promotion code:', stripeErr);
-                    // Fallback to static code if specified, otherwise skip to avoid sending invalid offer
-                    if (!campaign.cupon_codigo) continue;
-                }
-            }
+			if (stripe && campaign.stripe_coupon_id) {
+				try {
+					const promoCode = await (stripe as any).promotionCodes.create({
+						coupon: campaign.stripe_coupon_id,
+						max_redemptions: 1,
+						metadata: {
+							perfil_id: profileId,
+							campana_id: campaign.id,
+						},
+					});
+					finalCode = promoCode.code;
+					console.log(
+						`Generated dynamic Stripe code: ${finalCode} for ${user.email}`,
+					);
+				} catch (stripeErr) {
+					console.error("Error creating Stripe promotion code:", stripeErr);
+					// Fallback to static code if specified, otherwise skip to avoid sending invalid offer
+					if (!campaign.cupon_codigo) continue;
+				}
+			}
 
-            // 6. Send Email
-            const profileName = (ins.profiles as any)?.nombre || 'Navegante';
-            const emailSent = await sendAutomationEmail(user.email, profileName, campaign, finalCode);
+			// 6. Send Email
+			const profileName = (ins.profiles as any)?.nombre || "Navegante";
+			const emailSent = await sendAutomationEmail(
+				user.email,
+				profileName,
+				campaign,
+				finalCode,
+			);
 
-            if (emailSent) {
-                // 7. Log history
-                await (supabase as any).from('marketing_history').insert({
-                    campana_id: campaign.id,
-                    perfil_id: profileId
-                });
-                totalSent++;
-                console.log(`Successfully sent marketing email to ${user.email} for campaign ${campaign.nombre}`);
-            }
-        }
-    }
+			if (emailSent) {
+				// 7. Log history
+				await (supabase as any).from("marketing_history").insert({
+					campana_id: campaign.id,
+					perfil_id: profileId,
+				});
+				totalSent++;
+				console.log(
+					`Successfully sent marketing email to ${user.email} for campaign ${campaign.nombre}`,
+				);
+			}
+		}
+	}
 
-    return { success: true, totalSent };
+	return { success: true, totalSent };
 }
 
-async function sendAutomationEmail(email: string, name: string, campaign: any, dynamicCode?: string) {
-    if (!resend) {
-        console.log(`[SIMULATION] Sending email to ${email} for campaign ${campaign.nombre} with code ${dynamicCode}`);
-        return true;
-    }
+async function sendAutomationEmail(
+	email: string,
+	name: string,
+	campaign: any,
+	dynamicCode?: string,
+) {
+	if (!resend) {
+		console.log(
+			`[SIMULATION] Sending email to ${email} for campaign ${campaign.nombre} with code ${dynamicCode}`,
+		);
+		return true;
+	}
 
-    const targetCourseName = campaign.target_course?.nombre_es || 'Siguiente nivel';
-    const triggerCourseName = campaign.trigger_course?.nombre_es || 'Tu último curso';
-    const discount = campaign.descuento_porcentaje || 10;
-    const code = dynamicCode || campaign.cupon_codigo || 'BIENVENIDODEBUE';
-    const slug = campaign.target_course?.slug || '';
+	const targetCourseName =
+		campaign.target_course?.nombre_es || "Siguiente nivel";
+	const triggerCourseName =
+		campaign.trigger_course?.nombre_es || "Tu último curso";
+	const discount = campaign.descuento_porcentaje || 10;
+	const code = dynamicCode || campaign.cupon_codigo || "BIENVENIDODEBUE";
+	const slug = campaign.target_course?.slug || "";
 
-    const html = `
+	const html = `
         <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 12px; background-color: #ffffff;">
             <div style="text-align: center; margin-bottom: 30px; padding: 20px 0; background: linear-gradient(135deg, #003366 0%, #0056b3 100%); border-radius: 8px 8px 0 0;">
                 <h2 style="color: #ffffff; margin: 0; letter-spacing: 1px;">GETXO BELA ESKOLA</h2>
@@ -185,16 +212,16 @@ async function sendAutomationEmail(email: string, name: string, campaign: any, d
         </div>
     `;
 
-    try {
-        await resend.emails.send({
-            from: DEFAULT_FROM_EMAIL,
-            to: email,
-            subject: `🎁 ¡- ${discount}% de descuento para tu curso de ${targetCourseName}!`,
-            html: html
-        });
-        return true;
-    } catch (error) {
-        console.error('Error sending marketing email:', error);
-        return false;
-    }
+	try {
+		await resend.emails.send({
+			from: DEFAULT_FROM_EMAIL,
+			to: email,
+			subject: `🎁 ¡- ${discount}% de descuento para tu curso de ${targetCourseName}!`,
+			html: html,
+		});
+		return true;
+	} catch (error) {
+		console.error("Error sending marketing email:", error);
+		return false;
+	}
 }
