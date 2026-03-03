@@ -22,7 +22,7 @@ describe('sanitizeHtml', () => {
 
     it('should remove event handlers', () => {
         const unsafeHtml = '<img src="x" onerror="alert(\'XSS\')">';
-        expect(sanitizeHtml(unsafeHtml)).toBe('<img src="x">');
+        expect(sanitizeHtml(unsafeHtml)).toBe('<img src="x" />');
     });
 
     it('should remove javascript: pseudo-protocol', () => {
