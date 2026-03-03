@@ -66,6 +66,35 @@ describe('useNetworkMonitor', () => {
 
         expect(mockOnWifiDisconnect).not.toHaveBeenCalled();
     });
+
+    it('should log error when Network.getStatus fails', async () => {
+        const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => { });
+        const error = new Error('Status error');
+        (Network.getStatus as any).mockRejectedValue(error);
+
+        renderHook(() => useNetworkMonitor(mockOnWifiDisconnect));
+
+        await waitFor(() => {
+            expect(consoleSpy).toHaveBeenCalledWith('Error setting up network listener:', error);
+        });
+
+        consoleSpy.mockRestore();
+    });
+
+    it('should log error when Network.addListener fails', async () => {
+        const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => { });
+        const error = new Error('Listener error');
+        (Network.getStatus as any).mockResolvedValue({ connected: true, connectionType: 'wifi' });
+        (Network.addListener as any).mockRejectedValue(error);
+
+        renderHook(() => useNetworkMonitor(mockOnWifiDisconnect));
+
+        await waitFor(() => {
+            expect(consoleSpy).toHaveBeenCalledWith('Error setting up network listener:', error);
+        });
+
+        consoleSpy.mockRestore();
+    });
 });
 
 // Import act from react explicitly for hooks test
