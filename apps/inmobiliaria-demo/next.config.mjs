@@ -2,7 +2,6 @@
 const nextConfig = {
   output: 'standalone',
   basePath: '/controlmanager/realstate',
-  optimizeFonts: false,
   images: {
     remotePatterns: [
       {
