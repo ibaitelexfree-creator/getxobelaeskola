@@ -55,7 +55,7 @@ describe('Notion Sync API Route', () => {
         const response = await POST(req);
 
         expect(response.status).toBe(200);
-        const data = await (response as any).json();
+        const data = await (response as unknown as { json: () => Promise<{ message: string }> }).json();
         expect(data.message).toBe('Sync started successfully');
     });
 });
