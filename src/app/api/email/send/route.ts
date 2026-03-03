@@ -13,12 +13,12 @@ import { createClient } from '@/lib/supabase/server';
 export async function POST(request: Request) {
     try {
         const apiKey = request.headers.get('x-api-key');
-        const systemSecret = process.env.INTERNAL_API_SECRET || 'getxo-secret-2024'; // Fallback for dev
+        const systemSecret = process.env.INTERNAL_API_SECRET;
 
         let authorized = false;
 
         // 1. Check if it's a server-to-server call with valid API Key
-        if (apiKey === systemSecret) {
+        if (systemSecret && apiKey === systemSecret) {
             authorized = true;
         }
 
