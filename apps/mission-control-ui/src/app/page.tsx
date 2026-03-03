@@ -1,59 +1,55 @@
-"use client";
+'use client';
 
-import { useEffect, useState } from "react";
-import BottomNav from "@/components/BottomNav";
-import ControlPanel from "@/components/ControlPanel";
-import Dashboard from "@/components/Dashboard";
-import QueueHistory from "@/components/QueueHistory";
-import Settings from "@/components/Settings";
-import TaskLauncher from "@/components/TaskLauncher";
-import VisualRelay from "@/components/VisualRelay";
-import { usePolling } from "@/hooks/usePolling";
-import { useMissionStore } from "@/store/useMissionStore";
+import { usePolling } from '@/hooks/usePolling';
+import { useMissionStore } from '@/store/useMissionStore';
+import { useState, useEffect } from 'react';
+import Dashboard from '@/components/Dashboard';
+import TaskLauncher from '@/components/TaskLauncher';
+import QueueHistory from '@/components/QueueHistory';
+import ControlPanel from '@/components/ControlPanel';
+import VisualRelay from '@/components/VisualRelay';
+import Settings from '@/components/Settings';
+import BottomNav from '@/components/BottomNav';
 
 const views = {
-	dashboard: Dashboard,
-	tasks: TaskLauncher,
-	queue: QueueHistory,
-	control: ControlPanel,
-	visual: VisualRelay,
-	settings: Settings,
+    dashboard: Dashboard,
+    tasks: TaskLauncher,
+    queue: QueueHistory,
+    control: ControlPanel,
+    visual: VisualRelay,
+    settings: Settings,
 } as const;
 
 export default function MissionControlPage() {
-	usePolling();
-	const { activeTab } = useMissionStore();
-	const [isMounted, setIsMounted] = useState(false);
+    usePolling();
+    const { activeTab } = useMissionStore();
+    const [isMounted, setIsMounted] = useState(false);
 
-	useEffect(() => {
-		setIsMounted(true);
-	}, []);
+    useEffect(() => {
+        setIsMounted(true);
+    }, []);
 
-	if (!isMounted) return null;
+    if (!isMounted) return null;
 
-	const ActiveView = views[activeTab];
+    const ActiveView = views[activeTab];
 
-	return (
-		<main className="min-h-screen">
-			{/* Header */}
-			<header className="px-5 pt-4 pb-2 flex items-center justify-between">
-				<div>
-					<h1 className="text-xl font-display text-glimmer tracking-tight">
-						Mission Control
-					</h1>
-					<p className="text-[10px] font-mono text-white/20 uppercase tracking-[0.3em] active:text-status-blue transition-colors">
-						Maestro v3
-					</p>
-				</div>
-			</header>
+    return (
+        <main className="min-h-screen">
+            {/* Header */}
+            <header className="px-5 pt-4 pb-2 flex items-center justify-between">
+                <div>
+                    <h1 className="text-xl font-display text-glimmer tracking-tight">Mission Control</h1>
+                    <p className="text-[10px] font-mono text-white/20 uppercase tracking-[0.3em] active:text-status-blue transition-colors">Maestro v3</p>
+                </div>
+            </header>
 
-			{/* Content */}
-			<div className="px-4 pb-safe">
-				<ActiveView />
-			</div>
+            {/* Content */}
+            <div className="px-4 pb-safe">
+                <ActiveView />
+            </div>
 
-			{/* Bottom Navigation */}
-			<BottomNav />
-		</main>
-	);
+            {/* Bottom Navigation */}
+            <BottomNav />
+        </main>
+    );
 }

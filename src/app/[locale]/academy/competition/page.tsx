@@ -1,9 +1,9 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useState } from "react";
 import { useMultiplayerStore } from "@/lib/store/useMultiplayerStore";
 import { createClient } from "@/lib/supabase/client";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 export default function CompetitionPage() {
 	const router = useRouter();
