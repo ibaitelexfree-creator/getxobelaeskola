@@ -1,11 +1,15 @@
-
 import jwt from 'jsonwebtoken';
 
-const PRIVATE_KEY = process.env.EUSKALMET_PRIVATE_KEY?.replace(/\\n/g, '\n');
 const EMAIL = process.env.EUSKALMET_EMAIL || 'info@getxobelaeskola.com';
 
 export function generateEuskalmetToken() {
+    const PRIVATE_KEY = process.env.EUSKALMET_PRIVATE_KEY?.replace(/\\n/g, '\n');
     if (!PRIVATE_KEY) {
+        // We throw if we are in test or if it's explicitly required,
+        // but avoid crashing the build if it's called during SSR without keys
+        if (process.env.NODE_ENV === 'test') {
+            throw new Error('EUSKALMET_PRIVATE_KEY is not defined');
+        }
         return null;
     }
 
