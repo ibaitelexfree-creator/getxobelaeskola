@@ -1,5 +1,5 @@
-import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
-import { renderHook, waitFor } from '@testing-library/react';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { renderHook, waitFor, act } from '@testing-library/react';
 import { useWindSpeed } from './useWindSpeed';
 import { WeatherService } from '@/lib/academy/weather-service';
 
@@ -30,8 +30,8 @@ describe('useWindSpeed', () => {
         expect(mockedWeatherService.getGetxoWeather).toHaveBeenCalledTimes(1);
     });
 
-    it('should handle fetch errors gracefully and log them', async () => {
-        const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    it('should handle fetch errors gracefully and log to console', async () => {
+        const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => { });
         const error = new Error('Fatal error');
         mockedWeatherService.getGetxoWeather.mockRejectedValue(error);
 
@@ -40,10 +40,22 @@ describe('useWindSpeed', () => {
         await waitFor(() => expect(mockedWeatherService.getGetxoWeather).toHaveBeenCalled());
         expect(result.current).toBe(0);
         expect(consoleSpy).toHaveBeenCalledWith('Weather fetch error in useWindSpeed', error);
+
+        consoleSpy.mockRestore();
+    });
+
+    it('should not update wind speed if data is undefined', async () => {
+        mockedWeatherService.getGetxoWeather.mockResolvedValue({ windSpeed: undefined } as any);
+
+        const { result } = renderHook(() => useWindSpeed());
+
+        await waitFor(() => expect(mockedWeatherService.getGetxoWeather).toHaveBeenCalledTimes(1));
+        // Should remain default (0)
+        expect(result.current).toBe(0);
     });
 
     it('should retain the previous wind speed if a subsequent fetch fails', async () => {
-        vi.spyOn(console, 'error').mockImplementation(() => {});
+        const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => { });
 
         // First fetch succeeds
         mockedWeatherService.getGetxoWeather.mockResolvedValueOnce({ windSpeed: 15 } as any);
@@ -60,6 +72,8 @@ describe('useWindSpeed', () => {
 
         // Should still be 15
         expect(result.current).toBe(15);
+
+        consoleSpy.mockRestore();
     });
 
     it('should handle responses where windSpeed is undefined', async () => {
@@ -73,17 +87,37 @@ describe('useWindSpeed', () => {
         expect(result.current).toBe(0);
     });
 
-    it('should refresh wind speed at the specified interval', async () => {
-        mockedWeatherService.getGetxoWeather
-            .mockResolvedValueOnce({ windSpeed: 10 } as any)
-            .mockResolvedValueOnce({ windSpeed: 20 } as any);
+    describe('with fake timers', () => {
+        beforeEach(() => {
+            vi.useFakeTimers();
+        });
 
-        const interval = 100;
-        const { result } = renderHook(() => useWindSpeed(interval));
+        afterEach(() => {
+            vi.useRealTimers();
+        });
 
-        await waitFor(() => expect(result.current).toBe(10));
+        it('should refresh wind speed based on interval', async () => {
+            const interval = 1000;
+            mockedWeatherService.getGetxoWeather
+                .mockResolvedValueOnce({ windSpeed: 10 } as any)
+                .mockResolvedValueOnce({ windSpeed: 15 } as any);
 
-        await waitFor(() => expect(result.current).toBe(20), { timeout: 2000 });
-        expect(mockedWeatherService.getGetxoWeather).toHaveBeenCalledTimes(2);
+            const { result } = renderHook(() => useWindSpeed(interval));
+
+            await act(async () => {
+                await vi.advanceTimersByTimeAsync(0);
+            });
+
+            expect(result.current).toBe(10);
+            expect(mockedWeatherService.getGetxoWeather).toHaveBeenCalledTimes(1);
+
+            // Advance time to trigger interval
+            await act(async () => {
+                await vi.advanceTimersByTimeAsync(interval);
+            });
+
+            expect(result.current).toBe(15);
+            expect(mockedWeatherService.getGetxoWeather).toHaveBeenCalledTimes(2);
+        });
     });
 });
