@@ -61,10 +61,14 @@ describe('StudentProfileSidebar', () => {
         vi.stubGlobal('scrollTo', vi.fn());
         vi.stubGlobal('alert', vi.fn());
 
-        // Properly mock window.location.href
-        const originalLocation = window.location;
-        delete (window as any).location;
-        window.location = { ...originalLocation, href: '' };
+        // Properly mock window.location
+        const mockLocation = {
+            ...window.location,
+            href: '',
+            assign: vi.fn(),
+            replace: vi.fn()
+        };
+        vi.stubGlobal('location', mockLocation as unknown as Location);
     });
 
     it('should render profile information correctly', () => {
