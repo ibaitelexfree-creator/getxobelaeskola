@@ -56,6 +56,4 @@ jobs:
             # use npm install because package-lock.json is missing in this subdirectory
             npm install --legacy-peer-deps --prefer-offline --no-audit --no-fund --loglevel=error
             npx tsc --noEmit && echo "✅ Mission Control TypeScript Passed"
-          else
-            echo "⚠️ Mission Control directory not found, skipping..."
           fi
