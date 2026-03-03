@@ -78,3 +78,4 @@ build_attempt_2.log
 # Service Worker generated files
 public/sw.js
 public/workbox-*.js
+public/swe-worker-*.js
