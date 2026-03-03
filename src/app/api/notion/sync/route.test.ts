@@ -3,11 +3,16 @@ import { POST } from './route';
 import { execFile } from 'child_process';
 import { NextRequest } from 'next/server';
 
-vi.mock('child_process', () => ({
-  execFile: vi.fn((cmd, args, options, callback) => {
-    if (callback) callback(null, 'success', '');
-  }),
-}));
+vi.mock('child_process', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('child_process')>();
+  return {
+    ...actual,
+    default: actual,
+    execFile: vi.fn((cmd, args, options, callback) => {
+      if (callback) callback(null, 'success', '');
+    }),
+  };
+});
 
 describe('Notion Sync Route', () => {
   beforeEach(() => {
