@@ -76,15 +76,26 @@ function updatePhysics(dt: number) {
     const steerSpeed = Math.max(state.boatSpeed, 0);
     const speedFactor = steerSpeed / (steerSpeed + 6.0);
     let rudderForce = state.rudderAngle * speedFactor;
-    if (newBoatSpeed < 0.3 && Math.abs(state.rudderAngle) < 2.0) rudderForce = 0;
 
     let newAngularVelocity = (state.angularVelocity || 0);
+
+    // --- LOW SPEED JITTER FIX ---
+    if (newBoatSpeed < 0.3 && Math.abs(state.rudderAngle) < 2.0) {
+        rudderForce = 0;
+        newAngularVelocity = 0; // Instantly kill rotation at very low speeds when rudder is neutral
+    }
+
     newAngularVelocity += rudderForce * deltaTime * 1.5;
 
     // Hydrodynamic Damping
     const FPS_60_DT = 0.0166;
     const baseDamping = 0.85; // Stronger damping
     newAngularVelocity *= Math.pow(baseDamping, deltaTime / FPS_60_DT);
+
+    // Absolute Micro-jitter clamp to prevent floating point infinite decay
+    if (Math.abs(newAngularVelocity) < 0.001) {
+        newAngularVelocity = 0;
+    }
 
     let newHeading = state.boatHeading + newAngularVelocity;
     newHeading = ((newHeading % 360) + 360) % 360;
