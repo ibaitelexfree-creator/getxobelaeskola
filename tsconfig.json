@@ -34,6 +34,11 @@
     "src/**/*.ts",
     "src/**/*.tsx",
     "vitest.setup.ts",
+    "vitest.config.ts",
+    "i18n.ts",
+    "capacitor.config.ts",
+    "tailwind.config.js",
+    "postcss.config.js",
     ".next/types/**/*.ts"
   ],
   "exclude": [
