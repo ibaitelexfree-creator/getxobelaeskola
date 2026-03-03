@@ -55,7 +55,11 @@ jobs:
             if [ -d "$app" ] && [ -f "$app/package.json" ]; then
               echo "Checking $app..."
               cd "$app"
-              npm ci --legacy-peer-deps --prefer-offline --no-audit --no-fund --loglevel=error
+              if [ -f "package-lock.json" ]; then
+                npm ci --legacy-peer-deps --prefer-offline --no-audit --no-fund --loglevel=error
+              else
+                npm install --legacy-peer-deps --prefer-offline --no-audit --no-fund --loglevel=error
+              fi
               npx tsc --noEmit && echo "✅ $app TypeScript Passed"
               cd - > /dev/null
             fi
