@@ -46,8 +46,6 @@
     ".jules_bases",
     ".agent",
     ".Jules",
-    ".openclaw",
-    "apps",
-    "apps/**/*"
+    ".openclaw"
   ]
 }

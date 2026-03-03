@@ -20,7 +20,6 @@ const nextConfig = {
     eslint: { ignoreDuringBuilds: true },
     typescript: { ignoreBuildErrors: true },
     compress: true,
-    experimental: { workerThreads: false, cpus: 1 },
     poweredByHeader: false,
     output: isCapacitor ? 'export' : 'standalone',
     staticPageGenerationTimeout: 600,
