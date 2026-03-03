@@ -110,7 +110,7 @@ export async function processMarketingAutomations() {
                                 campana_id: campaign.id
                             }
                         });
-                        finalCode = promoCode.code;
+                        finalCode = (promoCode as any).code;
                     } catch (stripeErr) {
                         console.error('Error creating Stripe promotion code:', stripeErr);
                         if (!campaign.cupon_codigo) return false;
@@ -123,7 +123,7 @@ export async function processMarketingAutomations() {
 
                 if (emailSent) {
                     // 7. Log history
-                    await supabase.from('marketing_history').insert({
+                    await (supabase as any).from('marketing_history').insert({
                         campana_id: campaign.id,
                         perfil_id: profileId
                     });
