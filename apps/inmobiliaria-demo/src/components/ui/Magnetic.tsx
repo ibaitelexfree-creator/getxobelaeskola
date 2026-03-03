@@ -3,7 +3,7 @@
 import React, { useRef, useState, useEffect } from 'react';
 
 interface MagneticProps {
-    children: React.ReactElement;
+    children: React.ReactElement<any>;
     strength?: number;
 }
 
@@ -40,7 +40,7 @@ export const Magnetic = ({ children, strength = 0.5 }: MagneticProps) => {
         return () => window.removeEventListener('mousemove', handleMouseMove);
     }, []);
 
-    return React.cloneElement(children, {
+    return React.cloneElement(children as React.ReactElement<any>, {
         ref: ref,
         style: {
             ...children.props.style,
