@@ -6,7 +6,12 @@ const EMAIL = process.env.EUSKALMET_EMAIL || 'info@getxobelaeskola.com';
 export function generateEuskalmetToken() {
     const PRIVATE_KEY = process.env.EUSKALMET_PRIVATE_KEY?.replace(/\\n/g, '\n');
     if (!PRIVATE_KEY) {
-        throw new Error('EUSKALMET_PRIVATE_KEY is not defined');
+        // We throw if we are in test or if it's explicitly required,
+        // but avoid crashing the build if it's called during SSR without keys
+        if (process.env.NODE_ENV === 'test') {
+            throw new Error('EUSKALMET_PRIVATE_KEY is not defined');
+        }
+        return null;
     }
 
     const now = Math.floor(Date.now() / 1000);
@@ -25,6 +30,7 @@ export function generateEuskalmetToken() {
 export async function fetchEuskalmetStationData(stationId: string) {
     try {
         const token = generateEuskalmetToken();
+        if (!token) return null;
         const url = `https://api.euskadi.eus/met01/euskalmet/stations/${stationId}/current`;
 
         const controller = new AbortController();
@@ -52,6 +58,7 @@ export async function fetchEuskalmetStationData(stationId: string) {
 export async function fetchEuskalmetAlerts() {
     try {
         const token = generateEuskalmetToken();
+        if (!token) return [];
         const now = new Date();
         const yyyy = now.getFullYear();
         const mm = String(now.getMonth() + 1).padStart(2, '0');
