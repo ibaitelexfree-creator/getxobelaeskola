@@ -46,12 +46,12 @@ function initializeSpatialIndex() {
         if (geojson.type === 'FeatureCollection' && Array.isArray(geojson.features)) {
             geojson.features.forEach((feature: any) => {
                 // Skip invalid features immediately
-                if (!feature || typeof feature !== 'object' || !feature.geometry) return;
+                if (!feature || typeof feature !== 'object' || !feature.geometry || !feature.geometry.coordinates) return;
 
                 try {
                     const bbox = turf.bbox(feature);
-                    // Ensure bbox is valid numbers
-                    if (bbox.some(coord => isNaN(coord))) return;
+                    // Ensure bbox is valid numbers and has 4 elements
+                    if (!bbox || bbox.length !== 4 || bbox.some(coord => typeof coord !== 'number' || isNaN(coord))) return;
 
                     items.push({
                         minX: bbox[0],
@@ -61,7 +61,7 @@ function initializeSpatialIndex() {
                         feature: feature as GeoJSONFeature
                     });
                 } catch (e) {
-                    console.warn('Failed to process feature for spatial index', e);
+                    console.log('Failed to process feature for spatial index', e);
                 }
             });
         }
@@ -69,7 +69,7 @@ function initializeSpatialIndex() {
         else if (geojson.type === 'Feature' && geojson.geometry && geojson.geometry.coordinates) {
             try {
                 const bbox = turf.bbox(geojson);
-                if (!bbox.some(coord => typeof coord !== 'number' || isNaN(coord))) {
+                if (bbox && bbox.length === 4 && !bbox.some(coord => typeof coord !== 'number' || isNaN(coord))) {
                     items.push({
                         minX: bbox[0],
                         minY: bbox[1],
@@ -79,7 +79,7 @@ function initializeSpatialIndex() {
                     });
                 }
             } catch (e) {
-                console.warn('Failed to process single feature for spatial index', e);
+                console.log('Failed to process single feature for spatial index', e);
             }
         }
 
@@ -103,6 +103,8 @@ function initializeSpatialIndex() {
  * @returns true if the point is in water, false otherwise (or if on land)
  */
 export function isPointInWater(lat: number, lng: number): boolean {
+    if (typeof lat !== 'number' || typeof lng !== 'number' || isNaN(lat) || isNaN(lng)) return false;
+
     // Lazy initialization
     if (!spatialIndex) {
         initializeSpatialIndex();
@@ -111,29 +113,33 @@ export function isPointInWater(lat: number, lng: number): boolean {
     // Safety check: if index still null or empty
     if (!spatialIndex || spatialIndex.all().length === 0) return false;
 
-    const point = turf.point([lng, lat]);
+    try {
+        const point = turf.point([lng, lat]);
 
-    // First, find candidate polygons using the bounding box index (fast)
-    const candidates = spatialIndex.search({
-        minX: lng,
-        minY: lat,
-        maxX: lng,
-        maxY: lat
-    });
+        // First, find candidate polygons using the bounding box index (fast)
+        const candidates = spatialIndex.search({
+            minX: lng,
+            minY: lat,
+            maxX: lng,
+            maxY: lat
+        });
 
-    if (candidates.length === 0) {
-        return false;
-    }
-
-    // Iterate through candidates that might contain the point
-    return candidates.some((item) => {
-        try {
-            if (!item.feature || !item.feature.geometry) return false;
-            return turf.booleanPointInPolygon(point, item.feature);
-        } catch (e) {
+        if (candidates.length === 0) {
             return false;
         }
-    });
+
+        // Iterate through candidates that might contain the point
+        return candidates.some((item: any) => {
+            try {
+                if (!item || !item.feature || !item.feature.geometry || !item.feature.geometry.coordinates) return false;
+                return turf.booleanPointInPolygon(point, item.feature);
+            } catch (e) {
+                return false;
+            }
+        });
+    } catch (e) {
+        return false;
+    }
 }
 
 /**
