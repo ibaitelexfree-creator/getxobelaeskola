@@ -86,26 +86,22 @@ export async function GET(request: Request, { params }: { params: { userId: stri
         });
 
         // Additional Data
-        const { data: skills } = await supabaseAdmin
-            .from('habilidades_alumno')
-            .select('fecha_obtencion, habilidad:habilidad_id(*)')
-            .eq('alumno_id', userId);
+        const [
+            resSkills,
+            resLogros,
+            resHoras,
+            resCertificados
+        ] = await Promise.all([
+            supabaseAdmin.from('habilidades_alumno').select('fecha_obtencion, habilidad:habilidad_id(*)').eq('alumno_id', userId),
+            supabaseAdmin.from('logros_alumno').select('fecha_obtenido, logro:logro_id(*)').eq('alumno_id', userId),
+            supabaseAdmin.from('horas_navegacion').select('*').eq('alumno_id', userId).order('fecha', { ascending: false }),
+            supabaseAdmin.from('certificados').select('*, curso:curso_id(nombre_es, nombre_eu), nivel:nivel_id(nombre_es, nombre_eu)').eq('alumno_id', userId)
+        ]);
 
-        const { data: logros } = await supabaseAdmin
-            .from('logros_alumno')
-            .select('fecha_obtenido, logro:logro_id(*)')
-            .eq('alumno_id', userId);
-
-        const { data: horas } = await supabaseAdmin
-            .from('horas_navegacion')
-            .select('*')
-            .eq('alumno_id', userId)
-            .order('fecha', { ascending: false });
-
-        const { data: certificados } = await supabaseAdmin
-            .from('certificados')
-            .select('*, curso:curso_id(nombre_es, nombre_eu), nivel:nivel_id(nombre_es, nombre_eu)')
-            .eq('alumno_id', userId);
+        const skills = resSkills.data;
+        const logros = resLogros.data;
+        const horas = resHoras.data;
+        const certificados = resCertificados.data;
 
         // 5. CALCULATE STATISTICS (Same as progress/route.ts)
         const horasTotales = horas?.reduce((acc: number, h: any) => acc + Number(h.duracion_h), 0) || 0;
