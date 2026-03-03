@@ -1,5 +1,4 @@
 import { createAdminClient } from '@/lib/supabase/admin';
-import { firebaseAdmin } from '@/lib/firebase-admin';
 
 export interface PushNotificationPayload {
     title: string;
@@ -58,7 +57,9 @@ export async function sendPushNotification(
             return { success: false, reason: 'no_tokens' };
         }
 
-        // 4. Check if Firebase Admin is initialized
+        // 4. Import and check Firebase Admin
+        const { firebaseAdmin } = await import('@/lib/firebase-admin');
+
         if (!firebaseAdmin.apps.length) {
             console.error('Firebase Admin not initialized. Cannot send push notification.');
             return { success: false, reason: 'firebase_not_initialized' };

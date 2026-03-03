@@ -1,6 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
-import { sendPushNotification } from '@/lib/notifications/push-notification';
 
 export async function POST(request: Request) {
     try {
@@ -30,6 +29,7 @@ export async function POST(request: Request) {
             }
         }
 
+        const { sendPushNotification } = await import('@/lib/notifications/push-notification');
         const result = await sendPushNotification(targetUserId, {
             title,
             body,
