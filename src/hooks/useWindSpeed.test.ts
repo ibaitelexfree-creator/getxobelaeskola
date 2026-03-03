@@ -1,84 +1,113 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { renderHook, waitFor, act } from '@testing-library/react';
-import { useWindSpeed } from './useWindSpeed';
-import { WeatherService } from '@/lib/academy/weather-service';
+import { act, renderHook, waitFor } from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import type { WeatherData } from "@/lib/academy/weather-service";
+import { WeatherService } from "@/lib/academy/weather-service";
+import { useWindSpeed } from "./useWindSpeed";
 
 // Mock WeatherService
-vi.mock('@/lib/academy/weather-service', () => ({
-    WeatherService: {
-        getGetxoWeather: vi.fn()
-    }
+vi.mock("@/lib/academy/weather-service", () => ({
+	WeatherService: {
+		getGetxoWeather: vi.fn(),
+	},
 }));
 
-describe('useWindSpeed', () => {
-    beforeEach(() => {
-        vi.clearAllMocks();
-    });
+const mockWeatherData = (overrides: Partial<WeatherData>): WeatherData => ({
+	windSpeed: 0,
+	windDirection: 0,
+	windGust: 0,
+	tideHeight: 0,
+	tideStatus: "stable",
+	nextTides: [],
+	temperature: 0,
+	pressure: 1013,
+	condition: "Clear",
+	visibility: 10,
+	isLive: true,
+	...overrides,
+});
 
-    it('should fetch wind speed on mount', async () => {
-        (WeatherService.getGetxoWeather as any).mockResolvedValue({ windSpeed: 10 });
+describe("useWindSpeed", () => {
+	beforeEach(() => {
+		vi.clearAllMocks();
+	});
 
-        const { result } = renderHook(() => useWindSpeed());
+	it("should fetch wind speed on mount", async () => {
+		vi.mocked(WeatherService.getGetxoWeather).mockResolvedValue(
+			mockWeatherData({ windSpeed: 10 }),
+		);
 
-        await waitFor(() => expect(result.current).toBe(10));
-        expect(WeatherService.getGetxoWeather).toHaveBeenCalledTimes(1);
-    });
+		const { result } = renderHook(() => useWindSpeed());
 
-    it('should handle fetch errors gracefully and log to console', async () => {
-        const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-        const error = new Error('Fatal error');
-        (WeatherService.getGetxoWeather as any).mockRejectedValue(error);
+		await waitFor(() => expect(result.current).toBe(10));
+		expect(WeatherService.getGetxoWeather).toHaveBeenCalledTimes(1);
+	});
 
-        const { result } = renderHook(() => useWindSpeed());
+	it("should handle fetch errors gracefully and log to console", async () => {
+		const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+		const error = new Error("Fatal error");
+		vi.mocked(WeatherService.getGetxoWeather).mockRejectedValue(error);
 
-        await waitFor(() => expect(WeatherService.getGetxoWeather).toHaveBeenCalled());
-        expect(result.current).toBe(0);
-        expect(consoleSpy).toHaveBeenCalledWith('Weather fetch error in useWindSpeed', error);
+		const { result } = renderHook(() => useWindSpeed());
 
-        consoleSpy.mockRestore();
-    });
+		await waitFor(() =>
+			expect(WeatherService.getGetxoWeather).toHaveBeenCalled(),
+		);
+		expect(result.current).toBe(0);
+		expect(consoleSpy).toHaveBeenCalledWith(
+			"Weather fetch error in useWindSpeed",
+			error,
+		);
 
-    it('should not update wind speed if data is undefined', async () => {
-        (WeatherService.getGetxoWeather as any).mockResolvedValue({ windSpeed: undefined });
+		consoleSpy.mockRestore();
+	});
 
-        const { result } = renderHook(() => useWindSpeed());
+	it("should not update wind speed if data is undefined", async () => {
+		// We simulate a case where windSpeed might be missing from the raw data
+		// even though our interface says it's required, the implementation checks for it.
+		vi.mocked(WeatherService.getGetxoWeather).mockResolvedValue({
+			windSpeed: undefined,
+		} as unknown as WeatherData);
 
-        await waitFor(() => expect(WeatherService.getGetxoWeather).toHaveBeenCalled());
-        expect(result.current).toBe(0);
-    });
+		const { result } = renderHook(() => useWindSpeed());
 
-    describe('with fake timers', () => {
-        beforeEach(() => {
-            vi.useFakeTimers();
-        });
+		await waitFor(() =>
+			expect(WeatherService.getGetxoWeather).toHaveBeenCalled(),
+		);
+		expect(result.current).toBe(0);
+	});
 
-        afterEach(() => {
-            vi.useRealTimers();
-        });
+	describe("with fake timers", () => {
+		beforeEach(() => {
+			vi.useFakeTimers();
+		});
 
-        it('should refresh wind speed based on interval', async () => {
-            const interval = 1000;
-            (WeatherService.getGetxoWeather as any)
-                .mockResolvedValueOnce({ windSpeed: 10 })
-                .mockResolvedValueOnce({ windSpeed: 15 });
+		afterEach(() => {
+			vi.useRealTimers();
+		});
 
-            const { result } = renderHook(() => useWindSpeed(interval));
+		it("should refresh wind speed based on interval", async () => {
+			const interval = 1000;
+			vi.mocked(WeatherService.getGetxoWeather)
+				.mockResolvedValueOnce(mockWeatherData({ windSpeed: 10 }))
+				.mockResolvedValueOnce(mockWeatherData({ windSpeed: 15 }));
 
-            // Initial fetch starts immediately in useEffect.
-            await act(async () => {
-                await vi.advanceTimersByTimeAsync(0);
-            });
+			const { result } = renderHook(() => useWindSpeed(interval));
 
-            expect(result.current).toBe(10);
-            expect(WeatherService.getGetxoWeather).toHaveBeenCalledTimes(1);
+			// Initial fetch starts immediately in useEffect.
+			await act(async () => {
+				await vi.advanceTimersByTimeAsync(0);
+			});
 
-            // Advance time to trigger interval
-            await act(async () => {
-                await vi.advanceTimersByTimeAsync(interval);
-            });
+			expect(result.current).toBe(10);
+			expect(WeatherService.getGetxoWeather).toHaveBeenCalledTimes(1);
 
-            expect(result.current).toBe(15);
-            expect(WeatherService.getGetxoWeather).toHaveBeenCalledTimes(2);
-        });
-    });
+			// Advance time to trigger interval
+			await act(async () => {
+				await vi.advanceTimersByTimeAsync(interval);
+			});
+
+			expect(result.current).toBe(15);
+			expect(WeatherService.getGetxoWeather).toHaveBeenCalledTimes(2);
+		});
+	});
 });
