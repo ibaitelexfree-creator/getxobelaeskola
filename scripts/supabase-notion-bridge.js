@@ -4,6 +4,10 @@ const fs = require('fs');
 const SUPABASE_URL = process.env.SUPABASE_URL || 'https://xbledhifomblirxurtyv.supabase.co';
 const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const NOTION_TOKEN = process.env.NOTION_TOKEN;
+if (!NOTION_TOKEN) {
+    console.error('ERROR: NOTION_TOKEN environment variable is not defined');
+    process.exit(1);
+}
 
 const tableMap = JSON.parse(fs.readFileSync('scripts/table_to_notion_map.json', 'utf8'));
 const schema = JSON.parse(fs.readFileSync('supabase_schema.json', 'utf8'));
