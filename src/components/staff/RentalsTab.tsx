@@ -1,20 +1,7 @@
 'use client';
 import React from 'react';
 import { useTranslations } from 'next-intl';
-
-interface Rental {
-    id: string;
-    hora_inicio: string;
-    estado_entrega: string;
-    profiles?: {
-        nombre: string;
-        apellidos?: string;
-    };
-    servicios_alquiler?: {
-        nombre_es: string;
-    };
-    [key: string]: unknown;
-}
+import { Rental } from './StaffShared';
 
 interface RentalsTabProps {
     filteredRentals: Rental[];

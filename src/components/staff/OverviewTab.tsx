@@ -83,6 +83,7 @@ interface OverviewTabProps {
     onTriggerSync?: () => void;
     isUpdatingDashboard?: boolean;
     onUpdateDashboard?: () => void;
+    chartData?: any[];
 }
 
 export default function OverviewTab({
