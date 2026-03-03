@@ -20,7 +20,6 @@ export async function GET() {
             .single();
 
         // 2. Fetch Inscriptions with nested joins
-        const startInscriptions = performance.now();
         const { data: inscriptionsData, error: inscriptionsError } = await supabase
             .from('inscripciones')
             .select(`
@@ -35,9 +34,6 @@ export async function GET() {
                 )
             `)
             .eq('perfil_id', user.id);
-
-        const endInscriptions = performance.now();
-        console.log(`[DashboardStats] Inscriptions fetch took: ${(endInscriptions - startInscriptions).toFixed(2)}ms`);
 
         if (inscriptionsError) {
             console.error('Error fetching inscriptions:', inscriptionsError);
