@@ -22,7 +22,7 @@ export function createClient() {
         );
     }
 
-    let cookieStore;
+    let cookieStore: any;
     try {
         cookieStore = cookies();
     } catch {
@@ -38,13 +38,19 @@ export function createClient() {
     return createServerClient<Database>(url, key, {
         cookies: {
             getAll() {
-                return cookieStore.getAll()
+                try {
+                    return typeof cookieStore.getAll === 'function' ? cookieStore.getAll() : [];
+                } catch {
+                    return [];
+                }
             },
             setAll(cookiesToSet) {
                 try {
-                    cookiesToSet.forEach(({ name, value, options }) =>
-                        cookieStore.set(name, value, options)
-                    )
+                    if (typeof cookieStore.set === 'function') {
+                        cookiesToSet.forEach(({ name, value, options }) =>
+                            cookieStore.set(name, value, options)
+                        )
+                    }
                 } catch {
                     // The `setAll` method was called from a Server Component.
                 }

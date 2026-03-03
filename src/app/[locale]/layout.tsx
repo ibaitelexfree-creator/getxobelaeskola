@@ -5,14 +5,14 @@ import '@/app/globals.css';
 import dynamic from 'next/dynamic';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
-const AcademyFeedbackProvider = dynamic(() => import('@/components/academy/AcademyFeedbackProvider'), { ssr: false });
-const PushNotificationInitializer = dynamic(() => import('@/components/academy/notifications/PushNotificationInitializer'), { ssr: false });
+const AcademyFeedbackProvider = dynamic(() => import('@/components/academy/AcademyFeedbackProvider'));
+const PushNotificationInitializer = dynamic(() => import('@/components/academy/notifications/PushNotificationInitializer'));
 import ConditionalLayout from '@/components/layout/ConditionalLayout';
-const ScrollUpButton = dynamic(() => import('@/components/shared/ScrollToTop'), { ssr: false });
-const OfflineSyncProvider = dynamic(() => import('@/components/offline/OfflineSyncProvider'), { ssr: false });
+const ScrollUpButton = dynamic(() => import('@/components/shared/ScrollToTop'));
+const OfflineSyncProvider = dynamic(() => import('@/components/offline/OfflineSyncProvider'));
 import { Viewport } from 'next';
 import { Suspense } from 'react';
-const StatusToast = dynamic(() => import('@/components/shared/StatusToast'), { ssr: false });
+const StatusToast = dynamic(() => import('@/components/shared/StatusToast'));
 
 export const viewport: Viewport = {
   themeColor: '#001B3A', // Nautical Black

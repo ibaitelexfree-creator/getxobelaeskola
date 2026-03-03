@@ -1,7 +1,7 @@
 import dynamic from 'next/dynamic';
 
 const Chatbot = dynamic(() => import('@/components/academy/Chatbot'), {
-    ssr: false
+
 });
 
 export default function AcademyLayout({

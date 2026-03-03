@@ -6,7 +6,7 @@ import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import { listGoogleEvents } from '@/lib/google-calendar';
 
-const BookingSelector = dynamic(() => import('@/components/booking/BookingSelector'), { ssr: false });
+const BookingSelector = dynamic(() => import('@/components/booking/BookingSelector'));
 import JsonLd from '@/components/shared/JsonLd';
 
 import { Metadata } from 'next';
