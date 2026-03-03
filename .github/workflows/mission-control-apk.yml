@@ -31,7 +31,7 @@ jobs:
       - name: Install dependencies
         run: |
           cd mission-control
-          npm ci --legacy-peer-deps
+          npm install --legacy-peer-deps
 
       - name: Build Next.js (SSG)
         run: |
