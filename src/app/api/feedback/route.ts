@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
+import { firebaseAdmin } from '@/lib/firebase-admin';
 
 export async function POST(req: NextRequest) {
     const supabase = createClient();
@@ -80,9 +81,6 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: 'Database insert failed' }, { status: 500 });
         }
 
-        // TODO: Notification System Integration (OneSignal/FCM)
-        // For now, we rely on the database record. The client can use Realtime subscriptions.
-
         // Attempt to insert a notification if a table exists (Best Effort)
         try {
             await supabase.from('notifications').insert({
@@ -96,6 +94,51 @@ export async function POST(req: NextRequest) {
         } catch (e) {
             // Ignore if table doesn't exist or fails
             console.warn('Notification insert failed (optional):', e);
+        }
+
+        // Notification System Integration (OneSignal/FCM)
+        try {
+            if (firebaseAdmin.apps.length) {
+                // First try to get token from user_devices (as per usePushNotifications hook)
+                let { data: devices } = await supabase
+                    .from('user_devices')
+                    .select('fcm_token')
+                    .eq('user_id', student_id)
+                    .order('last_active', { ascending: false })
+                    .limit(1);
+
+                let fcmToken = devices && devices.length > 0 ? devices[0].fcm_token : null;
+
+                // Fallback to profiles table (as per push/route.ts)
+                if (!fcmToken) {
+                    const { data: profile } = await supabase
+                        .from('profiles')
+                        .select('fcm_token')
+                        .eq('id', student_id)
+                        .single();
+
+                    fcmToken = profile?.fcm_token;
+                }
+
+                if (fcmToken) {
+                    const message = {
+                        token: fcmToken,
+                        notification: {
+                            title: 'Nuevo Feedback del Instructor',
+                            body: `Has recibido feedback en tu ${context_type === 'logbook' ? 'bitácora' : 'evaluación'}.`,
+                        },
+                        data: {
+                            context_id: String(context_id),
+                            context_type: String(context_type),
+                            type: 'feedback'
+                        }
+                    };
+                    await firebaseAdmin.messaging().send(message);
+                }
+            }
+        } catch (pushError) {
+            console.error('Push Notification Error:', pushError);
+            // Non-blocking
         }
 
         return NextResponse.json({ success: true, feedback });
