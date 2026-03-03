@@ -12,50 +12,81 @@ export interface QueuedAction {
 const STORAGE_KEY = 'offline_sync_queue';
 const CONCURRENCY_LIMIT = 4;
 
+/**
+ * Manages the offline synchronization queue.
+ * Optimized for performance with batched storage updates and concurrency-limited processing.
+ */
 export const offlineSyncManager = {
+    /**
+     * Retrieves the current queue from localStorage.
+     */
     getQueue: (): QueuedAction[] => {
         if (typeof window === 'undefined') return [];
         try {
             const item = localStorage.getItem(STORAGE_KEY);
             return item ? JSON.parse(item) : [];
         } catch (e) {
-            console.error('Error reading offline queue', e);
+            console.error('[OfflineSync] Error reading queue', e);
             return [];
         }
     },
 
+    /**
+     * Persists the queue to localStorage.
+     */
     saveQueue: (queue: QueuedAction[]) => {
         if (typeof window === 'undefined') return;
         try {
             localStorage.setItem(STORAGE_KEY, JSON.stringify(queue));
         } catch (e) {
-            console.error('Error saving offline queue', e);
+            console.error('[OfflineSync] Error saving queue', e);
         }
     },
 
-    addToQueue: (url: string, method: 'POST' | 'PUT' | 'PATCH', body: unknown) => {
+    /**
+     * Adds a new action to the synchronization queue.
+     */
+    addToQueue: (url: string, method: 'POST' | 'PUT' | 'PATCH', body: unknown): QueuedAction => {
         const queue = offlineSyncManager.getQueue();
+
+        // Robust UUID generation for browser environments
+        let id: string;
+        if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+            id = crypto.randomUUID();
+        } else {
+            id = Math.random().toString(36).substring(2, 15) + Date.now().toString(36);
+        }
+
         const action: QueuedAction = {
-            id: crypto.randomUUID(),
+            id,
             url,
             method,
             body,
             timestamp: Date.now(),
             retryCount: 0
         };
+
         queue.push(action);
         offlineSyncManager.saveQueue(queue);
         return action;
     },
 
+    /**
+     * Removes a specific item from the queue by ID.
+     */
     removeFromQueue: (id: string) => {
         const queue = offlineSyncManager.getQueue();
         const newQueue = queue.filter(item => item.id !== id);
         offlineSyncManager.saveQueue(newQueue);
     },
 
+    /**
+     * Processes the pending queue items when online.
+     * Implements concurrency limits and batched updates for optimal performance.
+     */
     processQueue: async () => {
-        if (typeof navigator === 'undefined' || !navigator.onLine) return;
+        if (typeof window === 'undefined' || typeof navigator === 'undefined' || !navigator.onLine) return;
+
         const queue = offlineSyncManager.getQueue();
         if (queue.length === 0) return;
 
@@ -68,18 +99,19 @@ export const offlineSyncManager = {
         for (const action of queue) {
             if (networkErrorOccurred) break;
 
-            // Limit concurrency
+            // Maintain concurrency limit
             if (activePromises.size >= CONCURRENCY_LIMIT) {
                 await Promise.race(activePromises);
+                if (networkErrorOccurred) break;
             }
 
-            // Capture the current value of networkErrorOccurred in the closure
             const processItem = async (item: QueuedAction) => {
                 if (networkErrorOccurred) return;
 
                 try {
+                    const origin = typeof window !== 'undefined' ? window.location.origin : '';
                     const fullUrl = item.url.startsWith('/')
-                        ? `${window.location.origin}${item.url}`
+                        ? `${origin}${item.url}`
                         : item.url;
 
                     const res = await fetch(fullUrl, {
@@ -95,28 +127,29 @@ export const offlineSyncManager = {
                         processedIds.add(item.id);
                     } else {
                         console.error(`[OfflineSync] Failed to sync item ${item.id}: ${res.status}`);
+                        // For 4xx errors (except 429), the request is likely invalid and shouldn't be retried
                         if (res.status >= 400 && res.status < 500 && res.status !== 429) {
                             processedIds.add(item.id);
                         }
                     }
                 } catch (error) {
-                    console.error(`[OfflineSync] Network error for item ${item.id}`, error);
+                    console.error(`[OfflineSync] Network error for item ${item.id}:`, error);
                     networkErrorOccurred = true;
                 }
             };
 
-            const p = processItem(action).finally(() => activePromises.delete(p));
-            activePromises.add(p);
+            const promise = processItem(action).finally(() => activePromises.delete(promise));
+            activePromises.add(promise);
         }
 
-        // Wait for remaining items
+        // Wait for any remaining in-flight requests
         await Promise.all(activePromises);
 
-        // Final update to localStorage
+        // Batch update localStorage at the end to minimize I/O
         if (processedIds.size > 0) {
             const currentQueue = offlineSyncManager.getQueue();
-            const newQueue = currentQueue.filter(item => !processedIds.has(item.id));
-            offlineSyncManager.saveQueue(newQueue);
+            const filteredQueue = currentQueue.filter(item => !processedIds.has(item.id));
+            offlineSyncManager.saveQueue(filteredQueue);
         }
     }
 };
