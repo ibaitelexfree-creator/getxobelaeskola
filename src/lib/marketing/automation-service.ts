@@ -28,91 +28,111 @@ export async function processMarketingAutomations() {
         const daysAgo = new Date();
         daysAgo.setDate(daysAgo.getDate() - (campaign.dias_espera || 90));
 
-        // Logical check:
-        // - Bought TRIGGER course at least campaign.dias_espera ago
-        // - Hasn't bought TARGET course EVER
-        // - Hasn't received THIS campaign EVER
-
         const { data: triggerInscriptions, error: insError } = await supabase
             .from('inscripciones')
-            .select('perfil_id, profiles(nombre)')
+            .select('perfil_id, profiles(nombre, email)')
             .eq('curso_id', campaign.curso_trigger_id)
             .lte('created_at', daysAgo.toISOString());
 
-        if (insError || !triggerInscriptions) {
-            console.error(`Error fetching inscriptions for campaign ${campaign.id}:`, insError);
+        if (insError || !triggerInscriptions || triggerInscriptions.length === 0) {
+            if (insError) console.error(`Error fetching inscriptions for campaign ${campaign.id}:`, insError);
             continue;
         }
 
         console.log(`Found ${triggerInscriptions.length} possible candidates who took the trigger course.`);
 
-        for (const ins of (triggerInscriptions as any[])) {
-            const profileId = ins.perfil_id;
+        const profileIds = triggerInscriptions.map(ins => ins.perfil_id).filter(Boolean);
+        if (profileIds.length === 0) continue;
 
-            // 2. Check if already bought target course
-            const { count: boughtTarget, error: boughtError } = await supabase
-                .from('inscripciones')
-                .select('*', { count: 'exact', head: true })
-                .eq('perfil_id', profileId)
-                .eq('curso_id', campaign.curso_objetivo_id);
+        // 2. BATCH CHECK: Check if already bought target course
+        const { data: alreadyBought, error: boughtError } = await supabase
+            .from('inscripciones')
+            .select('perfil_id')
+            .in('perfil_id', profileIds)
+            .eq('curso_id', campaign.curso_objetivo_id);
 
-            if (boughtError) continue;
-            if (boughtTarget && boughtTarget > 0) continue;
+        if (boughtError) {
+            console.error('Error checking target course inscriptions in batch:', boughtError);
+            continue;
+        }
+        const boughtSet = new Set(alreadyBought?.map(b => b.perfil_id) || []);
 
-            // 3. Check if already received this campaign
-            const { data: historyExists, error: historyError } = await supabase
-                .from('marketing_history')
-                .select('id')
-                .eq('campana_id', campaign.id)
-                .eq('perfil_id', profileId)
-                .maybeSingle();
+        // 3. BATCH CHECK: Check if already received this campaign
+        const { data: alreadySent, error: historyError } = await supabase
+            .from('marketing_history')
+            .select('perfil_id')
+            .eq('campana_id', campaign.id)
+            .in('perfil_id', profileIds);
 
-            if (historyError || historyExists) continue;
+        if (historyError) {
+            console.error('Error checking marketing history in batch:', historyError);
+            continue;
+        }
+        const historySet = new Set(alreadySent?.map(h => h.perfil_id) || []);
 
-            // 4. Get User Email
-            const { data: userResponse, error: userError } = await supabase.auth.admin.getUserById(profileId);
-            const user = userResponse?.user;
+        // Filter out candidates who already bought or already received
+        const candidates = (triggerInscriptions as any[]).filter(ins =>
+            ins.perfil_id && !boughtSet.has(ins.perfil_id) && !historySet.has(ins.perfil_id)
+        );
 
-            if (userError || !user?.email) {
-                console.warn(`Could not get email for profile ${profileId}:`, userError);
-                continue;
-            }
+        console.log(`Processing ${candidates.length} valid candidates after filtering.`);
 
-            // 5. Generate Dynamic Coupon if configured
-            let finalCode = campaign.cupon_codigo || 'WELCOME10';
+        // Process in chunks to balance speed and rate limits
+        const CHUNK_SIZE = 5;
+        for (let i = 0; i < candidates.length; i += CHUNK_SIZE) {
+            const chunk = candidates.slice(i, i + CHUNK_SIZE);
 
-            if (stripe && campaign.stripe_coupon_id) {
-                try {
-                    const promoCode = await (stripe as any).promotionCodes.create({
-                        coupon: campaign.stripe_coupon_id,
-                        max_redemptions: 1,
-                        metadata: {
-                            perfil_id: profileId,
-                            campana_id: campaign.id
-                        }
-                    });
-                    finalCode = promoCode.code;
-                    console.log(`Generated dynamic Stripe code: ${finalCode} for ${user.email}`);
-                } catch (stripeErr) {
-                    console.error('Error creating Stripe promotion code:', stripeErr);
-                    // Fallback to static code if specified, otherwise skip to avoid sending invalid offer
-                    if (!campaign.cupon_codigo) continue;
+            const results = await Promise.all(chunk.map(async (ins) => {
+                const profileId = ins.perfil_id;
+                let userEmail = (ins.profiles as any)?.email;
+
+                // 4. Get User Email (Fallback to Auth API if not in profile table)
+                if (!userEmail) {
+                    const { data: userResponse, error: userError } = await supabase.auth.admin.getUserById(profileId);
+                    userEmail = userResponse?.user?.email;
+
+                    if (userError || !userEmail) {
+                        console.warn(`Could not get email for profile ${profileId}:`, userError);
+                        return false;
+                    }
                 }
-            }
 
-            // 6. Send Email
-            const profileName = (ins.profiles as any)?.nombre || 'Navegante';
-            const emailSent = await sendAutomationEmail(user.email, profileName, campaign, finalCode);
+                // 5. Generate Dynamic Coupon if configured
+                let finalCode = campaign.cupon_codigo || 'WELCOME10';
 
-            if (emailSent) {
-                // 7. Log history
-                await (supabase as any).from('marketing_history').insert({
-                    campana_id: campaign.id,
-                    perfil_id: profileId
-                });
-                totalSent++;
-                console.log(`Successfully sent marketing email to ${user.email} for campaign ${campaign.nombre}`);
-            }
+                if (stripe && campaign.stripe_coupon_id) {
+                    try {
+                        const promoCode = await (stripe as any).promotionCodes.create({
+                            coupon: campaign.stripe_coupon_id,
+                            max_redemptions: 1,
+                            metadata: {
+                                perfil_id: profileId,
+                                campana_id: campaign.id
+                            }
+                        });
+                        finalCode = (promoCode as any).code;
+                    } catch (stripeErr) {
+                        console.error('Error creating Stripe promotion code:', stripeErr);
+                        if (!campaign.cupon_codigo) return false;
+                    }
+                }
+
+                // 6. Send Email
+                const profileName = (ins.profiles as any)?.nombre || 'Navegante';
+                const emailSent = await sendAutomationEmail(userEmail, profileName, campaign, finalCode);
+
+                if (emailSent) {
+                    // 7. Log history
+                    await (supabase as any).from('marketing_history').insert({
+                        campana_id: campaign.id,
+                        perfil_id: profileId
+                    });
+                    return true;
+                }
+                return false;
+            }));
+
+            totalSent += results.filter(Boolean).length;
         }
     }
 
