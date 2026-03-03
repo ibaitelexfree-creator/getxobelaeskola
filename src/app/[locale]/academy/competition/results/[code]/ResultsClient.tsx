@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 
 export default function ResultsClient() {
@@ -77,6 +77,7 @@ export default function ResultsClient() {
             </div>
 
             <button
+                type="button"
                 onClick={() => router.push('/academy/competition')}
                 className="mt-12 px-8 py-4 bg-gray-800 hover:bg-gray-700 hover:text-cyan-400 rounded-lg text-white font-bold uppercase tracking-widest transition-all hover:scale-105"
             >
