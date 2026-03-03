@@ -39,6 +39,7 @@
     "node_modules",
     "supabase/functions",
     "mission-control",
+    "apps",
     "orchestration",
     "scripts",
     "mission-control.db",
