@@ -28,11 +28,6 @@ export async function processMarketingAutomations() {
         const daysAgo = new Date();
         daysAgo.setDate(daysAgo.getDate() - (campaign.dias_espera || 90));
 
-        // Logical check:
-        // - Bought TRIGGER course at least campaign.dias_espera ago
-        // - Hasn't bought TARGET course EVER
-        // - Hasn't received THIS campaign EVER
-
         const { data: triggerInscriptions, error: insError } = await supabase
             .from('inscripciones')
             .select('perfil_id, profiles(nombre, email)')
@@ -46,7 +41,8 @@ export async function processMarketingAutomations() {
 
         console.log(`Found ${triggerInscriptions.length} possible candidates who took the trigger course.`);
 
-        const profileIds = triggerInscriptions.map(ins => ins.perfil_id);
+        const profileIds = triggerInscriptions.map(ins => ins.perfil_id).filter(Boolean);
+        if (profileIds.length === 0) continue;
 
         // 2. BATCH CHECK: Check if already bought target course
         const { data: alreadyBought, error: boughtError } = await supabase
@@ -76,17 +72,17 @@ export async function processMarketingAutomations() {
 
         // Filter out candidates who already bought or already received
         const candidates = (triggerInscriptions as any[]).filter(ins =>
-            !boughtSet.has(ins.perfil_id) && !historySet.has(ins.perfil_id)
+            ins.perfil_id && !boughtSet.has(ins.perfil_id) && !historySet.has(ins.perfil_id)
         );
 
         console.log(`Processing ${candidates.length} valid candidates after filtering.`);
 
-        // Process in chunks of 5 to balance speed and rate limits
+        // Process in chunks to balance speed and rate limits
         const CHUNK_SIZE = 5;
         for (let i = 0; i < candidates.length; i += CHUNK_SIZE) {
             const chunk = candidates.slice(i, i + CHUNK_SIZE);
 
-            await Promise.all(chunk.map(async (ins) => {
+            const results = await Promise.all(chunk.map(async (ins) => {
                 const profileId = ins.perfil_id;
                 let userEmail = (ins.profiles as any)?.email;
 
@@ -97,7 +93,7 @@ export async function processMarketingAutomations() {
 
                     if (userError || !userEmail) {
                         console.warn(`Could not get email for profile ${profileId}:`, userError);
-                        return;
+                        return false;
                     }
                 }
 
@@ -115,11 +111,9 @@ export async function processMarketingAutomations() {
                             }
                         });
                         finalCode = promoCode.code;
-                        console.log(`Generated dynamic Stripe code: ${finalCode} for ${userEmail}`);
                     } catch (stripeErr) {
                         console.error('Error creating Stripe promotion code:', stripeErr);
-                        // Fallback to static code if specified, otherwise skip to avoid sending invalid offer
-                        if (!campaign.cupon_codigo) return;
+                        if (!campaign.cupon_codigo) return false;
                     }
                 }
 
@@ -129,14 +123,16 @@ export async function processMarketingAutomations() {
 
                 if (emailSent) {
                     // 7. Log history
-                    await (supabase as any).from('marketing_history').insert({
+                    await supabase.from('marketing_history').insert({
                         campana_id: campaign.id,
                         perfil_id: profileId
                     });
-                    totalSent++;
-                    console.log(`Successfully sent marketing email to ${userEmail} for campaign ${campaign.nombre}`);
+                    return true;
                 }
+                return false;
             }));
+
+            totalSent += results.filter(Boolean).length;
         }
     }
 
