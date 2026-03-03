@@ -65,10 +65,6 @@ describe('useWindSpeed', () => {
             const { result } = renderHook(() => useWindSpeed(interval));
 
             // Initial fetch starts immediately in useEffect.
-            // In Vitest with fake timers, we need to advance or run timers to let the async useEffect callback finish
-            // if it uses anything that is affected by timers or just to yield.
-            // Actually, fetch is async.
-
             await act(async () => {
                 await vi.advanceTimersByTimeAsync(0);
             });

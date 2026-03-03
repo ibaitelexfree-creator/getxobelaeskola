@@ -1,4 +1,4 @@
-name: "⚡ Fast Lane: Consolidated Verification"
+name: "🚀 Standard Check (<60s)"
 
 on:
   push:
@@ -52,11 +52,11 @@ jobs:
       - name: "🧪 Type Check (Mission Control)"
         run: |
           cd apps/mission-control-ui
-          npm ci --legacy-peer-deps --prefer-offline --no-audit --no-fund --loglevel=error
+          npm install --legacy-peer-deps --no-audit --no-fund --loglevel=error
           npx tsc --noEmit && echo "✅ Mission Control TypeScript Passed"
 
       - name: "🧪 Type Check (Inmobiliaria Demo)"
         run: |
           cd apps/inmobiliaria-demo
-          npm ci --legacy-peer-deps --prefer-offline --no-audit --no-fund --loglevel=error
+          npm install --legacy-peer-deps --no-audit --no-fund --loglevel=error
           npx tsc --noEmit && echo "✅ Inmobiliaria Demo TypeScript Passed"
