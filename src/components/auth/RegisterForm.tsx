@@ -6,6 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
+import { getSafeRedirectUrl } from '@/lib/utils/url';
 import { useTranslations } from 'next-intl';
 import { apiUrl } from '@/lib/api';
 import GoogleAuthButton from './GoogleAuthButton';
@@ -105,7 +106,8 @@ export default function RegisterForm() {
             const locale = window.location.pathname.split('/')[1] || 'es';
             const searchParams = new URLSearchParams(window.location.search);
             const returnTo = searchParams.get('returnTo');
-            router.push(`/${locale}/auth/login?registered=true${returnTo ? `&returnTo=${encodeURIComponent(returnTo)}` : ''}`);
+            const safeReturnTo = getSafeRedirectUrl(returnTo, '');
+            router.push(`/${locale}/auth/login?registered=true${safeReturnTo ? `&returnTo=${encodeURIComponent(safeReturnTo)}` : ''}`);
         }
     };
 

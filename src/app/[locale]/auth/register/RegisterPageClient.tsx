@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { useSearchParams } from 'next/navigation';
+import { getSafeRedirectUrl } from '@/lib/utils/url';
 import { Suspense } from 'react';
 
 function RegisterPageContent({ locale }: { locale: string }) {
@@ -29,7 +30,7 @@ function RegisterPageContent({ locale }: { locale: string }) {
                     <footer className="mt-12 text-center text-[10px] uppercase tracking-widest">
                         <p className="text-foreground/40">
                             {t('has_account')}{' '}
-                            <Link href={`/${locale}/auth/login${returnTo ? `?returnTo=${encodeURIComponent(returnTo)}` : ''}`} className="text-accent hover:text-sea-foam transition-colors font-bold">
+                            <Link href={`/${locale}/auth/login${getSafeRedirectUrl(returnTo, '') ? `?returnTo=${encodeURIComponent(getSafeRedirectUrl(returnTo, ''))}` : ''}`} className="text-accent hover:text-sea-foam transition-colors font-bold">
                                 {t('login_here')}
                             </Link>
                         </p>
