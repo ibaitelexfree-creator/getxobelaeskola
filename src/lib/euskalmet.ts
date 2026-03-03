@@ -27,7 +27,6 @@ export function generateEuskalmetToken() {
 export async function fetchEuskalmetStationData(stationId: string) {
     try {
         const token = generateEuskalmetToken();
-
         const url = `https://api.euskadi.eus/met01/euskalmet/stations/${stationId}/current`;
 
         const controller = new AbortController();
