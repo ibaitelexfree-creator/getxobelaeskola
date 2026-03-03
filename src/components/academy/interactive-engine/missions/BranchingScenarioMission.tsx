@@ -7,7 +7,6 @@ import { GraphMissionData, MissionOption } from '../types';
 import { AnimatePresence, motion } from 'framer-motion';
 import DOMPurify from 'isomorphic-dompurify';
 
-
 interface Props {
     data: GraphMissionData;
     onComplete?: (score: number) => void;
