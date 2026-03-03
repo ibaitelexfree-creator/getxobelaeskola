@@ -16,6 +16,8 @@ vi.mock('@/lib/api', () => ({
 }));
 
 describe('useGamification hook', () => {
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
     beforeEach(() => {
         vi.clearAllMocks();
         global.fetch = vi.fn();
@@ -38,7 +40,7 @@ describe('useGamification hook', () => {
         expect(result.current.loading).toBe(false);
     });
 
-    it('should handle fetch error', async () => {
+    it('should handle fetch error (not ok response)', async () => {
         (global.fetch as any).mockResolvedValue({
             ok: false
         });
@@ -51,6 +53,21 @@ describe('useGamification hook', () => {
 
         expect(result.current.badges).toEqual([]);
         expect(result.current.loading).toBe(false);
+        expect(consoleSpy).toHaveBeenCalledWith('Error loading badges:', expect.any(Error));
+    });
+
+    it('should handle fetch network error (rejection)', async () => {
+        (global.fetch as any).mockRejectedValue(new Error('Network error'));
+
+        const { result } = renderHook(() => useGamification());
+
+        await act(async () => {
+            await result.current.fetchBadges();
+        });
+
+        expect(result.current.badges).toEqual([]);
+        expect(result.current.loading).toBe(false);
+        expect(consoleSpy).toHaveBeenCalledWith('Error loading badges:', expect.any(Error));
     });
 
     it('should unlock badge and notify', async () => {
@@ -70,5 +87,32 @@ describe('useGamification hook', () => {
             expect.stringContaining('/api/achievements'),
             expect.objectContaining({ method: 'POST' })
         );
+    });
+
+    it('should handle unlock badge error (not ok response)', async () => {
+        (global.fetch as any).mockResolvedValue({
+            ok: false,
+            json: async () => ({ error: 'Unauthorized' })
+        });
+
+        const { result } = renderHook(() => useGamification());
+
+        await act(async () => {
+            await result.current.unlockBadge('gold');
+        });
+
+        expect(consoleSpy).toHaveBeenCalledWith('Error unlocking badge:', expect.any(Error));
+    });
+
+    it('should handle unlock badge network error (rejection)', async () => {
+        (global.fetch as any).mockRejectedValue(new Error('Network error'));
+
+        const { result } = renderHook(() => useGamification());
+
+        await act(async () => {
+            await result.current.unlockBadge('gold');
+        });
+
+        expect(consoleSpy).toHaveBeenCalledWith('Error unlocking badge:', expect.any(Error));
     });
 });
