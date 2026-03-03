@@ -10,7 +10,7 @@ CREATE OR REPLACE FUNCTION public.trigger_notion_sync()
 RETURNS TRIGGER AS $$
 DECLARE
   table_name TEXT := TG_TABLE_NAME;
-  api_url TEXT := 'https://getxobelaeskola.cloud/api/notion/sync?secret=getxo_notion_sync_2026_pro&mode=pull&table=' || table_name;
+  api_url TEXT := 'https://getxobelaeskola.cloud/api/notion/sync?secret=YOUR_NOTION_SYNC_SECRET&mode=pull&table=' || table_name;
 BEGIN
   -- Realizar la llamada HTTP de forma asíncrona usando Edge Functions o extensiones
   -- Nota: Usamos pg_net (si está disponible) o simplemente registramos para auditoría
@@ -31,13 +31,13 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 -- Name: Sync_Notion_Profiles
 -- Table: profiles
 -- Events: Insert, Update
--- Target URL: https://getxobelaeskola.cloud/api/notion/sync?secret=getxo_notion_sync_2026_pro&mode=pull&table=profiles
+-- Target URL: https://getxobelaeskola.cloud/api/notion/sync?secret=YOUR_NOTION_SYNC_SECRET&mode=pull&table=profiles
 -- HTTP Method: POST
 
 -- Name: Sync_Notion_Leads
 -- Table: mensajes_contacto
 -- Events: Insert
--- Target URL: https://getxobelaeskola.cloud/api/notion/sync?secret=getxo_notion_sync_2026_pro&mode=pull&table=mensajes_contacto
+-- Target URL: https://getxobelaeskola.cloud/api/notion/sync?secret=YOUR_NOTION_SYNC_SECRET&mode=pull&table=mensajes_contacto
 -- HTTP Method: POST
 
 COMMENT ON FUNCTION public.trigger_notion_sync IS 'Helper function reference. Recommendations inside.';

@@ -1,4 +1,3 @@
-
 import { NextResponse } from 'next/server';
 import { exec } from 'child_process';
 import path from 'path';
@@ -43,7 +42,8 @@ export async function POST(req: Request) {
         });
 
         return NextResponse.json({ message: 'Sync started successfully', mode });
-    } catch (err: any) {
-        return NextResponse.json({ error: err.message }, { status: 500 });
+    } catch (err: unknown) {
+        const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+        return NextResponse.json({ error: errorMessage }, { status: 500 });
     }
 }
