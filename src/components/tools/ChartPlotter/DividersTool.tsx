@@ -6,10 +6,9 @@ interface DividersToolProps {
     scale: number; // Viewport scale to keep handles constant size visually? Or scale with map?
     onUpdate: (newState: { p1: { x: number; y: number }; p2: { x: number; y: number } }) => void;
     worldToScreen: (x: number, y: number) => { x: number; y: number };
-    screenToWorld: (x: number, y: number) => { x: number; y: number };
 }
 
-export default function DividersTool({ p1, p2, scale, onUpdate, worldToScreen, screenToWorld }: DividersToolProps) {
+export default function DividersTool({ p1, p2, scale, onUpdate, worldToScreen}: DividersToolProps) {
     const [draggingPart, setDraggingPart] = useState<'p1' | 'p2' | 'both' | null>(null);
     const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
 

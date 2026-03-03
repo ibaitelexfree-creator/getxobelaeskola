@@ -200,7 +200,6 @@ export default function ChartCanvas({ width = 800, height = 600 }: ChartCanvasPr
                         p2={dividersState.p2}
                         scale={viewport.scale}
                         worldToScreen={worldToScreen}
-                        screenToWorld={screenToWorld}
                         onUpdate={(newState) => setDividersState({ ...dividersState, ...newState })}
                     />
                 )}
