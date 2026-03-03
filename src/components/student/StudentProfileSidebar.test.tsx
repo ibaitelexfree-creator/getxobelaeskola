@@ -63,10 +63,25 @@ describe('StudentProfileSidebar', () => {
 
         // Properly mock window.location
         const mockLocation = {
-            ...window.location,
             href: '',
             assign: vi.fn(),
-            replace: vi.fn()
+            replace: vi.fn(),
+            reload: vi.fn(),
+            pathname: '/',
+            search: '',
+            hash: '',
+            origin: 'http://localhost',
+            hostname: 'localhost',
+            port: '',
+            protocol: 'http:',
+            host: 'localhost',
+            ancestorOrigins: {
+                contains: vi.fn(),
+                item: vi.fn(),
+                length: 0,
+                [Symbol.iterator]: vi.fn()
+            } as unknown as DOMStringList,
+            toString: () => '',
         };
         vi.stubGlobal('location', mockLocation as unknown as Location);
     });
@@ -90,9 +105,9 @@ describe('StudentProfileSidebar', () => {
 
     it('should handle successful membership management redirection', async () => {
         const mockUrl = 'https://stripe.com/portal';
-        global.fetch = vi.fn().mockResolvedValue({
+        vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
             json: () => Promise.resolve({ url: mockUrl }),
-        });
+        }));
 
         render(<StudentProfileSidebar profile={mockProfile as any} email={mockEmail} locale={mockLocale} />);
 
@@ -105,9 +120,9 @@ describe('StudentProfileSidebar', () => {
 
     it('should handle API-returned error in membership management', async () => {
         const errorMessage = 'Internal Server Error';
-        global.fetch = vi.fn().mockResolvedValue({
+        vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
             json: () => Promise.resolve({ error: errorMessage }),
-        });
+        }));
 
         render(<StudentProfileSidebar profile={mockProfile as any} email={mockEmail} locale={mockLocale} />);
 
@@ -119,7 +134,7 @@ describe('StudentProfileSidebar', () => {
     });
 
     it('should handle fetch exception in membership management', async () => {
-        global.fetch = vi.fn().mockRejectedValue(new Error('Network error'));
+        vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('Network error')));
 
         render(<StudentProfileSidebar profile={mockProfile as any} email={mockEmail} locale={mockLocale} />);
 
@@ -135,7 +150,7 @@ describe('StudentProfileSidebar', () => {
         const fetchPromise = new Promise((resolve) => {
             resolveFetch = resolve;
         });
-        global.fetch = vi.fn().mockReturnValue(fetchPromise);
+        vi.stubGlobal('fetch', vi.fn().mockReturnValue(fetchPromise));
 
         render(<StudentProfileSidebar profile={mockProfile as any} email={mockEmail} locale={mockLocale} />);
 

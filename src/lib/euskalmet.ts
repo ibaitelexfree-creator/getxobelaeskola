@@ -24,14 +24,14 @@ export function generateEuskalmetToken() {
 export async function fetchEuskalmetStationData(stationId: string) {
     try {
         const token = generateEuskalmetToken();
-        const url = "https://api.euskadi.eus/met01/euskalmet/stations/" + stationId + "/current";
+        const url = `https://api.euskadi.eus/met01/euskalmet/stations/${stationId}/current`;
 
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 5000);
 
         const res = await fetch(url, {
             headers: {
-                'Authorization': "Bearer " + token,
+                'Authorization': `Bearer ${token}`,
                 'Accept': 'application/json'
             },
             signal: controller.signal,
@@ -59,14 +59,14 @@ export async function fetchEuskalmetAlerts() {
 
         // Try both 'costa' and '1' for Costa Bizkaia
         const endpoints = [
-            "https://api.euskadi.eus/met01/euskalmet/alerts/forRegion/1/at/" + yyyy + "/" + mm + "/" + dd,
-            "https://api.euskadi.eus/met01/euskalmet/alerts/forRegionZone/costa/at/" + yyyy + "/" + mm + "/" + dd
+            `https://api.euskadi.eus/met01/euskalmet/alerts/forRegion/1/at/${yyyy}/${mm}/${dd}`,
+            `https://api.euskadi.eus/met01/euskalmet/alerts/forRegionZone/costa/at/${yyyy}/${mm}/${dd}`
         ];
 
         for (const url of endpoints) {
             const res = await fetch(url, {
                 headers: {
-                    'Authorization': "Bearer " + token,
+                    'Authorization': `Bearer ${token}`,
                     'Accept': 'application/json'
                 },
                 // @ts-ignore - next is a property used by Next.js fetch extension
