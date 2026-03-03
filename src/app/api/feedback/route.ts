@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
+import { sendPushNotification } from '@/lib/notifications/push-service';
 
 export async function POST(req: NextRequest) {
     const supabase = createClient();
@@ -80,8 +81,21 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: 'Database insert failed' }, { status: 500 });
         }
 
-        // TODO: Notification System Integration (OneSignal/FCM)
-        // For now, we rely on the database record. The client can use Realtime subscriptions.
+        // Send Push Notification
+        try {
+            await sendPushNotification({
+                userId: student_id,
+                title: 'Nuevo Feedback del Instructor',
+                body: `Has recibido feedback en tu ${context_type === 'logbook' ? 'bitácora' : 'evaluación'}.`,
+                data: {
+                    context_id,
+                    context_type,
+                    type: 'feedback'
+                }
+            });
+        } catch (pushError) {
+            console.warn('Push notification failed:', pushError);
+        }
 
         // Attempt to insert a notification if a table exists (Best Effort)
         try {
