@@ -1,12 +1,11 @@
-
 import jwt from 'jsonwebtoken';
 
-const PRIVATE_KEY = process.env.EUSKALMET_PRIVATE_KEY?.replace(/\\n/g, '\n');
-const EMAIL = process.env.EUSKALMET_EMAIL || 'info@getxobelaeskola.com';
-
 export function generateEuskalmetToken() {
+    const PRIVATE_KEY = process.env.EUSKALMET_PRIVATE_KEY?.replace(/\\n/g, '\n');
+    const EMAIL = process.env.EUSKALMET_EMAIL || 'info@getxobelaeskola.com';
+
     if (!PRIVATE_KEY) {
-        return null;
+        throw new Error('EUSKALMET_PRIVATE_KEY is not defined');
     }
 
     const now = Math.floor(Date.now() / 1000);
@@ -45,6 +44,9 @@ export async function fetchEuskalmetStationData(stationId: string) {
         return res.json();
 
     } catch (e) {
+        if (e instanceof Error && e.message === 'EUSKALMET_PRIVATE_KEY is not defined') {
+            return null;
+        }
         console.error('Euskalmet Station Fetch Error:', e);
         return null;
     }
@@ -81,6 +83,9 @@ export async function fetchEuskalmetAlerts() {
         }
         return [];
     } catch (e) {
+        if (e instanceof Error && e.message === 'EUSKALMET_PRIVATE_KEY is not defined') {
+            return [];
+        }
         console.error('Euskalmet Alert Fetch Error:', e);
         return [];
     }
