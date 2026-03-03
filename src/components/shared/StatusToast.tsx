@@ -59,7 +59,6 @@ export default function StatusToast() {
         }
     }, [searchParams, onShow, removeQueryParam, t]);
 
-
     return (
         <AnimatePresence>
             {config.show && (
@@ -99,6 +98,7 @@ export default function StatusToast() {
                             </div>
 
                             <button
+                                type="button"
                                 onClick={() => setConfig(prev => ({ ...prev, show: false }))}
                                 className="text-white/20 hover:text-white transition-colors"
                             >
