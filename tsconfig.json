@@ -31,8 +31,8 @@
   },
   "include": [
     "next-env.d.ts",
-    "**/*.ts",
-    "**/*.tsx",
+    "src/**/*.ts",
+    "src/**/*.tsx",
     ".next/types/**/*.ts"
   ],
   "exclude": [
@@ -46,6 +46,7 @@
     ".jules_bases",
     ".agent",
     ".Jules",
-    ".openclaw"
+    ".openclaw",
+    "apps"
   ]
 }
