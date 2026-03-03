@@ -83,7 +83,7 @@ export default async function RentalPage({ params: { locale } }: { params: { loc
             .order('precio_base', { ascending: true });
 
         if (error) {
-            console.error('Error fetching rental services:', error);
+            if (process.env.NODE_ENV !== 'production') console.error('Error fetching rental services:', error);
         } else {
             const priorityOrder = [
                 'alquiler-kayak-1',
@@ -111,7 +111,7 @@ export default async function RentalPage({ params: { locale } }: { params: { loc
             });
         }
     } catch (err) {
-        console.error('Network error fetching services:', err);
+        if (process.env.NODE_ENV !== 'production') console.error('Network error fetching services:', err);
     }
 
     // Structured Data (JSON-LD)

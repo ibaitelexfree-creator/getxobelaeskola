@@ -61,7 +61,7 @@ export default async function CoursesPage({
 
         allCourses = coursesData || [];
     } catch (error) {
-        console.error('Error loading courses for static build:', error);
+        if (process.env.NODE_ENV !== 'production') console.error('Error loading courses for static build:', error);
         // Fallback or empty - handled by client empty state or fallback below
     }
 

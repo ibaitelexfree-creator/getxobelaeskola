@@ -18,20 +18,6 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Optional: Allow users to only see their own profile, or admins to see any profile
-    // For now, let's keep it simple as the navbar uses it for the current user.
-    // However, if we want to be strict:
-    // if (requester.id !== userId) {
-    //     // Check if requester is admin
-    //     const { data: adminProfile } = await supabase
-    //         .from('profiles')
-    //         .select('rol')
-    //         .eq('id', requester.id)
-    //         .single();
-    //     if (adminProfile?.rol !== 'admin') {
-    //         return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-    //     }
-    // }
 
     const { data: profile, error } = await supabase
         .from('profiles')

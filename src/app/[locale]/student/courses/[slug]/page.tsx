@@ -70,7 +70,7 @@ export default async function MobileCourseDetailPage({
                 .gte('fecha_inicio', new Date().toISOString())
                 .order('fecha_inicio', { ascending: true });
             dbEditions = (editionsData as unknown as Edition[]) || [];
-        } catch (e) { console.error(e); }
+        } catch (e) { if (process.env.NODE_ENV !== 'production') console.error(e); }
     }
 
     // 3. Calendar logic (simplified)
@@ -96,7 +96,7 @@ export default async function MobileCourseDetailPage({
                 plazas_ocupadas: 0,
                 is_calendar_event: true
             }));
-    } catch (e) { console.error(e); }
+    } catch (e) { if (process.env.NODE_ENV !== 'production') console.error(e); }
 
     const allEditions = [...dbEditions, ...calendarEditions].sort(
         (a, b) => new Date(a.fecha_inicio).getTime() - new Date(b.fecha_inicio).getTime()
