@@ -67,6 +67,7 @@ describe('useNetworkMonitor', () => {
 
         expect(mockOnWifiDisconnect).not.toHaveBeenCalled();
     });
+
     it('should log error when Network.getStatus fails', async () => {
         const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => { });
         const testError = new Error('getStatus failed');
@@ -92,4 +93,3 @@ describe('useNetworkMonitor', () => {
         });
     });
 });
-

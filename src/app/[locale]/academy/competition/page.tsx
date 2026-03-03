@@ -1,9 +1,9 @@
 "use client";
 
-import { useMultiplayerStore } from "@/lib/store/useMultiplayerStore";
-import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useMultiplayerStore } from "@/lib/store/useMultiplayerStore";
+import { createClient } from "@/lib/supabase/client";
 
 export default function CompetitionPage() {
 	const router = useRouter();
@@ -112,8 +112,8 @@ export default function CompetitionPage() {
 						onClick={handleJoin}
 						disabled={!joinCode}
 						className={`w-full font-bold py-3 px-6 rounded-lg transition-all uppercase tracking-wide ${joinCode
-								? "bg-gray-700 hover:bg-gray-600 text-white cursor-pointer hover:scale-[1.02]"
-								: "bg-gray-800 text-gray-600 cursor-not-allowed"
+							? "bg-gray-700 hover:bg-gray-600 text-white cursor-pointer hover:scale-[1.02]"
+							: "bg-gray-800 text-gray-600 cursor-not-allowed"
 							}`}
 					>
 						Unirse a Sala
