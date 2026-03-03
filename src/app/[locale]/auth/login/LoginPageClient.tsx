@@ -44,12 +44,6 @@ function LoginPageContent({ locale }: { locale: string }) {
     }, [locale, router, returnTo]);
 
     // Render nothing while we decide if we need to redirect
-    // BUT we should render the form as soon as possible if we want 100 speed
-    // So let's only hide if we are CERTAIN we are redirecting.
-    // However, to avoid flash of content, we can use a simpler approach.
-    // For 100 speed, we render the page immediately and the useEffect handles the "already logged in" edge case.
-
-    // If we are still checking for a session, show a loading state instead of the login form
     if (checking) {
         return (
             <div className="min-h-screen bg-nautical-black flex items-center justify-center">
