@@ -3,6 +3,13 @@ import { KeyRotator } from './types';
 // Global index to maintain state across warm starts in serverless environment
 let globalKeyIndex = 0;
 
+/**
+ * Resets the global key index. Used primarily for testing to ensure isolation.
+ */
+export function resetGlobalKeyIndex() {
+    globalKeyIndex = 0;
+}
+
 export class RoundRobinRotator implements KeyRotator {
     private keys: string[];
 
