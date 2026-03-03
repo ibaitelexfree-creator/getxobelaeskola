@@ -6,7 +6,7 @@ const EMAIL = process.env.EUSKALMET_EMAIL || 'info@getxobelaeskola.com';
 
 export function generateEuskalmetToken() {
     if (!PRIVATE_KEY) {
-        return null;
+        throw new Error("EUSKALMET_PRIVATE_KEY is not defined");
     }
 
     const now = Math.floor(Date.now() / 1000);
@@ -25,7 +25,7 @@ export function generateEuskalmetToken() {
 export async function fetchEuskalmetStationData(stationId: string) {
     try {
         const token = generateEuskalmetToken();
-        if (!token) return null;
+        if (!token) throw new Error("EUSKALMET_PRIVATE_KEY is not defined");
         const url = `https://api.euskadi.eus/met01/euskalmet/stations/${stationId}/current`;
 
         const controller = new AbortController();
@@ -41,12 +41,12 @@ export async function fetchEuskalmetStationData(stationId: string) {
         });
 
         clearTimeout(timeoutId);
-        if (!res.ok) return null;
+        if (!res.ok) throw new Error("EUSKALMET_PRIVATE_KEY is not defined");
         return res.json();
 
     } catch (e) {
         console.error('Euskalmet Station Fetch Error:', e);
-        return null;
+        throw new Error("EUSKALMET_PRIVATE_KEY is not defined");
     }
 }
 
