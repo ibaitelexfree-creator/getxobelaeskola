@@ -76,8 +76,8 @@ export async function GET(req: Request) {
         // Start performance timer
         const start = performance.now();
 
-        // 2. Process each relation independently (Batching Option B)
-        for (const rel of rels) {
+        // 2. Process each relation concurrently (Batching Option B - Optimized)
+        await Promise.all(rels.map(async (rel) => {
             try {
                 // Determine the key on the main row based on convention
                 // If fk is 'email', we join on email. Otherwise we join on id.
@@ -88,7 +88,7 @@ export async function GET(req: Request) {
                     .map(r => r[mainKey])
                     .filter(v => v !== null && v !== undefined && v !== '');
 
-                if (values.length === 0) continue;
+                if (values.length === 0) return;
 
                 // Execute single query for this relation using IN (...)
                 // We select only the FK column to count in memory
@@ -99,7 +99,7 @@ export async function GET(req: Request) {
 
                 if (relError) {
                     console.error(`Error fetching relation ${rel.table} for ${tableName}:`, relError);
-                    continue; // Skip this relation on error
+                    return; // Skip this relation on error
                 }
 
                 // Aggregate counts in memory
@@ -118,9 +118,10 @@ export async function GET(req: Request) {
                     if (rowVal) {
                         const count = counts.get(String(rowVal)) || 0;
                         if (count > 0) {
-                            const current = relationCountsByRow.get(row.id) || [];
-                            current.push({ label: rel.label, count, table: rel.table });
-                            relationCountsByRow.set(row.id, current);
+                            const current = relationCountsByRow.get(row.id);
+                            if (current) {
+                                current.push({ label: rel.label, count, table: rel.table });
+                            }
                         }
                     }
                 });
@@ -129,7 +130,7 @@ export async function GET(req: Request) {
                 console.error(`Exception processing relation ${rel.table}:`, err);
                 // Maintain behavior: skip if relation fails
             }
-        }
+        }));
 
         const end = performance.now();
         // Log performance metric
