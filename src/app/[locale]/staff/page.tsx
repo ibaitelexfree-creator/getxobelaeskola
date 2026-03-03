@@ -85,7 +85,7 @@ export default async function StaffPage({ params: { locale } }: { params: { loca
         if (results[5].status === 'fulfilled') yearRevData = results[5].value.data || [];
         if (results[6].status === 'fulfilled') totalStudentCount = results[6].value.count || 0;
     } catch (err) {
-        console.error('Critical data fetching error in staff page:', err);
+        if (process.env.NODE_ENV !== 'production') console.error('Critical data fetching error in staff page:', err);
     }
 
     // Manual join for profiles to bypass missing FK relationship

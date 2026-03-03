@@ -45,7 +45,7 @@ export default async function FinancialReportsPage({
     ]);
 
     if (rError) {
-        console.error('Error fetching rentals:', rError);
+        if (process.env.NODE_ENV !== 'production') console.error('Error fetching rentals:', rError);
     }
 
     const enrichedRentals = (rawRentals || []).map((r: any) => ({
