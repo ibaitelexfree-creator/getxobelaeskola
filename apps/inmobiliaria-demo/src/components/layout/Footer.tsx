@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 
-const Footer = ({ locale }: { locale: string }) => {
+export const Footer = () => {
     const currentYear = new Date().getFullYear();
 
     return (
@@ -96,4 +96,3 @@ const Footer = ({ locale }: { locale: string }) => {
         </footer>
     );
 };
-export default Footer;

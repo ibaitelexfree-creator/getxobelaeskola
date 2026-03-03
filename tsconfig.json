@@ -38,13 +38,11 @@
   "exclude": [
     "node_modules",
     "supabase/functions",
-    "apps",
     "mission-control",
     "orchestration",
     "scripts",
     "mission-control.db",
     "supabase/functions",
-    "apps",
     ".jules_bases",
     ".agent",
     ".Jules",
