@@ -1,38 +1,39 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import jwt from 'jsonwebtoken';
+import { generateEuskalmetToken } from './euskalmet';
 
-vi.mock('jsonwebtoken', () => ({
-    sign: vi.fn(() => 'mock-token'),
-    default: {
-        sign: vi.fn(() => 'mock-token')
-    }
-}));
+vi.mock('jsonwebtoken', () => {
+    const sign = vi.fn(() => 'mock-token');
+    return {
+        sign,
+        default: { sign }
+    };
+});
 
 describe('Euskalmet Token Generation', () => {
     beforeEach(() => {
-        vi.resetModules();
         vi.useFakeTimers();
         vi.setSystemTime(new Date('2024-01-01T12:00:00Z'));
         vi.clearAllMocks();
+        vi.unstubAllEnvs();
     });
 
     afterEach(() => {
         vi.useRealTimers();
-        vi.unstubAllEnvs();
     });
 
-    it('should generate a token with correct payload and default email', async () => {
+    it('should generate a token with correct payload and default email', () => {
         vi.stubEnv('EUSKALMET_PRIVATE_KEY', 'test-key');
         // Ensure EUSKALMET_EMAIL is not set to test default
         vi.stubEnv('EUSKALMET_EMAIL', '');
 
-        const { generateEuskalmetToken } = await import('./euskalmet');
         const token = generateEuskalmetToken();
 
         expect(token).toBe('mock-token');
         const now = Math.floor(new Date('2024-01-01T12:00:00Z').getTime() / 1000);
 
-        expect(jwt.sign).toHaveBeenCalledWith(
+        const signSpy = (jwt as any).sign || jwt;
+        expect(signSpy).toHaveBeenCalledWith(
             {
                 aud: 'met01.apikey',
                 iss: 'GetxoBelaEskola',
@@ -46,14 +47,14 @@ describe('Euskalmet Token Generation', () => {
         );
     });
 
-    it('should use custom email if provided in env', async () => {
+    it('should use custom email if provided in env', () => {
         vi.stubEnv('EUSKALMET_PRIVATE_KEY', 'test-key');
         vi.stubEnv('EUSKALMET_EMAIL', 'custom@example.com');
 
-        const { generateEuskalmetToken } = await import('./euskalmet');
         generateEuskalmetToken();
 
-        expect(jwt.sign).toHaveBeenCalledWith(
+        const signSpy = (jwt as any).sign || jwt;
+        expect(signSpy).toHaveBeenCalledWith(
             expect.objectContaining({
                 email: 'custom@example.com'
             }),
@@ -62,23 +63,22 @@ describe('Euskalmet Token Generation', () => {
         );
     });
 
-    it('should handle escaped newlines in PRIVATE_KEY', async () => {
+    it('should handle escaped newlines in PRIVATE_KEY', () => {
         vi.stubEnv('EUSKALMET_PRIVATE_KEY', 'line1\\nline2');
 
-        const { generateEuskalmetToken } = await import('./euskalmet');
         generateEuskalmetToken();
 
-        expect(jwt.sign).toHaveBeenCalledWith(
+        const signSpy = (jwt as any).sign || jwt;
+        expect(signSpy).toHaveBeenCalledWith(
             expect.any(Object),
             'line1\nline2',
             { algorithm: 'RS256' }
         );
     });
 
-    it('should throw error if EUSKALMET_PRIVATE_KEY is not defined', async () => {
+    it('should throw error if EUSKALMET_PRIVATE_KEY is not defined', () => {
         vi.stubEnv('EUSKALMET_PRIVATE_KEY', '');
 
-        const { generateEuskalmetToken } = await import('./euskalmet');
         expect(() => generateEuskalmetToken()).toThrow('EUSKALMET_PRIVATE_KEY is not defined');
     });
 });
