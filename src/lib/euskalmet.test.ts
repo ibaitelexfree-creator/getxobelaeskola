@@ -78,6 +78,7 @@ describe('Euskalmet Token Generation', () => {
         vi.stubEnv('EUSKALMET_PRIVATE_KEY', '');
 
         const { generateEuskalmetToken } = await import('./euskalmet');
-        expect(() => generateEuskalmetToken()).toThrow('EUSKALMET_PRIVATE_KEY is not defined');
+        const token = generateEuskalmetToken();
+        expect(token).toBeNull();
     });
 });
