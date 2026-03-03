@@ -5,8 +5,8 @@ import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import { PROPERTIES, PropertyType } from '@/data/properties';
 import { NEIGHBORHOODS } from '@/data/neighborhoods';
 import { PropertyCard } from '@/components/properties/PropertyCard';
-import { Header } from '@/components/layout/Header';
-import { Footer } from '@/components/layout/Footer';
+import Header from '@/components/layout/Header';
+import Footer from '@/components/layout/Footer';
 
 function PropertiesContent() {
     const router = useRouter();
