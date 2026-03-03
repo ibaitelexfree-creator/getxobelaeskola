@@ -123,8 +123,17 @@ describe('src/lib/api.ts', () => {
       expect(apiUrl('users')).toBe('https://api.test.com/users');
     });
 
-    it('should replace /api/academy/ with /api/', () => {
+    it('should replace /api/academy/ with /api/ for non-academy routes', () => {
       expect(apiUrl('/api/academy/users')).toBe('https://api.test.com/api/users');
+      expect(apiUrl('/api/academy/courses')).toBe('https://api.test.com/api/courses');
+    });
+
+    it('should NOT replace /api/academy/ for genuine academy routes', () => {
+      expect(apiUrl('/api/academy/chatbot')).toBe('https://api.test.com/api/academy/chatbot');
+      expect(apiUrl('/api/academy/leaderboard/top')).toBe('https://api.test.com/api/academy/leaderboard/top');
+      expect(apiUrl('/api/academy/montessori')).toBe('https://api.test.com/api/academy/montessori');
+      expect(apiUrl('/api/academy/repaso/quiz')).toBe('https://api.test.com/api/academy/repaso/quiz');
+      expect(apiUrl('/api/academy/simulation/start')).toBe('https://api.test.com/api/academy/simulation/start');
     });
 
     it('should not modify paths that do not start with /api/academy/', () => {
