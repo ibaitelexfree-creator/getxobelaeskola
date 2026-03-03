@@ -8,7 +8,8 @@ export interface SeaStateData {
     isSimulated: boolean;
 }
 
-// Bilbao-Vizcaya Buoy (2630) - Deep Water
+// Bilbao-Vizcaya Buoy (3136)
+const PUERTOS_API_URL = 'https://portus.puertos.es/Portus_RT/point/3136/data';
 
 // Fallback mock data generator based on season and typical Cantabrian sea conditions
 function getSimulatedSeaState(): SeaStateData {
@@ -42,8 +43,64 @@ function getSimulatedSeaState(): SeaStateData {
     };
 }
 
+/**
+ * Fetches real sea state data from Puertos del Estado.
+ * Falls back to simulation if the API is unavailable.
+ */
 export async function fetchSeaState(): Promise<SeaStateData> {
-    return getSimulatedSeaState();
+    try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000); // 5s timeout
+
+        const response = await fetch(PUERTOS_API_URL, {
+            signal: controller.signal,
+            // @ts-ignore
+            next: { revalidate: 1800 }
+        } as any);
+
+        clearTimeout(timeoutId);
+
+        if (!response.ok) {
+            throw new Error(`Puertos del Estado API error: ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        // The Puertos del Estado API typically returns an array of measurements
+        // or an object with specific keys in Spanish.
+        // If it's an array, we take the most recent one.
+        const measurement = Array.isArray(data) ? data[0] : data;
+
+        if (!measurement) throw new Error('No measurement data found');
+
+        // Mapping logic: Looking for common Spanish keys in Puertos del Estado API
+        // Examples: "Altura de ola significante", "Periodo de pico", "Temperatura del agua"
+        // or shorter keys like "Hs", "Tp", "T"
+        const waveHeight = measurement["Altura de ola significante"] || measurement["Hs"] || measurement["altura_ola"];
+        const period = measurement["Periodo de pico"] || measurement["Tp"] || measurement["periodo_ola"];
+        const waterTemp = measurement["Temperatura del agua"] || measurement["T"] || measurement["temperatura_agua"];
+
+        // If we have at least wave height, we consider it a success
+        if (waveHeight !== undefined && !isNaN(parseFloat(waveHeight))) {
+            return {
+                waveHeight: parseFloat(waveHeight),
+                period: parseFloat(period) || 8,
+                waterTemp: parseFloat(waterTemp) || 15,
+                // Wind data is usually better from local stations (Euskalmet/Unisono),
+                // but we can map it if available as secondary fallback.
+                windSpeed: parseFloat(measurement["Velocidad del viento"] || measurement["Wv"]) || 0,
+                windDirection: parseFloat(measurement["Dirección del viento"] || measurement["Wd"]) || 0,
+                timestamp: measurement["fecha"] || new Date().toISOString(),
+                isSimulated: false
+            };
+        }
+
+        throw new Error('Required fields missing from API response');
+
+    } catch (error) {
+        console.warn('Failed to fetch real sea state, using simulation:', error);
+        return getSimulatedSeaState();
+    }
 }
 
 /**

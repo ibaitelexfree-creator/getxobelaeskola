@@ -37,6 +37,8 @@
   ],
   "exclude": [
     "node_modules",
+    "apps/inmobiliaria-demo",
+    "apps/mission-control-ui",
     "supabase/functions",
     "mission-control",
     "orchestration",

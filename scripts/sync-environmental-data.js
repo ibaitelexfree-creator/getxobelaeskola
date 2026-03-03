@@ -9,6 +9,9 @@ const EUSKALMET_PRIVATE_KEY = process.env.EUSKALMET_PRIVATE_KEY?.replace(/\\n/g,
 const EUSKALMET_EMAIL = process.env.EUSKALMET_EMAIL || 'info@getxobelaeskola.com';
 const AEMET_API_KEY = process.env.AEMET_API_KEY;
 
+// Bilbao-Vizcaya Buoy (3136)
+const PUERTOS_API_URL = 'https://portus.puertos.es/Portus_RT/point/3136/data';
+
 async function sync() {
     const isLocal = connectionString?.includes('localhost') || connectionString?.includes('127.0.0.1');
     const client = new Client({
@@ -73,9 +76,10 @@ async function sync() {
             }
         }
 
-        // 4. Sea State / Tides (Simulated)
-        const seaState = getSimulatedSeaState();
+        // 4. Sea State / Tides
+        const seaState = await fetchSeaState();
         const tideSummary = getTideState();
+        console.log(`Estado del mar: ${seaState.waveHeight}m (Simulado: ${seaState.isSimulated})`);
         await client.query(
             `INSERT INTO api_cache (key, data, updated_at) VALUES ($1, $2, NOW()) 
              ON CONFLICT (key) DO UPDATE SET data = $2, updated_at = NOW()`,
@@ -91,6 +95,37 @@ async function sync() {
 }
 
 // --- Fetchers adaptados ---
+
+async function fetchSeaState() {
+    try {
+        const response = await fetch(PUERTOS_API_URL);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+        const data = await response.json();
+        const measurement = Array.isArray(data) ? data[0] : data;
+
+        if (!measurement) throw new Error('No measurement found');
+
+        const waveHeight = measurement["Altura de ola significante"] || measurement["Hs"] || measurement["altura_ola"];
+        const period = measurement["Periodo de pico"] || measurement["Tp"] || measurement["periodo_ola"];
+        const waterTemp = measurement["Temperatura del agua"] || measurement["T"] || measurement["temperatura_agua"];
+
+        if (waveHeight !== undefined && !isNaN(parseFloat(waveHeight))) {
+            return {
+                waveHeight: parseFloat(waveHeight),
+                period: parseFloat(period) || 8,
+                waterTemp: parseFloat(waterTemp) || 15,
+                windSpeed: parseFloat(measurement["Velocidad del viento"] || measurement["Wv"]) || 0,
+                windDirection: parseFloat(measurement["Dirección del viento"] || measurement["Wd"]) || 0,
+                timestamp: measurement["fecha"] || new Date().toISOString(),
+                isSimulated: false
+            };
+        }
+    } catch (e) {
+        console.warn('Falling back to sea state simulation:', e.message);
+    }
+    return getSimulatedSeaState();
+}
 
 function getSimulatedSeaState() {
     const now = new Date();
