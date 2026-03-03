@@ -5,14 +5,14 @@ on:
     branches: [main, master, "feature/**", "fix/**"]
     paths:
       - "src/**"
-      - "mission-control/**"
+       - "apps/mission-control-ui/**"
       - "orchestration/**"
       - ".github/workflows/fast-lane.yml"
   pull_request:
     branches: [main, master]
     paths:
       - "src/**"
-      - "mission-control/**"
+       - "apps/mission-control-ui/**"
       - "orchestration/**"
       - ".github/workflows/fast-lane.yml"
 
@@ -51,6 +51,6 @@ jobs:
 
       - name: "🧪 Type Check (Mission Control)"
         run: |
-          cd mission-control
+          cd apps/mission-control-ui
           npm ci --legacy-peer-deps --prefer-offline --no-audit --no-fund --loglevel=error
           npx tsc --noEmit && echo "✅ Mission Control TypeScript Passed"
