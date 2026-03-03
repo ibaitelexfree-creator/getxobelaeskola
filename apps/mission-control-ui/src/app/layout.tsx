@@ -1,34 +1,35 @@
-import type { Metadata, Viewport } from 'next';
-import { cormorantGaramond, outfit, jetbrainsMono } from './fonts';
-import './globals.css';
+import type { Metadata, Viewport } from "next";
+import { cormorantGaramond, jetbrainsMono, outfit } from "./fonts";
+import "./globals.css";
 
 export const metadata: Metadata = {
-    title: 'Mission Control',
-    description: 'Orchestration command center for Maestro v3',
+	title: "Mission Control",
+	description: "Orchestration command center for Maestro v3",
 };
 
 export const viewport: Viewport = {
-    themeColor: '#010409',
-    width: 'device-width',
-    initialScale: 1,
-    maximumScale: 1,
-    userScalable: false,
+	themeColor: "#010409",
+	width: "device-width",
+	initialScale: 1,
+	maximumScale: 1,
+	userScalable: false,
 };
 
-import { ClientProviders } from '@/components/ClientProviders';
+import { ClientProviders } from "@/components/ClientProviders";
 
 export default function RootLayout({
-    children,
+	children,
 }: {
-    children: React.ReactNode;
+	children: React.ReactNode;
 }) {
-    return (
-        <html lang="en" className={`${cormorantGaramond.variable} ${outfit.variable} ${jetbrainsMono.variable}`}>
-            <body className="bg-mission-mesh min-h-screen safe-area-top">
-                <ClientProviders>
-                    {children}
-                </ClientProviders>
-            </body>
-        </html>
-    );
+	return (
+		<html
+			lang="en"
+			className={`${cormorantGaramond.variable} ${outfit.variable} ${jetbrainsMono.variable}`}
+		>
+			<body className="bg-mission-mesh min-h-screen safe-area-top">
+				<ClientProviders>{children}</ClientProviders>
+			</body>
+		</html>
+	);
 }

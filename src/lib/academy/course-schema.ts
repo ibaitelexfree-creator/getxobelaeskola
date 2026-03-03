@@ -2,7 +2,7 @@
 // Do not edit manually unless you know what you are doing.
 
 export const esquemaCursos = {
-  totalModules: 0,
-  modules: [] as string[], // List of all module IDs
-  // Future: courses: {} as Record<string, string[]>
+	totalModules: 0,
+	modules: [] as string[], // List of all module IDs
+	// Future: courses: {} as Record<string, string[]>
 };
