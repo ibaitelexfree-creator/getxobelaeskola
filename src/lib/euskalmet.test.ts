@@ -74,12 +74,10 @@ describe('Euskalmet Token Generation', () => {
         );
     });
 
-    it('should return null if EUSKALMET_PRIVATE_KEY is not defined', async () => {
+    it('should throw error if EUSKALMET_PRIVATE_KEY is not defined', async () => {
         vi.stubEnv('EUSKALMET_PRIVATE_KEY', '');
 
         const { generateEuskalmetToken } = await import('./euskalmet');
-        const token = generateEuskalmetToken();
-
-        expect(token).toBeNull();
+        expect(() => generateEuskalmetToken()).toThrow('EUSKALMET_PRIVATE_KEY is not defined');
     });
 });
