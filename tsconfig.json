@@ -31,17 +31,14 @@
   },
   "include": [
     "next-env.d.ts",
-    "src/**/*.ts",
-    "src/**/*.tsx",
-    "i18n.ts",
-    "vitest.config.ts",
-    "vitest.setup.ts",
-    "capacitor.config.ts",
+    "**/*.ts",
+    "**/*.tsx",
     ".next/types/**/*.ts"
   ],
   "exclude": [
     "node_modules",
-    "supabase/functions",
+    "apps/**",
+    "apps",
     "mission-control",
     "orchestration",
     "scripts",
@@ -49,7 +46,6 @@
     ".jules_bases",
     ".agent",
     ".Jules",
-    ".openclaw",
-    "apps"
+    ".openclaw"
   ]
 }
