@@ -10,7 +10,7 @@ on:
       - "public/**"
       - "orchestration/**"
       - "infra/**"
-      - "mission-control/**"
+      - "apps/mission-control-ui/**"
       - "docker-compose.yml"
       - "Dockerfile"
       - "package.json"
@@ -85,12 +85,12 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: mission-control/Dockerfile
+          file: apps/mission-control-ui/Dockerfile
           push: true
           tags: ${{ steps.meta-mc.outputs.tags }}
           labels: ${{ steps.meta-mc.outputs.labels }}
-          cache-from: type=gha,scope=mission-control
-          cache-to: type=gha,mode=max,scope=mission-control
+          cache-from: type=gha,scope=apps-mission-control-ui
+          cache-to: type=gha,mode=max,scope=apps-mission-control-ui
 
       # ── Build 3: orchestrator (Gateway) ──
       - name: Extract metadata for orchestrator
