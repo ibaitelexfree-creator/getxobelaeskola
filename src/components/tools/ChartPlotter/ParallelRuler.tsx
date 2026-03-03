@@ -27,11 +27,6 @@ export default function ParallelRuler({ x, y, angle, scale, onUpdate, worldToScr
 
     const handleRotateDown = (e: React.MouseEvent) => {
         e.stopPropagation();
-        const rect = (e.target as Element).getBoundingClientRect();
-        // Calculate center of ruler on screen
-        // const centerX = rect.left + rect.width / 2; // Approximation
-        // const centerY = rect.top + rect.height / 2;
-
         // This is tricky inside an SVG transform.
         // Simpler approach: Store initial mouse angle relative to ruler center (screenPos)
         const dx = e.clientX - screenPos.x;
@@ -46,7 +41,6 @@ export default function ParallelRuler({ x, y, angle, scale, onUpdate, worldToScr
                 const newScreenX = e.clientX - dragOffset.x;
                 const newScreenY = e.clientY - dragOffset.y;
                 const newWorld = screenToWorld(newScreenX, newScreenY);
-                // const worldMouse = screenToWorld(e.clientX, e.clientY);
                 onUpdate({ x: newWorld.x, y: newWorld.y, angle });
             } else if (isRotating) {
                 const dx = e.clientX - screenPos.x;
