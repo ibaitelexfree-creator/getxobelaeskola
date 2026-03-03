@@ -6,7 +6,7 @@ export function generateEuskalmetToken() {
     const EMAIL = process.env.EUSKALMET_EMAIL || 'info@getxobelaeskola.com';
 
     if (!PRIVATE_KEY) {
-        throw new Error('EUSKALMET_PRIVATE_KEY is not defined');
+        return null;
     }
 
     const now = Math.floor(Date.now() / 1000);
