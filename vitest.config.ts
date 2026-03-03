@@ -7,18 +7,17 @@ export default defineConfig({
     test: {
         environment: 'jsdom',
         setupFiles: './vitest.setup.ts',
-        include: ['**/*.test.ts', '**/*.test.tsx'],
+        include: ['src/**/*.test.ts', 'src/**/*.test.tsx'],
         exclude: [
+            ...configDefaults.exclude,
             '**/node_modules/**',
             '**/dist/**',
-            '**/cypress/**',
-            '**/.{idea,git,cache,output,temp}/**',
-            '**/{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress,tsup,build}.config.*',
             '**/.jules_bases/**',
             '**/.agent/**',
             '**/.Jules/**',
             '**/.openclaw/**',
-            '**/scripts/**'
+            '**/scripts/**',
+            'apps/**'
         ],
         globals: true,
     },

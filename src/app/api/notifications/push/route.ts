@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
-import { firebaseAdmin } from '@/lib/firebase-admin';
+
+export const runtime = 'nodejs';
 
 export async function POST(request: Request) {
     try {
@@ -30,33 +31,21 @@ export async function POST(request: Request) {
             }
         }
 
-        // Get FCM token
-        const { data: profile, error: profileError } = await supabase
-            .from('profiles')
-            .select('fcm_token')
-            .eq('id', targetUserId)
-            .single();
+        const { sendPushNotification } = await import('@/lib/notifications/push-notification');
+        const result = await sendPushNotification(targetUserId, {
+            title,
+            body,
+            data
+        });
 
-        if (profileError || !profile?.fcm_token) {
-             return NextResponse.json({ error: 'User has no FCM token' }, { status: 404 });
+        if (!result.success) {
+            if (result.reason === 'no_tokens') {
+                return NextResponse.json({ error: 'User has no FCM tokens' }, { status: 404 });
+            }
+            return NextResponse.json({ error: result.reason || 'Failed to send notification' }, { status: 500 });
         }
 
-        if (!firebaseAdmin.apps.length) {
-             return NextResponse.json({ error: 'Firebase not initialized' }, { status: 503 });
-        }
-
-        const message = {
-            token: profile.fcm_token,
-            notification: {
-                title,
-                body,
-            },
-            data: data || {},
-        };
-
-        const response = await firebaseAdmin.messaging().send(message);
-
-        return NextResponse.json({ success: true, messageId: response });
+        return NextResponse.json({ success: true, result });
 
     } catch (error) {
         console.error('Error sending push notification:', error);

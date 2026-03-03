@@ -1,6 +1,8 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
 
+export const runtime = 'nodejs';
+
 export async function POST(req: NextRequest) {
     const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
@@ -80,22 +82,38 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: 'Database insert failed' }, { status: 500 });
         }
 
-        // TODO: Notification System Integration (OneSignal/FCM)
-        // For now, we rely on the database record. The client can use Realtime subscriptions.
+        // 1. Create database notification
+        const notificationTitle = 'Nuevo Feedback del Instructor';
+        const notificationMessage = `Has recibido feedback en tu ${context_type === 'logbook' ? 'bitácora' : 'evaluación'}.`;
 
-        // Attempt to insert a notification if a table exists (Best Effort)
         try {
             await supabase.from('notifications').insert({
                 user_id: student_id,
                 type: 'feedback',
-                title: 'Nuevo Feedback del Instructor',
-                message: `Has recibido feedback en tu ${context_type === 'logbook' ? 'bitácora' : 'evaluación'}.`,
-                data: { context_id, context_type },
+                title: notificationTitle,
+                message: notificationMessage,
+                data: { context_id, context_type, feedback_id: feedback.id },
                 read: false
             });
         } catch (e) {
-            // Ignore if table doesn't exist or fails
-            console.warn('Notification insert failed (optional):', e);
+            console.warn('Database notification insert failed:', e);
+        }
+
+        // 2. Send Push Notification (FCM)
+        try {
+            const { sendPushNotification } = await import('@/lib/notifications/push-notification');
+            await sendPushNotification(student_id, {
+                title: notificationTitle,
+                body: notificationMessage,
+                data: {
+                    type: 'feedback',
+                    context_id,
+                    context_type,
+                    feedback_id: feedback.id
+                }
+            });
+        } catch (e) {
+            console.warn('Push notification failed:', e);
         }
 
         return NextResponse.json({ success: true, feedback });
