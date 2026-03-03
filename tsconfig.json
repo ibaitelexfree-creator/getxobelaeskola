@@ -44,6 +44,7 @@
     "mission-control",
     "orchestration",
     "scripts",
+    "apps",
     "mission-control.db",
     "supabase/functions",
     ".jules_bases",

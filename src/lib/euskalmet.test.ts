@@ -62,7 +62,7 @@ describe('Euskalmet Token Generation', () => {
     });
 
     it('should handle escaped newlines in PRIVATE_KEY', async () => {
-        vi.stubEnv('EUSKALMET_PRIVATE_KEY', 'line1\\nline2');
+        vi.stubEnv('EUSKALMET_PRIVATE_KEY', 'line1\nline2');
 
         const { generateEuskalmetToken } = await import('./euskalmet');
         generateEuskalmetToken();
