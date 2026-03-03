@@ -20,13 +20,6 @@ export default function DividersTool({ p1, p2, scale, onUpdate, worldToScreen, s
         e.stopPropagation();
         e.preventDefault();
         setDraggingPart(part);
-
-        // const worldMouse = screenToWorld(e.clientX, e.clientY);
-
-        // Actually, let's use screen coords for "offset" logic to be safer
-        // But we need to know the initial "click" world position relative to the object center/point
-
-        // Simpler: Just track mouse delta in screen pixels and convert to world delta
         setDragOffset({ x: e.clientX, y: e.clientY });
     };
 
@@ -85,7 +78,6 @@ export default function DividersTool({ p1, p2, scale, onUpdate, worldToScreen, s
     // We'll hardcode a conversion for now: 100 units = 1 NM
     const distWorld = Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2));
     const distNM = (distWorld / 100).toFixed(2);
-
 
     return (
         <g>
