@@ -4,7 +4,7 @@ interface QueuedAction {
     id: string;
     url: string;
     method: 'POST' | 'PUT' | 'PATCH';
-    body: any;
+    body: unknown;
     timestamp: number;
     retryCount: number;
 }
@@ -23,7 +23,7 @@ export const offlineSyncManager = {
         }
     },
 
-    addToQueue: (url: string, method: 'POST' | 'PUT' | 'PATCH', body: any) => {
+    addToQueue: (url: string, method: 'POST' | 'PUT' | 'PATCH', body: unknown) => {
         const queue = offlineSyncManager.getQueue();
         const action: QueuedAction = {
             id: crypto.randomUUID(),
@@ -44,42 +44,54 @@ export const offlineSyncManager = {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(newQueue));
     },
 
-    processQueue: async () => {
+    processQueue: async (concurrencyLimit = 5): Promise<void> => {
         if (typeof navigator === 'undefined' || !navigator.onLine) return;
-        const queue = offlineSyncManager.getQueue();
-        if (queue.length === 0) return;
 
-        console.log(`[OfflineSync] Processing ${queue.length} items...`);
+        const initialQueue = offlineSyncManager.getQueue();
+        if (initialQueue.length === 0) return;
 
-        for (const action of queue) {
-            try {
-                // Determine the full URL. If it starts with /, use window.location.origin
-                const fullUrl = action.url.startsWith('/')
-                    ? `${window.location.origin}${action.url}`
-                    : action.url;
+        console.log(`[OfflineSync] Processing ${initialQueue.length} items with concurrency ${concurrencyLimit}...`);
 
-                const res = await fetch(fullUrl, {
-                    method: action.method,
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(action.body)
-                });
+        const processedIds = new Set<string>();
 
-                if (res.ok || res.status === 409) { // 409 conflict might mean already done
-                    console.log(`[OfflineSync] Synced item ${action.id}`);
-                    offlineSyncManager.removeFromQueue(action.id);
-                } else {
-                    console.error(`[OfflineSync] Failed to sync item ${action.id}: ${res.status}`);
-                    // If 4xx (client error), it's likely invalid and retrying won't help, unless it's 429 (Too Many Requests)
-                    if (res.status >= 400 && res.status < 500 && res.status !== 429) {
-                        offlineSyncManager.removeFromQueue(action.id);
+        // Process in batches to limit concurrency while maintaining relative order
+        for (let i = 0; i < initialQueue.length; i += concurrencyLimit) {
+            const batch = initialQueue.slice(i, i + concurrencyLimit);
+
+            await Promise.all(batch.map(async (action) => {
+                try {
+                    const fullUrl = action.url.startsWith('/')
+                        ? `${window.location.origin}${action.url}`
+                        : action.url;
+
+                    const res = await fetch(fullUrl, {
+                        method: action.method,
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(action.body)
+                    });
+
+                    if (res.ok || res.status === 409) {
+                        console.log(`[OfflineSync] Synced item ${action.id}`);
+                        processedIds.add(action.id);
+                    } else {
+                        console.error(`[OfflineSync] Failed to sync item ${action.id}: ${res.status}`);
+                        // If 4xx (client error), it's likely invalid and retrying won't help, unless it's 429
+                        if (res.status >= 400 && res.status < 500 && res.status !== 429) {
+                            processedIds.add(action.id);
+                        }
                     }
+                } catch (error) {
+                    console.error(`[OfflineSync] Network error for item ${action.id}`, error);
+                    // Keep in queue for retry later
                 }
-            } catch (error) {
-                console.error(`[OfflineSync] Network error for item ${action.id}`, error);
-                // Keep in queue for retry later
-            }
+            }));
+
+            // Sync with current localStorage state in case other processes added items
+            const latestQueue = offlineSyncManager.getQueue();
+            const updatedQueue = latestQueue.filter(item => !processedIds.has(item.id));
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedQueue));
         }
     }
 };
