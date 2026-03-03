@@ -37,8 +37,8 @@
   ],
   "exclude": [
     "node_modules",
+      "apps",
     "supabase/functions",
-    "mission-control",
     "orchestration",
     "scripts",
     "mission-control.db",

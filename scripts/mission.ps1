@@ -10,7 +10,7 @@ if (-not $currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Adm
 }
 
 $ProjectRoot = Split-Path -Parent $PSScriptRoot
-$MissionDir = "$ProjectRoot\mission-control"
+$MissionDir = "$ProjectRoot\apps\mission-control-ui"
 
 Write-Host "[MISSION] Iniciando Mission Control Dashboard (Admin)..." -ForegroundColor Cyan
 Set-Location $MissionDir
