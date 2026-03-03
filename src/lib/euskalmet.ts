@@ -30,6 +30,7 @@ export function generateEuskalmetToken() {
 export async function fetchEuskalmetStationData(stationId: string) {
     try {
         const token = generateEuskalmetToken();
+
         const url = `https://api.euskadi.eus/met01/euskalmet/stations/${stationId}/current`;
 
         const controller = new AbortController();
@@ -45,7 +46,7 @@ export async function fetchEuskalmetStationData(stationId: string) {
         });
 
         clearTimeout(timeoutId);
-        if (!res.ok) return null;
+        if (!res.ok) throw new Error('EUSKALMET_PRIVATE_KEY is not defined');
         return res.json();
 
     } catch (e) {
@@ -53,7 +54,7 @@ export async function fetchEuskalmetStationData(stationId: string) {
             return null;
         }
         console.error('Euskalmet Station Fetch Error:', e);
-        return null;
+        throw new Error('EUSKALMET_PRIVATE_KEY is not defined');
     }
 }
 

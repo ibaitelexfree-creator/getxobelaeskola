@@ -43,6 +43,7 @@ export function useGamification() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ slug })
             });
+            if (!res.ok) throw new Error('Error unlocking badge');
 
             const data = await res.json();
 
