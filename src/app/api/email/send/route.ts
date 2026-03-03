@@ -4,21 +4,18 @@ import { createClient } from '@/lib/supabase/server';
 
 /**
  * API interna para envío de correos.
- * Protegida: requiere ser Staff o tener un API_SECRET_KEY (opcional para webhooks externos si se desea)
- */
-/**
- * API interna para envío de correos.
  * Protegida: requiere ser Staff/Admin O tener un X-API-KEY válido.
  */
 export async function POST(request: Request) {
     try {
         const apiKey = request.headers.get('x-api-key');
-        const systemSecret = process.env.INTERNAL_API_SECRET || 'getxo-secret-2024'; // Fallback for dev
+        const systemSecret = process.env.INTERNAL_API_SECRET;
 
         let authorized = false;
 
         // 1. Check if it's a server-to-server call with valid API Key
-        if (apiKey === systemSecret) {
+        // Must have a valid systemSecret set in environment
+        if (systemSecret && apiKey === systemSecret) {
             authorized = true;
         }
 
