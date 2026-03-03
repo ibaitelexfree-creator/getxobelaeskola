@@ -68,4 +68,48 @@ describe('useUnitProgress hook', () => {
         expect(result.current.seccionesVistas).toContain('section2');
         expect(result.current.puedeCompletar).toBe(true);
     });
+
+    it('should handle server error response gracefully', async () => {
+        const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+        (global.fetch as any).mockResolvedValue({
+            ok: true,
+            json: async () => ({ success: false })
+        });
+
+        const { result } = renderHook(() => useUnitProgress({
+            unidadId: 'u1',
+            isCompletado: false,
+            erroresComunes: undefined
+        }));
+
+        await act(async () => {
+            await result.current.registrarLectura('section1');
+        });
+
+        // Optimistic update should still be there
+        expect(result.current.seccionesVistas).toContain('section1');
+        expect(warnSpy).toHaveBeenCalledWith('Failed to register section read');
+        warnSpy.mockRestore();
+    });
+
+    it('should handle network error gracefully', async () => {
+        const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+        const networkError = new Error('Network failure');
+        (global.fetch as any).mockRejectedValue(networkError);
+
+        const { result } = renderHook(() => useUnitProgress({
+            unidadId: 'u1',
+            isCompletado: false,
+            erroresComunes: undefined
+        }));
+
+        await act(async () => {
+            await result.current.registrarLectura('section1');
+        });
+
+        // Optimistic update should still be there
+        expect(result.current.seccionesVistas).toContain('section1');
+        expect(errorSpy).toHaveBeenCalledWith('Error registering read:', networkError);
+        errorSpy.mockRestore();
+    });
 });
