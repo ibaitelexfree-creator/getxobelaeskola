@@ -1,10 +1,10 @@
 import jwt from 'jsonwebtoken';
 
-const PRIVATE_KEY = process.env.EUSKALMET_PRIVATE_KEY?.replace(/\\n/g, '\n');
-const EMAIL = process.env.EUSKALMET_EMAIL || 'info@getxobelaeskola.com';
-
 export function generateEuskalmetToken() {
-    if (!PRIVATE_KEY) {
+    const privateKey = process.env.EUSKALMET_PRIVATE_KEY?.replace(/\\n/g, '\n');
+    const email = process.env.EUSKALMET_EMAIL || 'info@getxobelaeskola.com';
+
+    if (!privateKey) {
         throw new Error('EUSKALMET_PRIVATE_KEY is not defined');
     }
 
@@ -13,18 +13,17 @@ export function generateEuskalmetToken() {
         aud: 'met01.apikey',
         iss: 'GetxoBelaEskola',
         version: '1.0.0',
-        email: EMAIL,
+        email: email,
         iat: now,
         exp: now + 3600 // 1 hour
     };
 
-    return jwt.sign(payload, PRIVATE_KEY, { algorithm: 'RS256' });
+    return jwt.sign(payload, privateKey, { algorithm: 'RS256' });
 }
 
 export async function fetchEuskalmetStationData(stationId: string) {
     try {
         const token = generateEuskalmetToken();
-        if (!token) return null;
         const url = `https://api.euskadi.eus/met01/euskalmet/stations/${stationId}/current`;
 
         const controller = new AbortController();
@@ -52,7 +51,6 @@ export async function fetchEuskalmetStationData(stationId: string) {
 export async function fetchEuskalmetAlerts() {
     try {
         const token = generateEuskalmetToken();
-        if (!token) return [];
         const now = new Date();
         const yyyy = now.getFullYear();
         const mm = String(now.getMonth() + 1).padStart(2, '0');
