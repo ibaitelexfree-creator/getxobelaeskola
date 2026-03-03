@@ -50,9 +50,6 @@ vi.mock('../shared/LegalConsentModal', () => ({
     }
 }));
 
-// Mock window.location
-const originalLocation = window.location;
-
 describe('BookingSelector', () => {
     const editions = [
         { id: '1', fecha_inicio: '2025-01-01', fecha_fin: '2025-01-10', plazas_totales: 10, plazas_ocupadas: 5 }
@@ -60,21 +57,25 @@ describe('BookingSelector', () => {
 
     beforeEach(() => {
         vi.clearAllMocks();
-        // @ts-ignore
-        delete window.location;
-        window.location = {
-            ...originalLocation,
+
+        // Define location mock as any to bypass strict TS checks for partial Location object
+        const locationMock = {
             href: '',
             pathname: '/es/courses/test-course',
             search: '',
-            origin: 'http://localhost'
-        };
+            origin: 'http://localhost',
+            assign: vi.fn(),
+            replace: vi.fn(),
+        } as any;
+
+        vi.stubGlobal('location', locationMock);
+
         global.fetch = vi.fn();
         mockGetUser.mockResolvedValue({ data: { user: { id: 'user-1', email: 'test@example.com' } }, error: null });
     });
 
     afterEach(() => {
-        window.location = originalLocation;
+        vi.unstubAllGlobals();
     });
 
     it('should handle successful booking flow', async () => {
