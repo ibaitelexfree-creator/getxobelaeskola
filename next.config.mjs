@@ -21,7 +21,7 @@ const nextConfig = {
     typescript: { ignoreBuildErrors: true },
     compress: true,
     poweredByHeader: false,
-    output: isCapacitor ? 'export' : 'standalone',
+    output: 'standalone',
     staticPageGenerationTimeout: 600,
     transpilePackages: isCapacitor ? [
         '@capacitor/core',

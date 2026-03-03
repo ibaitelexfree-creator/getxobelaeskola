@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 import { createClient } from '@supabase/supabase-js'; // Cliente directo para Service Role
 import { NextRequest, NextResponse } from 'next/server';
 

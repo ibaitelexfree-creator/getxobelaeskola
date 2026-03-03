@@ -1,3 +1,9 @@
+export function generateStaticParams() {
+    return [{ certificate_number: 'dummy' }];
+}
+
+export const dynamicParams = true;
+
 import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
 

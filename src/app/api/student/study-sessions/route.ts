@@ -2,7 +2,6 @@ import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
 import { calculateDailySessions, SessionEvent } from '@/lib/student/session-calculator';
 
-export const dynamic = 'force-dynamic';
 
 export async function GET() {
     try {
