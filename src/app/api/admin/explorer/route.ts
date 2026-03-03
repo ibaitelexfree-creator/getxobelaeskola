@@ -76,7 +76,7 @@ export async function GET(req: Request) {
         // Start performance timer
         const start = performance.now();
 
-        // 2. Process each relation independently (Batching Option B)
+        // 2. Process all relations in parallel (Optimization: Promise.all)
         await Promise.all(rels.map(async (rel) => {
             try {
                 // Determine the key on the main row based on convention
@@ -112,7 +112,7 @@ export async function GET(req: Request) {
                     }
                 });
 
-                // Attach counts to rows
+                // Attach counts to rows (Synchronous block is safe for Map updates)
                 rows.forEach(row => {
                     const rowVal = row[mainKey];
                     if (rowVal) {
@@ -127,7 +127,6 @@ export async function GET(req: Request) {
 
             } catch (err) {
                 console.error(`Exception processing relation ${rel.table}:`, err);
-                // Maintain behavior: skip if relation fails
             }
         }));
 
