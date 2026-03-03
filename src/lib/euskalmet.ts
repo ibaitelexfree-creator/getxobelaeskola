@@ -42,7 +42,7 @@ export async function fetchEuskalmetStationData(stationId: string) {
         });
 
         clearTimeout(timeoutId);
-        if (!res.ok) throw new Error('EUSKALMET_PRIVATE_KEY is not defined');
+        if (!res.ok) throw new Error('Euskalmet API responded with error');
         return res.json();
 
     } catch (e) {
@@ -50,7 +50,7 @@ export async function fetchEuskalmetStationData(stationId: string) {
             return null;
         }
         console.error('Euskalmet Station Fetch Error:', e);
-        throw new Error('EUSKALMET_PRIVATE_KEY is not defined');
+        return null;
     }
 }
 

@@ -10,7 +10,7 @@ export interface QueuedAction {
 }
 
 const STORAGE_KEY = 'offline_sync_queue';
-const CONCURRENCY_LIMIT = 4;
+let isProcessing = false;
 
 export const offlineSyncManager = {
     getQueue: (): QueuedAction[] => {
@@ -55,68 +55,86 @@ export const offlineSyncManager = {
     },
 
     processQueue: async () => {
-        if (typeof navigator === 'undefined' || !navigator.onLine) return;
+        if (typeof navigator === 'undefined' || !navigator.onLine || isProcessing) return;
+
         const queue = offlineSyncManager.getQueue();
         if (queue.length === 0) return;
 
-        console.log(`[OfflineSync] Processing ${queue.length} items with concurrency limit ${CONCURRENCY_LIMIT}...`);
+        isProcessing = true;
+        console.log(`[OfflineSync] Processing ${queue.length} items...`);
 
-        const processedIds = new Set<string>();
-        const activePromises = new Set<Promise<void>>();
-        let networkErrorOccurred = false;
+        // Group actions by their resource path to ensure sequential processing for related items.
+        const getResourceGroup = (url: string) => {
+            const path = url.split('?')[0];
+            const segments = path.startsWith('/')
+                ? path.split('/').filter(Boolean)
+                : path.split('//').pop()?.split('/').filter(Boolean) || [];
 
-        for (const action of queue) {
-            if (networkErrorOccurred) break;
-
-            // Limit concurrency
-            if (activePromises.size >= CONCURRENCY_LIMIT) {
-                await Promise.race(activePromises);
+            if (segments.length >= 2) {
+                return `/${segments[0]}/${segments[1]}`;
             }
+            return path;
+        };
 
-            // Capture the current value of networkErrorOccurred in the closure
-            const processItem = async (item: QueuedAction) => {
-                if (networkErrorOccurred) return;
+        const groups: Record<string, QueuedAction[]> = {};
+        for (const action of queue) {
+            const groupKey = getResourceGroup(action.url);
+            if (!groups[groupKey]) {
+                groups[groupKey] = [];
+            }
+            groups[groupKey].push(action);
+        }
 
+        const successfulIds = new Set<string>();
+        const failedIds = new Set<string>();
+
+        // Process each group in parallel
+        const groupPromises = Object.values(groups).map(async (group) => {
+            // Process items within a group sequentially to maintain dependency order
+            for (const action of group) {
                 try {
-                    const fullUrl = item.url.startsWith('/')
-                        ? `${window.location.origin}${item.url}`
-                        : item.url;
+                    const fullUrl = action.url.startsWith('/')
+                        ? `${window.location.origin}${action.url}`
+                        : action.url;
 
                     const res = await fetch(fullUrl, {
-                        method: item.method,
+                        method: action.method,
                         headers: {
                             'Content-Type': 'application/json'
                         },
-                        body: JSON.stringify(item.body)
+                        body: JSON.stringify(action.body)
                     });
 
                     if (res.ok || res.status === 409) {
-                        console.log(`[OfflineSync] Synced item ${item.id}`);
-                        processedIds.add(item.id);
+                        console.log(`[OfflineSync] Synced item ${action.id}`);
+                        successfulIds.add(action.id);
                     } else {
-                        console.error(`[OfflineSync] Failed to sync item ${item.id}: ${res.status}`);
+                        console.error(`[OfflineSync] Failed to sync item ${action.id}: ${res.status}`);
+                        // If 4xx (client error), it's likely invalid and retrying won't help
                         if (res.status >= 400 && res.status < 500 && res.status !== 429) {
-                            processedIds.add(item.id);
+                            failedIds.add(action.id);
+                        } else {
+                            // Stop processing this group if it's a server error or rate limit
+                            break;
                         }
                     }
                 } catch (error) {
-                    console.error(`[OfflineSync] Network error for item ${item.id}`, error);
-                    networkErrorOccurred = true;
+                    console.error(`[OfflineSync] Network error for item ${action.id}`, error);
+                    // Stop processing this group on network error
+                    break;
                 }
-            };
+            }
+        });
 
-            const p = processItem(action).finally(() => activePromises.delete(p));
-            activePromises.add(p);
-        }
+        await Promise.all(groupPromises);
 
-        // Wait for remaining items
-        await Promise.all(activePromises);
+        // Update the queue in one go to avoid O(N^2) overhead
+        const currentQueue = offlineSyncManager.getQueue();
+        const finalQueue = currentQueue.filter(
+            item => !successfulIds.has(item.id) && !failedIds.has(item.id)
+        );
+        offlineSyncManager.saveQueue(finalQueue);
 
-        // Final update to localStorage
-        if (processedIds.size > 0) {
-            const currentQueue = offlineSyncManager.getQueue();
-            const newQueue = currentQueue.filter(item => !processedIds.has(item.id));
-            offlineSyncManager.saveQueue(newQueue);
-        }
+        isProcessing = false;
     }
 };
