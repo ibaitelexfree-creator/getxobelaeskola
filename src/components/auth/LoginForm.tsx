@@ -95,7 +95,8 @@ export default function LoginForm({ locale = 'es' }: { locale?: string }) {
             const searchParams = new URLSearchParams(window.location.search);
             const returnTo = searchParams.get('returnTo');
 
-            if (returnTo) {
+            // Ensure returnTo is a relative path to prevent Open Redirect
+            if (returnTo && returnTo.startsWith('/') && !returnTo.startsWith('//')) {
                 router.push(returnTo);
                 router.refresh();
             } else {
