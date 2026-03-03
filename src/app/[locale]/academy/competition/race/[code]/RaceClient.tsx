@@ -21,15 +21,14 @@ const SailingSimulator = dynamic(
 export default function RaceClient() {
 	const { code } = useParams();
 	const router = useRouter();
-	const [playerName, setPlayerName] = useState("");
 	const [userId, setUserId] = useState<string | null>(null);
 	const [matchStarted, setMatchStarted] = useState(false);
 
-	const syncState = useMultiplayerStore((state) => state.syncState);
-	const updateScore = useMultiplayerStore((state) => state.updateScore);
-	const finishMatch = useMultiplayerStore((state) => state.finishMatch);
-	const currentMatch = useMultiplayerStore((state) => state.currentMatch);
+	const lobby = useMultiplayerStore((state) => state.lobby);
+	const participants = useMultiplayerStore((state) => state.participants);
 	const joinLobby = useMultiplayerStore((state) => state.joinLobby);
+	const broadcastPosition = useMultiplayerStore((state) => state.broadcastPosition);
+	const finishRace = useMultiplayerStore((state) => state.finishRace);
 
 	useEffect(() => {
 		const init = async () => {
@@ -44,7 +43,7 @@ export default function RaceClient() {
 			setUserId(user.id);
 
 			// Re-join logic if not in lobby/match (e.g. refresh)
-			if (!currentMatch || currentMatch.code !== code) {
+			if (!lobby || lobby.code !== code) {
 				const name = user.email?.split("@")[0] || "Skipper";
 				const success = await joinLobby(code as string, user.id, name);
 				if (!success) {
@@ -53,17 +52,11 @@ export default function RaceClient() {
 				}
 			}
 
-			// Find our username from match participants
-			const me = currentMatch?.participants.find((p) => p.user_id === user.id);
-			if (me) {
-				setPlayerName(me.username);
-			}
-
 			setMatchStarted(true);
 		};
 
 		init();
-	}, [router, currentMatch, code, joinLobby]);
+	}, [router, lobby, code, joinLobby]);
 
 	if (!matchStarted || !userId || !code) {
 		return <SimulatorSkeleton />;
@@ -72,11 +65,19 @@ export default function RaceClient() {
 	return (
 		<div className="h-screen w-screen overflow-hidden bg-black relative">
 			<SailingSimulator
-				playerName={playerName}
-				onScoreUpdate={(score) => updateScore(userId, score)}
-				onFinish={() => finishMatch(userId)}
-				multiplayerMode={true}
-				matchCode={code as string}
+				mode="multiplayer"
+				lobbyCode={code as string}
+				onStateUpdate={(state) => {
+					// This state comes from the simulator worker
+					if (state.boatState) {
+						broadcastPosition({
+							position: state.boatState.position,
+							rotation: state.boatState.rotation,
+							speed: state.boatState.speed,
+							efficiency: state.boatState.efficiency
+						});
+					}
+				}}
 			/>
 
 			{/* HUD minimal para competición */}
@@ -86,7 +87,7 @@ export default function RaceClient() {
 						Líderes
 					</h3>
 					<div className="space-y-1">
-						{currentMatch?.participants
+						{participants
 							.sort((a, b) => b.score - a.score)
 							.slice(0, 3)
 							.map((p, i) => (

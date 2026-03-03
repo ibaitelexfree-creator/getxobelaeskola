@@ -31,16 +31,14 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     };
 }
 
+import { formatPrice } from '@/lib/utils';
+
 export default async function PropertyDetailPage({ params }: PageProps) {
     const { slug } = await params;
     const property = getPropertyBySlug(slug);
     if (!property) return notFound();
 
-    const formattedPrice = new Intl.NumberFormat('en-AE', {
-        style: 'currency',
-        currency: 'AED',
-        maximumFractionDigits: 0
-    }).format(property.price);
+    const formattedPrice = formatPrice(property.price);
 
     const similarProperties = PROPERTIES
         .filter(p => p.neighborhood === property.neighborhood && p.id !== property.id)

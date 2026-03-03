@@ -16,20 +16,20 @@ export async function POST(req: Request) {
         const { message } = await req.json();
 
         if (!apiKey || !genAI) {
-            // Fallback for demo purposes if no API key is provided
             console.warn("GOOGLE_GENAI_API_KEY is not set. Falling back to demo mode.");
             return NextResponse.json({
                 response: "I'm currently in 'Demo Mode' because my live connection isn't active yet. I can tell you that Dubai's luxury market is thriving! To unlock my full AI capabilities, please ensure the GOOGLE_GENAI_API_KEY is configured."
             });
         }
 
+        // Use a model from the available list
         const model = genAI.getGenerativeModel({
-            model: "gemini-1.5-flash",
+            model: "gemini-2.0-flash",
             systemInstruction: SYSTEM_PROMPT
         });
 
         const chat = model.startChat({
-            history: [], // For now we keep it simple, could be expanded to include history
+            history: [],
         });
 
         const result = await chat.sendMessage(message);
@@ -37,8 +37,19 @@ export async function POST(req: Request) {
         const text = response.text();
 
         return NextResponse.json({ response: text });
-    } catch (error) {
+    } catch (error: any) {
         console.error("Chat API error:", error);
-        return NextResponse.json({ error: "Failed to get response from Aisha" }, { status: 500 });
+
+        // If quota or service is unavailable, respond with 503 to trigger the smart frontend fallback
+        if (error.status === 429 || error.message?.includes("429") || error.status === 503 || error.message?.includes("503")) {
+            return NextResponse.json({
+                error: "Aisha is currently holding a high volume of consultations (Quota reached)",
+            }, { status: 503 });
+        }
+
+        return NextResponse.json({
+            error: "Failed to get response from Aisha",
+            details: error.message || "Unknown error"
+        }, { status: 500 });
     }
 }

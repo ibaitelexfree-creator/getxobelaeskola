@@ -12,7 +12,17 @@ export interface ChatMessage {
  */
 export async function getAishaResponse(message: string): Promise<string> {
     try {
-        const response = await fetch('/api/chat', {
+        // Handle potential subpath deployment
+        const currentPath = typeof window !== 'undefined' ? window.location.pathname : '';
+        let apiPath = '/api/chat';
+
+        // Check if we are in the controlmanager subpath but NOT already having the full prefix
+        // Next.js with basePath often expects the full path for fetch if it's absolute from root
+        if (currentPath.includes('/controlmanager/realstate')) {
+            apiPath = '/controlmanager/realstate/api/chat';
+        }
+
+        const response = await fetch(apiPath, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -21,6 +31,8 @@ export async function getAishaResponse(message: string): Promise<string> {
         });
 
         if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            console.warn("Aisha API not available, using smart fallback. Status:", response.status);
             throw new Error('Aisha API request failed');
         }
 
@@ -33,18 +45,24 @@ export async function getAishaResponse(message: string): Promise<string> {
         const msg = message.toLowerCase();
 
         if (msg.includes('budget') || msg.includes('price') || msg.includes('afford') || msg.includes('cost')) {
-            return "We have properties ranging from AED 1.2M studios to AED 120M island villas. What's your approximate budget? I can immediately shortlist the best options for you.";
+            return "Luxe Dubai Estates offers an exclusive portfolio ranging from AED 1.2M executive studios to AED 120M private island mansions. May I ask what investment range you are considering today?";
         }
         if (msg.includes('villa') || msg.includes('house')) {
-            return "Our villa collection spans Emirates Hills, Arabian Ranches, Al Barari, and Palm Jumeirah. Which community interests you most?";
+            return "Our villa collection in Emirates Hills and Palm Jumeirah represents the pinnacle of Dubai living. Are you looking for a contemporary beachfront residence or a more traditional palatial estate?";
+        }
+        if (msg.includes('penthouse')) {
+            return "Our collection includes some of the world's most sought-after penthouses, featuring private pools and 360-degree skyline views. Shall I shortlist our current off-market opportunities for you?";
         }
         if (msg.includes('visit') || msg.includes('viewing') || msg.includes('see') || msg.includes('schedule')) {
-            return "I'd love to arrange a private viewing for you! Please share your email and preferred date, and your dedicated advisor will confirm within the hour.";
+            return "I would be delighted to arrange a private viewing for you. We offer personalized tours via chauffeured transport or private helicopter for our elite properties. Please share your contact details or email, and an advisor will coordinate with you.";
         }
         if (msg.includes('palm')) {
-            return "Palm Jumeirah is Dubai's most iconic address. We have several exceptional properties there — from beachfront townhouses to crown jewel penthouses.";
+            return "Palm Jumeirah remains our most highly requested location. We currently have several distinguished 'Garden Homes' and signature villas ready for immediate acquisition.";
+        }
+        if (msg.includes('invest') || msg.includes('rental') || msg.includes('yield') || msg.includes('roi')) {
+            return "Dubai's real estate market continues to outperform global benchmarks, offering yields up to 8% tax-free. I can provide a detailed ROI analysis for our top-performing assets if you'd like.";
         }
 
-        return "Thank you for your message! I'm currently having a small connection issue, but I'm Aisha, your AI property advisor. How can I help you find your dream home in Dubai?";
+        return "I'm currently attending to several high-profile consultations, but I'm here to assist! I'm Aisha, your AI luxury property advisor. Are you interested in exploring our villas, penthouses, or perhaps a signature residence on the Palm?";
     }
 }

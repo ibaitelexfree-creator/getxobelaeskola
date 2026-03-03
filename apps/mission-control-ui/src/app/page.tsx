@@ -8,6 +8,7 @@ import TaskLauncher from '@/components/TaskLauncher';
 import QueueHistory from '@/components/QueueHistory';
 import ControlPanel from '@/components/ControlPanel';
 import VisualRelay from '@/components/VisualRelay';
+import RealEstateView from '@/components/RealEstateView';
 import Settings from '@/components/Settings';
 import BottomNav from '@/components/BottomNav';
 
@@ -15,6 +16,7 @@ const views = {
     dashboard: Dashboard,
     tasks: TaskLauncher,
     queue: QueueHistory,
+    realstate: RealEstateView,
     control: ControlPanel,
     visual: VisualRelay,
     settings: Settings,

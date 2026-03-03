@@ -3,6 +3,7 @@ import { HeroSection } from '@/components/home/HeroSection';
 import { StatsBar } from '@/components/home/StatsBar';
 import { FeaturedProperties } from '@/components/home/FeaturedProperties';
 import { NeighborhoodGrid } from '@/components/home/NeighborhoodGrid';
+import { TestimonialsSection } from '@/components/home/TestimonialsSection';
 import { DubaiInteractiveMap } from '@/components/home/DubaiInteractiveMap';
 import { CTASection } from '@/components/home/CTASection';
 import Header from '@/components/layout/Header';
@@ -28,6 +29,7 @@ export default function Home() {
         <FeaturedProperties />
         <DubaiInteractiveMap />
         <NeighborhoodGrid />
+        <TestimonialsSection />
         <CTASection />
       </main>
       <Footer locale="en" />

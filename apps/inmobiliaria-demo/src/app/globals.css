@@ -526,7 +526,7 @@ body {
   }
 
   100% {
-    clip-path: inset(0 0 0 0);
+    clip-path: inset(-100px -100px -100px -100px);
   }
 }
 
@@ -629,6 +629,7 @@ body {
   background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
   background-size: 200% 100%;
   animation: shimmerGold 3s infinite;
+  pointer-events: none;
 }
 
 .reveal-mask {

@@ -430,8 +430,8 @@ export default function UnitReaderMain({
                                 {activeTab === 'teoria' && (
                                     <div className="space-y-8">
                                         <div className="bg-white/5 border border-white/10 rounded-sm p-8">
-                                            <div className="text-white/90 leading-relaxed whitespace-pre-wrap"
-<<<<<<< HEAD
+                                            <div
+                                                className="text-white/90 leading-relaxed whitespace-pre-wrap"
                                                 dangerouslySetInnerHTML={{ __html: sanitizeHtml(params.locale === 'eu' ? unidad.contenido_teorico_eu || '' : unidad.contenido_teorico_es || '') }}
                                             />
                                         </div>

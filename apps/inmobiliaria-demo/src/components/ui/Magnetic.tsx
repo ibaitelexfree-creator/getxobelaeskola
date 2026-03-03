@@ -5,9 +5,10 @@ import React, { useRef, useState, useEffect } from 'react';
 interface MagneticProps {
     children: React.ReactElement<any>;
     strength?: number;
+    distance?: number;
 }
 
-export const Magnetic = ({ children, strength = 0.5 }: MagneticProps) => {
+export const Magnetic = ({ children, strength = 0.5, distance = 100 }: MagneticProps) => {
     const ref = useRef<HTMLDivElement>(null);
     const [position, setPosition] = useState({ x: 0, y: 0 });
 
@@ -22,8 +23,8 @@ export const Magnetic = ({ children, strength = 0.5 }: MagneticProps) => {
         const distanceX = clientX - centerX;
         const distanceY = clientY - centerY;
 
-        // If cursor is within range (e.g., 100px)
-        const range = 100;
+        // If cursor is within range
+        const range = distance;
         if (Math.abs(distanceX) < range && Math.abs(distanceY) < range) {
             setPosition({ x: distanceX * strength, y: distanceY * strength });
         } else {

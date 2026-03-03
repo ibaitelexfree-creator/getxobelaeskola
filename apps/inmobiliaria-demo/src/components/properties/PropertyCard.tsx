@@ -7,11 +7,13 @@ import { Badge } from '@/components/ui/Badge';
 interface PropertyCardProps {
     property: Property;
     showBadge?: boolean;
+    index?: number;
 }
 
 export const PropertyCard: React.FC<PropertyCardProps> = ({
     property,
-    showBadge = true
+    showBadge = true,
+    index = 0
 }) => {
     const formattedPrice = new Intl.NumberFormat('en-AE', {
         style: 'currency',
@@ -24,7 +26,7 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
             <div className="property-card luxury-glow">
                 <div className="card-image">
                     <img
-                        src={property.mainImage}
+                        src={`/controlmanager/realstate${property.mainImage}`}
                         alt={property.name}
                         style={{
                             width: '100%',

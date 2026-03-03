@@ -67,6 +67,7 @@ export const AishaChatWidget: React.FC = () => {
             {/* Floating Button */}
             <button
                 onClick={handleOpen}
+                className="chat-toggle"
                 style={{
                     width: '64px',
                     height: '64px',

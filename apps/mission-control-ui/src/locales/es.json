@@ -25,6 +25,7 @@
         "dashboard": "Panel",
         "tasks": "Tareas",
         "queue": "Cola",
+        "realstate": "Inmuebles",
         "live": "Live",
         "control": "Control",
         "settings": "Ajustes"
