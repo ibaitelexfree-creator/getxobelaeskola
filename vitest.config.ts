@@ -19,6 +19,7 @@ export default defineConfig({
             '**/.Jules/**',
             '**/.openclaw/**',
             '**/scripts/**',
+            'apps/**',
             '**/apps/**'
         ],
         globals: true,

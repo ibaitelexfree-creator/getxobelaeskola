@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import jwt from 'jsonwebtoken';
 
 vi.mock('jsonwebtoken', () => ({
+    sign: vi.fn(() => 'mock-token'),
     default: {
         sign: vi.fn(() => 'mock-token')
     }
