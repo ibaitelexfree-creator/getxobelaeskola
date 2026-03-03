@@ -5,22 +5,14 @@ on:
     branches: [main, master, "feature/**", "fix/**"]
     paths:
       - "src/**"
-<<<<<<< HEAD
       - "apps/**"
-=======
-      - "apps/mission-control-ui/**"
->>>>>>> origin/jules/fix-push-notification-test-coverage-13023310960930150086
       - "orchestration/**"
       - ".github/workflows/fast-lane.yml"
   pull_request:
     branches: [main, master]
     paths:
       - "src/**"
-<<<<<<< HEAD
       - "apps/**"
-=======
-      - "apps/mission-control-ui/**"
->>>>>>> origin/jules/fix-push-notification-test-coverage-13023310960930150086
       - "orchestration/**"
       - ".github/workflows/fast-lane.yml"
 
@@ -59,11 +51,7 @@ jobs:
       - name: "🧪 Type Check (Mission Control)"
         run: |
           cd apps/mission-control-ui
-<<<<<<< HEAD
           npm install --legacy-peer-deps --prefer-offline --no-audit --no-fund --loglevel=error
-=======
-          npm ci --legacy-peer-deps --prefer-offline --no-audit --no-fund --loglevel=error
->>>>>>> origin/jules/fix-push-notification-test-coverage-13023310960930150086
           npx tsc --noEmit && echo "✅ Mission Control TypeScript Passed"
 
       - name: "🧪 Type Check (Inmobiliaria Demo)"
