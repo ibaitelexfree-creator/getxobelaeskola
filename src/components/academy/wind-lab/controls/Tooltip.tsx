@@ -48,7 +48,7 @@ export const Tooltip = ({
                     absolute w-2 h-2 bg-slate-900 border-r border-b border-slate-700 transform rotate-45
                     ${position === 'top' ? 'bottom-[-5px] left-1/2 -translate-x-1/2' : ''}
                     ${position === 'bottom' ? 'top-[-5px] left-1/2 -translate-x-1/2 border-t border-l border-b-0 border-r-0' : ''}
-                    ${position === 'left' ? 'right-[-5px] top-1/2 -translate-y-1/2 border-t border-l border-b-0 border-r-0' : ''} 
+                    ${position === 'left' ? 'right-[-5px] top-1/2 -translate-y-1/2 border-t border-l border-b-0 border-r-0' : ''}
                     ${position === 'right' ? 'left-[-5px] top-1/2 -translate-y-1/2' : ''}
                 `} />
             </div>

@@ -59,6 +59,12 @@ export default function QuizView({
 
     const [showConfirm, setShowConfirm] = useState(false);
     const progress = ((currentQuestionIndex + 1) / totalQuestions) * 100;
+    const isLastQuestion = currentQuestionIndex === totalQuestions - 1;
+
+    const handleFinalSubmit = React.useCallback(() => {
+        setShowConfirm(false);
+        onSubmit();
+    }, [onSubmit]);
 
     // Keyboard Shortcuts
     React.useEffect(() => {
@@ -97,15 +103,13 @@ export default function QuizView({
 
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [question, currentQuestionIndex, answers, isSubmitting, showConfirm, onAnswer, onNavigate]);
+    }, [question, currentQuestionIndex, answers, isSubmitting, showConfirm, onAnswer, onNavigate, handleFinalSubmit, isLastQuestion, totalQuestions]);
 
     const formatTime = (seconds: number) => {
         const mins = Math.floor(seconds / 60);
         const secs = seconds % 60;
         return `${mins}:${secs.toString().padStart(2, '0')}`;
     };
-
-    const isLastQuestion = currentQuestionIndex === totalQuestions - 1;
     const isUrgent = timeLeft !== undefined && timeLeft < 60;
     const isCritical = timeLeft !== undefined && timeLeft < 10;
 
@@ -122,6 +126,7 @@ export default function QuizView({
                         return (
                             <button
                                 key={opt.id}
+                                type="button"
                                 onClick={() => onAnswer(opt.id)}
                                 disabled={isSubmitting}
                                 className={`group relative flex flex-col items-center justify-center p-8 ${theme.optionBase} ${isSelected ? theme.optionSelected : theme.optionIdle}`}
@@ -145,6 +150,7 @@ export default function QuizView({
                     return (
                         <button
                             key={option.id || idx}
+                            type="button"
                             onClick={() => onAnswer(option.id)}
                             disabled={isSubmitting}
                             className={`group relative flex items-center w-full p-5 text-left ${theme.optionBase} ${isSelected ? theme.optionSelected : theme.optionIdle}`}
@@ -164,10 +170,6 @@ export default function QuizView({
         );
     };
 
-    const handleFinalSubmit = () => {
-        setShowConfirm(false);
-        onSubmit();
-    };
 
     if (showConfirm) {
         return (
@@ -181,12 +183,14 @@ export default function QuizView({
                 </div>
                 <div className="flex flex-col sm:flex-row gap-4 pt-4">
                     <button
+                        type="button"
                         onClick={() => setShowConfirm(false)}
                         className="flex-1 py-4 px-6 rounded-xl font-bold text-2xs uppercase tracking-widest bg-white/5 text-slate-400 hover:text-white border border-white/10 transition-all"
                     >
                         Revisar Respuestas
                     </button>
                     <button
+                        type="button"
                         onClick={handleFinalSubmit}
                         className="flex-1 py-4 px-6 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold text-2xs uppercase tracking-widest shadow-lg shadow-blue-500/20 transition-all active:scale-95"
                     >
@@ -265,6 +269,7 @@ export default function QuizView({
                                 return (
                                     <button
                                         key={qId}
+                                        type="button"
                                         onClick={() => onNavigate(idx)}
                                         aria-label={`Pregunta ${idx + 1}: ${isCurrent ? 'Actual' : hasAnswer ? 'Respondida' : 'Pendiente'}`}
                                         aria-current={isCurrent ? 'step' : undefined}
@@ -294,6 +299,7 @@ export default function QuizView({
                     </div>
 
                     <button
+                        type="button"
                         onClick={() => setShowConfirm(true)}
                         className="w-full py-4 px-6 bg-white text-black rounded-2xl font-black text-2xs uppercase tracking-widest hover:bg-slate-200 transition-all shadow-xl active:scale-95 flex items-center justify-center gap-2"
                     >
@@ -333,6 +339,7 @@ export default function QuizView({
                         {/* Navigation Buttons (Mobile/Contextual) */}
                         <div className="flex items-center justify-between pt-8 mt-8 border-t border-white/5">
                             <button
+                                type="button"
                                 onClick={() => onNavigate(currentQuestionIndex - 1)}
                                 disabled={currentQuestionIndex === 0}
                                 className={`px-6 py-3 rounded-xl border border-white/10 text-sm font-bold transition-all disabled:opacity-20 disabled:cursor-not-allowed ${theme.subText} hover:bg-white/5 hover:text-white`}
@@ -342,6 +349,7 @@ export default function QuizView({
 
                             {isLastQuestion ? (
                                 <button
+                                    type="button"
                                     onClick={() => setShowConfirm(true)}
                                     className="px-8 py-3 bg-blue-600 text-white rounded-xl text-sm font-bold shadow-lg shadow-blue-500/20 hover:bg-blue-500 transition-all active:scale-95"
                                 >
@@ -349,6 +357,7 @@ export default function QuizView({
                                 </button>
                             ) : (
                                 <button
+                                    type="button"
                                     onClick={() => onNavigate(currentQuestionIndex + 1)}
                                     className="px-8 py-3 bg-white/10 hover:bg-white/20 text-white rounded-xl text-sm font-bold transition-all"
                                 >

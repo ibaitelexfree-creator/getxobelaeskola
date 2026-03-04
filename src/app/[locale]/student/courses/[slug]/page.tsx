@@ -34,7 +34,7 @@ export default async function MobileCourseDetailPage({
 
     if (!course) {
         // Fallback for missing DB entries if needed, similar to main page, or 404
-        // For simplicity, checking if we have fallback data logic reuse? 
+        // For simplicity, checking if we have fallback data logic reuse?
         // I'll reuse the fallback logic from the main page to ensure consistency
         const fallbacks: Record<string, any> = {
             'iniciacion-j80': {
@@ -105,7 +105,7 @@ export default async function MobileCourseDetailPage({
     return (
         <main className="min-h-screen bg-nautical-black">
             <MobileCourseDetail
-                course={course || { slug, ...({} as any) }} // Pass what we have 
+                course={course || { slug, ...({} as any) }} // Pass what we have
                 editions={allEditions}
                 locale={locale}
             />

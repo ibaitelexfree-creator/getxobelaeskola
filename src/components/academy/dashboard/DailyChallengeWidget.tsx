@@ -17,11 +17,7 @@ export default function DailyChallengeWidget({ locale }: DailyChallengeWidgetPro
     const [submitting, setSubmitting] = useState(false);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        fetchChallenge();
-    }, []);
-
-    const fetchChallenge = async () => {
+    const fetchChallenge = React.useCallback(async () => {
         try {
             const res = await fetch(apiUrl('/api/academy/daily-challenge'));
             const json = await res.json();
@@ -33,7 +29,11 @@ export default function DailyChallengeWidget({ locale }: DailyChallengeWidgetPro
         } finally {
             setLoading(false);
         }
-    };
+    }, []);
+
+    useEffect(() => {
+        fetchChallenge();
+    }, [fetchChallenge]);
 
     const handleSubmit = async () => {
         if (selectedOption === null || submitting) return;
@@ -121,6 +121,7 @@ export default function DailyChallengeWidget({ locale }: DailyChallengeWidgetPro
                                 <button
                                     key={idx}
                                     role="radio"
+                                    type="button"
                                     aria-checked={selectedOption === idx}
                                     onClick={() => setSelectedOption(idx)}
                                     className={`w-full text-left p-4 rounded-xl border transition-all duration-300 flex items-center justify-between group/opt focus-visible:ring-2 focus-visible:ring-accent outline-none ${selectedOption === idx
@@ -135,6 +136,7 @@ export default function DailyChallengeWidget({ locale }: DailyChallengeWidgetPro
                         </div>
 
                         <button
+                            type="button"
                             onClick={handleSubmit}
                             disabled={selectedOption === null || submitting}
                             className={`mt-8 w-full py-4 rounded-xl font-black uppercase tracking-[0.3em] text-xs transition-all flex items-center justify-center gap-3 focus-visible:ring-2 focus-visible:ring-accent outline-none ${selectedOption === null || submitting

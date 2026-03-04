@@ -24,7 +24,7 @@ export async function PATCH(request: Request) {
         });
 
         if (updateError) {
-            // Fallback: If 'preferences' column doesn't exist or is not JSONB, 
+            // Fallback: If 'preferences' column doesn't exist or is not JSONB,
             // we might fail. For now assuming it exists or we just ignore if schema is different.
             // If the column 'preferences' is not in the schema, this will fail.
             // Let's assume there is a column for it or we should add one.

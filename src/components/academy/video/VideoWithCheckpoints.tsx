@@ -43,6 +43,65 @@ export default function VideoWithCheckpoints({
     const intervalRef = useRef<NodeJS.Timeout | null>(null);
     const containerRef = useRef<HTMLDivElement>(null);
 
+    const onPlayerReady = React.useCallback((event: any) => {
+        setIsPlayerReady(true);
+        setDuration(event.target.getDuration());
+    }, []);
+
+    const checkCheckpoints = React.useCallback((time: number) => {
+        // Find a checkpoint that is close to current time (within 1 second) and hasn't been completed
+        const checkpoint = checkpoints.find(cp =>
+            Math.abs(cp.time - time) < 1 &&
+            !completedCheckpoints.includes(cp.time)
+        );
+
+        if (checkpoint) {
+            if (videoType === 'youtube' && playerRef.current?.pauseVideo) {
+                playerRef.current.pauseVideo();
+            } else if (videoType === 'native' && playerRef.current) {
+                playerRef.current.pause();
+            }
+            setIsPlaying(false);
+            if (intervalRef.current) clearInterval(intervalRef.current);
+            setActiveCheckpoint(checkpoint);
+        }
+    }, [checkpoints, completedCheckpoints, videoType]);
+
+    const startTracking = React.useCallback(() => {
+        if (intervalRef.current) clearInterval(intervalRef.current);
+        intervalRef.current = setInterval(() => {
+            if (!playerRef.current) return;
+
+            let time = 0;
+            if (videoType === 'youtube' && playerRef.current.getCurrentTime) {
+                time = playerRef.current.getCurrentTime();
+            } else if (videoType === 'native' && playerRef.current) {
+                time = playerRef.current.currentTime;
+            }
+
+            setCurrentTime(time);
+            checkCheckpoints(time);
+        }, 500); // Check every 500ms
+    }, [videoType, checkCheckpoints]);
+
+    const stopTracking = React.useCallback(() => {
+        if (intervalRef.current) clearInterval(intervalRef.current);
+    }, []);
+
+    const onPlayerStateChange = React.useCallback((event: any) => {
+        if (event.data === window.YT.PlayerState.PLAYING) {
+            setIsPlaying(true);
+            startTracking();
+        } else {
+            setIsPlaying(false);
+            stopTracking();
+        }
+
+        if (event.data === window.YT.PlayerState.ENDED) {
+            if (onComplete) onComplete();
+        }
+    }, [startTracking, stopTracking, onComplete]);
+
     // Initialize YouTube API
     useEffect(() => {
         if (videoType !== 'youtube') return;
@@ -63,9 +122,6 @@ export default function VideoWithCheckpoints({
                     // Fallback if URL parsing fails, assume it's already an ID
                 }
             }
-
-            // If player already exists, maybe destroy it first if ID changed?
-            // For now assuming component unmounts before ID changes or we handle it in cleanup
 
             playerRef.current = new window.YT.Player('youtube-player', {
                 height: '100%',
@@ -106,76 +162,8 @@ export default function VideoWithCheckpoints({
             }
             if (intervalRef.current) clearInterval(intervalRef.current);
         };
-    }, [videoUrl, videoType]);
+    }, [videoUrl, videoType, onPlayerReady, onPlayerStateChange]);
 
-    const onPlayerReady = (event: any) => {
-        setIsPlayerReady(true);
-        setDuration(event.target.getDuration());
-    };
-
-    const onPlayerStateChange = (event: any) => {
-        if (event.data === window.YT.PlayerState.PLAYING) {
-            setIsPlaying(true);
-            startTracking();
-        } else {
-            setIsPlaying(false);
-            stopTracking();
-        }
-
-        if (event.data === window.YT.PlayerState.ENDED) {
-            if (onComplete) onComplete();
-        }
-    };
-
-    const startTracking = () => {
-        if (intervalRef.current) clearInterval(intervalRef.current);
-        intervalRef.current = setInterval(() => {
-            if (!playerRef.current) return;
-
-            let time = 0;
-            if (videoType === 'youtube' && playerRef.current.getCurrentTime) {
-                time = playerRef.current.getCurrentTime();
-            } else if (videoType === 'native' && playerRef.current) {
-                time = playerRef.current.currentTime;
-            }
-
-            setCurrentTime(time);
-            checkCheckpoints(time);
-        }, 500); // Check every 500ms
-    };
-
-    const stopTracking = () => {
-        if (intervalRef.current) clearInterval(intervalRef.current);
-    };
-
-    const checkCheckpoints = (time: number) => {
-        // Find a checkpoint that is close to current time (within 1 second) and hasn't been completed
-        const checkpoint = checkpoints.find(cp =>
-            Math.abs(cp.time - time) < 1 &&
-            !completedCheckpoints.includes(cp.time)
-        );
-
-        if (checkpoint) {
-            pauseVideo();
-            // Seek strictly to checkpoint time to ensure we don't drift past it visually?
-            // Optional, but good for precision.
-            if (videoType === 'youtube' && playerRef.current?.seekTo) {
-               // playerRef.current.seekTo(checkpoint.time, true);
-               // seeking might cause buffering or events loop, let's just pause.
-            }
-            setActiveCheckpoint(checkpoint);
-        }
-    };
-
-    const pauseVideo = () => {
-        if (videoType === 'youtube' && playerRef.current?.pauseVideo) {
-            playerRef.current.pauseVideo();
-        } else if (videoType === 'native' && playerRef.current) {
-            playerRef.current.pause();
-        }
-        setIsPlaying(false);
-        stopTracking();
-    };
 
     const playVideo = () => {
         if (videoType === 'youtube' && playerRef.current?.playVideo) {
@@ -203,9 +191,6 @@ export default function VideoWithCheckpoints({
 
     const handleNativePlay = () => {
         setIsPlaying(true);
-        // startTracking is redundant for native as we use onTimeUpdate,
-        // but can be used for fallback polling if needed.
-        // native onTimeUpdate fires frequently enough.
     };
 
     const handleNativePause = () => setIsPlaying(false);

@@ -75,7 +75,7 @@ export default function ParallelRuler({ x, y, angle, scale, onUpdate, worldToScr
     // Visual dimensions in pixels (unscaled or scaled? Usually tools stay constant size on screen or scale with map?)
     // Real parallel rulers scale with the map if they are physical objects on it.
     // Let's make it fixed screen size for better usability, or scaled world size?
-    // "Manipulative materials" usually implies "real size" relative to the chart. 
+    // "Manipulative materials" usually implies "real size" relative to the chart.
     // Let's assume a standard size in World Units. e.g. 300 units wide.
     const width = 300 * scale;
     const height = 60 * scale;

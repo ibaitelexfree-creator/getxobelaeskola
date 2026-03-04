@@ -31,11 +31,7 @@ export default function LeaderboardPage({ params }: { params: { locale: string }
     const [loading, setLoading] = useState(true);
     const [savingVisibility, setSavingVisibility] = useState(false);
 
-    useEffect(() => {
-        fetchData();
-    }, []);
-
-    const fetchData = async () => {
+    const fetchData = React.useCallback(async () => {
         try {
             const res = await fetch(apiUrl('/api/academy/leaderboard'));
             if (!res.ok) throw new Error('Failed to fetch leaderboard');
@@ -46,7 +42,11 @@ export default function LeaderboardPage({ params }: { params: { locale: string }
         } finally {
             setLoading(false);
         }
-    };
+    }, []);
+
+    useEffect(() => {
+        fetchData();
+    }, [fetchData]);
 
     const handleVisibilityChange = async (newVisibility: string) => {
         setSavingVisibility(true);
@@ -115,6 +115,7 @@ export default function LeaderboardPage({ params }: { params: { locale: string }
                                 ].map((option) => (
                                     <button
                                         key={option.id}
+                                        type="button"
                                         onClick={() => handleVisibilityChange(option.id)}
                                         disabled={savingVisibility}
                                         className={`flex-1 py-2 px-2 rounded text-[10px] uppercase tracking-wider font-bold flex flex-col items-center gap-1 transition-all

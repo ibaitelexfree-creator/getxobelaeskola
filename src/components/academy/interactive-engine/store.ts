@@ -28,8 +28,8 @@ interface MissionState {
 // --- Actions Interface ---
 
 interface MissionActions {
-    /** 
-     * Initialize and start a new mission 
+    /**
+     * Initialize and start a new mission
      * @param totalSteps Number of steps/scenarios in this mission
      * @param initialStepId Optional starting step ID for graph missions
      */

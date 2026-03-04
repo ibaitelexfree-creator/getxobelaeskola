@@ -195,4 +195,3 @@ export default async function ExperiencesPage({ params: { locale } }: { params: 
         </main>
     );
 }
-

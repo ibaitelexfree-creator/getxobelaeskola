@@ -1,6 +1,6 @@
 /**
  * Utility to optimize external image URLs (Unsplash, Pexels)
- * 
+ *
  * @param url The original image URL
  * @param width Optional width (default 1200)
  * @param quality Optional quality (default 80)

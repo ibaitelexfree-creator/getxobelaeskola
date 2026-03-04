@@ -24,6 +24,24 @@ export default function StatusToast() {
         message: ''
     });
 
+    const onShow = React.useCallback((type: 'success' | 'error' | 'info', title: string, message: string) => {
+        setConfig({ show: true, type, title, message });
+
+        // Auto hide after 6 seconds
+        const timer = setTimeout(() => {
+            setConfig(prev => ({ ...prev, show: false }));
+        }, 6000);
+
+        return () => clearTimeout(timer);
+    }, []);
+
+    const removeQueryParam = React.useCallback((param: string) => {
+        const params = new URLSearchParams(searchParams.toString());
+        params.delete(param);
+        const newQuery = params.toString() ? `?${params.toString()}` : '';
+        router.replace(`${pathname}${newQuery}`, { scroll: false });
+    }, [searchParams, router, pathname]);
+
     useEffect(() => {
         const success = searchParams.get('success');
         const canceled = searchParams.get('canceled');
@@ -39,25 +57,7 @@ export default function StatusToast() {
             onShow('error', t('payment_error'), error || t('payment_error_desc'));
             removeQueryParam('error');
         }
-    }, [searchParams]);
-
-    const onShow = (type: 'success' | 'error' | 'info', title: string, message: string) => {
-        setConfig({ show: true, type, title, message });
-
-        // Auto hide after 6 seconds
-        const timer = setTimeout(() => {
-            setConfig(prev => ({ ...prev, show: false }));
-        }, 6000);
-
-        return () => clearTimeout(timer);
-    };
-
-    const removeQueryParam = (param: string) => {
-        const params = new URLSearchParams(searchParams.toString());
-        params.delete(param);
-        const newQuery = params.toString() ? `?${params.toString()}` : '';
-        router.replace(`${pathname}${newQuery}`, { scroll: false });
-    };
+    }, [searchParams, onShow, removeQueryParam, t]);
 
     return (
         <AnimatePresence>
@@ -98,6 +98,7 @@ export default function StatusToast() {
                             </div>
 
                             <button
+                                type="button"
                                 onClick={() => setConfig(prev => ({ ...prev, show: false }))}
                                 className="text-white/20 hover:text-white transition-colors"
                             >
