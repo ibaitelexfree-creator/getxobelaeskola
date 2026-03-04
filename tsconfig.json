@@ -31,18 +31,20 @@
   },
   "include": [
     "next-env.d.ts",
-    "**/*.ts",
-    "**/*.tsx",
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "*.ts",
+    "*.mjs",
     ".next/types/**/*.ts"
   ],
   "exclude": [
     "node_modules",
+    "apps",
     "supabase/functions",
     "mission-control",
     "orchestration",
     "scripts",
     "mission-control.db",
-    "supabase/functions",
     ".jules_bases",
     ".agent",
     ".Jules",
