@@ -1,3 +1,4 @@
+
 import dynamic from 'next/dynamic';
 import React from 'react';
 import { SimulatorSkeleton } from '@/components/academy/sailing-simulator/SimulatorSkeleton';
@@ -5,7 +6,7 @@ import { SimulatorSkeleton } from '@/components/academy/sailing-simulator/Simula
 const SailingSimulator = dynamic(
     () => import('@/components/academy/sailing-simulator').then(mod => mod.SailingSimulator),
     {
-        ssr: false,
+        ssr: true,
         loading: () => <SimulatorSkeleton />
     }
 );

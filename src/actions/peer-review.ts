@@ -1,6 +1,5 @@
 // This file no longer uses 'use server' to allow static export for Capacitor.
 // It now calls an API route instead.
-import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/client';
 
 export async function getPendingReviews(moduleId: string) {
@@ -47,14 +46,6 @@ export async function submitExerciseAttempt(data: {
         return { error: 'No autenticado' };
     }
 
-    // Check if activity exists and accepts submissions
-    // Ideally we also check enrollment/access, but RLS on inserts handles 'auth.uid() = alumno_id'
-
-    // Using upsert or simple insert. Let's assume one attempt per activity for now,
-    // or we allow multiple but filter for the latest.
-    // Given the unique constraint might not be on (alumno_id, actividad_id), let's just insert.
-    // However, if the user already submitted, we might want to prevent another one while pending.
-
     const { data: existing } = await supabase
         .from('intentos_actividad')
         .select('id, estado_revision')
@@ -63,8 +54,6 @@ export async function submitExerciseAttempt(data: {
         .maybeSingle();
 
     if (existing) {
-        // Update existing attempt if it's not approved yet? Or just return error?
-        // Let's allow updating if it's still pending or rejected.
         if (existing.estado_revision === 'aprobado') {
             return { error: 'Este ejercicio ya ha sido aprobado.' };
         }
@@ -98,10 +87,5 @@ export async function submitExerciseAttempt(data: {
         }
     }
 
-    try {
-        revalidatePath(`/academy/unit/${data.unitId}`);
-    } catch (e) {
-        console.log('Revalidation skipped (likely non-server environment)');
-    }
     return { success: true };
 }

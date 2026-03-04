@@ -7,7 +7,7 @@ import JsonLd from '@/components/shared/JsonLd';
 import HeroCarousel from '@/components/home/HeroCarousel';
 import StatsSection from '@/components/home/StatsSection';
 import { createAdminClient } from '@/lib/supabase/admin';
-const NativeAppRedirect = dynamic(() => import('@/components/shared/NativeAppRedirect'), { ssr: false });
+const NativeAppRedirect = dynamic(() => import('@/components/shared/NativeAppRedirect'));
 const ExperienceSection = dynamic(() => import('@/components/home/ExperienceSection'));
 const FeaturesSection = dynamic(() => import('@/components/home/FeaturesSection'));
 const ProgramsSection = dynamic(() => import('@/components/home/ProgramsSection'));

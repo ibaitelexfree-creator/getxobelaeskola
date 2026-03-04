@@ -1,11 +1,12 @@
-
 'use client';
 
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { MousePointer2, Rotate3d, HelpCircle } from 'lucide-react';
-import BoatScene from '../nomenclature/3d/Scene';
+import dynamic from 'next/dynamic';
 import InfoOverlay from '../nomenclature/3d/InfoOverlay';
+
+const BoatScene = dynamic(() => import('../nomenclature/3d/Scene'), { ssr: false });
 
 export default function NomenclatureActivity() {
     const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -32,34 +33,24 @@ export default function NomenclatureActivity() {
                     </div>
                     <div className="flex items-center gap-2 px-4 py-2 bg-white/5 rounded-full border border-white/5 text-xs text-white/60">
                         <HelpCircle className="w-3 h-3" />
-                        <span>Preguntas de repaso</span>
+                        <span>Hover para nombre</span>
                     </div>
                 </div>
             </header>
 
-            {/* Main Interactive Viewer */}
-            <div className="flex-1 relative rounded-3xl overflow-hidden border border-white/10 shadow-2xl bg-gradient-to-b from-sky-300/5 to-blue-900/20 backdrop-blur-sm group">
-
-                {/* The 3D Scene */}
+            {/* Main Interactive Area */}
+            <div className="flex-1 relative rounded-3xl overflow-hidden border border-white/10 shadow-2xl ring-1 ring-white/5">
                 <BoatScene
-                    highlightId={selectedId}
+                    highlightId={selectedId || hoveredId}
                     onPartClick={setSelectedId}
                     onPartHover={setHoveredId}
                 />
 
-                {/* UI Overlay */}
+                {/* Info Overlay Panel */}
                 <InfoOverlay
                     selectedId={selectedId}
-                    hoveredId={hoveredId}
                     onClose={() => setSelectedId(null)}
                 />
-
-                {/* Hint for interaction if idle? Could be added later */}
-            </div>
-
-            {/* Footer / Context */}
-            <div className="mt-4 text-center text-white/20 text-xs font-mono tracking-widest uppercase">
-                Modelo Interactivo • Nomenclatura Náutica
             </div>
         </div>
     );
