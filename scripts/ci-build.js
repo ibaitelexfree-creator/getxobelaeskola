@@ -14,7 +14,7 @@ let createdDummyEnv = false;
 if (!fs.existsSync('.env.local')) {
     console.log('Creating dummy .env.local for build (to satisfy static generation requirements)...');
     try {
-        fs.writeFileSync('.env.local', 'NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:3000\nNEXT_PUBLIC_SUPABASE_ANON_KEY=placeholder\n');
+        fs.writeFileSync('.env.local', 'NEXT_PUBLIC_SUPABASE_URL=https://placeholder.supabase.co\nNEXT_PUBLIC_SUPABASE_ANON_KEY=placeholder\n');
         createdDummyEnv = true;
     } catch (err) {
         console.error('Failed to create dummy .env.local:', err);
