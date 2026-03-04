@@ -1,7 +1,19 @@
-import { describe, it, expect } from 'vitest';
-import { getTidePredictions, getTideLevel, getTideState } from './puertos-del-estado';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { getTidePredictions, getTideLevel, getTideState, fetchSeaState } from './puertos-del-estado';
 
 describe('Puertos del Estado Simulation', () => {
+    beforeEach(() => {
+        vi.restoreAllMocks();
+    });
+
+    it('should fetch sea state data (fallback to simulation in test)', async () => {
+        const data = await fetchSeaState();
+        expect(data).toHaveProperty('waveHeight');
+        expect(data).toHaveProperty('period');
+        expect(data).toHaveProperty('waterTemp');
+        expect(data).toHaveProperty('isSimulated');
+    });
+
     it('should return tide predictions for a given day', () => {
         const date = new Date('2024-01-01T12:00:00Z');
         const predictions = getTidePredictions(date);
