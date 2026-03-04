@@ -5,7 +5,6 @@ import React, { useEffect, useState } from 'react';
 import { useMissionStore } from '../store';
 import { GraphMissionData, MissionOption } from '../types';
 import { AnimatePresence, motion } from 'framer-motion';
-import DOMPurify from 'isomorphic-dompurify';
 
 interface Props {
     data: GraphMissionData;
@@ -114,7 +113,7 @@ export const BranchingScenarioMission: React.FC<Props> = ({ data, onComplete }) 
 
                         <div className="p-6 md:p-8">
                             <h3 className="text-xl md:text-2xl font-display text-white mb-4 leading-relaxed">
-                                <span dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(currentStep.content) }} />
+                                <span dangerouslySetInnerHTML={{ __html: currentStep.content }} />
                             </h3>
                         </div>
                     </div>
