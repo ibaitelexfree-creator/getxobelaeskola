@@ -7,19 +7,26 @@ export function createClient() {
     const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-    if (!url || !key || url.includes('placeholder')) {
-        console.warn('Supabase keys missing or invalid. Using mock client for build.');
-        // Return a mock-ish client that doesn't actually hit the network violently
+    if (!url || !key || url.includes('placeholder') || key.includes('placeholder') || key.length < 20) {
+        const mockedFetch = async () => {
+            return new Response(JSON.stringify({ data: [], error: null }), {
+                status: 200,
+                headers: { 'Content-Type': 'application/json' }
+            });
+        };
+
         return createServerClient<Database>(
             url || 'https://placeholder.supabase.co',
             key || 'placeholder',
             {
+                global: { fetch: mockedFetch as any },
                 cookies: {
                     getAll() { return [] },
                     setAll() { },
                 },
             }
         );
+
     }
 
     let cookieStore;
