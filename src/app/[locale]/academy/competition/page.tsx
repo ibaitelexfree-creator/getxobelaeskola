@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 import { useMultiplayerStore } from '@/lib/store/useMultiplayerStore';
 import { createClient } from '@/lib/supabase/client';
 
@@ -17,10 +17,6 @@ export default function CompetitionPage() {
         const { data: { user } } = await supabase.auth.getUser();
 
         if (!user) {
-            // For MVP, allow anonymous if auth fails? Or require login.
-            // Let's assume login is required for persistent ID.
-            // But for testing, maybe generate random ID?
-            // "Alumnos" implies logged in users.
             alert('Debes iniciar sesión para crear una regata.');
             return;
         }
@@ -62,8 +58,11 @@ export default function CompetitionPage() {
 
             <div className="w-full max-w-md bg-gray-900/80 backdrop-blur-md p-8 rounded-xl border border-cyan-900 shadow-2xl shadow-cyan-900/20">
                 <div className="mb-8">
-                    <label className="block text-xs font-bold text-cyan-500 mb-2 uppercase tracking-wider">Nombre de Piloto</label>
+                    <label htmlFor="pilotName" className="block text-xs font-bold text-cyan-500 mb-2 uppercase tracking-wider">
+                        Nombre de Piloto
+                    </label>
                     <input
+                        id="pilotName"
                         type="text"
                         value={username}
                         onChange={(e) => setUsername(e.target.value)}
@@ -74,6 +73,7 @@ export default function CompetitionPage() {
 
                 <div className="flex flex-col gap-4">
                     <button
+                        type="button"
                         onClick={handleCreate}
                         className="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-4 px-6 rounded-lg transition-all transform hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-cyan-900/50 uppercase tracking-wide"
                     >
@@ -97,6 +97,7 @@ export default function CompetitionPage() {
                         />
                     </div>
                     <button
+                        type="button"
                         onClick={handleJoin}
                         disabled={!joinCode}
                         className={`w-full font-bold py-3 px-6 rounded-lg transition-all uppercase tracking-wide ${

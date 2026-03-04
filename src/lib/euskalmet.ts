@@ -1,13 +1,14 @@
-
 import jwt from 'jsonwebtoken';
 
-const PRIVATE_KEY = process.env.EUSKALMET_PRIVATE_KEY?.replace(/\\n/g, '\n');
-const EMAIL = process.env.EUSKALMET_EMAIL || 'info@getxobelaeskola.com';
-
 export function generateEuskalmetToken() {
-    if (!PRIVATE_KEY) {
-        return null;
+    const key = process.env.EUSKALMET_PRIVATE_KEY;
+
+    if (!key) {
+        throw new Error('EUSKALMET_PRIVATE_KEY is not defined');
     }
+
+    const PRIVATE_KEY = key.replace(/\\n/g, '\n');
+    const EMAIL = process.env.EUSKALMET_EMAIL || 'info@getxobelaeskola.com';
 
     const now = Math.floor(Date.now() / 1000);
     const payload = {

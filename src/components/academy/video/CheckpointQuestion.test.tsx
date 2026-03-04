@@ -12,9 +12,9 @@ describe('CheckpointQuestion', () => {
             correctOptionIndex={0}
             onCorrect={() => {}}
         />);
-        expect(screen.getByText('Test Q')).toBeInTheDocument();
-        expect(screen.getByText('Option A')).toBeInTheDocument();
-        expect(screen.getByText('Option B')).toBeInTheDocument();
+        expect(screen.getByText('Test Q')).toBeDefined();
+        expect(screen.getByText('Option A')).toBeDefined();
+        expect(screen.getByText('Option B')).toBeDefined();
     });
 
     it('handles correct answer', () => {
@@ -31,7 +31,7 @@ describe('CheckpointQuestion', () => {
         fireEvent.click(screen.getByText('Responder'));
 
         // Should show correct feedback immediately
-        expect(screen.getByText(/¡Correcto!/)).toBeInTheDocument();
+        expect(screen.getByText(/¡Correcto!/)).toBeDefined();
 
         // Fast-forward time
         act(() => {
@@ -55,7 +55,7 @@ describe('CheckpointQuestion', () => {
         fireEvent.click(screen.getByText('Option B'));
         fireEvent.click(screen.getByText('Responder'));
 
-        expect(screen.getByText('Intentar de nuevo')).toBeInTheDocument();
+        expect(screen.getByText('Intentar de nuevo')).toBeDefined();
         expect(onIncorrect).toHaveBeenCalled();
     });
 });

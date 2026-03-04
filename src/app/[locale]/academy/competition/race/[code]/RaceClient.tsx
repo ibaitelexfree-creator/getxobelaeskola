@@ -1,8 +1,8 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { useParams, useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import { SimulatorSkeleton } from '@/components/academy/sailing-simulator/SimulatorSkeleton';
 import { useMultiplayerStore } from '@/lib/store/useMultiplayerStore';
 import { createClient } from '@/lib/supabase/client';
@@ -49,7 +49,13 @@ export default function RaceClient() {
         init();
     }, [code, lobby, joinLobby, router]);
 
-    if (!ready) return <div className="w-full h-screen bg-black text-white flex items-center justify-center font-mono tracking-widest animate-pulse">CONECTANDO A SISTEMAS DE NAVEGACIÓN...</div>;
+    if (!ready) {
+        return (
+            <div className="w-full h-screen bg-black text-white flex items-center justify-center font-mono tracking-widest animate-pulse">
+                CONECTANDO A SISTEMAS DE NAVEGACIÓN...
+            </div>
+        );
+    }
 
     return (
         <main className="w-full h-screen bg-black">
