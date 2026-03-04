@@ -32,12 +32,12 @@ jobs:
 
             - name: Install dependencies
               run: |
-                  cd apps/mission-control-ui
+                  cd mission-control
                   npm ci --legacy-peer-deps
 
             - name: Build Next.js Web App
               run: |
-                  cd apps/mission-control-ui
+                  cd mission-control
                   npm run build
 
             - name: Upload Web Artifact
