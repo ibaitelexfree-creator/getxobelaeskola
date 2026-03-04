@@ -33,7 +33,7 @@ export const useMultiplayerStore = create<MultiplayerStore>((set, get) => ({
 
     createLobby: async (userId: string, username: string) => {
         // Generate a secure 6-character alphanumeric room code
-        let code = 'AAAAAA'; // Safe SSR fallback
+        let code = '';
         if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
             const charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
             const randomValues = new Uint8Array(16); // Fetch more than we need to avoid modulo bias
@@ -51,6 +51,8 @@ export const useMultiplayerStore = create<MultiplayerStore>((set, get) => ({
         } else if (typeof crypto !== 'undefined' && crypto.randomUUID) {
              // Fallback to randomUUID if getRandomValues is somehow unavailable
              code = crypto.randomUUID().substring(0, 6).toUpperCase();
+        } else {
+             throw new Error('Secure random number generation is not supported in this environment');
         }
 
         const { data: lobby, error } = await supabase
