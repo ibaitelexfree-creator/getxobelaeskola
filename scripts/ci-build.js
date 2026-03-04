@@ -3,9 +3,9 @@ const { spawn } = require('child_process');
 
 // Ensure NODE_OPTIONS is set for memory
 if (!process.env.NODE_OPTIONS) {
-    process.env.NODE_OPTIONS = '--max-old-space-size=2048';
+    process.env.NODE_OPTIONS = '--max-old-space-size=4096';
 } else if (!process.env.NODE_OPTIONS.includes('--max-old-space-size')) {
-    process.env.NODE_OPTIONS += ' --max-old-space-size=2048';
+    process.env.NODE_OPTIONS += ' --max-old-space-size=4096';
 }
 
 let createdDummyEnv = false;

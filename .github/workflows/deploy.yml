@@ -10,7 +10,7 @@ on:
       - "public/**"
       - "orchestration/**"
       - "infra/**"
-      - "apps/mission-control-ui/**"
+      - "mission-control/**"
       - "docker-compose.yml"
       - "Dockerfile"
       - "package.json"
