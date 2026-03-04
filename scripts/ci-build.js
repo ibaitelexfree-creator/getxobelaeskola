@@ -11,10 +11,14 @@ if (!process.env.NODE_OPTIONS) {
 let createdDummyEnv = false;
 
 // Create dummy .env.local if missing, to prevent build failures during SSG
+// Use actual production URL as fallback to avoid ECONNREFUSED during static generation
 if (!fs.existsSync('.env.local')) {
-    console.log('Creating dummy .env.local for build (to satisfy static generation requirements)...');
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://xbledhifomblirxurtyv.supabase.co';
+    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhibGVkaGlmb21ibGlyeHVydHl2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA2MjIxOTcsImV4cCI6MjA4NjE5ODE5N30.zja6S9AAEpZETNgt6aFEm0PCVq6gIORZ7hfUETKJyhM';
+
+    console.log(`Creating dummy .env.local for build using ${supabaseUrl} (to satisfy static generation requirements)...`);
     try {
-        fs.writeFileSync('.env.local', 'NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:3000\nNEXT_PUBLIC_SUPABASE_ANON_KEY=placeholder\n');
+        fs.writeFileSync('.env.local', `NEXT_PUBLIC_SUPABASE_URL=${supabaseUrl}\nNEXT_PUBLIC_SUPABASE_ANON_KEY=${supabaseAnonKey}\n`);
         createdDummyEnv = true;
     } catch (err) {
         console.error('Failed to create dummy .env.local:', err);
