@@ -272,20 +272,21 @@ export class NotionSyncService {
             .order('created_at', { ascending: false })
             .limit(8);
 
-        const auditLogs = await Promise.all((rawAuditLogs as any[] || []).map(async log => {
-            const { data: operator } = await this.supabase
-                .from('profiles')
-                .select('nombre')
-                .eq('id', log.staff_id)
-                .single() as any;
+        const staffIds = [...new Set((rawAuditLogs as any[] || []).map(log => log.staff_id).filter(Boolean))];
+        const { data: staffProfiles } = staffIds.length > 0
+            ? await this.supabase.from('profiles').select('id,nombre').in('id', staffIds)
+            : { data: [] };
 
+        const staffMap = Object.fromEntries((staffProfiles || []).map((p: any) => [p.id, p.nombre]));
+
+        const auditLogs = (rawAuditLogs as any[] || []).map(log => {
             return {
                 action: log.action_type,
                 desc: log.description,
                 time: new Date(log.created_at).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }),
-                operator: operator?.nombre || 'Sistemas'
+                operator: staffMap[log.staff_id] || 'Sistemas'
             };
-        }));
+        });
 
         const { data: rawRentals } = await this.supabase
             .from('reservas_alquiler')
@@ -293,20 +294,31 @@ export class NotionSyncService {
             .order('created_at', { ascending: false })
             .limit(10);
 
-        const recentRentals = await Promise.all((rawRentals as any[] || []).map(async r => {
-            const [{ data: p }, { data: s }] = await Promise.all([
-                this.supabase.from('profiles').select('nombre,apellidos').eq('id', r.perfil_id).single() as any,
-                this.supabase.from('servicios_alquiler').select('nombre_es').eq('id', r.servicio_id).single() as any
-            ]);
+        const rentalsArray = (rawRentals as any[] || []);
+        const customerIds = [...new Set(rentalsArray.map(r => r.perfil_id).filter(Boolean))];
+        const serviceIds = [...new Set(rentalsArray.map(r => r.servicio_id).filter(Boolean))];
 
+        const [{ data: profiles }, { data: services }] = await Promise.all([
+            customerIds.length > 0
+                ? this.supabase.from('profiles').select('id,nombre,apellidos').in('id', customerIds)
+                : Promise.resolve({ data: [] }),
+            serviceIds.length > 0
+                ? this.supabase.from('servicios_alquiler').select('id,nombre_es').in('id', serviceIds)
+                : Promise.resolve({ data: [] })
+        ]);
+
+        const customerMap = Object.fromEntries((profiles || []).map((p: any) => [p.id, `${p.nombre || ''} ${p.apellidos || ''}`.trim()]));
+        const serviceMap = Object.fromEntries((services || []).map((s: any) => [s.id, s.nombre_es]));
+
+        const recentRentals = rentalsArray.map(r => {
             return {
-                customer: `${p?.nombre || ''} ${p?.apellidos || ''}`.trim(),
+                customer: customerMap[r.perfil_id] || 'Cliente desconocido',
                 amount: r.monto_total,
-                service: s?.nombre_es,
+                service: serviceMap[r.servicio_id],
                 status: r.estado_entrega,
                 time: r.hora_inicio || '00:00'
             };
-        }));
+        });
 
         return {
             revenue: { today: sumMonto(revToday), month: sumMonto(revMonth), year: sumMonto(revYear) },
