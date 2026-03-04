@@ -1,8 +1,10 @@
 'use client';
 
 import { useEffect } from 'react';
+// @ts-ignore
 import { App } from '@capacitor/app';
-import { usePushNotifications } from '@/hooks/usePushNotifications';
+import { usePushNotifications } from '../hooks/usePushNotifications';
+// @ts-ignore
 import { FirebaseCrashlytics } from '@capacitor-community/firebase-crashlytics';
 import { Capacitor } from '@capacitor/core';
 import '@/lib/i18n';

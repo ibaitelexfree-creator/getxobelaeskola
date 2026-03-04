@@ -2,9 +2,9 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { getFeaturedProperties } from '@/data/properties';
-import { PropertyCard } from '@/components/properties/PropertyCard';
-import { useScrollReveal } from '@/lib/useScrollReveal';
+import { getFeaturedProperties } from '../../data/properties';
+import { PropertyCard } from '../../components/properties/PropertyCard';
+import { useScrollReveal } from '../../lib/useScrollReveal';
 
 export const FeaturedProperties = () => {
     const featuredProperties = getFeaturedProperties();

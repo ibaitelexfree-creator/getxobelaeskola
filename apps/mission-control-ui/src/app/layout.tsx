@@ -15,7 +15,7 @@ export const viewport: Viewport = {
     userScalable: false,
 };
 
-import { ClientProviders } from '@/components/ClientProviders';
+import { ClientProviders } from '../components/ClientProviders';
 
 export default function RootLayout({
     children,

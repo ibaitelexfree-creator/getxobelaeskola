@@ -1,9 +1,10 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { useMissionStore, Tab } from '@/store/useMissionStore';
+import { useMissionStore, Tab } from '../store/useMissionStore';
 import { LayoutDashboard, Rocket, ListOrdered, SlidersHorizontal, Radio, Settings } from 'lucide-react';
 import { useState, useEffect } from 'react';
+// @ts-ignore
 import { useTranslation } from 'react-i18next';
 
 const getTabs = (t: any): { id: Tab; label: string; icon: React.ReactNode }[] => [

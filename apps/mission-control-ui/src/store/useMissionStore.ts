@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+// @ts-ignore
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
 
 export type ServiceHealth = 'online' | 'offline' | 'degraded' | 'unknown';

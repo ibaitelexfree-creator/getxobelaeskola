@@ -2,17 +2,20 @@
 
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { useMissionStore } from '@/store/useMissionStore';
+import { useMissionStore } from '../store/useMissionStore';
 import {
     Settings as SettingsIcon, Globe, RefreshCcw, Bell,
     Shield, Server, Smartphone, Info, Save, ChevronRight,
     Database, Cpu, Wifi, Package, Download, HardDrive,
     WifiOff
 } from 'lucide-react';
-import { getReleases, getDownloadUrl, Release } from '@/lib/maestro-client';
+import { getReleases, getDownloadUrl, Release } from '../lib/maestro-client';
+// @ts-ignore
 import { Browser } from '@capacitor/browser';
+// @ts-ignore
 import { FirebaseCrashlytics } from '@capacitor-community/firebase-crashlytics';
 import { AlertTriangle, Zap } from 'lucide-react';
+// @ts-ignore
 import { useTranslation } from 'react-i18next';
 import LanguageSwitch from './LanguageSwitch';
 

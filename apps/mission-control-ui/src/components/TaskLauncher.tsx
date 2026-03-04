@@ -3,8 +3,8 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Send, Zap, Bot, Shuffle, ChevronDown, MessagesSquare, Shield, Palette, CheckCircle, Database, Eye, Terminal, Info } from 'lucide-react';
-import { useMissionStore } from '@/store/useMissionStore';
-import { sendTask, approve, reject, sendQuestion } from '@/lib/maestro-client';
+import { useMissionStore } from '../store/useMissionStore';
+import { sendTask, approve, reject, sendQuestion } from '../lib/maestro-client';
 
 type ExecutionMode = 'cascade' | 'flash' | 'clawdebot';
 

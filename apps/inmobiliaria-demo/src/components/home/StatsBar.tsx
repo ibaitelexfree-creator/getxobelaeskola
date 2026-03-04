@@ -1,8 +1,8 @@
 'use client';
 
 import React from 'react';
-import { AnimatedCounter } from '@/components/ui/AnimatedCounter';
-import { useScrollReveal } from '@/lib/useScrollReveal';
+import { AnimatedCounter } from '../../components/ui/AnimatedCounter';
+import { useScrollReveal } from '../../lib/useScrollReveal';
 
 export const StatsBar = () => {
     const { elementRef, isVisible } = useScrollReveal({ threshold: 0.2 });

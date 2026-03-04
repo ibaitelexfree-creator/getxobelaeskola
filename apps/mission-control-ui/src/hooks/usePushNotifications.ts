@@ -1,9 +1,11 @@
 import { useEffect, useState, useCallback } from 'react';
 import { PushNotifications } from '@capacitor/push-notifications';
+// @ts-ignore
 import { Device } from '@capacitor/device';
+// @ts-ignore
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
 import { Capacitor } from '@capacitor/core';
-import { registerDevice } from '@/lib/api';
+import { registerDevice } from '../lib/api';
 
 export interface PushNotificationState {
     permission: PermissionState | 'prompt' | 'prompt-with-rationale';

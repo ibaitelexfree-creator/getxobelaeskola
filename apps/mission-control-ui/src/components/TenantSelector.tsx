@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Database, Shield, Layout, Briefcase } from 'lucide-react';
-import { useMissionStore } from '@/store/useMissionStore';
+import { useMissionStore } from '../store/useMissionStore';
 
 const TENANT_ICONS: Record<string, any> = {
     core: <Shield size={14} />,
