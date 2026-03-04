@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { corsHeaders } from './api-headers';
+import { corsHeaders, withCors } from './api-headers';
+import type { NextResponse } from 'next/server';
 
 describe('corsHeaders', () => {
     it('should allow production domain', () => {
@@ -46,5 +47,51 @@ describe('corsHeaders', () => {
         const request = new Request('http://example.com');
         const headers = corsHeaders(request);
         expect(headers['Access-Control-Allow-Credentials']).toBe('true');
+    });
+});
+
+describe('withCors', () => {
+    it('should apply cors headers to a NextResponse object', () => {
+        const request = new Request('http://example.com', {
+            headers: { origin: 'http://localhost:3000' }
+        });
+
+        // Mock NextResponse structure manually to avoid importing next/server which might fail in vitest
+        const mockResponse = {
+            headers: new Headers()
+        } as unknown as NextResponse;
+
+        const responseWithCors = withCors(mockResponse, request);
+
+        expect(responseWithCors).toBe(mockResponse); // Should return the same object
+        expect(responseWithCors.headers.get('Access-Control-Allow-Origin')).toBe('http://localhost:3000');
+        expect(responseWithCors.headers.get('Access-Control-Allow-Methods')).toBe('GET, POST, PUT, DELETE, OPTIONS');
+        expect(responseWithCors.headers.get('Access-Control-Allow-Credentials')).toBe('true');
+    });
+
+    it('should apply default cors headers if no origin is provided', () => {
+        const request = new Request('http://example.com');
+
+        const mockResponse = {
+            headers: new Headers()
+        } as unknown as NextResponse;
+
+        const responseWithCors = withCors(mockResponse, request);
+
+        expect(responseWithCors.headers.get('Access-Control-Allow-Origin')).toBe('https://getxobelaeskola.cloud');
+    });
+
+    it('should apply default cors headers if unauthorized origin is provided', () => {
+        const request = new Request('http://example.com', {
+            headers: { origin: 'http://unauthorized.com' }
+        });
+
+        const mockResponse = {
+            headers: new Headers()
+        } as unknown as NextResponse;
+
+        const responseWithCors = withCors(mockResponse, request);
+
+        expect(responseWithCors.headers.get('Access-Control-Allow-Origin')).toBe('https://getxobelaeskola.cloud');
     });
 });

@@ -23,6 +23,7 @@ const nextConfig = {
     poweredByHeader: false,
     output: isCapacitor ? 'export' : 'standalone',
     staticPageGenerationTimeout: 600,
+    experimental: { workerThreads: false, cpus: 2 },
     transpilePackages: isCapacitor ? [
         '@capacitor/core',
         '@capacitor/android',
