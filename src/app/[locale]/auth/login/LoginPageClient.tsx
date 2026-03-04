@@ -5,6 +5,7 @@ import LoginForm from '@/components/auth/LoginForm';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { useSearchParams, useRouter } from 'next/navigation';
+import { getSafeRedirectUrl } from '@/lib/utils/url';
 import { Suspense } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { Anchor } from 'lucide-react';
@@ -31,9 +32,9 @@ function LoginPageContent({ locale }: { locale: string }) {
             if (session) {
                 supabase.from('profiles').select('rol').eq('id', session.user.id).single().then(({ data }) => {
                     if (data && (data.rol === 'admin' || data.rol === 'instructor')) {
-                        router.replace(returnTo || `/${locale}/staff`);
+                        router.replace(getSafeRedirectUrl(returnTo, `/${locale}/staff`));
                     } else {
-                        router.replace(returnTo || `/${locale}/student/dashboard`);
+                        router.replace(getSafeRedirectUrl(returnTo, `/${locale}/student/dashboard`));
                     }
                 });
             } else {
@@ -100,7 +101,7 @@ function LoginPageContent({ locale }: { locale: string }) {
                         <p className="text-white/40 text-xs">
                             {t('no_account')}{' '}
                             <Link
-                                href={`/${locale}/auth/register${returnTo ? `?returnTo=${encodeURIComponent(returnTo)}` : ''}`}
+                                href={`/${locale}/auth/register${getSafeRedirectUrl(returnTo, '') ? `?returnTo=${encodeURIComponent(getSafeRedirectUrl(returnTo, ''))}` : ''}`}
                                 className="text-accent hover:text-sea-foam transition-colors font-bold"
                             >
                                 {t('create_one')}
