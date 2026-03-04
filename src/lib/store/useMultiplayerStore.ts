@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { createClient } from '@/lib/supabase/client';
 import { RealtimeChannel, RealtimePostgresChangesPayload } from '@supabase/supabase-js';
 import { RaceLobby, RaceParticipant, MultiplayerBoatState } from '@/types/competition';
+import { generateSecureCode } from '@/lib/utils/crypto';
 
 interface MultiplayerStore {
     lobby: RaceLobby | null;
@@ -32,7 +33,7 @@ export const useMultiplayerStore = create<MultiplayerStore>((set, get) => ({
     isHost: false,
 
     createLobby: async (userId: string, username: string) => {
-        const code = Math.random().toString(36).substring(2, 8).toUpperCase();
+        const code = generateSecureCode(6);
 
         const { data: lobby, error } = await supabase
             .from('race_lobbies')
