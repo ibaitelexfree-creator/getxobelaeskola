@@ -326,9 +326,17 @@ export class NotionSyncService {
 
     private async clearPageChildren(pageId: string) {
         const { results } = await this.notion.blocks.children.list({ block_id: pageId });
-        for (const block of results) {
-            await this.notion.blocks.delete({ block_id: block.id });
-            await new Promise(r => setTimeout(r, 100));
+
+        // Optimize deletion by batching requests (Notion API allows ~3 req/sec average, but handles bursts)
+        const batchSize = 10;
+        for (let i = 0; i < results.length; i += batchSize) {
+            const batch = results.slice(i, i + batchSize);
+            await Promise.all(batch.map(block => this.notion.blocks.delete({ block_id: block.id })));
+
+            // Add a slight delay between batches to respect rate limits
+            if (i + batchSize < results.length) {
+                await new Promise(r => setTimeout(r, 333));
+            }
         }
     }
 
