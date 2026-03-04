@@ -1,12 +1,7 @@
 export async function register() {
   if (process.env.NEXT_RUNTIME === 'nodejs') {
-    try {
-      const dns = await import('node:dns');
-      if (dns && typeof dns.setDefaultResultOrder === 'function') {
-        dns.setDefaultResultOrder('ipv4first');
-      }
-    } catch (err) {
-      // Quietly fail if dns module is not available or method is missing
-    }
+    // Avoid dynamic import/require in build/instrumentation to keep Edge runtime happy
+    // and prevent potential issues with module resolution in certain environments.
+    // If we really need this, we should find a more robust way to set it.
   }
 }
