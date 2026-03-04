@@ -63,16 +63,18 @@ export const useWindLabPhysics = () => {
             // rudderForce = rudderAngle * speedFactor
             let rudderForce = physicsState.current.rudderAngle * speedFactor;
 
+            // 3. Update Angular Velocity (Inertia System)
+            let newAngularVelocity = (physicsState.current.angularVelocity || 0);
+
             // --- LOW SPEED JITTER FIX ---
             if (newBoatSpeed < 0.3 && Math.abs(physicsState.current.rudderAngle) < 2.0) {
                 rudderForce = 0;
+                newAngularVelocity = 0; // Instantly kill rotation at very low speeds when rudder is neutral
             }
 
-            // 3. Update Angular Velocity (Inertia System)
             // angularVelocity += rudderForce * deltaTime
             // Damping = 0.94 per frame (approx 60fps, so 0.94^60 ~= 0.02 per sec residual)
             // Note: rudderForce is arbitrary units. We tune multiplier '4.0' for feel.
-            let newAngularVelocity = (physicsState.current.angularVelocity || 0);
             newAngularVelocity += rudderForce * deltaTime * 4.0;
 
             // Apply Angular Damping
@@ -80,6 +82,11 @@ export const useWindLabPhysics = () => {
             // Time-independent formula: vel = vel * pow(decay_per_frame, dt / frame_time)
             const FPS_60_DT = 0.0166;
             newAngularVelocity *= Math.pow(0.94, deltaTime / FPS_60_DT);
+
+            // Absolute Micro-jitter clamp to prevent floating point infinite decay
+            if (Math.abs(newAngularVelocity) < 0.001) {
+                newAngularVelocity = 0;
+            }
 
 
 
