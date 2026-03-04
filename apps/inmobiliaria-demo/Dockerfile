@@ -20,6 +20,8 @@ COPY . .
 # Build the Next.js app with basePath for /controlmanager/realstate
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
+ENV NEXT_PUBLIC_SUPABASE_URL=http://placeholder-build-time
+ENV NEXT_PUBLIC_SUPABASE_ANON_KEY=placeholder-build-time
 RUN npm run build
 
 # =============================================
