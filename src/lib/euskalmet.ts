@@ -8,7 +8,6 @@ export function generateEuskalmetToken() {
     if (!PRIVATE_KEY) {
         // Fallback for CI/Build where key might be missing, but NOT during tests
         if ((process.env.NODE_ENV === 'production' || process.env.CI) && process.env.NODE_ENV !== 'test') {
-            console.warn('EUSKALMET_PRIVATE_KEY is not defined, using mock token');
             return 'mock-token-for-build';
         }
         throw new Error('EUSKALMET_PRIVATE_KEY is not defined');
