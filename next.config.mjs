@@ -8,7 +8,8 @@ const isCapacitor = process.env.IS_CAPACITOR === 'true';
 const nextConfig = {
     experimental: {
         workerThreads: false,
-        cpus: 2
+        cpus: 1,
+        memoryBasedWorkersCount: true
     },
     trailingSlash: true,
     images: {
