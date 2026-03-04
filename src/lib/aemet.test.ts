@@ -100,6 +100,7 @@ describe('AEMET Client', () => {
         });
 
         it('should handle fetch throwing an error (catch block)', async () => {
+            vi.stubEnv('AEMET_API_KEY', 'test-api-key');
             const fetchSpy = vi.spyOn(global, 'fetch').mockRejectedValue(new Error('Network Error'));
             const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
