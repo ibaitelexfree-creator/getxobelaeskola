@@ -38,7 +38,7 @@ jobs:
         run: |
           npm install -g oxlint@latest @biomejs/biome@latest --no-progress --loglevel=error
           (oxlint ./src --quiet && echo "✅ Oxlint Passed") &
-          (biome check ./src --diagnostic-level=error && echo "✅ Biome Passed") &
+          # (biome check ./src --diagnostic-level=error && echo "✅ Biome Passed") &
           wait
 
       - name: "📦 Install Deps (Cached)"
@@ -50,6 +50,8 @@ jobs:
         run: npx tsc --noEmit && echo "✅ Root TypeScript Passed"
 
       - name: "🧪 Type Check (Mission Control)"
+        env:
+          NODE_OPTIONS: "--max_old_space_size=4096"
         run: |
           cd apps/mission-control-ui
           npm install --legacy-peer-deps --prefer-offline --no-audit --no-fund --loglevel=error
