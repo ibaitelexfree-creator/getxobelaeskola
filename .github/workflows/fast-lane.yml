@@ -1,18 +1,18 @@
-name: "⚡ Fast Lane: Consolidated Verification"
+name: "🚀 Standard Check (<60s)"
 
 on:
   push:
     branches: [main, master, "feature/**", "fix/**"]
     paths:
       - "src/**"
-      - "mission-control/**"
+      - "apps/**"
       - "orchestration/**"
       - ".github/workflows/fast-lane.yml"
   pull_request:
     branches: [main, master]
     paths:
       - "src/**"
-      - "mission-control/**"
+      - "apps/**"
       - "orchestration/**"
       - ".github/workflows/fast-lane.yml"
 
@@ -51,6 +51,12 @@ jobs:
 
       - name: "🧪 Type Check (Mission Control)"
         run: |
-          cd mission-control
-          npm ci --legacy-peer-deps --prefer-offline --no-audit --no-fund --loglevel=error
+          cd apps/mission-control-ui
+          npm install --legacy-peer-deps --no-audit --no-fund --loglevel=error
           npx tsc --noEmit && echo "✅ Mission Control TypeScript Passed"
+
+      - name: "🧪 Type Check (Inmobiliaria Demo)"
+        run: |
+          cd apps/inmobiliaria-demo
+          npm install --legacy-peer-deps --no-audit --no-fund --loglevel=error
+          npx tsc --noEmit && echo "✅ Inmobiliaria Demo TypeScript Passed"
