@@ -21,8 +21,9 @@ if (!fs.existsSync('.env.local')) {
     }
 }
 
-// Run next build
-const build = spawn('npx', ['next', 'build'], {
+// Run next build using local next binary to ensure correct version
+const nextBin = fs.existsSync('./node_modules/.bin/next') ? './node_modules/.bin/next' : 'next';
+const build = spawn(nextBin, ['build'], {
     stdio: 'inherit',
     env: process.env,
     shell: true
