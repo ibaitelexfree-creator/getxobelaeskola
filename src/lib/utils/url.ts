@@ -11,7 +11,7 @@ export function getSafeRedirectUrl(url: string | null | undefined, fallback: str
     if (!url) return fallback;
 
     // Must start with '/' to be relative, but not '//' to prevent protocol-relative URLs
-    if (url.startsWith('/') && !url.startsWith('//')) {
+    if (url.startsWith('/') && !url.startsWith('//') && !url.startsWith('/\\')) {
         return url;
     }
 

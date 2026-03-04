@@ -27,6 +27,7 @@ describe('getSafeRedirectUrl', () => {
         expect(getSafeRedirectUrl('//evil.com', '/default')).toBe('/default');
         expect(getSafeRedirectUrl('///evil.com', '/default')).toBe('/default');
         expect(getSafeRedirectUrl('////evil.com', '/default')).toBe('/default');
+        expect(getSafeRedirectUrl('/\\evil.com', '/default')).toBe('/default');
     });
 
     it('returns the fallback for non-relative paths (prevent open redirect)', () => {
