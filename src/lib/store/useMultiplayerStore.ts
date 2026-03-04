@@ -32,7 +32,24 @@ export const useMultiplayerStore = create<MultiplayerStore>((set, get) => ({
     isHost: false,
 
     createLobby: async (userId: string, username: string) => {
-        const code = crypto.randomUUID().substring(0, 6).toUpperCase();
+        // Generate a secure 6-character alphanumeric room code
+        let code = '';
+        if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
+            const array = new Uint32Array(1);
+            crypto.getRandomValues(array);
+            code = array[0].toString(36).substring(0, 6).toUpperCase();
+            // Pad if necessary
+            while (code.length < 6) {
+                crypto.getRandomValues(array);
+                code += array[0].toString(36).toUpperCase();
+            }
+            code = code.substring(0, 6);
+        } else if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+             code = crypto.randomUUID().substring(0, 6).toUpperCase();
+        } else {
+             // Fallback strictly for server environments missing crypto during build
+             code = Math.random().toString(36).substring(2, 8).toUpperCase();
+        }
 
         const { data: lobby, error } = await supabase
             .from('race_lobbies')
