@@ -1,4 +1,3 @@
-
 import { NextResponse } from 'next/server';
 import { exec } from 'child_process';
 import path from 'path';
@@ -9,7 +8,9 @@ export async function POST(req: Request) {
     const mode = searchParams.get('mode') || 'pull'; // 'pull' or 'push'
     const table = searchParams.get('table');
 
-    if (secret !== 'getxo_notion_sync_2026_pro') {
+    const notionSyncSecret = process.env.NOTION_SYNC_SECRET;
+
+    if (!notionSyncSecret || secret !== notionSyncSecret) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -43,7 +44,8 @@ export async function POST(req: Request) {
         });
 
         return NextResponse.json({ message: 'Sync started successfully', mode });
-    } catch (err: any) {
-        return NextResponse.json({ error: err.message }, { status: 500 });
+    } catch (err: unknown) {
+        const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+        return NextResponse.json({ error: errorMessage }, { status: 500 });
     }
 }
