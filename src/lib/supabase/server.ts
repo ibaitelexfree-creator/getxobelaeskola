@@ -4,23 +4,11 @@ import { Database } from '@/types/supabase'
 
 export function createClient() {
     // Prevent build crashes if keys are missing (CI/Build context)
-    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co';
+    const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder';
 
-    if (!url || !key || url.includes('placeholder')) {
-        console.warn('Supabase keys missing or invalid. Using mock client for build.');
-        // Return a mock-ish client that doesn't actually hit the network violently
-        return createServerClient<Database>(
-            url || 'https://placeholder.supabase.co',
-            key || 'placeholder',
-            {
-                cookies: {
-                    getAll() { return [] },
-                    setAll() { },
-                },
-            }
-        );
-    }
+    // Check if we are running in a CI/Build context with dummy values
+    const isMock = url.includes('127.0.0.1') || url.includes('placeholder') || key.includes('placeholder');
 
     let cookieStore;
     try {
@@ -32,6 +20,11 @@ export function createClient() {
                 getAll() { return [] },
                 setAll() { },
             },
+            global: {
+                // If it's a mock build environment, override fetch to immediately return empty data
+                // to prevent ECONNREFUSED during Next.js static generation
+                fetch: isMock ? async () => new Response(JSON.stringify([]), { status: 200 }) : fetch
+            }
         });
     }
 
@@ -50,5 +43,8 @@ export function createClient() {
                 }
             },
         },
+        global: {
+            fetch: isMock ? async () => new Response(JSON.stringify([]), { status: 200 }) : fetch
+        }
     })
 }
