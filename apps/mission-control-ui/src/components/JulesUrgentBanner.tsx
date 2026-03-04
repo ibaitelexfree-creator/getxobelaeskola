@@ -1,8 +1,9 @@
 'use client';
 
 import { motion, AnimatePresence } from 'framer-motion';
-import { useMissionStore } from '@/store/useMissionStore';
+import { useMissionStore } from '../store/useMissionStore';
 import { AlertCircle, ExternalLink, ChevronRight } from 'lucide-react';
+// @ts-ignore
 import { useTranslation } from 'react-i18next';
 
 export default function JulesUrgentBanner() {

@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { useMissionStore } from '@/store/useMissionStore';
-import { pausePool, resumePool, pauseWatchdog, resumeWatchdog } from '@/lib/maestro-client';
+import { useMissionStore } from '../store/useMissionStore';
+import { pausePool, resumePool, pauseWatchdog, resumeWatchdog } from '../lib/maestro-client';
 import {
     Thermometer, Database, Eye, ToggleLeft, ToggleRight,
     Play, Pause, AlertTriangle, Shield, Settings,
@@ -224,7 +224,7 @@ function TrustTunnelCard() {
 
     const checkStatus = async () => {
         try {
-            const status = await import('@/lib/maestro-client').then(m => m.getTrustStatus());
+            const status = await import('../lib/maestro-client').then(m => m.getTrustStatus());
             setActive(status.active);
         } catch (e) { }
     };
@@ -238,7 +238,7 @@ function TrustTunnelCard() {
         setLoading(true);
         setError(null);
         try {
-            const { toggleTrustTunnel } = await import('@/lib/maestro-client');
+            const { toggleTrustTunnel } = await import('../lib/maestro-client');
             const result = await toggleTrustTunnel(password);
             setActive(result.active);
             setPassword('');

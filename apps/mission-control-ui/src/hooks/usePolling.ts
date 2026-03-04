@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect, useRef, useCallback } from 'react';
-import { useMissionStore } from '@/store/useMissionStore';
-import { getHealth, getWatchdogStatus, getActiveSessions, getResourceStatus, getQueue, getLivePreviewConfig, getJulesBlockedStatus, getSyncHistory, getPreviews } from '@/lib/api';
+import { useMissionStore } from '../store/useMissionStore';
+import { getHealth, getWatchdogStatus, getActiveSessions, getResourceStatus, getQueue, getLivePreviewConfig, getJulesBlockedStatus, getSyncHistory, getPreviews } from '../lib/api';
 
 
 export function usePolling() {

@@ -3,9 +3,9 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { NEIGHBORHOODS } from '@/data/neighborhoods';
-import { Badge } from '@/components/ui/Badge';
-import { useScrollReveal } from '@/lib/useScrollReveal';
+import { NEIGHBORHOODS } from '../../data/neighborhoods';
+import { Badge } from '../../components/ui/Badge';
+import { useScrollReveal } from '../../lib/useScrollReveal';
 
 export const NeighborhoodGrid = () => {
     const { elementRef, isVisible } = useScrollReveal({ threshold: 0.1 });

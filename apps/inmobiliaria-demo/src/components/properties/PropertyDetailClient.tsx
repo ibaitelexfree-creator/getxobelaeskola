@@ -2,11 +2,11 @@
 
 import React, { useState } from 'react';
 import Image from 'next/image';
-import { Badge } from '@/components/ui/Badge';
-import { PropertyCard } from '@/components/properties/PropertyCard';
-import { PropertyMapSection } from '@/components/properties/PropertyMapSection';
-import { BookingModal } from '@/components/ui/BookingModal';
-import { Property } from '@/data/properties';
+import { Badge } from '../../components/ui/Badge';
+import { PropertyCard } from '../../components/properties/PropertyCard';
+import { PropertyMapSection } from '../../components/properties/PropertyMapSection';
+import { BookingModal } from '../../components/ui/BookingModal';
+import { Property } from '../../data/properties';
 
 interface PropertyDetailClientProps {
     property: Property;

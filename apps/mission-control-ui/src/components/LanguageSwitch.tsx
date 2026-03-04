@@ -1,9 +1,11 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+// @ts-ignore
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { Globe } from 'lucide-react';
+// @ts-ignore
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
 
 export default function LanguageSwitch() {

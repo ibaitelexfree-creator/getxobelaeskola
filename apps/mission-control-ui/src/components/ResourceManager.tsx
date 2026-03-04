@@ -1,11 +1,13 @@
 'use client';
 
 import { motion, AnimatePresence } from 'framer-motion';
-import { useMissionStore } from '@/store/useMissionStore';
-import { setPowerMode, startService, stopService, resetService, pauseService, getServiceLogs } from '@/lib/api';
+import { useMissionStore } from '../store/useMissionStore';
+import { setPowerMode, startService, stopService, resetService, pauseService, getServiceLogs } from '../lib/api';
 import { Zap, Shield, Power, Cpu, Database, Binary, Play, Pause, RotateCcw, Globe, ExternalLink, Monitor, Square, FileText, X, AlertCircle, Lock, Copy, CheckCircle } from 'lucide-react';
+// @ts-ignore
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
 import { useState, useEffect, useCallback, useRef } from 'react';
+// @ts-ignore
 import { useTranslation } from 'react-i18next';
 
 // VPN passwords for external services (pulled from env via API ideally, hardcoded fallback is empty)

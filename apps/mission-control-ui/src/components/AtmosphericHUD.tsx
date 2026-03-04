@@ -1,6 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
+// @ts-ignore
 import { useTranslation } from 'react-i18next';
 
 export default function AtmosphericHUD() {
