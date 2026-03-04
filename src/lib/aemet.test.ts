@@ -98,6 +98,24 @@ describe('AEMET Client', () => {
             const result = await getGetxoForecast();
             expect(result).toBeNull();
         });
+
+        it('should handle fetch throwing an error (catch block)', async () => {
+            vi.stubEnv('AEMET_API_KEY', 'test-api-key');
+            const fetchSpy = vi.spyOn(globalThis, 'fetch').mockRejectedValue(new Error('Network Error'));
+            const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+            try {
+                const result = await getGetxoForecast();
+
+                expect(fetchSpy).toHaveBeenCalledTimes(1);
+                expect(result).toBeNull();
+                expect(consoleSpy).toHaveBeenCalled();
+            } finally {
+                consoleSpy.mockRestore();
+                fetchSpy.mockRestore();
+                vi.unstubAllEnvs();
+            }
+        });
     });
 
     describe('narrateForecast', () => {
