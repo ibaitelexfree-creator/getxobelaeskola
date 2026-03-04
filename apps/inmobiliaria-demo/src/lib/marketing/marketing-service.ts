@@ -88,30 +88,21 @@ export async function generateMarketingContent(property: MarketingProperty): Pro
     };
 }
 
-/**
- * Triggers video generation in n8n
- */
 export async function triggerN8nVideo(propertyId: number, chatId?: number): Promise<any> {
     const [property] = await sql`SELECT * FROM properties WHERE id = ${propertyId}`;
 
     if (!property) throw new Error('Property not found');
 
-    const webhookUrl = process.env.N8N_VIDEO_WEBHOOK_URL || process.env.N8N_SWARM_DISPATCHER_URL;
+    const webhookUrl = process.env.N8N_VIDEO_WEBHOOK_URL || "https://n8n.srv1368175.hstgr.cloud/webhook/realstate-video-gen-v2";
 
     if (!webhookUrl) throw new Error('n8n Webhook URL not configured');
 
     // Trigger n8n
     const response = await axios.post(webhookUrl, {
-        action: 'generate_video',
-        source: 'inmobiliaria-demo',
-        chatId: chatId, // Pass chatId for callback notification
-        property: {
-            id: property.id,
-            title: property.title,
-            price: property.price,
-            location: property.location,
-            images: property.images || []
-        }
+        propertyId: property.id.toString(),
+        chatId: chatId ? chatId.toString() : '',
+        title: property.title,
+        price: property.price
     });
 
     // Track in DB

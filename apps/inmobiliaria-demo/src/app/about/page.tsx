@@ -2,15 +2,13 @@
 
 import React from 'react';
 import Image from 'next/image';
-import Header from '@/components/layout/Header';
-import Footer from '@/components/layout/Footer';
 import LuxuryReveal from '@/components/ui/LuxuryReveal';
 import { revealOnScroll } from '@/lib/revealOnScroll';
 
 export default function AboutPage() {
     return (
         <div style={{ backgroundColor: 'var(--bg-primary)', minHeight: '100vh' }}>
-            <Header />
+            
             <main style={{ paddingTop: '12rem', paddingBottom: '10rem' }}>
                 <div className="container">
                     {/* Header Section */}
@@ -116,7 +114,7 @@ export default function AboutPage() {
                     </div>
                 </div>
             </main>
-            <Footer locale="en" />
+            
 
             <style jsx>{`
                 @media (max-width: 1024px) {

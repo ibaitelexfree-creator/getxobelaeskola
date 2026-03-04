@@ -1,71 +1,66 @@
-export interface ChatMessage {
-    id: string;
-    role: 'user' | 'aisha';
+export function getAishaResponse(message: string): {
     text: string;
-    timestamp: Date;
-}
+    quickReplies?: string[];
+} {
+    const msg = message.toLowerCase();
 
-/**
- * Fetches a response from Aisha the AI Advisor.
- * Primary: Calls the local Next.js API route which uses Gemini.
- * Fallback: Uses basic keyword matching if the API is unavailable.
- */
-export async function getAishaResponse(message: string): Promise<string> {
-    try {
-        // Handle potential subpath deployment
-        const currentPath = typeof window !== 'undefined' ? window.location.pathname : '';
-        let apiPath = '/api/chat';
-
-        // Check if we are in the controlmanager subpath but NOT already having the full prefix
-        // Next.js with basePath often expects the full path for fetch if it's absolute from root
-        if (currentPath.includes('/controlmanager/realstate')) {
-            apiPath = '/controlmanager/realstate/api/chat';
-        }
-
-        const response = await fetch(apiPath, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ message }),
-        });
-
-        if (!response.ok) {
-            const errorData = await response.json().catch(() => ({}));
-            console.warn("Aisha API not available, using smart fallback. Status:", response.status);
-            throw new Error('Aisha API request failed');
-        }
-
-        const data = await response.json();
-        return data.response;
-    } catch (error) {
-        console.error("Error fetching Aisha response:", error);
-
-        // Fallback logic for offline/error states
-        const msg = message.toLowerCase();
-
-        if (msg.includes('budget') || msg.includes('price') || msg.includes('afford') || msg.includes('cost')) {
-            return "Luxe Dubai Estates offers an exclusive portfolio ranging from AED 1.2M executive studios to AED 120M private island mansions. May I ask what investment range you are considering today?";
-        }
-        if (msg.includes('villa') || msg.includes('house')) {
-            return "Our villa collection in Emirates Hills and Palm Jumeirah represents the pinnacle of Dubai living. Are you looking for a contemporary beachfront residence or a more traditional palatial estate?";
-        }
-        if (msg.includes('penthouse')) {
-            return "Our collection includes some of the world's most sought-after penthouses, featuring private pools and 360-degree skyline views. Shall I shortlist our current off-market opportunities for you?";
-        }
-        if (msg.includes('visit') || msg.includes('viewing') || msg.includes('see') || msg.includes('schedule')) {
-            return "I would be delighted to arrange a private viewing for you. We offer personalized tours via chauffeured transport or private helicopter for our elite properties. Please share your contact details or email, and an advisor will coordinate with you.";
-        }
-        if (msg.includes('palm')) {
-            return "Palm Jumeirah remains our most highly requested location. We currently have several distinguished 'Garden Homes' and signature villas ready for immediate acquisition.";
-        }
-        if (msg.includes('invest') || msg.includes('rental') || msg.includes('yield') || msg.includes('roi')) {
-            return "Dubai's real estate market continues to outperform global benchmarks, offering yields up to 8% tax-free. I can provide a detailed ROI analysis for our top-performing assets if you'd like.";
-        }
-        if (msg.includes('privacy') || msg.includes('legal') || msg.includes('data') || msg.includes('terms') || msg.includes('policy')) {
-            return "We take data protection very seriously at Luxe Dubai Estates. Our Privacy Policy is fully compliant with UAE Federal Law No. 45 and RERA regulations. You can find the full details at /privacy-policy. Is there a specific legal aspect you're concerned about?";
-        }
-
-        return "I'm currently attending to several high-profile consultations, but I'm here to assist! I'm Aisha, your AI luxury property advisor. Are you interested in exploring our villas, penthouses, or perhaps a signature residence on the Palm?";
+    if (msg.includes('budget') || msg.includes('price') || msg.includes('afford') || msg.includes('cost')) {
+        return {
+            text: "We have properties ranging from AED 1.2M studios to AED 120M island villas. What's your approximate budget? I can immediately shortlist the best options for you.",
+            quickReplies: ['Under AED 5M', 'AED 5M - 20M', 'AED 20M+']
+        };
     }
+    if (msg.includes('villa') || msg.includes('house')) {
+        return {
+            text: "Our villa collection spans Emirates Hills, Arabian Ranches, Al Barari, and Palm Jumeirah. We currently have stunning options from AED 6.8M to AED 120M. Which community interests you most?",
+            quickReplies: ['Emirates Hills', 'Palm Jumeirah', 'Al Barari']
+        };
+    }
+    if (msg.includes('penthouse')) {
+        return {
+            text: "Our penthouses are truly extraordinary. The Pearl Residence on Palm Jumeirah (AED 45M) and the Bluewaters Sky Penthouse (AED 28M) are our crown jewels. Both are available now — shall I arrange a private viewing?",
+            quickReplies: ['View The Pearl', 'View Bluewaters', 'Schedule viewing']
+        };
+    }
+    if (msg.includes('palm')) {
+        return {
+            text: "Palm Jumeirah is Dubai's most iconic address. We have 3 exceptional properties there — from a beachfront townhouse at AED 15M to The Pearl Residence penthouse at AED 45M. All come with private beach access.",
+            quickReplies: ['View Palm properties', 'Schedule viewing']
+        };
+    }
+    if (msg.includes('downtown') || msg.includes('burj')) {
+        return {
+            text: "Downtown Dubai offers the most iconic living experience — waking up to Burj Khalifa views daily. Our Downtown Panorama apartment (AED 3.8M) is a spectacular option. Would you like full details?",
+            quickReplies: ['View Downtown Panorama', 'Other areas']
+        };
+    }
+    if (msg.includes('visit') || msg.includes('viewing') || msg.includes('see') || msg.includes('schedule')) {
+        return {
+            text: "I'd love to arrange a private viewing for you! Our team is available 7 days a week, including evenings. Please share your email and preferred date, and your dedicated advisor will confirm within the hour.",
+            quickReplies: ['This week', 'Next week', 'Contact me directly']
+        };
+    }
+    if (msg.includes('mortgage') || msg.includes('finance') || msg.includes('loan')) {
+        return {
+            text: "UAE banks offer mortgages up to 75% LTV for residents and 60% for non-residents. Current rates range from 3.5-5% fixed. For a AED 5M property, you'd typically need AED 1.25-2M down payment. Want me to introduce you to our preferred mortgage advisor?",
+            quickReplies: ['Yes, connect me', 'Calculate mortgage', 'Tell me more']
+        };
+    }
+    if (msg.includes('golden visa') || msg.includes('residency') || msg.includes('visa')) {
+        return {
+            text: "Any property purchase above AED 2M qualifies you for the UAE 10-Year Golden Visa! That's permanent residency for you and your family. Most of our portfolio qualifies. It's one of the most compelling reasons to invest in Dubai right now.",
+            quickReplies: ['Which properties qualify?', 'Tell me more']
+        };
+    }
+    if (msg.includes('invest') || msg.includes('rental') || msg.includes('yield') || msg.includes('roi')) {
+        return {
+            text: "Dubai offers some of the world's highest rental yields — typically 5-8% gross, with zero property or income tax. Business Bay, Dubai Marina, and JBR consistently deliver strong returns. Would you like our Investment Guide?",
+            quickReplies: ['Send Investment Guide', 'Best areas for ROI']
+        };
+    }
+
+    return {
+        text: "Thank you for your message! I'm Aisha, your AI property advisor. I can help you find the perfect Dubai property, arrange viewings, or answer any questions about the market. What are you looking for?",
+        quickReplies: ['Browse villas', 'Browse apartments', 'My budget', 'Schedule viewing']
+    };
 }

@@ -4,11 +4,19 @@ import React from 'react';
 import { AnimatedCounter } from '@/components/ui/AnimatedCounter';
 import { StaggerContainer, StaggerItem } from '@/components/ui/StaggerContainer';
 import { motion } from 'framer-motion';
+import { useCurrency } from '@/components/providers/CurrencyProvider';
 
 export const StatsBar = () => {
+    const { currentCurrency, convert } = useCurrency();
+
+    // Convert 12B AED to current currency
+    const portfolioValue = convert(12); // Using 12 as the base for Billions
+    const currencySuffix = currentCurrency.code === 'AED' ? 'B+' : ` ${currentCurrency.symbol}${portfolioValue.toFixed(1)}B+`;
+    const label = currentCurrency.code === 'AED' ? 'AED Portfolio' : `${currentCurrency.code} Portfolio`;
+
     const stats = [
         { label: 'Properties', target: 500, suffix: '+' },
-        { label: 'AED Portfolio', target: 12, suffix: 'B+' },
+        { label: label, target: currentCurrency.code === 'AED' ? 12 : parseFloat(portfolioValue.toFixed(2)), suffix: currentCurrency.code === 'AED' ? 'B+' : 'B+' },
         { label: 'Market Experience', target: 15, suffix: '+ Years' },
         { label: 'Satisfaction Rate', target: 98, suffix: '%' },
     ];

@@ -1,8 +1,6 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { PROPERTIES, getPropertyBySlug } from '@/data/properties';
-import Header from '@/components/layout/Header';
-import Footer from '@/components/layout/Footer';
 import { PropertyDetailClient } from '@/components/properties/PropertyDetailClient';
 
 interface PageProps {
@@ -26,7 +24,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
         openGraph: {
             title: property.metaTitle,
             description: property.metaDescription,
-            images: [property.mainImage]
+            images: [property.coverImage]
         }
     };
 }
@@ -46,13 +44,13 @@ export default async function PropertyDetailPage({ params }: PageProps) {
 
     return (
         <>
-            <Header />
+            
             <PropertyDetailClient
                 property={property}
                 similarProperties={similarProperties}
                 formattedPrice={formattedPrice}
             />
-            <Footer locale="en" />
+            
         </>
     );
 }

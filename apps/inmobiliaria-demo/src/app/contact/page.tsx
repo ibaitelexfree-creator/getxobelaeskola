@@ -2,8 +2,6 @@
 
 import React, { useState } from 'react';
 import type { Metadata } from 'next';
-import Header from '@/components/layout/Header';
-import Footer from '@/components/layout/Footer';
 
 export default function ContactPage() {
     const [formData, setFormData] = useState({
@@ -35,7 +33,7 @@ export default function ContactPage() {
 
     return (
         <>
-            <Header />
+            
             <main style={{ paddingTop: '100px', minHeight: '80vh' }}>
                 <section
                     style={{
@@ -151,7 +149,7 @@ export default function ContactPage() {
                     </div>
                 </section>
             </main>
-            <Footer locale="en" />
+            
             <style jsx>{`
         @media (max-width: 1024px) {
           .container > div { grid-template-columns: 1fr !important; gap: 4rem !important; }

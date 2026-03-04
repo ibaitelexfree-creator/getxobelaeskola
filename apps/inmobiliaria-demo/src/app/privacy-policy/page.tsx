@@ -1,8 +1,6 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import Header from '@/components/layout/Header';
-import Footer from '@/components/layout/Footer';
 import LuxuryReveal from '@/components/ui/LuxuryReveal';
 import { PRIVACY_POLICY_TRANSLATIONS } from '@/lib/translations';
 
@@ -24,7 +22,7 @@ const PrivacyPolicy = () => {
 
     return (
         <div style={{ backgroundColor: 'var(--bg-primary)', minHeight: '100vh' }}>
-            <Header />
+            
             <main style={{ paddingTop: '12rem', paddingBottom: '10rem' }}>
                 <div className="container" style={{ maxWidth: '800px' }}>
                     <LuxuryReveal>
@@ -56,7 +54,7 @@ const PrivacyPolicy = () => {
                     </div>
                 </div>
             </main>
-            <Footer locale={locale} />
+            
         </div>
     );
 };

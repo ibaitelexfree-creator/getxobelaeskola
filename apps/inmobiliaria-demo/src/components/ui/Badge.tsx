@@ -1,19 +1,17 @@
 import React from 'react';
 
-export interface BadgeProps {
+interface BadgeProps {
     children: React.ReactNode;
-    variant?: 'gold' | 'green' | 'red';
+    variant?: 'gold' | 'green';
     className?: string;
-    style?: React.CSSProperties;
+  style?: React.CSSProperties;
 }
 
-export const Badge: React.FC<BadgeProps> = ({ children, variant = 'gold', className = '', style }) => {
-    const variantClass = `badge-${variant}`;
+export function Badge({ children, variant = 'gold', className = '', style }: BadgeProps) {
+    const variantClass = variant === 'gold' ? 'badge-gold' : 'badge-green';
     return (
-        <span className={`badge ${variantClass} ${className}`} style={style}>
+        <span className={`badge ${variantClass} ${className}`}>
             {children}
         </span>
     );
-};
-
-export default Badge;
+}

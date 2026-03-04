@@ -1,8 +1,9 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { Rocket, Share2, Video, CheckCircle2, AlertCircle, Loader2, Instagram, Facebook, MessageSquare, ExternalLink } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useSearchParams, useRouter } from 'next/navigation';
 
 interface Property {
     id: number;
@@ -22,21 +23,45 @@ interface MarketingContent {
     price_formatted: string;
 }
 
-export default function MarketingAdmin() {
+function MarketingAdminContent() {
     const [properties, setProperties] = useState<Property[]>([]);
     const [loading, setLoading] = useState(true);
     const [processingId, setProcessingId] = useState<number | null>(null);
     const [selectedContent, setSelectedContent] = useState<{ id: number, content: MarketingContent } | null>(null);
     const [notification, setNotification] = useState<{ type: 'success' | 'error', message: string } | null>(null);
 
+    const searchParams = useSearchParams();
+    const router = useRouter();
+    const autoPropertyId = searchParams.get('propertyId');
+
     useEffect(() => {
-        fetchProperties();
+        const checkRoleAndFetch = async () => {
+            const roleRes = await fetch('/realstate/api/user/role');
+            const { role } = await roleRes.json();
+
+            if (role !== 'admin') {
+                router.push('/');
+                return;
+            }
+
+            await fetchProperties();
+        };
+
+        checkRoleAndFetch();
     }, []);
+
+    useEffect(() => {
+        if (!loading && autoPropertyId && properties.length > 0) {
+            const id = parseInt(autoPropertyId);
+            if (!isNaN(id)) {
+                handleGenerate(id);
+            }
+        }
+    }, [loading, autoPropertyId]);
 
     const fetchProperties = async () => {
         try {
-            // For demo, we might need a specific endpoint or just fetch all
-            const res = await fetch('/api/properties');
+            const res = await fetch('/realstate/api/properties');
             const data = await res.json();
             setProperties(data.properties || []);
         } catch (err) {
@@ -50,7 +75,7 @@ export default function MarketingAdmin() {
         setProcessingId(id);
         setSelectedContent(null);
         try {
-            const res = await fetch('/api/marketing/generate', {
+            const res = await fetch('/realstate/api/marketing/generate', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ propertyId: id, triggerVideo: true })
@@ -74,7 +99,6 @@ export default function MarketingAdmin() {
     return (
         <div className="min-h-screen bg-[#050505] text-white p-8 font-sans">
             <div className="max-w-7xl mx-auto">
-                {/* Header */}
                 <header className="flex justify-between items-center mb-12">
                     <div>
                         <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-400 to-emerald-400 bg-clip-text text-transparent">
@@ -90,7 +114,6 @@ export default function MarketingAdmin() {
                     </div>
                 </header>
 
-                {/* Notification */}
                 <AnimatePresence>
                     {notification && (
                         <motion.div
@@ -107,7 +130,6 @@ export default function MarketingAdmin() {
                 </AnimatePresence>
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    {/* Property List */}
                     <div className="lg:col-span-2 space-y-4">
                         <h2 className="text-xl font-semibold mb-6 flex items-center gap-2">
                             <Share2 size={20} className="text-blue-400" />
@@ -162,7 +184,6 @@ export default function MarketingAdmin() {
                         )}
                     </div>
 
-                    {/* Preview Panel */}
                     <div className="lg:col-span-1">
                         <div className="bg-white/5 border border-white/10 rounded-3xl p-8 sticky top-8 backdrop-blur-xl">
                             <h2 className="text-xl font-semibold mb-6 flex items-center gap-2">
@@ -176,7 +197,6 @@ export default function MarketingAdmin() {
                                 </div>
                             ) : (
                                 <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                                    {/* Video Status */}
                                     <div className="p-4 bg-emerald-500/10 border border-emerald-500/30 rounded-2xl flex items-center gap-3">
                                         <Video className="text-emerald-400 animate-pulse" />
                                         <div>
@@ -185,9 +205,7 @@ export default function MarketingAdmin() {
                                         </div>
                                     </div>
 
-                                    {/* Social Tabs */}
                                     <div className="space-y-6">
-                                        {/* Instagram */}
                                         <div className="space-y-2">
                                             <div className="flex items-center gap-2 text-pink-400">
                                                 <Instagram size={16} />
@@ -198,7 +216,6 @@ export default function MarketingAdmin() {
                                             </div>
                                         </div>
 
-                                        {/* WhatsApp */}
                                         <div className="space-y-2">
                                             <div className="flex items-center gap-2 text-emerald-400">
                                                 <MessageSquare size={16} />
@@ -232,5 +249,13 @@ export default function MarketingAdmin() {
         }
       `}</style>
         </div>
+    );
+}
+
+export default function MarketingAdmin() {
+    return (
+        <Suspense fallback={<div className="flex justify-center py-20"><Loader2 className="animate-spin text-blue-500" size={40} /></div>}>
+            <MarketingAdminContent />
+        </Suspense>
     );
 }

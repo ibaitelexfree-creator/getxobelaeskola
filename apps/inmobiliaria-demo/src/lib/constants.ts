@@ -1,4 +1,4 @@
-export const BASE_PATH = '/controlmanager/realstate';
+export const BASE_PATH = '/realstate';
 
 export const getAssetPath = (path: string) => {
     if (path.startsWith('http') || path.startsWith('data:')) return path;

@@ -6,10 +6,14 @@ const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 
 export async function POST(req: NextRequest) {
     try {
-        const { propertyId, videoUrl, chatId, status = 'completed', error } = await req.json();
+        const data = await req.json();
+        const { propertyId, videoUrl, chatId, status = 'completed', error } = data;
 
         if (!propertyId || !videoUrl) {
-            return NextResponse.json({ error: 'propertyId and videoUrl are required' }, { status: 400 });
+            return NextResponse.json({
+                error: 'propertyId and videoUrl are required',
+                received: data
+            }, { status: 400 });
         }
 
         // 1. Update database
@@ -21,18 +25,23 @@ export async function POST(req: NextRequest) {
 
         // 2. Notify Telegram if chatId is present
         if (chatId) {
-            const property = await sql`SELECT title FROM properties WHERE id = ${propertyId}`;
-            const title = property[0]?.title || 'Property';
+            try {
+                const property = await sql`SELECT title FROM properties WHERE id = ${propertyId}`;
+                const title = property[0]?.title || 'Property';
 
-            const message = status === 'completed'
-                ? `🎬 *Video Ready!* 🚀\n\nThe promotional video for *${title}* has been rendered successfully.\n\n🔗 [Watch Video](${videoUrl})`
-                : `❌ *Video Rendering Failed*\n\nThere was an error generating the video for *${title}*.\n${error ? `Error: ${error}` : ''}`;
+                const message = status === 'completed'
+                    ? `🎬 *Video Ready!* 🚀\n\nThe promotional video for *${title}* has been rendered successfully.\n\n🔗 [Watch Video](${videoUrl})`
+                    : `❌ *Video Rendering Failed*\n\nThere was an error generating the video for *${title}*.\n${error ? `Error: ${error}` : ''}`;
 
-            await axios.post(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-                chat_id: chatId,
-                text: message,
-                parse_mode: 'Markdown'
-            });
+                await axios.post(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                    chat_id: chatId,
+                    text: message,
+                    parse_mode: 'Markdown'
+                });
+            } catch (tgError: any) {
+                console.error('Telegram notification error:', tgError.response?.data || tgError.message);
+                // Don't fail the whole request just because Telegram notification failed
+            }
         }
 
         return NextResponse.json({ success: true });

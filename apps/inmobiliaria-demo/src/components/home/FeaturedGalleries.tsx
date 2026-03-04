@@ -9,8 +9,10 @@ import { Magnetic } from '@/components/ui/Magnetic';
 import { Reveal, MaskReveal } from '@/components/ui/Reveal';
 import LuxuryReveal from '@/components/ui/LuxuryReveal';
 import { getAssetPath } from '@/lib/constants';
+import { useCurrency } from '@/components/providers/CurrencyProvider';
 
 export const FeaturedGalleries = () => {
+    const { formatPrice } = useCurrency();
     const { getStyle: getTextStyle } = useParallax({ speed: -0.1, limit: 100 });
     const featured = PROPERTIES.filter(p => p.featured).slice(0, 3);
 
@@ -91,7 +93,7 @@ export const FeaturedGalleries = () => {
                                         lineHeight: 1.1,
                                         fontWeight: 600
                                     }}>
-                                        {p.name}
+                                        {p.title}
                                     </h3>
                                 </Reveal>
                                 <Reveal delay={0.3 + index * 0.1}>
@@ -138,8 +140,8 @@ export const FeaturedGalleries = () => {
                                 <LuxuryReveal delay={0.3 + index * 0.2}>
                                     <div style={{ position: 'relative', width: '100%', height: '100%' }}>
                                         <Image
-                                            src={getAssetPath(p.mainImage)}
-                                            alt={p.name}
+                                            src={getAssetPath(p.coverImage)}
+                                            alt={p.title}
                                             fill
                                             className="ken-burns"
                                             style={{
@@ -177,7 +179,7 @@ export const FeaturedGalleries = () => {
                                                     fontWeight: 700,
                                                     fontFamily: 'var(--font-display)'
                                                 }}>
-                                                    AED {p.price.toLocaleString('en-US')}
+                                                    {formatPrice(p.price)}
                                                 </span>
                                             </div>
                                         </div>

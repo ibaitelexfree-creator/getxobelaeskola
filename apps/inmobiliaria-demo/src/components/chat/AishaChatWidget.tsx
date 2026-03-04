@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { getAishaResponse, ChatMessage } from '@/lib/aisha-responses';
+import { getAishaResponse } from '@/lib/aisha-responses';
+import { ChatMessage } from '@/lib/types';
 
 export const AishaChatWidget: React.FC = () => {
     const [isOpen, setIsOpen] = useState(false);
@@ -24,7 +25,7 @@ export const AishaChatWidget: React.FC = () => {
             setMessages([{
                 id: 'initial',
                 role: 'aisha',
-                text: "Hello! I'm Aisha 👋 How can I help you find your perfect home in Dubai today?",
+                content: "Hello! I'm Aisha 👋 How can I help you find your perfect home in Dubai today?",
                 timestamp: new Date()
             }]);
         }
@@ -38,7 +39,7 @@ export const AishaChatWidget: React.FC = () => {
         const userMsg: ChatMessage = {
             id: Date.now().toString(),
             role: 'user',
-            text: input,
+            content: input,
             timestamp: new Date()
         };
 
@@ -51,7 +52,7 @@ export const AishaChatWidget: React.FC = () => {
             const aishaMsg: ChatMessage = {
                 id: (Date.now() + 1).toString(),
                 role: 'aisha',
-                text: response,
+                content: response.text,
                 timestamp: new Date()
             };
             setMessages(prev => [...prev, aishaMsg]);
@@ -173,7 +174,7 @@ export const AishaChatWidget: React.FC = () => {
                                         border: msg.role === 'aisha' ? '1px solid var(--border-subtle)' : 'none'
                                     }}
                                 >
-                                    {msg.text}
+                                    {msg.content}
                                 </div>
                                 <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)', alignSelf: msg.role === 'user' ? 'flex-end' : 'flex-start' }}>
                                     {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}

@@ -8,17 +8,47 @@ import { useParallax } from '@/lib/useParallax';
 import { getAssetPath } from '@/lib/constants';
 
 const DISTRICTS = [
-    { id: 'palm', name: 'Palm Jumeirah', x: 420, y: 390, info: 'World-famous man-made island' },
-    { id: 'downtown', name: 'Downtown Dubai', x: 620, y: 270, info: 'Heart of the city & Burj Khalifa' },
-    { id: 'marina', name: 'Dubai Marina', x: 380, y: 432, info: 'High-end waterfront living' },
-    { id: 'hills', name: 'Dubai Hills', x: 580, y: 360, info: 'Vibrant green community' },
-    { id: 'creek', name: 'Dubai Creek', x: 750, y: 180, info: 'Historic heart of Dubai' },
+    { id: 'palm-jumeirah', name: 'Palm Jumeirah', x: 420, y: 390, info: 'World-famous man-made island' },
+    { id: 'downtown-dubai', name: 'Downtown Dubai', x: 620, y: 270, info: 'Heart of the city & Burj Khalifa' },
+    { id: 'dubai-marina', name: 'Dubai Marina', x: 380, y: 432, info: 'High-end waterfront living' },
+    { id: 'dubai-hills-estate', name: 'Dubai Hills Estate', x: 580, y: 360, info: 'Vibrant green community' },
+    { id: 'business-bay', name: 'Business Bay', x: 650, y: 310, info: 'The Middle East\'s business hub' },
+    { id: 'jumeirah-bay', name: 'Jumeirah Bay', x: 520, y: 320, info: 'Ultra-exclusive private island' },
 ];
 
 export const DubaiInteractiveMap = () => {
     const [activeDistrict, setActiveDistrict] = useState<typeof DISTRICTS[0] | null>(null);
-    const { getStyle: getDriftStyle } = useParallax({ speed: 0.1, limit: 1500 });
+    const [tooltipPos, setTooltipPos] = useState({ x: 0, y: 0 });
+    const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+    const { getStyle: getDriftStyle } = useParallax({ speed: 0.1, limit: 5000 });
     const containerRef = useRef<HTMLDivElement>(null);
+
+    const handleMouseEnter = (e: React.MouseEvent<SVGGElement>, district: typeof DISTRICTS[0]) => {
+        if (timeoutRef.current) clearTimeout(timeoutRef.current);
+
+        if (containerRef.current) {
+            const containerRect = containerRef.current.getBoundingClientRect();
+            const elementRect = e.currentTarget.getBoundingClientRect();
+
+            // Calculate absolute position within the container
+            const x = elementRect.left - containerRect.left + (elementRect.width / 2);
+            const y = elementRect.top - containerRect.top;
+
+            setTooltipPos({ x, y });
+        }
+
+        setActiveDistrict(district);
+    };
+
+    const handleMouseLeave = () => {
+        timeoutRef.current = setTimeout(() => {
+            setActiveDistrict(null);
+        }, 300);
+    };
+
+    const handleTooltipEnter = () => {
+        if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    };
 
     return (
         <section className="section" style={{ backgroundColor: 'var(--bg-primary)', overflow: 'hidden' }}>
@@ -139,8 +169,9 @@ export const DubaiInteractiveMap = () => {
                         {DISTRICTS.map((district, index) => (
                             <g
                                 key={district.id}
-                                onMouseEnter={() => setActiveDistrict(district)}
-                                onMouseLeave={() => setActiveDistrict(null)}
+                                onMouseEnter={(e) => handleMouseEnter(e, district)}
+                                onMouseLeave={handleMouseLeave}
+                                onClick={(e) => handleMouseEnter(e as unknown as React.MouseEvent<SVGGElement>, district)}
                                 style={{ cursor: 'pointer' }}
                             >
                                 {/* Ripple Effect */}
@@ -183,9 +214,9 @@ export const DubaiInteractiveMap = () => {
                                 transition={{ duration: 0.2 }}
                                 style={{
                                     position: 'absolute',
-                                    left: `${(activeDistrict.x / 1000) * 100}%`,
-                                    top: `${(activeDistrict.y / 600) * 100}%`,
-                                    transform: 'translate(-50%, -120%)',
+                                    left: `${tooltipPos.x}px`,
+                                    top: `${tooltipPos.y}px`,
+                                    transform: 'translate(-50%, -100%) translateY(-20px)',
                                     zIndex: 100,
                                     pointerEvents: 'auto',
                                 }}
@@ -193,6 +224,8 @@ export const DubaiInteractiveMap = () => {
                                 <Link
                                     href={`/properties?neighborhood=${activeDistrict.id}`}
                                     style={{ textDecoration: 'none' }}
+                                    onMouseEnter={handleTooltipEnter}
+                                    onMouseLeave={handleMouseLeave}
                                 >
                                     <div className="map-tooltip">
                                         <span className="tooltip-label">DISTRICT</span>

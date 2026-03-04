@@ -5,8 +5,6 @@ import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import { PROPERTIES } from '@/data/properties';
 import { NEIGHBORHOODS } from '@/data/neighborhoods';
 import { PropertyCard } from '@/components/properties/PropertyCard';
-import Header from '@/components/layout/Header';
-import Footer from '@/components/layout/Footer';
 import { Magnetic } from '@/components/ui/Magnetic';
 
 function PropertiesContent() {
@@ -51,15 +49,15 @@ function PropertiesContent() {
         if (query) {
             const q = query.toLowerCase();
             result = result.filter(p =>
-                p.name.toLowerCase().includes(q) ||
+                p.title.toLowerCase().includes(q) ||
                 p.neighborhood.toLowerCase().includes(q) ||
                 p.description.toLowerCase().includes(q) ||
-                p.type.toLowerCase().includes(q)
+                p.propertyType.toLowerCase().includes(q)
             );
         }
 
         if (filterType !== 'All') {
-            result = result.filter(p => p.type === filterType);
+            result = result.filter(p => p.propertyType.toLowerCase() === filterType.toLowerCase());
         }
 
         if (filterNeighborhood !== 'All') {
@@ -71,7 +69,7 @@ function PropertiesContent() {
 
         if (filterBeds !== 'All') {
             const bedsNum = parseInt(filterBeds);
-            result = result.filter(p => p.bedrooms === 'Studio' ? bedsNum === 0 : (p.bedrooms as number) >= bedsNum);
+            result = result.filter(p => p.bedrooms === 0 ? bedsNum === 0 : p.bedrooms >= bedsNum);
         }
 
         if (sortBy === 'Price↑') {
@@ -297,11 +295,11 @@ function PropertiesContent() {
 export default function PropertiesPage() {
     return (
         <div style={{ backgroundColor: '#050505', minHeight: '100vh' }}>
-            <Header />
+
             <Suspense fallback={<div className="container" style={{ padding: '20vh', textAlign: 'center', color: 'var(--gold-500)' }}>INITIALIZING PORTFOLIO...</div>}>
                 <PropertiesContent />
             </Suspense>
-            <Footer locale="en" />
+
             <style jsx>{`
                 .container {
                     max-width: 1400px;

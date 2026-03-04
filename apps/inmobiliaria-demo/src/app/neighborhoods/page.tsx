@@ -1,15 +1,13 @@
 'use client';
 
 import React from 'react';
-import Header from '@/components/layout/Header';
-import Footer from '@/components/layout/Footer';
 import { NeighborhoodGrid } from '@/components/home/NeighborhoodGrid';
 import LuxuryReveal from '@/components/ui/LuxuryReveal';
 
 export default function NeighborhoodsPage() {
     return (
         <div style={{ backgroundColor: 'var(--bg-primary)', minHeight: '100vh' }}>
-            <Header />
+            
             <main style={{ paddingTop: '12rem', paddingBottom: '10rem' }}>
                 <div className="container" style={{ textAlign: 'center', marginBottom: '8rem' }}>
                     <LuxuryReveal>
@@ -46,7 +44,7 @@ export default function NeighborhoodsPage() {
 
                 <NeighborhoodGrid />
             </main>
-            <Footer locale="en" />
+            
         </div>
     );
 }

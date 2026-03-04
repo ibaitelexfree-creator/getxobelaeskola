@@ -6,11 +6,17 @@ import { Badge } from '@/components/ui/Badge';
 import { PropertyCard } from '@/components/properties/PropertyCard';
 import { PropertyMapSection } from '@/components/properties/PropertyMapSection';
 import { BookingModal } from '@/components/ui/BookingModal';
-import { formatPrice, formatSqft } from '@/lib/utils';
+import { DepthParallax3D } from '@/components/ui/DepthParallax3D';
+import { PropertyVideo } from '@/components/properties/PropertyVideo';
+import { formatSqft } from '@/lib/utils';
+import { useCurrency } from '@/components/providers/CurrencyProvider';
 import { getAssetPath } from '@/lib/constants';
 import { Property } from '@/data/properties';
 import { Magnetic } from '@/components/ui/Magnetic';
 import { useScrollReveal } from '@/lib/useScrollReveal';
+import { createClient } from '@/lib/supabase/client';
+
+type ViewMode = '3d' | 'video' | 'static';
 
 interface PropertyDetailClientProps {
     property: Property;
@@ -19,32 +25,89 @@ interface PropertyDetailClientProps {
 }
 
 export const PropertyDetailClient: React.FC<PropertyDetailClientProps> = ({
-    property,
+    property: initialProperty,
     similarProperties,
     formattedPrice
 }) => {
+    const { formatPrice } = useCurrency();
+    const [property, setProperty] = useState(initialProperty);
     const [isBookingOpen, setIsBookingOpen] = useState(false);
     const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+
+    // Fetch dynamic data from database (depth maps, videos, status)
+    useEffect(() => {
+        const fetchDynamicData = async () => {
+            try {
+                // Find dynamic property by reference code or ID
+                const { data, error } = await createClient()
+                    .from('properties')
+                    .select('depth_maps, depth_map_status, video_url, video_status')
+                    .eq('id', (initialProperty as any).id)
+                    .single();
+
+                if (data && !error) {
+                    setProperty(prev => ({
+                        ...prev,
+                        depth_maps: data.depth_maps,
+                        depth_map_status: data.depth_map_status,
+                        video_url: data.video_url,
+                        video_status: data.video_status
+                    }));
+                }
+            } catch (err) {
+                console.error('Error fetching dynamic property data:', err);
+            }
+        };
+
+        fetchDynamicData();
+        // Polling if processing
+        const interval = setInterval(() => {
+            const prop = property as any;
+            if (prop.depth_map_status === 'processing' || prop.video_status === 'processing') {
+                fetchDynamicData();
+            }
+        }, 5000);
+
+        return () => clearInterval(interval);
+    }, [initialProperty]);
+
+    // Immersive image mode
+    const hasDepthMap = !!(property as any).depth_maps?.length;
+    const hasVideo = !!(property as any).video_url;
+    const defaultMode: ViewMode = hasDepthMap ? '3d' : hasVideo ? 'video' : 'static';
+    const [viewMode, setViewMode] = useState<ViewMode>(defaultMode);
 
     useEffect(() => {
         const handleMouseMove = (e: MouseEvent) => {
             setMousePos({ x: e.clientX, y: e.clientY });
         };
         window.addEventListener('mousemove', handleMouseMove);
+
+        // Record view if user is logged in
+        const recordView = async () => {
+            const supabase = createClient();
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user) {
+                await supabase.from('view_history').insert([{
+                    user_id: user.id,
+                    property_slug: property.slug
+                }]);
+            }
+        };
+        recordView();
+
         return () => window.removeEventListener('mousemove', handleMouseMove);
-    }, []);
+    }, [property.slug]);
 
     return (
         <main style={{ paddingTop: '120px', paddingBottom: '8rem', backgroundColor: '#050505' }}>
             <div className="container">
                 {/* Gallery Header - Cinematic Reveal */}
                 <div
-                    className="perspective-2000"
+                    className="gallery-grid"
                     style={{
                         display: 'grid',
-                        gridTemplateColumns: 'minmax(0, 2fr) 1fr',
                         gap: '1.5rem',
-                        height: '700px',
                         marginBottom: '4rem',
                         opacity: 0,
                         animation: 'reveal-3d 1.2s var(--ease-rev) forwards'
@@ -57,17 +120,124 @@ export const PropertyDetailClient: React.FC<PropertyDetailClientProps> = ({
                         borderRadius: 'var(--radius-lg)',
                         border: '1px solid var(--border-subtle)'
                     }}>
-                        <div style={{
-                            height: '100%',
-                            width: '100%',
-                            animation: 'ken-burns 20s infinite alternate'
-                        }}>
-                            <img
-                                src={getAssetPath(property.mainImage)}
-                                alt={property.name}
-                                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                        {/* Immersive Hero: 3D Depth / Video / Static */}
+                        {viewMode === '3d' && hasDepthMap ? (
+                            <DepthParallax3D
+                                imageUrl={getAssetPath(property.coverImage)}
+                                depthMapUrl={(property as any).depth_maps[0]}
+                                intensity={0.04}
+                                style={{ width: '100%', height: '100%' }}
+                                alt={property.title}
                             />
+                        ) : viewMode === 'video' && hasVideo ? (
+                            <PropertyVideo
+                                videoUrl={(property as any).video_url}
+                                posterImage={getAssetPath(property.coverImage)}
+                                showControls
+                                style={{ width: '100%', height: '100%' }}
+                            />
+                        ) : (
+                            <div style={{
+                                height: '100%',
+                                width: '100%',
+                                animation: 'ken-burns 20s infinite alternate'
+                            }}>
+                                <img
+                                    src={getAssetPath(property.coverImage)}
+                                    alt={property.title}
+                                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                />
+                            </div>
+                        )}
+
+                        {/* Immersive Controls - Dubai Midnight Gold Style */}
+                        {(hasDepthMap || hasVideo || (property as any).depth_map_status === 'processing' || (property as any).video_status === 'processing') && (
+                            <div style={{
+                                position: 'absolute',
+                                top: '1.5rem',
+                                right: '1.5rem',
+                                display: 'flex',
+                                gap: '0.75rem',
+                                zIndex: 20
+                            }}>
+                                {hasDepthMap && (
+                                    <button
+                                        onClick={() => setViewMode('3d')}
+                                        style={{
+                                            padding: '0.6rem 1.2rem',
+                                            borderRadius: 'var(--radius-full)',
+                                            background: viewMode === '3d' ? 'var(--gold-500)' : 'rgba(0,0,0,0.4)',
+                                            backdropFilter: 'blur(12px)',
+                                            border: `1px solid ${viewMode === '3d' ? 'var(--gold-400)' : 'var(--border-gold)'}`,
+                                            color: viewMode === '3d' ? '#0a0a0f' : 'var(--gold-400)',
+                                            fontSize: '0.75rem',
+                                            fontWeight: 700,
+                                            letterSpacing: '0.1em',
+                                            cursor: 'pointer',
+                                            boxShadow: viewMode === '3d' ? '0 4px 15px rgba(212,175,55,0.4)' : 'none',
+                                            transition: 'all 0.3s ease'
+                                        }}
+                                    >
+                                        ✦ 3D MODE
+                                    </button>
+                                )}
+                                {hasVideo && (
+                                    <button
+                                        onClick={() => setViewMode('video')}
+                                        style={{
+                                            padding: '0.6rem 1.2rem',
+                                            borderRadius: 'var(--radius-full)',
+                                            background: viewMode === 'video' ? 'var(--gold-500)' : 'rgba(0,0,0,0.4)',
+                                            backdropFilter: 'blur(12px)',
+                                            border: `1px solid ${viewMode === 'video' ? 'var(--gold-400)' : 'var(--border-gold)'}`,
+                                            color: viewMode === 'video' ? '#0a0a0f' : 'var(--gold-400)',
+                                            fontSize: '0.75rem',
+                                            fontWeight: 700,
+                                            letterSpacing: '0.1em',
+                                            cursor: 'pointer',
+                                            boxShadow: viewMode === 'video' ? '0 4px 15px rgba(212,175,55,0.4)' : 'none',
+                                            transition: 'all 0.3s ease'
+                                        }}
+                                    >
+                                        🎬 FILM
+                                    </button>
+                                )}
+                                <button
+                                    onClick={() => setViewMode('static')}
+                                    style={{
+                                        padding: '0.6rem 1.2rem',
+                                        borderRadius: 'var(--radius-full)',
+                                        background: viewMode === 'static' ? 'var(--gold-500)' : 'rgba(0,0,0,0.4)',
+                                        backdropFilter: 'blur(12px)',
+                                        border: `1px solid ${viewMode === 'static' ? 'var(--gold-400)' : 'var(--border-gold)'}`,
+                                        color: viewMode === 'static' ? '#0a0a0f' : 'var(--gold-400)',
+                                        fontSize: '0.75rem',
+                                        fontWeight: 700,
+                                        letterSpacing: '0.1em',
+                                        cursor: 'pointer',
+                                        boxShadow: viewMode === 'static' ? '0 4px 15px rgba(212,175,55,0.4)' : 'none',
+                                        transition: 'all 0.3s ease'
+                                    }}
+                                >
+                                    📷 PHOTO
+                                </button>
+                            </div>
+                        )}
+
+                        {/* Processing Badges */}
+                        <div style={{ position: 'absolute', bottom: '1.5rem', left: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.5rem', zIndex: 10 }}>
+                            {(property as any).depth_map_status === 'processing' && (
+                                <div className="badge-processing">
+                                    <span className="pulse-dot"></span> GENERATING 3D MODEL...
+                                </div>
+                            )}
+                            {(property as any).video_status === 'processing' && (
+                                <div className="badge-processing">
+                                    <span className="pulse-dot"></span> GENERATING CINEMATIC...
+                                </div>
+                            )}
                         </div>
+
                         <div style={{
                             position: 'absolute',
                             inset: 0,
@@ -75,8 +245,8 @@ export const PropertyDetailClient: React.FC<PropertyDetailClientProps> = ({
                             pointerEvents: 'none'
                         }} />
                     </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                        {property.gallery.slice(1, 3).map((img, idx) => (
+                    <div className="gallery-side-images" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                        {property.images.slice(1, 3).map((img, idx) => (
                             <div
                                 key={idx}
                                 style={{
@@ -91,7 +261,7 @@ export const PropertyDetailClient: React.FC<PropertyDetailClientProps> = ({
                             >
                                 <img
                                     src={getAssetPath(img)}
-                                    alt={`${property.name} gallery ${idx + 2}`}
+                                    alt={`${property.title} gallery ${idx + 2}`}
                                     style={{
                                         width: '100%',
                                         height: '100%',
@@ -119,7 +289,7 @@ export const PropertyDetailClient: React.FC<PropertyDetailClientProps> = ({
                                     animation: 'reveal-mask 0.8s var(--ease-rev) forwards'
                                 }}
                             >
-                                <Badge variant="gold" style={{ letterSpacing: '0.2rem', fontWeight: 700 }}>{property.type.toUpperCase()}</Badge>
+                                <Badge variant="gold" style={{ letterSpacing: '0.2rem', fontWeight: 700 }}>{property.propertyType.toUpperCase()}</Badge>
                                 <Badge variant="green" style={{ letterSpacing: '0.1rem' }}>RESIDENTIAL ELITE</Badge>
                             </div>
 
@@ -134,7 +304,7 @@ export const PropertyDetailClient: React.FC<PropertyDetailClientProps> = ({
                                         fontWeight: 400
                                     }}
                                 >
-                                    {property.name}
+                                    {property.title}
                                 </h1>
                             </div>
 
@@ -174,7 +344,7 @@ export const PropertyDetailClient: React.FC<PropertyDetailClientProps> = ({
                                 {[
                                     { icon: '🛏', value: property.bedrooms, label: 'Suites' },
                                     { icon: '🚿', value: property.bathrooms, label: 'Bathrooms' },
-                                    { icon: '📐', value: property.sqft.toLocaleString('en-US'), label: 'Total Sq Ft' },
+                                    { icon: '📐', value: property.sizeSqft.toLocaleString('en-US'), label: 'Total Sq Ft' },
                                     { icon: '📅', value: property.yearBuilt, label: 'Built Year' }
                                 ].map((stat, i) => (
                                     <div
@@ -250,7 +420,7 @@ export const PropertyDetailClient: React.FC<PropertyDetailClientProps> = ({
                             </div>
                         </section>
 
-                        <PropertyMapSection neighborhood={property.neighborhood} name={property.name} />
+                        <PropertyMapSection neighborhood={property.neighborhood} name={property.title} />
                     </div>
 
                     {/* Sticky Sidebar - Refined Luxury */}
@@ -279,7 +449,7 @@ export const PropertyDetailClient: React.FC<PropertyDetailClientProps> = ({
                                         fontWeight: 800
                                     }}
                                 >
-                                    {formattedPrice}
+                                    {formatPrice(property.price)}
                                 </div>
                             </div>
 
@@ -401,22 +571,43 @@ export const PropertyDetailClient: React.FC<PropertyDetailClientProps> = ({
             <BookingModal
                 isOpen={isBookingOpen}
                 onClose={() => setIsBookingOpen(false)}
-                propertyName={property.name}
+                propertyName={property.title}
             />
 
             <style jsx>{`
+                .gallery-grid {
+                    grid-template-columns: minmax(0, 2fr) 1fr;
+                    height: 700px;
+                    perspective: 2000px;
+                }
+                @media (max-width: 1024px) {
+                    .gallery-grid {
+                        grid-template-columns: 1fr;
+                        height: auto;
+                    }
+                    .gallery-side-images {
+                        display: grid !important;
+                        grid-template-columns: 1fr 1fr;
+                        height: 300px;
+                    }
+                }
+                @media (max-width: 640px) {
+                    .gallery-side-images {
+                        display: none !important;
+                    }
+                    .gallery-grid {
+                        height: 400px;
+                    }
+                }
                 .container {
                     max-width: 1400px;
                     margin: 0 auto;
                     padding: 0 2rem;
                 }
-                .perspective-2000 {
-                    perspective: 2000px;
-                }
                 @keyframes reveal-3d {
                     from { 
                         opacity: 0; 
-                        transform: translateY(100px) rotateX(-15deg); 
+                        transform: translateY(60px) rotateX(-5deg); 
                     }
                     to { 
                         opacity: 1; 
@@ -431,7 +622,35 @@ export const PropertyDetailClient: React.FC<PropertyDetailClientProps> = ({
                     background-color: #111 !important;
                     box-shadow: inset 0 0 30px rgba(212,168,67,0.1);
                 }
+                .badge-processing {
+                    padding: 0.5rem 1rem;
+                    border-radius: var(--radius-full);
+                    background: rgba(0,0,0,0.6);
+                    backdrop-filter: blur(12px);
+                    border: 1px solid var(--gold-400);
+                    color: var(--gold-400);
+                    font-size: 0.7rem;
+                    font-weight: 700;
+                    letter-spacing: 0.1em;
+                    display: flex;
+                    align-items: center;
+                    gap: 0.6rem;
+                    box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+                }
+                .pulse-dot {
+                    width: 8px;
+                    height: 8px;
+                    background: var(--gold-400);
+                    border-radius: 50%;
+                    box-shadow: 0 0 10px var(--gold-400);
+                    animation: pulse-glow 1.5s infinite;
+                }
+                @keyframes pulse-glow {
+                    0% { transform: scale(1); opacity: 1; box-shadow: 0 0 5px var(--gold-400); }
+                    50% { transform: scale(1.2); opacity: 0.6; box-shadow: 0 0 15px var(--gold-400); }
+                    100% { transform: scale(1); opacity: 1; box-shadow: 0 0 5px var(--gold-400); }
+                }
             `}</style>
-        </main>
+        </main >
     );
 };

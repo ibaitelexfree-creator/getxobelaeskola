@@ -15,13 +15,33 @@ export const BookingModal: React.FC<BookingModalProps> = ({ isOpen, onClose, pro
 
     if (!isOpen) return null;
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        setStep(3);
-        setTimeout(() => {
-            onClose();
-            setStep(1);
-        }, 5000);
+
+        // Collect data from form (simplifying since it's a demo but functional)
+        const formData = new FormData(e.target as HTMLFormElement);
+        const name = (e.target as any).elements[0].value;
+        const email = (e.target as any).elements[1].value;
+
+        try {
+            await fetch('/api/leads', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    full_name: name,
+                    email: email,
+                    service_type: service,
+                    propertyName: propertyName
+                })
+            });
+            setStep(3);
+            setTimeout(() => {
+                onClose();
+                setStep(1);
+            }, 5000);
+        } catch (err) {
+            console.error('Failed to submit booking:', err);
+        }
     };
 
     return (

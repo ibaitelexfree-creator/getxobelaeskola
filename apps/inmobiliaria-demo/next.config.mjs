@@ -2,6 +2,9 @@
 const nextConfig = {
   output: 'standalone',
   basePath: '/realstate',
+  experimental: {
+    // Turbopack root config removed as it's marked as invalid in this version
+  },
   images: {
     remotePatterns: [
       {

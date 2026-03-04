@@ -97,7 +97,7 @@ export const NeighborhoodGrid = () => {
                                         <h3 style={{ fontFamily: 'var(--font-display)', fontSize: '1.75rem', color: '#fff', margin: 0 }}>
                                             {neighborhood.name}
                                         </h3>
-                                        <Badge variant="gold" style={{ fontSize: '0.65rem' }}>{neighborhood.propertyCount} Properties</Badge>
+                                        <Badge variant="gold" style={{ fontSize: '0.65rem' }}>{neighborhood.property_count} Properties</Badge>
                                     </div>
                                     <span className="explore-text">Explore Area &rarr;</span>
                                 </div>
