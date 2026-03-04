@@ -4,11 +4,12 @@ import React from 'react';
 import Image from 'next/image';
 import LuxuryReveal from '@/components/ui/LuxuryReveal';
 import { revealOnScroll } from '@/lib/revealOnScroll';
+import { getAssetPath } from '@/lib/constants';
 
 export default function AboutPage() {
     return (
         <div style={{ backgroundColor: 'var(--bg-primary)', minHeight: '100vh' }}>
-            
+
             <main style={{ paddingTop: '12rem', paddingBottom: '10rem' }}>
                 <div className="container">
                     {/* Header Section */}
@@ -59,11 +60,10 @@ export default function AboutPage() {
                             }}
                             className="luxury-glow"
                         >
-                            <Image
-                                src="/images/properties/penthouse-pool.png"
+                            <img
+                                src={getAssetPath("/images/properties/penthouse-pool.png")}
                                 alt="Luxe Dubai Estates Vision"
-                                fill
-                                style={{ objectFit: 'cover' }}
+                                style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover' }}
                                 className="ken-burns"
                             />
                             <div style={{
@@ -114,7 +114,7 @@ export default function AboutPage() {
                     </div>
                 </div>
             </main>
-            
+
 
             <style jsx>{`
                 @media (max-width: 1024px) {

@@ -10,7 +10,7 @@ const mockSupabase = {
     from: vi.fn().mockReturnThis(),
     select: vi.fn().mockReturnThis(),
     eq: vi.fn().mockReturnThis(),
-    single: vi.fn().mockImplementation(function(this: any) {
+    single: vi.fn().mockImplementation(function (this: any) {
         if (this.tableName === 'profiles') {
             return Promise.resolve({ data: { rol: 'instructor' }, error: null });
         }
@@ -20,9 +20,6 @@ const mockSupabase = {
         return Promise.resolve({ data: null, error: null });
     }),
     insert: vi.fn().mockReturnThis(),
-    // Mock the chain for instructor_feedback insert
-    // .insert(...).select().single()
-    select: vi.fn().mockReturnThis(),
 };
 
 // Override select to return the mock with single

@@ -139,12 +139,16 @@ export const FeaturedGalleries = () => {
                             >
                                 <LuxuryReveal delay={0.3 + index * 0.2}>
                                     <div style={{ position: 'relative', width: '100%', height: '100%' }}>
-                                        <Image
+                                        <img
                                             src={getAssetPath(p.coverImage)}
                                             alt={p.title}
-                                            fill
                                             className="ken-burns"
                                             style={{
+                                                position: 'absolute',
+                                                top: 0,
+                                                left: 0,
+                                                width: '100%',
+                                                height: '100%',
                                                 objectFit: 'cover'
                                             }}
                                         />

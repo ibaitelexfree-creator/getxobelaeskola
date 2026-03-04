@@ -24,7 +24,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({ isOpen, onClose, pro
         const email = (e.target as any).elements[1].value;
 
         try {
-            await fetch('/api/leads', {
+            await fetch('/realstate/api/leads', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({

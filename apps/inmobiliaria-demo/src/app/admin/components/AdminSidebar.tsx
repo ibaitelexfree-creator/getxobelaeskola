@@ -2,7 +2,6 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
 import {
     LayoutDashboard,
     Home,
@@ -15,6 +14,8 @@ import {
     Gem
 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { createClient } from '@/lib/supabase/client';
+import { useRouter, usePathname } from 'next/navigation';
 
 const menuItems = [
     { name: 'Dashboard', icon: LayoutDashboard, path: '/admin' },
@@ -25,6 +26,21 @@ const menuItems = [
 
 export default function AdminSidebar() {
     const pathname = usePathname();
+    const router = useRouter();
+    const supabase = createClient();
+
+    const handleLogout = async () => {
+        try {
+            const { error } = await supabase.auth.signOut();
+            if (error) throw error;
+            router.push('/auth/login');
+            router.refresh();
+        } catch (error) {
+            console.error('Logout error:', error);
+            // Fallback redirect if signOut fails
+            window.location.href = '/realstate/auth/login';
+        }
+    };
 
     return (
         <aside className="fixed left-0 top-0 h-screen w-72 bg-[#0a0a0f]/80 backdrop-blur-2xl border-r border-white/5 z-50 flex flex-col">
@@ -49,8 +65,8 @@ export default function AdminSidebar() {
                         return (
                             <Link key={item.path} href={item.path}>
                                 <div className={`group relative flex items-center justify-between p-4 rounded-2xl transition-all duration-300 ${isActive
-                                        ? 'bg-gradient-to-r from-[#d4a843]/10 to-transparent border border-[#d4a843]/20'
-                                        : 'hover:bg-white/5'
+                                    ? 'bg-gradient-to-r from-[#d4a843]/10 to-transparent border border-[#d4a843]/20'
+                                    : 'hover:bg-white/5'
                                     }`}>
                                     <div className="flex items-center gap-3">
                                         <item.icon className={`transition-colors duration-300 ${isActive ? 'text-[#d4a843]' : 'text-zinc-500 group-hover:text-zinc-300'}`} size={20} />
@@ -99,18 +115,29 @@ export default function AdminSidebar() {
             </nav>
 
             {/* User Profile / Logout */}
-            <div className="p-6 border-t border-white/5">
-                <button className="w-full flex items-center justify-between p-3 rounded-xl hover:bg-white/5 transition-colors group">
+            <div className="p-6 border-t border-white/5 bg-gradient-to-t from-red-500/[0.02] to-transparent">
+                <div className="mb-4 px-3 flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-zinc-800 border border-white/10 overflow-hidden">
-                            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Admin" alt="Admin" />
+                        <div className="w-10 h-10 rounded-xl bg-zinc-800 border border-white/10 overflow-hidden shadow-inner">
+                            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Admin" alt="Admin" className="w-full h-full object-cover" />
                         </div>
                         <div className="text-left">
-                            <p className="text-sm font-bold text-zinc-200">User Admin</p>
-                            <p className="text-[10px] text-zinc-500">Dubai Elite Agent</p>
+                            <p className="text-[11px] font-black text-white uppercase tracking-tighter">User Admin</p>
+                            <div className="flex items-center gap-1.5">
+                                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                                <p className="text-[8px] text-zinc-500 uppercase tracking-widest font-black">Authorized</p>
+                            </div>
                         </div>
                     </div>
-                    <LogOut size={16} className="text-zinc-500 group-hover:text-red-400 transition-colors" />
+                </div>
+
+                <button
+                    onClick={handleLogout}
+                    className="w-full flex items-center justify-center gap-3 p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 hover:bg-red-500 hover:text-white transition-all duration-500 group relative overflow-hidden shadow-[0_0_20px_rgba(239,68,68,0.05)]"
+                >
+                    <div className="absolute inset-0 bg-red-500/20 -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
+                    <LogOut size={16} className="relative z-10 group-hover:-translate-x-1 transition-transform" />
+                    <span className="relative z-10 text-[10px] font-black uppercase tracking-[0.3em]">Protocol Terminate</span>
                 </button>
             </div>
         </aside>

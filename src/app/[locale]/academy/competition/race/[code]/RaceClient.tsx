@@ -72,9 +72,10 @@ export default function RaceClient() {
 					if (state.boatState) {
 						broadcastPosition({
 							position: state.boatState.position,
-							rotation: state.boatState.rotation,
+							heading: state.boatState.rotation?.y || 0,
+							sailAngle: 0,
+							heel: 0,
 							speed: state.boatState.speed,
-							efficiency: state.boatState.efficiency
 						});
 					}
 				}}

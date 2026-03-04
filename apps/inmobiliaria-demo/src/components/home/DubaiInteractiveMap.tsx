@@ -85,9 +85,26 @@ export const DubaiInteractiveMap = () => {
                         overflow: 'hidden',
                         border: '1px solid var(--border-gold)',
                         boxShadow: 'var(--shadow-gold)',
+                        borderRadius: 'var(--radius-lg)'
                     }}
                 >
-                    {/* Artistic Sea Background with Parallax Drift */}
+                    {/* Realistic Map Background generated */}
+                    <div
+                        style={{
+                            position: 'absolute',
+                            top: 0,
+                            left: 0,
+                            width: '100%',
+                            height: '100%',
+                            backgroundImage: `url(${getAssetPath('/images/dubai-map-bg.png')})`,
+                            backgroundSize: 'cover',
+                            backgroundPosition: 'center',
+                            opacity: 0.5,
+                            mixBlendMode: 'luminosity',
+                            zIndex: 0,
+                        }}
+                    ></div>
+                    {/* Artistic Sea Background with Parallax Drift over the map */}
                     <div
                         style={{
                             ...getDriftStyle() as any,
@@ -96,13 +113,14 @@ export const DubaiInteractiveMap = () => {
                             left: '-10%',
                             width: '120%',
                             height: '120%',
-                            background: 'radial-gradient(circle at 30% 70%, rgba(212,168,67,0.12) 0%, transparent 70%)',
+                            background: 'radial-gradient(circle at 30% 70%, rgba(212,168,67,0.18) 0%, transparent 70%)',
                             zIndex: 1,
-                            pointerEvents: 'none'
+                            pointerEvents: 'none',
+                            mixBlendMode: 'screen',
                         }}
                     ></div>
 
-                    {/* SVG Map Layer */}
+                    {/* SVG Map Interactive Layer */}
                     <svg
                         viewBox="0 0 1000 600"
                         preserveAspectRatio="xMidYMid slice"
@@ -115,10 +133,6 @@ export const DubaiInteractiveMap = () => {
                     >
                         {/* Define Gradients & Filters */}
                         <defs>
-                            <radialGradient id="landGradient" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
-                                <stop offset="0%" stopColor="rgba(212,168,67,0.15)" />
-                                <stop offset="100%" stopColor="rgba(212,168,67,0.02)" />
-                            </radialGradient>
                             <filter id="glow">
                                 <feGaussianBlur stdDeviation="3" result="coloredBlur" />
                                 <feMerge>
@@ -128,41 +142,18 @@ export const DubaiInteractiveMap = () => {
                             </filter>
                         </defs>
 
-                        {/* Dubai Landmass Simulation (Artistic Representation) */}
-                        <motion.path
-                            initial={{ opacity: 0 }}
-                            whileInView={{ opacity: 1 }}
-                            viewport={{ once: true }}
-                            transition={{ duration: 2 }}
-                            d="M 1000 600 L 0 600 L 0 540 Q 150 510 320 530 T 450 490 T 680 440 T 850 360 T 1000 340 Z"
-                            fill="url(#landGradient)"
-                            stroke="rgba(212,168,67,0.2)"
-                            strokeWidth="1"
-                        />
-
-                        {/* Coastline Highlight */}
+                        {/* Interactive Nodes Highlight Line (connecting nodes abstractly) */}
                         <motion.path
                             initial={{ pathLength: 0, opacity: 0 }}
-                            whileInView={{ pathLength: 1, opacity: 0.4 }}
+                            whileInView={{ pathLength: 1, opacity: 0.2 }}
                             viewport={{ once: true }}
-                            transition={{ duration: 2, delay: 0.5 }}
-                            d="M 0 540 Q 150 510 320 530 T 450 490 T 680 440 T 850 360 T 1000 340"
+                            transition={{ duration: 2.5, delay: 0.8 }}
+                            d="M 380 432 L 420 390 L 520 320 L 620 270 L 650 310 L 580 360 Z"
                             fill="none"
                             stroke="var(--gold-400)"
                             strokeWidth="1.5"
+                            strokeDasharray="4 6"
                             filter="url(#glow)"
-                        />
-
-                        {/* Interactive Palm Jumeirah Visual Marker */}
-                        <motion.path
-                            initial={{ opacity: 0, scale: 0.8 }}
-                            whileInView={{ opacity: 0.3, scale: 1 }}
-                            transition={{ delay: 1, duration: 1 }}
-                            d="M 420 395 L 435 440 L 405 440 Z M 420 440 L 420 480"
-                            stroke="var(--gold-400)"
-                            strokeWidth="2"
-                            fill="none"
-                            strokeLinecap="round"
                         />
 
                         {/* District Nodes */}

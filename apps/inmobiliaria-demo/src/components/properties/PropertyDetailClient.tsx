@@ -15,6 +15,27 @@ import { Property } from '@/data/properties';
 import { Magnetic } from '@/components/ui/Magnetic';
 import { useScrollReveal } from '@/lib/useScrollReveal';
 import { createClient } from '@/lib/supabase/client';
+import {
+    Target,
+    Activity,
+    Shield,
+    Zap,
+    Compass,
+    Crosshair,
+    Terminal,
+    ArrowRight,
+    Lock,
+    RefreshCcw,
+    Layers,
+    ChevronRight,
+    Play,
+    Info,
+    Smartphone,
+    Cpu,
+    Briefcase,
+    Search
+} from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 type ViewMode = '3d' | 'video' | 'static';
 
@@ -100,466 +121,315 @@ export const PropertyDetailClient: React.FC<PropertyDetailClientProps> = ({
     }, [property.slug]);
 
     return (
-        <main style={{ paddingTop: '120px', paddingBottom: '8rem', backgroundColor: '#050505' }}>
-            <div className="container">
-                {/* Gallery Header - Cinematic Reveal */}
-                <div
-                    className="gallery-grid"
-                    style={{
-                        display: 'grid',
-                        gap: '1.5rem',
-                        marginBottom: '4rem',
-                        opacity: 0,
-                        animation: 'reveal-3d 1.2s var(--ease-rev) forwards'
-                    }}
-                >
-                    <div style={{
-                        position: 'relative',
-                        height: '100%',
-                        overflow: 'hidden',
-                        borderRadius: 'var(--radius-lg)',
-                        border: '1px solid var(--border-subtle)'
-                    }}>
-                        {/* Immersive Hero: 3D Depth / Video / Static */}
-                        {viewMode === '3d' && hasDepthMap ? (
-                            <DepthParallax3D
-                                imageUrl={getAssetPath(property.coverImage)}
-                                depthMapUrl={(property as any).depth_maps[0]}
-                                intensity={0.04}
-                                style={{ width: '100%', height: '100%' }}
-                                alt={property.title}
-                            />
-                        ) : viewMode === 'video' && hasVideo ? (
-                            <PropertyVideo
-                                videoUrl={(property as any).video_url}
-                                posterImage={getAssetPath(property.coverImage)}
-                                showControls
-                                style={{ width: '100%', height: '100%' }}
-                            />
-                        ) : (
-                            <div style={{
-                                height: '100%',
-                                width: '100%',
-                                animation: 'ken-burns 20s infinite alternate'
-                            }}>
-                                <img
-                                    src={getAssetPath(property.coverImage)}
-                                    alt={property.title}
-                                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                                />
-                            </div>
-                        )}
+        <main className="pt-[140px] pb-32 bg-[#050505] min-h-screen relative overflow-hidden">
+            {/* Background HUD Accents */}
+            <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-emerald-500/5 blur-[150px] rounded-full pointer-events-none" />
+            <div className="absolute top-[40%] left-[-10%] w-[600px] h-[600px] bg-[#d4a843]/5 blur-[120px] rounded-full pointer-events-none" />
 
-                        {/* Immersive Controls - Dubai Midnight Gold Style */}
-                        {(hasDepthMap || hasVideo || (property as any).depth_map_status === 'processing' || (property as any).video_status === 'processing') && (
-                            <div style={{
-                                position: 'absolute',
-                                top: '1.5rem',
-                                right: '1.5rem',
-                                display: 'flex',
-                                gap: '0.75rem',
-                                zIndex: 20
-                            }}>
-                                {hasDepthMap && (
-                                    <button
-                                        onClick={() => setViewMode('3d')}
-                                        style={{
-                                            padding: '0.6rem 1.2rem',
-                                            borderRadius: 'var(--radius-full)',
-                                            background: viewMode === '3d' ? 'var(--gold-500)' : 'rgba(0,0,0,0.4)',
-                                            backdropFilter: 'blur(12px)',
-                                            border: `1px solid ${viewMode === '3d' ? 'var(--gold-400)' : 'var(--border-gold)'}`,
-                                            color: viewMode === '3d' ? '#0a0a0f' : 'var(--gold-400)',
-                                            fontSize: '0.75rem',
-                                            fontWeight: 700,
-                                            letterSpacing: '0.1em',
-                                            cursor: 'pointer',
-                                            boxShadow: viewMode === '3d' ? '0 4px 15px rgba(212,175,55,0.4)' : 'none',
-                                            transition: 'all 0.3s ease'
-                                        }}
-                                    >
-                                        ✦ 3D MODE
-                                    </button>
-                                )}
-                                {hasVideo && (
-                                    <button
-                                        onClick={() => setViewMode('video')}
-                                        style={{
-                                            padding: '0.6rem 1.2rem',
-                                            borderRadius: 'var(--radius-full)',
-                                            background: viewMode === 'video' ? 'var(--gold-500)' : 'rgba(0,0,0,0.4)',
-                                            backdropFilter: 'blur(12px)',
-                                            border: `1px solid ${viewMode === 'video' ? 'var(--gold-400)' : 'var(--border-gold)'}`,
-                                            color: viewMode === 'video' ? '#0a0a0f' : 'var(--gold-400)',
-                                            fontSize: '0.75rem',
-                                            fontWeight: 700,
-                                            letterSpacing: '0.1em',
-                                            cursor: 'pointer',
-                                            boxShadow: viewMode === 'video' ? '0 4px 15px rgba(212,175,55,0.4)' : 'none',
-                                            transition: 'all 0.3s ease'
-                                        }}
-                                    >
-                                        🎬 FILM
-                                    </button>
-                                )}
-                                <button
-                                    onClick={() => setViewMode('static')}
-                                    style={{
-                                        padding: '0.6rem 1.2rem',
-                                        borderRadius: 'var(--radius-full)',
-                                        background: viewMode === 'static' ? 'var(--gold-500)' : 'rgba(0,0,0,0.4)',
-                                        backdropFilter: 'blur(12px)',
-                                        border: `1px solid ${viewMode === 'static' ? 'var(--gold-400)' : 'var(--border-gold)'}`,
-                                        color: viewMode === 'static' ? '#0a0a0f' : 'var(--gold-400)',
-                                        fontSize: '0.75rem',
-                                        fontWeight: 700,
-                                        letterSpacing: '0.1em',
-                                        cursor: 'pointer',
-                                        boxShadow: viewMode === 'static' ? '0 4px 15px rgba(212,175,55,0.4)' : 'none',
-                                        transition: 'all 0.3s ease'
-                                    }}
-                                >
-                                    📷 PHOTO
-                                </button>
+            {/* Layout Scaffolding */}
+            <div className="max-w-[1700px] mx-auto px-6 relative">
+                {/* Header Metadata Section */}
+                <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-8">
+                    <div className="space-y-4 max-w-4xl">
+                        <div className="flex items-center gap-4">
+                            <div className="flex items-center gap-2 px-3 py-1 bg-white/5 border border-white/10 rounded-sm">
+                                <Terminal size={10} className="text-[#d4a843]" />
+                                <span className="text-[9px] font-black uppercase tracking-widest text-zinc-500">System Trace /</span>
+                                <span className="text-[9px] font-black uppercase tracking-widest text-[#d4a843]">{property.slug}</span>
                             </div>
-                        )}
-
-                        {/* Processing Badges */}
-                        <div style={{ position: 'absolute', bottom: '1.5rem', left: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.5rem', zIndex: 10 }}>
-                            {(property as any).depth_map_status === 'processing' && (
-                                <div className="badge-processing">
-                                    <span className="pulse-dot"></span> GENERATING 3D MODEL...
-                                </div>
-                            )}
-                            {(property as any).video_status === 'processing' && (
-                                <div className="badge-processing">
-                                    <span className="pulse-dot"></span> GENERATING CINEMATIC...
-                                </div>
-                            )}
+                            <div className="flex items-center gap-2">
+                                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_#10b981]" />
+                                <span className="text-[9px] font-black uppercase tracking-widest text-emerald-500/80">Objective Locked</span>
+                            </div>
                         </div>
 
-                        <div style={{
-                            position: 'absolute',
-                            inset: 0,
-                            background: 'linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.4) 100%)',
-                            pointerEvents: 'none'
-                        }} />
+                        <h1 className="text-7xl md:text-8xl lg:text-9xl font-black italic tracking-tighter text-white uppercase leading-[0.8] mix-blend-difference">
+                            {property.title}
+                        </h1>
+
+                        <div className="flex items-center gap-6">
+                            <span className="text-xl font-light text-zinc-500 uppercase tracking-[0.2em]">{property.neighborhood}, Dubai</span>
+                            <div className="h-[1px] w-20 bg-[#d4a843]/40" />
+                            <Badge variant="gold" className="px-5 py-1.5 bg-[#d4a843]/10 border border-[#d4a843]/40 text-[#d4a843] text-[10px] uppercase font-black tracking-widest rounded-none">
+                                Tier-00{property.id} Asset
+                            </Badge>
+                        </div>
                     </div>
-                    <div className="gallery-side-images" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                        {property.images.slice(1, 3).map((img, idx) => (
-                            <div
-                                key={idx}
-                                style={{
-                                    position: 'relative',
-                                    height: 'calc(50% - 0.75rem)',
-                                    overflow: 'hidden',
-                                    borderRadius: 'var(--radius-lg)',
-                                    border: '1px solid var(--border-subtle)',
-                                    opacity: 0,
-                                    animation: `reveal-3d 1s var(--ease-rev) forwards ${0.2 + idx * 0.2}s`
-                                }}
-                            >
-                                <img
-                                    src={getAssetPath(img)}
-                                    alt={`${property.title} gallery ${idx + 2}`}
-                                    style={{
-                                        width: '100%',
-                                        height: '100%',
-                                        objectFit: 'cover',
-                                        transition: 'transform 1.5s var(--ease-rev)'
-                                    }}
-                                    onMouseEnter={(e) => (e.currentTarget.style.transform = 'scale(1.1)')}
-                                    onMouseLeave={(e) => (e.currentTarget.style.transform = 'scale(1)')}
-                                />
-                                <div className="luxury-sweep" style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }} />
-                            </div>
-                        ))}
+
+                    <div className="flex flex-col items-end gap-2">
+                        <span className="text-[10px] font-black uppercase tracking-[0.4em] text-zinc-600">Market Valuation</span>
+                        <div className="text-5xl md:text-6xl font-black italic text-white tracking-tighter">
+                            {formatPrice(property.price)}
+                        </div>
                     </div>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 400px', gap: '6rem' }}>
-                    {/* Main Content */}
-                    <div>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', marginBottom: '3.5rem' }}>
-                            <div
-                                style={{
-                                    display: 'flex',
-                                    gap: '1rem',
-                                    opacity: 0,
-                                    animation: 'reveal-mask 0.8s var(--ease-rev) forwards'
-                                }}
-                            >
-                                <Badge variant="gold" style={{ letterSpacing: '0.2rem', fontWeight: 700 }}>{property.propertyType.toUpperCase()}</Badge>
-                                <Badge variant="green" style={{ letterSpacing: '0.1rem' }}>RESIDENTIAL ELITE</Badge>
+                {/* Main Content Grid */}
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+                    <div className="lg:col-span-8 space-y-12">
+                        {/* Immersive Gallery HUD */}
+                        <div className="relative aspect-[16/9] rounded-sm overflow-hidden border border-white/10 group shadow-[0_0_50px_rgba(0,0,0,1)] bg-black">
+                            {/* HUD Corner Accents */}
+                            <div className="absolute top-0 left-0 w-12 h-12 border-t-2 border-l-2 border-[#d4a843]/40 z-20 rounded-tl-sm pointer-events-none" />
+                            <div className="absolute top-0 right-0 w-12 h-12 border-t-2 border-r-2 border-[#d4a843]/40 z-20 rounded-tr-sm pointer-events-none" />
+                            <div className="absolute bottom-0 left-0 w-12 h-12 border-b-2 border-l-2 border-[#d4a843]/40 z-20 rounded-bl-sm pointer-events-none" />
+                            <div className="absolute bottom-0 right-0 w-12 h-12 border-b-2 border-r-2 border-[#d4a843]/40 z-20 rounded-br-sm pointer-events-none" />
+
+                            {/* View Mode Switcher HUD */}
+                            <div className="absolute top-8 right-8 z-30 flex flex-col gap-3">
+                                {[
+                                    { id: '3d', label: 'Neural 3D', icon: <Layers size={14} />, enabled: hasDepthMap },
+                                    { id: 'video', label: 'Tactical Film', icon: <Play size={14} />, enabled: hasVideo },
+                                    { id: 'static', label: 'Static Cap', icon: <Smartphone size={14} />, enabled: true },
+                                ].map((mode) => (
+                                    <button
+                                        key={mode.id}
+                                        onClick={() => mode.enabled && setViewMode(mode.id as ViewMode)}
+                                        disabled={!mode.enabled}
+                                        className={`flex items-center justify-between gap-6 px-5 py-3 border border-white/10 rounded-sm text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-500 backdrop-blur-xl ${viewMode === mode.id
+                                                ? 'bg-[#d4a843] text-black border-[#d4a843] shadow-[0_0_30px_rgba(212,168,67,0.4)]'
+                                                : mode.enabled
+                                                    ? 'bg-black/40 text-white/50 hover:bg-white/10 hover:text-white'
+                                                    : 'opacity-10 cursor-not-allowed'
+                                            }`}
+                                    >
+                                        <span className="flex items-center gap-3">
+                                            {mode.icon}
+                                            {mode.label}
+                                        </span>
+                                        {viewMode === mode.id && <div className="w-1.5 h-1.5 rounded-full bg-black animate-pulse" />}
+                                    </button>
+                                ))}
                             </div>
 
-                            <div className="reveal-mask">
-                                <h1
-                                    className="reveal-mask-inner"
-                                    style={{
-                                        fontSize: '4.5rem',
-                                        fontFamily: 'var(--font-display)',
-                                        lineHeight: 1.1,
-                                        color: '#fff',
-                                        fontWeight: 400
-                                    }}
+                            {/* Main Visuals Overlay */}
+                            <AnimatePresence mode="wait">
+                                <motion.div
+                                    key={viewMode}
+                                    initial={{ opacity: 0, filter: 'blur(20px) contrast(1.2)' }}
+                                    animate={{ opacity: 1, filter: 'blur(0px) contrast(1)' }}
+                                    exit={{ opacity: 0, filter: 'blur(20px)' }}
+                                    transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+                                    className="w-full h-full"
                                 >
-                                    {property.title}
-                                </h1>
-                            </div>
+                                    {viewMode === '3d' && hasDepthMap ? (
+                                        <DepthParallax3D
+                                            imageUrl={getAssetPath(property.coverImage)}
+                                            depthMapUrl={(property as any).depth_maps[0]}
+                                            intensity={0.06}
+                                            style={{ width: '100%', height: '100%' }}
+                                            alt={property.title}
+                                        />
+                                    ) : viewMode === 'video' && hasVideo ? (
+                                        <PropertyVideo
+                                            videoUrl={(property as any).video_url}
+                                            posterImage={getAssetPath(property.coverImage)}
+                                            showControls
+                                            style={{ width: '100%', height: '100%' }}
+                                        />
+                                    ) : (
+                                        <div className="w-full h-full relative overflow-hidden">
+                                            <img
+                                                src={getAssetPath(property.coverImage)}
+                                                alt={property.title}
+                                                className="w-full h-full object-cover animate-ken-burns"
+                                            />
+                                            {/* Tactical HUD Overlay Lines */}
+                                            <div className="absolute inset-0 border-[40px] border-black/20 pointer-events-none" />
+                                            <div className="absolute inset-[40px] border border-white/5 pointer-events-none" />
+                                        </div>
+                                    )}
+                                </motion.div>
+                            </AnimatePresence>
 
-                            <p
-                                className="shimmer-text"
-                                style={{
-                                    fontSize: '1.4rem',
-                                    color: 'var(--text-secondary)',
-                                    fontWeight: 300,
-                                    letterSpacing: '0.05rem',
-                                    opacity: 0,
-                                    animation: 'fade-in 1s ease forwards 0.6s'
-                                }}
-                            >
-                                {property.neighborhood}, Dubai
-                            </p>
+                            {/* Scanline / Grid Effect */}
+                            <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10 pointer-events-none mix-blend-overlay" />
+                            <div className="absolute inset-x-0 h-[2px] bg-white/10 animate-scanline pointer-events-none opacity-20" />
+
+                            {/* Bottom Labeling */}
+                            <div className="absolute bottom-8 left-8 z-20 flex gap-4">
+                                <div className="px-4 py-1.5 bg-black/60 border border-emerald-500/40 rounded-sm flex items-center gap-3 backdrop-blur-md">
+                                    <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_#10b981]" />
+                                    <span className="text-[9px] font-black uppercase tracking-[0.3em] text-emerald-400">Telemetry: Stable</span>
+                                </div>
+                                <div className="px-4 py-1.5 bg-black/60 border border-white/10 rounded-sm flex items-center gap-3 backdrop-blur-md">
+                                    <Layers size={10} className="text-zinc-500" />
+                                    <span className="text-[9px] font-black uppercase tracking-[0.3em] text-zinc-400">Asset: LUX-00{property.id}</span>
+                                </div>
+                            </div>
                         </div>
 
-                        <div className="divider" style={{ opacity: 0.2, margin: '3rem 0' }}></div>
-
-                        <section style={{ marginBottom: '5rem' }}>
-                            <div className="reveal-mask" style={{ marginBottom: '2rem' }}>
-                                <h2 className="reveal-mask-inner section-title" style={{ fontSize: '1.8rem' }}>Architectural Overview</h2>
-                            </div>
-
-                            <div
-                                style={{
-                                    display: 'grid',
-                                    gridTemplateColumns: 'repeat(4, 1fr)',
-                                    gap: '2px',
-                                    backgroundColor: 'var(--border-subtle)',
-                                    border: '1px solid var(--border-subtle)',
-                                    borderRadius: 'var(--radius-lg)',
-                                    overflow: 'hidden'
-                                }}
-                            >
-                                {[
-                                    { icon: '🛏', value: property.bedrooms, label: 'Suites' },
-                                    { icon: '🚿', value: property.bathrooms, label: 'Bathrooms' },
-                                    { icon: '📐', value: property.sizeSqft.toLocaleString('en-US'), label: 'Total Sq Ft' },
-                                    { icon: '📅', value: property.yearBuilt, label: 'Built Year' }
-                                ].map((stat, i) => (
-                                    <div
-                                        key={i}
-                                        style={{
-                                            backgroundColor: '#0a0a0a',
-                                            padding: '3rem 2rem',
-                                            display: 'flex',
-                                            flexDirection: 'column',
-                                            alignItems: 'center',
-                                            gap: '1rem',
-                                            transition: 'background-color 0.4s ease'
-                                        }}
-                                        className="luxury-glow-hover"
-                                    >
-                                        <span style={{ fontSize: '2rem', opacity: 0.7 }}>{stat.icon}</span>
-                                        <span style={{ fontSize: '1.8rem', fontWeight: 600, color: '#fff', fontFamily: 'var(--font-display)' }}>{stat.value}</span>
-                                        <span style={{ fontSize: '0.75rem', letterSpacing: '0.2rem', color: 'var(--gold-500)', fontWeight: 700, textTransform: 'uppercase' }}>{stat.label}</span>
-                                    </div>
-                                ))}
-                            </div>
-                        </section>
-
-                        <section style={{ marginBottom: '5rem' }}>
-                            <h2 className="section-title" style={{ fontSize: '1.8rem', marginBottom: '2rem' }}>The Experience</h2>
-                            <p style={{
-                                color: 'var(--text-secondary)',
-                                fontSize: '1.25rem',
-                                lineHeight: 1.9,
-                                fontWeight: 300,
-                                maxWidth: '90%'
-                            }}>
-                                {property.description}
-                            </p>
-                        </section>
-
-                        <section style={{ marginBottom: '5rem' }}>
-                            <h3 style={{ fontSize: '1.8rem', marginBottom: '2.5rem', fontFamily: 'var(--font-display)', color: '#fff' }}>Amenities & Features</h3>
-                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1.5rem' }}>
-                                {property.amenities.map((item, idx) => (
-                                    <div
-                                        key={idx}
-                                        style={{
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            gap: '1.2rem',
-                                            color: '#eee',
-                                            padding: '1.2rem',
-                                            backgroundColor: 'rgba(255,255,255,0.02)',
-                                            borderRadius: 'var(--radius-md)',
-                                            border: '1px solid transparent',
-                                            transition: 'all 0.4s ease'
-                                        }}
-                                        onMouseEnter={(e) => {
-                                            e.currentTarget.style.borderColor = 'var(--gold-900)';
-                                            e.currentTarget.style.backgroundColor = 'rgba(212,168,67,0.05)';
-                                        }}
-                                        onMouseLeave={(e) => {
-                                            e.currentTarget.style.borderColor = 'transparent';
-                                            e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.02)';
-                                        }}
-                                    >
-                                        <div style={{
-                                            width: '8px',
-                                            height: '8px',
-                                            backgroundColor: 'var(--gold-500)',
-                                            borderRadius: '50%',
-                                            boxShadow: '0 0 10px var(--gold-500)'
-                                        }} />
-                                        <span style={{ fontSize: '1.1rem', fontWeight: 300 }}>{item}</span>
-                                    </div>
-                                ))}
-                            </div>
-                        </section>
-
-                        <PropertyMapSection neighborhood={property.neighborhood} name={property.title} />
-                    </div>
-
-                    {/* Sticky Sidebar - Refined Luxury */}
-                    <aside style={{ height: 'fit-content', position: 'sticky', top: '140px' }}>
-                        <div
-                            style={{
-                                padding: '3.5rem',
-                                backgroundColor: '#0a0a0a',
-                                border: '1px solid var(--border-subtle)',
-                                borderRadius: 'var(--radius-lg)',
-                                position: 'relative',
-                                overflow: 'hidden'
-                            }}
-                        >
-                            <div className="luxury-sweep" style={{ opacity: 0.1 }} />
-
-                            <div style={{ marginBottom: '3rem', textAlign: 'center' }}>
-                                <span style={{ color: 'var(--gold-500)', fontSize: '0.8rem', fontWeight: 800, letterSpacing: '0.3rem' }}>INVESTMENT VALUE</span>
-                                <div
-                                    className="shimmer-text"
-                                    style={{
-                                        fontSize: '2.5rem',
-                                        color: '#fff',
-                                        marginTop: '1rem',
-                                        fontFamily: 'var(--font-display)',
-                                        fontWeight: 800
-                                    }}
-                                >
-                                    {formatPrice(property.price)}
+                        {/* Tactical Briefing & Specs */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 pt-8">
+                            <div className="space-y-8">
+                                <div className="flex items-center gap-4">
+                                    <h2 className="text-xs font-black uppercase tracking-[0.4em] text-white/30">Mission Summary</h2>
+                                    <div className="h-[1px] flex-grow bg-white/5" />
                                 </div>
-                            </div>
-
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                                <Magnetic distance={30}>
-                                    <button
-                                        className="btn-primary"
-                                        style={{
-                                            width: '100%',
-                                            padding: '1.8rem',
-                                            fontSize: '1.1rem',
-                                            letterSpacing: '0.2rem',
-                                            fontWeight: 700
-                                        }}
-                                        onClick={() => setIsBookingOpen(true)}
-                                    >
-                                        SCHEDULE VIEWING
-                                    </button>
-                                </Magnetic>
-
-                                <Magnetic distance={20}>
-                                    <button
-                                        className="btn-secondary"
-                                        style={{
-                                            width: '100%',
-                                            padding: '1.5rem',
-                                            fontSize: '1rem',
-                                            letterSpacing: '0.15rem',
-                                            backgroundColor: 'transparent',
-                                            border: '1px solid var(--border-gold)',
-                                            color: 'var(--gold-400)'
-                                        }}
-                                        onClick={() => {
-                                            const chatBtn = document.querySelector('.chat-toggle') as HTMLButtonElement;
-                                            if (chatBtn) chatBtn.click();
-                                        }}
-                                    >
-                                        SPEAK WITH ADVISOR
-                                    </button>
-                                </Magnetic>
-                            </div>
-
-                            <div style={{
-                                marginTop: '3.5rem',
-                                paddingTop: '3.5rem',
-                                borderTop: '1px solid rgba(255,255,255,0.05)',
-                                textAlign: 'center'
-                            }}>
-                                <div style={{ position: 'relative', display: 'inline-block', marginBottom: '1.5rem' }}>
-                                    <div style={{
-                                        width: '85px',
-                                        height: '85px',
-                                        borderRadius: '50%',
-                                        padding: '4px',
-                                        background: 'linear-gradient(45deg, var(--gold-600), transparent, var(--gold-400))',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center'
-                                    }}>
-                                        <div style={{
-                                            width: '100%',
-                                            height: '100%',
-                                            borderRadius: '50%',
-                                            backgroundColor: '#050505',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                            fontSize: '1.8rem',
-                                            color: 'var(--gold-400)',
-                                            fontWeight: 300
-                                        }}>
-                                            AH
-                                        </div>
-                                    </div>
-                                    <div style={{
-                                        position: 'absolute',
-                                        bottom: '2px',
-                                        right: '2px',
-                                        width: '15px',
-                                        height: '15px',
-                                        backgroundColor: '#22c55e',
-                                        borderRadius: '50%',
-                                        border: '2px solid #0a0a0a'
-                                    }} />
-                                </div>
-                                <div style={{ fontSize: '1.2rem', fontWeight: 600, color: '#fff' }}>Aisha Al-Hashimi</div>
-                                <div style={{ fontSize: '0.75rem', color: 'var(--gold-500)', letterSpacing: '0.15rem', marginTop: '0.3rem' }}>VIP PORTFOLIO MANAGER</div>
-
-                                <p style={{
-                                    fontSize: '0.9rem',
-                                    color: 'var(--text-muted)',
-                                    fontStyle: 'italic',
-                                    marginTop: '1.5rem',
-                                    lineHeight: 1.6
-                                }}>
-                                    "This property matches your profile's preference for architectural purity and capital appreciation."
+                                <p className="text-2xl text-zinc-400 font-light leading-relaxed tracking-wide italic">
+                                    {property.description}
                                 </p>
                             </div>
+
+                            <div className="space-y-8">
+                                <div className="flex items-center gap-4">
+                                    <h2 className="text-xs font-black uppercase tracking-[0.4em] text-white/30">Technical Parameters</h2>
+                                    <div className="h-[1px] flex-grow bg-white/5" />
+                                </div>
+                                <div className="grid grid-cols-2 gap-4">
+                                    {[
+                                        { label: 'Spatial Volume', value: property.sizeSqft.toLocaleString(), unit: 'SQ FT', icon: <Compass size={14} /> },
+                                        { label: 'Operational Level', value: property.bedrooms, unit: 'UNITS', icon: <Layers size={14} /> },
+                                        { label: 'Sanitation Nodes', value: property.bathrooms, unit: 'NODES', icon: <Crosshair size={14} /> },
+                                        { label: 'Build Protocol', value: property.yearBuilt, unit: 'PROTO', icon: <Cpu size={14} /> },
+                                    ].map((spec, i) => (
+                                        <div key={i} className="bg-white/5 border border-white/5 p-5 relative group hover:border-[#d4a843]/30 transition-all">
+                                            <div className="mb-4 text-[#d4a843]/40 group-hover:text-[#d4a843] transition-colors">{spec.icon}</div>
+                                            <div className="text-[9px] uppercase font-black tracking-widest text-zinc-600 mb-2">{spec.label}</div>
+                                            <div className="flex items-end gap-2">
+                                                <span className="text-3xl font-black italic tracking-tighter text-white">{spec.value}</span>
+                                                <span className="text-[8px] font-bold text-zinc-700 uppercase mb-1">{spec.unit}</span>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
                         </div>
-                    </aside>
+
+                        {/* Feature Infrastructure */}
+                        <div className="space-y-10 py-12">
+                            <div className="flex items-center gap-4">
+                                <h2 className="text-xs font-black uppercase tracking-[0.4em] text-white/30">Infrastructure & Amenities</h2>
+                                <div className="h-[1px] flex-grow bg-white/5" />
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                {property.amenities.map((item, idx) => (
+                                    <div key={idx} className="group flex items-center gap-4 p-5 bg-white/[0.02] border border-white/5 hover:border-emerald-500/30 hover:bg-emerald-500/5 transition-all">
+                                        <div className="w-1.5 h-1.5 rounded-full bg-emerald-500/20 group-hover:bg-emerald-500 transition-all shadow-[0_0_10px_rgba(16,185,129,0)] group-hover:shadow-[0_0_15px_#10b981]" />
+                                        <span className="text-[11px] font-black uppercase tracking-widest text-zinc-500 group-hover:text-white transition-colors">{item}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Geospatial Component */}
+                        <div className="space-y-8">
+                            <div className="flex items-center gap-4">
+                                <h2 className="text-xs font-black uppercase tracking-[0.4em] text-white/30">Geospatial Intelligence</h2>
+                                <div className="h-[1px] flex-grow bg-white/5" />
+                            </div>
+                            <div className="aspect-video bg-black/40 border border-white/10 rounded-sm overflow-hidden relative shadow-inner">
+                                <PropertyMapSection neighborhood={property.neighborhood} name={property.title} />
+                                <div className="absolute top-0 inset-x-0 h-20 bg-gradient-to-b from-black to-transparent pointer-events-none z-20" />
+                                <div className="absolute bottom-0 inset-x-0 h-20 bg-gradient-to-t from-black to-transparent pointer-events-none z-20" />
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Sidebar: Mission Authorization Cabinet */}
+                    <div className="lg:col-span-4 space-y-8">
+                        {/* Transaction Core */}
+                        <div className="sticky top-[140px] space-y-8 h-fit">
+                            <div className="bg-[#0a0a0f] border border-white/10 rounded-sm p-10 relative overflow-hidden group shadow-2xl">
+                                <div className="absolute inset-x-0 top-0 h-[3px] bg-gradient-to-r from-transparent via-[#d4a843] to-transparent shadow-[0_0_20px_#d4a843]" />
+
+                                <div className="flex items-center justify-between mb-10">
+                                    <div className="flex items-center gap-2">
+                                        <Shield className="text-[#d4a843]" size={16} />
+                                        <span className="text-[10px] font-black uppercase tracking-widest text-[#d4a843]">Elite Vault Ready</span>
+                                    </div>
+                                    <span className="text-[10px] font-mono text-zinc-700 italic">SIG-0293X</span>
+                                </div>
+
+                                <div className="space-y-4 mb-10 border-y border-white/5 py-8">
+                                    {[
+                                        { label: 'Asset Status', val: 'DEPLOYED', color: 'text-emerald-400' },
+                                        { label: 'Risk Profile', val: 'AAA MINIMAL', color: 'text-zinc-400' },
+                                        { label: 'Access Tier', val: 'ULTRA-LUXE', color: 'text-[#d4a843]' },
+                                    ].map((stat, i) => (
+                                        <div key={i} className="flex justify-between items-center group/item">
+                                            <span className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-600 transition-colors group-hover/item:text-white">{stat.label}</span>
+                                            <span className={`text-[10px] font-black uppercase tracking-[0.3em] ${stat.color}`}>{stat.val}</span>
+                                        </div>
+                                    ))}
+                                </div>
+
+                                <div className="space-y-4">
+                                    <button
+                                        onClick={() => setIsBookingOpen(true)}
+                                        className="w-full py-6 bg-white text-black text-[12px] font-black uppercase tracking-[0.4em] overflow-hidden relative group/deploy-btn transition-all hover:bg-[#d4a843] hover:shadow-[0_0_50px_rgba(212,168,67,0.4)]"
+                                    >
+                                        <span className="relative z-10 flex items-center justify-center gap-4">
+                                            Initialize Protocol
+                                            <ArrowRight size={18} />
+                                        </span>
+                                        <div className="absolute inset-0 bg-white/20 -translate-x-full group-hover/deploy-btn:translate-x-full transition-transform duration-1000" />
+                                    </button>
+
+                                    <button className="w-full py-6 bg-transparent border border-white/10 text-white text-[11px] font-black uppercase tracking-[0.4em] hover:bg-white/5 hover:border-white/30 transition-all flex items-center justify-center gap-4">
+                                        <Lock size={16} />
+                                        Secure Archive Access
+                                    </button>
+                                </div>
+
+                                <div className="mt-8 pt-8 border-t border-white/5 flex items-center justify-between text-zinc-700">
+                                    <span className="text-[8px] font-black uppercase tracking-widest">Encryption Level / 1024-BIT</span>
+                                    <span className="text-[8px] font-black uppercase tracking-widest italic animate-pulse">Scanning Bio-Log...</span>
+                                </div>
+                            </div>
+
+                            {/* Neuro-Advisor Component */}
+                            <div className="p-10 border border-white/5 bg-black/40 backdrop-blur-3xl relative group overflow-hidden">
+                                <div className="absolute -top-10 -right-10 w-40 h-40 bg-[#d4a843]/5 blur-[60px] rounded-full pointer-events-none" />
+
+                                <div className="flex items-center gap-5 mb-8">
+                                    <div className="relative">
+                                        <div className="w-20 h-20 rounded-full border-2 border-[#d4a843]/30 p-1 group-hover:border-[#d4a843] transition-all duration-700">
+                                            <div className="w-full h-full rounded-full bg-[#111] flex items-center justify-center text-xl font-black italic text-[#d4a843]">
+                                                AH
+                                            </div>
+                                        </div>
+                                        <div className="absolute bottom-1 right-1 w-5 h-5 bg-emerald-500 rounded-full border-4 border-[#050505] animate-pulse shadow-[0_0_15px_#10b981]" />
+                                    </div>
+                                    <div>
+                                        <h3 className="text-xl font-black italic tracking-tighter text-white uppercase">Aisha Al-Hashimi</h3>
+                                        <span className="text-[10px] font-black uppercase tracking-widest text-zinc-600 block mt-1">AI-Neuro Advisor</span>
+                                    </div>
+                                </div>
+
+                                <div className="p-6 bg-white/[0.03] border border-white/5 rounded-sm italic text-[13px] text-zinc-400 leading-relaxed mb-8 relative">
+                                    <div className="absolute -top-3 left-6 px-2 bg-black text-[9px] font-black uppercase tracking-widest text-[#d4a843]">Intelligence Report</div>
+                                    "This asset represents a unique 12.5% market inefficiency in {property.neighborhood}. My internal models predict a 24-month appreciation curve exceeding the 95th percentile."
+                                </div>
+
+                                <button
+                                    onClick={() => {
+                                        const chatBtn = document.querySelector('.chat-toggle') as HTMLButtonElement;
+                                        if (chatBtn) chatBtn.click();
+                                    }}
+                                    className="w-full py-4 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] font-black uppercase tracking-widest hover:bg-emerald-500/20 transition-all flex items-center justify-center gap-4 group"
+                                >
+                                    <Zap size={14} className="group-hover:animate-pulse" />
+                                    Initiate Direct Uplink
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
-                {/* Similar Properties */}
+                {/* Comparative Analysis Section */}
                 {similarProperties.length > 0 && (
-                    <section style={{ marginTop: '10rem' }}>
-                        <div style={{ marginBottom: '4rem', textAlign: 'center' }}>
-                            <span className="section-label" style={{ letterSpacing: '0.4rem' }}>EXCERPTS</span>
-                            <h2 className="section-title" style={{ fontSize: '2.5rem', marginTop: '1rem' }}>Comparable Estates</h2>
+                    <section className="mt-32 pt-24 border-t border-white/5">
+                        <div className="flex flex-col items-center text-center gap-6 mb-20">
+                            <h2 className="text-4xl md:text-6xl font-black italic tracking-tighter text-white uppercase leading-none">
+                                Comparative <span className="text-[#d4a843]">Objectives</span>
+                            </h2>
+                            <p className="text-zinc-500 text-[11px] font-black tracking-[0.6em] uppercase flex items-center gap-4">
+                                <Search size={12} className="text-zinc-700" />
+                                Cross-Reference Data Protocols
+                            </p>
                         </div>
-                        <div className="grid-3" style={{ gap: '2.5rem' }}>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
                             {similarProperties.map((p, i) => (
                                 <PropertyCard key={p.id} property={p} index={i} />
                             ))}
@@ -574,83 +444,45 @@ export const PropertyDetailClient: React.FC<PropertyDetailClientProps> = ({
                 propertyName={property.title}
             />
 
-            <style jsx>{`
-                .gallery-grid {
-                    grid-template-columns: minmax(0, 2fr) 1fr;
-                    height: 700px;
-                    perspective: 2000px;
+            <style jsx global>{`
+                @keyframes scanline {
+                    0% { transform: translateY(-100%); }
+                    100% { transform: translateY(100%); }
                 }
-                @media (max-width: 1024px) {
-                    .gallery-grid {
-                        grid-template-columns: 1fr;
-                        height: auto;
-                    }
-                    .gallery-side-images {
-                        display: grid !important;
-                        grid-template-columns: 1fr 1fr;
-                        height: 300px;
-                    }
+                .animate-scanline {
+                    animation: scanline 12s linear infinite;
                 }
-                @media (max-width: 640px) {
-                    .gallery-side-images {
-                        display: none !important;
-                    }
-                    .gallery-grid {
-                        height: 400px;
-                    }
+                @keyframes ken-burns {
+                    0% { transform: scale(1); filter: grayscale(0.2); }
+                    100% { transform: scale(1.15); filter: grayscale(0); }
                 }
-                .container {
-                    max-width: 1400px;
-                    margin: 0 auto;
-                    padding: 0 2rem;
+                .animate-ken-burns {
+                    animation: ken-burns 30s ease-in-out infinite alternate;
                 }
-                @keyframes reveal-3d {
-                    from { 
-                        opacity: 0; 
-                        transform: translateY(60px) rotateX(-5deg); 
-                    }
-                    to { 
-                        opacity: 1; 
-                        transform: translateY(0) rotateX(0); 
-                    }
-                }
-                @keyframes fade-in {
-                    from { opacity: 0; }
-                    to { opacity: 1; }
-                }
-                .luxury-glow-hover:hover {
-                    background-color: #111 !important;
-                    box-shadow: inset 0 0 30px rgba(212,168,67,0.1);
-                }
-                .badge-processing {
-                    padding: 0.5rem 1rem;
-                    border-radius: var(--radius-full);
-                    background: rgba(0,0,0,0.6);
-                    backdrop-filter: blur(12px);
-                    border: 1px solid var(--gold-400);
-                    color: var(--gold-400);
-                    font-size: 0.7rem;
-                    font-weight: 700;
-                    letter-spacing: 0.1em;
-                    display: flex;
-                    align-items: center;
-                    gap: 0.6rem;
-                    box-shadow: 0 4px 20px rgba(0,0,0,0.5);
-                }
-                .pulse-dot {
-                    width: 8px;
-                    height: 8px;
-                    background: var(--gold-400);
-                    border-radius: 50%;
-                    box-shadow: 0 0 10px var(--gold-400);
-                    animation: pulse-glow 1.5s infinite;
-                }
-                @keyframes pulse-glow {
-                    0% { transform: scale(1); opacity: 1; box-shadow: 0 0 5px var(--gold-400); }
-                    50% { transform: scale(1.2); opacity: 0.6; box-shadow: 0 0 15px var(--gold-400); }
-                    100% { transform: scale(1); opacity: 1; box-shadow: 0 0 5px var(--gold-400); }
+                .mix-blend-difference {
+                    mix-blend-mode: difference;
                 }
             `}</style>
-        </main >
+        </main>
     );
 };
+
+// Internal icon proxy for simplified dev loop
+function MessageSquare({ size = 16, className = "" }) {
+    return (
+        <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width={size}
+            height={size}
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className={className}
+        >
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+        </svg>
+    );
+}

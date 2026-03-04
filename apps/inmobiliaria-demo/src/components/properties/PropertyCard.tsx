@@ -2,6 +2,7 @@
 
 import React, { useRef, useCallback } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Property } from '@/data/properties';
 import { formatSqft, getBadgeForProperty } from '@/lib/utils';
 import { useCurrency } from '@/components/providers/CurrencyProvider';
@@ -9,6 +10,8 @@ import { getAssetPath } from '@/lib/constants';
 import { createClient } from '@/lib/supabase/client';
 import { useFavorites } from '@/hooks/useFavorites';
 import { useRouter } from 'next/navigation';
+import { motion } from 'framer-motion';
+import { Maximize2, Bath, BedDouble, ArrowUpRight, Crosshair, Target, Activity } from 'lucide-react';
 
 interface PropertyCardProps {
     property: Property;
@@ -52,13 +55,10 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
         await toggleFavorite(property.slug);
     };
 
-    // Video preview on hover
     const videoRef = useRef<HTMLVideoElement>(null);
     const hasVideo = !!(property as any).video_url;
 
     const handleImageMouseEnter = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
-        const img = e.currentTarget.querySelector('img');
-        if (img) img.style.transform = 'scale(1.1)';
         if (hasVideo && videoRef.current) {
             videoRef.current.currentTime = 0;
             videoRef.current.play().catch(() => { });
@@ -67,8 +67,6 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
     }, [hasVideo]);
 
     const handleImageMouseLeave = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
-        const img = e.currentTarget.querySelector('img');
-        if (img) img.style.transform = 'scale(1)';
         if (hasVideo && videoRef.current) {
             videoRef.current.pause();
             videoRef.current.style.opacity = '0';
@@ -76,206 +74,123 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
     }, [hasVideo]);
 
     return (
-        <div className="property-card-wrapper">
-            <article className="property-card" style={{ display: 'flex', flexDirection: 'column' }}>
-                <Link
-                    href={`/properties/${property.slug}`}
-                    style={{ textDecoration: 'none', color: 'inherit', flex: 1, display: 'flex', flexDirection: 'column' }}
+        <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ delay: index * 0.1 }}
+            viewport={{ once: true }}
+            className="group relative"
+        >
+            <Link
+                href={`/properties/${property.slug}`}
+                className="block relative overflow-hidden rounded-[3rem] bg-[#0a0a0f] border border-white/5 transition-all duration-500 hover:border-[#d4a843]/30 hover:shadow-[0_20px_50px_rgba(0,0,0,0.5)]"
+            >
+                {/* HUD Overlay Elements */}
+                <div className="absolute top-8 left-8 z-20 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-700">
+                    <Crosshair className="text-[#d4a843]" size={20} />
+                </div>
+                <div className="absolute top-8 right-8 z-20 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-700">
+                    <div className="flex gap-1">
+                        <div className="w-1 h-3 bg-[#d4a843]/60 rounded-full" />
+                        <div className="w-1 h-2 bg-[#d4a843]/40 rounded-full" />
+                    </div>
+                </div>
+
+                <div
+                    className="relative h-[480px] overflow-hidden"
+                    onMouseEnter={handleImageMouseEnter}
+                    onMouseLeave={handleImageMouseLeave}
                 >
-                    <div
-                        className="card-image"
-                        style={{ position: 'relative', height: '260px', overflow: 'hidden' }}
-                        onMouseEnter={handleImageMouseEnter}
-                        onMouseLeave={handleImageMouseLeave}
-                    >
-                        <img
-                            src={getAssetPath(property.coverImage)}
-                            alt={property.title}
-                            style={{
-                                width: '100%',
-                                height: '100%',
-                                objectFit: 'cover',
-                                transition: 'transform 0.5s ease'
-                            }}
+                    {/* Main Image */}
+                    <img
+                        src={getAssetPath(property.coverImage)}
+                        alt={property.title}
+                        className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 ease-out group-hover:scale-110"
+                    />
+
+                    {/* Video Overlay */}
+                    {hasVideo && (
+                        <video
+                            ref={videoRef}
+                            src={(property as any).video_url}
+                            loop
+                            muted
+                            playsInline
+                            className="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-700 z-[5]"
                         />
+                    )}
 
-                        {/* Video hover layer */}
-                        {hasVideo && (
-                            <video
-                                ref={videoRef}
-                                src={(property as any).video_url}
-                                loop
-                                muted
-                                playsInline
-                                preload="none"
-                                style={{
-                                    position: 'absolute',
-                                    inset: 0,
-                                    width: '100%',
-                                    height: '100%',
-                                    objectFit: 'cover',
-                                    opacity: 0,
-                                    transition: 'opacity 0.6s ease',
-                                    zIndex: 1,
-                                }}
-                            />
-                        )}
-                        <div style={{
-                            position: 'absolute',
-                            top: '1rem',
-                            left: '1rem',
-                            display: 'flex',
-                            gap: '0.5rem',
-                            zIndex: 1
-                        }}>
-                            {badge && (
-                                <span className="badge badge-gold" style={{
-                                    backgroundColor: 'var(--gold-500)',
-                                    color: '#0a0a0a',
-                                    padding: '0.25rem 0.75rem',
-                                    borderRadius: 'var(--radius-full)',
-                                    fontSize: '0.7rem',
-                                    fontWeight: 700,
-                                    letterSpacing: '0.1rem'
-                                }}>
-                                    {badge.toUpperCase()}
-                                </span>
-                            )}
-                            <span className="badge" style={{
-                                backgroundColor: 'rgba(0,0,0,0.6)',
-                                backdropFilter: 'blur(4px)',
-                                color: '#fff',
-                                padding: '0.25rem 0.75rem',
-                                borderRadius: 'var(--radius-full)',
-                                fontSize: '0.7rem',
-                                fontWeight: 700,
-                                letterSpacing: '0.1rem',
-                                border: '1px solid rgba(255,255,255,0.1)'
-                            }}>
-                                {property.propertyType.toUpperCase()}
+                    {/* Gradient Overlays */}
+                    <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-[#0a0a0f] z-10" />
+                    <div className="absolute inset-0 bg-[#d4a843]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700 z-10" />
+
+                    {/* Badges */}
+                    <div className="absolute top-8 left-8 flex flex-col gap-2 z-20 transition-all duration-500 group-hover:translate-x-4">
+                        {badge && (
+                            <span className="px-5 py-1.5 bg-[#d4a843] text-[#0a0a0f] rounded-full text-[10px] font-black uppercase tracking-widest shadow-[0_5px_15px_rgba(212,168,67,0.3)]">
+                                {badge}
                             </span>
-                            {hasVideo && (
-                                <span style={{
-                                    backgroundColor: 'rgba(0,0,0,0.6)',
-                                    backdropFilter: 'blur(4px)',
-                                    color: 'var(--gold-400, #D4AF37)',
-                                    padding: '0.25rem 0.6rem',
-                                    borderRadius: 'var(--radius-full)',
-                                    fontSize: '0.6rem',
-                                    fontWeight: 700,
-                                    letterSpacing: '0.08rem',
-                                    border: '1px solid rgba(212,175,55,0.3)',
-                                }}>
-                                    🎬 FILM
-                                </span>
-                            )}
-                        </div>
-
-                        {/* Favorite Button */}
-                        <button
-                            onClick={handleFavoriteClick}
-                            style={{
-                                position: 'absolute',
-                                top: '1rem',
-                                right: '1rem',
-                                zIndex: 10,
-                                background: 'rgba(0,0,0,0.4)',
-                                backdropFilter: 'blur(8px)',
-                                border: '1px solid rgba(255,255,255,0.1)',
-                                width: '40px',
-                                height: '40px',
-                                borderRadius: '50%',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                cursor: 'pointer',
-                                transition: 'all 0.3s ease',
-                                color: isFavorite ? '#ff4b4b' : '#fff'
-                            }}
-                            onMouseEnter={(e) => {
-                                e.currentTarget.style.transform = 'scale(1.1)';
-                                e.currentTarget.style.backgroundColor = 'rgba(0,0,0,0.6)';
-                            }}
-                            onMouseLeave={(e) => {
-                                e.currentTarget.style.transform = 'scale(1)';
-                                e.currentTarget.style.backgroundColor = 'rgba(0,0,0,0.4)';
-                            }}
-                        >
-                            <svg
-                                width="20"
-                                height="20"
-                                viewBox="0 0 24 24"
-                                fill={isFavorite ? "currentColor" : "none"}
-                                stroke="currentColor"
-                                strokeWidth="2"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                            >
-                                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l8.84-8.84 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-                            </svg>
-                        </button>
+                        )}
+                        {hasVideo && (
+                            <span className="px-5 py-1.5 bg-black/40 backdrop-blur-xl text-[#d4a843] border border-[#d4a843]/30 rounded-full text-[9px] font-bold uppercase tracking-widest flex items-center gap-2">
+                                <div className="w-1.5 h-1.5 rounded-full bg-[#d4a843] animate-pulse" />
+                                Interactive Film
+                            </span>
+                        )}
                     </div>
 
-                    <div className="card-body" style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '1.5rem' }}>
-                        <div style={{ marginBottom: '1.5rem' }}>
-                            <span style={{
-                                fontSize: '0.75rem',
-                                color: 'var(--gold-500)',
-                                fontWeight: 700,
-                                letterSpacing: '0.15rem',
-                                textTransform: 'uppercase'
-                            }}>
-                                {property.neighborhood}
+                    {/* Favorite Toggle */}
+                    <button
+                        onClick={handleFavoriteClick}
+                        className={`absolute top-8 right-8 z-30 w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-300 ${isFavorite
+                            ? 'bg-red-500 text-white'
+                            : 'bg-black/20 backdrop-blur-xl border border-white/10 text-white hover:bg-[#d4a843] hover:text-[#0a0a0f]'
+                            }`}
+                    >
+                        <Target size={20} className={isFavorite ? 'animate-pulse' : ''} />
+                    </button>
+
+                    {/* Property Intel Overlay */}
+                    <div className="absolute bottom-8 left-8 right-8 z-20">
+                        <div className="flex flex-col gap-2 mb-6">
+                            <span className="text-[10px] font-black uppercase tracking-[0.4em] text-[#d4a843]/80 mb-1 flex items-center gap-2">
+                                <Activity size={10} />
+                                Sector: {property.neighborhood}
                             </span>
-                            <h3 style={{
-                                fontSize: '1.4rem',
-                                marginTop: '0.5rem',
-                                marginBottom: '0.5rem',
-                                fontFamily: 'var(--font-display)',
-                                color: '#fff',
-                                fontWeight: 400,
-                                lineHeight: 1.2
-                            }}>
+                            <h3 className="text-3xl font-black tracking-tighter text-white leading-none group-hover:text-[#d4a843] transition-colors">
                                 {property.title}
                             </h3>
                         </div>
 
-                        <div style={{ marginTop: 'auto' }}>
-                            <div style={{
-                                fontFamily: 'var(--font-display)',
-                                fontSize: '1.6rem',
-                                color: 'var(--gold-400)',
-                                fontWeight: 600,
-                                marginBottom: '1rem'
-                            }}>
-                                {formatPrice(property.price)}
+                        <div className="flex items-center justify-between">
+                            <div className="flex flex-col">
+                                <span className="text-[9px] font-black uppercase tracking-widest text-zinc-500 mb-1">Market Valuation</span>
+                                <span className="text-2xl font-black text-white tracking-tight">
+                                    {formatPrice(property.price)}
+                                </span>
                             </div>
 
-                            <div style={{
-                                width: '100%',
-                                height: '1px',
-                                backgroundColor: 'rgba(255,255,255,0.1)',
-                                margin: '1.2rem 0'
-                            }} />
-
-                            <div className="specs-row" style={{ display: 'flex', gap: '1.5rem', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                                    <span style={{ opacity: 0.6 }}>🛏</span>
-                                    <span style={{ fontWeight: 500 }}>{property.bedrooms === 0 ? 'S' : property.bedrooms}</span>
+                            <div className="flex items-center gap-6 px-6 py-3 bg-white/5 border border-white/5 rounded-2xl backdrop-blur-md">
+                                <div className="flex items-center gap-2">
+                                    <BedDouble size={14} className="text-[#d4a843]" />
+                                    <span className="text-[11px] font-black text-white">{property.bedrooms || 'S'}</span>
                                 </div>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                                    <span style={{ opacity: 0.6 }}>🚿</span>
-                                    <span style={{ fontWeight: 500 }}>{property.bathrooms}</span>
+                                <div className="flex items-center gap-2">
+                                    <Bath size={14} className="text-[#d4a843]" />
+                                    <span className="text-[11px] font-black text-white">{property.bathrooms}</span>
                                 </div>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                                    <span style={{ opacity: 0.6 }}>📐</span>
-                                    <span style={{ fontWeight: 500 }}>{formatSqft(property.sizeSqft)}</span>
+                                <div className="flex items-center gap-2">
+                                    <Maximize2 size={14} className="text-[#d4a843]" />
+                                    <span className="text-[11px] font-black text-white">{formatSqft(property.sizeSqft)}</span>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </Link>
-            </article>
-        </div>
+
+                    {/* Scanline Effect */}
+                    <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#d4a843]/5 to-transparent h-[200%] w-full animate-scanline pointer-events-none z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+                </div>
+            </Link>
+        </motion.div>
     );
 };

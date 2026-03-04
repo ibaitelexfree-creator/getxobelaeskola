@@ -2,7 +2,9 @@
 
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { Plus, Search, Filter, Home, LayoutGrid, List as ListIcon, Loader2, MapPin, Bed, Bath, ArrowRight, Building, Clock, CheckCircle, XCircle } from 'lucide-react';
+import { Plus, Search, Filter, Home, LayoutGrid, List as ListIcon, Loader2, MapPin, Bed, Bath, ArrowRight, Building, Clock, CheckCircle, XCircle, LogOut } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { createClient } from '@/lib/supabase/client';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -22,6 +24,8 @@ export default function UserDashboard() {
     const [properties, setProperties] = useState<Property[]>([]);
     const [loading, setLoading] = useState(true);
     const [view, setView] = useState<'grid' | 'list'>('grid');
+    const router = useRouter();
+    const supabase = createClient();
 
     useEffect(() => {
         fetchMyProperties();
@@ -38,6 +42,16 @@ export default function UserDashboard() {
             console.error('Error fetching my properties:', err);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleLogout = async () => {
+        try {
+            await supabase.auth.signOut();
+            router.push('/auth/login');
+        } catch (err) {
+            console.error('Logout error:', err);
+            window.location.href = '/realstate/auth/login';
         }
     };
 
@@ -59,7 +73,7 @@ export default function UserDashboard() {
     };
 
     return (
-        <div className="min-h-screen pt-32 pb-20" style={{ backgroundColor: 'var(--bg-primary)' }}>
+        <div className="min-h-screen pb-20" style={{ backgroundColor: 'var(--bg-primary)', paddingTop: '160px' }}>
             <div className="container max-w-7xl mx-auto px-6">
 
                 {/* Dashboard Header */}
@@ -78,14 +92,24 @@ export default function UserDashboard() {
                             Manage your exclusive listings and track their real-time performance on Luxe Dubai Estates.
                         </p>
                     </div>
-                    <Link
-                        href="/list-property"
-                        className="btn-primary luxury-glow flex items-center justify-center gap-2"
-                        style={{ padding: '1rem 2.5rem', letterSpacing: '0.1rem' }}
-                    >
-                        <Plus size={20} />
-                        REGISTER NEW ASSET
-                    </Link>
+                    <div className="flex flex-wrap items-center gap-4">
+                        <Link
+                            href="/list-property"
+                            className="btn-primary luxury-glow flex items-center justify-center gap-2"
+                            style={{ padding: '1rem 2.5rem', letterSpacing: '0.1rem' }}
+                        >
+                            <Plus size={20} />
+                            REGISTER NEW ASSET
+                        </Link>
+
+                        <button
+                            onClick={handleLogout}
+                            className="flex items-center gap-2 px-6 py-4 bg-red-500/10 border border-red-500/20 text-red-500 rounded-xl font-black uppercase tracking-[0.2em] text-[10px] hover:bg-red-500 hover:text-white transition-all group"
+                        >
+                            <LogOut size={16} className="group-hover:-translate-x-1 transition-transform" />
+                            LOGOUT protocol
+                        </button>
+                    </div>
                 </motion.div>
 
                 {/* KPI Cards */}

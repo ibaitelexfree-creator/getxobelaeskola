@@ -4,4 +4,9 @@ const DATABASE_URL = process.env.DATABASE_URL || 'postgresql://neondb_owner:npg_
 
 const sql = postgres(DATABASE_URL);
 
+/**
+ * Database connection instance.
+ * Used for tagged template queries.
+ */
+export const getDb = () => sql;
 export default sql;

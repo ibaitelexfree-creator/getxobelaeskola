@@ -5,6 +5,7 @@ import LuxuryReveal from '@/components/ui/LuxuryReveal';
 import { NEIGHBORHOODS } from '@/data/neighborhoods';
 import { createClient } from '@/lib/supabase/client';
 import Link from 'next/link';
+import { CustomSelect } from '@/components/ui/CustomSelect';
 
 export default function ListPropertyPage() {
     const [user, setUser] = useState<any>(null);
@@ -150,7 +151,7 @@ export default function ListPropertyPage() {
                                 <div style={{ fontSize: '3.5rem', marginBottom: '2rem' }}>💎</div>
                             </LuxuryReveal>
                             <LuxuryReveal delay={0.2}>
-                                <h1 style={{
+                                <h2 style={{
                                     fontFamily: 'var(--font-display)',
                                     fontSize: 'clamp(2rem, 5vw, 3.5rem)',
                                     color: '#fff',
@@ -158,7 +159,7 @@ export default function ListPropertyPage() {
                                     lineHeight: 1.2
                                 }}>
                                     Exclusive <span className="gold-text">Membership</span> Required
-                                </h1>
+                                </h2>
                             </LuxuryReveal>
                             <LuxuryReveal delay={0.4}>
                                 <p style={{
@@ -274,34 +275,22 @@ export default function ListPropertyPage() {
 
                                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                                         <label style={{ fontSize: '0.75rem', color: 'var(--gold-500)', fontWeight: 700, letterSpacing: '0.15em' }}>NEIGHBORHOOD</label>
-                                        <select
-                                            name="location"
-                                            required
+                                        <CustomSelect
                                             value={formData.location}
-                                            onChange={handleInputChange}
-                                            className="input-field"
-                                            style={{ appearance: 'none' }}
-                                        >
-                                            {NEIGHBORHOODS.map(n => (
-                                                <option key={n.id} value={n.name}>{n.name}</option>
-                                            ))}
-                                        </select>
+                                            options={NEIGHBORHOODS.map(n => n.name)}
+                                            onChange={(val) => setFormData(prev => ({ ...prev, location: val }))}
+                                            placeholder="Select Neighborhood..."
+                                        />
                                     </div>
 
                                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                                         <label style={{ fontSize: '0.75rem', color: 'var(--gold-500)', fontWeight: 700, letterSpacing: '0.15em' }}>ARCHITECTURAL TYPE</label>
-                                        <select
-                                            name="property_type"
+                                        <CustomSelect
                                             value={formData.property_type}
-                                            onChange={handleInputChange}
-                                            className="input-field"
-                                            style={{ appearance: 'none' }}
-                                        >
-                                            <option value="Villa">Villa</option>
-                                            <option value="Penthouse">Penthouse</option>
-                                            <option value="Mansion">Mansion</option>
-                                            <option value="Apartment">Apartment</option>
-                                        </select>
+                                            options={['Villa', 'Penthouse', 'Mansion', 'Apartment']}
+                                            onChange={(val) => setFormData(prev => ({ ...prev, property_type: val }))}
+                                            placeholder="Select Type..."
+                                        />
                                     </div>
 
                                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>

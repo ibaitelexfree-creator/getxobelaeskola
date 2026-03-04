@@ -97,18 +97,24 @@ export async function triggerN8nVideo(propertyId: number, chatId?: number): Prom
 
     if (!webhookUrl) throw new Error('n8n Webhook URL not configured');
 
+    // Construct App URL for Callback
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://getxobelaeskola.cloud/realstate';
+
     // Trigger n8n
     const response = await axios.post(webhookUrl, {
         propertyId: property.id.toString(),
-        chatId: chatId ? chatId.toString() : '',
-        title: property.title,
-        price: property.price
+        videoType: 'cinematic_pan',
+        imageUrl: property.images && property.images.length > 0 ? property.images[0] : 'https://images.unsplash.com/photo-1600585154340-be6199f7d009',
+        propertyTitle: property.title,
+        propertyType: property.property_type || 'luxury_villa',
+        callbackUrl: `${appUrl}/api/video/callback`,
+        chatId: chatId ? chatId.toString() : ''
     });
 
     // Track in DB
     await sql`
-    INSERT INTO generated_videos (property_id, video_url, status)
-    VALUES (${propertyId}, '', 'processing')
+    INSERT INTO generated_videos (property_id, video_type, status)
+    VALUES (${propertyId}, 'cinematic_pan', 'processing')
   `;
 
     return response.data;

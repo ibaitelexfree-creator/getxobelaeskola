@@ -44,20 +44,50 @@ export const AishaChatWidget: React.FC = () => {
         };
 
         setMessages(prev => [...prev, userMsg]);
+        const currentInput = input;
         setInput('');
         setIsTyping(true);
 
         try {
-            const response = await getAishaResponse(input);
-            const aishaMsg: ChatMessage = {
+            // Priority 1: Real AI Response from API
+            const apiResponse = await fetch('/realstate/api/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: currentInput })
+            });
+
+            if (apiResponse.ok) {
+                const data = await apiResponse.json();
+                if (data.response) {
+                    const aishaMsg: ChatMessage = {
+                        id: Date.now().toString(),
+                        role: 'aisha',
+                        content: data.response,
+                        timestamp: new Date()
+                    };
+                    setMessages(prev => [...prev, aishaMsg]);
+                    return;
+                }
+            }
+
+            // Priority 2: Local Heuristic Fallback (if API fails or is in demo mode)
+            const fallbackResponse = getAishaResponse(currentInput);
+            const aishaMsgFallback: ChatMessage = {
                 id: (Date.now() + 1).toString(),
                 role: 'aisha',
-                content: response.text,
+                content: fallbackResponse.text,
                 timestamp: new Date()
             };
-            setMessages(prev => [...prev, aishaMsg]);
+            setMessages(prev => [...prev, aishaMsgFallback]);
         } catch (error) {
             console.error('Chat error:', error);
+            // Emergency fallback
+            setMessages(prev => [...prev, {
+                id: 'error',
+                role: 'aisha',
+                content: "I'm having a brief moment of reflection. How else can I assist you with Dubai real estate?",
+                timestamp: new Date()
+            }]);
         } finally {
             setIsTyping(false);
         }

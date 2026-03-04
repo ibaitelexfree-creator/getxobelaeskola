@@ -14,7 +14,7 @@ export default function AdminLayout({
             <AdminSidebar />
 
             {/* Main Content Area */}
-            <main className="pl-72 min-h-screen">
+            <main className="pl-72 min-h-screen" style={{ paddingTop: '100px' }}>
                 <div className="p-8 max-w-[1600px] mx-auto">
                     {children}
                 </div>

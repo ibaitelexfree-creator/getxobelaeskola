@@ -9,12 +9,13 @@ const intlMiddleware = createMiddleware({
 });
 
 export default async function middleware(request: NextRequest) {
-    const isApi = request.nextUrl.pathname.startsWith('/api');
+    const isApi = request.nextUrl.pathname.startsWith('/api') || request.nextUrl.pathname.includes('/api/');
+    const isRealstate = request.nextUrl.pathname.startsWith('/realstate');
     let response: NextResponse;
 
     // 1. Determine base response
-    if (isApi) {
-        // API routes don't use next-intl usually
+    if (isApi || isRealstate) {
+        // API routes and Realstate app don't use the global next-intl
         response = NextResponse.next();
     } else {
         // Run next-intl middleware for pages

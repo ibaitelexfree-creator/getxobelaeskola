@@ -14,10 +14,8 @@ const mockPlayer = {
 };
 
 // Properly mock the constructor using a class
-const MockPlayer = vi.fn().mockImplementation(class {
-	constructor() {
-		return mockPlayer;
-	}
+const MockPlayer = vi.fn().mockImplementation(function () {
+	return mockPlayer;
 });
 
 const mockYT = {
