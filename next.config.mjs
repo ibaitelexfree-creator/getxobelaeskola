@@ -6,6 +6,11 @@ const isCapacitor = process.env.IS_CAPACITOR === 'true';
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+    experimental: {
+        workerThreads: false,
+        cpus: 1,
+        memoryBasedWorkersCount: true
+    },
     trailingSlash: true,
     images: {
         unoptimized: isCapacitor,
