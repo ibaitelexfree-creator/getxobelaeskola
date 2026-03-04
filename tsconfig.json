@@ -33,7 +33,10 @@
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
-    ".next/types/**/*.ts"
+    ".next/types/**/*.ts",
+    "i18n.ts",
+    "next.config.mjs",
+    "vitest.setup.ts"
   ],
   "exclude": [
     "node_modules",
@@ -46,6 +49,7 @@
     ".jules_bases",
     ".agent",
     ".Jules",
-    ".openclaw"
+    ".openclaw",
+    "apps"
   ]
 }
