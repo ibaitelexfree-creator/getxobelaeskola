@@ -18,6 +18,8 @@ import { useNotificationStore } from '@/lib/store/useNotificationStore';
 import { useUnitProgress } from '@/hooks/useUnitProgress';
 import { checkAchievements } from '@/lib/gamification/AchievementEngine';
 import { useAcademyMode } from '@/lib/store/useAcademyMode';
+import DOMPurify from 'isomorphic-dompurify';
+
 
 interface Unidad {
     id: string;
@@ -428,7 +430,7 @@ export default function UnitReaderMain({
                                     <div className="space-y-8">
                                         <div className="bg-white/5 border border-white/10 rounded-sm p-8">
                                             <div className="text-white/90 leading-relaxed whitespace-pre-wrap"
-                                                dangerouslySetInnerHTML={{ __html: params.locale === 'eu' ? unidad.contenido_teorico_eu || '' : unidad.contenido_teorico_es || '' }}
+                                                dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(params.locale === 'eu' ? unidad.contenido_teorico_eu || '' : unidad.contenido_teorico_es || '') }}
                                             />
                                         </div>
                                     </div>
@@ -446,7 +448,7 @@ export default function UnitReaderMain({
                                 {activeTab === 'practica' && (
                                     <div className="bg-accent/5 border border-accent/20 rounded-sm p-8">
                                         <div className="text-white/90 leading-relaxed whitespace-pre-wrap"
-                                            dangerouslySetInnerHTML={{ __html: params.locale === 'eu' ? unidad.contenido_practico_eu || '' : unidad.contenido_practico_es || '' }}
+                                            dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(params.locale === 'eu' ? unidad.contenido_practico_eu || '' : unidad.contenido_practico_es || '') }}
                                         />
                                     </div>
                                 )}
