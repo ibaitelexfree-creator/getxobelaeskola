@@ -1,8 +1,6 @@
 'use client';
 
 import { useCallback } from 'react';
-import { LocalNotifications } from '@capacitor/local-notifications';
-import { Capacitor } from '@capacitor/core';
 import { createClient } from '@/lib/supabase/client';
 import { useNotificationStore } from '@/lib/store/useNotificationStore';
 
@@ -12,8 +10,10 @@ export const useSmartNotifications = () => {
 
     // --- Permissions ---
     const requestLocalPermissions = useCallback(async () => {
+        const { Capacitor } = await import('@capacitor/core');
         if (!Capacitor.isNativePlatform()) return;
         try {
+            const { LocalNotifications } = await import('@capacitor/local-notifications');
             const status = await LocalNotifications.checkPermissions();
             if (status.display !== 'granted') {
                 await LocalNotifications.requestPermissions();
@@ -25,9 +25,11 @@ export const useSmartNotifications = () => {
 
     // --- Streak Reminder (Based on study habits) ---
     const scheduleStreakReminder = useCallback(async (userId: string) => {
+        const { Capacitor } = await import('@capacitor/core');
         if (!Capacitor.isNativePlatform()) return;
 
         try {
+            const { LocalNotifications } = await import('@capacitor/local-notifications');
             // Fetch last 30 days of quiz attempts to determine usual study time
             const { data: attempts } = await supabase
                 .from('intentos_evaluacion')
@@ -67,9 +69,11 @@ export const useSmartNotifications = () => {
 
     // --- Exam Alert ---
     const scheduleExamReminders = useCallback(async (userId: string) => {
+        const { Capacitor } = await import('@capacitor/core');
         if (!Capacitor.isNativePlatform()) return;
 
         try {
+            const { LocalNotifications } = await import('@capacitor/local-notifications');
             const now = new Date().toISOString();
             // Fetch upcoming sessions where user is an attendee
             // Note: Join syntax depends on foreign key names. assuming 'sesiones' is the relation name from 'sesion_asistentes'
@@ -151,8 +155,10 @@ export const useSmartNotifications = () => {
 
                          const moduleName = moduleData?.nombre_es || 'un módulo';
 
+                         const { Capacitor } = await import('@capacitor/core');
                          if (Capacitor.isNativePlatform()) {
                              try {
+                                 const { LocalNotifications } = await import('@capacitor/local-notifications');
                                  await LocalNotifications.schedule({
                                      notifications: [{
                                          title: '¡Felicidades! 🎉',

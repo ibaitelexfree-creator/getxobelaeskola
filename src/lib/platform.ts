@@ -1,11 +1,23 @@
-import { Capacitor } from '@capacitor/core';
-
 /**
  * Utility to identify the current platform and handle base URLs
  */
 export const getPlatform = () => {
     // SSR safe check
     if (typeof window === 'undefined') {
+        return {
+            isNative: false,
+            isAndroid: false,
+            isIOS: false,
+            isWeb: true,
+        };
+    }
+
+    // We use a hack here to avoid static import but allow synchronous usage if already loaded
+    // In browser, if Capacitor is used, it's usually already in window or loaded
+    const win = window as any;
+    const Capacitor = win.Capacitor;
+
+    if (!Capacitor) {
         return {
             isNative: false,
             isAndroid: false,

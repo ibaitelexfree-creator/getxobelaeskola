@@ -1,15 +1,15 @@
-import { LocalNotifications } from '@capacitor/local-notifications';
-import { Capacitor } from '@capacitor/core';
-
 export class LocalNotificationManager {
     static async requestPermissions() {
+        const { Capacitor } = await import('@capacitor/core');
         if (!Capacitor.isNativePlatform()) return true;
 
+        const { LocalNotifications } = await import('@capacitor/local-notifications');
         const result = await LocalNotifications.requestPermissions();
         return result.display === 'granted';
     }
 
     static async scheduleSessionReminder(session: { id: string, start_time: string, topic?: string }) {
+        const { Capacitor } = await import('@capacitor/core');
         if (!Capacitor.isNativePlatform()) return;
 
         const startTime = new Date(session.start_time);
@@ -22,6 +22,7 @@ export class LocalNotificationManager {
         const id = this.hashCode(session.id);
 
         try {
+            const { LocalNotifications } = await import('@capacitor/local-notifications');
             await LocalNotifications.schedule({
                 notifications: [
                     {
@@ -43,9 +44,11 @@ export class LocalNotificationManager {
     }
 
     static async cancelSessionReminder(sessionId: string) {
+        const { Capacitor } = await import('@capacitor/core');
         if (!Capacitor.isNativePlatform()) return;
         const id = this.hashCode(sessionId);
         try {
+            const { LocalNotifications } = await import('@capacitor/local-notifications');
             await LocalNotifications.cancel({ notifications: [{ id }] });
         } catch (e) {
             console.warn('Failed to cancel notification (might not exist)', e);
