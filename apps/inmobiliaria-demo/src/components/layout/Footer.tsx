@@ -1,98 +1,46 @@
-'use client';
-
 import React from 'react';
 import Link from 'next/link';
 
-export const Footer = () => {
-    const currentYear = new Date().getFullYear();
-
+export function Footer() {
     return (
-        <footer
-            style={{
-                backgroundColor: 'var(--bg-secondary)',
-                paddingTop: '6rem',
-                paddingBottom: '2.5rem',
-                borderTop: '1px solid var(--border-gold)',
-                marginTop: '6rem'
-            }}
-        >
-            <div className="container">
-                <div
-                    className="grid-4"
-                    style={{
-                        display: 'grid',
-                        gridTemplateColumns: 'repeat(4, 1fr)',
-                        gap: '4rem',
-                        marginBottom: '4rem'
-                    }}
-                >
-                    {/* Logo & Info */}
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-                        <Link href="/" style={{ textDecoration: 'none' }}>
-                            <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                <span className="gold-text" style={{ fontFamily: 'var(--font-display)', fontSize: '1.75rem', fontWeight: 600, letterSpacing: '0.1em' }}>LUXE</span>
-                                <span style={{ color: 'var(--text-secondary)', fontSize: '0.6rem', letterSpacing: '0.3em', marginTop: '-0.2rem' }}>DUBAI ESTATES</span>
-                            </div>
-                        </Link>
-                        <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: 1.8 }}>
-                            Setting the standard for luxury real estate in Dubai. Our curated portfolio represents the pinnacle of international living.
-                        </p>
+        <footer style={{ background: 'var(--bg-secondary)', borderTop: '1px solid var(--border-subtle)', padding: '4rem 0 2rem' }}>
+            <div className="container grid-3" style={{ marginBottom: '3rem' }}>
+                <div>
+                    <div style={{ fontFamily: 'var(--font-display)', fontSize: '1.5rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '1rem' }}>
+                        LUXE <span className="gold-text">DUBAI</span>
                     </div>
-
-                    {/* Quick Links */}
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-                        <h4 style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-display)', fontWeight: 600, fontSize: '1.2rem' }}>Quick Links</h4>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                            <Link href="/" style={{ color: 'var(--text-secondary)', textDecoration: 'none', fontSize: '0.9rem' }}>Home</Link>
-                            <Link href="/properties" style={{ color: 'var(--text-secondary)', textDecoration: 'none', fontSize: '0.9rem' }}>All Properties</Link>
-                            <Link href="#neighborhoods" style={{ color: 'var(--text-secondary)', textDecoration: 'none', fontSize: '0.9rem' }}>Neighborhoods</Link>
-                            <Link href="/contact" style={{ color: 'var(--text-secondary)', textDecoration: 'none', fontSize: '0.9rem' }}>Contact Us</Link>
-                        </div>
-                    </div>
-
-                    {/* Contact Details */}
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-                        <h4 style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-display)', fontWeight: 600, fontSize: '1.2rem' }}>Contact Info</h4>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                                <span style={{ color: 'var(--gold-400)', fontSize: '0.8rem', fontWeight: 600, letterSpacing: '0.1em' }}>ADDRESS</span>
-                                <span style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Dubai Marina, Tower 2, Level 18</span>
-                            </div>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                                <span style={{ color: 'var(--gold-400)', fontSize: '0.8rem', fontWeight: 600, letterSpacing: '0.1em' }}>PHONE</span>
-                                <span style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>+971 4 000 0000</span>
-                            </div>
-                        </div>
-                    </div>
+                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>
+                        The definitive collection of ultra-luxury real estate in Dubai. Penthouses, villas, and exclusive investments.
+                    </p>
                 </div>
 
-                <div
-                    style={{
-                        marginTop: '4rem',
-                        paddingTop: '2.5rem',
-                        borderTop: '1px solid var(--border-subtle)',
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        color: 'var(--text-muted)',
-                        fontSize: '0.85rem'
-                    }}
-                >
-                    <span>© {currentYear} Luxe Dubai Estates.</span>
-                    <div style={{ display: 'flex', gap: '1.5rem' }}>
-                        <Link href="/privacy" style={{ color: 'inherit', textDecoration: 'none' }}>Privacy Policy</Link>
-                        <span style={{ color: 'var(--gold-500)' }}>RERA Licensed</span>
-                    </div>
+                <div>
+                    <h4 style={{ color: 'var(--text-primary)', marginBottom: '1rem', fontWeight: 600 }}>Quick Links</h4>
+                    <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                        <li><Link href="/properties" style={{ color: 'var(--text-secondary)', textDecoration: 'none', fontSize: '0.875rem' }}>All Properties</Link></li>
+                        <li><Link href="/neighborhoods" style={{ color: 'var(--text-secondary)', textDecoration: 'none', fontSize: '0.875rem' }}>Neighborhoods</Link></li>
+                        <li><Link href="/about" style={{ color: 'var(--text-secondary)', textDecoration: 'none', fontSize: '0.875rem' }}>About Us</Link></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 style={{ color: 'var(--text-primary)', marginBottom: '1rem', fontWeight: 600 }}>Contact</h4>
+                    <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.5rem', color: 'var(--text-secondary)', fontSize: '0.875rem' }}>
+                        <li>Boulevard Plaza Tower 1</li>
+                        <li>Downtown Dubai, UAE</li>
+                        <li>+971 4 123 4567</li>
+                        <li>info@luxedubai.com</li>
+                    </ul>
                 </div>
             </div>
-            <style jsx>{`
-        @media (max-width: 1024px) {
-          .grid-4 { grid-template-columns: repeat(2, 1fr) !important; gap: 3rem !important; }
-        }
-        @media (max-width: 640px) {
-          .grid-4 { grid-template-columns: 1fr !important; gap: 2.5rem !important; }
-        }
-      `}</style>
+
+            <div className="container" style={{ borderTop: '1px solid var(--border-subtle)', paddingTop: '2rem', display: 'flex', justifyContent: 'space-between', color: 'var(--text-muted)', fontSize: '0.75rem' }}>
+                <p>&copy; {new Date().getFullYear()} Luxe Dubai Estates. All rights reserved.</p>
+                <div style={{ display: 'flex', gap: '1rem' }}>
+                    <Link href="#" style={{ color: 'var(--text-muted)', textDecoration: 'none' }}>Privacy Policy</Link>
+                    <Link href="#" style={{ color: 'var(--text-muted)', textDecoration: 'none' }}>Terms of Service</Link>
+                </div>
+            </div>
         </footer>
     );
-};
+}

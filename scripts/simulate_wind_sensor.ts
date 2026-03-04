@@ -1,8 +1,14 @@
 // scripts/simulate_wind_sensor.ts
-// Use: npx tsx scripts/simulate_wind_sensor.ts
+// Use: IOT_API_KEY=your-secret npx tsx scripts/simulate_wind_sensor.ts
 
 const API_URL = 'http://localhost:3000/api/iot/wind';
 const SENSOR_ID = 'club-nautico-iot-1';
+const IOT_API_KEY = process.env.IOT_API_KEY;
+
+if (!IOT_API_KEY) {
+    console.error('❌ Error: IOT_API_KEY environment variable is not set');
+    process.exit(1);
+}
 
 function getRandomWind() {
     const baseSpeed = 10;
@@ -29,7 +35,7 @@ async function sendData() {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'x-api-key': 'club-nautico-iot-secret-2024'
+                'x-api-key': IOT_API_KEY
             },
             body: JSON.stringify(data),
         });

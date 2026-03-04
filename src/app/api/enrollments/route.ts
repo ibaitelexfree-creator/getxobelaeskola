@@ -3,12 +3,11 @@ import { requireAuth } from '@/lib/auth-guard';
 import { getUserEnrollments } from '@/lib/academy/enrollment';
 import { withCors, corsHeaders } from '@/lib/api-headers';
 
-export const dynamic = 'force-dynamic';
 
 
 /**
  * GET /api/enrollments
- * 
+ *
  * Returns the list of course IDs that the currently authenticated user
  * has successfully purchased.
  */

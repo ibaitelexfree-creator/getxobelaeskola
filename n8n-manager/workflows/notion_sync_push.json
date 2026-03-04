@@ -25,7 +25,7 @@
                     "parameters": [
                         {
                             "name": "secret",
-                            "value": "getxo_notion_sync_2026_pro"
+                            "value": "YOUR_NOTION_SYNC_SECRET"
                         },
                         {
                             "name": "mode",

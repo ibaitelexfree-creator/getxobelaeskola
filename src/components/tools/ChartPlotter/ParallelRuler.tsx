@@ -27,10 +27,6 @@ export default function ParallelRuler({ x, y, angle, scale, onUpdate, worldToScr
 
     const handleRotateDown = (e: React.MouseEvent) => {
         e.stopPropagation();
-        const rect = (e.target as Element).getBoundingClientRect();
-        // Calculate center of ruler on screen
-        // const centerX = rect.left + rect.width / 2; // Approximation
-        // const centerY = rect.top + rect.height / 2;
 
         // This is tricky inside an SVG transform.
         // Simpler approach: Store initial mouse angle relative to ruler center (screenPos)
@@ -46,7 +42,6 @@ export default function ParallelRuler({ x, y, angle, scale, onUpdate, worldToScr
                 const newScreenX = e.clientX - dragOffset.x;
                 const newScreenY = e.clientY - dragOffset.y;
                 const newWorld = screenToWorld(newScreenX, newScreenY);
-                // const worldMouse = screenToWorld(e.clientX, e.clientY);
                 onUpdate({ x: newWorld.x, y: newWorld.y, angle });
             } else if (isRotating) {
                 const dx = e.clientX - screenPos.x;
@@ -75,7 +70,7 @@ export default function ParallelRuler({ x, y, angle, scale, onUpdate, worldToScr
     // Visual dimensions in pixels (unscaled or scaled? Usually tools stay constant size on screen or scale with map?)
     // Real parallel rulers scale with the map if they are physical objects on it.
     // Let's make it fixed screen size for better usability, or scaled world size?
-    // "Manipulative materials" usually implies "real size" relative to the chart. 
+    // "Manipulative materials" usually implies "real size" relative to the chart.
     // Let's assume a standard size in World Units. e.g. 300 units wide.
     const width = 300 * scale;
     const height = 60 * scale;

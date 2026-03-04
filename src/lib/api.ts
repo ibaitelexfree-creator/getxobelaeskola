@@ -32,7 +32,25 @@ export const apiUrl = (path: string) => {
     const cleanPath = path.startsWith('/') ? path : `/${path}`;
 
     // Fix common path errors: remove /academy/ prefix if it was incorrectly added
-    const fixedPath = cleanPath.replace(/^\/api\/academy\//, '/api/');
+    // List of valid /api/academy endpoints
+    const validAcademyPrefixes = [
+        '/api/academy/chatbot',
+        '/api/academy/leaderboard',
+        '/api/academy/montessori',
+        '/api/academy/repaso',
+        '/api/academy/simulation'
+    ];
+
+    let fixedPath = cleanPath;
+
+    // Fix common path errors: remove /academy/ prefix if it was incorrectly added
+    // but preserve it for actual academy endpoints
+    if (fixedPath.startsWith('/api/academy/')) {
+        const isValidAcademyEndpoint = validAcademyPrefixes.some(prefix => fixedPath.startsWith(prefix));
+        if (!isValidAcademyEndpoint) {
+            fixedPath = fixedPath.replace(/^\/api\/academy\//, '/api/');
+        }
+    }
 
     return `${base}${fixedPath}`;
 };

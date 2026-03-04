@@ -1,0 +1,19 @@
+name: 🛠️ Fetch Inmobiliaria Logs
+
+on:
+    workflow_dispatch:
+
+jobs:
+    fetch:
+        runs-on: ubuntu-latest
+        steps:
+            - name: 📡 Fetch docker logs
+              uses: appleboy/ssh-action@v1.0.3
+              with:
+                  host: ${{ secrets.VPS_HOST }}
+                  username: ${{ secrets.VPS_USER }}
+                  key: ${{ secrets.VPS_SSH_KEY }}
+                  port: ${{ secrets.VPS_PORT }}
+                  script: |
+                      set -euo pipefail
+                      docker logs --tail 200 inmobiliaria

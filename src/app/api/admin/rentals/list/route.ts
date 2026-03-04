@@ -46,7 +46,7 @@ export async function GET(_request: Request) {
 
             const matchedServiceIds = matchedServices?.map((s: any) => s.id) || [];
 
-            // Combine filters: 
+            // Combine filters:
             // 1. Matches in profile or service (from previous queries)
             // 2. Direct matches in the rentals table (status, payment, options, etc.)
             const conditions = [

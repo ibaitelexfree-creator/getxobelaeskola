@@ -16,10 +16,10 @@ export const VectorVisionOverlay: React.FC<VectorVisionOverlayProps> = ({
 }) => {
     const t = useTranslations('wind_lab');
     const [_, setTick] = useState(0); // Force re-render for smooth animation?
-    // No, better to use refs for the SVG elements if we want high perf, 
+    // No, better to use refs for the SVG elements if we want high perf,
     // BUT since we are in React, let's use a simpler approach:
     // We lift the smoothing to a small custom hook that runs a loop?
-    // OR we just assume physics updates are 60fps? 
+    // OR we just assume physics updates are 60fps?
     // Physics is 60fps. The issue is instant changes.
     // Let's implement a simple internal lerp state.
 

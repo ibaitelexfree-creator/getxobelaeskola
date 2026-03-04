@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { renderHook, waitFor } from '@testing-library/react';
+import { renderHook, waitFor, act } from '@testing-library/react';
 import { useNetworkMonitor } from './useNetworkMonitor';
 import { Network } from '@capacitor/network';
 
@@ -16,6 +16,7 @@ describe('useNetworkMonitor', () => {
 
     beforeEach(() => {
         vi.clearAllMocks();
+        vi.restoreAllMocks();
     });
 
     it('should setup network listener on mount', async () => {
@@ -66,7 +67,29 @@ describe('useNetworkMonitor', () => {
 
         expect(mockOnWifiDisconnect).not.toHaveBeenCalled();
     });
-});
 
-// Import act from react explicitly for hooks test
-import { act } from 'react';
+    it('should log error when Network.getStatus fails', async () => {
+        const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => { });
+        const testError = new Error('getStatus failed');
+        (Network.getStatus as any).mockRejectedValue(testError);
+
+        renderHook(() => useNetworkMonitor(mockOnWifiDisconnect));
+
+        await waitFor(() => {
+            expect(consoleSpy).toHaveBeenCalledWith('Error setting up network listener:', testError);
+        });
+    });
+
+    it('should log error when Network.addListener fails', async () => {
+        const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => { });
+        const testError = new Error('addListener failed');
+        (Network.getStatus as any).mockResolvedValue({ connected: true, connectionType: 'wifi' });
+        (Network.addListener as any).mockRejectedValue(testError);
+
+        renderHook(() => useNetworkMonitor(mockOnWifiDisconnect));
+
+        await waitFor(() => {
+            expect(consoleSpy).toHaveBeenCalledWith('Error setting up network listener:', testError);
+        });
+    });
+});

@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { useMissionStore, Tab } from '@/store/useMissionStore';
-import { LayoutDashboard, Rocket, ListOrdered, SlidersHorizontal, Radio, Settings } from 'lucide-react';
+import { LayoutDashboard, Rocket, ListOrdered, SlidersHorizontal, Radio, Settings, Building2 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -10,6 +10,7 @@ const getTabs = (t: any): { id: Tab; label: string; icon: React.ReactNode }[] =>
     { id: 'dashboard', label: t('nav.dashboard'), icon: <LayoutDashboard size={20} /> },
     { id: 'tasks', label: t('nav.tasks'), icon: <Rocket size={20} /> },
     { id: 'queue', label: t('nav.queue'), icon: <ListOrdered size={20} /> },
+    { id: 'realstate', label: t('nav.realstate'), icon: <Building2 size={20} /> },
     { id: 'visual', label: t('nav.live'), icon: <Radio size={20} /> },
     { id: 'control', label: t('nav.control'), icon: <SlidersHorizontal size={20} /> },
     { id: 'settings', label: t('nav.settings'), icon: <Settings size={20} /> },

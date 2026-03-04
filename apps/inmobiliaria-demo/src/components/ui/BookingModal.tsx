@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { Magnetic } from './Magnetic';
 
 interface BookingModalProps {
     isOpen: boolean;
@@ -10,33 +11,46 @@ interface BookingModalProps {
 
 export const BookingModal: React.FC<BookingModalProps> = ({ isOpen, onClose, propertyName }) => {
     const [step, setStep] = useState(1);
-    const [date, setDate] = useState('');
-    const [time, setTime] = useState('');
     const [service, setService] = useState('Private Viewing');
 
     if (!isOpen) return null;
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        setStep(3); // Success step
-        setTimeout(() => {
-            onClose();
-            setStep(1);
-        }, 4000);
-    };
 
-    const timeSlots = ['10:00 AM', '11:00 AM', '02:00 PM', '04:00 PM', '06:00 PM'];
+        // Collect data from form (simplifying since it's a demo but functional)
+        const formData = new FormData(e.target as HTMLFormElement);
+        const name = (e.target as any).elements[0].value;
+        const email = (e.target as any).elements[1].value;
+
+        try {
+            await fetch('/api/leads', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    full_name: name,
+                    email: email,
+                    service_type: service,
+                    propertyName: propertyName
+                })
+            });
+            setStep(3);
+            setTimeout(() => {
+                onClose();
+                setStep(1);
+            }, 5000);
+        } catch (err) {
+            console.error('Failed to submit booking:', err);
+        }
+    };
 
     return (
         <div
             style={{
                 position: 'fixed',
-                top: 0,
-                left: 0,
-                width: '100%',
-                height: '100%',
-                backgroundColor: 'rgba(0,0,0,0.85)',
-                backdropFilter: 'blur(10px)',
+                inset: 0,
+                backgroundColor: 'rgba(0,0,0,0.95)',
+                backdropFilter: 'blur(20px)',
                 zIndex: 3000,
                 display: 'flex',
                 alignItems: 'center',
@@ -46,159 +60,187 @@ export const BookingModal: React.FC<BookingModalProps> = ({ isOpen, onClose, pro
             onClick={onClose}
         >
             <div
-                className="glass-card animate-scale-up"
+                className="perspective-2000"
                 style={{
                     width: '100%',
-                    maxWidth: '550px',
-                    background: 'var(--bg-secondary)',
-                    border: '1px solid var(--border-gold)',
-                    padding: 0,
-                    overflow: 'hidden',
-                    boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5), var(--shadow-gold)'
+                    maxWidth: '650px',
+                    opacity: 0,
+                    animation: 'modalReveal 0.8s var(--ease-rev) forwards'
                 }}
                 onClick={(e) => e.stopPropagation()}
             >
-                {/* Header */}
-                <div style={{ padding: '2rem', borderBottom: '1px solid var(--border-subtle)', position: 'relative' }}>
-                    <span style={{ color: 'var(--gold-400)', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.2rem', textTransform: 'uppercase' }}>
-                        {propertyName ? `RESERVE ${propertyName}` : 'PRIVATE CONSULTATION'}
-                    </span>
-                    <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '2rem', margin: '0.5rem 0 0 0', color: '#fff' }}>
-                        Book Your Session
-                    </h2>
-                    <button
-                        onClick={onClose}
-                        style={{ position: 'absolute', top: '2rem', right: '2rem', background: 'none', border: 'none', color: 'var(--text-secondary)', fontSize: '1.5rem', cursor: 'pointer' }}
-                    >
-                        ✕
-                    </button>
-                </div>
+                <div
+                    style={{
+                        backgroundColor: '#0a0a0a',
+                        border: '1px solid var(--border-gold)',
+                        boxShadow: '0 50px 100px rgba(0,0,0,0.8), 0 0 50px rgba(212,168,67,0.1)',
+                        position: 'relative',
+                        overflow: 'hidden',
+                        borderRadius: 'var(--radius-lg)'
+                    }}
+                >
+                    <div className="luxury-sweep" style={{ opacity: 0.1 }} />
 
-                <div style={{ padding: '2rem' }}>
-                    {step === 1 && (
-                        <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                                <label style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: 600 }}>SELECT SERVICE</label>
-                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                                    {['Private Viewing', 'Virtual Tour', 'Investment Plan', 'VIP Gala'].map((s) => (
-                                        <button
-                                            key={s}
-                                            onClick={() => setService(s)}
-                                            style={{
-                                                padding: '1rem',
-                                                backgroundColor: service === s ? 'var(--gold-500)' : 'var(--bg-elevated)',
-                                                color: service === s ? '#0a0a0f' : 'var(--text-primary)',
-                                                border: '1px solid var(--border-subtle)',
-                                                borderRadius: 'var(--radius-md)',
-                                                cursor: 'pointer',
-                                                fontSize: '0.9rem',
-                                                fontWeight: 600,
-                                                transition: 'all 0.3s ease'
-                                            }}
-                                        >
-                                            {s}
-                                        </button>
-                                    ))}
+                    {/* Header */}
+                    <div style={{ padding: '3.5rem', textAlign: 'center', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                        <span style={{
+                            color: 'var(--gold-500)',
+                            fontSize: '0.7rem',
+                            fontWeight: 800,
+                            letterSpacing: '0.4rem',
+                            textTransform: 'uppercase'
+                        }}>
+                            PRIVATE RESERVATION
+                        </span>
+                        <h2 style={{
+                            fontFamily: 'var(--font-display)',
+                            fontSize: '2.5rem',
+                            marginTop: '1.5rem',
+                            color: '#fff',
+                            fontWeight: 400
+                        }}>
+                            {propertyName ? propertyName : 'VIP Consultation'}
+                        </h2>
+                        <button
+                            onClick={onClose}
+                            style={{
+                                position: 'absolute',
+                                top: '2rem',
+                                right: '2rem',
+                                background: 'none',
+                                border: 'none',
+                                color: 'var(--text-muted)',
+                                fontSize: '1.5rem',
+                                cursor: 'pointer',
+                                transition: 'color 0.3s ease'
+                            }}
+                            onMouseEnter={(e) => e.currentTarget.style.color = '#fff'}
+                            onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-muted)'}
+                        >
+                            ✕
+                        </button>
+                    </div>
+
+                    <div style={{ padding: '4rem' }}>
+                        {step === 1 && (
+                            <div className="fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '3rem' }}>
+                                <div>
+                                    <label style={{ fontSize: '0.7rem', color: 'var(--gold-600)', fontWeight: 800, letterSpacing: '0.15rem', marginBottom: '1.5rem', display: 'block' }}>CHOOSE YOUR EXPERIENCE</label>
+                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+                                        {['Private Viewing', 'Investment Brief', 'Virtual Showcase', 'Digital Concierge'].map((s) => (
+                                            <button
+                                                key={s}
+                                                onClick={() => setService(s)}
+                                                className="luxury-option-btn"
+                                                style={{
+                                                    padding: '1.5rem',
+                                                    backgroundColor: service === s ? 'var(--gold-600)' : 'transparent',
+                                                    color: service === s ? '#000' : '#fff',
+                                                    border: '1px solid var(--border-subtle)',
+                                                    borderRadius: 'var(--radius-md)',
+                                                    cursor: 'pointer',
+                                                    fontSize: '0.95rem',
+                                                    fontWeight: 600,
+                                                    transition: 'all 0.4s ease',
+                                                    letterSpacing: '0.05rem'
+                                                }}
+                                            >
+                                                {s}
+                                            </button>
+                                        ))}
+                                    </div>
                                 </div>
+                                <Magnetic distance={30}>
+                                    <button
+                                        className="btn-primary"
+                                        onClick={() => setStep(2)}
+                                        style={{ width: '100%', padding: '1.8rem', fontSize: '1.1rem', letterSpacing: '0.2rem' }}
+                                    >
+                                        PROCEED TO SCHEDULE
+                                    </button>
+                                </Magnetic>
                             </div>
-                            <button className="btn-primary" onClick={() => setStep(2)} style={{ width: '100%', padding: '1.25rem' }}>
-                                Continue to Schedule
-                            </button>
-                        </div>
-                    )}
+                        )}
 
-                    {step === 2 && (
-                        <form onSubmit={handleSubmit} className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                                <label style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: 600 }}>PREFERRED DATE</label>
-                                <input
-                                    type="date"
-                                    className="input-field"
-                                    required
-                                    value={date}
-                                    onChange={(e) => setDate(e.target.value)}
-                                    style={{ backgroundColor: 'var(--bg-elevated)' }}
-                                />
-                            </div>
-
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                                <label style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: 600 }}>AVAILABLE SLOTS</label>
-                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem' }}>
-                                    {timeSlots.map((t) => (
-                                        <button
-                                            key={t}
-                                            type="button"
-                                            onClick={() => setTime(t)}
-                                            style={{
-                                                padding: '0.6rem 1rem',
-                                                backgroundColor: time === t ? 'var(--gold-500)' : 'transparent',
-                                                color: time === t ? '#0a0a0f' : 'var(--text-secondary)',
-                                                border: `1px solid ${time === t ? 'var(--gold-500)' : 'var(--border-subtle)'}`,
-                                                borderRadius: '2rem',
-                                                cursor: 'pointer',
-                                                fontSize: '0.8rem',
-                                                fontWeight: 600,
-                                                transition: 'all 0.2s ease'
-                                            }}
-                                        >
-                                            {t}
-                                        </button>
-                                    ))}
+                        {step === 2 && (
+                            <form onSubmit={handleSubmit} className="fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                                    <label style={{ fontSize: '0.7rem', color: 'var(--gold-600)', fontWeight: 800, letterSpacing: '0.15rem' }}>VIP IDENTIFICATION</label>
+                                    <input
+                                        type="text"
+                                        placeholder="Full Name"
+                                        className="input-field"
+                                        required
+                                        style={{ backgroundColor: 'rgba(255,255,255,0.02)', padding: '1.2rem', borderColor: 'rgba(255,255,255,0.1)' }}
+                                    />
+                                    <input
+                                        type="email"
+                                        placeholder="Private Email"
+                                        className="input-field"
+                                        required
+                                        style={{ backgroundColor: 'rgba(255,255,255,0.02)', padding: '1.2rem', borderColor: 'rgba(255,255,255,0.1)' }}
+                                    />
                                 </div>
-                            </div>
 
-                            <div style={{ display: 'flex', gap: '1rem' }}>
-                                <button type="button" className="btn-secondary" onClick={() => setStep(1)} style={{ flex: 1 }}>Back</button>
-                                <button type="submit" className="btn-primary" style={{ flex: 2 }}>Confirm Reservation</button>
-                            </div>
-                        </form>
-                    )}
+                                <div style={{ display: 'flex', gap: '1.5rem' }}>
+                                    <button type="button" className="btn-secondary" onClick={() => setStep(1)} style={{ flex: 1, padding: '1.5rem' }}>BACK</button>
+                                    <button type="submit" className="btn-primary" style={{ flex: 2, padding: '1.5rem' }}>CONFIRM ACCESS</button>
+                                </div>
+                            </form>
+                        )}
 
-                    {step === 3 && (
-                        <div className="animate-fade-in" style={{ textAlign: 'center', padding: '3rem 0' }}>
-                            <div
-                                style={{
-                                    width: '80px',
-                                    height: '80px',
+                        {step === 3 && (
+                            <div className="fade-in" style={{ textAlign: 'center', padding: '2rem 0' }}>
+                                <div style={{
+                                    width: '100px',
+                                    height: '100px',
+                                    border: '1px solid var(--gold-500)',
                                     borderRadius: '50%',
-                                    backgroundColor: 'var(--gold-500)',
                                     display: 'flex',
                                     alignItems: 'center',
                                     justifyContent: 'center',
-                                    margin: '0 auto 2rem auto',
-                                    fontSize: '2rem'
-                                }}
-                            >
-                                ✓
+                                    margin: '0 auto 3rem auto',
+                                    position: 'relative'
+                                }}>
+                                    <div className="pulse-slow" style={{ position: 'absolute', inset: -10, border: '1px solid var(--gold-600)', borderRadius: '50%' }} />
+                                    <span style={{ fontSize: '2.5rem', color: 'var(--gold-400)' }}>✓</span>
+                                </div>
+                                <h3 style={{ fontFamily: 'var(--font-display)', fontSize: '2rem', color: '#fff', marginBottom: '1.5rem' }}>Request Formalized</h3>
+                                <p style={{ color: 'var(--text-secondary)', lineHeight: 1.8, fontSize: '1.1rem', fontWeight: 300 }}>
+                                    Your portfolio advisor will be notified immediately. Expect an encrypted confirmation within minutes.
+                                </p>
+                                <div style={{
+                                    marginTop: '3.5rem',
+                                    fontSize: '0.7rem',
+                                    color: 'var(--gold-500)',
+                                    letterSpacing: '0.4rem',
+                                    fontWeight: 900
+                                }}>
+                                    LUXURY REFINEMENT SECURED
+                                </div>
                             </div>
-                            <h3 style={{ fontFamily: 'var(--font-display)', fontSize: '1.75rem', color: '#fff', marginBottom: '1rem' }}>Reservation Confirmed</h3>
-                            <p style={{ color: 'var(--text-secondary)', lineHeight: 1.6 }}>
-                                An advisor will contact you within 15 minutes to finalize the details of your {service.toLowerCase()} for {propertyName || 'the property'}.
-                            </p>
-                            <div style={{ marginTop: '2rem', fontSize: '0.8rem', color: 'var(--gold-400)', letterSpacing: '0.1em', fontWeight: 700 }}>
-                                INVITATION SENT TO YOUR EMAIL
-                            </div>
-                        </div>
-                    )}
+                        )}
+                    </div>
                 </div>
             </div>
 
             <style jsx>{`
-        .animate-scale-up {
-          animation: scaleUp 0.4s var(--ease-out) forwards;
-        }
-        .animate-fade-in {
-          animation: fadeIn 0.4s ease-out forwards;
-        }
-        @keyframes scaleUp {
-          from { opacity: 0; transform: scale(0.95); }
-          to { opacity: 1; transform: scale(1); }
-        }
-        @keyframes fadeIn {
-          from { opacity: 0; }
-          to { opacity: 1; }
-        }
-      `}</style>
+                @keyframes modalReveal {
+                    from { opacity: 0; transform: scale(0.9) translateY(40px) rotateX(-10deg); }
+                    to { opacity: 1; transform: scale(1) translateY(0) rotateX(0); }
+                }
+                .fade-in {
+                    animation: fadeIn 0.8s ease forwards;
+                }
+                @keyframes fadeIn {
+                    from { opacity: 0; transform: translateY(10px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+                .luxury-option-btn:hover {
+                    border-color: var(--gold-500) !important;
+                    background-color: rgba(212,168,67,0.05) !important;
+                }
+            `}</style>
         </div>
     );
 };

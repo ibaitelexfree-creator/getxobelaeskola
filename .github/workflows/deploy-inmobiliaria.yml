@@ -1,0 +1,137 @@
+name: 🏠 Deploy Inmobiliaria → VPS
+
+on:
+  push:
+    branches:
+      - main
+      - features
+    paths:
+      - "apps/inmobiliaria-demo/**"
+  workflow_dispatch:
+
+env:
+  APP_NAME: inmobiliaria
+  IMAGE_NAME: inmobiliaria-demo
+  CONTAINER_PORT: 3020
+
+jobs:
+  # ─────────────────────────────────────────
+  # 1. BUILD & PUSH Docker image → GHCR
+  # ─────────────────────────────────────────
+  build:
+    name: 🐳 Build & Push Docker Image
+    runs-on: ubuntu-latest
+    outputs:
+      short_sha: ${{ steps.vars.outputs.sha }}
+
+    steps:
+      - name: 📦 Checkout
+        uses: actions/checkout@v4
+
+      - name: 🔤 Set short SHA
+        id: vars
+        run: echo "sha=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+
+      - name: 🔑 Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 🏗️ Set up BuildKit
+        uses: docker/setup-buildx-action@v3
+
+      - name: 🚀 Build & Push
+        uses: docker/build-push-action@v6
+        with:
+          context: ./apps/inmobiliaria-demo
+          file: ./apps/inmobiliaria-demo/Dockerfile
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:latest
+            ghcr.io/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:sha-${{ steps.vars.outputs.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # ─────────────────────────────────────────
+  # 2. DEPLOY to VPS via SSH
+  # ─────────────────────────────────────────
+  deploy:
+    name: 🚀 Deploy to VPS
+    needs: build
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - name: 📡 SSH & Deploy
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_PORT }}
+          script: |
+            set -euo pipefail
+
+            echo "🔑 Login to GHCR..."
+            echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io \
+              -u ${{ github.repository_owner }} --password-stdin 2>/dev/null || \
+            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io \
+              -u ${{ github.actor }} --password-stdin
+
+            echo "📥 Pull latest image..."
+            docker pull ghcr.io/${{ github.repository_owner }}/inmobiliaria-demo:latest
+
+            echo "♻️ Stop old container..."
+            docker stop inmobiliaria 2>/dev/null || true
+            docker rm   inmobiliaria 2>/dev/null || true
+
+            echo "▶️ Start inmobiliaria container with Traefik labels..."
+            docker run -d \
+              --name inmobiliaria \
+              --restart unless-stopped \
+              --network n8n_default \
+              -p 127.0.0.1:3020:3020 \
+              -e NODE_ENV=production \
+              -e PORT=3020 \
+              -e DATABASE_URL="${{ secrets.DATABASE_URL }}" \
+              -e NEXT_PUBLIC_SUPABASE_URL="${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}" \
+              -e NEXT_PUBLIC_SUPABASE_ANON_KEY="${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}" \
+              -e SUPABASE_SERVICE_ROLE_KEY="${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" \
+              -e TELEGRAM_BOT_TOKEN="${{ secrets.TELEGRAM_BOT_TOKEN }}" \
+              -e NEXT_PUBLIC_APP_URL="${{ secrets.TELEGRAM_INMOBILIARIA_APP_URL }}" \
+              -e N8N_VIDEO_WEBHOOK_URL="${{ secrets.N8N_VIDEO_WEBHOOK_URL }}" \
+              --label "traefik.enable=true" \
+              --label "traefik.http.routers.inmobiliaria.rule=Host(\`controlmanager.cloud\`) && PathPrefix(\`/realstate\`)" \
+              --label "traefik.http.routers.inmobiliaria.entrypoints=websecure" \
+              --label "traefik.http.routers.inmobiliaria.tls.certresolver=mytlschallenge" \
+              --label "traefik.http.services.inmobiliaria.loadbalancer.server.port=3020" \
+              --label "traefik.http.routers.inmobiliaria.priority=1000" \
+              ghcr.io/${{ github.repository_owner }}/inmobiliaria-demo:latest
+
+            echo "🧹 Prune dangling images..."
+            docker image prune -f
+
+            echo "✅ Deploy complete! SHA: ${{ needs.build.outputs.short_sha }}"
+
+  # ─────────────────────────────────────────
+  # 3. SMOKE TEST
+  # ─────────────────────────────────────────
+  smoke-test:
+    name: 💨 Smoke Test
+    needs: deploy
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🔍 Check endpoint
+        run: |
+          sleep 15
+          STATUS=$(curl -o /dev/null -s -w "%{http_code}" \
+            https://controlmanager.cloud/realstate)
+          echo "HTTP Status: $STATUS"
+          if [ "$STATUS" != "200" ]; then
+            echo "❌ Smoke test FAILED - Got HTTP $STATUS"
+            exit 1
+          fi
+          echo "✅ Smoke test PASSED"

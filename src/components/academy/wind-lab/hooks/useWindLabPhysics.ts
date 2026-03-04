@@ -133,7 +133,7 @@ export const useWindLabPhysics = () => {
             // Let's optimize by ONLY updating if meaningful change, or use a ref-based getter for the canvas.
             setPhysics(currentPhysics);
             // We consciously DO NOT update 'state' (setState) every frame to avoid full React re-renders.
-            // The Canvas should read from 'physicsState.ref'. 
+            // The Canvas should read from 'physicsState.ref'.
             // Text UI can read from 'physics'.
         }
         previousTimeRef.current = time;

@@ -510,6 +510,42 @@ app.get('/api/sessions/:id/timeline', async (req, res) => {
   }
 });
 
+// ============ CEREBRO ENDPOINTS ============
+
+app.get('/api/v1/cerebro/status', async (req, res) => {
+  try {
+    res.json({
+      status: 'idle', // Basic mock stat until process spawns
+      embeddings: 'qwen3-vl',
+      dimensions: 4096,
+      vectorDb: process.env.QDRANT_URL || 'http://localhost:6333'
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/api/v1/cerebro/rescan', async (req, res) => {
+  try {
+    const { spawn } = await import('child_process');
+    const scriptPath = path.join(process.cwd(), '..', 'packages', 'ai-orchestrator', 'scripts', 'index-repo-v4.js');
+    console.log('[Cerebro] Starting background rescan with:', scriptPath);
+
+    // Spawn detached process so it doesn't block the API response
+    const child = spawn('node', [scriptPath], {
+      detached: true,
+      stdio: 'ignore'
+    });
+
+    child.unref();
+
+    res.json({ success: true, message: 'Rescan initiated' });
+  } catch (error) {
+    console.error('[Cerebro] Rescan error:', error.message);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // ============ WATCHDOG ENDPOINTS ============
 
 const DEVICES_FILE = join(process.cwd(), 'logs', 'devices.json');

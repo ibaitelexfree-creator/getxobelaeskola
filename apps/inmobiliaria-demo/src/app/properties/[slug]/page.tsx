@@ -1,8 +1,6 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { PROPERTIES, getPropertyBySlug } from '@/data/properties';
-import { Header } from '@/components/layout/Header';
-import { Footer } from '@/components/layout/Footer';
 import { PropertyDetailClient } from '@/components/properties/PropertyDetailClient';
 
 interface PageProps {
@@ -26,21 +24,19 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
         openGraph: {
             title: property.metaTitle,
             description: property.metaDescription,
-            images: [property.mainImage]
+            images: [property.coverImage]
         }
     };
 }
+
+import { formatPrice } from '@/lib/utils';
 
 export default async function PropertyDetailPage({ params }: PageProps) {
     const { slug } = await params;
     const property = getPropertyBySlug(slug);
     if (!property) return notFound();
 
-    const formattedPrice = new Intl.NumberFormat('en-AE', {
-        style: 'currency',
-        currency: 'AED',
-        maximumFractionDigits: 0
-    }).format(property.price);
+    const formattedPrice = formatPrice(property.price);
 
     const similarProperties = PROPERTIES
         .filter(p => p.neighborhood === property.neighborhood && p.id !== property.id)
@@ -48,13 +44,13 @@ export default async function PropertyDetailPage({ params }: PageProps) {
 
     return (
         <>
-            <Header />
+            
             <PropertyDetailClient
                 property={property}
                 similarProperties={similarProperties}
                 formattedPrice={formattedPrice}
             />
-            <Footer />
+            
         </>
     );
 }

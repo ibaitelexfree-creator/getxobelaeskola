@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
 
 export type ServiceHealth = 'online' | 'offline' | 'degraded' | 'unknown';
-export type Tab = 'dashboard' | 'tasks' | 'queue' | 'control' | 'visual' | 'settings';
+export type Tab = 'dashboard' | 'tasks' | 'queue' | 'realstate' | 'control' | 'visual' | 'settings';
 
 interface MissionState {
     // Connection

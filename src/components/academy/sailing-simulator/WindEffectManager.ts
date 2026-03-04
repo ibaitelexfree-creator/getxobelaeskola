@@ -71,7 +71,7 @@ export class WindEffectManager {
     public update(dt: number, apparentWind: ApparentWind, boatPosition: Vector3, boatVelocity: Vector3) {
         // Wind moves opposite to Apparent Wind Vector relative to boat?
         // No, Apparent Wind is what you feel. The particles should fly AT the player along Apparent Wind Vector.
-        // ApparentWind.vector points TOWARDS the destination? 
+        // ApparentWind.vector points TOWARDS the destination?
         // WindManager typically defines wind "FROM".
         // If Wind is FROM North, Vector points South.
         // So particles move along Vector.

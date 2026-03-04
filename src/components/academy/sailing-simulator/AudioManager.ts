@@ -137,8 +137,8 @@ export class AudioManager {
 
         // Luffing (Flapping)
         // If efficiency is low and wind is high -> Flap
-        // We can simulate flapping by modulating noise gain quickly? 
-        // Or just playing a specific sound. 
+        // We can simulate flapping by modulating noise gain quickly?
+        // Or just playing a specific sound.
         // For procedural, we can use an oscillator to modulate gain (Tremolo)
         // Implementing simple version:
         /*

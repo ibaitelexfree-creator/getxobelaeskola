@@ -4,7 +4,6 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { fetchEuskalmetAlerts } from '@/lib/euskalmet';
 import { fetchSeaState } from '@/lib/puertos-del-estado';
 
-export const dynamic = 'force-dynamic';
 
 // In-memory cache for weather data (expires in 5 minutes)
 let cachedWeather: any = null;
@@ -92,4 +91,3 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({ error: 'Failed to fetch weather data' }, { status: 500 });
     }
 }
-
