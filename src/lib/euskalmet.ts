@@ -1,9 +1,10 @@
+
 import jwt from 'jsonwebtoken';
 
-export function generateEuskalmetToken() {
-    const PRIVATE_KEY = process.env.EUSKALMET_PRIVATE_KEY?.replace(/\\n/g, '\n');
-    const EMAIL = process.env.EUSKALMET_EMAIL || 'info@getxobelaeskola.com';
+const PRIVATE_KEY = process.env.EUSKALMET_PRIVATE_KEY?.replace(/\\n/g, '\n');
+const EMAIL = process.env.EUSKALMET_EMAIL || 'info@getxobelaeskola.com';
 
+export function generateEuskalmetToken() {
     if (!PRIVATE_KEY) {
         return null;
     }

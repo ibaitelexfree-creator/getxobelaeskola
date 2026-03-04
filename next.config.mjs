@@ -22,7 +22,6 @@ const nextConfig = {
     compress: true,
     poweredByHeader: false,
     output: isCapacitor ? 'export' : 'standalone',
-    experimental: { workerThreads: false, cpus: 2 },
     staticPageGenerationTimeout: 600,
     transpilePackages: isCapacitor ? [
         '@capacitor/core',
