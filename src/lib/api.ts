@@ -19,8 +19,19 @@ export const getApiBaseUrl = () => {
         return 'https://getxobelaeskola.cloud';
     }
 
-    // In standard web environment, use relative paths
-    return '';
+    // In server-side environments (SSR/SSG), relative URLs like '' will attempt to fetch from 127.0.0.1
+    // which fails during cloud builds. We must return an absolute URL.
+    if (process.env.NEXT_PUBLIC_APP_URL) {
+        return process.env.NEXT_PUBLIC_APP_URL.replace(/\/$/, '');
+    }
+
+    // In test environments, allow relative URLs for mocked API handlers
+    if (process.env.NODE_ENV === 'test') {
+        return '';
+    }
+
+    // Default production fallback for SSR/SSG
+    return 'https://getxobelaeskola.cloud';
 };
 
 export const apiUrl = (path: string) => {
