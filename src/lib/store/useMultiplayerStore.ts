@@ -32,7 +32,28 @@ export const useMultiplayerStore = create<MultiplayerStore>((set, get) => ({
     isHost: false,
 
     createLobby: async (userId: string, username: string) => {
-        const code = Math.random().toString(36).substring(2, 8).toUpperCase();
+        // Generate a secure 6-character alphanumeric room code
+        let code = '';
+        if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
+            const charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            const randomValues = new Uint8Array(16); // Fetch more than we need to avoid modulo bias
+            crypto.getRandomValues(randomValues);
+            let result = '';
+            for (let i = 0; i < randomValues.length && result.length < 6; i++) {
+                // To avoid modulo bias, only use values strictly less than a multiple of the charset length.
+                // 256 (Uint8 max) % 36 = 4. 256 - 4 = 252. We only accept values < 252.
+                if (randomValues[i] < 252) {
+                    result += charset[randomValues[i] % charset.length];
+                }
+            }
+            // If we somehow didn't get 6 characters, fall back to UUID logic
+            code = result.length === 6 ? result : crypto.randomUUID().substring(0, 6).toUpperCase();
+        } else if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+             // Fallback to randomUUID if getRandomValues is somehow unavailable
+             code = crypto.randomUUID().substring(0, 6).toUpperCase();
+        } else {
+             throw new Error('Secure random number generation is not supported in this environment');
+        }
 
         const { data: lobby, error } = await supabase
             .from('race_lobbies')
