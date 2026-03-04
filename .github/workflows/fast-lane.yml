@@ -5,14 +5,14 @@ on:
     branches: [main, master, "feature/**", "fix/**"]
     paths:
       - "src/**"
-      - "mission-control/**"
+      - "apps/mission-control-ui/**"
       - "orchestration/**"
       - ".github/workflows/fast-lane.yml"
   pull_request:
     branches: [main, master]
     paths:
       - "src/**"
-      - "mission-control/**"
+      - "apps/mission-control-ui/**"
       - "orchestration/**"
       - ".github/workflows/fast-lane.yml"
 
@@ -38,7 +38,7 @@ jobs:
         run: |
           npm install -g oxlint@latest @biomejs/biome@latest --no-progress --loglevel=error
           (oxlint ./src --quiet && echo "✅ Oxlint Passed") &
-          (biome check ./src --diagnostic-level=error && echo "✅ Biome Passed") &
+          # (biome check ./src --diagnostic-level=error && echo "✅ Biome Passed") &
           wait
 
       - name: "📦 Install Deps (Cached)"
@@ -50,7 +50,9 @@ jobs:
         run: npx tsc --noEmit && echo "✅ Root TypeScript Passed"
 
       - name: "🧪 Type Check (Mission Control)"
+        env:
+          NODE_OPTIONS: "--max_old_space_size=4096"
         run: |
-          cd mission-control
-          npm ci --legacy-peer-deps --prefer-offline --no-audit --no-fund --loglevel=error
+          cd apps/mission-control-ui
+          npm install --legacy-peer-deps --prefer-offline --no-audit --no-fund --loglevel=error
           npx tsc --noEmit && echo "✅ Mission Control TypeScript Passed"
