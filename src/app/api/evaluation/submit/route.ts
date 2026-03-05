@@ -37,22 +37,44 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: 'Este intento ya fue completado' }, { status: 400 });
         }
 
-        // Actualizar el intento con las respuestas
-        // FIX 2: Merge respuestas nuevas con las existentes (autosave)
-        const respuestasMerged = { ...(intento.respuestas_json || {}), ...respuestas };
+        // Actualizar el intento con las respuestas atómicamente
+        // FIX 2: Merge respuestas nuevas con las existentes (autosave) resuelto
+        const now = new Date().toISOString();
 
-        const { error: updateError } = await supabase
-            .from('intentos_evaluacion')
-            .update({
-                respuestas_json: respuestasMerged,
-                tiempo_empleado_seg: tiempo_empleado_seg,
-                estado: 'completado',
-                fecha_completado: new Date().toISOString()
-            })
-            .eq('id', intento_id);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        let respuestasMerged: any;
 
-        if (updateError) {
-            return NextResponse.json({ error: updateError.message }, { status: 500 });
+        const { data: rpcData, error: submitError } = await supabase.rpc('submit_evaluacion_atomic', {
+            p_intento_id: intento_id,
+            p_alumno_id: user.id,
+            p_respuestas: respuestas,
+            p_tiempo_empleado_seg: tiempo_empleado_seg,
+            p_timestamp: now
+        });
+
+        if (submitError) {
+            console.error('Error en submit_evaluacion_atomic:', submitError);
+
+            // Fallback: merge manual en memoria si el RPC falla (ej. si la migración no está aplicada en este entorno)
+            respuestasMerged = { ...((intento.respuestas_json as any) || {}), ...respuestas };
+
+            const { error: updateError } = await supabase
+                .from('intentos_evaluacion')
+                .update({
+                    respuestas_json: respuestasMerged,
+                    tiempo_empleado_seg: tiempo_empleado_seg,
+                    estado: 'completado',
+                    fecha_completado: now
+                })
+                .eq('id', intento_id)
+                .eq('alumno_id', user.id)
+                .eq('estado', 'en_progreso');
+
+            if (updateError) {
+                return NextResponse.json({ error: updateError.message }, { status: 500 });
+            }
+        } else {
+            respuestasMerged = rpcData;
         }
 
         // Calcular puntuación

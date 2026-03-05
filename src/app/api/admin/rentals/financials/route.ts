@@ -55,10 +55,21 @@ export async function GET() {
             console.error('API History Error:', historyError);
         }
 
+        const profilesMap = new Map(profilesData.map((p: any) => [p.id, p]));
+        const historyMap = new Map<number, any[]>();
+        if (historyData) {
+            for (const h of historyData) {
+                if (!historyMap.has(h.reserva_id)) {
+                    historyMap.set(h.reserva_id, []);
+                }
+                historyMap.get(h.reserva_id)!.push(h);
+            }
+        }
+
         const enrichedRentals = rentalsData?.map((r: any) => ({
             ...r,
-            profiles: profilesData.find((p: any) => p.id === r.perfil_id) || null,
-            history: historyData?.filter((h: any) => h.reserva_id === r.id) || []
+            profiles: profilesMap.get(r.perfil_id) || null,
+            history: historyMap.get(r.id) || []
         })) || [];
 
         const { count, error: countError } = await supabaseAdmin

@@ -1,83 +1,52 @@
 'use client';
-
 import React, { useEffect } from 'react';
 
 interface ModalProps {
     isOpen: boolean;
     onClose: () => void;
+    title?: string;
     children: React.ReactNode;
 }
 
-export default function Modal({ isOpen, onClose, children }: ModalProps) {
+export function Modal({ isOpen, onClose, title, children }: ModalProps) {
     useEffect(() => {
-        const handleEsc = (event: KeyboardEvent) => {
-            if (event.key === 'Escape') {
-                onClose();
-            }
-        };
-
         if (isOpen) {
-            window.addEventListener('keydown', handleEsc);
             document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'unset';
         }
-
         return () => {
-            window.removeEventListener('keydown', handleEsc);
-            document.body.style.overflow = 'auto';
+            document.body.style.overflow = 'unset';
         };
-    }, [isOpen, onClose]);
+    }, [isOpen]);
 
     if (!isOpen) return null;
 
     return (
-        <div
-            id="modal-overlay"
-            onClick={onClose}
-            style={{
-                position: 'fixed',
-                inset: 0,
-                backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                zIndex: 50,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                backdropFilter: 'blur(4px)',
-                padding: '1rem',
-                animation: 'fadeIn 0.3s ease'
-            }}
-        >
+        <div style={{
+            position: 'fixed', inset: 0, zIndex: 100000, display: 'flex', alignItems: 'center', justifyContent: 'center',
+            padding: '1rem', backgroundColor: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(5px)'
+        }}>
             <div
-                id="modal-panel"
-                onClick={(e) => e.stopPropagation()}
                 style={{
-                    background: 'var(--bg-secondary)',
-                    border: '1px solid var(--border-subtle)',
-                    borderRadius: 'var(--radius-lg)',
-                    maxWidth: '500px',
-                    width: '100%',
-                    padding: '2rem',
-                    boxShadow: 'var(--shadow-md)',
-                    position: 'relative',
-                    animation: 'fadeUp 0.4s var(--ease-out)'
+                    position: 'absolute', inset: 0
                 }}
-            >
+                onClick={onClose}
+            />
+            <div className="glass-card animate-fade-in" style={{
+                position: 'relative', width: '100%', maxWidth: '600px', maxHeight: '90vh',
+                overflowY: 'auto', padding: '2rem'
+            }}>
                 <button
-                    id="modal-close"
                     onClick={onClose}
                     style={{
-                        position: 'absolute',
-                        top: '1rem',
-                        right: '1rem',
-                        background: 'transparent',
-                        border: 'none',
-                        color: 'var(--text-secondary)',
-                        cursor: 'pointer',
-                        fontSize: '1.5rem',
-                        lineHeight: 1
+                        position: 'absolute', top: '1rem', right: '1rem', background: 'transparent',
+                        border: 'none', color: 'var(--text-primary)', fontSize: '1.5rem', cursor: 'pointer'
                     }}
                 >
                     &times;
                 </button>
+                {title && <h2 className="section-title" style={{ fontSize: '1.5rem', marginBottom: '1.5rem' }}>{title}</h2>}
                 {children}
             </div>
         </div>

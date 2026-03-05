@@ -1,64 +1,83 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import Link from 'next/link';
-import { useScrollReveal } from '@/lib/useScrollReveal';
+import LuxuryReveal from '@/components/ui/LuxuryReveal';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useParallax } from '@/lib/useParallax';
+import { getAssetPath } from '@/lib/constants';
 
 const DISTRICTS = [
-    {
-        id: 'palm',
-        name: 'Palm Jumeirah',
-        x: '42%', y: '65%',
-    },
-    {
-        id: 'downtown',
-        name: 'Downtown Dubai',
-        x: '62%', y: '45%',
-    },
-    {
-        id: 'marina',
-        name: 'Dubai Marina',
-        x: '38%', y: '72%',
-    },
-    {
-        id: 'hills',
-        name: 'Dubai Hills',
-        x: '58%', y: '60%',
-    },
-    {
-        id: 'creek',
-        name: 'Dubai Creek',
-        x: '75%', y: '30%',
-    },
+    { id: 'palm-jumeirah', name: 'Palm Jumeirah', x: 420, y: 390, info: 'World-famous man-made island' },
+    { id: 'downtown-dubai', name: 'Downtown Dubai', x: 620, y: 270, info: 'Heart of the city & Burj Khalifa' },
+    { id: 'dubai-marina', name: 'Dubai Marina', x: 380, y: 432, info: 'High-end waterfront living' },
+    { id: 'dubai-hills-estate', name: 'Dubai Hills Estate', x: 580, y: 360, info: 'Vibrant green community' },
+    { id: 'business-bay', name: 'Business Bay', x: 650, y: 310, info: 'The Middle East\'s business hub' },
+    { id: 'jumeirah-bay', name: 'Jumeirah Bay', x: 520, y: 320, info: 'Ultra-exclusive private island' },
 ];
 
 export const DubaiInteractiveMap = () => {
-    const [activeDistrict, setActiveDistrict] = useState<string | null>(null);
-    const { elementRef, isVisible } = useScrollReveal({ threshold: 0.2 });
-    const { getStyle: getDriftStyle } = useParallax({ speed: 0.1, limit: 1500 });
+    const [activeDistrict, setActiveDistrict] = useState<typeof DISTRICTS[0] | null>(null);
+    const [tooltipPos, setTooltipPos] = useState({ x: 0, y: 0 });
+    const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+    const { getStyle: getDriftStyle } = useParallax({ speed: 0.1, limit: 5000 });
+    const containerRef = useRef<HTMLDivElement>(null);
+
+    const handleMouseEnter = (e: React.MouseEvent<SVGGElement>, district: typeof DISTRICTS[0]) => {
+        if (timeoutRef.current) clearTimeout(timeoutRef.current);
+
+        if (containerRef.current) {
+            const containerRect = containerRef.current.getBoundingClientRect();
+            const elementRect = e.currentTarget.getBoundingClientRect();
+
+            // Calculate absolute position within the container
+            const x = elementRect.left - containerRect.left + (elementRect.width / 2);
+            const y = elementRect.top - containerRect.top;
+
+            setTooltipPos({ x, y });
+        }
+
+        setActiveDistrict(district);
+    };
+
+    const handleMouseLeave = () => {
+        timeoutRef.current = setTimeout(() => {
+            setActiveDistrict(null);
+        }, 300);
+    };
+
+    const handleTooltipEnter = () => {
+        if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    };
 
     return (
-        <section ref={elementRef as any} className="section" style={{ backgroundColor: 'var(--bg-primary)', overflow: 'hidden' }}>
+        <section className="section" style={{ backgroundColor: 'var(--bg-primary)', overflow: 'hidden' }}>
             <div className="container">
-                <div
-                    style={{
-                        textAlign: 'center',
-                        marginBottom: '4rem',
-                        opacity: isVisible ? 1 : 0,
-                        transform: isVisible ? 'translateY(0)' : 'translateY(20px)',
-                        transition: 'all 0.8s var(--ease-out)'
-                    }}
-                >
-                    <span className="section-label">LUXURY GEOGRAPHY</span>
-                    <h2 className="section-title reveal-mask" style={{ animationDelay: '0.2s' }}>Explore Dubai's Elite Districts</h2>
-                    <p style={{ color: 'var(--text-secondary)', maxWidth: '600px', margin: '0 auto' }}>
+                <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
+                    <LuxuryReveal delay={0.1}>
+                        <span className="section-label">LUXURY GEOGRAPHY</span>
+                    </LuxuryReveal>
+                    <LuxuryReveal delay={0.3}>
+                        <h2 className="section-title">Explore Dubai's Elite Districts</h2>
+                    </LuxuryReveal>
+                    <motion.p
+                        initial={{ opacity: 0 }}
+                        whileInView={{ opacity: 1 }}
+                        viewport={{ once: true }}
+                        transition={{ delay: 0.6, duration: 0.8 }}
+                        style={{ color: 'var(--text-secondary)', maxWidth: '600px', margin: '1rem auto 0' }}
+                    >
                         Interactive cartography of the most sought-after investment destinations in the Middle East.
-                    </p>
+                    </motion.p>
                 </div>
 
-                <div
-                    className={`glass-card luxury-glow ${isVisible ? 'is-visible' : ''}`}
+                <motion.div
+                    ref={containerRef}
+                    initial={{ opacity: 0, y: 30, scale: 0.98 }}
+                    whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                    viewport={{ once: true, margin: "-100px" }}
+                    transition={{ duration: 1, ease: [0.16, 1, 0.3, 1], delay: 0.4 }}
+                    className="glass-card luxury-glow"
                     style={{
                         height: '600px',
                         position: 'relative',
@@ -66,158 +85,253 @@ export const DubaiInteractiveMap = () => {
                         overflow: 'hidden',
                         border: '1px solid var(--border-gold)',
                         boxShadow: 'var(--shadow-gold)',
-                        opacity: isVisible ? 1 : 0,
-                        transform: isVisible ? 'scale(1)' : 'scale(0.95)',
-                        transition: 'all 1s var(--ease-out) 0.3s'
+                        borderRadius: 'var(--radius-lg)'
                     }}
                 >
-                    {/* Artistic Sea Background with Parallax Drift */}
+                    {/* Realistic Map Background generated */}
                     <div
                         style={{
-                            ...getDriftStyle(),
+                            position: 'absolute',
+                            top: 0,
+                            left: 0,
+                            width: '100%',
+                            height: '100%',
+                            backgroundImage: `url(${getAssetPath('/images/dubai-map-bg.png')})`,
+                            backgroundSize: 'cover',
+                            backgroundPosition: 'center',
+                            opacity: 0.5,
+                            mixBlendMode: 'luminosity',
+                            zIndex: 0,
+                        }}
+                    ></div>
+                    {/* Artistic Sea Background with Parallax Drift over the map */}
+                    <div
+                        style={{
+                            ...getDriftStyle() as any,
                             position: 'absolute',
                             top: '-10%',
                             left: '-10%',
                             width: '120%',
                             height: '120%',
-                            background: 'radial-gradient(circle at 30% 70%, rgba(212,168,67,0.08) 0%, transparent 70%)',
+                            background: 'radial-gradient(circle at 30% 70%, rgba(212,168,67,0.18) 0%, transparent 70%)',
                             zIndex: 1,
-                            pointerEvents: 'none'
+                            pointerEvents: 'none',
+                            mixBlendMode: 'screen',
                         }}
                     ></div>
 
-                    {/* Floating SVG Map Wrapper */}
+                    {/* SVG Map Interactive Layer */}
                     <svg
                         viewBox="0 0 1000 600"
+                        preserveAspectRatio="xMidYMid slice"
                         style={{
                             width: '100%',
                             height: '100%',
                             position: 'relative',
                             zIndex: 2,
-                            filter: 'drop-shadow(0 0 20px rgba(0,0,0,0.5))'
                         }}
                     >
-                        {/* Coastline Path */}
-                        <path
-                            d="M 0 550 Q 200 500 400 520 T 700 450 T 1000 400"
+                        {/* Define Gradients & Filters */}
+                        <defs>
+                            <filter id="glow">
+                                <feGaussianBlur stdDeviation="3" result="coloredBlur" />
+                                <feMerge>
+                                    <feMergeNode in="coloredBlur" />
+                                    <feMergeNode in="SourceGraphic" />
+                                </feMerge>
+                            </filter>
+                        </defs>
+
+                        {/* Interactive Nodes Highlight Line (connecting nodes abstractly) */}
+                        <motion.path
+                            initial={{ pathLength: 0, opacity: 0 }}
+                            whileInView={{ pathLength: 1, opacity: 0.2 }}
+                            viewport={{ once: true }}
+                            transition={{ duration: 2.5, delay: 0.8 }}
+                            d="M 380 432 L 420 390 L 520 320 L 620 270 L 650 310 L 580 360 Z"
                             fill="none"
-                            stroke="var(--gold-900)"
-                            strokeWidth="2"
-                            opacity="0.3"
+                            stroke="var(--gold-400)"
+                            strokeWidth="1.5"
+                            strokeDasharray="4 6"
+                            filter="url(#glow)"
                         />
 
-                        {/* District Markers */}
+                        {/* District Nodes */}
                         {DISTRICTS.map((district, index) => (
                             <g
                                 key={district.id}
-                                className="marker-group rotate-float"
-                                onMouseEnter={() => setActiveDistrict(district.id)}
-                                onMouseLeave={() => setActiveDistrict(null)}
-                                style={{
-                                    cursor: 'pointer',
-                                    animationDelay: `${index * 1.2}s`
-                                }}
+                                onMouseEnter={(e) => handleMouseEnter(e, district)}
+                                onMouseLeave={handleMouseLeave}
+                                onClick={(e) => handleMouseEnter(e as unknown as React.MouseEvent<SVGGElement>, district)}
+                                style={{ cursor: 'pointer' }}
                             >
-                                {/* Pulse Animation */}
+                                {/* Ripple Effect */}
                                 <circle
                                     cx={district.x}
                                     cy={district.y}
-                                    r="8"
-                                    className="pulse-circle"
+                                    r="12"
                                     fill="var(--gold-400)"
-                                />
+                                    opacity="0.1"
+                                >
+                                    <animate attributeName="r" from="8" to="24" dur="2s" repeatCount="indefinite" />
+                                    <animate attributeName="opacity" from="0.4" to="0" dur="2s" repeatCount="indefinite" />
+                                </circle>
 
-                                {/* Main Dot */}
-                                <circle
+                                {/* Main Node */}
+                                <motion.circle
+                                    initial={{ scale: 0 }}
+                                    whileInView={{ scale: 1 }}
+                                    transition={{ delay: 1.5 + index * 0.1, duration: 0.5, type: 'spring' }}
                                     cx={district.x}
                                     cy={district.y}
-                                    r="4"
-                                    fill="var(--gold-400)"
-                                    stroke="#fff"
-                                    strokeWidth="1.5"
+                                    r="6"
+                                    fill={activeDistrict?.id === district.id ? "#fff" : "var(--gold-400)"}
+                                    stroke="var(--gold-600)"
+                                    strokeWidth="2"
+                                    style={{ filter: 'drop-shadow(0 0 5px var(--gold-400))' }}
                                 />
-
-                                {activeDistrict === district.id && (
-                                    <foreignObject
-                                        x={district.x}
-                                        y={district.y}
-                                        width="180"
-                                        height="80"
-                                        style={{ transform: 'translate(-90px, -90px)', overflow: 'visible' }}
-                                    >
-                                        <div className="map-tooltip animate-fade-up">
-                                            <span style={{ fontSize: '0.65rem', color: 'var(--gold-400)', fontWeight: 700, letterSpacing: '0.1em' }}>DISTRICT</span>
-                                            <h4 style={{ margin: 0, fontSize: '1rem', color: '#fff' }}>{district.name}</h4>
-                                            <Link
-                                                href={`/properties?neighborhood=${district.id}`}
-                                                style={{ fontSize: '0.75rem', color: 'var(--gold-500)', textDecoration: 'none', marginTop: '0.5rem', display: 'block' }}
-                                            >
-                                                Explore &rarr;
-                                            </Link>
-                                        </div>
-                                    </foreignObject>
-                                )}
                             </g>
                         ))}
                     </svg>
 
-                    {/* Legend / Overlay */}
-                    <div
+                    {/* HTML Tooltips (Outside SVG for better interaction) */}
+                    <AnimatePresence>
+                        {activeDistrict && (
+                            <motion.div
+                                key={activeDistrict.id}
+                                initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                                animate={{ opacity: 1, y: 0, scale: 1 }}
+                                exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                                transition={{ duration: 0.2 }}
+                                style={{
+                                    position: 'absolute',
+                                    left: `${tooltipPos.x}px`,
+                                    top: `${tooltipPos.y}px`,
+                                    transform: 'translate(-50%, -100%) translateY(-20px)',
+                                    zIndex: 100,
+                                    pointerEvents: 'auto',
+                                }}
+                            >
+                                <Link
+                                    href={`/properties?neighborhood=${activeDistrict.id}`}
+                                    style={{ textDecoration: 'none' }}
+                                    onMouseEnter={handleTooltipEnter}
+                                    onMouseLeave={handleMouseLeave}
+                                >
+                                    <div className="map-tooltip">
+                                        <span className="tooltip-label">DISTRICT</span>
+                                        <h4 className="tooltip-name">{activeDistrict.name}</h4>
+                                        <p className="tooltip-info">{activeDistrict.info}</p>
+                                        <div className="tooltip-action">
+                                            VIEW PROPERTIES <span>&rarr;</span>
+                                        </div>
+                                    </div>
+                                </Link>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+
+                    {/* Legend */}
+                    <motion.div
+                        initial={{ opacity: 0, x: -20 }}
+                        whileInView={{ opacity: 1, x: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ delay: 2, duration: 0.8 }}
                         style={{
                             position: 'absolute',
                             left: '2rem',
                             bottom: '2rem',
                             zIndex: 10,
                             backgroundColor: 'rgba(10,10,15,0.8)',
-                            padding: '1.5rem',
+                            padding: '1.25rem',
                             borderRadius: 'var(--radius-md)',
-                            backdropFilter: 'blur(10px)',
+                            backdropFilter: 'blur(12px)',
                             border: '1px solid var(--border-subtle)',
-                            opacity: isVisible ? 1 : 0,
-                            transform: isVisible ? 'translateX(0)' : 'translateX(-40px)',
-                            transition: 'all 0.8s var(--ease-out) 1s'
                         }}
                     >
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                                 <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--gold-400)', boxShadow: '0 0 10px var(--gold-400)' }}></div>
-                                <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Premium Neighborhoods</span>
+                                <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', letterSpacing: '0.05em' }}>PREMIUM DISTRICTS</span>
                             </div>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                                <div style={{ width: '20px', height: '2px', background: 'var(--gold-900)', opacity: 0.5 }}></div>
-                                <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Emaar/Nakheel Projects</span>
+                                <div style={{ width: '20px', height: '1.5px', background: 'var(--gold-900)', opacity: 0.5 }}></div>
+                                <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', letterSpacing: '0.05em' }}>STRATEGIC DEVELOPMENTS</span>
                             </div>
                         </div>
-                    </div>
-                </div>
+                    </motion.div>
+                </motion.div>
             </div>
 
             <style jsx>{`
-        .pulse-circle {
-          animation: mapPulse 2s infinite;
-          opacity: 0.5;
-        }
+                .map-tooltip {
+                    background: rgba(10, 10, 15, 0.95);
+                    min-width: 200px;
+                    padding: 1.25rem;
+                    border-radius: var(--radius-md);
+                    border: 1px solid var(--gold-500);
+                    box-shadow: 0 15px 40px rgba(0,0,0,0.6), inset 0 0 20px rgba(212,168,67,0.05);
+                    backdrop-filter: blur(15px);
+                    text-align: left;
+                    position: relative;
+                }
 
-        @keyframes mapPulse {
-          0% { r: 8; opacity: 0.5; }
-          70% { r: 25; opacity: 0; }
-          100% { r: 25; opacity: 0; }
-        }
+                .map-tooltip::after {
+                    content: '';
+                    position: absolute;
+                    bottom: -6px;
+                    left: 50%;
+                    transform: translateX(-50%) rotate(45deg);
+                    width: 12px;
+                    height: 12px;
+                    background: rgba(10, 10, 15, 0.95);
+                    border-right: 1px solid var(--gold-500);
+                    border-bottom: 1px solid var(--gold-500);
+                }
 
-        .map-tooltip {
-          background: rgba(17, 17, 24, 0.95);
-          padding: 1rem;
-          border-radius: var(--radius-md);
-          border: 1px solid var(--gold-500);
-          box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-          backdrop-filter: blur(10px);
-          text-align: center;
-        }
+                .tooltip-label {
+                    font-size: 0.6rem;
+                    color: var(--gold-400);
+                    font-weight: 800;
+                    letter-spacing: 0.15em;
+                    display: block;
+                    margin-bottom: 0.25rem;
+                }
 
-        .marker-group:hover .pulse-circle {
-            animation-duration: 1s;
-        }
-      `}</style>
+                .tooltip-name {
+                    margin: 0;
+                    font-size: 1.15rem;
+                    color: #fff;
+                    font-family: var(--font-display);
+                }
+
+                .tooltip-info {
+                    margin: 0.5rem 0 0.75rem;
+                    font-size: 0.75rem;
+                    color: var(--text-secondary);
+                    line-height: 1.4;
+                }
+
+                .tooltip-action {
+                    font-size: 0.7rem;
+                    font-weight: 700;
+                    color: var(--gold-400);
+                    letter-spacing: 0.1em;
+                    border-top: 1px solid rgba(212,168,67,0.2);
+                    padding-top: 0.75rem;
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                }
+
+                .tooltip-action span {
+                    transition: transform 0.3s ease;
+                }
+
+                .map-tooltip:hover .tooltip-action span {
+                    transform: translateX(4px);
+                }
+            `}</style>
         </section>
     );
 };

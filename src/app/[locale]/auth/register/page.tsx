@@ -22,4 +22,3 @@ export default function RegisterPage({
 }) {
     return <RegisterPageClient params={{ locale }} />;
 }
-

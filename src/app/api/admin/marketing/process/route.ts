@@ -2,7 +2,6 @@ import { NextResponse } from 'next/server';
 import { processMarketingAutomations } from '@/lib/marketing/automation-service';
 import { createClient } from '@/lib/supabase/server';
 
-export const dynamic = 'force-dynamic';
 
 /**
  * Endpoint para procesar automatizaciones de marketing.

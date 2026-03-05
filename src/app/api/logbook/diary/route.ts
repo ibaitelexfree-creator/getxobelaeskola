@@ -3,7 +3,6 @@ import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
 import { requireAuth } from '@/lib/auth-guard';
 
-export const dynamic = 'force-dynamic';
 
 // GET: Obtener todas las entradas del diario del alumno
 export async function GET() {

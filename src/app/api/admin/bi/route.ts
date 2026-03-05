@@ -109,7 +109,7 @@ export async function GET(request: Request) {
         });
 
         // C. Revenue Reality vs Forecast
-        // Since we don't have a forecast table, we'll generate a realistic target 
+        // Since we don't have a forecast table, we'll generate a realistic target
         // (e.g. cumulative sum with a 15% growth target over last year's average)
         const monthlyRevenue: Record<string, { actual: number, forecast: number }> = {};
 

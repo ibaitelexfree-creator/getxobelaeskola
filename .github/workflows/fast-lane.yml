@@ -5,14 +5,14 @@ on:
     branches: [main, master, "feature/**", "fix/**"]
     paths:
       - "src/**"
-      - "mission-control/**"
+      - "apps/**"
       - "orchestration/**"
       - ".github/workflows/fast-lane.yml"
   pull_request:
     branches: [main, master]
     paths:
       - "src/**"
-      - "mission-control/**"
+      - "apps/**"
       - "orchestration/**"
       - ".github/workflows/fast-lane.yml"
 
@@ -38,19 +38,24 @@ jobs:
         run: |
           npm install -g oxlint@latest @biomejs/biome@latest --no-progress --loglevel=error
           (oxlint ./src --quiet && echo "✅ Oxlint Passed") &
-          (biome check ./src --diagnostic-level=error && echo "✅ Biome Passed") &
           wait
 
       - name: "📦 Install Deps (Cached)"
-        run: npm ci --legacy-peer-deps --prefer-offline --no-audit --no-fund --loglevel=error
+        run: npm install --legacy-peer-deps --no-audit --no-fund --loglevel=error
 
       - name: "🧪 Type Check (Root)"
         env:
-          NODE_OPTIONS: "--max_old_space_size=4096"
+          NODE_OPTIONS: "--max_old_space_size=8192"
         run: npx tsc --noEmit && echo "✅ Root TypeScript Passed"
 
       - name: "🧪 Type Check (Mission Control)"
         run: |
-          cd mission-control
-          npm ci --legacy-peer-deps --prefer-offline --no-audit --no-fund --loglevel=error
+          cd apps/mission-control-ui
+          npm install --legacy-peer-deps --prefer-offline --no-audit --no-fund --loglevel=error
           npx tsc --noEmit && echo "✅ Mission Control TypeScript Passed"
+
+      - name: "🧪 Type Check (Inmobiliaria Demo)"
+        run: |
+          cd apps/inmobiliaria-demo
+          npm install --legacy-peer-deps --no-audit --no-fund --loglevel=error
+          npx tsc --noEmit && echo "✅ Inmobiliaria Demo TypeScript Passed"

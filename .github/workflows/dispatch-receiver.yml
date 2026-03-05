@@ -38,7 +38,7 @@ jobs:
           cache: "npm"
 
       - name: "📦 Install dependencies"
-        run: npm ci --legacy-peer-deps
+        run: npm install --legacy-peer-deps
 
       - name: "🔍 Oxlint (Rust linter)"
         run: npx oxlint ./src --quiet
@@ -81,7 +81,7 @@ jobs:
           cache: "npm"
 
       - name: "📦 Install dependencies"
-        run: npm ci --legacy-peer-deps
+        run: npm install --legacy-peer-deps
 
       - name: "🏗️ Build Capacitor static export"
         run: npm run build:capacitor

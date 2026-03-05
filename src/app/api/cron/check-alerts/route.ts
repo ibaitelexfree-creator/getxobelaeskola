@@ -3,7 +3,6 @@ import { NextResponse } from 'next/server';
 import { fetchEuskalmetAlerts } from '@/lib/euskalmet';
 import { resend, DEFAULT_FROM_EMAIL } from '@/lib/resend';
 
-export const dynamic = 'force-dynamic';
 
 export async function GET(req: Request) {
     // Basic protection (could use a secret key in header)

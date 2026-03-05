@@ -19,6 +19,7 @@ export function rad2deg(rad: number): number {
 export function normalizeAngle360(angle: number): number {
     let result = angle % 360;
     if (result < 0) result += 360;
+    if (Object.is(result, -0)) result = 0;
     return result;
 }
 

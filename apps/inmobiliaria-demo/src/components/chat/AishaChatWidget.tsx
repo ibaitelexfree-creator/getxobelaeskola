@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { getAishaResponse, ChatMessage } from '@/lib/aisha-responses';
+import { getAishaResponse } from '@/lib/aisha-responses';
+import { ChatMessage } from '@/lib/types';
 
 export const AishaChatWidget: React.FC = () => {
     const [isOpen, setIsOpen] = useState(false);
@@ -24,7 +25,7 @@ export const AishaChatWidget: React.FC = () => {
             setMessages([{
                 id: 'initial',
                 role: 'aisha',
-                text: "Hello! I'm Aisha 👋 How can I help you find your perfect home in Dubai today?",
+                content: "Hello! I'm Aisha 👋 How can I help you find your perfect home in Dubai today?",
                 timestamp: new Date()
             }]);
         }
@@ -38,25 +39,55 @@ export const AishaChatWidget: React.FC = () => {
         const userMsg: ChatMessage = {
             id: Date.now().toString(),
             role: 'user',
-            text: input,
+            content: input,
             timestamp: new Date()
         };
 
         setMessages(prev => [...prev, userMsg]);
+        const currentInput = input;
         setInput('');
         setIsTyping(true);
 
         try {
-            const response = await getAishaResponse(input);
-            const aishaMsg: ChatMessage = {
+            // Priority 1: Real AI Response from API
+            const apiResponse = await fetch('/realstate/api/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: currentInput })
+            });
+
+            if (apiResponse.ok) {
+                const data = await apiResponse.json();
+                if (data.response) {
+                    const aishaMsg: ChatMessage = {
+                        id: Date.now().toString(),
+                        role: 'aisha',
+                        content: data.response,
+                        timestamp: new Date()
+                    };
+                    setMessages(prev => [...prev, aishaMsg]);
+                    return;
+                }
+            }
+
+            // Priority 2: Local Heuristic Fallback (if API fails or is in demo mode)
+            const fallbackResponse = getAishaResponse(currentInput);
+            const aishaMsgFallback: ChatMessage = {
                 id: (Date.now() + 1).toString(),
                 role: 'aisha',
-                text: response,
+                content: fallbackResponse.text,
                 timestamp: new Date()
             };
-            setMessages(prev => [...prev, aishaMsg]);
+            setMessages(prev => [...prev, aishaMsgFallback]);
         } catch (error) {
             console.error('Chat error:', error);
+            // Emergency fallback
+            setMessages(prev => [...prev, {
+                id: 'error',
+                role: 'aisha',
+                content: "I'm having a brief moment of reflection. How else can I assist you with Dubai real estate?",
+                timestamp: new Date()
+            }]);
         } finally {
             setIsTyping(false);
         }
@@ -67,6 +98,7 @@ export const AishaChatWidget: React.FC = () => {
             {/* Floating Button */}
             <button
                 onClick={handleOpen}
+                className="chat-toggle"
                 style={{
                     width: '64px',
                     height: '64px',
@@ -172,7 +204,7 @@ export const AishaChatWidget: React.FC = () => {
                                         border: msg.role === 'aisha' ? '1px solid var(--border-subtle)' : 'none'
                                     }}
                                 >
-                                    {msg.text}
+                                    {msg.content}
                                 </div>
                                 <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)', alignSelf: msg.role === 'user' ? 'flex-end' : 'flex-start' }}>
                                     {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}

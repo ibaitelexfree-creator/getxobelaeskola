@@ -46,14 +46,14 @@ export function getNextStudyReminderTime(usualHour: number): Date {
     return reminderTime;
 }
 
-export type NotificationType = 'streak' | 'exam_soon' | 'module_completed';
+export type NotificationType = 'streak' | 'exam_soon' | 'module_completed' | 'feedback';
 
 interface NotificationContent {
     title: string;
     body: string;
 }
 
-export function getNotificationContent(type: NotificationType, locale: string = 'es', data?: { time?: string; moduleName?: string }) {
+export function getNotificationContent(type: NotificationType, locale: string = 'es', data?: { time?: string; moduleName?: string; contextType?: string }) {
     const messages: Record<string, Record<NotificationType, NotificationContent>> = {
         es: {
             streak: {
@@ -67,6 +67,10 @@ export function getNotificationContent(type: NotificationType, locale: string = 
             module_completed: {
                 title: '🎉 ¡Módulo Completado!',
                 body: `Has completado el módulo "${data?.moduleName}". ¡Gran trabajo!`
+            },
+            feedback: {
+                title: 'Nuevo Feedback del Instructor',
+                body: `Has recibido feedback en tu ${data?.contextType === 'logbook' ? 'bitácora' : 'evaluación'}.`
             }
         },
         eu: {
@@ -81,6 +85,10 @@ export function getNotificationContent(type: NotificationType, locale: string = 
             module_completed: {
                 title: '🎉 Modulua Osatuta!',
                 body: `"${data?.moduleName}" modulua osatu duzu. Lan bikaina!`
+            },
+            feedback: {
+                title: 'Irakaslearen Feedback Berria',
+                body: `Feedbacka jaso duzu zure ${data?.contextType === 'logbook' ? 'bitakoran' : 'ebaluazioan'}.`
             }
         },
         en: {
@@ -95,6 +103,10 @@ export function getNotificationContent(type: NotificationType, locale: string = 
             module_completed: {
                 title: '🎉 Module Completed!',
                 body: `You completed the module "${data?.moduleName}". Great job!`
+            },
+            feedback: {
+                title: 'New Instructor Feedback',
+                body: `You have received feedback in your ${data?.contextType === 'logbook' ? 'logbook' : 'evaluation'}.`
             }
         },
         fr: {
@@ -109,6 +121,10 @@ export function getNotificationContent(type: NotificationType, locale: string = 
             module_completed: {
                 title: '🎉 Module Terminé !',
                 body: `Vous avez terminé le module "${data?.moduleName}". Bon travail !`
+            },
+            feedback: {
+                title: 'Nouveau Feedback de l\'Instructeur',
+                body: `Vous avez reçu un feedback sur votre ${data?.contextType === 'logbook' ? 'journal de bord' : 'évaluation'}.`
             }
         }
     };

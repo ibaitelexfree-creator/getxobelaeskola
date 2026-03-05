@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { renderHook, waitFor, act } from '@testing-library/react';
+import { renderHook, waitFor } from '@testing-library/react';
 import { useAcademyAccess } from './useAcademyAccess';
 
 // Mock global fetch
@@ -40,6 +40,20 @@ describe('useAcademyAccess', () => {
         await waitFor(() => expect(result.current.loading).toBe(false));
 
         expect(result.current.statusMap).toEqual(mockMap);
+    });
+
+    it("should handle fetch error correctly", async () => {
+        const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+        (global.fetch as any).mockRejectedValue(new Error("Fetch failed"));
+
+        const { result } = renderHook(() => useAcademyAccess());
+
+        await waitFor(() => expect(result.current.loading).toBe(false));
+
+        expect(result.current.statusMap).toBeNull();
+        expect(consoleSpy).toHaveBeenCalledWith("Error fetching unlock status", expect.any(Error));
+
+        consoleSpy.mockRestore();
     });
 
     describe('canAccess', () => {

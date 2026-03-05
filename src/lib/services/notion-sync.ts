@@ -1,6 +1,5 @@
-
 import { Client } from '@notionhq/client';
-import { PageObjectResponse, QueryDatabaseResponse } from '@notionhq/client/build/src/api-endpoints';
+import { PageObjectResponse } from '@notionhq/client/build/src/api-endpoints';
 import { createAdminClient } from '@/lib/supabase/admin';
 import fs from 'fs';
 import path from 'path';
@@ -10,8 +9,6 @@ import {
     NotionSyncConfig,
     NotionTableMap,
     NotionBlock,
-    AuditLog,
-    RentalInfo
 } from './notion-types';
 import {
     createRichText,
@@ -272,41 +269,44 @@ export class NotionSyncService {
             .order('created_at', { ascending: false })
             .limit(8);
 
-        const auditLogs = await Promise.all((rawAuditLogs as any[] || []).map(async log => {
-            const { data: operator } = await this.supabase
-                .from('profiles')
-                .select('nombre')
-                .eq('id', log.staff_id)
-                .single() as any;
+        const staffIds = [...new Set((rawAuditLogs as any[] || []).map(log => log.staff_id))].filter(Boolean);
+        const { data: operators } = await this.supabase.from("profiles").select("id, nombre").in("id", staffIds);
+        const operatorMap = new Map((operators || []).map((op: any) => [op.id, op.nombre]));
 
-            return {
-                action: log.action_type,
-                desc: log.description,
-                time: new Date(log.created_at).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }),
-                operator: operator?.nombre || 'Sistemas'
-            };
+        const auditLogs = (rawAuditLogs as any[] || []).map(log => ({
+            action: log.action_type,
+            desc: log.description,
+            time: new Date(log.created_at).toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" }),
+            operator: operatorMap.get(log.staff_id) || "Sistemas"
         }));
 
         const { data: rawRentals } = await this.supabase
-            .from('reservas_alquiler')
-            .select('id,monto_total,perfil_id,servicio_id,estado_entrega,fecha_reserva,hora_inicio')
-            .order('created_at', { ascending: false })
+            .from("reservas_alquiler")
+            .select("id,monto_total,perfil_id,servicio_id,estado_entrega,fecha_reserva,hora_inicio")
+            .order("created_at", { ascending: false })
             .limit(10);
 
-        const recentRentals = await Promise.all((rawRentals as any[] || []).map(async r => {
-            const [{ data: p }, { data: s }] = await Promise.all([
-                this.supabase.from('profiles').select('nombre,apellidos').eq('id', r.perfil_id).single() as any,
-                this.supabase.from('servicios_alquiler').select('nombre_es').eq('id', r.servicio_id).single() as any
-            ]);
+        const rentalProfileIds = [...new Set((rawRentals as any[] || []).map(r => r.perfil_id))].filter(Boolean);
+        const rentalServiceIds = [...new Set((rawRentals as any[] || []).map(r => r.servicio_id))].filter(Boolean);
 
+        const [{ data: customers }, { data: services }] = await Promise.all([
+            this.supabase.from("profiles").select("id, nombre, apellidos").in("id", rentalProfileIds),
+            this.supabase.from("servicios_alquiler").select("id, nombre_es").in("id", rentalServiceIds)
+        ]);
+
+        const customerMap = new Map((customers || []).map((c: any) => [c.id, c]));
+        const serviceMap = new Map((services || []).map((s: any) => [s.id, s.nombre_es]));
+
+        const recentRentals = (rawRentals as any[] || []).map(r => {
+            const p = customerMap.get(r.perfil_id);
             return {
-                customer: `${p?.nombre || ''} ${p?.apellidos || ''}`.trim(),
+                customer: `${p?.nombre || ""} ${p?.apellidos || ""}`.trim() || "Cliente",
                 amount: r.monto_total,
-                service: s?.nombre_es,
+                service: serviceMap.get(r.servicio_id) || "Servicio",
                 status: r.estado_entrega,
-                time: r.hora_inicio || '00:00'
+                time: r.hora_inicio || "00:00"
             };
-        }));
+        });
 
         return {
             revenue: { today: sumMonto(revToday), month: sumMonto(revMonth), year: sumMonto(revYear) },
@@ -326,9 +326,16 @@ export class NotionSyncService {
 
     private async clearPageChildren(pageId: string) {
         const { results } = await this.notion.blocks.children.list({ block_id: pageId });
-        for (const block of results) {
-            await this.notion.blocks.delete({ block_id: block.id });
-            await new Promise(r => setTimeout(r, 100));
+        // Optimize deletion by batching requests (Notion API allows ~3 req/sec average, but handles bursts)
+        const batchSize = 10;
+        for (let i = 0; i < results.length; i += batchSize) {
+            const batch = results.slice(i, i + batchSize);
+            await Promise.all(batch.map(block => this.notion.blocks.delete({ block_id: block.id })));
+
+            // Add a slight delay between batches to respect rate limits
+            if (i + batchSize < results.length) {
+                await new Promise(r => setTimeout(r, 333));
+            }
         }
     }
 
@@ -418,5 +425,25 @@ export class NotionSyncService {
                 children: blocks.slice(i, i + chunkSize) as any
             });
         }
+    }
+
+    private async runWithConcurrency<T>(items: T[], limit: number, fn: (item: T) => Promise<unknown>) {
+        const results: Promise<unknown>[] = [];
+        const executing: Promise<unknown>[] = [];
+        for (const item of items) {
+            const p = (async () => fn(item))();
+            results.push(p);
+            if (limit <= items.length) {
+                const e: Promise<unknown> = p.finally(() => {
+                    const index = executing.indexOf(e);
+                    if (index !== -1) executing.splice(index, 1);
+                });
+                executing.push(e);
+                if (executing.length >= limit) {
+                    await Promise.race(executing);
+                }
+            }
+        }
+        return Promise.all(results);
     }
 }

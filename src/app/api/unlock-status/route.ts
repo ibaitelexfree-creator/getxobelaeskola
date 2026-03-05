@@ -5,7 +5,6 @@ import { requireAuth } from '@/lib/auth-guard';
 import { getUserEnrollments } from '@/lib/academy/enrollment';
 import { withCors, corsHeaders } from '@/lib/api-headers';
 
-export const dynamic = 'force-dynamic';
 
 export async function OPTIONS(request: Request) {
     return new NextResponse(null, {

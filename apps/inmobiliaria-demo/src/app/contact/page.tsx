@@ -2,8 +2,6 @@
 
 import React, { useState } from 'react';
 import type { Metadata } from 'next';
-import { Header } from '@/components/layout/Header';
-import { Footer } from '@/components/layout/Footer';
 
 export default function ContactPage() {
     const [formData, setFormData] = useState({
@@ -35,14 +33,14 @@ export default function ContactPage() {
 
     return (
         <>
-            <Header />
+            
             <main style={{ paddingTop: '100px', minHeight: '80vh' }}>
                 <section
                     style={{
                         height: '400px',
                         width: '100%',
                         position: 'relative',
-                        background: `linear-gradient(rgba(0,0,0,0.6), var(--bg-primary)), url('https://images.unsplash.com/photo-1518684079-3c830dcef090') center/cover no-repeat`,
+                        background: `linear-gradient(rgba(0,0,0,0.6), var(--bg-primary)), url('/images/properties/difc-loft.png') center/cover no-repeat`,
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
@@ -151,7 +149,7 @@ export default function ContactPage() {
                     </div>
                 </section>
             </main>
-            <Footer />
+            
             <style jsx>{`
         @media (max-width: 1024px) {
           .container > div { grid-template-columns: 1fr !important; gap: 4rem !important; }

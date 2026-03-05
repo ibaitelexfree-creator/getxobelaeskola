@@ -1,5 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
+import { PushService } from '@/lib/notifications/PushService';
+import { getNotificationContent } from '@/lib/academy/notification-utils';
 
 export async function POST(req: NextRequest) {
     const supabase = createClient();
@@ -80,10 +82,9 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: 'Database insert failed' }, { status: 500 });
         }
 
-        // TODO: Notification System Integration (OneSignal/FCM)
-        // For now, we rely on the database record. The client can use Realtime subscriptions.
+        // --- Notification System Integration ---
 
-        // Attempt to insert a notification if a table exists (Best Effort)
+        // 1. Internal Notification Record (Best Effort)
         try {
             await supabase.from('notifications').insert({
                 user_id: student_id,
@@ -94,8 +95,23 @@ export async function POST(req: NextRequest) {
                 read: false
             });
         } catch (e) {
-            // Ignore if table doesn't exist or fails
-            console.warn('Notification insert failed (optional):', e);
+            console.warn('Internal notification insert failed (optional):', e);
+        }
+
+        // 2. Push Notification (FCM) via PushService
+        try {
+            // Student locale defaults to 'es'
+            const studentLocale = 'es';
+            const notification = getNotificationContent('feedback', studentLocale, { contextType: context_type });
+
+            await PushService.sendToUser(
+                student_id,
+                notification.title,
+                notification.body,
+                { context_id, context_type, type: 'feedback' }
+            );
+        } catch (e) {
+            console.error('Push notification failed:', e);
         }
 
         return NextResponse.json({ success: true, feedback });
@@ -110,7 +126,6 @@ export async function GET(req: NextRequest) {
     const supabase = createClient();
     const { searchParams } = new URL(req.url);
     const context_id = searchParams.get('context_id');
-    const context_type = searchParams.get('context_type');
 
     if (!context_id) {
         return NextResponse.json({ error: 'Missing context_id' }, { status: 400 });
@@ -120,7 +135,6 @@ export async function GET(req: NextRequest) {
         .from('instructor_feedback')
         .select('*')
         .eq('context_id', context_id)
-        // .eq('context_type', context_type) // Optional filter if IDs are unique across types
         .order('created_at', { ascending: false });
 
     if (error) {

@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120">
+  <defs>
+    <radialGradient id="bg5" cx="50%" cy="40%" r="60%">
+      <stop offset="0%" stop-color="#20100a"/>
+      <stop offset="100%" stop-color="#100805"/>
+    </radialGradient>
+  </defs>
+  <circle cx="60" cy="60" r="60" fill="url(#bg5)"/>
+  <!-- Body -->
+  <path d="M30 108 Q60 118 90 108 L90 120 H30Z" fill="#1e1e2e"/>
+  <!-- Elegant top -->
+  <path d="M40 96 Q60 107 80 96 L84 120 H36 Z" fill="#2a1520"/>
+  <!-- Gold necklace -->
+  <path d="M48 88 Q60 93 72 88" stroke="#c9a84c" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+  <circle cx="60" cy="92" r="2" fill="#c9a84c"/>
+  <!-- Neck -->
+  <rect x="54" y="80" width="12" height="17" rx="6" fill="#f2c8a0"/>
+  <!-- Head -->
+  <ellipse cx="60" cy="63" rx="22" ry="25" fill="#f2c8a0"/>
+  <!-- Hair - dark, long elegant -->
+  <path d="M38 58 Q36 40 60 36 Q84 40 82 58 Q84 70 86 90 Q80 95 78 90 Q80 76 80 65 Q60 68 40 65 Q40 76 42 90 Q40 95 34 90 Q36 72 38 58Z" fill="#2a0808"/>
+  <!-- Eyes - green -->
+  <ellipse cx="51" cy="61" rx="3.5" ry="3.2" fill="#2d6a4f"/>
+  <ellipse cx="69" cy="61" rx="3.5" ry="3.2" fill="#2d6a4f"/>
+  <!-- Lashes -->
+  <path d="M47 58.5 Q48 56 49 58" stroke="#111" stroke-width="1" fill="none"/>
+  <path d="M65 58.5 Q67 56 68 58" stroke="#111" stroke-width="1" fill="none"/>
+  <!-- Eyebrows - arched -->
+  <path d="M46 54 Q51 51 56 54" stroke="#3d1010" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <path d="M64 54 Q69 51 74 54" stroke="#3d1010" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <!-- Nose -->
+  <path d="M59 64 Q57 69 60 70 Q63 69 61 64" stroke="#d4a080" stroke-width="1.5" fill="none"/>
+  <!-- Lips - red -->
+  <path d="M53 77 Q56 80 60 79 Q64 80 67 77" fill="#c0303a"/>
+  <path d="M54 77 Q60 75 66 77" stroke="#c0303a" stroke-width="1" fill="none"/>
+  <circle cx="60" cy="60" r="58" fill="none" stroke="#c9a84c" stroke-width="1.5" opacity="0.5"/>
+</svg>

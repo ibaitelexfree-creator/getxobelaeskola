@@ -1,10 +1,15 @@
+export function generateStaticParams() {
+    return [{ slug: 'dummy' }];
+}
+
+export const dynamicParams = true;
+
 
 import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
 import { requireAuth } from '@/lib/auth-guard';
 import { verifyCourseAccess } from '@/lib/academy/enrollment';
 
-export const dynamic = 'force-dynamic';
 
 export async function GET(
     request: Request,

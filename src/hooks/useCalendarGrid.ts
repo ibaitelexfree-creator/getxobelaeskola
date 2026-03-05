@@ -18,10 +18,9 @@ export function useCalendarGrid(currentDate: Date) {
 
         // First day of current month
         const firstDayOfMonth = new Date(year, month, 1);
-        // Day of week for first day (0-6, where 0 is Sunday)
+        // Day of week for first day (0-6, where 0 is Sunday, 1 is Monday)
         // We want Monday as start of week (0: Mon, ..., 6: Sun)
-        let firstDayWeekday = firstDayOfMonth.getDay() - 1;
-        if (firstDayWeekday === -1) firstDayWeekday = 6; // Sunday fix
+        const firstDayWeekday = (firstDayOfMonth.getDay() + 6) % 7;
 
         // Last day of current month
         const lastDayOfMonth = new Date(year, month + 1, 0);

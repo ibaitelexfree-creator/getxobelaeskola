@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
-import { firebaseAdmin } from '@/lib/firebase-admin';
+import { PushService } from '@/lib/notifications/PushService';
 
 export async function POST(request: Request) {
     try {
@@ -14,7 +14,6 @@ export async function POST(request: Request) {
         const { title, body, userId, data } = await request.json();
 
         // If userId is provided, ensure the current user is admin OR sending to themselves
-        // For simplicity here, assuming user sends to themselves (for the achievement use case)
         const targetUserId = userId || user.id;
 
         if (targetUserId !== user.id) {
@@ -30,36 +29,20 @@ export async function POST(request: Request) {
             }
         }
 
-        // Get FCM token
-        const { data: profile, error: profileError } = await supabase
-            .from('profiles')
-            .select('fcm_token')
-            .eq('id', targetUserId)
-            .single();
+        const result = await PushService.sendToUser(targetUserId, title, body, data);
 
-        if (profileError || !profile?.fcm_token) {
-             return NextResponse.json({ error: 'User has no FCM token' }, { status: 404 });
+        if (!result.success) {
+             return NextResponse.json({ error: result.error || 'Failed to send push notification' }, { status: 500 });
         }
 
-        if (!firebaseAdmin.apps.length) {
-             return NextResponse.json({ error: 'Firebase not initialized' }, { status: 503 });
-        }
-
-        const message = {
-            token: profile.fcm_token,
-            notification: {
-                title,
-                body,
-            },
-            data: data || {},
-        };
-
-        const response = await firebaseAdmin.messaging().send(message);
-
-        return NextResponse.json({ success: true, messageId: response });
+        return NextResponse.json({
+            success: true,
+            sentCount: result.sentCount,
+            failureCount: result.failureCount
+        });
 
     } catch (error) {
-        console.error('Error sending push notification:', error);
+        console.error('Error in Push API Route:', error);
         return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
     }
 }

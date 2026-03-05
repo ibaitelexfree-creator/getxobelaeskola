@@ -1,10 +1,10 @@
 
 /**
  * Simple In-Memory Rate Limiter
- * 
+ *
  * Note: In a distributed environment (Vercel, AWS Lambda), this state is not shared between instances.
  * Ideally, this should use Redis (Upstash) or a DB table.
- * 
+ *
  * For this project phase (Hardening without Redis credential), we use a Singleton Map.
  */
 
@@ -31,7 +31,7 @@ setInterval(_cleanupRateLimitStore, CLEANUP_INTERVAL);
 
 /**
  * Checks if a key has exceeded the rate limit.
- * 
+ *
  * @param key - Unique identifier (Employee ID, IP, etc.)
  * @param limit - Max requests allowed
  * @param windowSeconds - Time window in seconds

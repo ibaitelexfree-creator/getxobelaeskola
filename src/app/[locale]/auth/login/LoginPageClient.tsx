@@ -5,6 +5,7 @@ import LoginForm from '@/components/auth/LoginForm';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { useSearchParams, useRouter } from 'next/navigation';
+import { getSafeRedirectUrl } from '@/lib/utils/url';
 import { Suspense } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { Anchor } from 'lucide-react';
@@ -31,9 +32,9 @@ function LoginPageContent({ locale }: { locale: string }) {
             if (session) {
                 supabase.from('profiles').select('rol').eq('id', session.user.id).single().then(({ data }) => {
                     if (data && (data.rol === 'admin' || data.rol === 'instructor')) {
-                        router.replace(returnTo || `/${locale}/staff`);
+                        router.replace(getSafeRedirectUrl(returnTo, `/${locale}/staff`));
                     } else {
-                        router.replace(returnTo || `/${locale}/student/dashboard`);
+                        router.replace(getSafeRedirectUrl(returnTo, `/${locale}/student/dashboard`));
                     }
                 });
             } else {
@@ -43,12 +44,6 @@ function LoginPageContent({ locale }: { locale: string }) {
     }, [locale, router, returnTo]);
 
     // Render nothing while we decide if we need to redirect
-    // BUT we should render the form as soon as possible if we want 100 speed
-    // So let's only hide if we are CERTAIN we are redirecting.
-    // However, to avoid flash of content, we can use a simpler approach.
-    // For 100 speed, we render the page immediately and the useEffect handles the "already logged in" edge case.
-
-    // If we are still checking for a session, show a loading state instead of the login form
     if (checking) {
         return (
             <div className="min-h-screen bg-nautical-black flex items-center justify-center">
@@ -100,7 +95,7 @@ function LoginPageContent({ locale }: { locale: string }) {
                         <p className="text-white/40 text-xs">
                             {t('no_account')}{' '}
                             <Link
-                                href={`/${locale}/auth/register${returnTo ? `?returnTo=${encodeURIComponent(returnTo)}` : ''}`}
+                                href={`/${locale}/auth/register${getSafeRedirectUrl(returnTo, '') ? `?returnTo=${encodeURIComponent(getSafeRedirectUrl(returnTo, ''))}` : ''}`}
                                 className="text-accent hover:text-sea-foam transition-colors font-bold"
                             >
                                 {t('create_one')}

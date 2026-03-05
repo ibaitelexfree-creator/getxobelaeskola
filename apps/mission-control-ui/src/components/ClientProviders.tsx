@@ -7,7 +7,7 @@ import { FirebaseCrashlytics } from '@capacitor-community/firebase-crashlytics';
 import { Capacitor } from '@capacitor/core';
 import '@/lib/i18n';
 
-export function ClientProviders({ children }: { children: React.ReactNode }) {
+function ClientProviders({ children }: { children: React.ReactNode }) {
     const { requestPermissions } = usePushNotifications();
 
     useEffect(() => {
@@ -37,3 +37,4 @@ export function ClientProviders({ children }: { children: React.ReactNode }) {
 
     return <>{children}</>;
 }
+export default ClientProviders;

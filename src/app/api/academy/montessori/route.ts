@@ -4,7 +4,6 @@ import { LearningPathRecommender } from '@/lib/academy/montessori/recommender';
 import { MOCK_TOPICS } from '@/lib/academy/montessori/mock-data';
 import { MontessoriGraph, UserProgress, MontessoriNode } from '@/lib/academy/montessori/types';
 
-export const dynamic = 'force-dynamic';
 
 export async function GET() {
     try {

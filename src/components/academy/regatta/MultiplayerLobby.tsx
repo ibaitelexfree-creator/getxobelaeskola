@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
+import { generateSecureCode } from '@/lib/utils/crypto';
 
 interface MultiplayerLobbyProps {
     onJoin: (matchId: string) => void;
@@ -16,7 +17,7 @@ export const MultiplayerLobby = ({ onJoin, userId }: MultiplayerLobbyProps) => {
         setLoading(true);
         setError(null);
         // Generate random 6 char code
-        const newCode = Math.random().toString(36).substring(2, 8).toUpperCase();
+        const newCode = generateSecureCode(6);
 
         const { data, error } = await supabase
             .from('regatta_matches')

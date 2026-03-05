@@ -62,7 +62,7 @@ export default function WindTunnel() {
         };
 
         const resizeObserver = new ResizeObserver(() => {
-            // In 2D OffscreenCanvas, resize is tricky if we don't recreate context, 
+            // In 2D OffscreenCanvas, resize is tricky if we don't recreate context,
             // but let's assume fixed or handled by CSS if needed.
             // Actually we should update worker about size if it changes.
         });
@@ -199,4 +199,3 @@ export default function WindTunnel() {
         </div>
     );
 }
-
