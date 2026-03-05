@@ -1,11 +1,11 @@
 "use client";
 
+import { useEffect, useState } from "react";
+import dynamic from "next/dynamic";
+import { useParams, useRouter } from "next/navigation";
 import { SimulatorSkeleton } from "@/components/academy/sailing-simulator/SimulatorSkeleton";
 import { useMultiplayerStore } from "@/lib/store/useMultiplayerStore";
 import { createClient } from "@/lib/supabase/client";
-import dynamic from "next/dynamic";
-import { useParams, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
 
 const SailingSimulator = dynamic(
 	() =>
