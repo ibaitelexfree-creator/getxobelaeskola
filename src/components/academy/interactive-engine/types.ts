@@ -6,7 +6,8 @@ export type MissionType =
     | 'mision_nudos'
     | 'inventario'
     | 'simulador'
-    | 'hotspot';
+    | 'hotspot'
+    | 'video_checkpoints';
 
 export interface MissionData {
     tipo_contenido: MissionType;
