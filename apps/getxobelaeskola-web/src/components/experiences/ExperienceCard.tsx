@@ -96,7 +96,7 @@ export default function ExperienceCard({ experience, locale }: ExperienceCardPro
                             ? { objectPosition: '50% 25%' }
                             : (experience.slug === 'cumpleanos-bigsub' || experience.imagen_url?.includes('birthday-bigsub'))
                             ? { objectPosition: '50% 35%' }
-                            : (experience.slug === 'atraque-windsurf' || experience.slug === 'windsurf-mooring' || experience.imagen_url?.includes('windsurf-mooring') || (experience.nombre && experience.nombre.toLowerCase().includes('windsurf')))
+                            : (experience.slug === 'atraque-windsurf' || experience.slug === 'windsurf-mooring' || experience.imagen_url?.includes('windsurf-mooring'))
                             ? { objectPosition: '50% 80%' }
                             : (experience.slug === 'bono-vela-ligera' || experience.slug === 'light-sailing-voucher' || experience.imagen_url?.includes('light-sailing-voucher'))
                             ? { objectPosition: '55% 98%' }
