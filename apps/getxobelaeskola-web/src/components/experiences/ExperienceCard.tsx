@@ -97,7 +97,7 @@ export default function ExperienceCard({ experience, locale }: ExperienceCardPro
                             : (experience.slug === 'cumpleanos-bigsub' || experience.imagen_url?.includes('birthday-bigsub'))
                             ? { objectPosition: '50% 35%' }
                             : (experience.slug === 'atraque-windsurf' || experience.slug === 'windsurf-mooring' || experience.imagen_url?.includes('windsurf-mooring'))
-                            ? { objectPosition: '50% 48%' }
+                            ? { objectPosition: '50% 55%' }
                             : (experience.slug === 'bono-vela-ligera' || experience.slug === 'light-sailing-voucher' || experience.imagen_url?.includes('light-sailing-voucher'))
                             ? { objectPosition: '55% 98%' }
                             : undefined
