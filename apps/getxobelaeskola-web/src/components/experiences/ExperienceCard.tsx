@@ -90,23 +90,7 @@ export default function ExperienceCard({ experience, locale }: ExperienceCardPro
                     }
                     alt={getName()}
                     fill
-                    className={`object-cover transition-transform duration-[3s] group-hover:scale-110 ${
-                        (experience.slug === 'navigation-voucher' || experience.slug === 'bono-navegacion' || experience.imagen_url?.includes('navigation-voucher'))
-                            ? 'brightness-[1.03] saturate-[1.15] sepia-[0.10] contrast-[1.03]'
-                            : (experience.slug === 'cumpleanos-navegacion' || experience.imagen_url?.includes('IMG_20241016_114549'))
-                            ? 'brightness-[1.02] sepia-[0.12] saturate-[1.1]'
-                            : (experience.slug === 'cumpleanos-bigsub' || experience.imagen_url?.includes('birthday-bigsub'))
-                            ? 'saturate-[1.7] contrast-[1.18] brightness-[1.1] hue-rotate-[-8deg]'
-                            : (experience.slug === 'bono-vela-ligera' || experience.slug === 'light-sailing-voucher' || experience.imagen_url?.includes('light-sailing-voucher'))
-                            ? 'brightness-[1.04] saturate-[1.12] sepia-[0.10] contrast-[1.03] hue-rotate-[-2deg]'
-                            : experience.imagen_url?.includes('windsurf-voucher')
-                            ? 'brightness-[1.05] saturate-[1.25] sepia-[0.18] hue-rotate-[-5deg] contrast-[1.05]'
-                            : experience.imagen_url?.includes('windsurf-mooring')
-                            ? 'brightness-[1.03] saturate-[1.12] sepia-[0.08] contrast-[1.02]'
-                            : (experience.slug === 'sailboat-mooring' || experience.slug === 'sailboat-mooring-service')
-                            ? 'brightness-[1.2] saturate-[1.05] sepia-[0.08] hue-rotate-[10deg]'
-                            : 'saturate-[0.8] group-hover:saturate-100'
-                    }`}
+                    className="object-cover transition-transform duration-[3s] group-hover:scale-110 brightness-[1.03] saturate-[1.25] contrast-[1.08] hue-rotate-[-3deg]"
                     style={
                         (experience.slug === 'cumpleanos-space-rental' || experience.slug === 'birthday-space-rental' || experience.imagen_url?.includes('birthday-space-rental'))
                             ? { objectPosition: '50% 25%' }
@@ -119,37 +103,9 @@ export default function ExperienceCard({ experience, locale }: ExperienceCardPro
                             : undefined
                     }
                 />
-                {/* Soft natural warm relaxed tone overlay for Navigation Voucher */}
-                {(experience.slug === 'navigation-voucher' || experience.slug === 'bono-navegacion' || experience.imagen_url?.includes('navigation-voucher')) && (
-                    <div className="absolute inset-0 bg-gradient-to-t from-amber-900/20 via-amber-500/10 to-orange-100/10 mix-blend-soft-light pointer-events-none" />
-                )}
-                {/* Soft natural warm tone overlay for Light Sailing Voucher */}
-                {(experience.slug === 'bono-vela-ligera' || experience.slug === 'light-sailing-voucher' || experience.imagen_url?.includes('light-sailing-voucher')) && (
-                    <div className="absolute inset-0 bg-gradient-to-t from-amber-900/25 via-amber-500/10 to-orange-200/10 mix-blend-soft-light pointer-events-none" />
-                )}
-                {/* Warm golden sunset light overlay for Windsurf Voucher */}
-                {experience.imagen_url?.includes('windsurf-voucher') && (
-                    <>
-                        <div className="absolute inset-0 bg-gradient-to-tr from-amber-600/30 via-orange-500/20 to-amber-300/15 mix-blend-color-dodge pointer-events-none" />
-                        <div className="absolute inset-0 bg-gradient-to-t from-amber-950/40 via-amber-600/15 to-rose-500/10 mix-blend-soft-light pointer-events-none" />
-                    </>
-                )}
-                {/* Soft warm golden natural tone overlay for Birthday Sailing photo only */}
-                {(experience.slug === 'cumpleanos-navegacion' || experience.imagen_url?.includes('IMG_20241016_114549')) && (
-                    <div className="absolute inset-0 bg-gradient-to-t from-amber-900/20 via-orange-500/10 to-transparent pointer-events-none" />
-                )}
-                {/* Soft warm natural tone overlay for Windsurf Mooring photo */}
-                {experience.imagen_url?.includes('windsurf-mooring') && (
-                    <div className="absolute inset-0 bg-gradient-to-t from-amber-950/20 via-amber-500/10 to-sky-300/10 mix-blend-soft-light pointer-events-none" />
-                )}
-                {/* Extra Vibrant Sky Blue & Tropical Ocean enhancement layers for BigSub photo */}
-                {(experience.slug === 'cumpleanos-bigsub' || experience.imagen_url?.includes('birthday-bigsub')) && (
-                    <>
-                        <div className="absolute inset-0 bg-gradient-to-b from-blue-500/35 via-cyan-400/25 to-teal-500/35 mix-blend-overlay pointer-events-none" />
-                        <div className="absolute inset-0 bg-gradient-to-t from-cyan-600/30 via-transparent to-sky-400/30 mix-blend-color-dodge pointer-events-none" />
-                    </>
-                )}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+                {/* Unified Cinematic Deep Ocean Color Grading Overlays */}
+                <div className="absolute inset-0 bg-gradient-to-tr from-cyan-950/40 via-blue-900/20 to-teal-400/10 mix-blend-color-dodge pointer-events-none" />
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-blue-950/25 to-transparent pointer-events-none" />
 
                 {/* Price Tag Badge: Compact Warm Dark Brown Background + Vivid Yellow-Gold Text */}
                 <div className="absolute bottom-2.5 right-2.5 sm:bottom-4 sm:right-4 z-20">
