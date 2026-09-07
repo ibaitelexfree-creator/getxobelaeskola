@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server';
 import { getTranslations } from 'next-intl/server';
 import { Metadata } from 'next';
 import ExperiencesClient from '@/components/experiences/ExperiencesClient';
+import ExperienceDisclaimerCard from '@/components/shared/ExperienceDisclaimerCard';
 import { getSeoAlternates, siteUrl } from '@/lib/seo';
 
 export async function generateMetadata({ params: { locale } }: { params: { locale: string } }): Promise<Metadata> {
@@ -198,12 +199,7 @@ export default async function ExperiencesPage({ params: { locale } }: { params: 
 
                 {/* Bottom Note */}
                 <div className="container mx-auto px-4 sm:px-6 mt-16 sm:mt-24 md:mt-32">
-                    <div className="relative group p-6 sm:p-10 md:p-16 border border-sea-foam/10 bg-sea-foam/[0.02] backdrop-blur-sm overflow-hidden rounded-2xl sm:rounded-3xl">
-                        <div className="absolute top-0 left-0 w-1 h-0 bg-accent group-hover:h-full transition-all duration-700" />
-                        <p className="text-sea-foam/60 font-light italic text-sm sm:text-base md:text-lg leading-relaxed max-w-4xl">
-                            {t('footer_note')}
-                        </p>
-                    </div>
+                    <ExperienceDisclaimerCard noteText={t('footer_note')} locale={locale} />
                 </div>
             </section>
 

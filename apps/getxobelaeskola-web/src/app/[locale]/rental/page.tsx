@@ -1,6 +1,7 @@
 import React from 'react';
 import { createClient } from '@/lib/supabase/server';
 import RentalClient from '@/components/rental/RentalClient';
+import ExperienceDisclaimerCard from '@/components/shared/ExperienceDisclaimerCard';
 import { getTranslations } from 'next-intl/server';
 import { Metadata } from 'next';
 import { getSeoAlternates, siteUrl } from '@/lib/seo';
@@ -191,12 +192,7 @@ export default async function RentalPage({ params: { locale } }: { params: { loc
 
                 {/* Bottom Note / Disclosure */}
                 <div className="container mx-auto px-4 sm:px-6 mt-8 sm:mt-16 md:mt-20 landscape:mt-8">
-                    <div className="relative group p-4 sm:p-8 md:p-12 landscape:p-6 border border-sea-foam/10 bg-sea-foam/[0.02] backdrop-blur-sm overflow-hidden">
-                        <div className="absolute top-0 left-0 w-1 h-0 bg-accent group-hover:h-full transition-all duration-700" />
-                        <p className="text-sea-foam/60 font-light italic text-xs sm:text-base md:text-lg leading-relaxed max-w-4xl">
-                            {t('footer_note')}
-                        </p>
-                    </div>
+                    <ExperienceDisclaimerCard noteText={t('footer_note')} locale={locale} />
                 </div>
             </section>
 
