@@ -141,15 +141,16 @@ export default function ExperienceCard({ experience, locale }: ExperienceCardPro
                 )}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
 
-                {/* Price Tag */}
-                <div className="absolute bottom-3 right-3 sm:bottom-6 sm:right-8 text-right z-20">
-                    {/* Price Label: custom for Sailboat Mooring */}
-                    <span className="text-[8px] sm:text-[9px] uppercase tracking-[0.15em] sm:tracking-[0.3em] text-white/40 block mb-0.5 sm:mb-1">
-                        { (experience.slug === 'sailboat-mooring' || (experience.nombre && experience.nombre.toLowerCase().includes('sailboat mooring')) ) ? 'Registration:' : t('from') }
-                    </span>
-                    <span className="text-2xl sm:text-3xl md:text-4xl font-display text-white italic drop-shadow-lg">
-                        {experience.precio}<span className="text-base sm:text-xl text-brass-gold ml-0.5 sm:ml-1">€</span>
-                    </span>
+                {/* Price Tag Badge: Warm Dark Brown Background + Vivid Yellow-Gold Text */}
+                <div className="absolute bottom-3 right-3 sm:bottom-5 sm:right-6 z-20">
+                    <div className="px-3 sm:px-4 py-1.5 sm:py-2 bg-gradient-to-r from-[#2A160C]/95 via-[#3D2115]/95 to-[#2A160C]/95 backdrop-blur-md rounded-xl border border-amber-400/60 shadow-[0_4px_16px_rgba(0,0,0,0.6)] flex flex-col items-end">
+                        <span className="text-[7.5px] sm:text-[9px] uppercase tracking-[0.18em] sm:tracking-[0.3em] text-amber-200/90 font-bold block mb-0.5 leading-none">
+                            { (experience.slug === 'sailboat-mooring' || (experience.nombre && experience.nombre.toLowerCase().includes('sailboat mooring')) ) ? 'Registration:' : t('from') }
+                        </span>
+                        <span className="text-xl sm:text-2xl md:text-3xl font-display text-amber-300 font-extrabold italic leading-none drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]">
+                            {experience.precio}<span className="text-sm sm:text-lg text-amber-400 font-bold ml-0.5">€</span>
+                        </span>
+                    </div>
                 </div>
             </div>
 
