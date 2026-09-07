@@ -141,14 +141,14 @@ export default function ExperienceCard({ experience, locale }: ExperienceCardPro
                 )}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
 
-                {/* Price Tag Badge: Warm Dark Brown Background + Vivid Yellow-Gold Text */}
-                <div className="absolute bottom-3 right-3 sm:bottom-5 sm:right-6 z-20">
-                    <div className="px-3 sm:px-4 py-1.5 sm:py-2 bg-gradient-to-r from-[#2A160C]/95 via-[#3D2115]/95 to-[#2A160C]/95 backdrop-blur-md rounded-xl border border-amber-400/60 shadow-[0_4px_16px_rgba(0,0,0,0.6)] flex flex-col items-end">
-                        <span className="text-[7.5px] sm:text-[9px] uppercase tracking-[0.18em] sm:tracking-[0.3em] text-amber-200/90 font-bold block mb-0.5 leading-none">
+                {/* Price Tag Badge: Compact Warm Dark Brown Background + Vivid Yellow-Gold Text */}
+                <div className="absolute bottom-2.5 right-2.5 sm:bottom-4 sm:right-4 z-20">
+                    <div className="px-2.5 sm:px-3 py-1 sm:py-1.5 bg-gradient-to-r from-[#2A160C]/95 via-[#3D2115]/95 to-[#2A160C]/95 backdrop-blur-md rounded-lg border border-amber-400/50 shadow-[0_2px_10px_rgba(0,0,0,0.5)] flex flex-col items-end">
+                        <span className="text-[6.5px] sm:text-[8px] uppercase tracking-[0.12em] sm:tracking-[0.2em] text-amber-200/90 font-bold block mb-0.5 leading-none">
                             { (experience.slug === 'sailboat-mooring' || (experience.nombre && experience.nombre.toLowerCase().includes('sailboat mooring')) ) ? 'Registration:' : t('from') }
                         </span>
-                        <span className="text-xl sm:text-2xl md:text-3xl font-display text-amber-300 font-extrabold italic leading-none drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]">
-                            {experience.precio}<span className="text-sm sm:text-lg text-amber-400 font-bold ml-0.5">€</span>
+                        <span className="text-base sm:text-lg md:text-xl font-display text-amber-300 font-extrabold italic leading-none drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)]">
+                            {experience.precio}<span className="text-xs sm:text-sm text-amber-400 font-bold ml-0.5">€</span>
                         </span>
                     </div>
                 </div>
