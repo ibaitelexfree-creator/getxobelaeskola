@@ -181,21 +181,13 @@ export default function ExperienceCard({ experience, locale }: ExperienceCardPro
                     </p>
 
                     {/* Info Row */}
-                    {(experience.duracion || experience.min_participantes) && (
+                    {experience.min_participantes && (
                         <div className="mt-auto pt-4 sm:pt-6 border-t border-sea-foam/10 flex items-center justify-between gap-2">
                             <div className="flex flex-wrap gap-2 sm:gap-6">
-                                {experience.duracion && (
-                                    <div className="flex items-center gap-1.5 text-sea-foam/50">
-                                        <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-accent shrink-0" />
-                                        <span className="text-[9px] sm:text-[10px] uppercase tracking-widest font-bold">{experience.duracion}</span>
-                                    </div>
-                                )}
-                                {experience.min_participantes && (
-                                    <div className="flex items-center gap-1.5 text-sea-foam/50">
-                                        <Users className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-accent shrink-0" />
-                                        <span className="text-[9px] sm:text-[10px] uppercase tracking-widest font-bold">{experience.min_participantes}+ PAX</span>
-                                    </div>
-                                )}
+                                <div className="flex items-center gap-1.5 text-sea-foam/50">
+                                    <Users className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-accent shrink-0" />
+                                    <span className="text-[9px] sm:text-[10px] uppercase tracking-widest font-bold">{experience.min_participantes}+ PAX</span>
+                                </div>
                             </div>
                         </div>
                     )}
