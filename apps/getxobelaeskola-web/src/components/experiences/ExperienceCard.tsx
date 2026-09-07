@@ -45,12 +45,19 @@ export default function ExperienceCard({ experience, locale }: ExperienceCardPro
 
     return (
         <div className="group relative bg-sea-foam/[0.02] border border-sea-foam/10 overflow-hidden transition-all duration-700 hover:border-accent/30 hover:bg-sea-foam/[0.04] flex flex-col h-full rounded-2xl w-full max-w-full">
-            {/* Top Badge Decor */}
-            <div className="absolute top-4 left-4 sm:top-6 sm:left-6 z-30">
-                <div className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1 sm:py-2 bg-nautical-deep/80 backdrop-blur-md rounded-full border border-sea-foam/10">
-                    <Star className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-brass-gold fill-brass-gold shrink-0" />
-                    <span className="text-[7px] sm:text-[8px] uppercase tracking-[0.15em] sm:tracking-[0.3em] font-black text-sea-foam/80 whitespace-nowrap">{t('premium_experience')}</span>
-                </div>
+            {/* Top Corner Badge (Duration e.g. 4h if present, or Premium badge) */}
+            <div className="absolute top-3 left-3 sm:top-4 sm:left-4 z-30 flex items-center gap-2">
+                {experience.duracion ? (
+                    <div className="flex items-center gap-1.5 px-3 py-1.5 bg-nautical-deep/90 backdrop-blur-md rounded-full border border-accent/40 shadow-lg">
+                        <Clock className="w-3.5 h-3.5 text-accent shrink-0" />
+                        <span className="text-[10px] sm:text-[11px] uppercase tracking-widest font-black text-sea-foam whitespace-nowrap">{experience.duracion}</span>
+                    </div>
+                ) : (
+                    <div className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1 sm:py-2 bg-nautical-deep/80 backdrop-blur-md rounded-full border border-sea-foam/10">
+                        <Star className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-brass-gold fill-brass-gold shrink-0" />
+                        <span className="text-[7px] sm:text-[8px] uppercase tracking-[0.15em] sm:tracking-[0.3em] font-black text-sea-foam/80 whitespace-nowrap">{t('premium_experience')}</span>
+                    </div>
+                )}
             </div>
 
             {/* Image Section */}
