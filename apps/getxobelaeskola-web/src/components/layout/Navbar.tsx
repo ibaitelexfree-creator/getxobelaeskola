@@ -622,7 +622,7 @@ export default function Navbar({ locale: propLocale, initialUser = null }: { loc
                 className={`fixed inset-0 z-[90] bg-nautical-deep transition-all duration-700 xl:hidden ${isMenuOpen ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-full pointer-events-none'}`}
             >
                 <div className="absolute inset-0 bg-maps opacity-5 pointer-events-none" />
-                <div className="flex flex-col h-full pt-32 pb-12 px-8 overflow-y-auto">
+                <div className="flex flex-col h-full pt-24 sm:pt-32 pb-12 px-4 sm:px-8 max-w-lg mx-auto w-full overflow-y-auto">
                     <div className="flex flex-col gap-4 mb-12">
                         {navItems.map((item, idx) => (
                             <div key={item.label}>

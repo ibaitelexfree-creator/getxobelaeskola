@@ -61,7 +61,7 @@ export default async function AboutPage({ params: { locale } }: { params: { loca
     return (
         <main className="min-h-screen bg-nautical-black text-sea-foam selection:bg-accent selection:text-nautical-black">
             {/* 1. Cinematic Hero Section */}
-            <section className="relative min-h-[100dvh] w-full flex items-center justify-center overflow-hidden py-16 sm:py-20 lg:py-0">
+            <section className="relative min-h-[85vh] sm:min-h-[100dvh] w-full flex items-center justify-center overflow-hidden py-12 sm:py-20 lg:py-0">
                 <div className="absolute inset-0 z-0 w-full h-full">
                     <Image
                         src="/images/about-hero-heritage.webp"
@@ -77,10 +77,10 @@ export default async function AboutPage({ params: { locale } }: { params: { loca
 
                 <div className="container mx-auto px-4 sm:px-6 relative z-10 text-center">
                     <div className="flex flex-col items-center">
-                        <span className="inline-block text-accent uppercase tracking-[clamp(0.2em,1.2vw,0.8em)] text-xs sm:text-sm font-bold mb-6 sm:mb-10 opacity-90 animate-fade-in-up">
+                        <span className="inline-block text-accent uppercase tracking-[clamp(0.15em,1vw,0.8em)] text-[10px] sm:text-xs md:text-sm font-bold mb-4 sm:mb-8 opacity-90 animate-fade-in-up">
                             {t('header_badge')}
                         </span>
-                        <h1 className="text-[clamp(2.5rem,8.5vw,9.5rem)] font-display text-black font-bold leading-[0.95] md:leading-[0.9] mb-8 sm:mb-12 animate-reveal relative max-w-6xl">
+                        <h1 className="text-[clamp(2.2rem,7vw,8rem)] font-display text-black font-bold leading-[0.98] sm:leading-[0.95] md:leading-[0.9] mb-6 sm:mb-10 animate-reveal relative max-w-6xl">
                             {t('header_title')} <br />
                             <span className="italic font-bold text-black">
                                 {t('header_highlight')}
@@ -88,7 +88,7 @@ export default async function AboutPage({ params: { locale } }: { params: { loca
                         </h1>
                         <div className="flex flex-wrap sm:flex-nowrap items-center justify-center gap-3 sm:gap-6 md:gap-8 w-full max-w-4xl opacity-95 animate-fade-in px-2" style={{ animationDelay: '1s' }}>
                             <div className="hidden sm:block h-px flex-grow bg-gradient-to-l from-black/40 to-transparent" />
-                            <p className="text-sm sm:text-base md:text-lg uppercase tracking-[0.25em] sm:tracking-[0.45em] font-extrabold text-center sm:text-left text-black">
+                            <p className="text-xs sm:text-base md:text-lg uppercase tracking-[0.2em] sm:tracking-[0.45em] font-extrabold text-center sm:text-left text-black">
                                 {t('header_suffix')}
                             </p>
                             <div className="hidden sm:block h-px flex-grow bg-gradient-to-r from-black/40 to-transparent" />
@@ -104,7 +104,7 @@ export default async function AboutPage({ params: { locale } }: { params: { loca
             </section>
 
             {/* 2. Heritage & Story Section */}
-            <section className="py-12 sm:py-16 md:py-24 relative overflow-hidden flex items-center min-h-[100dvh] w-full">
+            <section className="py-12 sm:py-16 md:py-24 relative overflow-hidden flex items-center min-h-0 sm:min-h-[85vh] lg:min-h-[100dvh] w-full">
                 <div className="container mx-auto px-4 sm:px-6 max-w-7xl">
                     <StaggeredEntrance className="grid lg:grid-cols-12 gap-6 lg:gap-10 items-center">
                         {/* Decorative Quote Mark */}
@@ -114,7 +114,7 @@ export default async function AboutPage({ params: { locale } }: { params: { loca
 
                         <div className="lg:col-span-5 space-y-4 sm:space-y-5 relative">
                             <div className="space-y-2 md:space-y-3">
-                                <h2 className="text-[clamp(1.5rem,3vw,2.75rem)] font-display leading-tight tracking-tight text-sea-foam">
+                                <h2 className="text-[clamp(1.4rem,3vw,2.75rem)] font-display leading-tight tracking-tight text-sea-foam">
                                     {t('commitment_title')} <br />
                                     <span className="italic font-light text-accent/80 underline decoration-sea-foam/10 underline-offset-[6px]">
                                         {t('commitment_highlight')}
@@ -123,7 +123,7 @@ export default async function AboutPage({ params: { locale } }: { params: { loca
                             </div>
 
                             <div className="space-y-3 sm:space-y-4">
-                                <p className="text-foreground/80 font-light text-sm sm:text-base md:text-lg leading-relaxed first-letter:text-3xl sm:first-letter:text-4xl first-letter:font-display first-letter:text-accent first-letter:float-left first-letter:mr-3 first-letter:mt-0.5">
+                                <p className="text-foreground/80 font-light text-xs sm:text-base md:text-lg leading-relaxed first-letter:text-2xl sm:first-letter:text-4xl first-letter:font-display first-letter:text-accent first-letter:float-left first-letter:mr-2.5 sm:first-letter:mr-3 first-letter:mt-0.5">
                                     {t('desc1')}
                                 </p>
                                 <div className="p-3 sm:p-4 border-l-2 border-brass-gold/20 bg-sea-foam/[0.02] backdrop-blur-sm space-y-2">
@@ -137,8 +137,8 @@ export default async function AboutPage({ params: { locale } }: { params: { loca
                             </div>
                         </div>
 
-                        <div className="lg:col-span-6 lg:pl-4 xl:pl-6 mt-6 lg:mt-0">
-                            <div className="relative aspect-[4/3] sm:aspect-[16/10] lg:aspect-[16/11] max-w-md sm:max-w-lg mx-auto lg:max-w-none group border border-sea-foam/20 shadow-2xl overflow-hidden">
+                        <div className="lg:col-span-6 lg:pl-4 xl:pl-6 mt-4 lg:mt-0">
+                            <div className="relative aspect-[4/3] sm:aspect-[16/10] lg:aspect-[16/11] max-w-md sm:max-w-lg mx-auto lg:max-w-none group border border-sea-foam/20 shadow-2xl overflow-hidden rounded-lg sm:rounded-none">
                                 <HoverVideoOrImage
                                     src="/images/womes-8139.jpg"
                                     alt="Sea Experience"
@@ -148,8 +148,8 @@ export default async function AboutPage({ params: { locale } }: { params: { loca
                                     imageClassName="object-cover object-center sm:object-[5%_20%] w-full h-full"
                                 />
                                 {/* Image Badge - anchored relatively and cleanly positioned on all screens */}
-                                <div className="absolute top-3 left-3 sm:top-4 sm:left-4 bg-nautical-deep/95 backdrop-blur-md px-3 py-2 border border-sea-foam/15 shadow-2xl z-20 transition-transform duration-300">
-                                    <span className="text-[10px] sm:text-xs uppercase tracking-[0.3em] text-accent font-bold whitespace-nowrap">
+                                <div className="absolute top-3 left-3 sm:top-4 sm:left-4 bg-nautical-deep/95 backdrop-blur-md px-2.5 py-1.5 sm:px-3 sm:py-2 border border-sea-foam/15 shadow-2xl z-20 transition-transform duration-300">
+                                    <span className="text-[9px] sm:text-xs uppercase tracking-[0.25em] sm:tracking-[0.3em] text-accent font-bold whitespace-nowrap">
                                         EST. 1993
                                     </span>
                                 </div>

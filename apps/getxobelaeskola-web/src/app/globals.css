@@ -1728,16 +1728,32 @@ body {
 [class*="Reviews_section"] {
   width: 100%;
   max-width: 100%;
-  min-height: clamp(450px, 80vh, 900px);
+  min-height: clamp(350px, 75vh, 900px);
   height: auto;
   max-height: none;
-  padding-top: var(--gbe-section-py, clamp(2rem, 4vh, 4.5rem));
-  padding-bottom: var(--gbe-section-py, clamp(2rem, 4vh, 4.5rem));
+  padding-top: var(--gbe-section-py, clamp(1.5rem, 3.5vh, 4.5rem));
+  padding-bottom: var(--gbe-section-py, clamp(1.5rem, 3.5vh, 4.5rem));
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
   justify-content: center;
   overflow: visible;
+}
+
+@media (max-width: 767px) {
+  .global-section,
+  .section-1-hero,
+  .promise,
+  .section-cta,
+  .section-2-identity,
+  .section-3-adapts,
+  .section-3-path,
+  [class*="Blog_section"],
+  [class*="Reviews_section"] {
+    min-height: auto;
+    padding-top: clamp(1.25rem, 3vh, 3rem);
+    padding-bottom: clamp(1.25rem, 3vh, 3rem);
+  }
 }
 
 @media (orientation: landscape) and (max-height: 700px) {
@@ -1754,7 +1770,7 @@ body {
     min-height: auto;
     height: auto;
     max-height: none;
-    padding-top: clamp(3.25rem, 9vh, 4.5rem) !important;
+    padding-top: clamp(2rem, 6vh, 3.5rem) !important;
     padding-bottom: clamp(0.5rem, 2vh, 1.25rem) !important;
     overflow: visible;
   }

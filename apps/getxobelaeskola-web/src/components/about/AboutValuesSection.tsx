@@ -24,15 +24,15 @@ interface AboutValuesSectionProps {
 
 export default function AboutValuesSection({ items }: AboutValuesSectionProps) {
     return (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-[1%]">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 w-full">
             {items.map((item, i) => (
                 <motion.div
                     key={i}
-                    initial={{ opacity: 0, y: 60 }}
+                    initial={{ opacity: 0, y: 40 }}
                     whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: false, amount: 0.25 }}
+                    viewport={{ once: false, amount: 0.15 }}
                     transition={{ duration: 0.8, delay: i * 0.15, ease: [0.215, 0.61, 0.355, 1] }}
-                    className="group relative aspect-square p-5 sm:p-6 md:p-6 lg:p-8 xl:p-10 flex flex-col justify-end overflow-hidden border border-sea-foam/10 rounded-xl cursor-pointer touch-manipulation transition-all duration-700 active:bg-accent/10 bg-nautical-black/50 shadow-lg"
+                    className="group relative min-h-[260px] sm:min-h-[300px] aspect-auto sm:aspect-square p-5 sm:p-6 lg:p-8 flex flex-col justify-end overflow-hidden border border-sea-foam/10 rounded-xl cursor-pointer touch-manipulation transition-all duration-700 active:bg-accent/10 bg-nautical-black/50 shadow-lg"
                 >
                     {/* Background image with subtle scroll scale */}
                     <motion.div 
