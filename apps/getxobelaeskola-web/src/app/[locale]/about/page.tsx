@@ -81,7 +81,11 @@ export default async function AboutPage({ params: { locale } }: { params: { loca
                             {t('header_badge')}
                         </span>
                         <h1 className="text-[clamp(2.2rem,7vw,8rem)] font-display text-black font-bold leading-[0.98] sm:leading-[0.95] md:leading-[0.9] mb-6 sm:mb-10 animate-reveal relative max-w-6xl">
-                            {t('header_title')} <br />
+                            {t('header_title') ? (
+                                <>
+                                    {t('header_title')} <br />
+                                </>
+                            ) : null}
                             <span className="italic font-bold text-black">
                                 {t('header_highlight')}
                             </span>
