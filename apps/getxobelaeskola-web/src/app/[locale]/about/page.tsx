@@ -90,7 +90,7 @@ export default async function AboutPage({ params: { locale } }: { params: { loca
                                 {t('header_highlight')}
                             </span>
                         </h1>
-                        <div className="flex flex-wrap sm:flex-nowrap items-center justify-center gap-3 sm:gap-6 md:gap-8 w-full max-w-4xl px-2 mt-32 sm:mt-40 md:mt-52">
+                        <div className="flex flex-wrap sm:flex-nowrap items-center justify-center gap-3 sm:gap-6 md:gap-8 w-full max-w-4xl px-2 mt-40 sm:mt-52 md:mt-64 lg:mt-72">
                             <div className="hidden sm:block h-[1.5px] flex-grow bg-gradient-to-l from-black/60 to-transparent" />
                             <p className="text-sm sm:text-lg md:text-xl lg:text-2xl uppercase tracking-[0.2em] sm:tracking-[0.4em] font-black text-center sm:text-left text-black drop-shadow-[0_1px_2px_rgba(255,255,255,0.4)]">
                                 {t('header_suffix')}
