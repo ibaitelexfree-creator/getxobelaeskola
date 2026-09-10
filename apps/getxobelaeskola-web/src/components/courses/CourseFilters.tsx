@@ -41,31 +41,31 @@ export default function CourseFilters({ categories, locale }: CourseFiltersProps
     };
 
     return (
-        <div className="relative mb-8 md:mb-12 animate-fade-in w-full" style={{ animationDelay: '0.8s' }}>
+        <div className="relative mb-[clamp(1rem,2.5vw,3rem)] animate-fade-in w-full" style={{ animationDelay: '0.8s' }}>
             {/* Scroll Navigation Header Bar */}
-            <div className="flex items-center justify-between mb-3 px-1">
-                <div className="flex items-center gap-3 opacity-60 hover:opacity-100 transition-opacity">
-                    <div className="h-px w-6 sm:w-8 bg-sea-foam" />
-                    <span className="text-[9px] sm:text-[10px] uppercase tracking-[0.4em] text-sea-foam font-bold">
+            <div className="flex items-center justify-between mb-2 sm:mb-3 px-1">
+                <div className="flex items-center gap-2 sm:gap-3 opacity-60 hover:opacity-100 transition-opacity">
+                    <div className="h-px w-4 sm:w-8 bg-sea-foam" />
+                    <span className="text-[clamp(0.55rem,0.7vw,0.75rem)] uppercase tracking-[0.4em] text-sea-foam font-bold">
                         Slide to filter
                     </span>
                 </div>
 
                 {/* Interactive Left / Right Scroll Buttons */}
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1.5 sm:gap-2">
                     <button
                         onClick={() => handleScroll('left')}
                         aria-label="Scroll left"
-                        className="w-8 h-8 rounded-full border border-sea-foam/20 bg-sea-foam/[0.03] hover:bg-accent hover:border-accent hover:text-nautical-black text-sea-foam flex items-center justify-center transition-all duration-300 shadow-sm"
+                        className="w-7 h-7 sm:w-8 sm:h-8 rounded-full border border-sea-foam/20 bg-sea-foam/[0.03] hover:bg-accent hover:border-accent hover:text-nautical-black text-sea-foam flex items-center justify-center transition-all duration-300 shadow-sm"
                     >
-                        <ChevronLeft className="w-4 h-4" />
+                        <ChevronLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                     </button>
                     <button
                         onClick={() => handleScroll('right')}
                         aria-label="Scroll right"
-                        className="w-8 h-8 rounded-full border border-sea-foam/20 bg-sea-foam/[0.03] hover:bg-accent hover:border-accent hover:text-nautical-black text-sea-foam flex items-center justify-center transition-all duration-300 shadow-sm"
+                        className="w-7 h-7 sm:w-8 sm:h-8 rounded-full border border-sea-foam/20 bg-sea-foam/[0.03] hover:bg-accent hover:border-accent hover:text-nautical-black text-sea-foam flex items-center justify-center transition-all duration-300 shadow-sm"
                     >
-                        <ChevronRight className="w-4 h-4" />
+                        <ChevronRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                     </button>
                 </div>
             </div>
@@ -76,11 +76,11 @@ export default function CourseFilters({ categories, locale }: CourseFiltersProps
             {/* Scrollable Filter Category Buttons */}
             <div
                 ref={scrollContainerRef}
-                className="flex overflow-x-auto pb-3 gap-2.5 sm:gap-3 md:gap-4 no-scrollbar scroll-smooth w-full select-none"
+                className="flex overflow-x-auto pb-2 sm:pb-3 gap-2 sm:gap-3 md:gap-4 no-scrollbar scroll-smooth w-full select-none"
             >
                 <button
                     onClick={() => handleCategoryChange(null)}
-                    className={`whitespace-nowrap px-6 sm:px-8 py-2.5 sm:py-3 rounded-sm text-[10px] font-black uppercase tracking-[0.3em] transition-all duration-500 border flex-shrink-0 ${!activeCategory
+                    className={`whitespace-nowrap px-[clamp(1rem,1.8vw,2rem)] py-[clamp(0.4rem,0.8vw,0.75rem)] rounded-sm text-[clamp(0.6rem,0.75vw,0.75rem)] font-black uppercase tracking-[0.3em] transition-all duration-500 border flex-shrink-0 ${!activeCategory
                         ? 'bg-accent text-nautical-black border-accent shadow-[0_0_25px_rgba(255,77,0,0.25)]'
                         : 'bg-sea-foam/[0.02] text-sea-foam/50 border-sea-foam/10 hover:border-sea-foam/20 hover:text-sea-foam'
                         }`}
@@ -91,7 +91,7 @@ export default function CourseFilters({ categories, locale }: CourseFiltersProps
                     <button
                         key={cat.id}
                         onClick={() => handleCategoryChange(cat.id)}
-                        className={`whitespace-nowrap px-6 sm:px-8 py-2.5 sm:py-3 rounded-sm text-[10px] font-black uppercase tracking-[0.3em] transition-all duration-500 border flex-shrink-0 ${activeCategory === cat.id
+                        className={`whitespace-nowrap px-[clamp(1rem,1.8vw,2rem)] py-[clamp(0.4rem,0.8vw,0.75rem)] rounded-sm text-[clamp(0.6rem,0.75vw,0.75rem)] font-black uppercase tracking-[0.3em] transition-all duration-500 border flex-shrink-0 ${activeCategory === cat.id
                             ? 'bg-accent text-nautical-black border-accent shadow-[0_0_25px_rgba(255,77,0,0.25)]'
                             : 'bg-sea-foam/[0.02] text-sea-foam/50 border-sea-foam/10 hover:border-sea-foam/20 hover:text-sea-foam'
                             }`}

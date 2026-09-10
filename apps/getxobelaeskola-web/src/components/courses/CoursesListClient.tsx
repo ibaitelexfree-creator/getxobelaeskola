@@ -36,7 +36,7 @@ export default function CoursesListClient({ initialCourses, categories, locale }
 
     return (
         <section className="pb-16 sm:pb-24 lg:pb-36 relative overflow-hidden">
-            <div className="container mx-auto px-4 sm:px-6 relative z-10">
+            <div className="container mx-auto px-4 sm:px-6 courses-container-padding relative z-10">
                 <CourseFilters categories={categories || []} locale={locale} />
 
                 {displayCourses.length === 0 ? (
@@ -56,7 +56,10 @@ export default function CoursesListClient({ initialCourses, categories, locale }
                 ) : (
                     <motion.div 
                         layout
-                        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-12 mt-8 md:mt-12 lg:mt-16 courses-grid-system"
+                        className="grid gap-3 sm:gap-6 md:gap-8 lg:gap-10 mt-4 sm:mt-8 md:mt-12 courses-grid-system"
+                        style={{
+                            display: 'grid',
+                        }}
                     >
                         <AnimatePresence mode="popLayout">
                             {displayCourses.map((course) => (
@@ -67,6 +70,7 @@ export default function CoursesListClient({ initialCourses, categories, locale }
                                     animate={{ opacity: 1, scale: 1 }}
                                     exit={{ opacity: 0, scale: 0.9 }}
                                     transition={{ duration: 0.25 }}
+                                    className="w-full aspect-square"
                                 >
                                     <CourseCard course={course} locale={locale} />
                                 </motion.div>

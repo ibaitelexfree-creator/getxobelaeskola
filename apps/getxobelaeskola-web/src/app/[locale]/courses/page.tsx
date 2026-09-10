@@ -171,21 +171,21 @@ export default async function CoursesPage({
     return (
         <main className="min-h-[100dvh] w-full bg-nautical-black text-sea-foam selection:bg-accent selection:text-nautical-black">
             {/* Cinematic Header Section */}
-            <section className="courses-header-section relative pt-24 sm:pt-28 md:pt-36 lg:pt-40 pb-6 sm:pb-8 md:pb-12 lg:pb-16 overflow-hidden w-full">
+            <section className="courses-header-section relative pt-[clamp(4.5rem,8vh,10rem)] pb-[clamp(1rem,3vh,4rem)] overflow-hidden w-full">
                 {/* Background Decor */}
                 <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-accent/5 blur-[120px] rounded-full -translate-y-1/2 translate-x-1/2 pointer-events-none" />
                 <div className="absolute top-[20%] left-0 w-[400px] h-[400px] bg-brass-gold/5 blur-[100px] rounded-full -translate-x-1/2 pointer-events-none" />
 
                 <div className="container mx-auto px-4 sm:px-6 relative z-10 text-left">
                     <header className="max-w-4xl">
-                        <span className="text-accent uppercase tracking-[0.6em] text-xs sm:text-sm font-bold mb-3 sm:mb-4 block animate-fade-in-up">
+                        <span className="text-accent uppercase tracking-[0.6em] text-[clamp(0.65rem,0.8vw,0.875rem)] font-bold mb-2 sm:mb-4 block animate-fade-in-up">
                             {t('header_badge')}
                         </span>
-                        <h1 className="text-[clamp(2rem,4.5vw,5rem)] font-display leading-[0.95] text-sea-foam mb-4 sm:mb-6 animate-reveal relative">
+                        <h1 className="text-[clamp(1.75rem,4vw,4.5rem)] font-display leading-[0.95] text-sea-foam mb-2 sm:mb-6 animate-reveal relative">
                             {t('header_title')} <br />
                             <span className="italic font-light text-brass-gold/90">{t('header_highlight')}</span>
                         </h1>
-                        <p className="max-w-2xl text-sea-foam/60 font-light text-base sm:text-lg md:text-xl leading-relaxed border-l-2 border-sea-foam/10 pl-4 sm:pl-6 md:pl-8 mt-4 sm:mt-6 animate-fade-in" style={{ animationDelay: '0.8s' }}>
+                        <p className="max-w-2xl text-sea-foam/60 font-light text-[clamp(0.85rem,1.2vw,1.25rem)] leading-relaxed border-l-2 border-sea-foam/10 pl-4 sm:pl-6 md:pl-8 mt-2 sm:mt-6 animate-fade-in" style={{ animationDelay: '0.8s' }}>
                             {t('header_desc')}
                         </p>
                     </header>
