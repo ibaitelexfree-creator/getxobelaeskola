@@ -1783,89 +1783,33 @@ section {
 }
 
 /* ==========================================================================
-   GLOBAL 8-RANGE + DUAL ORIENTATION RESPONSIVE SYSTEM
+   COURSES RESPONSIVE GRID SYSTEM
    ========================================================================== */
 
-/* Base Card Grid System */
-.courses-grid-system {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: clamp(1rem, 2vw, 2.5rem);
-  width: 100%;
-}
-
-/* RANGE 1 — 20-359px (Very Small Mobile) */
-@media (max-width: 359px) and (orientation: portrait) {
+/* Portrait Mobile (max 639px & vertical ratio): 1 column */
+@media screen and (max-width: 639px) and (max-aspect-ratio: 1/1) {
   .courses-grid-system {
+    display: grid !important;
     grid-template-columns: 1fr !important;
-    gap: 1rem !important;
-  }
-  .course-card-img-container {
-    height: clamp(180px, 45vh, 240px) !important;
   }
 }
 
-@media (max-width: 359px) and (orientation: landscape) {
+/* Landscape / Wide aspect ratio (586x320, 667x375, etc): 3 columns */
+@media screen and (min-aspect-ratio: 1/1) {
   .courses-grid-system {
+    display: grid !important;
     grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
     gap: 0.5rem !important;
   }
-  .course-card-img-container {
-    height: clamp(90px, 25vh, 120px) !important;
-  }
 }
 
-/* Unified Fluid Responsive Grid System for Courses & Cards */
-.courses-grid-system {
-  display: grid !important;
-  grid-template-columns: repeat(auto-fit, minmax(clamp(260px, 26vw, 380px), 1fr)) !important;
-  gap: clamp(1rem, 2.2vw, 3rem) !important;
-  width: 100% !important;
-}
-
-@media (max-width: 639px) and (orientation: portrait) {
-  .courses-grid-system {
-    grid-template-columns: 1fr !important;
-    gap: clamp(1rem, 3.5vh, 1.5rem) !important;
-  }
-  .course-card-img-container {
-    height: clamp(200px, 38vh, 320px) !important;
-  }
-}
-
-@media (max-height: 500px) and (orientation: landscape) {
+@media screen and (max-height: 500px) and (min-aspect-ratio: 1/1) {
   .courses-header-section {
-    padding-top: clamp(2rem, 8vh, 3.5rem) !important;
-    padding-bottom: clamp(0.25rem, 1.5vh, 0.5rem) !important;
-  }
-  .courses-grid-system {
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)) !important;
-    gap: clamp(0.5rem, 1.5vw, 1rem) !important;
-    margin-top: 0.75rem !important;
-  }
-  .course-card-img-container {
-    height: clamp(100px, 26vh, 140px) !important;
-  }
-  .courses-grid-system .glass-card > div:last-of-type {
-    padding: clamp(0.5rem, 1.5vw, 1rem) !important;
-    gap: 0.35rem !important;
-  }
-  .courses-grid-system .glass-card h3 {
-    font-size: clamp(0.85rem, 2.2vw, 1.25rem) !important;
-    line-height: 1.15 !important;
-  }
-  .courses-grid-system .glass-card p {
-    font-size: clamp(0.7rem, 1.4vw, 0.85rem) !important;
-    min-height: auto !important;
-    -webkit-line-clamp: 3 !important;
-  }
-  .courses-grid-system .glass-card a {
-    padding-top: 0.5rem !important;
+    padding-top: 1rem !important;
     padding-bottom: 0.5rem !important;
   }
-}
-
-.course-card-img-container {
-  height: clamp(180px, 32vh, 420px);
-  width: 100%;
+  .courses-container-padding {
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+  }
 }

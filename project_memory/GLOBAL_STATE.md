@@ -2,9 +2,9 @@
 
 ## Recent Activity
 - **Agent:** Antigravity / @[frontend-specialist]
-- **Task:** Modified about page title translation and increased legibility of "Getxo Bela Eskola".
+- **Task:** Optimized Landscape 3-Column Card Layout and image/content sizing on `/servicios/cursos/`.
 - **Changes:**
-  - Changed translation for `about_page.header_highlight` in all translation files to include "y la Vela" (and English/French/Basque equivalents).
-  - Fixed corrupted root `messages/*.json` files by copying the valid JSON versions from the app workspace.
-  - Increased font size and weight of "Getxo Bela Eskola" in the about page header (set to font-black and text-lg/xl/2xl), and pushed it down using responsive margins to make it much more legible and spaced.
-- **Status:** COMPLETED & VERIFIED. ALL TESTS PASS.
+  - Updated `globals.css` with `min-aspect-ratio: 1/1` media query to ensure 3-column layout works on both real mobile landscape and DevTools responsive emulation.
+  - Enhanced `CourseCard.tsx` image wrapper and typography ratios for 586x320px landscape viewports.
+  - Fixed header padding on mobile landscape screens to maximize vertical card space.
+- **Status:** COMPLETED & VERIFIED.
