@@ -241,13 +241,22 @@
       "member3_role": "Partenaires",
       "member3_desc": "L'école fonctionne avec une relation simple et humaine : les moniteurs écoutent, observent les rythmes, accompagnent les peurs et favorisent l'autonomie ; L'équipe partage les décisions et la voix des membres fait partie de la vie du projet."
     },
-    "commitment_title": "Engagé à",
-    "commitment_highlight": "Culture marine",
+    "commitment_title": "HISTOIRE DU CLUB",
+    "commitment_highlight": "",
     "define_badge": "Notre essence",
     "define_title": "Ce qui nous définit",
     "cta_title": "Prêt à mettre les voiles ?",
     "cta_desc": "Rejoignez notre école et découvrez pourquoi nous sommes la référence en matière de navigation dans la mer Cantabrique.",
-    "cta_button": "Voir les cours disponibles"
+    "cta_button": "Voir les cours disponibles",
+    "short_desc1": "Plus de 15 ans à rapprocher la mer de tous à travers un projet social, humain et accessible. Nous sommes une association à but non lucratif qui réinvestit tous ses bénéfices dans l'eskola elle-même, guidée par une idée simple : l'humain d'abord.",
+    "short_desc2": "L'Eskola demeure un espace chaleureux, simple et façonné par des personnes qui croient en la valeur d'apprendre ensemble en mer.",
+    "read_more": "EN SAVOIR PLUS",
+    "modal": {
+      "title": "HISTOIRE DU CLUB",
+      "p1": "Il y a plus de 15 ans, nous sommes nés à Getxo avec un objectif clair : rapprocher la mer de tous à partir d'une approche humaine, éducative et accessible. Nous sommes une association à but non lucratif et un projet social qui considère la voile comme un outil d'apprentissage, de coexistence et de transformation personnelle.",
+      "p2": "Au fil des années, nous avons grandi, nous sommes professionnalisés et nos activités se sont développées, toujours avec la même base : mettre l'humain au centre. L'Eskola continue d'être un lieu simple et proche, construit à partir de la communauté, et notre chemin reste centré sur l'accompagnement des personnes pour qu'elles vivent la mer de manière simple, sûre et authentique.",
+      "p3": "Nous ne sommes pas une entreprise, et nous n'agissons pas comme telle. En tant qu'association à but non lucratif, tout ce qui rentre est réinvesti dans l'amélioration du projet : renouvellement des bateaux, formation des moniteurs, entretien des installations et développement des activités."
+    }
   },
   "contact_form": {
     "name": "Prénom",

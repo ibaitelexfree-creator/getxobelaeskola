@@ -243,13 +243,22 @@
       "member3_role": "Bazkideak",
       "member3_desc": "Eskolak harreman sinple eta humano batekin funtzionatzen du: monitoreek entzuten dute, erritmoak behatzen dituzte, beldurrei laguntzen diete eta autonomia sustatzen dute; taldeak erabakiak partekatzen ditu eta bazkideen ahotsa proiektuaren bizitzaren parte da."
     },
-    "commitment_title": "Itsasoaren",
-    "commitment_highlight": "Kulturarekin Konprometituak",
+    "commitment_title": "KLUBAREN HISTORIA",
+    "commitment_highlight": "",
     "define_badge": "Gure Esentzia",
     "define_title": "Definitzen gaituena",
     "cta_title": "Nabigatzeko prest?",
     "cta_desc": "Batu gure eskolara eta ezagutu zergatik garen nabigazio erreferentzia Kantauri itsasoan.",
-    "cta_button": "Ikusi Eskuragarri Dauden Ikastaroak"
+    "cta_button": "Ikusi Eskuragarri Dauden Ikastaroak",
+    "short_desc1": "15 urte baino gehiago daramatzagu itsasoa pertsona guztiei hurbiltzen proiektu sozial, humano eta eskuragarri baten bitartez. Irabazi-asmorik gabeko elkartea gara, etekin guztiak eskolan bertan berrinbertitzen dituena, eta gure funtzionamendua oinarri sinple batetik abiatzen da: pertsonak lehenik.",
+    "short_desc2": "Eskola leku hurbil eta sinplea izaten jarraitzen du, itsasoan elkarrekin ikastearen balioan sinesten duten pertsonek eraikia.",
+    "read_more": "GEHIAGO IRAKURRI",
+    "modal": {
+      "title": "KLUBAREN HISTORIA",
+      "p1": "Duela 15 urte baino gehiago jaio ginen Getxon helburu argi batekin: itsasoa pertsona guztiei hurbiltzea ikuspegi humano, hezitzaile eta eskuragarri batetik. Irabazi-asmorik gabeko elkarte bat gara eta bela ikaskuntzarako, elkarbizitzarako eta eraldaketa pertsonalerako tresna gisa ulertzen duen proiektu soziala.",
+      "p2": "Urteetan zehar hazi egin gara, profesionalizatu eta jarduerak zabaldu ditugu, beti oinarri berdinarekin: pertsonak erdian jartzea. Eskola leku hurbil eta sinplea izaten jarraitzen du, komunitatetik eraikia, eta gure bideak pertsonei laguntzen jarraitzen du, itsasoa modu sinple, seguru eta autentikoan bizi dezaten.",
+      "p3": "Ez gara enpresa bat, eta ez dugu hala jokatzen. Irabazi-asmorik gabeko elkarte gisa, sartzen den guztia proiektua hobetzeko bideratzen da: ontziak berritzeko, monitoreak prestatzeko, instalazioak zaintzeko eta jarduerak zabaltzeko."
+    }
   },
   "contact_page": {
     "header_badge": "Kontaktua",

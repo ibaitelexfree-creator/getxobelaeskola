@@ -8,6 +8,7 @@ import HoverVideoOrImage from '@/components/shared/HoverVideoOrImage';
 import { getSeoAlternates } from '@/lib/seo';
 
 import AboutValuesSection from '@/components/about/AboutValuesSection';
+import AboutStorySection from '@/components/about/AboutStorySection';
 
 export async function generateMetadata({ params: { locale } }: { params: { locale: string } }): Promise<Metadata> {
     const isEu = locale === 'eu';
@@ -51,7 +52,7 @@ export default async function AboutPage({ params: { locale } }: { params: { loca
         {
             title: t('values.v3_title'),
             desc: t('values.v3_desc'),
-            icon: "🌊",
+            icon: "🧭",
             bg: "/images/about-optimist.jpg",
             objectFit: "cover" as const,
             objectPosition: "center top"
@@ -108,60 +109,18 @@ export default async function AboutPage({ params: { locale } }: { params: { loca
             </section>
 
             {/* 2. Heritage & Story Section */}
-            <section className="py-12 sm:py-16 md:py-24 relative overflow-hidden flex items-center min-h-0 sm:min-h-[85vh] lg:min-h-[100dvh] w-full">
-                <div className="container mx-auto px-4 sm:px-6 max-w-7xl">
-                    <StaggeredEntrance className="grid lg:grid-cols-12 gap-6 lg:gap-10 items-center">
-                        {/* Decorative Quote Mark */}
-                        <div className="lg:col-span-1 hidden lg:block self-start pt-4">
-                            <span className="font-display text-7xl xl:text-8xl text-accent/10 italic leading-none">&quot;</span>
-                        </div>
-
-                        <div className="lg:col-span-5 space-y-4 sm:space-y-5 relative">
-                            <div className="space-y-2 md:space-y-3">
-                                <h2 className="text-[clamp(1.4rem,3vw,2.75rem)] font-display leading-tight tracking-tight text-sea-foam">
-                                    {t('commitment_title')} <br />
-                                    <span className="italic font-light text-accent/80 underline decoration-sea-foam/10 underline-offset-[6px]">
-                                        {t('commitment_highlight')}
-                                    </span>
-                                </h2>
-                            </div>
-
-                            <div className="space-y-3 sm:space-y-4">
-                                <p className="text-foreground/80 font-light text-xs sm:text-base md:text-lg leading-relaxed first-letter:text-2xl sm:first-letter:text-4xl first-letter:font-display first-letter:text-accent first-letter:float-left first-letter:mr-2.5 sm:first-letter:mr-3 first-letter:mt-0.5">
-                                    {t('desc1')}
-                                </p>
-                                <div className="p-3 sm:p-4 border-l-2 border-brass-gold/20 bg-sea-foam/[0.02] backdrop-blur-sm space-y-2">
-                                    <p className="text-foreground/70 font-light text-xs sm:text-sm md:text-base leading-relaxed italic">
-                                        {t('desc2')}
-                                    </p>
-                                    <p className="text-foreground/70 font-light text-xs sm:text-sm md:text-base leading-relaxed italic">
-                                        {t('desc3')}
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="lg:col-span-6 lg:pl-4 xl:pl-6 mt-4 lg:mt-0">
-                            <div className="relative aspect-[4/3] sm:aspect-[16/10] lg:aspect-[16/11] max-w-md sm:max-w-lg mx-auto lg:max-w-none group border border-sea-foam/20 shadow-2xl overflow-hidden rounded-lg sm:rounded-none">
-                                <HoverVideoOrImage
-                                    src="/images/womes-8139.jpg"
-                                    alt="Sea Experience"
-                                    fill
-                                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 45vw"
-                                    containerClassName="w-full h-full relative"
-                                    imageClassName="object-cover object-center sm:object-[5%_20%] w-full h-full"
-                                />
-                                {/* Image Badge - anchored relatively and cleanly positioned on all screens */}
-                                <div className="absolute top-3 left-3 sm:top-4 sm:left-4 bg-nautical-deep/95 backdrop-blur-md px-2.5 py-1.5 sm:px-3 sm:py-2 border border-sea-foam/15 shadow-2xl z-20 transition-transform duration-300">
-                                    <span className="text-[9px] sm:text-xs uppercase tracking-[0.25em] sm:tracking-[0.3em] text-accent font-bold whitespace-nowrap">
-                                        EST. 1993
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                    </StaggeredEntrance>
-                </div>
-            </section>
+            <AboutStorySection
+                title={t('commitment_title')}
+                desc1={t('short_desc1')}
+                desc2={t('short_desc2')}
+                readMoreText={t('read_more')}
+                modalData={{
+                    title: t('modal.title'),
+                    p1: t('modal.p1'),
+                    p2: t('modal.p2'),
+                    p3: t('modal.p3')
+                }}
+            />
 
             {/* 3. The Pillars (Values) Section */}
             <section className="py-8 sm:py-12 md:py-14 relative bg-sea-foam/[0.01]">
