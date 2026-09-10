@@ -216,8 +216,8 @@
   },
   "about_page": {
     "header_badge": "KNOW US",
-    "header_title": "History of the",
-    "header_highlight": "Club",
+    "header_title": "",
+    "header_highlight": "The Club & Sailing",
     "header_suffix": "Getxo Bela Eskola",
     "since": "Founded in Getxo",
     "desc1": "More than 15 years ago we were born in Getxo with a clear goal: to bring the sea closer to everyone from a human, educational and accessible approach. We are a non-profit association and a social project that understands sailing as a tool for learning, coexistence and personal transformation.",
@@ -243,13 +243,22 @@
       "member3_role": "Members",
       "member3_desc": "The eskola works with a simple and human relationship: the instructors listen, observe rhythms, accompany fears and encourage autonomy; the team shares decisions and the members' voice is part of the project's life."
     },
-    "commitment_title": "Committed to the",
-    "commitment_highlight": "Sea Culture",
+    "commitment_title": "HISTORY OF THE CLUB",
+    "commitment_highlight": "",
     "define_badge": "Our Essence",
     "define_title": "What defines us",
     "cta_title": "Ready to set sail?",
     "cta_desc": "Join our school and discover why we are the sailing reference in the Cantabrian Sea.",
-    "cta_button": "View Available Courses"
+    "cta_button": "View Available Courses",
+    "short_desc1": "More than 15 years bringing the sea closer to everyone through a social, human, and accessible project. We are a non-profit association that reinvests all revenue back into the eskola, and our approach stems from a simple premise: people first.",
+    "short_desc2": "The Eskola remains a welcoming, grounded space shaped by people who believe in the value of learning together on the water.",
+    "read_more": "READ MORE",
+    "modal": {
+      "title": "HISTORY OF THE CLUB",
+      "p1": "More than 15 years ago we were born in Getxo with a clear goal: to bring the sea closer to everyone from a human, educational and accessible approach. We are a non-profit association and a social project that understands sailing as a tool for learning, coexistence and personal transformation.",
+      "p2": "Over the years we have grown, professionalized and expanded activities, always with the same foundation: putting people at the center. The Eskola remains a close, simple place built from the community, and our path remains focused on accompanying people to experience the sea in a simple, safe and authentic way.",
+      "p3": "We are not a company, and we do not act as such. As a non-profit association, everything that comes in is reinvested in improving the project: renewing boats, training instructors, maintaining the facilities and expanding activities."
+    }
   },
   "contact_page": {
     "header_badge": "Contact",

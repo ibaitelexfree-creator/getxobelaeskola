@@ -216,8 +216,8 @@
   },
   "about_page": {
     "header_badge": "CONÓCENOS",
-    "header_title": "Historia del",
-    "header_highlight": "Club",
+    "header_title": "",
+    "header_highlight": "El Club y la Vela",
     "header_suffix": "Getxo Bela Eskola",
     "since": "Fundada en Getxo",
     "desc1": "Hace más de 15 años nacimos en Getxo con un objetivo claro: acercar la mar a todas las personas desde un enfoque humano, educativo y accesible. Somos una asociación sin ánimo de lucro y un proyecto social que entiende la vela como una herramienta de aprendizaje, de convivencia y de transformación personal.",
@@ -243,13 +243,22 @@
       "member3_role": "Socias",
       "member3_desc": "La eskola funciona con una relación sencilla y humana: las monitoras escuchan, observan ritmos, acompañan miedos y fomentan autonomía; el equipo comparte decisiones y la voz de las socias forma parte de la vida del proyecto."
     },
-    "commitment_title": "Comprometidos con la",
-    "commitment_highlight": "Cultura del Mar",
+    "commitment_title": "HISTORIA DEL CLUB",
+    "commitment_highlight": "",
     "define_badge": "Nuestra Esencia",
     "define_title": "Lo que nos define",
     "cta_title": "¿Listo para zarpar?",
     "cta_desc": "Únete a nuestra escuela y descubre por qué somos el referente de navegación en el Cantábrico.",
-    "cta_button": "Ver Cursos Disponibles"
+    "cta_button": "Ver Cursos Disponibles",
+    "short_desc1": "Más de 15 años acercando la mar a todas las personas desde un proyecto social, humano y accesible. Somos una asociación sin ánimo de lucro que reinvierte todo el beneficio en la propia eskola y nuestra manera de proceder parte de una idea sencilla: las personas primero.",
+    "short_desc2": "La Eskola sigue siendo un espacio cercano, sencillo y construido por personas que creen en el valor de aprender juntas en la mar.",
+    "read_more": "LEER MÁS",
+    "modal": {
+      "title": "HISTORIA DEL CLUB",
+      "p1": "Hace más de 15 años nacimos en Getxo con un objetivo claro: acercar la mar a todas las personas desde un enfoque humano, educativo y accesible. Somos una asociación sin ánimo de lucro y un proyecto social que entiende la vela como una herramienta de aprendizaje, de convivencia y de transformación personal.",
+      "p2": "Con los años hemos ido creciendo, profesionalizándonos y ampliando actividades, siempre con la misma base: poner a las personas en el centro. La Eskola sigue siendo un lugar cercano, sencillo y construido desde la comunidad, y nuestro camino sigue centrado en acompañar a las personas para que vivan la mar de forma sencilla, segura y auténtica.",
+      "p3": "No somos una empresa, y no actuamos como tal. Como asociación sin ánimo de lucro, todo lo que entra se reinvierte en mejorar el proyecto: renovar embarcaciones, formar monitoras, cuidar las instalaciones y ampliar actividades."
+    }
   },
   "contact_page": {
     "header_badge": "Contacto",
