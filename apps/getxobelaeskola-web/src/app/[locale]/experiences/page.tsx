@@ -193,7 +193,7 @@ export default async function ExperiencesPage({ params: { locale } }: { params: 
 
             {/* Experiences Grid */}
             <section className="pb-12 sm:pb-32 md:pb-48 relative">
-                <div className="container mx-auto px-3 sm:px-6 relative z-10">
+                <div className="w-full max-w-7xl mx-auto px-2 landscape:px-3 sm:px-6 relative z-10">
                     <ExperiencesClient experiences={experiences} locale={locale} />
                 </div>
 

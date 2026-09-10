@@ -129,7 +129,7 @@ export default function ExperiencesClient({
                 <StaggeredEntrance
                     type="recombine"
                     staggerDelay={0.15}
-                    className="grid grid-cols-1 landscape:max-h-[500px]:grid-cols-3 max-h-[500px]:grid-cols-2 min-[480px]:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6 md:gap-8 lg:gap-12"
+                    className="w-full grid grid-cols-1 min-[480px]:grid-cols-3 landscape:grid-cols-3 md:grid-cols-3 gap-2 sm:gap-4 md:gap-6 lg:gap-8"
                 >
                     {filteredExperiences.map((exp) => (
                         <div key={exp.id} className="h-full">

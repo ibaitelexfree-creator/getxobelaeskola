@@ -46,25 +46,25 @@ export default function ExperienceCard({ experience, locale }: ExperienceCardPro
     return (
         <div className="group relative bg-sea-foam/[0.02] border border-sea-foam/10 overflow-hidden transition-all duration-700 hover:border-accent/30 hover:bg-sea-foam/[0.04] flex flex-col h-full rounded-2xl w-full max-w-full">
             {/* Top-Left Premium Badge Decor */}
-            <div className="absolute top-3 left-3 sm:top-4 sm:left-4 z-30">
-                <div className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1 sm:py-2 bg-nautical-deep/80 backdrop-blur-md rounded-full border border-sea-foam/10">
-                    <Star className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-brass-gold fill-brass-gold shrink-0" />
-                    <span className="text-[7px] sm:text-[8px] uppercase tracking-[0.15em] sm:tracking-[0.3em] font-black text-sea-foam/80 whitespace-nowrap">{t('premium_experience')}</span>
+            <div className="absolute top-1.5 left-1.5 sm:top-3 sm:left-3 z-30">
+                <div className="flex items-center gap-1 sm:gap-1.5 px-1.5 sm:px-3 py-0.5 sm:py-1 bg-nautical-deep/80 backdrop-blur-md rounded-full border border-sea-foam/10">
+                    <Star className="w-2 h-2 sm:w-2.5 sm:h-2.5 text-brass-gold fill-brass-gold shrink-0" />
+                    <span className="text-[6px] sm:text-[7.5px] uppercase tracking-[0.08em] sm:tracking-[0.2em] font-black text-sea-foam/80 whitespace-nowrap">{t('premium_experience')}</span>
                 </div>
             </div>
 
             {/* Top-Right Duration Badge (e.g. 4h) */}
             {experience.duracion && (
-                <div className="absolute top-3 right-3 sm:top-4 sm:right-4 z-30">
-                    <div className="flex items-center gap-1.5 px-3 py-1.5 bg-nautical-deep/90 backdrop-blur-md rounded-full border border-accent/40 shadow-lg">
-                        <Clock className="w-3.5 h-3.5 text-accent shrink-0" />
-                        <span className="text-[10px] sm:text-[11px] uppercase tracking-widest font-black text-sea-foam whitespace-nowrap">{experience.duracion}</span>
+                <div className="absolute top-1.5 right-1.5 sm:top-3 sm:right-3 z-30">
+                    <div className="flex items-center gap-1 px-1.5 py-0.5 sm:px-2.5 sm:py-1 bg-nautical-deep/90 backdrop-blur-md rounded-full border border-accent/40 shadow-lg">
+                        <Clock className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-accent shrink-0" />
+                        <span className="text-[8px] sm:text-[10px] uppercase tracking-widest font-black text-sea-foam whitespace-nowrap">{experience.duracion}</span>
                     </div>
                 </div>
             )}
 
             {/* Image Section */}
-            <div className="relative aspect-[16/10] overflow-hidden">
+            <div className="relative aspect-[16/9] sm:aspect-[16/10] overflow-hidden">
                 <NauticalImage
                     src={
                         (
@@ -107,42 +107,42 @@ export default function ExperienceCard({ experience, locale }: ExperienceCardPro
                 <div className="absolute inset-0 bg-gradient-to-tr from-cyan-950/40 via-blue-900/20 to-teal-400/10 mix-blend-color-dodge pointer-events-none" />
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-blue-950/25 to-transparent pointer-events-none" />
 
-                {/* Price Tag Badge: Compact Warm Dark Brown Background + Vivid Yellow-Gold Text */}
-                <div className="absolute bottom-2.5 right-2.5 sm:bottom-4 sm:right-4 z-20">
-                    <div className="px-2.5 sm:px-3 py-1 sm:py-1.5 bg-gradient-to-r from-[#2A160C]/95 via-[#3D2115]/95 to-[#2A160C]/95 backdrop-blur-md rounded-lg border border-amber-400/50 shadow-[0_2px_10px_rgba(0,0,0,0.5)] flex flex-col items-end">
-                        <span className="text-[6.5px] sm:text-[8px] uppercase tracking-[0.12em] sm:tracking-[0.2em] text-amber-200/90 font-bold block mb-0.5 leading-none">
-                            { (experience.slug === 'sailboat-mooring' || (experience.nombre && experience.nombre.toLowerCase().includes('sailboat mooring')) ) ? 'Registration:' : t('from') }
+                {/* Price Tag Badge */}
+                <div className="absolute bottom-1.5 right-1.5 sm:bottom-3 sm:right-3 z-20">
+                    <div className="px-1.5 sm:px-2.5 py-0.5 sm:py-1 bg-gradient-to-r from-[#2A160C]/95 via-[#3D2115]/95 to-[#2A160C]/95 backdrop-blur-md rounded border border-amber-400/50 shadow-[0_2px_10px_rgba(0,0,0,0.5)] flex flex-col items-end">
+                        <span className="text-[5.5px] sm:text-[7.5px] uppercase tracking-[0.08em] sm:tracking-[0.15em] text-amber-200/90 font-bold block mb-0.5 leading-none">
+                            { (experience.slug === 'sailboat-mooring' || (experience.nombre && experience.nombre.toLowerCase().includes('sailboat mooring')) ) ? 'Reg:' : t('from') }
                         </span>
-                        <span className="text-base sm:text-lg md:text-xl font-display text-amber-300 font-extrabold italic leading-none drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)]">
-                            {experience.precio}<span className="text-xs sm:text-sm text-amber-400 font-bold ml-0.5">€</span>
+                        <span className="text-xs sm:text-base md:text-lg font-display text-amber-300 font-extrabold italic leading-none drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)]">
+                            {experience.precio}<span className="text-[9px] sm:text-xs text-amber-400 font-bold ml-0.5">€</span>
                         </span>
                     </div>
                 </div>
             </div>
 
-            {/* Content Section */}
-            <div className="p-4 sm:p-6 md:p-10 flex flex-col flex-1 relative bg-gradient-to-br from-sea-foam/[0.01] to-transparent">
+            {/* Content Section - Compact Spacing for Landscape */}
+            <div className="p-2 sm:p-4 md:p-6 flex flex-col flex-1 relative bg-gradient-to-br from-sea-foam/[0.01] to-transparent">
                 <div className="flex flex-col h-full">
                     {/* Category */}
-                    <span className="text-[9px] sm:text-[10px] uppercase tracking-[0.2em] sm:tracking-[0.5em] text-brass-gold font-black mb-2 sm:mb-4 inline-block">
+                    <span className="text-[7.5px] sm:text-[9px] uppercase tracking-[0.1em] sm:tracking-[0.3em] text-brass-gold font-black mb-1 sm:mb-2 inline-block">
                         {t(experience.categoria)}
                     </span>
 
-                    <h3 className="text-xl sm:text-2xl md:text-3xl font-display text-sea-foam mb-3 sm:mb-6 leading-tight group-hover:text-accent transition-colors duration-500 italic break-words">
+                    <h3 className="text-xs sm:text-base md:text-lg font-display text-sea-foam mb-1 sm:mb-2 leading-snug group-hover:text-accent transition-colors duration-500 italic break-words line-clamp-2">
                         {getName()}
                     </h3>
 
-                    <p className="text-sea-foam/60 text-xs sm:text-sm leading-relaxed font-light line-clamp-3 mb-4 sm:mb-8 group-hover:text-sea-foam/80 transition-colors">
+                    <p className="text-sea-foam/60 text-[10px] sm:text-xs leading-normal font-light line-clamp-2 mb-2 sm:mb-4 group-hover:text-sea-foam/80 transition-colors">
                         {getDescription()}
                     </p>
 
                     {/* Info Row */}
                     {experience.min_participantes && (
-                        <div className="mt-auto pt-4 sm:pt-6 border-t border-sea-foam/10 flex items-center justify-between gap-2">
-                            <div className="flex flex-wrap gap-2 sm:gap-6">
-                                <div className="flex items-center gap-1.5 text-sea-foam/50">
-                                    <Users className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-accent shrink-0" />
-                                    <span className="text-[9px] sm:text-[10px] uppercase tracking-widest font-bold">{experience.min_participantes}+ PAX</span>
+                        <div className="mt-auto pt-1.5 sm:pt-3 border-t border-sea-foam/10 flex items-center justify-between gap-1">
+                            <div className="flex flex-wrap gap-1 sm:gap-4">
+                                <div className="flex items-center gap-1 text-sea-foam/50">
+                                    <Users className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-accent shrink-0" />
+                                    <span className="text-[8px] sm:text-[9px] uppercase tracking-wider font-bold">{experience.min_participantes}+ PAX</span>
                                 </div>
                             </div>
                         </div>
