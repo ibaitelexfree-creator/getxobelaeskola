@@ -68,7 +68,7 @@ export default function AboutStorySection({
                         </div>
 
                         <div className="space-y-3 sm:space-y-4">
-                            <p className="text-foreground/85 font-light text-sm sm:text-base md:text-lg leading-relaxed first-letter:text-2xl sm:first-letter:text-4xl first-letter:font-display first-letter:text-accent first-letter:float-left first-letter:mr-2.5 sm:first-letter:mr-3 first-letter:mt-0.5">
+                            <p className="text-foreground/85 font-light text-sm sm:text-base md:text-lg leading-relaxed">
                                 {desc1}
                             </p>
                             <p className="text-foreground/80 font-light text-sm sm:text-base md:text-lg leading-relaxed">
