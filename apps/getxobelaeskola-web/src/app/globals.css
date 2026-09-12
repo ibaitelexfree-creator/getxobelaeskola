@@ -1764,7 +1764,6 @@ body {
   .section-2-identity,
   .section-3-adapts,
   .section-3-path,
-  .courses-header-section,
   [class*="Blog_section"],
   [class*="Reviews_section"] {
     min-height: auto;
@@ -1805,7 +1804,7 @@ section {
 
 @media screen and (max-height: 500px) and (min-aspect-ratio: 1/1) {
   .courses-header-section {
-    padding-top: 1rem !important;
+    padding-top: clamp(6rem, 10vh, 8rem) !important;
     padding-bottom: 0.5rem !important;
   }
   .courses-container-padding {
